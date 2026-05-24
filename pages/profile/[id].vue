@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
 
+interface ProfileUpdateBody {
+  gender: string | null
+  birth_date: string | null
+  birth_calendar: 'solar' | 'lunar' | null
+  birth_hour: number | null
+  birth_minute: number | null
+}
+
 const { restoreSession, currentProfile, getAuthHeaders, updateProfile } = useAuth()
 const router = useRouter()
 const route = useRoute()
@@ -8,7 +16,7 @@ const route = useRoute()
 const nickname = ref('')
 const gender = ref<string | null>(null)
 const birthDate = ref('')
-const birthCalendar = ref<'solar' | 'lunar'>('solar')
+const birthCalendar = ref<'solar' | 'lunar' | null>(null)
 const birthHour = ref<number | null>(null)
 const birthMinuteStr = ref('')
 const saving = ref(false)
@@ -67,7 +75,13 @@ const saveProfile = async () => {
   saving.value = true
 
   try {
-    const body: Record<string, any> = {}
+    const body: ProfileUpdateBody = {
+      gender: null,
+      birth_date: null,
+      birth_calendar: null,
+      birth_hour: null,
+      birth_minute: null,
+    }
     body.gender = gender.value ?? null
     body.birth_date = birthDate.value || null
     body.birth_calendar = birthCalendar.value
@@ -117,7 +131,7 @@ const saveProfile = async () => {
   <div class="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
     <!-- Back link -->
     <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline mb-8">
-      <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
         <path d="M10 12l-4-4 4-4" />
       </svg>
       返回首页
@@ -139,7 +153,7 @@ const saveProfile = async () => {
         role="status"
         class="mb-6 px-4 py-2.5 rounded-lg bg-jade/10 border border-jade/20 text-jade text-sm flex items-center gap-2"
       >
-        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M3 8l3 3 7-7" />
         </svg>
         档案已更新
@@ -248,6 +262,7 @@ const saveProfile = async () => {
                   v-model="birthCalendar"
                   class="select-ink sm:w-24 text-center"
                 >
+                  <option :value="null">— 未知 —</option>
                   <option value="solar">阳历</option>
                   <option value="lunar">农历</option>
                 </select>

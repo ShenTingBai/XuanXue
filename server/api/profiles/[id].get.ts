@@ -11,9 +11,8 @@ export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
   const profileIdFromToken = token ? getProfileIdFromToken(token) : null
-  if (!profileIdFromToken || profileIdFromToken !== id) {
-    throw createError({ statusCode: 403, statusMessage: '会话已失效，请重新登录' })
-  }
+  if (!profileIdFromToken) throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
+  if (profileIdFromToken !== id) throw createError({ statusCode: 403, statusMessage: '无权访问此档案' })
 
   const profile = dbGet('SELECT * FROM profiles WHERE id = ?', [id])
   if (!profile) {

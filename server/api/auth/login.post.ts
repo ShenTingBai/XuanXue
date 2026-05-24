@@ -4,7 +4,8 @@ import { toSafeProfile } from '../../utils/profile'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { nickname, pin } = body || {}
+  let { nickname, pin } = body || {}
+  nickname = nickname?.trim() ?? ''
 
   if (!nickname || !pin) {
     throw createError({ statusCode: 400, statusMessage: '昵称和PIN码不能为空' })

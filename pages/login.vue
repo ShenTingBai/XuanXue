@@ -67,6 +67,7 @@ const submit = async () => {
       <div class="card-paper-solid rounded-2xl p-8 sm:p-10">
         <!-- Logo Area -->
         <div class="text-center mb-8">
+          <h1 class="sr-only">玄学 - 登录</h1>
           <div class="inline-flex items-center gap-3 mb-3">
             <span class="font-display text-4xl sm:text-5xl text-ink-dark">玄学</span>
             <span class="seal-mark w-8 h-8 text-xs">印</span>

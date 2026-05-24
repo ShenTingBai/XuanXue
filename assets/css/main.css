@@ -275,16 +275,18 @@
   }
 }
 
-.fade-in {
-  opacity: 0;
-  transform: translateY(12px);
-  animation: fadeIn 0.5s ease-out forwards;
+@layer utilities {
+  .fade-in {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  .fade-in-d1 { animation-delay: 0.1s; }
+  .fade-in-d2 { animation-delay: 0.2s; }
+  .fade-in-d3 { animation-delay: 0.3s; }
+  .fade-in-d4 { animation-delay: 0.4s; }
+  .fade-in-d5 { animation-delay: 0.5s; }
 }
-.fade-in-d1 { animation-delay: 0.1s; }
-.fade-in-d2 { animation-delay: 0.2s; }
-.fade-in-d3 { animation-delay: 0.3s; }
-.fade-in-d4 { animation-delay: 0.4s; }
-.fade-in-d5 { animation-delay: 0.5s; }
 
 /* ===== Custom Focus Styles ===== */
 input:focus-visible, select:focus-visible {

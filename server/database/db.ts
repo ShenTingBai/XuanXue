@@ -36,8 +36,13 @@ function scheduleSave(): void {
   if (saveScheduled) return
   saveScheduled = true
   process.nextTick(() => {
-    saveFile()
-    saveScheduled = false
+    try {
+      saveFile()
+    } catch (err) {
+      console.error('数据库保存失败:', err)
+    } finally {
+      saveScheduled = false
+    }
   })
 }
 
@@ -52,10 +57,14 @@ export async function initDb(): Promise<void> {
     db = new SQL.Database(existing || undefined)
 
     db.run('PRAGMA journal_mode = MEMORY')
+    db.run('PRAGMA foreign_keys = ON')
 
     db.run(CREATE_PROFILES_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
     db.run(CREATE_DIVINATION_TABLE)
+
+    process.on('SIGINT', () => { saveFile(); process.exit(0) })
+    process.on('SIGTERM', () => { saveFile(); process.exit(0) })
 
     saveFile()
   })()

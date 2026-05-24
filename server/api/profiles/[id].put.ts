@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: '无权修改此档案' })
   }
 
-  const body = await readBody(event)
+  const body = (await readBody(event)) || {}
   const updates: string[] = []
   const values: any[] = []
 
@@ -70,6 +70,7 @@ export default defineEventHandler(async (event) => {
 
   dbRun(`UPDATE profiles SET ${updates.join(', ')} WHERE id = ?`, values)
   const profile = dbGet('SELECT * FROM profiles WHERE id = ?', [id])
+  if (!profile) throw createError({ statusCode: 404, statusMessage: '档案不存在' })
 
-  return toSafeProfile(profile!)
+  return toSafeProfile(profile)
 })

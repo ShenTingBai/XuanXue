@@ -53,7 +53,7 @@ const closeDropdown = (e: FocusEvent) => {
   if (!el) return
   if (!el.contains(e.relatedTarget as Node)) {
     showDropdown.value = false
-    el.querySelector('button')?.focus()
+    // Do NOT force focus back — handleClickOutside and handleMenuEscape cover the other cases
   }
 }
 </script>
@@ -83,7 +83,7 @@ const closeDropdown = (e: FocusEvent) => {
                 :aria-label="'打开 ' + currentProfile.nickname + ' 的菜单'"
               >
                 <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
-                <svg
+                <svg aria-hidden="true"
                   :class="['w-3.5 h-3.5 text-ink-light transition-transform', showDropdown && 'rotate-180']"
                   viewBox="0 0 12 8"
                   fill="none"
@@ -108,19 +108,19 @@ const closeDropdown = (e: FocusEvent) => {
                     role="menuitem"
                     class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
                   >
-                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                       <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
                       <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                     </svg>
                     编辑档案
                   </NuxtLink>
-                  <div class="h-px bg-paper-dark mx-3" />
+                  <div class="h-px bg-paper-dark mx-3" role="separator" />
                   <button
                     @click="handleLogout"
                     role="menuitem"
                     class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors"
                   >
-                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                       <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3" />
                       <path d="M11 11l3-3-3-3" />
                       <path d="M14 8H6" />

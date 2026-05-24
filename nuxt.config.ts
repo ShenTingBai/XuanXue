@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
+      title: '玄学 - 命理互动平台',
       htmlAttrs: { lang: 'zh-CN' },
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

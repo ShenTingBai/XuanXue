@@ -3,9 +3,9 @@ export interface Profile {
   nickname: string
   created_at: string
   updated_at: string
-  gender?: string | null
+  gender?: '男' | '女' | null
   birth_date?: string | null
-  birth_calendar?: string | null
+  birth_calendar?: 'solar' | 'lunar' | null
   birth_hour?: number | null
   birth_minute?: number | null
 }
