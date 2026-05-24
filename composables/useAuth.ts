@@ -2,6 +2,7 @@ export interface Profile {
   id: number
   nickname: string
   created_at: string
+  updated_at: string
   gender?: string | null
   birth_date?: string | null
   birth_calendar?: string | null
