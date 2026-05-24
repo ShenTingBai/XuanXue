@@ -1,0 +1,321 @@
+/* ============================================
+   墨韵 · Ink Resonance — Design System
+   Chinese Metaphysics Interactive Web App
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply min-h-screen;
+    background-color: #F5F0E8;
+    color: #2C1810;
+  }
+
+  /* Paper grain texture overlay — fixed to viewport */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    opacity: 0.3;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' /%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    mix-blend-mode: multiply;
+  }
+}
+
+@layer components {
+  /* ===== Ink Wash Background ===== */
+  .ink-wash-bg {
+    position: relative;
+  }
+  .ink-wash-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 15% 30%, rgba(44, 24, 16, 0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 500px at 85% 70%, rgba(44, 24, 16, 0.03) 0%, transparent 70%),
+      radial-gradient(circle 300px at 50% 50%, rgba(180, 140, 100, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ===== Decorative Elements ===== */
+  .seal-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1.5px solid #C62828;
+    color: #C62828;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 0.75rem;
+    line-height: 1;
+    transform: rotate(-3deg);
+    flex-shrink: 0;
+  }
+
+  .divider-ink {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #6B5B4F;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+  .divider-ink::before,
+  .divider-ink::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #D4C5B0, transparent);
+  }
+
+  /* ===== Cards ===== */
+  .card-paper-solid {
+    background: rgba(251, 248, 244, 0.95);
+    border: 1px solid #E0D5C0;
+    box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
+  }
+
+  /* ===== Seal Stamp Button ===== */
+  .btn-seal {
+    @apply relative inline-flex items-center justify-center overflow-hidden;
+    padding: 0.75rem 2rem;
+    border: 2px solid #C62828;
+    color: #C62828;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: 0.25em;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  .btn-seal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #C62828;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.35s ease-out;
+  }
+  .btn-seal:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .btn-seal:hover {
+    color: #FBF8F4;
+  }
+  .btn-seal > span {
+    @apply relative z-10;
+  }
+  .btn-seal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-seal:disabled::before,
+  .btn-seal[aria-busy="true"]::before {
+    display: none;
+  }
+  .btn-seal[aria-busy="true"] {
+    cursor: wait;
+    opacity: 0.7;
+  }
+  .btn-seal:active {
+    animation: sealPress 0.4s ease-out;
+  }
+
+  /* Ghost button — minimal ink style */
+  .btn-ghost {
+    @apply relative inline-flex items-center justify-center;
+    padding: 0.5rem 1.25rem;
+    color: #6B5B4F;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .btn-ghost:hover {
+    color: #C62828;
+  }
+
+  /* ===== Ink Underline Input ===== */
+  .input-ink {
+    @apply w-full bg-transparent outline-none;
+    padding: 0.5rem 0.25rem;
+    border-bottom: 2px solid #D4C5B0;
+    color: #2C1810;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+  }
+  .input-ink:focus {
+    border-bottom-color: #C62828;
+  }
+  .input-ink::placeholder {
+    color: #A69586;
+  }
+  .input-ink--readonly {
+    opacity: 0.6;
+    cursor: default;
+    border-bottom-style: dashed;
+  }
+  .input-ink--readonly:focus {
+    border-bottom-color: #D4C5B0;
+  }
+  .input-ink:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-bottom-style: dashed;
+  }
+
+  /* Select styled as ink dropdown */
+  .select-ink {
+    @apply w-full bg-transparent outline-none cursor-pointer;
+    padding: 0.5rem 0.25rem;
+    border-bottom: 2px solid #D4C5B0;
+    color: #2C1810;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B5B4F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.25rem center;
+    padding-right: 1.5rem;
+  }
+  .select-ink:focus {
+    border-bottom-color: #C62828;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C62828' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  .select-ink:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ===== Tool Grid Cards ===== */
+  .tool-card {
+    @apply relative overflow-hidden cursor-pointer;
+    background: rgba(251, 248, 244, 0.85);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid #E0D5C0;
+    transition: all 0.35s ease;
+    box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
+  }
+  .tool-card:hover:not(.tool-card--locked) {
+    border-color: #C62828;
+    box-shadow: 0 4px 24px rgba(44, 24, 16, 0.1);
+    transform: translateY(-3px);
+  }
+  .tool-card--locked {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .tool-card--locked:hover {
+    border-color: #E0D5C0;
+    box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
+  }
+  .tool-card:active:not(.tool-card--locked) {
+    transform: scale(0.98);
+  }
+  .tool-card:focus-visible {
+    outline: 2px solid #C62828;
+    outline-offset: 2px;
+    border-color: #C62828;
+  }
+
+  /* Locked cards: prevent fade-in animation from overriding opacity */
+  .tool-card--locked.fade-in {
+    animation: none;
+    opacity: 0.6;
+    transform: none;
+  }
+
+  /* ===== Dropdown ===== */
+  .dropdown-panel {
+    background: rgba(251, 248, 244, 0.97);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid #E0D5C0;
+    box-shadow: 0 8px 32px rgba(44, 24, 16, 0.12);
+  }
+}
+
+/* Keyframes must be OUTSIDE @layer for Tailwind PostCSS compat */
+/* ===== Seal Stamp Animation ===== */
+@keyframes sealPress {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  70% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Fade In Animation ===== */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeIn 0.5s ease-out forwards;
+}
+.fade-in-d1 { animation-delay: 0.1s; }
+.fade-in-d2 { animation-delay: 0.2s; }
+.fade-in-d3 { animation-delay: 0.3s; }
+.fade-in-d4 { animation-delay: 0.4s; }
+.fade-in-d5 { animation-delay: 0.5s; }
+
+/* ===== Custom Focus Styles ===== */
+input:focus-visible, select:focus-visible {
+  outline: none;
+  border-bottom-color: #C62828;
+  box-shadow: 0 1px 0 #C62828;
+}
+button:focus-visible {
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+}
+a:focus-visible {
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom radio focus ring — hidden native input triggers visible span */
+.sr-only:focus-visible + span {
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .tool-card:hover:not(.tool-card--locked) {
+    transform: none;
+  }
+}
