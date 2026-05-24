@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
   const profileIdFromToken = token ? getProfileIdFromToken(token) : null
-  if (!profileIdFromToken || profileIdFromToken !== id) {
+  if (!profileIdFromToken) {
+    throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
+  }
+  if (profileIdFromToken !== id) {
     throw createError({ statusCode: 403, statusMessage: '无权修改此档案' })
   }
 
@@ -22,6 +25,16 @@ export default defineEventHandler(async (event) => {
   if (body.birth_date !== undefined) {
     if (body.birth_date !== null && !/^\d{4}-\d{2}-\d{2}$/.test(body.birth_date)) {
       throw createError({ statusCode: 400, statusMessage: '日期格式应为 YYYY-MM-DD' })
+    }
+    if (body.birth_date !== null) {
+      const date = new Date(body.birth_date)
+      if (isNaN(date.getTime())) {
+        throw createError({ statusCode: 400, statusMessage: '无效的日期' })
+      }
+      const [y, m, d] = body.birth_date.split('-').map(Number)
+      if (date.getFullYear() !== y || date.getMonth() + 1 !== m || date.getDate() !== d) {
+        throw createError({ statusCode: 400, statusMessage: '无效的日期' })
+      }
     }
     updates.push('birth_date = ?')
     values.push(body.birth_date ?? null)

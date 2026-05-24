@@ -3,8 +3,6 @@
    Chinese Metaphysics Interactive Web App
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -88,6 +86,8 @@
   .card-paper-solid {
     background: rgba(251, 248, 244, 0.95);
     border: 1px solid #E0D5C0;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
   }
 
@@ -216,7 +216,7 @@
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid #E0D5C0;
-    transition: all 0.35s ease;
+    transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
     box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
   }
   .tool-card:hover:not(.tool-card--locked) {
@@ -277,15 +277,20 @@
 
 @layer utilities {
   .fade-in {
-    opacity: 0;
-    transform: translateY(12px);
+    opacity: 0; transform: translateY(12px);
     animation: fadeIn 0.5s ease-out forwards;
+    animation-delay: var(--delay, 0s);
   }
-  .fade-in-d1 { animation-delay: 0.1s; }
-  .fade-in-d2 { animation-delay: 0.2s; }
-  .fade-in-d3 { animation-delay: 0.3s; }
-  .fade-in-d4 { animation-delay: 0.4s; }
-  .fade-in-d5 { animation-delay: 0.5s; }
+}
+
+/* ===== Number Input Spinners ===== */
+.input-ink--no-spinner::-webkit-outer-spin-button,
+.input-ink--no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input-ink--no-spinner {
+  -moz-appearance: textfield;
 }
 
 /* ===== Custom Focus Styles ===== */

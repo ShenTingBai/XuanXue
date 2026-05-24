@@ -62,13 +62,17 @@ onMounted(() => {
   nickname.value = p.nickname
   gender.value = p.gender ?? null
   birthDate.value = p.birth_date ?? ''
-  birthCalendar.value = (p.birth_calendar ?? 'solar') as 'solar' | 'lunar'
+  birthCalendar.value = p.birth_calendar ?? null
   birthHour.value = p.birth_hour ?? null
   const bm = p.birth_minute
   birthMinuteStr.value = bm != null && !isNaN(bm) ? String(bm) : ''
 })
 
 const saveProfile = async () => {
+  if (!currentProfile.value) {
+    error.value = '未登录，无法保存'
+    return
+  }
   if (saving.value) return
   error.value = ''
   success.value = false
@@ -99,7 +103,7 @@ const saveProfile = async () => {
       body.birth_minute = null
     }
 
-    const updated = await $fetch<Profile>(`/api/profiles/${currentProfile.value!.id}`, {
+    const updated = await $fetch<Profile>(`/api/profiles/${currentProfile.value.id}`, {
       method: 'PUT',
       headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
       body,
@@ -111,7 +115,7 @@ const saveProfile = async () => {
     nickname.value = updated.nickname
     gender.value = updated.gender ?? null
     birthDate.value = updated.birth_date ?? ''
-    birthCalendar.value = (updated.birth_calendar ?? 'solar') as 'solar' | 'lunar'
+    birthCalendar.value = updated.birth_calendar ?? null
     birthHour.value = updated.birth_hour ?? null
     const min = updated.birth_minute
     birthMinuteStr.value = min != null && !isNaN(min) ? String(min) : ''
@@ -197,6 +201,11 @@ const saveProfile = async () => {
             <div>
               <label class="block text-xs text-ink-medium tracking-wider mb-2">性别</label>
               <div class="flex gap-4" role="radiogroup" aria-label="性别">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                  <input v-model="gender" type="radio" :value="null" class="sr-only" />
+                  <span class="w-4 h-4 rounded-full border-2 border-ink-faint flex items-center justify-center transition-colors duration-200 group-hover:border-cinnabar"><span v-if="gender === null" class="w-2 h-2 rounded-full bg-ink-faint transition-colors duration-200"></span></span>
+                  <span class="text-sm text-ink-medium">未设置</span>
+                </label>
                 <label class="flex items-center gap-2 cursor-pointer group">
                   <input
                     v-model="gender"
@@ -290,7 +299,7 @@ const saveProfile = async () => {
                   type="number"
                   min="0"
                   max="59"
-                  class="input-ink sm:w-20 text-center"
+                  class="input-ink input-ink--no-spinner sm:w-20 text-center"
                   placeholder="分"
                 />
               </div>

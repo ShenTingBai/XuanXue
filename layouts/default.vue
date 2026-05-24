@@ -26,14 +26,15 @@ const handleMenuKeydown = (e: KeyboardEvent) => {
   if (!items || items.length === 0) return
   const currentIdx = Array.from(items).findIndex(item => item === document.activeElement)
   let nextIdx: number
-  if (e.key === 'ArrowDown') {
-    nextIdx = (currentIdx + 1) % items.length
-  } else if (e.key === 'ArrowUp') {
-    nextIdx = (currentIdx - 1 + items.length) % items.length
-  } else {
-    return
+  switch (e.key) {
+    case 'ArrowDown': nextIdx = (currentIdx + 1) % items.length; break
+    case 'ArrowUp': nextIdx = (currentIdx - 1 + items.length) % items.length; break
+    case 'Home': nextIdx = 0; break
+    case 'End': nextIdx = items.length - 1; break
+    default: return
   }
   e.preventDefault()
+  items.forEach((item, i) => item.setAttribute('tabindex', i === nextIdx ? '0' : '-1'))
   items[nextIdx].focus()
 }
 
@@ -106,6 +107,7 @@ const closeDropdown = (e: FocusEvent) => {
                     :to="`/profile/${currentProfile.id}`"
                     @click="showDropdown = false"
                     role="menuitem"
+                    tabindex="0"
                     class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
                   >
                     <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -118,6 +120,7 @@ const closeDropdown = (e: FocusEvent) => {
                   <button
                     @click="handleLogout"
                     role="menuitem"
+                    tabindex="-1"
                     class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors"
                   >
                     <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">

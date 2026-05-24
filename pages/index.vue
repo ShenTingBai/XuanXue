@@ -57,9 +57,10 @@ onMounted(() => {
         @keydown.space.prevent="tool.available && router.push(tool.route)"
         :class="[
           'tool-card rounded-xl p-6 sm:p-7',
-          `fade-in fade-in-d${index + 1}`,
+          'fade-in',
           tool.available ? '' : 'tool-card--locked'
         ]"
+        :style="{ '--delay': `${(index + 1) * 0.1}s` }"
       >
         <!-- Character icon -->
         <div class="mb-4">

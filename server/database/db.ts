@@ -1,7 +1,13 @@
 import initSqlJs, { type SqlJsStatic, type Database as SqlJsDatabase } from 'sql.js'
 import fs from 'fs'
 import path from 'path'
-import { CREATE_PROFILES_TABLE, CREATE_SESSIONS_TABLE, CREATE_DIVINATION_TABLE } from './schema'
+import {
+  CREATE_PROFILES_TABLE,
+  CREATE_SESSIONS_TABLE,
+  CREATE_DIVINATION_TABLE,
+  INDEX_SESSIONS_PROFILE,
+  INDEX_DIVINATION_PROFILE,
+} from './schema'
 
 const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue.db')
 
@@ -62,6 +68,8 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_PROFILES_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
     db.run(CREATE_DIVINATION_TABLE)
+    db.run(INDEX_SESSIONS_PROFILE)
+    db.run(INDEX_DIVINATION_PROFILE)
 
     process.on('SIGINT', () => { saveFile(); process.exit(0) })
     process.on('SIGTERM', () => { saveFile(); process.exit(0) })

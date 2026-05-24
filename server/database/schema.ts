@@ -32,3 +32,6 @@ CREATE TABLE IF NOT EXISTS divination_results (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 )
 `
+
+export const INDEX_SESSIONS_PROFILE = `CREATE INDEX IF NOT EXISTS idx_sessions_profile ON sessions(profile_id)`
+export const INDEX_DIVINATION_PROFILE = `CREATE INDEX IF NOT EXISTS idx_divination_profile ON divination_results(profile_id)`
