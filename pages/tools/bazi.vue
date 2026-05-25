@@ -500,7 +500,7 @@ function getDaYunMeaning(tenGod: string): string {
             />
 
             <!-- Reading Guide -->
-            <div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-cinnabar/3 to-paper-lightest border border-cinnabar/15">
+            <div class="mt-8 mb-16 p-5 sm:p-6 rounded-xl card-paper-solid border border-cinnabar/15">
               <h3 class="font-display text-xl text-cinnabar mb-5 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
                 你的八字解读
