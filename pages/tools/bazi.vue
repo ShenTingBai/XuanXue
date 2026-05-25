@@ -455,51 +455,8 @@ function getDaYunMeaning(tenGod: string): string {
 
             <!-- End: Personal info summary -->
 
-            <!-- Brief intro -->
-            <div class="mb-6 p-3 rounded-lg bg-paper-lightest/50 border border-paper-dark/30 text-center">
-              <p class="font-sans text-sm text-ink-light">
-                以下是你的八字排盘结果，底部有解读总结
-              </p>
-            </div>
-
-            <!-- Four Pillars Grid -->
-            <BaziGrid :pillars="pillars" />
-
-            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
-            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
-
-            <!-- Element Analysis -->
-            <ElementAnalysis
-              :element-counts="result.elementCounts"
-              :element-percentages="result.elementPercentages"
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :month-branch="result.monthPillar.branch"
-            />
-
-            <!-- Day Master Card -->
-            <DayMasterCard
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :favorable-elements="result.favorableElements"
-              :unfavorable-elements="result.unfavorableElements"
-            />
-
-            <!-- Da Yun Timeline -->
-            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
-
-            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
-            <LiuNianTimeline
-              v-if="liuNianYears.length > 0"
-              :years="liuNianYears"
-              :current-year="currentYear"
-              :range="5"
-            />
-
             <!-- Reading Guide -->
-            <div class="mt-8 mb-16 p-5 sm:p-6 rounded-xl card-paper-solid border border-cinnabar/15">
+            <div class="mb-8 p-5 sm:p-6 rounded-xl card-paper-solid border border-cinnabar/15">
               <h3 class="font-display text-xl text-cinnabar mb-5 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
                 你的八字解读
@@ -609,6 +566,42 @@ function getDaYunMeaning(tenGod: string): string {
                 </div>
               </div>
             </div>
+
+            <!-- Four Pillars Grid -->
+            <BaziGrid :pillars="pillars" />
+
+            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
+            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
+
+            <!-- Element Analysis -->
+            <ElementAnalysis
+              :element-counts="result.elementCounts"
+              :element-percentages="result.elementPercentages"
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :month-branch="result.monthPillar.branch"
+            />
+
+            <!-- Day Master Card -->
+            <DayMasterCard
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :favorable-elements="result.favorableElements"
+              :unfavorable-elements="result.unfavorableElements"
+            />
+
+            <!-- Da Yun Timeline -->
+            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+
+            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
+            <LiuNianTimeline
+              v-if="liuNianYears.length > 0"
+              :years="liuNianYears"
+              :current-year="currentYear"
+              :range="5"
+            />
 
             <!-- Hour missing notice -->
             <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
