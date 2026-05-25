@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
+import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
+import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
+import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
+import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
+import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
 
 const router = useRouter()
 const { currentProfile, restoreSession } = useAuth()
@@ -10,6 +15,11 @@ const loading = ref(true)
 const missingBirthInfo = ref(false)
 const missingHour = ref(false)
 const error = ref('')
+const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
+onUnmounted(() => {
+  if (loadingTimer.value) clearTimeout(loadingTimer.value)
+})
 
 onMounted(async () => {
   await restoreSession()
@@ -33,6 +43,9 @@ function computeResult() {
   loading.value = true
   error.value = ''
 
+  // Clear previous timeout
+  if (loadingTimer.value) clearTimeout(loadingTimer.value)
+
   const birthDate = new Date(currentProfile.value.birth_date)
   const year = birthDate.getFullYear()
   const month = birthDate.getMonth() + 1
@@ -42,13 +55,13 @@ function computeResult() {
   const hour = currentProfile.value.birth_hour ?? null
   const gender = currentProfile.value.gender || null
 
-  if (hour === null || hour === undefined) {
+  if (hour === null) {
     missingHour.value = true
   } else {
     missingHour.value = false
   }
 
-  setTimeout(() => {
+  loadingTimer.value = setTimeout(() => {
     try {
       result.value = calculateBaZi({
         birthYear: year,
@@ -58,10 +71,11 @@ function computeResult() {
         birthHour: hour,
         gender,
       })
-    } catch (e) {
+    } catch {
       error.value = '排盘计算出错，请检查出生信息'
     }
     loading.value = false
+    loadingTimer.value = null
   }, 200)
 }
 
@@ -135,7 +149,12 @@ const animalName = computed(() => {
 
         <!-- Error -->
         <div v-else-if="error" class="text-center py-16">
-          <p class="font-sans text-sm text-cinnabar">{{ error }}</p>
+          <p class="font-sans text-sm text-cinnabar" role="alert">{{ error }}</p>
+          <div class="flex justify-center mt-6">
+            <button @click="computeResult" class="btn-seal">
+              <span>📜 重新排盘</span>
+            </button>
+          </div>
         </div>
 
         <!-- Result -->
