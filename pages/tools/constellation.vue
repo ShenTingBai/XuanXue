@@ -62,6 +62,8 @@ function selectZodiac(index: number) {
   loading.value = false
 }
 
+const zodiacShortNames = ZODIACS.map(z => z.name.slice(0, 2))
+
 function compatibilityBadgeClass(level: string): string {
   return level === 'great'
     ? 'bg-wuxing-wood/10 text-wuxing-wood'
@@ -89,7 +91,7 @@ function compatibilityBorderClass(level: string): string {
         </template>
         <template #mobile-nav>
           <button
-            v-for="(name, idx) in ZODIACS.map(z => z.name.slice(0, 2))"
+            v-for="(name, idx) in zodiacShortNames"
             :key="idx"
             @click="selectZodiac(idx)"
             @keydown.space.prevent="selectZodiac(idx)"
