@@ -3,7 +3,7 @@ declare module 'sql.js' {
     Database: new (data?: ArrayLike<number> | Buffer | null) => Database
   }
   interface Database {
-    run(sql: string, params?: any[]): { lastInsertRowid: number; changes: number }
+    run(sql: string, params?: any[]): Database
     exec(sql: string): any[]
     prepare(sql: string): Statement
     getRowsModified(): number
