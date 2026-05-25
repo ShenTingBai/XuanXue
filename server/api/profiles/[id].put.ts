@@ -1,6 +1,7 @@
 import { dbGet, dbRun } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
+import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(event.context.params!.id)
@@ -16,6 +17,12 @@ export default defineEventHandler(async (event) => {
   }
   if (profileIdFromToken !== id) {
     throw createError({ statusCode: 403, statusMessage: '无权修改此档案' })
+  }
+
+  // Rate limiting: 10 updates per minute per profile
+  const clientIp = getClientIp(event)
+  if (!checkRateLimit(`profile-update:${id}`, 10, 60000)) {
+    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
   const body = (await readBody(event)) || {}
