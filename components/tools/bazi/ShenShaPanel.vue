@@ -36,7 +36,7 @@
             </button>
             <!-- Tooltip -->
             <span
-              class="tooltip-anchor px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-50 bg-ink-darkest text-paper border border-ink-medium shadow-lg min-w-[10rem] max-w-[min(90vw,20rem)]"
+              class="tooltip-anchor px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-50 bg-ink-darkest text-paper-medium border border-ink-medium shadow-lg min-w-[10rem] max-w-[min(90vw,20rem)]"
               :class="[
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',

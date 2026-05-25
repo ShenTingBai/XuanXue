@@ -2,10 +2,10 @@
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
-import { WUXING_COLORS as ELEMENT_COLORS, getStemIndex } from '~/constants/bazi'
+import { WUXING_COLORS as ELEMENT_COLORS, WUXING_FALLBACK_COLOR, getStemIndex, strengthColorClass } from '~/constants/bazi'
 import { parseDate } from '~/utils/date'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
-import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
+
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
 import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
@@ -262,6 +262,10 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+function elementColor(el: string): string {
+  return ELEMENT_COLORS[el] || WUXING_FALLBACK_COLOR
+}
+
 function toggleHistoryDropdown() {
   showHistoryDropdown.value = !showHistoryDropdown.value
   if (showHistoryDropdown.value) {
@@ -487,8 +491,7 @@ function scrollToSection(anchorName: string) {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div class="xl:flex xl:gap-8 xl:justify-center">
-            <div class="min-w-0 max-w-[48rem] mx-auto relative">
+          <div class="max-w-[48rem] mx-auto relative">
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -525,16 +528,38 @@ function scrollToSection(anchorName: string) {
               </div>
             </Transition>
 
-            <!-- Personal info summary (mobile/tablet only, desktop uses right sidebar) -->
-            <div class="xl:hidden mb-6 p-4 sm:p-4 rounded-xl bg-cinnabar/5 border border-cinnabar/15">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <span class="font-sans text-sm text-ink-medium">
-                  {{ result.birthYear }}年 · {{ result.birthCalendar === 'solar' ? '阳历' : '农历' }} · {{ animalName }} · {{ result.gender || '未设置' }}
+            <!-- 命主签 — Day Master Identity Seal -->
+            <div class="mb-8 flex flex-col items-center text-center fade-in" :style="{ '--delay': '0.02s' }">
+              <!-- Birth notation: marginal annotation -->
+              <p class="font-sans text-[0.6875rem] text-ink-muted tracking-wide mb-3">
+                {{ result.birthYear }}年{{ result.birthCalendar === 'solar' ? '阳历' : '农历' }} · 生肖{{ animalName }}<template v-if="result.gender"> · {{ result.gender }}</template>
+              </p>
+
+              <!-- Day Master: seal impression -->
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-baseline gap-1.5 px-4 py-1.5 rounded-sm bg-cinnabar shadow-sm">
+                  <span class="font-display text-2xl sm:text-3xl text-paper-lightest leading-none">{{ result.dayMaster }}</span>
+                  <span class="font-sans text-sm sm:text-base text-paper-lightest/90 font-medium">{{ result.dayMasterWuxing }}</span>
                 </span>
-                <span class="font-sans text-sm text-ink-dark">
-                  {{ result.dayMaster }}{{ result.dayMasterWuxing }} · {{ result.dayMasterStrength }} · 喜：{{ result.favorableElements.join('、') }} · 忌：{{ result.unfavorableElements.join('、') }}
+                <span class="flex-shrink-0 px-2 py-0.5 rounded-sm bg-ink-dark/10 font-sans text-[0.625rem] text-ink-medium tracking-wider"
+                  :class="strengthColorClass(result.dayMasterStrength)">
+                  {{ result.dayMasterStrength }}
                 </span>
               </div>
+
+              <span class="mt-1 font-sans text-[0.625rem] text-ink-muted/50 tracking-widest select-none">日 主</span>
+
+              <!-- Element affinities -->
+              <p class="mt-3 font-sans text-sm tracking-wide">
+                <span class="text-ink-muted text-xs">喜</span>
+                <span v-for="el in result.favorableElements" :key="el" :style="{ color: elementColor(el) }" class="font-medium mx-0.5">{{ el }}</span>
+                <span class="text-ink-muted/30 mx-2 select-none">|</span>
+                <span class="text-ink-muted text-xs">忌</span>
+                <span v-for="el in result.unfavorableElements" :key="el" :style="{ color: elementColor(el) }" class="font-medium mx-0.5">{{ el }}</span>
+              </p>
+
+              <!-- Ink-wash divider: fades at edges -->
+              <div class="mt-5 w-32 h-px bg-gradient-to-r from-transparent via-cinnabar/25 to-transparent" aria-hidden="true"></div>
             </div>
 
             <!-- Hour missing notice - promoted warning -->
@@ -804,24 +829,7 @@ function scrollToSection(anchorName: string) {
             >
               ↑
             </button>
-            </div>
-
-            <aside v-if="result" class="hidden xl:block xl:w-56 flex-shrink-0">
-              <div class="sticky top-20">
-                <BaziInfoSidebar
-                  :birth-year="result.birthYear"
-                  :birth-calendar="result.birthCalendar"
-                  :animal="animalName"
-                  :gender="result.gender"
-                  :day-master="result.dayMaster"
-                  :day-master-wuxing="result.dayMasterWuxing"
-                  :day-master-strength="result.dayMasterStrength"
-                  :favorable-elements="result.favorableElements"
-                  :unfavorable-elements="result.unfavorableElements"
-                />
-              </div>
-            </aside>
-          </div>
+        </div>
         </template>
 
   </ToolPageLayout>
