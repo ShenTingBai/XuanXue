@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS security_log (
   profile_id INTEGER REFERENCES profiles(id),
   event_type TEXT NOT NULL,
   ip TEXT,
-  user_agent TEXT,
   details TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 )

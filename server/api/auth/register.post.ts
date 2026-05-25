@@ -1,5 +1,5 @@
 import { dbGet, dbRun } from '../../database/db'
-import { createSessionToken, hashPin } from '../../utils/auth'
+import { cleanupExpiredSessions, createSessionToken, hashPin } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
@@ -46,6 +46,9 @@ export default defineEventHandler(async (event) => {
     throw err
   }
   const profile = dbGet('SELECT * FROM profiles WHERE id = ?', [result.lastInsertRowid])
+
+  // Clean up expired sessions before creating a new one
+  cleanupExpiredSessions()
 
   const token = createSessionToken(result.lastInsertRowid)
 
