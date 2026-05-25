@@ -14,10 +14,10 @@
       </p>
 
       <!-- Category groups: 吉神 / 中性 / 凶煞 -->
-      <div v-for="group in shenShaGroups" :key="group.id"
-        v-if="group.items.length > 0"
-        role="group" :aria-labelledby="group.id"
-      >
+      <template v-for="group in shenShaGroups" :key="group.id">
+        <div v-if="group.items.length > 0"
+          role="group" :aria-labelledby="group.id"
+        >
         <h4 :id="group.id" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">{{ group.label }}</h4>
         <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="group.ariaLabel">
           <li
@@ -48,8 +48,9 @@
             </span>
           </li>
         </ul>
+          </div>
+        </template>
       </div>
-    </div>
   </div>
 </template>
 

@@ -5,65 +5,75 @@
 
 import { STEMS, BRANCHES } from '~/constants/bazi'
 
-// Base day-of-year for each term in year 2000 (a leap year).
-// These are actual calendar DOY values for Gregorian year 2000:
-// 立春=Feb4=35, 惊蛰=Mar5=65, 清明=Apr4=95, 立夏=May5=126,
-// 芒种=Jun5=157, 小暑=Jul7=189, 立秋=Aug7=220, 白露=Sep7=251,
-// 寒露=Oct8=282, 立冬=Nov7=312, 大雪=Dec7=342, 小寒=2001-01-05=371
-const BASE_TERM_DOY = [35, 65, 95, 126, 157, 189, 220, 251, 282, 312, 342, 371]
-
 /** Check if a year is a Gregorian leap year */
 function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 }
 
-/**
- * Count calendar days from year 1-01-01 to year Y-01-01 (exclusive).
- * Uses the Gregorian year-length formula: 365 days + leap days.
- * Days since epoch = Y*365 + floor(Y/4) - floor(Y/100) + floor(Y/400)
- */
-function daysFromYearOne(year: number): number {
-  const Y = year
-  return Y * 365 + Math.floor(Y / 4) - Math.floor(Y / 100) + Math.floor(Y / 400)
-}
-
 /** Get number of days in a given year */
 function daysInYear(year: number): number {
-  return daysFromYearOne(year + 1) - daysFromYearOne(year)
+  return isLeapYear(year) ? 366 : 365
 }
 
 /**
- * Calculate the approximate date of a solar term.
- * Uses a mean-tropical-year approximation with calendar-drift correction.
- *
- * The Gregorian calendar has an average year length of 365.2425 days (400-year
- * cycle with 97 leap days), very close to the tropical year of ~365.2422 days.
- * We compute the mismatch between actual calendar days elapsed and tropical
- * days elapsed since Jan 1, 2000. When the calendar is ahead (positive drift),
- * solar terms appear to shift backward to earlier DOY values.
+ * Convert Julian Day to Gregorian date in Beijing time (UTC+8).
+ * Uses the standard Gregorian calendar reform (Oct 15, 1582).
+ */
+function jdToGregorian(jd: number): { month: number, day: number } {
+  jd += 8 / 24
+
+  const Z = Math.floor(jd + 0.5)
+  const F = jd + 0.5 - Z
+  let A = Z
+  if (Z >= 2299161) {
+    const alpha = Math.floor((Z - 1867216.25) / 36524.25)
+    A = Z + 1 + alpha - Math.floor(alpha / 4)
+  }
+  const B = A + 1524
+  const C = Math.floor((B - 122.1) / 365.25)
+  const D = Math.floor(365.25 * C)
+  const E = Math.floor((B - D) / 30.6001)
+  const day = Math.floor(B - D - Math.floor(30.6001 * E) + F)
+  const month = E < 14 ? E - 1 : E - 13
+
+  return { month, day }
+}
+
+/**
+ * Calculate the date of a major solar term (节气).
+ * Uses Equation of Center algorithm (Meeus) with Newton-Raphson iteration.
+ * Accurate to within a few minutes for years 1900-2100.
  *
  * @param year - Gregorian year (1900-2100)
  * @param termIndex - 0=立春 through 11=小寒
  * @returns { month, day }
  */
 export function getSolarTerm(year: number, termIndex: number): { month: number, day: number } {
-  // Exact calendar days from 2000-01-01 to target-year-01-01 (O(1) formula)
-  const calendarDaysToYearStart = daysFromYearOne(year) - daysFromYearOne(2000)
+  const LONGITUDES = [315, 345, 15, 45, 75, 105, 135, 165, 195, 225, 255, 285]
+  const longitude = LONGITUDES[termIndex]
 
-  // Tropical days elapsed from 2000-01-01 to target-year-01-01
-  const yearsFrom2000 = year - 2000
-  const tropicalDaysToYearStart = yearsFrom2000 * 365.2422
+  const J2000 = 2451545.0
+  const L0 = 280.4665
 
-  // Drift: positive = calendar is ahead of tropical year → term shifts backward in DOY
-  const drift = calendarDaysToYearStart - tropicalDaysToYearStart
+  // Initial estimate: mean days from J2000.0 to target ecliptic longitude
+  const lonOffset = (longitude - L0 + 360) % 360
+  let jd = J2000 + (year - 2000) * 365.2422 + lonOffset * 365.2422 / 360
 
-  // Adjust base DOY by the calendar-tropical drift
-  const meanDoy = BASE_TERM_DOY[termIndex] - drift
+  // Newton-Raphson with Equation of Center correction
+  for (let iter = 0; iter < 5; iter++) {
+    const T = (jd - J2000) / 36525
+    const M = ((357.5291 + 35999.0503 * T) % 360 + 360) % 360
+    const Mrad = M * Math.PI / 180
+    const C = 1.9148 * Math.sin(Mrad) + 0.0200 * Math.sin(2 * Mrad) + 0.0003 * Math.sin(3 * Mrad)
+    const trueLon = ((280.4665 + 36000.7698 * T + C) % 360 + 360) % 360
+    let delta = (longitude - trueLon + 360) % 360
+    if (delta > 180) delta -= 360
+    const corr = delta * 365.2422 / 360
+    jd += corr
+    if (Math.abs(corr) < 0.00001) break
+  }
 
-  // Round to nearest integer day
-  let doy = Math.round(meanDoy)
-
-  return doyToDate(year, doy)
+  return jdToGregorian(jd)
 }
 
 /** Calculate day-of-year from month and day */
@@ -72,30 +82,6 @@ function dayOfYear(month: number, day: number, leap: boolean): number {
   let doy = 0
   for (let i = 0; i < month - 1; i++) doy += monthDays[i]
   return doy + day
-}
-
-/** Convert day-of-year to { month, day } */
-function doyToDate(year: number, doy: number): { month: number, day: number } {
-  let y = year
-  let d = doy
-  const diy = daysInYear(y)
-  if (d > diy) {
-    d -= diy
-    y++
-  } else if (d < 1) {
-    y--
-    d += daysInYear(y)
-  }
-
-  const monthDays = [31, isLeapYear(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-  let remaining = d
-  for (let i = 0; i < 12; i++) {
-    if (remaining <= monthDays[i]) {
-      return { month: i + 1, day: remaining }
-    }
-    remaining -= monthDays[i]
-  }
-  return { month: 12, day: 31 }
 }
 
 /**

@@ -13,9 +13,9 @@
         :style="{ gridTemplateColumns: `repeat(${pillars.length}, 1fr)` }"
       >
         <!-- Header rowgroup -->
-        <div role="rowgroup">
+        <div role="rowgroup" class="contents">
           <!-- Header row -->
-          <div role="row">
+          <div role="row" class="contents">
             <div v-for="h in headers" :key="h.label"
               role="columnheader"
               class="py-1.5 px-2 text-center border-b border-cinnabar/50 text-xs text-ink-medium tracking-widest font-sans"
@@ -29,9 +29,9 @@
         </div>
 
         <!-- Data rowgroup -->
-        <div role="rowgroup">
+        <div role="rowgroup" class="contents">
         <!-- Stem row -->
-        <div role="row">
+        <div role="row" class="contents">
           <div v-for="(p, idx) in pillars" :key="'stem-' + idx"
             role="cell"
             class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
@@ -43,7 +43,7 @@
         </div>
 
         <!-- Branch row -->
-        <div role="row">
+        <div role="row" class="contents">
           <div v-for="(p, idx) in pillars" :key="'branch-' + idx"
             role="cell"
             class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Ten God row -->
-        <div role="row">
+        <div role="row" class="contents">
           <div v-for="(p, idx) in pillars" :key="'tg-' + idx"
             role="cell"
             class="py-1.5 px-2 text-center border-b border-cinnabar/30"
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Hidden Stems row -->
-        <div role="row">
+        <div role="row" class="contents">
           <div v-for="(p, idx) in pillars" :key="'hs-' + idx"
             role="cell"
             class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-cinnabar/30"
@@ -84,7 +84,7 @@
         </div>
 
         <!-- NaYin row -->
-        <div role="row">
+        <div role="row" class="contents">
           <div v-for="(p, idx) in pillars" :key="'ny-' + idx"
             role="cell"
             class="py-1.5 px-2 text-center text-[0.6875rem] text-ink-muted font-sans border-b border-cinnabar/30"
@@ -151,7 +151,6 @@
       <div>藏干 — 地支中暗藏的天干能量</div>
       <div>纳音 — 五行音律，命格气质类型</div>
     </div>
-  </div>
   </div>
   </div>
 </template>
