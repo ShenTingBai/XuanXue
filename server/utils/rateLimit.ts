@@ -1,3 +1,5 @@
+import { getHeader } from 'h3'
+
 interface RateLimitEntry {
   count: number
   resetAt: number
