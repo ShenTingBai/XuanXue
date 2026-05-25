@@ -16,7 +16,7 @@
         <span class="w-5 text-sm font-sans font-medium flex-shrink-0" :style="{ color: el.color }">
           {{ el.name }}
         </span>
-        <div class="flex-1 h-2.5 sm:h-3 rounded-full bg-paper-dark/40 overflow-hidden">
+        <div class="flex-1 h-2.5 sm:h-3 rounded-full bg-paper-dark/60 overflow-hidden">
           <div class="h-full rounded-full transition-all duration-700 ease-out"
             :style="{ width: el.percent + '%', background: el.color }"
           />
