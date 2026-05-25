@@ -9,11 +9,9 @@ export function hashPin(pin: string): string {
 
 export function verifyPin(pin: string, stored: string): boolean {
   const [salt, hash] = stored.split(':')
-  if (!salt || !hash) {
-    // Legacy format — plain PIN (use timingSafeEqual for consistency)
-    const pinBuf = Buffer.from(pin)
-    const storedBuf = Buffer.from(stored)
-    return pinBuf.length === storedBuf.length && timingSafeEqual(pinBuf, storedBuf)
+  // If format is unrecognizable (not legacy plaintext and not scrypt hash), reject
+  if (!salt || !hash || hash.length < 64) {
+    return false
   }
   const derived = scryptSync(pin, salt, 64).toString('hex')
   const derivedBuf = Buffer.from(derived, 'hex')
