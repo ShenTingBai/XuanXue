@@ -320,8 +320,8 @@ const saveProfile = async () => {
               <label class="block text-xs text-ink-medium tracking-wider mb-2">性别</label>
               <div class="flex gap-4" role="radiogroup" aria-label="性别">
                 <label class="flex items-center gap-2 cursor-pointer group">
-                  <input v-model="gender" type="radio" :value="null" class="sr-only" />
-                  <span class="w-4 h-4 rounded-full border-2 border-ink-faint flex items-center justify-center transition-colors duration-200 group-hover:border-cinnabar"><span v-if="gender === null" class="w-2 h-2 rounded-full bg-ink-faint transition-colors duration-200"></span></span>
+                  <input v-model="gender" type="radio" :value="''" class="sr-only" />
+                  <span class="w-4 h-4 rounded-full border-2 border-ink-faint flex items-center justify-center transition-colors duration-200 group-hover:border-cinnabar"><span v-if="!gender" class="w-2 h-2 rounded-full bg-ink-faint transition-colors duration-200"></span></span>
                   <span class="text-sm text-ink-medium">未设置</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer group">
