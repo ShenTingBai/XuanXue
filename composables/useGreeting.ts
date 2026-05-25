@@ -19,6 +19,8 @@ function loadDefaults(): { prefix: string; subtitle: string } {
   return { prefix: '你好', subtitle: '择一而探，洞见天机' }
 }
 
+let _hydrated = false
+
 export function useGreeting() {
   if (!_prefix) {
     const defaults = loadDefaults()
@@ -26,8 +28,9 @@ export function useGreeting() {
     _subtitle = useState<string>('greeting:subtitle', () => defaults.subtitle)
   }
 
-  // Rehydrate from localStorage on client (fixes SSR cache issue)
-  if (import.meta.client) {
+  // Hydrate from localStorage on first client-side call only
+  if (import.meta.client && !_hydrated) {
+    _hydrated = true
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (raw) {
