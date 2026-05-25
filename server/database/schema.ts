@@ -51,3 +51,4 @@ CREATE TABLE IF NOT EXISTS security_log (
 
 export const INDEX_SECURITY_LOG_PROFILE = `CREATE INDEX IF NOT EXISTS idx_security_log_profile ON security_log(profile_id)`
 export const INDEX_SECURITY_LOG_TYPE = `CREATE INDEX IF NOT EXISTS idx_security_log_type ON security_log(event_type)`
+export const INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED = `CREATE INDEX IF NOT EXISTS idx_security_log_profile_type_created ON security_log(profile_id, event_type, created_at)`

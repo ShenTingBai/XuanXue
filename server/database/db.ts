@@ -11,6 +11,7 @@ import {
   INDEX_DIVINATION_PROFILE,
   INDEX_SECURITY_LOG_PROFILE,
   INDEX_SECURITY_LOG_TYPE,
+  INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED,
 } from './schema'
 
 const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue.db')
@@ -99,6 +100,7 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_SECURITY_LOG_TABLE)
     db.run(INDEX_SECURITY_LOG_PROFILE)
     db.run(INDEX_SECURITY_LOG_TYPE)
+    db.run(INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED)
 
     process.on('SIGINT', () => { saveFile(); process.exit(0) })
     process.on('SIGTERM', () => { saveFile(); process.exit(0) })
