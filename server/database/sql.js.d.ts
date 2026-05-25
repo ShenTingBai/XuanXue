@@ -6,6 +6,7 @@ declare module 'sql.js' {
     run(sql: string, params?: any[]): { lastInsertRowid: number; changes: number }
     exec(sql: string): any[]
     prepare(sql: string): Statement
+    getRowsModified(): number
     export(): Uint8Array
     close(): void
   }
