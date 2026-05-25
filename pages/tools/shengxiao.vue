@@ -24,8 +24,6 @@ const result = ref<ShengXiaoResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const selectedAnimal = ref<number | null>(null)
-const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -51,17 +49,12 @@ function computeResult() {
   const year = parsed.year
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateShengXiao(year, calendar, new Date())
-    selectedAnimal.value = getAnimalIndex(year)
-    loading.value = false
-  }, 200)
+  result.value = calculateShengXiao(year, calendar, new Date())
+  selectedAnimal.value = getAnimalIndex(year)
+  loading.value = false
 }
 
-onUnmounted(() => {
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-})
+onUnmounted(() => {}) // placeholder for future cleanup
 
 function selectAnimal(index: number) {
   if (!currentProfile.value?.birth_date) return
@@ -73,11 +66,8 @@ function selectAnimal(index: number) {
   const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
   const representativeYear = currentYear - diff
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar')
-    loading.value = false
-  }, 200)
+  result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar')
+  loading.value = false
 }
 
 const currentYear = computed(() => new Date().getFullYear())

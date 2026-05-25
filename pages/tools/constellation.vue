@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { calculateConstellation, getZodiacIndex, ZODIACS, type ConstellationResult } from '~/composables/useConstellation'
 import { parseDate } from '~/utils/date'
@@ -22,8 +22,6 @@ const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const selectedZodiac = ref(0)
-const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
 onMounted(async () => {
   await restoreSession()
   if (!currentProfile.value) {
@@ -40,10 +38,6 @@ onMounted(async () => {
   computeResult()
 })
 
-onUnmounted(() => {
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-})
-
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
   loading.value = true
@@ -52,27 +46,21 @@ function computeResult() {
   if (!parsed) { loading.value = false; return }
   const { month, day } = parsed
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateConstellation(month, day, new Date())
-    selectedZodiac.value = getZodiacIndex(month, day)
-    loading.value = false
-  }, 200)
+  result.value = calculateConstellation(month, day, new Date())
+  selectedZodiac.value = getZodiacIndex(month, day)
+  loading.value = false
 }
 
 function selectZodiac(index: number) {
   selectedZodiac.value = index
   loading.value = true
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateConstellation(
-      ZODIACS[index].startMonth,
-      ZODIACS[index].startDay,
-      new Date()
-    )
-    loading.value = false
-  }, 200)
+  result.value = calculateConstellation(
+    ZODIACS[index].startMonth,
+    ZODIACS[index].startDay,
+    new Date()
+  )
+  loading.value = false
 }
 
 function compatibilityBadgeClass(level: string): string {

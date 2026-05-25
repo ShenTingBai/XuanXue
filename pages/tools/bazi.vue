@@ -27,7 +27,6 @@ const loading = ref(true)
 const missingBirthInfo = ref(false)
 const missingHour = ref(false)
 const error = ref('')
-const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const shenShaList = ref<ShenSha[]>([])
 const liuNianYears = ref<LiuNianYear[]>([])
 const savedDivinationId = ref<number | null>(null)
@@ -38,7 +37,6 @@ const historyDropdownRef = ref<HTMLElement | null>(null)
 const currentYear = new Date().getFullYear()
 
 onUnmounted(() => {
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
   document.removeEventListener('click', onClickOutside)
 })
 
@@ -91,9 +89,6 @@ function computeResult() {
   saveError.value = ''
   showHistoryDropdown.value = false
 
-  // Clear previous timeout
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-
   const parsed = parseDate(currentProfile.value.birth_date)
   if (!parsed) { loading.value = false; return }
   const { year, month, day } = parsed
@@ -108,69 +103,74 @@ function computeResult() {
     missingHour.value = false
   }
 
-  loadingTimer.value = setTimeout(async () => {
-    try {
-      const baziResult = calculateBaZi({
-        birthYear: year,
-        birthMonth: month,
-        birthDay: day,
-        birthCalendar: calendar,
-        birthHour: hour,
-        gender,
-      })
+  try {
+    const baziResult = calculateBaZi({
+      birthYear: year,
+      birthMonth: month,
+      birthDay: day,
+      birthCalendar: calendar,
+      birthHour: hour,
+      gender,
+    })
 
-      result.value = baziResult
+    result.value = baziResult
 
-      // Compute shensha
-      const dayMasterIndex = getStemIndex(baziResult.dayMaster)
-      shenShaList.value = calculateShenSha({
-        yearPillar: baziResult.yearPillar,
-        monthPillar: baziResult.monthPillar,
-        dayPillar: baziResult.dayPillar,
-        hourPillar: baziResult.hourPillar,
-        dayMaster: baziResult.dayMaster,
-        dayMasterIndex,
-        gender,
-      })
+    // Compute shensha
+    const dayMasterIndex = getStemIndex(baziResult.dayMaster)
+    shenShaList.value = calculateShenSha({
+      yearPillar: baziResult.yearPillar,
+      monthPillar: baziResult.monthPillar,
+      dayPillar: baziResult.dayPillar,
+      hourPillar: baziResult.hourPillar,
+      dayMaster: baziResult.dayMaster,
+      dayMasterIndex,
+      gender,
+    })
 
-      // Compute liunian (with birth chart shensha for year-specific lookups)
-      liuNianYears.value = calculateLiuNian({
-        baZi: baziResult,
-        shenSha: shenShaList.value,
-        currentYear,
-        range: 5,
-      })
+    // Compute liunian (with birth chart shensha for year-specific lookups)
+    liuNianYears.value = calculateLiuNian({
+      baZi: baziResult,
+      shenSha: shenShaList.value,
+      currentYear,
+      range: 5,
+    })
 
-      // Auto-save divination result (silent, fire-and-forget)
-      try {
-        const headers = getAuthHeaders()
-        if (headers.Authorization) {
-          const inputData = {
-            birthYear: year, birthMonth: month, birthDay: day,
-            birthCalendar: calendar, birthHour: hour, gender,
-          }
-          const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-            method: 'POST',
-            headers,
-            body: {
-              type: 'bazi',
-              input_data: inputData,
-              result_data: JSON.parse(JSON.stringify(baziResult)),
-            },
-          })
-          savedDivinationId.value = saveRes.id
-          saveError.value = ''
-        }
-      } catch (e: any) {
-        saveError.value = e?.statusMessage || '保存失败'
-        savedDivinationId.value = null
+    // Auto-save divination result (fire-and-forget, does not block result display)
+    saveDivinationResult(baziResult, year, month, day, calendar, hour, gender)
+  } catch {
+    error.value = '排盘计算出错，请检查出生信息'
+  }
+  loading.value = false
+}
+
+async function saveDivinationResult(
+  baziResult: BaZiResult,
+  year: number, month: number, day: number,
+  calendar: string, hour: number | null, gender: string | null,
+) {
+  try {
+    const headers = getAuthHeaders()
+    if (headers.Authorization) {
+      const inputData = {
+        birthYear: year, birthMonth: month, birthDay: day,
+        birthCalendar: calendar, birthHour: hour, gender,
       }
-    } catch {
-      error.value = '排盘计算出错，请检查出生信息'
+      const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+        method: 'POST',
+        headers,
+        body: {
+          type: 'bazi',
+          input_data: inputData,
+          result_data: JSON.parse(JSON.stringify(baziResult)),
+        },
+      })
+      savedDivinationId.value = saveRes.id
+      saveError.value = ''
     }
-    loading.value = false
-    loadingTimer.value = null
-  }, 200)
+  } catch (e: any) {
+    saveError.value = e?.statusMessage || '保存失败'
+    savedDivinationId.value = null
+  }
 }
 
 async function fetchHistory() {
