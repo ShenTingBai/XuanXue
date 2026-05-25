@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
 import { parseDate } from '~/utils/date'
@@ -53,8 +53,6 @@ function computeResult() {
   selectedAnimal.value = getAnimalIndex(year)
   loading.value = false
 }
-
-onUnmounted(() => {}) // placeholder for future cleanup
 
 function selectAnimal(index: number) {
   if (!currentProfile.value?.birth_date) return
@@ -139,20 +137,20 @@ function scrollToAnimalNav() {
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->
-          <div class="fade-in card-paper-solid rounded-2xl mt-6" :style="{ '--delay': '0.25s' }">
+          <div class="fade-in card-paper-solid rounded-xl mt-6" :style="{ '--delay': '0.25s' }">
             <InkDivider>幸运信息</InkDivider>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-8">
               <div>
-                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运数字</h4>
-                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.numbers.join('、') }}</p>
+                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运数字</h4>
+                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.numbers.join('、') }}</p>
               </div>
               <div>
-                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运颜色</h4>
-                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.colors.join('、') }}</p>
+                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运颜色</h4>
+                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.colors.join('、') }}</p>
               </div>
               <div>
-                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运方位</h4>
-                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.direction }}</p>
+                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运方位</h4>
+                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.direction }}</p>
               </div>
             </div>
           </div>
