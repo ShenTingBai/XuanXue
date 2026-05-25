@@ -23,7 +23,12 @@ export const useAuth = () => {
     try {
       const raw = localStorage.getItem(SESSION_KEY)
       if (!raw) return null
-      return JSON.parse(raw) as StoredSession
+      const parsed = JSON.parse(raw)
+      if (typeof parsed?.token === 'string' && parsed?.profile && typeof parsed.profile.id === 'number') {
+        return parsed as StoredSession
+      }
+      localStorage.removeItem(SESSION_KEY)
+      return null
     } catch {
       return null
     }
