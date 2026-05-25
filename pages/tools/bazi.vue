@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
@@ -237,6 +236,15 @@ async function restoreFromHistory(id: number) {
 
 function dismissRestoreError() {
   restoreError.value = ''
+}
+
+function scrollToTop() {
+  const el = document.getElementById('reading-guide')
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 
 function toggleHistoryDropdown() {
@@ -767,6 +775,16 @@ function getDaYunMeaning(tenGod: string): string {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Back to top -->
+            <div class="flex justify-center mt-8">
+              <button
+                @click="scrollToTop"
+                class="btn-seal"
+              >
+                <span>返回顶部</span>
+              </button>
             </div>
           </div>
 
