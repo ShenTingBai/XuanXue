@@ -7,6 +7,7 @@ dist/
 *.local
 *.log
 .claude/
+.superpowers/
 .DS_Store
 Thumbs.db
 
