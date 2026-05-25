@@ -30,6 +30,13 @@
   </div>
 </template>
 
+<script lang="ts">
+// Module-level constants to avoid re-allocation on each render
+const strengthMap: Record<string, string> = {
+  '强': '力量很强', '偏强': '力量偏强', '中和': '力量平衡', '偏弱': '力量偏弱', '弱': '力量较弱',
+}
+</script>
+
 <script setup lang="ts">
 import InkDivider from '~/components/tools/InkDivider.vue'
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
@@ -53,11 +60,6 @@ const elements = computed(() =>
       color: WUXING_COLORS[name] || WUXING_FALLBACK_COLOR,
     }))
 )
-
-// Strength description
-const strengthMap: Record<string, string> = {
-  '强': '力量很强', '偏强': '力量偏强', '中和': '力量平衡', '偏弱': '力量偏弱', '弱': '力量较弱',
-}
 
 const summary = computed(() => {
   const strength = props.dayMasterStrength
