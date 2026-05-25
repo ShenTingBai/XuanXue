@@ -1,0 +1,26 @@
+<template>
+  <div class="fade-in mb-8 sm:mb-10" :style="{ '--delay': '0.05s' }">
+    <div class="flex items-start gap-4 sm:gap-5">
+      <span class="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-cinnabar/5 border border-cinnabar/20 text-2xl sm:text-3xl"
+        :aria-label="emojiLabel">
+        {{ emoji }}
+      </span>
+      <div class="min-w-0">
+        <h1 class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight mb-1">{{ title }}</h1>
+        <p class="font-sans text-sm sm:text-base text-ink-medium">{{ subtitle }}</p>
+        <div v-if="$slots.badges" class="flex flex-wrap gap-2 mt-2">
+          <slot name="badges" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+  emoji: string
+  emojiLabel?: string
+  title: string
+  subtitle: string
+}>()
+</script>
