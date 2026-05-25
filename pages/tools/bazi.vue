@@ -570,6 +570,14 @@ function getDaYunMeaning(tenGod: string): string {
             <!-- Four Pillars Grid -->
             <BaziGrid :pillars="pillars" />
 
+            <!-- Hour missing notice -->
+            <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
+              <p class="font-sans text-base text-ink-medium">
+                出生时辰未设置，时柱暂不显示。
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-cinnabar hover:underline">前往设置</NuxtLink>
+              </p>
+            </div>
+
             <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
             <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
 
@@ -602,14 +610,6 @@ function getDaYunMeaning(tenGod: string): string {
               :current-year="currentYear"
               :range="5"
             />
-
-            <!-- Hour missing notice -->
-            <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
-              <p class="font-sans text-base text-ink-medium">
-                出生时辰未设置，时柱暂不显示。
-                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-cinnabar hover:underline">前往设置</NuxtLink>
-              </p>
-            </div>
 
             <!-- Recalculate -->
             <div class="flex justify-center mt-8">
