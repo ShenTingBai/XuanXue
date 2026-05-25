@@ -488,7 +488,7 @@ function scrollToSection(anchorName: string) {
         <!-- Result -->
         <template v-else-if="result">
           <div class="xl:flex xl:gap-8 xl:justify-center">
-            <div class="min-w-0 max-w-[48rem] relative">
+            <div class="min-w-0 max-w-[48rem] mx-auto relative">
             <!-- Save error toast -->
             <Transition name="toast">
               <div
