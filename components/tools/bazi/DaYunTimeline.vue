@@ -38,7 +38,7 @@
         >
           <div class="font-sans text-[0.625rem] text-ink-light">{{ cycle.startAge }}-{{ cycle.endAge }}岁</div>
           <div class="font-display text-sm font-medium text-ink-dark">{{ cycle.stemBranch }}</div>
-          <div class="font-sans text-[0.625rem] text-ink-medium">{{ cycle.description }}</div>
+          <div class="font-sans text-[0.6875rem] text-ink-medium">{{ cycle.description }}</div>
         </div>
       </div>
     </div>
