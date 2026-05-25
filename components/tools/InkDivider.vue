@@ -8,4 +8,5 @@
 
 <script setup lang="ts">
 // InkDivider — decorative ink-wash style separator
+// Can optionally display a label via the default slot
 </script>

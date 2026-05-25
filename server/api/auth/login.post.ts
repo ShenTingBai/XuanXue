@@ -1,6 +1,8 @@
-import { dbGet } from '../../database/db'
-import { createSessionToken } from '../../utils/auth'
+import { dbGet, dbRun } from '../../database/db'
+import { createSessionToken, hashPin, verifyPin, isLegacyPin, cleanupExpiredSessions } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
+import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
+import { logSecurityEvent } from '../../utils/securityLog'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -15,13 +17,42 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'PIN码必须为4位数字' })
   }
 
-  const profile = dbGet('SELECT * FROM profiles WHERE nickname = ? AND pin = ?', [nickname, pin])
+  // Rate limiting: 5 attempts per minute per IP
+  const clientIp = getClientIp(event)
+  if (!checkRateLimit(`login:${clientIp}`, 5, 60000)) {
+    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Login rate limit exceeded')
+    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
+  }
+
+  // Cleanup expired sessions before processing
+  cleanupExpiredSessions()
+
+  // Look up profile by nickname only (without PIN comparison)
+  const profile = dbGet('SELECT * FROM profiles WHERE nickname = ?', [nickname])
 
   if (!profile) {
+    logSecurityEvent('login_failed', null, clientIp, `Failed login attempt for ${nickname}`)
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 
+  const storedPin = profile.pin as string
+
+  // Verify PIN using hashed comparison
+  const pinValid = verifyPin(pin, storedPin)
+  if (!pinValid) {
+    logSecurityEvent('login_failed', profile.id as number, clientIp, `Wrong PIN for ${nickname}`)
+    throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
+  }
+
+  // Legacy migration: if PIN stored in plain text, upgrade to hash
+  if (isLegacyPin(storedPin)) {
+    const hashed = hashPin(pin)
+    dbRun('UPDATE profiles SET pin = ? WHERE id = ?', [hashed, profile.id])
+  }
+
   const token = createSessionToken(profile.id as number)
+
+  logSecurityEvent('login_success', profile.id as number, clientIp, `User ${nickname} logged in`)
 
   return { token, profile: toSafeProfile(profile) }
 })
