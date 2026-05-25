@@ -410,7 +410,7 @@ function getDaYunMeaning(tenGod: string): string {
               @keydown.space.prevent="computeResult"
               class="btn-seal"
             >
-              <span>📜 重新排盘</span>
+              <span>重新排盘</span>
             </button>
           </div>
         </div>
@@ -455,8 +455,22 @@ function getDaYunMeaning(tenGod: string): string {
 
             <!-- End: Personal info summary -->
 
+            <!-- Anchor navigation -->
+            <nav
+              class="mb-6 flex flex-wrap gap-1.5 justify-center"
+              aria-label="结果区块导航"
+            >
+              <a
+                v-for="anchor in ['解读', '排盘', '神煞', '五行', '日主', '大运', '流年']"
+                :key="anchor"
+                :href="`#${({ '解读': 'reading-guide', '排盘': 'bazi-grid', '神煞': 'shensha', '五行': 'elements', '日主': 'day-master', '大运': 'dayun', '流年': 'liunian' })[anchor]}`"
+                class="px-3 py-1 text-xs rounded-full font-sans border border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30 transition-colors no-underline"
+                style="scroll-behavior: smooth"
+              >{{ anchor }}</a>
+            </nav>
+
             <!-- Reading Guide -->
-            <div class="mb-8 p-5 sm:p-6 rounded-xl card-paper-solid border border-cinnabar/15">
+            <div id="reading-guide" class="mb-8 p-5 sm:p-6 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20">
               <h3 class="font-display text-xl text-cinnabar mb-5 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
                 你的八字解读
@@ -568,7 +582,9 @@ function getDaYunMeaning(tenGod: string): string {
             </div>
 
             <!-- Four Pillars Grid -->
+            <div id="bazi-grid" class="scroll-mt-20">
             <BaziGrid :pillars="pillars" />
+            </div>
 
             <!-- Hour missing notice -->
             <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
@@ -579,9 +595,12 @@ function getDaYunMeaning(tenGod: string): string {
             </div>
 
             <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
+            <div id="shensha" class="scroll-mt-20">
             <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
+            </div>
 
             <!-- Element Analysis -->
+            <div id="elements" class="scroll-mt-20">
             <ElementAnalysis
               :element-counts="result.elementCounts"
               :element-percentages="result.elementPercentages"
@@ -590,8 +609,10 @@ function getDaYunMeaning(tenGod: string): string {
               :day-master-strength="result.dayMasterStrength"
               :month-branch="result.monthPillar.branch"
             />
+            </div>
 
             <!-- Day Master Card -->
+            <div id="day-master" class="scroll-mt-20">
             <DayMasterCard
               :day-master="result.dayMaster"
               :day-master-wuxing="result.dayMasterWuxing"
@@ -599,17 +620,22 @@ function getDaYunMeaning(tenGod: string): string {
               :favorable-elements="result.favorableElements"
               :unfavorable-elements="result.unfavorableElements"
             />
+            </div>
 
             <!-- Da Yun Timeline -->
+            <div id="dayun" class="scroll-mt-20">
             <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+            </div>
 
             <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
+            <div id="liunian" class="scroll-mt-20">
             <LiuNianTimeline
               v-if="liuNianYears.length > 0"
               :years="liuNianYears"
               :current-year="currentYear"
               :range="5"
             />
+            </div>
 
             <!-- Recalculate -->
             <div class="flex justify-center mt-8">
