@@ -188,7 +188,7 @@ const closeDropdown = (e: FocusEvent) => {
       </header>
 
       <!-- Page Content -->
-      <main id="main-content">
+      <main id="main-content" tabindex="-1">
         <slot />
       </main>
     </div>
