@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 
 const router = useRouter()
-const route = useRoute()
 const { currentProfile, restoreSession } = useAuth()
 
 const result = ref<BaZiResult | null>(null)
