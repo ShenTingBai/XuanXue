@@ -176,7 +176,7 @@ const animalName = computed(() => {
 
             <!-- Overview intro card -->
             <div class="mb-6 p-4 sm:p-5 rounded-lg bg-paper-lightest/70 border border-paper-dark/40">
-              <p class="font-sans text-xs text-ink-medium leading-relaxed">
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 八字由你的出生时间推算而来，包含年、月、日、时四个时间柱，
                 每柱一干一支，共八个字。红色标注的"日主"代表你自己。
               </p>
