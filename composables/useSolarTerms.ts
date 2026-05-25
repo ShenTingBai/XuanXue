@@ -151,7 +151,7 @@ export function getMonthPillar(
   month: number,
   day: number,
   calendar: 'solar' | 'lunar'
-): { stem: string; branch: string } {
+): { stem: typeof STEMS[number]; branch: typeof BRANCHES[number] } {
   const yearStemIndex = ((year - 4) % 10 + 10) % 10
 
   let monthBranch: typeof BRANCHES[number]
