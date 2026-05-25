@@ -179,6 +179,7 @@ function tenGodBadgeClass(tg: string): string {
   if (['正官', '偏官'].includes(tg)) return 'bg-cinnabar/10 text-cinnabar'
   if (['正财', '偏财'].includes(tg)) return 'bg-gold/10 text-gold'
   if (['食神', '伤官'].includes(tg)) return 'bg-wuxing-water/10 text-wuxing-water'
+  if (['比肩', '劫财'].includes(tg)) return 'bg-wuxing-earth/10 text-wuxing-earth'
   return 'bg-ink-faint/20 text-ink-medium'
 }
 
