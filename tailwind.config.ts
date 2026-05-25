@@ -33,8 +33,8 @@ export default {
           dark: '#8E1D1D',
         },
         gold: {
-          DEFAULT: '#8B6914',
-          light: '#A8862A',
+          DEFAULT: '#7A5E12',
+          light: '#9A7818',
         },
         jade: {
           DEFAULT: '#3D6B4B',
