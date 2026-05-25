@@ -25,10 +25,51 @@ const saving = ref(false)
 const success = ref(false)
 const error = ref('')
 const maxDate = computed(() => new Date().toISOString().split('T')[0])
+const minYear = 1920
+const isOnboarding = computed(() => route.query.onboarding === 'true')
 let successTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Initial values for dirty detection
+const initialValues = ref({
+  gender: null as string | null,
+  birthDate: '',
+  birthCalendar: null as 'solar' | 'lunar' | null,
+  birthHour: null as number | null,
+  birthMinuteStr: '',
+})
+
+const isDirty = computed(() => {
+  return (
+    gender.value !== initialValues.value.gender ||
+    birthDate.value !== initialValues.value.birthDate ||
+    birthCalendar.value !== initialValues.value.birthCalendar ||
+    birthHour.value !== initialValues.value.birthHour ||
+    birthMinuteStr.value !== initialValues.value.birthMinuteStr
+  )
+})
+
+// Unsaved changes warning
+function beforeUnloadHandler(e: BeforeUnloadEvent) {
+  if (isDirty.value) {
+    e.preventDefault()
+    e.returnValue = ''
+  }
+}
+
+onBeforeRouteLeave((_to, _from, next) => {
+  if (isDirty.value) {
+    const leave = window.confirm('你有未保存的更改，确定要离开吗？')
+    if (!leave) {
+      next(false)
+      return
+    }
+  }
+  next()
+})
 
 onUnmounted(() => {
   if (successTimeout) clearTimeout(successTimeout)
+  window.removeEventListener('beforeunload', beforeUnloadHandler)
 })
 
 // Hour period options (时辰)
@@ -68,7 +109,27 @@ onMounted(() => {
   birthHour.value = p.birth_hour ?? null
   const bm = p.birth_minute
   birthMinuteStr.value = bm != null && !isNaN(bm) ? String(bm) : ''
+
+  // Store initial values for dirty detection
+  initialValues.value = {
+    gender: gender.value,
+    birthDate: birthDate.value,
+    birthCalendar: birthCalendar.value,
+    birthHour: birthHour.value,
+    birthMinuteStr: birthMinuteStr.value,
+  }
+
+  window.addEventListener('beforeunload', beforeUnloadHandler)
 })
+
+function goBack() {
+  const redirect = route.query.redirect as string | undefined
+  if (redirect) {
+    router.push(redirect)
+  } else {
+    router.back()
+  }
+}
 
 const saveProfile = async () => {
   if (!currentProfile.value) {
@@ -79,6 +140,20 @@ const saveProfile = async () => {
   error.value = ''
   success.value = false
   saving.value = true
+
+  // Validate birth date year range
+  if (birthDate.value) {
+    const yearMatch = birthDate.value.match(/^(\d{4})-/)
+    if (yearMatch) {
+      const year = Number(yearMatch[1])
+      const currentYear = new Date().getFullYear()
+      if (year < minYear || year > currentYear) {
+        error.value = `出生年份应在 ${minYear} 年至 ${currentYear} 年之间`
+        saving.value = false
+        return
+      }
+    }
+  }
 
   try {
     const body: ProfileUpdateBody = {
@@ -122,6 +197,15 @@ const saveProfile = async () => {
     const min = updated.birth_minute
     birthMinuteStr.value = min != null && !isNaN(min) ? String(min) : ''
 
+    // Reset dirty state after save
+    initialValues.value = {
+      gender: gender.value,
+      birthDate: birthDate.value,
+      birthCalendar: birthCalendar.value,
+      birthHour: birthHour.value,
+      birthMinuteStr: birthMinuteStr.value,
+    }
+
     success.value = true
     if (successTimeout) clearTimeout(successTimeout)
     successTimeout = setTimeout(() => { success.value = false }, 2500)
@@ -136,12 +220,27 @@ const saveProfile = async () => {
 <template>
   <div class="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
     <!-- Back link -->
-    <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline mb-8">
+    <button
+      @click="goBack"
+      @keydown.enter="goBack"
+      @keydown.space.prevent="goBack"
+      class="inline-flex items-center gap-1.5 text-sm text-ink-medium hover:text-cinnabar transition-colors mb-8"
+    >
       <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
         <path d="M10 12l-4-4 4-4" />
       </svg>
-      返回首页
-    </NuxtLink>
+      返回
+    </button>
+
+    <!-- Onboarding hint -->
+    <div
+      v-if="isOnboarding"
+      class="mb-6 px-4 py-3 rounded-lg bg-cinnabar/5 border border-cinnabar/20"
+    >
+      <p class="font-sans text-sm text-cinnabar">
+        填写出生信息后即可开始命理推演
+      </p>
+    </div>
 
     <!-- Title -->
     <div class="mb-8">
@@ -178,7 +277,7 @@ const saveProfile = async () => {
     </Transition>
 
     <!-- Form -->
-    <div class="card-paper-solid rounded-2xl p-8">
+    <div class="card-paper-solid rounded-xl p-8">
       <form @submit.prevent="saveProfile" novalidate class="space-y-7">
 
         <!-- Section: 基本信息 -->
@@ -263,7 +362,7 @@ const saveProfile = async () => {
                   id="profile-birth-date"
                   v-model="birthDate"
                   type="date"
-                  min="1900-01-01"
+                  min="1920-01-01"
                   :max="maxDate"
                   class="input-ink flex-1"
                 />
@@ -283,6 +382,7 @@ const saveProfile = async () => {
             <!-- Birth time -->
             <div>
               <label for="profile-birth-hour" class="block text-xs text-ink-medium tracking-wider mb-1.5">出生时辰</label>
+              <p class="text-xs text-ink-light mb-2">如果不确定时辰，请输入大致出生时间</p>
               <div class="flex flex-col sm:flex-row gap-3">
                 <select
                   id="profile-birth-hour"
@@ -319,12 +419,15 @@ const saveProfile = async () => {
           >
             <span>{{ saving ? '保存中...' : '保存' }}</span>
           </button>
-          <NuxtLink
-            to="/"
+          <button
+            type="button"
+            @click="goBack"
+            @keydown.enter="goBack"
+            @keydown.space.prevent="goBack"
             class="btn-ghost"
           >
             取消
-          </NuxtLink>
+          </button>
         </div>
       </form>
     </div>
