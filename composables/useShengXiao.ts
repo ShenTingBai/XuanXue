@@ -13,17 +13,11 @@ const ANIMAL_WUXING: Record<string, string> = {
 
 const ANIMAL_DIRECTION: Record<string, string> = {
   '鼠': '北', '牛': '东北', '虎': '东北', '兔': '东',
-  '龙': '东南', '蛇': '南', '马': '南', '羊': '西南',
-  '猴': '西', '鸡': '西', '狗': '西北', '猪': '北',
+  '龙': '东南', '蛇': '东南', '马': '南', '羊': '西南',
+  '猴': '西南', '鸡': '西', '狗': '西北', '猪': '西北',
 }
 
-const NAYIN_TABLE: string[] = [
-  '海中金', '炉中火', '大林木', '路旁土', '剑锋金', '山头火',
-  '涧下水', '城头土', '白蜡金', '杨柳木', '泉中水', '屋上土',
-  '霹雳火', '松柏木', '长流水', '沙中金', '山下火', '平地木',
-  '壁上土', '金箔金', '佛灯火', '天河水', '大驿土', '钗钏金',
-  '桑柘木', '大溪水', '沙中土', '天上火', '石榴木', '大海水',
-]
+import { NAYIN_TABLE } from '~/constants/bazi'
 
 // ── Compatibility Pair Tables ─────────────────────────────────
 
@@ -166,7 +160,8 @@ function getCurrentZodiacYear(currentDate: Date): number {
  */
 function getSexagenaryPosition(stemIndex: number, branchIndex: number): number {
   // P ≡ stemIndex (mod 10), P ≡ branchIndex (mod 12)
-  // Since gcd(10, 12) = 2, a solution exists when (stemIndex - branchIndex) % 2 === 0
+  // Since gcd(10, 12) = 2, a solution exists only when indices have the same parity
+  if ((stemIndex - branchIndex) % 2 !== 0) return 0  // invalid sexagenary pair
   const diff = stemIndex - branchIndex
   const k = mod(diff / 2, 6)
   return mod(stemIndex + 10 * k, 60)
@@ -308,7 +303,7 @@ export function calculateShengXiao(
   // ── Sexagenary cycle & NaYin ──
   const sexagenaryPosition = getSexagenaryPosition(stemIndex, animalIndex)
   const nayinIndex = Math.floor(sexagenaryPosition / 2)
-  const naYin = NAYIN_TABLE[nayinIndex]
+  const naYin = NAYIN_TABLE[nayinIndex] || ''
 
   // ── WuXing & Direction ──
   const wuXing = ANIMAL_WUXING[animal]

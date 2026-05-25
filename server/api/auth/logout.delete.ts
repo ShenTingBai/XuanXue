@@ -1,4 +1,6 @@
 import { getProfileIdFromToken, deleteSession } from '../../utils/auth'
+import { getClientIp } from '../../utils/rateLimit'
+import { logSecurityEvent } from '../../utils/securityLog'
 
 export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
@@ -13,6 +15,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: '无效的会话' })
   }
 
+  logSecurityEvent('logout', profileId, getClientIp(event))
   deleteSession(token)
   return { success: true }
 })

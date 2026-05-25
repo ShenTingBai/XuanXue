@@ -29,6 +29,15 @@ function cleanup(): void {
  * @param windowMs - Time window in milliseconds
  * @returns true if request is allowed, false if rate-limited
  */
+// Periodic cleanup of stale entries (every 5 minutes)
+const cleanupInterval = setInterval(cleanup, CLEANUP_INTERVAL)
+
+/** Destroy the periodic cleanup timer. Call during graceful shutdown. */
+export function destroyRateLimiter(): void {
+  clearInterval(cleanupInterval)
+  rateMap.clear()
+}
+
 export function checkRateLimit(key: string, maxAttempts = 5, windowMs = 60000): boolean {
   cleanup()
   const now = Date.now()
@@ -49,14 +58,36 @@ export function checkRateLimit(key: string, maxAttempts = 5, windowMs = 60000): 
 }
 
 /**
+ * Parse trusted proxy IPs from TRUSTED_PROXY_IPS env var.
+ * Defaults to localhost addresses (IPv4, IPv6, IPv4-mapped IPv6).
+ */
+function getTrustedProxies(): Set<string> {
+  const raw = process.env.TRUSTED_PROXY_IPS || '127.0.0.1,::1,::ffff:127.0.0.1'
+  return new Set(raw.split(',').map(s => s.trim().toLowerCase()))
+}
+
+/**
  * Get the client IP from an event.
+ *
+ * Only trusts X-Forwarded-For / X-Real-IP when the immediate upstream
+ * connection is from a trusted proxy. Otherwise falls back to the raw
+ * socket remoteAddress, which cannot be spoofed by the client.
+ *
+ * When behind a trusted proxy, the leftmost IP in X-Forwarded-For is
+ * the original client (per RFC 7239).
  */
 export function getClientIp(event: any): string {
-  const forwarded = getHeader(event, 'x-forwarded-for')
-  if (forwarded) {
-    return (forwarded as string).split(',')[0].trim()
+  const remoteAddress: string = event.node?.req?.socket?.remoteAddress || 'unknown'
+  const trustedProxies = getTrustedProxies()
+
+  if (trustedProxies.has(remoteAddress.toLowerCase())) {
+    const forwarded = getHeader(event, 'x-forwarded-for')
+    if (forwarded) {
+      return (forwarded as string).split(',')[0].trim()
+    }
+    const realIp = getHeader(event, 'x-real-ip')
+    if (realIp) return (realIp as string).trim()
   }
-  const ip = getHeader(event, 'x-real-ip')
-  if (ip) return ip as string
-  return event.node?.req?.socket?.remoteAddress || 'unknown'
+
+  return remoteAddress
 }

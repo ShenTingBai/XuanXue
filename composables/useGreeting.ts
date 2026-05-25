@@ -19,15 +19,21 @@ function loadDefaults(): { prefix: string; subtitle: string } {
   return { prefix: '你好', subtitle: '择一而探，洞见天机' }
 }
 
+let _hydrated = false
+
 export function useGreeting() {
   if (!_prefix) {
     const defaults = loadDefaults()
     _prefix = useState<string>('greeting:prefix', () => defaults.prefix)
     _subtitle = useState<string>('greeting:subtitle', () => defaults.subtitle)
+    // loadDefaults() already read localStorage — mark hydrated to skip the re-read below
+    if (import.meta.client) _hydrated = true
   }
 
-  // Rehydrate from localStorage on client (fixes SSR cache issue)
-  if (import.meta.client) {
+  // Hydrate from localStorage on first client-side call only
+  // Only runs when _prefix was already set (e.g. from SSR) and loadDefaults() was not called
+  if (import.meta.client && !_hydrated) {
+    _hydrated = true
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (raw) {
@@ -46,5 +52,8 @@ export function useGreeting() {
     _subtitle!.value = newSubtitle
   }
 
-  return { prefix: _prefix!, subtitle: _subtitle!, save }
+  if (!_prefix || !_subtitle) {
+    throw new Error('useGreeting not initialized')
+  }
+  return { prefix: _prefix, subtitle: _subtitle, save }
 }

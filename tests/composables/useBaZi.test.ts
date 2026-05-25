@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaZi } from '../../composables/useBaZi'
+import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements } from '../../composables/useBaZi'
+import { STEMS } from '../../constants/bazi'
 
 describe('calculateBaZi', () => {
   const baseProfile = {
@@ -213,5 +214,169 @@ describe('calculateBaZi', () => {
     expect(firstCycle.stemTenGod).not.toBe('日主')
     const validTenGods = ['比肩', '劫财', '食神', '伤官', '偏财', '正财', '偏官', '正官', '偏印', '正印']
     expect(validTenGods).toContain(firstCycle.stemTenGod)
+  })
+})
+
+// ============================================================================
+// T1: Full Ten God Matrix Verification
+// ============================================================================
+
+describe('getTenGod — full 10×10 matrix', () => {
+  // Reference rules (identical semantics to source, independently constructed)
+  const WUXING = ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水']
+  const YIN_YANG = ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴']
+
+  const PRODUCES: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
+  const CONTROLS: Record<string, string> = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' }
+
+  function expectedTenGod(dmIdx: number, targetIdx: number): string {
+    if (dmIdx === targetIdx) return '比肩'
+
+    const dmWx = WUXING[dmIdx]
+    const targetWx = WUXING[targetIdx]
+    const sameYy = YIN_YANG[dmIdx] === YIN_YANG[targetIdx]
+
+    if (targetWx === dmWx) return sameYy ? '比肩' : '劫财'
+    if (PRODUCES[targetWx] === dmWx) return sameYy ? '偏印' : '正印'
+    if (PRODUCES[dmWx] === targetWx) return sameYy ? '食神' : '伤官'
+    if (CONTROLS[targetWx] === dmWx) return sameYy ? '偏官' : '正官'
+    if (CONTROLS[dmWx] === targetWx) return sameYy ? '偏财' : '正财'
+
+    return '比肩' // fallback
+  }
+
+  it('all 100 cells match reference rules', () => {
+    for (let dm = 0; dm < 10; dm++) {
+      for (let target = 0; target < 10; target++) {
+        const expected = expectedTenGod(dm, target)
+        const actual = getTenGod(dm, STEMS[target])
+        expect(actual, `${STEMS[dm]}(DM) → ${STEMS[target]}: expected ${expected}, got ${actual}`).toBe(expected)
+      }
+    }
+  })
+
+  it('returns 比肩 when day master and target are the same stem character', () => {
+    expect(getTenGod(0, '甲')).toBe('比肩')
+    expect(getTenGod(3, '丁')).toBe('比肩')
+    expect(getTenGod(6, '庚')).toBe('比肩')
+    expect(getTenGod(9, '癸')).toBe('比肩')
+  })
+
+  it('returns — for invalid stem input', () => {
+    expect(getTenGod(0, 'X')).toBe('—')
+    expect(getTenGod(0, '')).toBe('—')
+    expect(getTenGod(0, '子')).toBe('—')
+  })
+})
+
+// ============================================================================
+// T2: Day Master Strength Correctness
+// ============================================================================
+
+describe('getDayMasterStrength — textbook cases', () => {
+  // Branch indices: 子=0, 丑=1, 寅=2, 卯=3, 辰=4, 巳=5, 午=6, 未=7, 申=8, 酉=9, 戌=10, 亥=11
+
+  it('甲木 in 寅月(2) → 强 (wood peaks in spring)', () => {
+    expect(getDayMasterStrength('木', 2)).toBe('强')
+  })
+
+  it('甲木 in 申月(8) → 弱 (wood is trapped in autumn metal)', () => {
+    expect(getDayMasterStrength('木', 8)).toBe('弱')
+  })
+
+  it('丙火 in 午月(6) → 强 (fire peaks in summer)', () => {
+    expect(getDayMasterStrength('火', 6)).toBe('强')
+  })
+
+  it('丙火 in 子月(0) → 偏弱 (fire weakens in winter water)', () => {
+    expect(getDayMasterStrength('火', 0)).toBe('偏弱')
+  })
+
+  it('庚金 in 申月(8) → 强 (metal peaks in autumn)', () => {
+    expect(getDayMasterStrength('金', 8)).toBe('强')
+  })
+
+  it('庚金 in 午月(6) → 偏弱 (metal weakens in summer fire)', () => {
+    expect(getDayMasterStrength('金', 6)).toBe('偏弱')
+  })
+
+  it('壬水 in 子月(0) → 强 (water peaks in winter)', () => {
+    expect(getDayMasterStrength('水', 0)).toBe('强')
+  })
+
+  it('壬水 in 未月(7) → 偏弱 (water weakens in summer earth)', () => {
+    expect(getDayMasterStrength('水', 7)).toBe('偏弱')
+  })
+
+  it('戊土 in 辰月(4) → 强 (earth prospers in late spring)', () => {
+    expect(getDayMasterStrength('土', 4)).toBe('强')
+  })
+
+  it('戊土 in 寅月(2) → 偏弱 (earth weakens in spring wood)', () => {
+    expect(getDayMasterStrength('土', 2)).toBe('偏弱')
+  })
+
+  it('returns a valid strength value for all (element, month) combinations', () => {
+    const validStrengths = ['强', '偏强', '中和', '偏弱', '弱']
+    const elements = ['木', '火', '土', '金', '水']
+    for (const el of elements) {
+      for (let branchIdx = 0; branchIdx < 12; branchIdx++) {
+        const strength = getDayMasterStrength(el, branchIdx)
+        expect(validStrengths).toContain(strength)
+      }
+    }
+  })
+})
+
+// ============================================================================
+// T3: Favorable Elements Correctness
+// ============================================================================
+
+describe('getFavorableElements — correctness', () => {
+  it('庚金 身强 → 喜用=火/水/木, 忌神=金/土', () => {
+    const [fav, unfav] = getFavorableElements('金', '强')
+    // 官杀=火, 食伤=水, 财=木 → sorted: 木/水/火 (CJK sort)
+    expect([...fav].sort()).toEqual(['木', '水', '火'])
+    expect([...unfav].sort()).toEqual(['土', '金'])
+  })
+
+  it('癸水 身弱 → 喜用=金/水, 忌神=土/火/木', () => {
+    const [fav, unfav] = getFavorableElements('水', '弱')
+    expect([...fav].sort()).toEqual(['水', '金'])
+    expect([...unfav].sort()).toEqual(['土', '木', '火'])
+  })
+
+  it('甲木 身强 → 喜用=金/火/土, 忌神=木/水', () => {
+    const [fav, unfav] = getFavorableElements('木', '强')
+    // 官杀=金, 食伤=火, 财=土 → sorted: 土/火/金 (Unicode sort)
+    expect([...fav].sort()).toEqual(['土', '火', '金'])
+    expect([...unfav].sort()).toEqual(['木', '水'])
+  })
+
+  it('丙火 身弱 → 喜用=木/火, 忌神=水/金/土', () => {
+    const [fav, unfav] = getFavorableElements('火', '弱')
+    expect([...fav].sort()).toEqual(['木', '火'])
+    expect([...unfav].sort()).toEqual(['土', '水', '金'])
+  })
+
+  it('戊土 中和 → both arrays non-empty with valid wuxing values', () => {
+    const [fav, unfav] = getFavorableElements('土', '中和')
+    const validElements = ['木', '火', '土', '金', '水']
+    expect(fav.length).toBeGreaterThan(0)
+    expect(unfav.length).toBeGreaterThan(0)
+    for (const el of fav) expect(validElements).toContain(el)
+    for (const el of unfav) expect(validElements).toContain(el)
+  })
+
+  it('偏强 follows same rule as 强', () => {
+    const strong = getFavorableElements('金', '强')
+    const slightlyStrong = getFavorableElements('金', '偏强')
+    expect(strong).toEqual(slightlyStrong)
+  })
+
+  it('偏弱 follows same rule as 弱', () => {
+    const weak = getFavorableElements('水', '弱')
+    const slightlyWeak = getFavorableElements('水', '偏弱')
+    expect(weak).toEqual(slightlyWeak)
   })
 })

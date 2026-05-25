@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
+import { parseDate } from '~/utils/date'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -17,12 +17,12 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
+useHead({ title: '生肖 - 玄学' })
+
 const result = ref<ShengXiaoResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const selectedAnimal = ref<number | null>(null)
-const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -39,16 +39,6 @@ onMounted(() => {
   computeResult()
 })
 
-function parseDate(str: string): { year: number; month: number; day: number } | null {
-  const parts = str.split('T')[0].split('-')
-  if (parts.length !== 3) return null
-  const year = parseInt(parts[0], 10)
-  const month = parseInt(parts[1], 10)
-  const day = parseInt(parts[2], 10)
-  if (isNaN(year) || isNaN(month) || isNaN(day)) return null
-  return { year, month, day }
-}
-
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
 
@@ -58,17 +48,10 @@ function computeResult() {
   const year = parsed.year
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateShengXiao(year, calendar, new Date())
-    selectedAnimal.value = getAnimalIndex(year)
-    loading.value = false
-  }, 200)
+  result.value = calculateShengXiao(year, calendar, new Date())
+  selectedAnimal.value = getAnimalIndex(year)
+  loading.value = false
 }
-
-onUnmounted(() => {
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-})
 
 function selectAnimal(index: number) {
   if (!currentProfile.value?.birth_date) return
@@ -80,11 +63,8 @@ function selectAnimal(index: number) {
   const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
   const representativeYear = currentYear - diff
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar')
-    loading.value = false
-  }, 200)
+  result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar')
+  loading.value = false
 }
 
 const currentYear = computed(() => new Date().getFullYear())
@@ -96,8 +76,6 @@ function scrollToAnimalNav() {
 </script>
 
 <template>
-  <div class="ink-wash-bg min-h-screen">
-    <div class="relative z-10">
       <ToolPageLayout>
         <template #nav>
           <AnimalNav
@@ -112,9 +90,10 @@ function scrollToAnimalNav() {
               v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
               :key="idx"
               @click="selectAnimal(idx)"
+              @keydown.space.prevent="selectAnimal(idx)"
               :aria-current="idx === selectedAnimal ? 'true' : undefined"
               :class="[
-                'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
+                'flex-shrink-0 px-3 py-2.5 min-h-[40px] rounded-lg text-sm transition-colors',
                 idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
               ]"
             >
@@ -122,6 +101,11 @@ function scrollToAnimalNav() {
             </button>
           </div>
         </template>
+
+        <!-- Screen reader status -->
+        <div role="status" class="sr-only" aria-live="polite">
+          {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
+        </div>
 
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
@@ -136,59 +120,72 @@ function scrollToAnimalNav() {
         </div>
 
         <!-- Loading skeleton -->
-        <div v-else-if="loading" class="space-y-6">
+        <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
+          <span class="sr-only">正在加载...</span>
           <SkeletonCard />
           <SkeletonBars />
         </div>
 
         <!-- Result -->
         <template v-else-if="result">
+          <div aria-live="polite" aria-atomic="true">
           <ShengXiaoHero :result="result" />
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->
-          <div class="fade-in card-paper-solid rounded-2xl mt-6" :style="{ '--delay': '0.25s' }">
+          <div class="fade-in card-paper-solid rounded-xl mt-6" :style="{ '--delay': '0.25s' }">
             <InkDivider>幸运信息</InkDivider>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-8">
               <div>
-                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运数字</h4>
-                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.numbers.join('、') }}</p>
+                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运数字</h4>
+                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.numbers.join('、') }}</p>
               </div>
               <div>
-                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运颜色</h4>
-                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.colors.join('、') }}</p>
+                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运颜色</h4>
+                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.colors.join('、') }}</p>
               </div>
               <div>
-                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运方位</h4>
-                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.direction }}</p>
+                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运方位</h4>
+                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.direction }}</p>
               </div>
             </div>
           </div>
 
           <PersonalityCard :result="result" />
 
-          <InkDivider>{{ currentYear }}年流年运势</InkDivider>
-          <FortuneBars
-            :items="[
-              { label: '事业', score: result.fortune.career.score },
-              { label: '财运', score: result.fortune.wealth.score },
-              { label: '感情', score: result.fortune.love.score },
-              { label: '健康', score: result.fortune.health.score },
-            ]"
-          />
+          <div class="fade-in card-paper-solid rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
+            <InkDivider>{{ currentYear }}年流年运势</InkDivider>
+            <div class="p-8">
+              <FortuneBars
+                :items="[
+                  { label: '事业', score: result.fortune.career.score },
+                  { label: '财运', score: result.fortune.wealth.score },
+                  { label: '感情', score: result.fortune.love.score },
+                  { label: '健康', score: result.fortune.health.score },
+                ]"
+              />
+            </div>
+          </div>
 
           <CompatibilityGrid :items="result.compatibility" />
 
           <div class="flex flex-wrap gap-3 justify-center mt-8">
-            <button @click="computeResult" class="btn-seal">
-              <span>📜 重新排盘</span>
+            <button
+              @click="computeResult"
+              @keydown.space.prevent="computeResult"
+              class="btn-seal"
+            >
+              <span>重新排盘</span>
             </button>
-            <button @click="scrollToAnimalNav" class="btn-seal">
+            <button
+              @click="scrollToAnimalNav"
+              @keydown.space.prevent="scrollToAnimalNav"
+              class="btn-seal"
+            >
               <span>切换生肖</span>
             </button>
           </div>
+          </div>
         </template>
       </ToolPageLayout>
-    </div>
-  </div>
 </template>

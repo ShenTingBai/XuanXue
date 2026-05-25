@@ -1,24 +1,26 @@
-<script setup lang="ts">
-const { currentProfile, restoreSession, logout } = useAuth()
-const router = useRouter()
-const showDropdown = ref(false)
-const route = useRoute()
-
+<script lang="ts">
 interface NavTool {
   id: string
   name: string
-  emoji: string
+  char: string
   route: string
   available: boolean
 }
 
 const navTools: NavTool[] = [
-  { id: 'shengxiao', name: '生肖', emoji: '🐯', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', emoji: '♈', route: '/tools/constellation', available: true },
-  { id: 'bazi', name: '八字', emoji: '☯', route: '/tools/bazi', available: true },
-  { id: 'yijing', name: '六爻', emoji: '📜', route: '/tools/yijing', available: false },
-  { id: 'ziwei', name: '紫微斗数', emoji: '⭐', route: '/tools/ziwei', available: false },
+  { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
+  { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
+  { id: 'bazi', name: '八字', char: '命', route: '/tools/bazi', available: true },
+  { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: false },
+  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: false },
 ]
+</script>
+
+<script setup lang="ts">
+const { currentProfile, restoreSession, logout } = useAuth()
+const router = useRouter()
+const showDropdown = ref(false)
+const route = useRoute()
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownInnerRef = ref<HTMLElement | null>(null)
 const toggleRef = ref<HTMLElement | null>(null)
@@ -52,6 +54,10 @@ const handleMenuKeydown = (e: KeyboardEvent) => {
     case 'ArrowUp': nextIdx = (currentIdx - 1 + items.length) % items.length; break
     case 'Home': nextIdx = 0; break
     case 'End': nextIdx = items.length - 1; break
+    case 'Tab':
+      e.preventDefault()
+      showDropdown.value = false
+      return
     default: return
   }
   e.preventDefault()
@@ -86,6 +92,9 @@ const closeDropdown = (e: FocusEvent) => {
     <div class="relative z-10">
       <!-- Top Bar -->
       <header class="sticky top-0 z-50 backdrop-blur-md bg-paper-light/80 border-b border-paper-dark">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-paper-lightest focus:text-cinnabar focus:rounded focus:border-2 focus:border-cinnabar">
+          跳转到主要内容
+        </a>
         <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-14 sm:h-16">
             <!-- Logo -->
@@ -108,7 +117,7 @@ const closeDropdown = (e: FocusEvent) => {
                 :tabindex="navItem.available ? 0 : -1"
                 :aria-disabled="!navItem.available"
               >
-                <span class="text-base" aria-hidden="true">{{ navItem.emoji }}</span>
+                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.char }}</span>
                 <span>{{ navItem.name }}</span>
                 <span v-if="!navItem.available" class="text-[0.625rem] text-ink-light ml-0.5">*</span>
               </NuxtLink>
@@ -179,7 +188,7 @@ const closeDropdown = (e: FocusEvent) => {
       </header>
 
       <!-- Page Content -->
-      <main>
+      <main id="main-content" tabindex="-1">
         <slot />
       </main>
     </div>

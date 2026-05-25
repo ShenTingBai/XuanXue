@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+
 import { calculateConstellation, getZodiacIndex, ZODIACS, type ConstellationResult } from '~/composables/useConstellation'
+import { parseDate } from '~/utils/date'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -15,14 +15,14 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
+useHead({ title: '星座 - 玄学' })
+
 const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const selectedZodiac = ref(0)
-const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
-onMounted(async () => {
-  await restoreSession()
+onMounted(() => {
+  restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return
@@ -37,43 +37,32 @@ onMounted(async () => {
   computeResult()
 })
 
-onUnmounted(() => {
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-})
-
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
   loading.value = true
 
-  const parts = currentProfile.value.birth_date.split('-')
-  if (parts.length !== 3) { loading.value = false; return }
-  const month = parseInt(parts[1], 10)
-  const day = parseInt(parts[2], 10)
-  if (isNaN(month) || isNaN(day)) { loading.value = false; return }
-  if (month < 1 || month > 12 || day < 1 || day > 31) { loading.value = false; return }
+  const parsed = parseDate(currentProfile.value.birth_date)
+  if (!parsed) { loading.value = false; return }
+  const { month, day } = parsed
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateConstellation(month, day, new Date())
-    selectedZodiac.value = getZodiacIndex(month, day)
-    loading.value = false
-  }, 200)
+  result.value = calculateConstellation(month, day, new Date())
+  selectedZodiac.value = getZodiacIndex(month, day)
+  loading.value = false
 }
 
 function selectZodiac(index: number) {
   selectedZodiac.value = index
   loading.value = true
 
-  if (loadingTimer.value) clearTimeout(loadingTimer.value)
-  loadingTimer.value = setTimeout(() => {
-    result.value = calculateConstellation(
-      ZODIACS[index].startMonth,
-      ZODIACS[index].startDay,
-      new Date()
-    )
-    loading.value = false
-  }, 200)
+  result.value = calculateConstellation(
+    ZODIACS[index].startMonth,
+    ZODIACS[index].startDay,
+    new Date()
+  )
+  loading.value = false
 }
+
+const zodiacShortNames = ZODIACS.map(z => z.name.slice(0, 2))
 
 function compatibilityBadgeClass(level: string): string {
   return level === 'great'
@@ -93,8 +82,6 @@ function compatibilityBorderClass(level: string): string {
 </script>
 
 <template>
-  <div class="ink-wash-bg min-h-screen">
-    <div class="relative z-10">
       <ToolPageLayout>
         <template #nav>
           <ConstellationNav
@@ -104,18 +91,24 @@ function compatibilityBorderClass(level: string): string {
         </template>
         <template #mobile-nav>
           <button
-            v-for="(name, idx) in ['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼']"
+            v-for="(name, idx) in zodiacShortNames"
             :key="idx"
             @click="selectZodiac(idx)"
+            @keydown.space.prevent="selectZodiac(idx)"
             :aria-current="idx === selectedZodiac ? 'true' : undefined"
             :class="[
-              'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
+              'flex-shrink-0 px-3 py-2.5 min-h-[40px] rounded-lg text-sm transition-colors',
               idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
             ]"
           >
             {{ name }}
           </button>
         </template>
+
+        <!-- Screen reader status -->
+        <div role="status" class="sr-only" aria-live="polite">
+          {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
+        </div>
 
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
@@ -130,13 +123,15 @@ function compatibilityBorderClass(level: string): string {
         </div>
 
         <!-- Loading skeleton -->
-        <div v-else-if="loading" class="space-y-6">
+        <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
+          <span class="sr-only">正在加载...</span>
           <SkeletonCard />
           <SkeletonBars />
         </div>
 
         <!-- Result -->
         <template v-else-if="result">
+          <div aria-live="polite" aria-atomic="true">
           <ConstellationHero :result="result" />
           <HoroscopePanel :horoscope="result.todayHoroscope" />
 
@@ -159,7 +154,7 @@ function compatibilityBorderClass(level: string): string {
               <div
                 v-for="item in result.compatibility"
                 :key="item.name"
-                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
+                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
                 :class="compatibilityBorderClass(item.level)"
                 :title="item.label"
               >
@@ -177,12 +172,15 @@ function compatibilityBorderClass(level: string): string {
 
           <!-- Refresh button -->
           <div class="flex flex-wrap gap-3 justify-center mt-8">
-            <button @click="computeResult" class="btn-seal">
-              <span>🔄 刷新运势</span>
+            <button
+              @click="computeResult"
+              @keydown.space.prevent="computeResult"
+              class="btn-seal"
+            >
+              <span>刷新运势</span>
             </button>
+          </div>
           </div>
         </template>
       </ToolPageLayout>
-    </div>
-  </div>
 </template>

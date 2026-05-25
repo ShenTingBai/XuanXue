@@ -20,16 +20,23 @@ export const useAuth = () => {
   const SESSION_KEY = 'xuanxue:session'
 
   function getStoredSession(): StoredSession | null {
+    if (!import.meta.client) return null
     try {
       const raw = localStorage.getItem(SESSION_KEY)
       if (!raw) return null
-      return JSON.parse(raw) as StoredSession
+      const parsed = JSON.parse(raw)
+      if (typeof parsed?.token === 'string' && parsed?.profile && typeof parsed.profile.id === 'number') {
+        return parsed as StoredSession
+      }
+      localStorage.removeItem(SESSION_KEY)
+      return null
     } catch {
       return null
     }
   }
 
   function setStoredSession(token: string, profile: Profile) {
+    if (!import.meta.client) return
     localStorage.setItem(SESSION_KEY, JSON.stringify({ token, profile }))
   }
 

@@ -28,10 +28,22 @@ export default defineEventHandler(async (event) => {
   cleanupExpiredSessions()
 
   // Look up profile by nickname only (without PIN comparison)
+  // If account doesn't exist or is locked, return the same generic error to prevent nickname enumeration
   const profile = dbGet('SELECT * FROM profiles WHERE nickname = ?', [nickname])
 
   if (!profile) {
     logSecurityEvent('login_failed', null, clientIp, `Failed login attempt for ${nickname}`)
+    throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
+  }
+
+  // Account lockout: count failed logins in the last 15 minutes
+  const recentFailures = dbGet(
+    "SELECT COUNT(*) as count FROM security_log WHERE profile_id = ? AND event_type = 'login_failed' AND created_at > datetime('now', '-15 minutes')",
+    [profile.id]
+  )
+
+  if (recentFailures && (recentFailures.count as number) >= 10) {
+    logSecurityEvent('login_failed', profile.id as number, clientIp, `Account locked for ${nickname}`)
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 

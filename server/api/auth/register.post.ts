@@ -24,8 +24,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
-  if (nickname.length < 1 || nickname.length > 20) {
-    throw createError({ statusCode: 400, statusMessage: '昵称长度为1-20个字符' })
+  // !nickname already guards empty string; only need to check max length
+  if (nickname.length > 20) {
+    throw createError({ statusCode: 400, statusMessage: '昵称长度不能超过20个字符' })
   }
 
   const existing = dbGet('SELECT id FROM profiles WHERE nickname = ?', [nickname])

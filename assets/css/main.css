@@ -7,6 +7,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
@@ -89,6 +93,17 @@
     box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
   }
 
+  .card-paper-solid--interactive {
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .card-paper-solid--interactive:hover {
+    border-color: #D4C5B0;
+  }
+  .card-paper-solid--interactive:active {
+    border-color: #C0B098;
+  }
+
   /* ===== Seal Stamp Button ===== */
   .btn-seal {
     @apply relative inline-flex items-center justify-center overflow-hidden;
@@ -167,15 +182,19 @@
     border-bottom-color: #C62828;
   }
   .input-ink::placeholder {
-    color: #A69586;
+    color: #7A6A5C;
   }
   .input-ink--readonly {
-    opacity: 0.6;
+    color: #6B5B4F;
     cursor: default;
     border-bottom-style: dashed;
   }
   .input-ink--readonly:focus {
     border-bottom-color: #D4C5B0;
+    outline: none;
+  }
+  .input-ink--readonly:focus-visible {
+    outline: none;
   }
   .input-ink:disabled {
     opacity: 0.5;
@@ -260,9 +279,9 @@
     @apply rounded;
     background: linear-gradient(
       90deg,
-      rgba(214, 197, 176, 0.15) 25%,
-      rgba(214, 197, 176, 0.30) 50%,
-      rgba(214, 197, 176, 0.15) 75%
+      rgba(214, 197, 176, 0.25) 25%,
+      rgba(214, 197, 176, 0.40) 50%,
+      rgba(214, 197, 176, 0.25) 75%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
@@ -285,29 +304,29 @@
   .fortune-bar__fill {
     @apply absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out;
   }
-  .fortune-bar__fill--great  { background: #4A7C59; }
-  .fortune-bar__fill--good   { background: #B8860B; }
-  .fortune-bar__fill--normal { background: #6B5B4F; }
-  .fortune-bar__fill--low    { background: #C62828; }
+  .fortune-bar__fill--great  { @apply bg-jade; }
+  .fortune-bar__fill--good   { @apply bg-gold; }
+  .fortune-bar__fill--normal { @apply bg-ink-medium; }
+  .fortune-bar__fill--low    { @apply bg-cinnabar; }
 
   /* ===== Yi/Ji Panel ===== */
   .yiyi-card {
     @apply rounded-xl p-4 border;
   }
   .yiyi-card--yi {
-    border-color: #4A7C59;
-    background: rgba(74, 124, 89, 0.06);
+    border-color: #3D6B4B;
+    background: rgba(61, 107, 75, 0.06);
   }
   .yiyi-card--ji {
-    border-color: #8E8E8E;
-    background: rgba(142, 142, 142, 0.06);
+    border-color: #5E5E5E;
+    background: rgba(94, 94, 94, 0.06);
   }
   .yiyi-border {
     border-width: 3px;
     border-style: solid;
   }
-  .yiyi-border--yi { border-color: #4A7C59; }
-  .yiyi-border--ji { border-color: #8E8E8E; }
+  .yiyi-border--yi { border-color: #3D6B4B; }
+  .yiyi-border--ji { border-color: #5E5E5E; }
 
   /* ===== Nav Link ===== */
   .nav-link {
@@ -338,10 +357,10 @@
   .wuxing-card:hover {
     transform: translateY(-2px);
   }
-  .wuxing-card--wood  { border-color: #4A7C59; }
+  .wuxing-card--wood  { border-color: #3D6B4B; }
   .wuxing-card--fire  { border-color: #C62828; }
-  .wuxing-card--earth { border-color: #B8860B; }
-  .wuxing-card--metal { border-color: #8E8E8E; }
+  .wuxing-card--earth { border-color: #7A5E12; }
+  .wuxing-card--metal { border-color: #5E5E5E; }
   .wuxing-card--water { border-color: #2C5F7C; }
 }
 
@@ -382,9 +401,10 @@
 
 /* ===== Custom Focus Styles ===== */
 input:focus-visible, select:focus-visible {
-  outline: none;
+  outline: 2px solid #C62828;
+  outline-offset: 1px;
   border-bottom-color: #C62828;
-  box-shadow: 0 1px 0 #C62828;
+  box-shadow: none;
 }
 button:focus-visible {
   outline: 2px solid #C62828;
@@ -417,14 +437,37 @@ a:focus-visible {
   }
 }
 
+/* ===== Expand/Collapse Transition ===== */
+.expand-enter-active,
+.expand-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+  transform-origin: top;
+}
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  transform: scaleY(0);
+}
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
 /* ===== Reduced Motion ===== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
   .tool-card:hover:not(.tool-card--locked) {
     transform: none;
+  }
+  body::after {
+    opacity: 0.15;
+    background-image: none;
   }
 }

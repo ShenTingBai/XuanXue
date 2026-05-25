@@ -7,9 +7,11 @@ import {
   CREATE_DIVINATION_TABLE,
   CREATE_SECURITY_LOG_TABLE,
   INDEX_SESSIONS_PROFILE,
+  INDEX_SESSIONS_TOKEN,
   INDEX_DIVINATION_PROFILE,
   INDEX_SECURITY_LOG_PROFILE,
   INDEX_SECURITY_LOG_TYPE,
+  INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED,
 } from './schema'
 
 const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue.db')
@@ -41,18 +43,60 @@ function saveFile(): void {
 }
 
 let saveScheduled = false
+let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null
+let lastSaveTime = 0
+const MIN_SAVE_INTERVAL = 5000 // Minimum 5 seconds between writes
+
 function scheduleSave(): void {
   if (saveScheduled) return
   saveScheduled = true
-  process.nextTick(() => {
-    try {
-      saveFile()
-    } catch (err) {
-      console.error('数据库保存失败:', err)
-    } finally {
-      saveScheduled = false
-    }
-  })
+
+  const now = Date.now()
+  const timeSinceLastSave = now - lastSaveTime
+
+  if (timeSinceLastSave >= MIN_SAVE_INTERVAL) {
+    // Enough time has passed — save immediately on next tick
+    process.nextTick(() => {
+      try {
+        lastSaveTime = Date.now()
+        saveFile()
+      } catch (err) {
+        console.error('数据库保存失败:', err)
+      } finally {
+        saveScheduled = false
+      }
+    })
+  } else {
+    // Throttle: wait until MIN_SAVE_INTERVAL has elapsed since last save
+    if (saveDebounceTimer) clearTimeout(saveDebounceTimer)
+    const delay = MIN_SAVE_INTERVAL - timeSinceLastSave
+    saveDebounceTimer = setTimeout(() => {
+      try {
+        lastSaveTime = Date.now()
+        saveFile()
+      } catch (err) {
+        console.error('数据库保存失败:', err)
+      } finally {
+        saveScheduled = false
+        saveDebounceTimer = null
+      }
+    }, delay)
+  }
+}
+
+/** Force an immediate save — used for graceful shutdown */
+function flushSave(): void {
+  if (saveDebounceTimer) {
+    clearTimeout(saveDebounceTimer)
+    saveDebounceTimer = null
+  }
+  try {
+    lastSaveTime = Date.now()
+    saveFile()
+  } catch (err) {
+    console.error('数据库保存失败:', err)
+  }
+  saveScheduled = false
 }
 
 export async function initDb(): Promise<void> {
@@ -72,6 +116,7 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_SESSIONS_TABLE)
     db.run(CREATE_DIVINATION_TABLE)
     db.run(INDEX_SESSIONS_PROFILE)
+    db.run(INDEX_SESSIONS_TOKEN)
     db.run(INDEX_DIVINATION_PROFILE)
 
     // Phase 2 migrations
@@ -97,9 +142,13 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_SECURITY_LOG_TABLE)
     db.run(INDEX_SECURITY_LOG_PROFILE)
     db.run(INDEX_SECURITY_LOG_TYPE)
+    db.run(INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED)
 
-    process.on('SIGINT', () => { saveFile(); process.exit(0) })
-    process.on('SIGTERM', () => { saveFile(); process.exit(0) })
+    process.on('SIGINT', () => { flushSave(); process.exit(0) })
+    process.on('SIGTERM', () => { flushSave(); process.exit(0) })
+
+    // Graceful shutdown: flush pending save before process exits
+    process.on('beforeExit', () => { flushSave() })
 
     saveFile()
   })()

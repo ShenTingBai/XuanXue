@@ -15,7 +15,8 @@ export default {
           dark: '#2C1810',
           DEFAULT: '#2C1810',
           medium: '#6B5B4F',
-          light: '#A69586',
+          light: '#7A6A5C',
+          muted: '#8E8070',
           faint: '#D4C5B0',
         },
         paper: {
@@ -32,23 +33,23 @@ export default {
           dark: '#8E1D1D',
         },
         gold: {
-          DEFAULT: '#B8860B',
-          light: '#D4A017',
+          DEFAULT: '#7A5E12',
+          light: '#9A7818',
         },
         jade: {
-          DEFAULT: '#4A7C59',
-          light: '#5D8F6A',
+          DEFAULT: '#3D6B4B',
+          light: '#4D7A5A',
         },
         wuxing: {
-          wood: '#4A7C59',
+          wood: '#3D6B4B',
           fire: '#C62828',
-          earth: '#B8860B',
-          metal: '#8E8E8E',
+          earth: '#7A5E12',
+          metal: '#5E5E5E',
           water: '#2C5F7C',
         },
         compat: {
-          great: '#4A7C59',
-          good: '#B8860B',
+          great: '#3D6B4B',
+          good: '#7A5E12',
         },
       },
       fontFamily: {

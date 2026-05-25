@@ -2,6 +2,7 @@ import { dbGet, dbRun } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
+import { parseDate } from '../../../utils/date'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(event.context.params!.id)
@@ -34,12 +35,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, statusMessage: '日期格式应为 YYYY-MM-DD' })
     }
     if (body.birth_date !== null) {
-      const date = new Date(body.birth_date)
-      if (isNaN(date.getTime())) {
-        throw createError({ statusCode: 400, statusMessage: '无效的日期' })
-      }
-      const [y, m, d] = body.birth_date.split('-').map(Number)
-      if (date.getFullYear() !== y || date.getMonth() + 1 !== m || date.getDate() !== d) {
+      if (!parseDate(body.birth_date)) {
         throw createError({ statusCode: 400, statusMessage: '无效的日期' })
       }
     }

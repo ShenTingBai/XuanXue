@@ -1,5 +1,5 @@
 <template>
-  <div class="fade-in card-paper-solid rounded-2xl p-6 sm:p-8 mb-6" :style="{ '--delay': '0.15s' }">
+  <div class="fade-in card-paper-solid rounded-xl p-6 sm:p-8 mb-6" :style="{ '--delay': '0.15s' }">
     <FortuneBars :items="fortuneItems" />
 
     <InkDivider class="mt-6">综合运势</InkDivider>

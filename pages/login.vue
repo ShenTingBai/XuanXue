@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useHead({ title: '登录 - 玄学' })
+
 const { login, register, restoreSession, currentProfile } = useAuth()
 const router = useRouter()
 
@@ -48,10 +50,11 @@ const submit = async () => {
   try {
     if (isLogin.value) {
       await login(nickname.value.trim(), pin.value.trim())
+      router.push('/')
     } else {
       await register(nickname.value.trim(), pin.value.trim())
+      router.push(`/profile/${currentProfile.value?.id}?onboarding=true`)
     }
-    router.push('/')
   } catch (e: any) {
     error.value = e?.data?.statusMessage || e?.message || '操作失败'
   } finally {
@@ -61,10 +64,10 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12">
+  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
       <!-- Card -->
-      <div class="card-paper-solid rounded-2xl p-8 sm:p-10">
+      <div class="card-paper-solid rounded-xl p-8 sm:p-10">
         <!-- Logo Area -->
         <div class="text-center mb-8">
           <h1 class="sr-only">玄学 - 登录</h1>
@@ -178,10 +181,14 @@ const submit = async () => {
         </div>
 
         <!-- Switch hint -->
-        <p v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium">
+        <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium">
           还没有档案？
           <button @click="switchMode" class="text-cinnabar hover:underline">创建新档案</button>
-        </p>
+        </div>
+        <div v-else class="mt-6 text-center text-xs text-ink-medium">
+          已有档案？
+          <button @click="switchMode" class="text-cinnabar hover:underline">去登录</button>
+        </div>
       </div>
     </div>
   </div>

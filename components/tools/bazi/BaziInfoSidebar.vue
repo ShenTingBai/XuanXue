@@ -1,5 +1,5 @@
 <template>
-  <div class="card-paper-solid rounded-xl p-4">
+  <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-3">基本信息</div>
 
     <div class="font-sans text-xs text-ink-medium space-y-1 mb-3">
@@ -8,7 +8,7 @@
       <div v-if="gender">性别：{{ gender }}</div>
     </div>
 
-    <hr class="border-paper-dark my-3">
+    <hr class="border-paper-dark/50 my-3">
 
     <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-1.5">本命日主</div>
     <div class="flex items-baseline gap-1.5 mb-2">
@@ -16,11 +16,11 @@
       <span class="font-sans text-xs font-medium" :class="strengthClass">{{ dayMasterStrength }}</span>
     </div>
 
-    <hr class="border-paper-dark my-3">
+    <hr class="border-paper-dark/50 my-3">
 
     <div class="space-y-1">
       <div class="font-sans text-xs text-ink-medium tracking-wider">助你：<span class="font-medium" v-for="el in favorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
-      <div class="font-sans text-xs text-ink-medium tracking-wider">忌神：<span v-for="el in unfavorableElements" :key="el" class="opacity-60" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
+      <div class="font-sans text-xs text-ink-medium tracking-wider">忌神：<span v-for="el in unfavorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
     </div>
   </div>
 </template>
@@ -38,14 +38,9 @@ const props = defineProps<{
   unfavorableElements: string[]
 }>()
 
-const strengthClass = computed(() => {
-  const s = props.dayMasterStrength
-  if (s === '强' || s === '偏强') return 'text-cinnabar'
-  if (s === '偏弱' || s === '弱') return 'text-wuxing-water'
-  return 'text-gold'
-})
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, strengthColorClass } from '~/constants/bazi'
 
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+const strengthClass = computed(() => strengthColorClass(props.dayMasterStrength))
 
 function elementColor(el: string): string { return WUXING_COLORS[el] || WUXING_FALLBACK_COLOR }
 </script>

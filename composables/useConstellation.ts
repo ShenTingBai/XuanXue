@@ -126,7 +126,7 @@ export const ZODIACS: ZodiacEntry[] = [
     startMonth: 10, startDay: 24,
     endMonth: 11, endDay: 21,
     element: '水',
-    rulingPlanet: '冥王星',
+    rulingPlanet: '冥王星', // 传统守护星：火星
     luckyColor: '紫色',
     luckyNumber: 8,
     personality: '深沉神秘，意志力极强，洞察力敏锐，情感炽烈，具有强大的内在力量。',
@@ -159,7 +159,7 @@ export const ZODIACS: ZodiacEntry[] = [
     startMonth: 1, startDay: 20,
     endMonth: 2, endDay: 18,
     element: '风',
-    rulingPlanet: '天王星',
+    rulingPlanet: '天王星', // 传统守护星：土星
     luckyColor: '青色',
     luckyNumber: 4,
     personality: '独立创新，思想前卫，重视自由与平等，富有人道主义精神和对未来的洞察力。',
@@ -170,7 +170,7 @@ export const ZODIACS: ZodiacEntry[] = [
     startMonth: 2, startDay: 19,
     endMonth: 3, endDay: 20,
     element: '水',
-    rulingPlanet: '海王星',
+    rulingPlanet: '海王星', // 传统守护星：木星
     luckyColor: '海蓝色',
     luckyNumber: 7,
     personality: '浪漫梦幻，富有想象力和艺术天赋，温柔善良，具有强烈的共情能力。',
@@ -218,7 +218,9 @@ function isDateInRange(
   em: number, ed: number,
 ): boolean {
   if (sm > em) {
-    // Wrap-around case (Capricorn: Dec 22 — Jan 19)
+    // Wrap-around (e.g. Capricorn: Dec 22 — Jan 19)
+    // (m > sm || m < em) is always false for Capricorn (no month >12 or <1)
+    // but the function is kept generic for any sm>em wrap-around range.
     return (m > sm || m < em) || (m === sm && d >= sd) || (m === em && d <= ed)
   }
   // Normal case
@@ -285,7 +287,7 @@ function pickYiJi(overall: number): { todayYi: string[]; todayJi: string[] } {
  * Same element = 'great' (绝配), opposing element = 'bad' (相克), others = 'good' (中配).
  */
 function computeConstellationCompat(zodiacIndex: number): ConstellationResult['compatibility'] {
-  const elementOrder: Array<ConstellationResult['element']> = ['火', '土', '风', '水']
+  const elementOrder: Array<ConstellationResult['element']> = ['火', '风', '水', '土']
   const myElementIndex = elementOrder.indexOf(ZODIACS[zodiacIndex].element)
 
   const candidates: Array<{
