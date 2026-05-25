@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, strengthColorClass as strengthColorClassFn } from '~/constants/bazi'
 
 const props = defineProps<{
   dayMaster: string
@@ -60,12 +60,7 @@ const props = defineProps<{
   unfavorableElements: string[]
 }>()
 
-const strengthColorClass = computed(() => {
-  const s = props.dayMasterStrength
-  if (s === '强' || s === '偏强') return 'text-cinnabar font-medium'
-  if (s === '偏弱' || s === '弱') return 'text-wuxing-water font-medium'
-  return 'text-gold font-medium'
-})
+const strengthColorClass = computed(() => strengthColorClassFn(props.dayMasterStrength))
 
 const ELEMENT_BG: Record<string, string> = {
   '木': 'bg-wuxing-wood/8', '火': 'bg-wuxing-fire/8', '土': 'bg-wuxing-earth/8',

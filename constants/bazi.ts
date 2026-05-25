@@ -40,3 +40,10 @@ export function hexToRgba(hex: string, alpha: number): string {
   const b = parseInt(hex.slice(5, 7), 16)
   return `rgba(${r},${g},${b},${alpha.toFixed(3)})`
 }
+
+/** Return Tailwind CSS classes for day master strength display */
+export function strengthColorClass(strength: string): string {
+  if (strength === '强' || strength === '偏强') return 'text-cinnabar font-medium'
+  if (strength === '偏弱' || strength === '弱') return 'text-wuxing-water font-medium'
+  return 'text-gold font-medium'
+}

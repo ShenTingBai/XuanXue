@@ -38,14 +38,9 @@ const props = defineProps<{
   unfavorableElements: string[]
 }>()
 
-const strengthClass = computed(() => {
-  const s = props.dayMasterStrength
-  if (s === '强' || s === '偏强') return 'text-cinnabar'
-  if (s === '偏弱' || s === '弱') return 'text-wuxing-water'
-  return 'text-gold'
-})
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, strengthColorClass } from '~/constants/bazi'
 
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+const strengthClass = computed(() => strengthColorClass(props.dayMasterStrength))
 
 function elementColor(el: string): string { return WUXING_COLORS[el] || WUXING_FALLBACK_COLOR }
 </script>
