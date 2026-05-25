@@ -481,7 +481,7 @@ function getDaYunMeaning(tenGod: string): string {
             </Transition>
 
             <!-- Personal info summary (mobile/tablet only, desktop uses right sidebar) -->
-            <div class="xl:hidden mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/3 border border-cinnabar/15">
+            <div class="xl:hidden mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/5 border border-cinnabar/15">
               <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-base">
                 <div>
                   <span class="text-ink-light">出生</span>
