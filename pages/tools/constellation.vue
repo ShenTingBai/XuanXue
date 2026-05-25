@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { calculateConstellation, getZodiacIndex, ZODIACS, type ConstellationResult } from '~/composables/useConstellation'
 
@@ -46,7 +46,12 @@ function computeResult() {
   if (!currentProfile.value?.birth_date) return
   loading.value = true
 
-  const [, month, day] = currentProfile.value.birth_date.split('-').map(Number)
+  const parts = currentProfile.value.birth_date.split('-')
+  if (parts.length !== 3) { loading.value = false; return }
+  const month = parseInt(parts[1], 10)
+  const day = parseInt(parts[2], 10)
+  if (isNaN(month) || isNaN(day)) { loading.value = false; return }
+  if (month < 1 || month > 12 || day < 1 || day > 31) { loading.value = false; return }
 
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
   loadingTimer.value = setTimeout(() => {
@@ -70,8 +75,6 @@ function selectZodiac(index: number) {
     loading.value = false
   }, 200)
 }
-
-const currentYear = computed(() => new Date().getFullYear())
 
 function compatibilityBadgeClass(level: string): string {
   return level === 'great'
