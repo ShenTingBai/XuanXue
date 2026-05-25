@@ -1,3 +1,7 @@
+<script setup lang="ts">
+// SkeletonCard — loading placeholder for tool cards
+</script>
+
 <template>
   <div class="card-paper-solid rounded-xl p-6">
     <div class="skeleton-block w-12 h-12 rounded-lg mb-4" />
