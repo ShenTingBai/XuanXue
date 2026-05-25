@@ -224,7 +224,7 @@ const RELATION_COLORS: Record<string, { bg: string; text: string }> = {
   '冲': { bg: hexToRgba(WUXING_COLORS['火'], 24 / 255), text: WUXING_COLORS['火'] },
   '刑': { bg: hexToRgba(WUXING_COLORS['土'], 24 / 255), text: WUXING_COLORS['土'] },
   '害': { bg: hexToRgba(WUXING_COLORS['金'], 24 / 255), text: WUXING_COLORS['金'] },
-  '破': { bg: hexToRgba(WUXING_FALLBACK_COLOR, 24 / 255), text: hexToRgba(WUXING_FALLBACK_COLOR, 153 / 255) },
+  '破': { bg: hexToRgba(WUXING_FALLBACK_COLOR, 24 / 255), text: WUXING_FALLBACK_COLOR },
 }
 
 function relationBadgeStyle(type: string): Record<string, string> {
