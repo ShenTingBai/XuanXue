@@ -38,7 +38,7 @@
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              style="background: #2C2C2C; color: #D4C9B8; max-width: 16rem; white-space: normal;"
+              style="background: #1A0F0A; color: #EDE4D3; border: 1px solid #6B5B4F; max-width: 16rem; white-space: normal;"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
@@ -71,7 +71,7 @@
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              style="background: #2C2C2C; color: #D4C9B8; max-width: 16rem; white-space: normal;"
+              style="background: #1A0F0A; color: #EDE4D3; border: 1px solid #6B5B4F; max-width: 16rem; white-space: normal;"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
@@ -91,7 +91,7 @@
           >
             <button
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="{ background: '#C628280E', color: '#C6282890', border: '1px solid #C6282820' }"
+              :style="{ background: '#C628280E', color: '#8E1D1D', border: '1px solid #C6282820' }"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               tabindex="-1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
@@ -104,7 +104,7 @@
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              style="background: #2C2C2C; color: #D4C9B8; max-width: 16rem; white-space: normal;"
+              style="background: #1A0F0A; color: #EDE4D3; border: 1px solid #6B5B4F; max-width: 16rem; white-space: normal;"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
