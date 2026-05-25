@@ -155,6 +155,7 @@
           <p class="font-sans text-sm text-ink-light mt-1.5 truncate">{{ year.summary }}</p>
 
           <!-- Expanded detail -->
+          <Transition name="expand">
           <div v-if="expandedYears.has(idx)" class="mt-3 pt-3 border-t border-paper-dark/50 space-y-2">
             <div v-if="year.earthRelations.length > 0">
               <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
@@ -178,6 +179,7 @@
               >{{ ss.name }}</span>
             </div>
           </div>
+          </Transition>
         </div>
       </div>
     </div>
