@@ -401,9 +401,7 @@ function getDaYunMeaning(tenGod: string): string {
 </script>
 
 <template>
-  <div class="ink-wash-bg min-h-screen">
-    <div class="relative z-10">
-      <ToolPageLayout>
+  <ToolPageLayout>
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">
           {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
@@ -787,9 +785,7 @@ function getDaYunMeaning(tenGod: string): string {
             :unfavorable-elements="result.unfavorableElements"
           />
         </template>
-      </ToolPageLayout>
-    </div>
-  </div>
+  </ToolPageLayout>
 </template>
 
 <style scoped>
