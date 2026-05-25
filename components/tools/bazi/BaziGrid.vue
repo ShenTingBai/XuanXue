@@ -9,72 +9,84 @@
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
-      <div class="grid gap-0 border border-cinnabar/25 rounded-lg overflow-visible" role="table" aria-label="四柱排盘"
+      <div class="grid gap-0 border border-cinnabar/25 rounded-lg overflow-clip" role="table" aria-label="四柱排盘"
         :style="{ gridTemplateColumns: `repeat(${pillars.length}, 1fr)` }"
       >
-        <!-- Header -->
-        <div v-for="h in headers" :key="h.label"
-          role="columnheader"
-          class="py-1.5 px-2 text-center border-b border-cinnabar/25 text-[0.65rem] text-ink-medium tracking-widest font-sans"
-          :class="h.isDay ? 'bg-cinnabar/10' : 'bg-cinnabar/4'"
-          :style="h.isDay ? { 'border-right': '1px solid rgba(198,40,40,0.25)' } : {}"
-        >
-          {{ h.label }}
-          <span v-if="h.isDay" class="text-cinnabar text-[0.625rem] ml-1">日主</span>
+        <!-- Header row -->
+        <div role="row">
+          <div v-for="h in headers" :key="h.label"
+            role="columnheader"
+            class="py-1.5 px-2 text-center border-b border-cinnabar/25 text-[0.65rem] text-ink-medium tracking-widest font-sans"
+            :class="h.isDay ? 'bg-cinnabar/10' : 'bg-cinnabar/4'"
+            :style="h.isDay ? { 'border-right': '1px solid rgba(198,40,40,0.25)' } : {}"
+          >
+            {{ h.label }}
+            <span v-if="h.isDay" class="text-cinnabar text-[0.625rem] ml-1">日主</span>
+          </div>
         </div>
 
         <!-- Stem row -->
-        <div v-for="(p, idx) in pillars" :key="'stem-' + idx"
-          role="cell"
-          class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
-          :style="{ color: wuxingColor(p.stemWuxing) }"
-        >
-          {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
+        <div role="row">
+          <div v-for="(p, idx) in pillars" :key="'stem-' + idx"
+            role="cell"
+            class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-paper-dark"
+            :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
+            :style="{ color: wuxingColor(p.stemWuxing) }"
+          >
+            {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
+          </div>
         </div>
 
         <!-- Branch row -->
-        <div v-for="(p, idx) in pillars" :key="'branch-' + idx"
-          role="cell"
-          class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
-          :style="{ color: wuxingColor(p.branchWuxing) }"
-        >
-          {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
+        <div role="row">
+          <div v-for="(p, idx) in pillars" :key="'branch-' + idx"
+            role="cell"
+            class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-paper-dark"
+            :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
+            :style="{ color: wuxingColor(p.branchWuxing) }"
+          >
+            {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
+          </div>
         </div>
 
         <!-- Ten God row -->
-        <div v-for="(p, idx) in pillars" :key="'tg-' + idx"
-          role="cell"
-          class="py-1.5 px-2 text-center border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
-        >
-          <span class="inline-block px-2 py-0.5 rounded-full text-[0.625rem] leading-tight font-sans"
-            :class="tenGodBadgeClass(p.stemTenGod)">
-            {{ p.stemTenGod }}
-          </span>
+        <div role="row">
+          <div v-for="(p, idx) in pillars" :key="'tg-' + idx"
+            role="cell"
+            class="py-1.5 px-2 text-center border-b border-paper-dark"
+            :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
+          >
+            <span class="inline-block px-2 py-0.5 rounded-full text-[0.625rem] leading-tight font-sans"
+              :class="tenGodBadgeClass(p.stemTenGod)">
+              {{ p.stemTenGod }}
+            </span>
+          </div>
         </div>
 
         <!-- Hidden Stems row -->
-        <div v-for="(p, idx) in pillars" :key="'hs-' + idx"
-          role="cell"
-          class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
-        >
-          <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
-            class="inline-block mr-1 last:mr-0"
-            :style="{ color: wuxingColor(hs.wuxing) }">
-            {{ hs.stem }}
-          </span>
+        <div role="row">
+          <div v-for="(p, idx) in pillars" :key="'hs-' + idx"
+            role="cell"
+            class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-paper-dark"
+            :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
+          >
+            <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
+              class="inline-block mr-1 last:mr-0"
+              :style="{ color: wuxingColor(hs.wuxing) }">
+              {{ hs.stem }}
+            </span>
+          </div>
         </div>
 
         <!-- NaYin row -->
-        <div v-for="(p, idx) in pillars" :key="'ny-' + idx"
-          role="cell"
-          class="py-1.5 px-2 text-center text-[0.625rem] text-ink-faint font-sans"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
-        >
-          {{ getNaYin(p.stem, p.branch) }}
+        <div role="row">
+          <div v-for="(p, idx) in pillars" :key="'ny-' + idx"
+            role="cell"
+            class="py-1.5 px-2 text-center text-[0.625rem] text-ink-faint font-sans"
+            :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
+          >
+            {{ getNaYin(p.stem, p.branch) }}
+          </div>
         </div>
       </div>
 
