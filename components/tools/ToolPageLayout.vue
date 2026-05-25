@@ -19,13 +19,19 @@
 
         <slot />
       </div>
+
+      <!-- Right sidebar: hidden on <xl, shown on xl+ -->
+      <aside class="hidden xl:block w-56 flex-shrink-0">
+        <slot name="nav-right" />
+      </aside>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// ToolPageLayout — two-column layout for tool pages
-// Slot 'nav': desktop sidebar navigation
+// ToolPageLayout — three-column layout for tool pages
+// Slot 'nav': desktop sidebar navigation (left)
 // Slot 'mobile-nav': horizontal scroll navigation for mobile
 // Default slot: main content area
+// Slot 'nav-right': right sidebar (info panels)
 </script>

@@ -15,7 +15,7 @@ interface NavTool {
 const navTools: NavTool[] = [
   { id: 'shengxiao', name: '生肖', emoji: '🐯', route: '/tools/shengxiao', available: true },
   { id: 'constellation', name: '星座', emoji: '♈', route: '/tools/constellation', available: true },
-  { id: 'bazi', name: '八字', emoji: '☯', route: '/tools/bazi', available: false },
+  { id: 'bazi', name: '八字', emoji: '☯', route: '/tools/bazi', available: true },
   { id: 'yijing', name: '六爻', emoji: '📜', route: '/tools/yijing', available: false },
   { id: 'ziwei', name: '紫微斗数', emoji: '⭐', route: '/tools/ziwei', available: false },
 ]
