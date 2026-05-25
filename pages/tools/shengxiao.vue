@@ -153,15 +153,19 @@ function scrollToAnimalNav() {
 
           <PersonalityCard :result="result" />
 
-          <InkDivider>{{ currentYear }}年流年运势</InkDivider>
-          <FortuneBars
-            :items="[
-              { label: '事业', score: result.fortune.career.score },
-              { label: '财运', score: result.fortune.wealth.score },
-              { label: '感情', score: result.fortune.love.score },
-              { label: '健康', score: result.fortune.health.score },
-            ]"
-          />
+          <div class="fade-in card-paper-solid rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
+            <InkDivider>{{ currentYear }}年流年运势</InkDivider>
+            <div class="p-8">
+              <FortuneBars
+                :items="[
+                  { label: '事业', score: result.fortune.career.score },
+                  { label: '财运', score: result.fortune.wealth.score },
+                  { label: '感情', score: result.fortune.love.score },
+                  { label: '健康', score: result.fortune.health.score },
+                ]"
+              />
+            </div>
+          </div>
 
           <CompatibilityGrid :items="result.compatibility" />
 
