@@ -39,6 +39,17 @@ export default {
           DEFAULT: '#4A7C59',
           light: '#5D8F6A',
         },
+        wuxing: {
+          wood: '#4A7C59',
+          fire: '#C62828',
+          earth: '#B8860B',
+          metal: '#8E8E8E',
+          water: '#2C5F7C',
+        },
+        compat: {
+          great: '#4A7C59',
+          good: '#B8860B',
+        },
       },
       fontFamily: {
         display: ['"Ma Shan Zheng"', 'cursive'],
