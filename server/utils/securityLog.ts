@@ -5,8 +5,9 @@ export type SecurityEventType =
   | 'login_success'
   | 'register'
   | 'logout'
-  | 'pin_changed'
   | 'rate_limit_triggered'
+  // Reserved for future use:
+  | 'pin_changed'
   | 'session_refresh'
   | 'token_refresh'
 
