@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
+import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
+import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
 import { WUXING_COLORS as ELEMENT_COLORS } from '~/constants/bazi'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
 import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
+import ShenShaPanel from '~/components/tools/bazi/ShenShaPanel.vue'
+import LiuNianTimeline from '~/components/tools/bazi/LiuNianTimeline.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
 const router = useRouter()
-const { currentProfile, restoreSession } = useAuth()
+const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 
 const result = ref<BaZiResult | null>(null)
 const loading = ref(true)
@@ -21,9 +25,18 @@ const missingBirthInfo = ref(false)
 const missingHour = ref(false)
 const error = ref('')
 const loadingTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const shenShaList = ref<ShenSha[]>([])
+const liuNianYears = ref<LiuNianYear[]>([])
+const savedDivinationId = ref<number | null>(null)
+const saveError = ref('')
+const historyRecords = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
+const showHistoryDropdown = ref(false)
+const historyDropdownRef = ref<HTMLElement | null>(null)
+const currentYear = new Date().getFullYear()
 
 onUnmounted(() => {
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
+  document.removeEventListener('click', onClickOutside)
 })
 
 onMounted(async () => {
@@ -39,6 +52,7 @@ onMounted(async () => {
     return
   }
 
+  document.addEventListener('click', onClickOutside)
   computeResult()
 })
 
@@ -77,6 +91,13 @@ function computeResult() {
   loading.value = true
   error.value = ''
 
+  // Reset shensha, liunian, and save state
+  shenShaList.value = []
+  liuNianYears.value = []
+  savedDivinationId.value = null
+  saveError.value = ''
+  showHistoryDropdown.value = false
+
   // Clear previous timeout
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
 
@@ -94,9 +115,9 @@ function computeResult() {
     missingHour.value = false
   }
 
-  loadingTimer.value = setTimeout(() => {
+  loadingTimer.value = setTimeout(async () => {
     try {
-      result.value = calculateBaZi({
+      const baziResult = calculateBaZi({
         birthYear: year,
         birthMonth: month,
         birthDay: day,
@@ -104,12 +125,148 @@ function computeResult() {
         birthHour: hour,
         gender,
       })
+
+      result.value = baziResult
+
+      // Compute shensha
+      const dayMasterIndex = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'].indexOf(baziResult.dayMaster)
+      shenShaList.value = calculateShenSha({
+        yearPillar: baziResult.yearPillar,
+        monthPillar: baziResult.monthPillar,
+        dayPillar: baziResult.dayPillar,
+        hourPillar: baziResult.hourPillar,
+        dayMaster: baziResult.dayMaster,
+        dayMasterIndex,
+        gender,
+      })
+
+      // Compute liunian (with birth chart shensha for year-specific lookups)
+      liuNianYears.value = calculateLiuNian({
+        baZi: baziResult,
+        shenSha: shenShaList.value,
+        currentYear,
+        range: 5,
+      })
+
+      // Auto-save divination result (silent, fire-and-forget)
+      try {
+        const headers = getAuthHeaders()
+        if (headers.Authorization) {
+          const inputData = {
+            birthYear: year, birthMonth: month, birthDay: day,
+            birthCalendar: calendar, birthHour: hour, gender,
+          }
+          const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+            method: 'POST',
+            headers,
+            body: {
+              type: 'bazi',
+              input_data: inputData,
+              result_data: JSON.parse(JSON.stringify(baziResult)),
+            },
+          })
+          savedDivinationId.value = saveRes.id
+          saveError.value = ''
+        }
+      } catch (e: any) {
+        saveError.value = e?.statusMessage || '保存失败'
+        savedDivinationId.value = null
+      }
     } catch {
       error.value = '排盘计算出错，请检查出生信息'
     }
     loading.value = false
     loadingTimer.value = null
   }, 200)
+}
+
+async function fetchHistory() {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const records = await $fetch<Array<{ id: number; type: string; input_data: any; created_at: string }>>(
+      '/api/divinations?type=bazi',
+      { headers },
+    )
+    historyRecords.value = records.slice(0, 5)
+  } catch {
+    historyRecords.value = []
+  }
+}
+
+async function restoreFromHistory(id: number) {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+      `/api/divinations/${id}`,
+      { headers },
+    )
+    if (record.result_data) {
+      result.value = record.result_data as BaZiResult
+
+      // Re-compute shensha and liunian from restored result
+      const dayMasterIndex = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'].indexOf(result.value.dayMaster)
+      shenShaList.value = calculateShenSha({
+        yearPillar: result.value.yearPillar,
+        monthPillar: result.value.monthPillar,
+        dayPillar: result.value.dayPillar,
+        hourPillar: result.value.hourPillar,
+        dayMaster: result.value.dayMaster,
+        dayMasterIndex,
+        gender: result.value.gender,
+      })
+      liuNianYears.value = calculateLiuNian({
+        baZi: result.value,
+        shenSha: shenShaList.value,
+        currentYear,
+        range: 5,
+      })
+    }
+    showHistoryDropdown.value = false
+  } catch {
+    // silently fail
+  }
+}
+
+function toggleHistoryDropdown() {
+  showHistoryDropdown.value = !showHistoryDropdown.value
+  if (showHistoryDropdown.value) {
+    fetchHistory()
+  }
+}
+
+function closeHistoryDropdown() {
+  showHistoryDropdown.value = false
+}
+
+function onDropdownKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    closeHistoryDropdown()
+  }
+}
+
+function onClickOutside(e: MouseEvent) {
+  if (historyDropdownRef.value && !historyDropdownRef.value.contains(e.target as Node)) {
+    closeHistoryDropdown()
+  }
+}
+
+function formatHistoryDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  } catch {
+    return dateStr
+  }
+}
+
+function formatHistoryLabel(inputData: any): string {
+  if (!inputData) return ''
+  const { birthYear, birthMonth, birthDay, gender } = inputData
+  let label = `${birthYear}-${String(birthMonth || '').padStart(2, '0')}-${String(birthDay || '').padStart(2, '0')}`
+  if (gender) label += ` ${gender}`
+  return label
 }
 
 const ANIMALS = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
@@ -215,6 +372,9 @@ const animalName = computed(() => {
             <!-- Four Pillars Grid -->
             <BaziGrid :pillars="pillars" />
 
+            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
+            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
+
             <!-- Element Analysis -->
             <ElementAnalysis
               :element-counts="result.elementCounts"
@@ -236,6 +396,14 @@ const animalName = computed(() => {
 
             <!-- Da Yun Timeline -->
             <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+
+            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
+            <LiuNianTimeline
+              v-if="liuNianYears.length > 0"
+              :years="liuNianYears"
+              :current-year="currentYear"
+              :range="5"
+            />
 
             <!-- Reading Guide -->
             <div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-cinnabar/3 to-paper-lightest border border-cinnabar/15">
@@ -287,6 +455,67 @@ const animalName = computed(() => {
               >
                 <span>重新排盘</span>
               </button>
+            </div>
+
+            <!-- Save status & History dropdown -->
+            <div class="relative mt-6">
+              <div class="flex items-center justify-center gap-3">
+                <!-- Save status -->
+                <span v-if="savedDivinationId" class="font-sans text-xs text-wuxing-wood">
+                  已保存
+                </span>
+                <span v-if="saveError" class="font-sans text-xs text-cinnabar/70">
+                  保存失败
+                </span>
+
+                <!-- History button -->
+                <div class="relative">
+                  <button
+                    @click="toggleHistoryDropdown"
+                    @keydown.enter="toggleHistoryDropdown"
+                    @keydown.space.prevent="toggleHistoryDropdown"
+                    class="font-sans text-xs text-ink-light hover:text-ink-medium transition-colors underline underline-offset-2"
+                    aria-haspopup="menu"
+                    :aria-expanded="showHistoryDropdown"
+                  >
+                    历史记录
+                  </button>
+
+                  <!-- Dropdown menu -->
+                  <div
+                    v-if="showHistoryDropdown"
+                    ref="historyDropdownRef"
+                    class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 rounded-lg border border-paper-dark bg-paper shadow-lg z-30"
+                    role="menu"
+                    @keydown="onDropdownKeydown"
+                  >
+                    <div class="p-2">
+                      <p class="font-sans text-xs text-ink-light px-2 py-1">最近测算记录</p>
+                      <div v-if="historyRecords.length === 0" class="px-2 py-3 text-center">
+                        <p class="font-sans text-xs text-ink-light/50">暂无记录</p>
+                      </div>
+                      <div v-else class="space-y-0.5">
+                        <button
+                          v-for="rec in historyRecords"
+                          :key="rec.id"
+                          class="w-full text-left px-2 py-1.5 rounded hover:bg-paper-lightest transition-colors"
+                          role="menuitem"
+                          @click="restoreFromHistory(rec.id)"
+                          @keydown.enter="restoreFromHistory(rec.id)"
+                          @keydown.space.prevent="restoreFromHistory(rec.id)"
+                        >
+                          <div class="font-sans text-xs text-ink-dark">
+                            {{ formatHistoryDate(rec.created_at) }}
+                          </div>
+                          <div class="font-sans text-[0.65rem] text-ink-light/60 truncate">
+                            {{ formatHistoryLabel(rec.input_data) }}
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
