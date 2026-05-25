@@ -2,6 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.2s' }">
     <InkDivider>五行旺衰</InkDivider>
 
+    <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <div v-if="summary" class="font-sans text-sm text-ink-medium mb-4">
       {{ summary }}
     </div>
@@ -21,6 +22,7 @@
         </span>
       </div>
     </div>
+  </div>
   </div>
 </template>
 

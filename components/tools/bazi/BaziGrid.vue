@@ -2,6 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
     <InkDivider>四柱排盘</InkDivider>
 
+    <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
       <div class="grid gap-0 border border-cinnabar/25 rounded-lg overflow-hidden"
@@ -113,6 +114,7 @@
       </div>
       <div class="text-center text-[0.55rem] text-ink-lighter mt-0.5">← 左右滑动查看四柱 →</div>
     </div>
+  </div>
   </div>
 </template>
 
