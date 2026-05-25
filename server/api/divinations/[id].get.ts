@@ -4,10 +4,12 @@ import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
 
 export default defineEventHandler(async (event) => {
-  const id = parseInt(event.context.params!.id)
-  if (isNaN(id)) {
+  const idParam = event.context.params!.id
+  // Validate that the id parameter consists only of digits before parseInt
+  if (!/^\d+$/.test(idParam)) {
     throw createError({ statusCode: 400, statusMessage: '无效的测算记录ID' })
   }
+  const id = parseInt(idParam, 10)
 
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
