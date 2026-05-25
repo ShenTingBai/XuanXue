@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
-import { WUXING_COLORS as ELEMENT_COLORS } from '~/constants/bazi'
+import { WUXING_COLORS as ELEMENT_COLORS, getStemIndex } from '~/constants/bazi'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
@@ -129,7 +129,7 @@ function computeResult() {
       result.value = baziResult
 
       // Compute shensha
-      const dayMasterIndex = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'].indexOf(baziResult.dayMaster)
+      const dayMasterIndex = getStemIndex(baziResult.dayMaster)
       shenShaList.value = calculateShenSha({
         yearPillar: baziResult.yearPillar,
         monthPillar: baziResult.monthPillar,
@@ -206,7 +206,7 @@ async function restoreFromHistory(id: number) {
       result.value = record.result_data as BaZiResult
 
       // Re-compute shensha and liunian from restored result
-      const dayMasterIndex = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'].indexOf(result.value.dayMaster)
+      const dayMasterIndex = getStemIndex(result.value.dayMaster)
       shenShaList.value = calculateShenSha({
         yearPillar: result.value.yearPillar,
         monthPillar: result.value.monthPillar,
@@ -243,6 +243,21 @@ function closeHistoryDropdown() {
 function onDropdownKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     closeHistoryDropdown()
+    return
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    const menu = e.currentTarget as HTMLElement
+    const items = menu.querySelectorAll<HTMLElement>('[role="menuitem"]')
+    if (items.length === 0) return
+    const currentIdx = Array.from(items).indexOf(document.activeElement as HTMLElement)
+    let nextIdx: number
+    if (e.key === 'ArrowDown') {
+      nextIdx = currentIdx < 0 ? 0 : (currentIdx + 1) % items.length
+    } else {
+      nextIdx = currentIdx < 0 ? items.length - 1 : (currentIdx - 1 + items.length) % items.length
+    }
+    items[nextIdx].focus()
   }
 }
 

@@ -4,12 +4,12 @@ import { STEMS, BRANCHES } from '~/constants/bazi'
 
 // === Constants ===
 
-const WUXING_STEM: Record<string, string> = {
+export const WUXING_STEM: Record<string, string> = {
   '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
   '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水',
 }
 
-const WUXING_BRANCH: Record<string, string> = {
+export const WUXING_BRANCH: Record<string, string> = {
   '子': '水', '丑': '土', '寅': '木', '卯': '木', '辰': '土', '巳': '火',
   '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水',
 }
@@ -134,7 +134,7 @@ const TEN_GOD_MATRIX: string[][] = (() => {
 })()
 
 /** Get ten god relationship between day master stem and another stem */
-function getTenGod(dayMasterIndex: number, targetStem: string): string {
+export function getTenGod(dayMasterIndex: number, targetStem: string): string {
   const targetIndex = (STEMS as readonly string[]).indexOf(targetStem)
   if (targetIndex < 0) return '—'
   return TEN_GOD_MATRIX[dayMasterIndex][targetIndex]

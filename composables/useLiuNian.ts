@@ -1,6 +1,6 @@
-import { STEMS, BRANCHES } from '~/constants/bazi'
-import type { BaZiResult } from './useBaZi'
-import type { ShenSha } from './useShenSha'
+import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
+import { getTenGod, WUXING_STEM, WUXING_BRANCH, type BaZiResult } from './useBaZi'
+import { sanHeGroup, checkSanHeBranch, type ShenSha } from './useShenSha'
 import { getMonthStemStart } from './useSolarTerms'
 
 // === Typed Exports ===
@@ -50,48 +50,6 @@ export interface LiuNianInput {
 
 // === Constants ===
 
-const WUXING_STEM: Record<string, string> = {
-  '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
-  '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水',
-}
-
-const WUXING_BRANCH: Record<string, string> = {
-  '子': '水', '丑': '土', '寅': '木', '卯': '木', '辰': '土', '巳': '火',
-  '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水',
-}
-
-// Ten gods matrix helpers
-const STEMS_ARR = STEMS as readonly string[]
-function getWuxingCycle(idx: number): string {
-  return ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水'][idx]
-}
-
-function getStemYinYang(idx: number): '阳' | '阴' {
-  return ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴'][idx] as '阳' | '阴'
-}
-
-function getTenGod(dayMasterIndex: number, targetStem: string): string {
-  const targetIndex = STEMS_ARR.indexOf(targetStem)
-  if (targetIndex < 0) return '—'
-  if (dayMasterIndex === targetIndex) return '比肩'
-
-  const dmWx = getWuxingCycle(dayMasterIndex)
-  const targetWx = getWuxingCycle(targetIndex)
-  const dmYy = getStemYinYang(dayMasterIndex)
-  const targetYy = getStemYinYang(targetIndex)
-  const sameYy = dmYy === targetYy
-
-  const produces: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
-  const controls: Record<string, string> = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' }
-
-  if (targetWx === dmWx) return sameYy ? '比肩' : '劫财'
-  if (produces[targetWx] === dmWx) return sameYy ? '偏印' : '正印'
-  if (produces[dmWx] === targetWx) return sameYy ? '食神' : '伤官'
-  if (controls[targetWx] === dmWx) return sameYy ? '偏官' : '正官'
-  if (controls[dmWx] === targetWx) return sameYy ? '偏财' : '正财'
-  return '比肩'
-}
-
 // === Earth branch relations ===
 
 const LIU_HE: [string, string][] = [
@@ -122,11 +80,17 @@ function checkChong(b1: string, b2: string): boolean {
   return LIU_CHONG.some(([a, b]) => (a === b1 && b === b2) || (a === b2 && b === b1))
 }
 
-function checkXing(b1: string, b2: string): boolean {
+// Branches that form self刑: 辰辰, 午午, 酉酉, 亥亥
+const SELF_XING = new Set(['辰', '午', '酉', '亥'])
+
+function checkXing(b1: string, b2: string): { isXing: boolean; isSelfXing: boolean } {
+  // Self刑: same branch in the self刑 set
+  if (b1 === b2 && SELF_XING.has(b1)) return { isXing: true, isSelfXing: true }
+  // Group三刑: different branches in the same 三刑 group
   for (const group of SAN_XING) {
-    if (group.includes(b1) && group.includes(b2) && b1 !== b2) return true
+    if (group.includes(b1) && group.includes(b2) && b1 !== b2) return { isXing: true, isSelfXing: false }
   }
-  return false
+  return { isXing: false, isSelfXing: false }
 }
 
 function checkHai(b1: string, b2: string): boolean {
@@ -141,6 +105,7 @@ const RELATION_DESC_TEMPLATES: Record<string, string> = {
   '合': '与{year}流年地支六合，主合作、姻缘、贵人相助',
   '冲': '与{year}流年地支相冲，主变动、奔波、冲击',
   '刑': '与{year}流年地支相刑，主是非、官非、伤害',
+  '自刑': '与{year}流年地支自刑，主自寻烦恼、内心矛盾',
   '害': '与{year}流年地支相害，主小人、暗算、不睦',
   '破': '与{year}流年地支相破，主破坏、损耗、暗中损毁',
 }
@@ -311,32 +276,6 @@ function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch
 
 // === Year-specific shensha helpers ===
 
-/** Get 三合 group index: 0=申子辰, 1=巳酉丑, 2=寅午戌, 3=亥卯未 */
-function sanHeGroup(branch: string): number {
-  const groups: Record<string, number> = {
-    '申': 0, '子': 0, '辰': 0,
-    '巳': 1, '酉': 1, '丑': 1,
-    '寅': 2, '午': 2, '戌': 2,
-    '亥': 3, '卯': 3, '未': 3,
-  }
-  return groups[branch] ?? -1
-}
-
-/** Check if targetBranch matches a 三合-based pattern relative to sourceBranch. */
-function checkSanHeBranch(sourceBranch: string, targetBranch: string, patternIdx: number): boolean {
-  const group = sanHeGroup(sourceBranch)
-  if (group < 0) return false
-  const targets: string[][] = [
-    ['子', '酉', '午', '卯'], // 0: 将星
-    ['辰', '丑', '戌', '未'], // 1: 华盖
-    ['寅', '亥', '申', '巳'], // 2: 驿马
-    ['酉', '午', '卯', '子'], // 3: 桃花
-    ['巳', '寅', '亥', '申'], // 4: 劫煞
-    ['午', '卯', '子', '酉'], // 5: 灾煞
-  ]
-  return targetBranch === targets[patternIdx][group]
-}
-
 /**
  * Compute year-specific shenshas by checking if the year's branch triggers
  * any of the 年支-based shensha patterns against the birth year branch.
@@ -376,7 +315,7 @@ function computeYearShensha(
 export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
   const { baZi, shenSha: birthShenSha = [], currentYear, range = 5 } = input
 
-  const dayMasterIdx = (STEMS as readonly string[]).indexOf(baZi.dayMaster)
+  const dayMasterIdx = getStemIndex(baZi.dayMaster)
   const favorableElements = baZi.favorableElements
   const unfavorableElements = baZi.unfavorableElements
 
@@ -424,12 +363,14 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
           description: RELATION_DESC_TEMPLATES['冲'].replace('{year}', String(year)),
         })
       }
-      if (checkXing(yearBranch, pillarBranch)) {
+      const xingResult = checkXing(yearBranch, pillarBranch)
+      if (xingResult.isXing) {
+        const xingTemplateKey = xingResult.isSelfXing ? '自刑' : '刑'
         earthRelations.push({
           type: '刑',
           target: pillarBranch,
           targetPillar: pillar.pillarName,
-          description: RELATION_DESC_TEMPLATES['刑'].replace('{year}', String(year)),
+          description: RELATION_DESC_TEMPLATES[xingTemplateKey].replace('{year}', String(year)),
         })
       }
       if (checkHai(yearBranch, pillarBranch)) {

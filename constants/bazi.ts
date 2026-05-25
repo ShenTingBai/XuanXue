@@ -5,3 +5,8 @@ export const WUXING_COLORS: Record<string, string> = {
   '金': '#8E8E8E', '水': '#2C5F7C',
 }
 export const WUXING_FALLBACK_COLOR = '#6B5B4F'
+
+/** Get the index of a heavenly stem in the STEMS array. Returns -1 if not found. */
+export function getStemIndex(stem: string): number {
+  return STEMS.indexOf(stem)
+}

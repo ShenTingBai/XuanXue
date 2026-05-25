@@ -1,5 +1,6 @@
 import { dbAll } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
+import { checkRateLimit } from '../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
@@ -7,6 +8,11 @@ export default defineEventHandler(async (event) => {
   const profileId = token ? getProfileIdFromToken(token) : null
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
+  }
+
+  // Rate limiting: 10 requests per minute per profile
+  if (!checkRateLimit(`divination-list:${profileId}`, 10, 60000)) {
+    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
   const query = getQuery(event)

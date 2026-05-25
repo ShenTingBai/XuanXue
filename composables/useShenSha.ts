@@ -10,7 +10,7 @@ export interface ShenShaInput {
   hourPillar: BaZiPillar | null
   dayMaster: string
   dayMasterIndex: number
-  gender: '男' | '女' | null
+  gender: '男' | '女' | null  // reserved for future use (e.g., gender-specific shensha priorities)
 }
 
 export interface ShenSha {
@@ -28,7 +28,7 @@ function stemIdx(stem: string): number { return STEMS.indexOf(stem) }
 function branchIdx(branch: string): number { return BRANCHES.indexOf(branch) }
 
 /** Get 三合 group index: 0=申子辰, 1=巳酉丑, 2=寅午戌, 3=亥卯未 */
-function sanHeGroup(branch: string): number {
+export function sanHeGroup(branch: string): number {
   const groups: Record<string, number> = {
     '申': 0, '子': 0, '辰': 0,
     '巳': 1, '酉': 1, '丑': 1,
@@ -42,7 +42,7 @@ function sanHeGroup(branch: string): number {
  * Check if a given branch matches the expected branch pattern for a 三合 lookup.
  * Used for: 将星, 华盖, 驿马, 桃花, 劫煞, 灾煞
  */
-function checkSanHeBranch(yearBranch: string, targetBranch: string, patternIdx: number): boolean {
+export function checkSanHeBranch(yearBranch: string, targetBranch: string, patternIdx: number): boolean {
   const group = sanHeGroup(yearBranch)
   if (group < 0) return false
   // patternIdx: 0=将星(中), 1=华盖(末), 2=驿马, 3=桃花, 4=劫煞, 5=灾煞

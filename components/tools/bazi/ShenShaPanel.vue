@@ -10,7 +10,7 @@
       <!-- Empty state: no shenshas at all -->
       <p v-if="auspicious.length === 0 && neutral.length === 0 && inauspicious.length === 0"
         class="font-sans text-xs text-ink-light/60">
-        暂无神煞数据
+        该命局无特殊神煞标记
       </p>
 
       <!-- 吉神 -->

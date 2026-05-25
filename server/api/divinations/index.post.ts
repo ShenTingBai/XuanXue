@@ -39,6 +39,15 @@ export default defineEventHandler(async (event) => {
   const inputDataStr = typeof input_data === 'string' ? input_data : JSON.stringify(input_data)
   const resultDataStr = typeof result_data === 'string' ? result_data : JSON.stringify(result_data)
 
+  // Size limits: prevent oversized payloads from exhausting memory or bloating the database
+  const MAX_PAYLOAD_BYTES = 100_000
+  if (Buffer.byteLength(inputDataStr) > MAX_PAYLOAD_BYTES) {
+    throw createError({ statusCode: 413, statusMessage: '输入数据过大' })
+  }
+  if (Buffer.byteLength(resultDataStr) > MAX_PAYLOAD_BYTES) {
+    throw createError({ statusCode: 413, statusMessage: '结果数据过大' })
+  }
+
   const { lastInsertRowid } = dbRun(
     'INSERT INTO divination_results (profile_id, type, input_data, result_data) VALUES (?, ?, ?, ?)',
     [profileId, type, inputDataStr, resultDataStr]
