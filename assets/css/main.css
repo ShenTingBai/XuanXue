@@ -256,6 +256,95 @@
     border: 1px solid #E0D5C0;
     box-shadow: 0 8px 32px rgba(44, 24, 16, 0.12);
   }
+
+  /* ===== Skeleton loading ===== */
+  .skeleton-pulse {
+    @apply rounded;
+    background: linear-gradient(
+      90deg,
+      rgba(214, 197, 176, 0.15) 25%,
+      rgba(214, 197, 176, 0.30) 50%,
+      rgba(214, 197, 176, 0.15) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .skeleton-block {
+    @apply skeleton-pulse;
+    height: 1rem;
+  }
+  .skeleton-block--lg {
+    @apply skeleton-pulse;
+    height: 2rem;
+  }
+
+  /* ===== Fortune Bar ===== */
+  .fortune-bar {
+    @apply relative overflow-hidden rounded-full h-2;
+    background: rgba(214, 197, 176, 0.3);
+  }
+  .fortune-bar__fill {
+    @apply absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out;
+  }
+  .fortune-bar__fill--great  { background: #4A7C59; }
+  .fortune-bar__fill--good   { background: #B8860B; }
+  .fortune-bar__fill--normal { background: #6B5B4F; }
+  .fortune-bar__fill--low    { background: #C62828; }
+
+  /* ===== Yi/Ji Panel ===== */
+  .yiyi-card {
+    @apply rounded-xl p-4 border;
+  }
+  .yiyi-card--yi {
+    border-color: #4A7C59;
+    background: rgba(74, 124, 89, 0.06);
+  }
+  .yiyi-card--ji {
+    border-color: #8E8E8E;
+    background: rgba(142, 142, 142, 0.06);
+  }
+  .yiyi-border {
+    border-width: 3px;
+    border-style: solid;
+  }
+  .yiyi-border--yi { border-color: #4A7C59; }
+  .yiyi-border--ji { border-color: #8E8E8E; }
+
+  /* ===== Nav Link ===== */
+  .nav-link {
+    @apply relative inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition-colors no-underline;
+    color: #6B5B4F;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .nav-link:hover {
+    color: #C62828;
+    background: rgba(198, 40, 40, 0.05);
+  }
+  .nav-link--active {
+    color: #C62828;
+    background: rgba(198, 40, 40, 0.08);
+  }
+  .nav-link--locked {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* ===== WuXing Element Card ===== */
+  .wuxing-card {
+    @apply rounded-xl p-4 text-center border;
+    background: rgba(251, 248, 244, 0.9);
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+  .wuxing-card:hover {
+    transform: translateY(-2px);
+  }
+  .wuxing-card--wood  { border-color: #4A7C59; }
+  .wuxing-card--fire  { border-color: #C62828; }
+  .wuxing-card--earth { border-color: #B8860B; }
+  .wuxing-card--metal { border-color: #8E8E8E; }
+  .wuxing-card--water { border-color: #2C5F7C; }
 }
 
 /* Keyframes must be OUTSIDE @layer for Tailwind PostCSS compat */
@@ -313,6 +402,11 @@ a:focus-visible {
 .sr-only:focus-visible + span {
   outline: 2px solid #C62828;
   outline-offset: 2px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ===== Reduced Motion ===== */
