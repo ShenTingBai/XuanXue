@@ -3,10 +3,10 @@
     <div class="flex items-center gap-3 flex-wrap">
       <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
       <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-faint">
-        <span class="inline-block w-2 h-2 rounded-full" style="background: #4A7C59" aria-hidden="true"></span>顺遂
-        <span class="inline-block w-2 h-2 rounded-full" style="background: #8B6914" aria-hidden="true"></span>平稳
-        <span class="inline-block w-2 h-2 rounded-full" style="background: #6E6E6E" aria-hidden="true"></span>需注意
-        <span class="inline-block w-2 h-2 rounded-full" style="background: #C62828" aria-hidden="true"></span>挑战
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>顺遂
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(60) }" aria-hidden="true"></span>平稳
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(40) }" aria-hidden="true"></span>需注意
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(20) }" aria-hidden="true"></span>挑战
       </span>
     </div>
 
@@ -187,6 +187,14 @@
 <script setup lang="ts">
 import type { LiuNianYear } from '~/composables/useLiuNian'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha.toFixed(3)})`
+}
 
 const props = defineProps<{
   years: LiuNianYear[]
@@ -215,18 +223,18 @@ function monthLabel(month: number): string {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 70) return '#4A7C59'
-  if (score >= 50) return '#8B6914'
-  if (score >= 30) return '#6E6E6E'
-  return '#C62828'
+  if (score >= 70) return WUXING_COLORS['木']
+  if (score >= 50) return WUXING_COLORS['土']
+  if (score >= 30) return WUXING_COLORS['金']
+  return WUXING_COLORS['火']
 }
 
 const RELATION_COLORS: Record<string, { bg: string; text: string }> = {
-  '合': { bg: '#4A7C5918', text: '#4A7C59' },
-  '冲': { bg: '#C6282818', text: '#C62828' },
-  '刑': { bg: '#8B691418', text: '#8B6914' },
-  '害': { bg: '#6E6E6E18', text: '#6E6E6E' },
-  '破': { bg: '#6B5B4F18', text: '#6B5B4F99' },
+  '合': { bg: hexToRgba(WUXING_COLORS['木'], 24 / 255), text: WUXING_COLORS['木'] },
+  '冲': { bg: hexToRgba(WUXING_COLORS['火'], 24 / 255), text: WUXING_COLORS['火'] },
+  '刑': { bg: hexToRgba(WUXING_COLORS['土'], 24 / 255), text: WUXING_COLORS['土'] },
+  '害': { bg: hexToRgba(WUXING_COLORS['金'], 24 / 255), text: WUXING_COLORS['金'] },
+  '破': { bg: hexToRgba(WUXING_FALLBACK_COLOR, 24 / 255), text: hexToRgba(WUXING_FALLBACK_COLOR, 153 / 255) },
 }
 
 function relationBadgeStyle(type: string): Record<string, string> {
@@ -236,24 +244,27 @@ function relationBadgeStyle(type: string): Record<string, string> {
 
 function tenGodBadgeStyle(isFavorable: boolean, isUnfavorable: boolean): Record<string, string> {
   if (isFavorable) {
-    return { background: '#4A7C5918', color: '#4A7C59' }
+    return { background: hexToRgba(WUXING_COLORS['木'], 24 / 255), color: WUXING_COLORS['木'] }
   }
   if (isUnfavorable) {
-    return { background: '#C628280E', color: '#C6282890' }
+    return { background: hexToRgba(WUXING_COLORS['火'], 14 / 255), color: hexToRgba(WUXING_COLORS['火'], 144 / 255) }
   }
-  return { background: '#6B5B4F12', color: '#6B5B4F' }
+  return { background: hexToRgba(WUXING_FALLBACK_COLOR, 18 / 255), color: WUXING_FALLBACK_COLOR }
 }
 
 function shenShaBadgeStyle(category: '吉' | '凶' | '中性'): Record<string, string> {
+  const wood = WUXING_COLORS['木']
+  const fire = WUXING_COLORS['火']
+  const fb = WUXING_FALLBACK_COLOR
   switch (category) {
     case '吉':
-      return { background: '#4A7C5918', color: '#4A7C59', border: '1px solid #4A7C5930' }
+      return { background: hexToRgba(wood, 24 / 255), color: wood, border: `1px solid ${hexToRgba(wood, 48 / 255)}` }
     case '凶':
-      return { background: '#C628280E', color: '#C6282890', border: '1px solid #C6282820' }
+      return { background: hexToRgba(fire, 14 / 255), color: hexToRgba(fire, 144 / 255), border: `1px solid ${hexToRgba(fire, 32 / 255)}` }
     case '中性':
-      return { background: '#6B5B4F12', color: '#6B5B4F', border: '1px solid #6B5B4F28' }
+      return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
     default:
-      return { background: '#6B5B4F12', color: '#6B5B4F', border: '1px solid #6B5B4F28' }
+      return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
   }
 }
 </script>

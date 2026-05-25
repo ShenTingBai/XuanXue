@@ -24,7 +24,7 @@
           >
             <button
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="{ background: '#4A7C5918', color: '#4A7C59', border: '1px solid #4A7C5930' }"
+              :style="buttonStyle('吉')"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
@@ -38,7 +38,7 @@
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              style="background: #1A0F0A; color: #EDE4D3; border: 1px solid #6B5B4F; max-width: 16rem; white-space: normal;"
+              :style="tooltipStyle"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
@@ -58,7 +58,7 @@
           >
             <button
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="{ background: '#6B5B4F12', color: '#6B5B4F', border: '1px solid #6B5B4F28' }"
+              :style="buttonStyle('中性')"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
@@ -71,7 +71,7 @@
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              style="background: #1A0F0A; color: #EDE4D3; border: 1px solid #6B5B4F; max-width: 16rem; white-space: normal;"
+              :style="tooltipStyle"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
@@ -91,7 +91,7 @@
           >
             <button
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="{ background: '#C628280E', color: '#8E1D1D', border: '1px solid #C6282820' }"
+              :style="buttonStyle('凶')"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
@@ -104,7 +104,7 @@
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              style="background: #1A0F0A; color: #EDE4D3; border: 1px solid #6B5B4F; max-width: 16rem; white-space: normal;"
+              :style="tooltipStyle"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
@@ -119,6 +119,36 @@
 <script setup lang="ts">
 import type { ShenSha } from '~/composables/useShenSha'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha.toFixed(3)})`
+}
+
+function buttonStyle(category: '吉' | '凶' | '中性'): Record<string, string> {
+  const wood = WUXING_COLORS['木']
+  const fire = WUXING_COLORS['火']
+  const fb = WUXING_FALLBACK_COLOR
+  switch (category) {
+    case '吉':
+      return { background: hexToRgba(wood, 24 / 255), color: wood, border: `1px solid ${hexToRgba(wood, 48 / 255)}` }
+    case '凶':
+      return { background: hexToRgba(fire, 14 / 255), color: fire, border: `1px solid ${hexToRgba(fire, 32 / 255)}` }
+    case '中性':
+      return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
+  }
+}
+
+const tooltipStyle = {
+  background: '#1A0F0A',
+  color: '#EDE4D3',
+  border: `1px solid ${WUXING_FALLBACK_COLOR}`,
+  maxWidth: '16rem',
+  whiteSpace: 'normal' as const,
+}
 
 const props = defineProps<{
   shenSha: ShenSha[]
