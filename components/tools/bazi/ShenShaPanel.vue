@@ -36,7 +36,7 @@
             </button>
             <!-- Tooltip -->
             <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-50"
               :class="[
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
@@ -44,7 +44,7 @@
               :style="tooltipStyle"
             >
               {{ ss.description }}
-              <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
+              <span class="block mt-0.5 opacity-75 text-[0.7rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
             </span>
           </li>
         </ul>
@@ -77,7 +77,9 @@ const tooltipStyle = {
   color: '#EDE4D3',
   border: `1px solid ${WUXING_FALLBACK_COLOR}`,
   maxWidth: '16rem',
+  minWidth: '10rem',
   whiteSpace: 'normal' as const,
+  boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
 }
 
 const props = defineProps<{
