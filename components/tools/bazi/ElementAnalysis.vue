@@ -2,12 +2,12 @@
   <div class="fade-in" :style="{ '--delay': '0.2s' }">
     <InkDivider>五行旺衰</InkDivider>
 
-    <p class="font-sans text-sm text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
       五行（金木水火土）在你八字中的分布。柱条越长，该能量越强，对你影响越大。
     </p>
 
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
-    <div v-if="summary" class="font-sans text-sm text-ink-medium mb-4">
+    <div v-if="summary" class="font-sans text-base text-ink-medium mb-4">
       {{ summary }}
     </div>
 
@@ -21,7 +21,7 @@
             :style="{ width: el.percent + '%', background: el.color }"
           />
         </div>
-        <span class="w-6 text-xs text-ink-light text-right font-sans flex-shrink-0">
+        <span class="w-6 text-sm text-ink-light text-right font-sans flex-shrink-0">
           {{ el.count }}
         </span>
       </div>

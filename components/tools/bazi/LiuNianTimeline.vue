@@ -2,12 +2,12 @@
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
     <InkDivider>流年详批（&plusmn;{{ range }}年）</InkDivider>
 
-    <p class="font-sans text-sm text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
       以今年（{{ currentYear }}年）为中心的{{ years.length }}年运势概述。高亮卡片为今年展开详批，其余年份为紧凑概览。
     </p>
 
     <!-- No data state -->
-    <p v-if="years.length === 0" class="font-sans text-xs text-ink-light/60">
+    <p v-if="years.length === 0" class="font-sans text-sm text-ink-light/60">
       暂无流年数据
     </p>
 
@@ -24,7 +24,7 @@
           <div class="flex items-baseline gap-3 mb-3 flex-wrap">
             <span class="font-display text-2xl text-cinnabar font-medium">{{ year.year }}</span>
             <span class="font-display text-xl text-ink-dark">{{ year.stem }}{{ year.branch }}年</span>
-            <span class="font-sans text-sm text-cinnabar font-medium">{{ year.tenGod }}</span>
+            <span class="font-sans text-base text-cinnabar font-medium">{{ year.tenGod }}</span>
             <!-- Score ring -->
             <div class="ml-auto flex items-center gap-1.5">
               <svg class="w-10 h-10 -rotate-90"
@@ -40,19 +40,19 @@
                   :stroke-dasharray="`${(year.score / 100) * 87.96} 87.96`"
                 />
               </svg>
-              <span class="font-sans text-sm font-medium" :style="{ color: scoreColor(year.score) }">
+              <span class="font-sans text-base font-medium" :style="{ color: scoreColor(year.score) }">
                 {{ year.score }}
               </span>
             </div>
           </div>
 
           <!-- Summary -->
-          <p class="font-sans text-sm text-ink-medium mb-3">{{ year.summary }}</p>
+          <p class="font-sans text-base text-ink-medium mb-3">{{ year.summary }}</p>
 
           <!-- Detail sections -->
           <div class="space-y-3">
             <!-- DaYun + year interaction -->
-            <div class="font-sans text-xs text-ink-light bg-paper-lightest/60 rounded-lg p-2.5">
+            <div class="font-sans text-sm text-ink-light bg-paper-lightest/60 rounded-lg p-2.5">
               <span class="font-medium text-ink-dark">大运{{ year.daYunStem }}{{ year.daYunBranch }}</span>
               <span class="mx-1">&middot;</span>
               {{ year.detail.daYunInteraction }}
@@ -63,7 +63,7 @@
               <h5 class="font-sans text-xs font-medium text-ink-dark mb-1.5">四柱地支关系</h5>
               <div v-if="year.earthRelations.length > 0" class="space-y-1.5">
                 <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
-                  class="flex items-center gap-2 text-xs font-sans"
+                  class="flex items-center gap-2 text-sm font-sans"
                 >
                   <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-medium"
                     :style="relationBadgeStyle(rel.type)"
@@ -72,7 +72,7 @@
                   <span class="text-ink-light/60">{{ rel.description }}</span>
                 </div>
               </div>
-              <p v-else class="font-sans text-xs text-ink-light/60">
+              <p v-else class="font-sans text-sm text-ink-light/60">
                 流年地支与命局各柱无特殊关系
               </p>
             </div>
@@ -86,7 +86,7 @@
                   role="gridcell"
                 >
                   <div class="font-sans text-[0.6rem] text-ink-light">{{ monthLabel(ms.month) }}</div>
-                  <div class="font-display text-xs text-ink-dark">{{ ms.stem }}{{ ms.branch }}</div>
+                  <div class="font-display text-sm text-ink-dark">{{ ms.stem }}{{ ms.branch }}</div>
                 </div>
               </div>
             </div>
@@ -96,7 +96,7 @@
               <h5 class="font-sans text-xs font-medium text-ink-dark mb-1.5">流年神煞</h5>
               <div class="flex flex-wrap gap-1.5">
                 <span v-for="ss in year.shenSha" :key="ss.name"
-                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-sans cursor-default"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default"
                   :style="shenShaBadgeStyle(ss.category)"
                   :title="ss.description"
                 >{{ ss.name }}</span>
@@ -108,7 +108,7 @@
               <h5 class="font-sans text-xs font-medium text-ink-dark mb-1.5">各柱影响</h5>
               <ul class="space-y-0.5">
                 <li v-for="(interaction, i) in year.detail.pillarsInteraction" :key="i"
-                  class="font-sans text-xs text-ink-medium"
+                  class="font-sans text-sm text-ink-medium"
                 >{{ interaction }}</li>
               </ul>
             </div>
@@ -130,7 +130,7 @@
           <div class="flex items-center gap-2.5">
             <span class="font-sans text-sm text-ink-dark font-medium w-12 flex-shrink-0">{{ year.year }}</span>
             <span class="font-display text-lg text-ink-dark w-14 flex-shrink-0">{{ year.stem }}{{ year.branch }}</span>
-            <span class="font-sans text-xs px-1.5 py-0.5 rounded"
+            <span class="font-sans text-sm px-1.5 py-0.5 rounded"
               :style="tenGodBadgeStyle(year.isFavorable, year.isUnfavorable)"
             >{{ year.tenGod }}</span>
             <!-- Score bar -->
@@ -139,17 +139,17 @@
                 :style="{ width: year.score + '%', background: scoreColor(year.score) }"
               />
             </div>
-            <span class="font-sans text-xs font-medium w-8 text-right" :style="{ color: scoreColor(year.score) }">
+            <span class="font-sans text-sm font-medium w-8 text-right" :style="{ color: scoreColor(year.score) }">
               {{ year.score }}
             </span>
           </div>
-          <p class="font-sans text-xs text-ink-light/70 mt-1.5 truncate">{{ year.summary }}</p>
+          <p class="font-sans text-sm text-ink-light/70 mt-1.5 truncate">{{ year.summary }}</p>
 
           <!-- Expanded detail -->
           <div v-if="expandedYears.has(idx)" class="mt-3 pt-3 border-t border-paper-dark/50 space-y-2">
             <div v-if="year.earthRelations.length > 0">
               <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
-                class="flex items-center gap-2 text-xs font-sans"
+                class="flex items-center gap-2 text-sm font-sans"
               >
                 <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-medium"
                   :style="relationBadgeStyle(rel.type)"
@@ -158,7 +158,7 @@
                 <span class="text-ink-light/60 hidden sm:inline">{{ rel.description }}</span>
               </div>
             </div>
-            <p v-else class="font-sans text-xs text-ink-light/60">流年地支与命局无特殊关系</p>
+            <p v-else class="font-sans text-sm text-ink-light/60">流年地支与命局无特殊关系</p>
 
             <!-- Shensha tags for expanded compact card -->
             <div v-if="year.shenSha.length > 0" class="flex flex-wrap gap-1">

@@ -2,7 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
     <InkDivider>四柱排盘</InkDivider>
 
-    <p class="font-sans text-sm text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
       年柱代表家族根基，月柱代表成长环境，日柱代表你自己和婚姻，时柱代表晚年与子女。
     </p>
 
@@ -53,7 +53,7 @@
 
         <!-- Hidden Stems row -->
         <div v-for="(p, idx) in pillars" :key="'hs-' + idx"
-          class="py-2 px-2 text-center text-xs sm:text-sm text-ink-light leading-relaxed border-b border-paper-dark"
+          class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-paper-dark"
           :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
         >
           <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
@@ -116,7 +116,7 @@
           </div>
         </div>
       </div>
-      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs text-ink-lighter font-sans">
+      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-lighter font-sans">
         <div>天干 — 上面的彩色大字</div>
         <div>地支 — 下面的彩色大字</div>
         <div>十神 — 人际关系标签</div>

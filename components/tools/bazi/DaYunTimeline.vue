@@ -2,7 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.4s' }">
     <InkDivider>大运</InkDivider>
 
-    <p class="font-sans text-sm text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
       大运是你人生每十年一段的运势走向。高亮的卡片对应你当前的年龄段。
     </p>
 
@@ -21,7 +21,7 @@
         <div class="font-display text-lg font-medium text-ink-dark mb-1">
           {{ cycle.stemBranch }}
         </div>
-        <div class="font-sans text-[0.65rem] text-ink-medium leading-tight">
+        <div class="font-sans text-xs text-ink-medium leading-tight">
           {{ cycle.description }}
         </div>
       </div>

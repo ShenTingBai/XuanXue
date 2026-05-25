@@ -307,7 +307,7 @@ const animalName = computed(() => {
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-          <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以进行八字排盘</p>
+          <p class="font-sans text-base text-ink-light mb-6">需要填写出生日期以进行八字排盘</p>
           <NuxtLink
             :to="`/profile/${currentProfile?.id}`"
             class="btn-seal inline-flex"
@@ -324,7 +324,7 @@ const animalName = computed(() => {
 
         <!-- Error -->
         <div v-else-if="error" class="text-center py-16">
-          <p class="font-sans text-sm text-cinnabar" role="alert">{{ error }}</p>
+          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
           <div class="flex justify-center mt-6">
             <button
               @click="computeResult"
@@ -342,7 +342,7 @@ const animalName = computed(() => {
           <div class="max-w-2xl mx-auto">
             <!-- Personal info summary (mobile/tablet only, desktop uses right sidebar) -->
             <div class="xl:hidden mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/3 border border-cinnabar/15">
-              <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm">
+              <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-base">
                 <div>
                   <span class="text-ink-light">出生</span>
                   <strong class="text-ink-dark ml-1">{{ result.birthYear }}年</strong>
@@ -379,7 +379,7 @@ const animalName = computed(() => {
 
             <!-- Brief intro -->
             <div class="mb-6 p-3 rounded-lg bg-paper-lightest/50 border border-paper-dark/30 text-center">
-              <p class="font-sans text-xs text-ink-light">
+              <p class="font-sans text-sm text-ink-light">
                 以下是你的八字排盘结果，底部有解读总结
               </p>
             </div>
@@ -427,7 +427,7 @@ const animalName = computed(() => {
                 你的八字解读
               </h3>
 
-              <div class="space-y-3 font-sans text-sm text-ink-medium leading-relaxed">
+              <div class="space-y-3 font-sans text-base text-ink-medium leading-relaxed">
                 <p>
                   <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
                   日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
@@ -454,7 +454,7 @@ const animalName = computed(() => {
 
             <!-- Hour missing notice -->
             <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
-              <p class="font-sans text-sm text-ink-medium">
+              <p class="font-sans text-base text-ink-medium">
                 出生时辰未设置，时柱暂不显示。
                 <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-cinnabar hover:underline">前往设置</NuxtLink>
               </p>

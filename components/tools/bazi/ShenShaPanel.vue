@@ -2,14 +2,14 @@
   <div class="fade-in" :style="{ '--delay': '0.15s' }">
     <InkDivider>神煞</InkDivider>
 
-    <p class="font-sans text-sm text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
       神煞是命局中的特殊标记，吉神代表先天福分，凶煞提示需留意之处。
     </p>
 
     <div class="card-paper-solid rounded-xl p-4 sm:p-5 space-y-4">
       <!-- Empty state: no shenshas at all -->
       <p v-if="auspicious.length === 0 && neutral.length === 0 && inauspicious.length === 0"
-        class="font-sans text-xs text-ink-light/60">
+        class="font-sans text-sm text-ink-light/60">
         该命局无特殊神煞标记
       </p>
 
@@ -20,7 +20,7 @@
           <li
             v-for="ss in auspicious"
             :key="ss.name + ss.pillar + ss.position"
-            class="relative group inline-flex items-center px-2 py-0.5 rounded text-xs font-sans cursor-default transition-colors"
+            class="relative group inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default transition-colors"
             :style="{ background: '#4A7C5918', color: '#4A7C59', border: '1px solid #4A7C5930' }"
             :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
           >
@@ -44,7 +44,7 @@
           <li
             v-for="ss in neutral"
             :key="ss.name + ss.pillar + ss.position"
-            class="relative group inline-flex items-center px-2 py-0.5 rounded text-xs font-sans cursor-default transition-colors"
+            class="relative group inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default transition-colors"
             :style="{ background: '#6B5B4F12', color: '#6B5B4F', border: '1px solid #6B5B4F28' }"
             :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
           >
@@ -67,7 +67,7 @@
           <li
             v-for="ss in inauspicious"
             :key="ss.name + ss.pillar + ss.position"
-            class="relative group inline-flex items-center px-2 py-0.5 rounded text-xs font-sans cursor-default transition-colors"
+            class="relative group inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default transition-colors"
             :style="{ background: '#C628280E', color: '#C6282890', border: '1px solid #C6282820' }"
             :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
           >
