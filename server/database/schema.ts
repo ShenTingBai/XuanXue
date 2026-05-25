@@ -2,7 +2,7 @@ export const CREATE_PROFILES_TABLE = `
 CREATE TABLE IF NOT EXISTS profiles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nickname TEXT NOT NULL UNIQUE,
-  pin TEXT NOT NULL CHECK(length(pin) = 4),
+  pin TEXT NOT NULL,
   birth_date TEXT,
   birth_calendar TEXT CHECK(birth_calendar IS NULL OR birth_calendar IN ('solar', 'lunar')),
   birth_hour INTEGER CHECK(birth_hour IS NULL OR (birth_hour >= 0 AND birth_hour <= 23)),
@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS sessions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   profile_id INTEGER NOT NULL REFERENCES profiles(id),
   token TEXT NOT NULL UNIQUE,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT
 )
 `
 
@@ -35,3 +36,18 @@ CREATE TABLE IF NOT EXISTS divination_results (
 
 export const INDEX_SESSIONS_PROFILE = `CREATE INDEX IF NOT EXISTS idx_sessions_profile ON sessions(profile_id)`
 export const INDEX_DIVINATION_PROFILE = `CREATE INDEX IF NOT EXISTS idx_divination_profile ON divination_results(profile_id)`
+
+export const CREATE_SECURITY_LOG_TABLE = `
+CREATE TABLE IF NOT EXISTS security_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  profile_id INTEGER REFERENCES profiles(id),
+  event_type TEXT NOT NULL,
+  ip TEXT,
+  user_agent TEXT,
+  details TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+)
+`
+
+export const INDEX_SECURITY_LOG_PROFILE = `CREATE INDEX IF NOT EXISTS idx_security_log_profile ON security_log(profile_id)`
+export const INDEX_SECURITY_LOG_TYPE = `CREATE INDEX IF NOT EXISTS idx_security_log_type ON security_log(event_type)`

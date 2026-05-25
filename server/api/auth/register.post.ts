@@ -1,5 +1,5 @@
 import { dbGet, dbRun } from '../../database/db'
-import { createSessionToken } from '../../utils/auth'
+import { createSessionToken, hashPin } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
 
 export default defineEventHandler(async (event) => {
@@ -24,9 +24,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 409, statusMessage: '该昵称已被使用' })
   }
 
+  // Hash PIN before storing
+  const hashedPin = hashPin(pin)
+
   let result: ReturnType<typeof dbRun>
   try {
-    result = dbRun('INSERT INTO profiles (nickname, pin) VALUES (?, ?)', [nickname, pin])
+    result = dbRun('INSERT INTO profiles (nickname, pin) VALUES (?, ?)', [nickname, hashedPin])
   } catch (err: any) {
     if (err?.message?.includes('UNIQUE constraint failed: profiles.nickname')) {
       throw createError({ statusCode: 409, statusMessage: '该昵称已被使用' })

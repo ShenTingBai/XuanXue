@@ -5,8 +5,11 @@ import {
   CREATE_PROFILES_TABLE,
   CREATE_SESSIONS_TABLE,
   CREATE_DIVINATION_TABLE,
+  CREATE_SECURITY_LOG_TABLE,
   INDEX_SESSIONS_PROFILE,
   INDEX_DIVINATION_PROFILE,
+  INDEX_SECURITY_LOG_PROFILE,
+  INDEX_SECURITY_LOG_TYPE,
 } from './schema'
 
 const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue.db')
@@ -70,6 +73,30 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_DIVINATION_TABLE)
     db.run(INDEX_SESSIONS_PROFILE)
     db.run(INDEX_DIVINATION_PROFILE)
+
+    // Phase 2 migrations
+    // Migration: add expires_at column if it doesn't exist
+    try { db.run("ALTER TABLE sessions ADD COLUMN expires_at TEXT") } catch { /* already exists */ }
+
+    // Migration: remove pin CHECK(length(pin)=4) constraint for hashed PIN support
+    try {
+      const tableInfo = dbGet("SELECT sql FROM sqlite_master WHERE type='table' AND name='profiles'")
+      if (tableInfo && (tableInfo.sql as string).includes('CHECK(length(pin) = 4)')) {
+        db.run("BEGIN")
+        db.run('ALTER TABLE profiles RENAME TO profiles_old')
+        db.run(CREATE_PROFILES_TABLE)
+        db.run(`INSERT INTO profiles (id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at) SELECT id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at FROM profiles_old`)
+        db.run('DROP TABLE profiles_old')
+        db.run("COMMIT")
+      }
+    } catch (e) {
+      try { db.run("ROLLBACK") } catch {}
+      console.error('Migration failed (profiles CHECK constraint):', e)
+    }
+
+    db.run(CREATE_SECURITY_LOG_TABLE)
+    db.run(INDEX_SECURITY_LOG_PROFILE)
+    db.run(INDEX_SECURITY_LOG_TYPE)
 
     process.on('SIGINT', () => { saveFile(); process.exit(0) })
     process.on('SIGTERM', () => { saveFile(); process.exit(0) })
