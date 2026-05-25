@@ -10,10 +10,10 @@
 
     <hr class="border-paper-dark my-3">
 
-    <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">本命日主</div>
-    <div class="font-display text-xl text-cinnabar font-medium">{{ dayMaster }}{{ dayMasterWuxing }}</div>
-    <div class="font-sans text-xs font-medium mb-2" :class="strengthClass">
-      {{ dayMasterStrength }}
+    <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-1.5">本命日主</div>
+    <div class="flex items-baseline gap-1.5 mb-2">
+      <span class="font-display text-xl text-cinnabar font-medium">{{ dayMaster }}{{ dayMasterWuxing }}</span>
+      <span class="font-sans text-xs font-medium" :class="strengthClass">{{ dayMasterStrength }}</span>
     </div>
 
     <hr class="border-paper-dark my-3">
