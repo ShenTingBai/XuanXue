@@ -117,7 +117,7 @@ const closeDropdown = (e: FocusEvent) => {
                 @click="showDropdown = !showDropdown"
                 class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:bg-paper-medium/50"
                 aria-haspopup="menu"
-                :aria-expanded="showDropdown.toString()"
+                :aria-expanded="showDropdown"
                 :aria-label="'打开 ' + currentProfile.nickname + ' 的菜单'"
               >
                 <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
