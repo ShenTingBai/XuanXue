@@ -7,17 +7,17 @@ const route = useRoute()
 interface NavTool {
   id: string
   name: string
-  emoji: string
+  char: string
   route: string
   available: boolean
 }
 
 const navTools: NavTool[] = [
-  { id: 'shengxiao', name: '生肖', emoji: '肖', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', emoji: '星', route: '/tools/constellation', available: true },
-  { id: 'bazi', name: '八字', emoji: '命', route: '/tools/bazi', available: true },
-  { id: 'yijing', name: '六爻', emoji: '卦', route: '/tools/yijing', available: false },
-  { id: 'ziwei', name: '紫微斗数', emoji: '斗', route: '/tools/ziwei', available: false },
+  { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
+  { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
+  { id: 'bazi', name: '八字', char: '命', route: '/tools/bazi', available: true },
+  { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: false },
+  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: false },
 ]
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownInnerRef = ref<HTMLElement | null>(null)
@@ -117,7 +117,7 @@ const closeDropdown = (e: FocusEvent) => {
                 :tabindex="navItem.available ? 0 : -1"
                 :aria-disabled="!navItem.available"
               >
-                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.emoji }}</span>
+                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.char }}</span>
                 <span>{{ navItem.name }}</span>
                 <span v-if="!navItem.available" class="text-[0.625rem] text-ink-light ml-0.5">*</span>
               </NuxtLink>
