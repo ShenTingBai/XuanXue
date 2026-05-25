@@ -9,7 +9,7 @@
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
-      <table class="border-2 border-cinnabar/50 rounded-lg overflow-clip w-full border-separate" style="border-spacing: 0" aria-label="四柱排盘">
+      <table class="border-2 border-cinnabar/50 rounded-lg overflow-clip w-full table-fixed border-separate" style="border-spacing: 0" aria-label="四柱排盘">
         <thead>
           <tr>
             <th v-for="(h, idx) in headers" :key="h.label"
