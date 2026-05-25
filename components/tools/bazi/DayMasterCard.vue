@@ -2,6 +2,11 @@
   <div class="fade-in" :style="{ '--delay': '0.3s' }">
     <InkDivider>日主分析</InkDivider>
 
+    <p class="font-sans text-xs text-ink-light/70 mb-3 leading-relaxed">
+      日主是你出生那天的天干，代表你的核心特质。"喜用神"是对你有利的能量，
+      "忌神"是容易与你有冲突的能量，生活中可有意平衡。
+    </p>
+
     <div class="card-paper-solid rounded-xl p-5 sm:p-6">
       <div class="flex items-center gap-4 mb-4">
         <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-cinnabar/5 border border-cinnabar/20 flex items-center justify-center">

@@ -2,6 +2,10 @@
   <div class="fade-in" :style="{ '--delay': '0.2s' }">
     <InkDivider>五行旺衰</InkDivider>
 
+    <p class="font-sans text-xs text-ink-light/70 mb-3 leading-relaxed">
+      五行（金木水火土）在你八字中的分布。柱条越长，该能量越强，对你影响越大。
+    </p>
+
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <div v-if="summary" class="font-sans text-sm text-ink-medium mb-4">
       {{ summary }}
@@ -54,12 +58,12 @@ const elements = computed(() =>
 
 // Strength description
 const strengthMap: Record<string, string> = {
-  '强': '得令而旺', '偏强': '得月令生扶', '中和': '五行平衡', '偏弱': '失令而衰', '弱': '失令衰弱',
+  '强': '力量很强', '偏强': '力量偏强', '中和': '力量平衡', '偏弱': '力量偏弱', '弱': '力量较弱',
 }
 
 const summary = computed(() => {
   const strength = props.dayMasterStrength
   const desc = strengthMap[strength] || ''
-  return `日主${props.dayMaster}${props.dayMasterWuxing}，生于${props.monthBranch}月（${desc}）`
+  return `日主${props.dayMaster}（${props.dayMasterWuxing}），生于${props.monthBranch}月，${props.dayMasterWuxing}${desc}`
 })
 </script>

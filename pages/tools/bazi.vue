@@ -159,58 +159,68 @@ const animalName = computed(() => {
 
         <!-- Result -->
         <template v-else-if="result">
-
-          <!-- Main content -->
-          <!-- Mobile info bar -->
-          <div class="sm:hidden flex items-center gap-2 mb-4 p-3 bg-cinnabar/3 rounded-lg">
-            <div class="flex-1 font-sans text-xs text-ink-medium">
-              <strong class="text-cinnabar">{{ result.dayMaster }}{{ result.dayMasterWuxing }}</strong>
-              {{ result.dayMasterStrength }} ·
-              喜用 {{ result.favorableElements.join('') }}
+          <div class="max-w-2xl mx-auto">
+            <!-- Mobile info bar -->
+            <div class="sm:hidden flex items-center gap-2 mb-4 p-3 bg-cinnabar/3 rounded-lg">
+              <div class="flex-1 font-sans text-xs text-ink-medium">
+                <span class="text-[0.55rem] text-ink-light">本命：</span>
+                <strong class="text-cinnabar">{{ result.dayMaster }}</strong>（{{ result.dayMasterWuxing }}）
+                <span class="text-[0.55rem] text-ink-light ml-1">力量：</span>{{ result.dayMasterStrength }}
+                <span class="text-[0.55rem] text-ink-light ml-1">助你：</span>
+                {{ result.favorableElements.join('') }}
+              </div>
+              <div class="font-sans text-[0.6rem] text-ink-light">
+                {{ result.birthYear }} · {{ animalName }}
+              </div>
             </div>
-            <div class="font-sans text-[0.6rem] text-ink-light">
-              {{ result.birthYear }} · {{ animalName }}
+
+            <!-- Overview intro card -->
+            <div class="mb-6 p-4 sm:p-5 rounded-lg bg-paper-lightest/70 border border-paper-dark/40">
+              <p class="font-sans text-xs text-ink-medium leading-relaxed">
+                八字由你的出生时间推算而来，包含年、月、日、时四个时间柱，
+                每柱一干一支，共八个字。红色标注的"日主"代表你自己。
+              </p>
             </div>
-          </div>
 
-          <!-- Four Pillars Grid -->
-          <BaziGrid :pillars="pillars" />
+            <!-- Four Pillars Grid -->
+            <BaziGrid :pillars="pillars" />
 
-          <!-- Element Analysis -->
-          <ElementAnalysis
-            :element-counts="result.elementCounts"
-            :element-percentages="result.elementPercentages"
-            :day-master="result.dayMaster"
-            :day-master-wuxing="result.dayMasterWuxing"
-            :day-master-strength="result.dayMasterStrength"
-            :month-branch="result.monthPillar.branch"
-          />
+            <!-- Element Analysis -->
+            <ElementAnalysis
+              :element-counts="result.elementCounts"
+              :element-percentages="result.elementPercentages"
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :month-branch="result.monthPillar.branch"
+            />
 
-          <!-- Day Master Card -->
-          <DayMasterCard
-            :day-master="result.dayMaster"
-            :day-master-wuxing="result.dayMasterWuxing"
-            :day-master-strength="result.dayMasterStrength"
-            :favorable-elements="result.favorableElements"
-            :unfavorable-elements="result.unfavorableElements"
-          />
+            <!-- Day Master Card -->
+            <DayMasterCard
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :favorable-elements="result.favorableElements"
+              :unfavorable-elements="result.unfavorableElements"
+            />
 
-          <!-- Da Yun Timeline -->
-          <DaYunTimeline :cycles="result.daYun" />
+            <!-- Da Yun Timeline -->
+            <DaYunTimeline :cycles="result.daYun" />
 
-          <!-- Hour missing notice -->
-          <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
-            <p class="font-sans text-sm text-ink-medium">
-              出生时辰未设置，时柱暂不显示。
-              <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-cinnabar hover:underline">前往设置</NuxtLink>
-            </p>
-          </div>
+            <!-- Hour missing notice -->
+            <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
+              <p class="font-sans text-sm text-ink-medium">
+                出生时辰未设置，时柱暂不显示。
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-cinnabar hover:underline">前往设置</NuxtLink>
+              </p>
+            </div>
 
-          <!-- Recalculate -->
-          <div class="flex justify-center mt-8">
-            <button @click="computeResult" class="btn-seal">
-              <span>📜 重新排盘</span>
-            </button>
+            <!-- Recalculate -->
+            <div class="flex justify-center mt-8">
+              <button @click="computeResult" class="btn-seal">
+                <span>重新排盘</span>
+              </button>
+            </div>
           </div>
         </template>
       </ToolPageLayout>

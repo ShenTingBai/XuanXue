@@ -2,6 +2,10 @@
   <div class="fade-in" :style="{ '--delay': '0.4s' }">
     <InkDivider>大运</InkDivider>
 
+    <p class="font-sans text-xs text-ink-light/70 mb-3 leading-relaxed">
+      大运是你人生每十年一段的运势走向。高亮的卡片对应你当前的年龄段。
+    </p>
+
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: horizontal cards -->
     <div class="hidden sm:flex gap-3 overflow-x-auto pb-2">

@@ -10,7 +10,7 @@
 
     <hr class="border-paper-dark my-3">
 
-    <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">日主</div>
+    <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">本命日主</div>
     <div class="font-display text-xl text-cinnabar font-medium">{{ dayMaster }}{{ dayMasterWuxing }}</div>
     <div class="font-sans text-xs font-medium mb-2" :class="strengthClass">
       {{ dayMasterStrength }}
@@ -19,7 +19,7 @@
     <hr class="border-paper-dark my-3">
 
     <div class="space-y-1">
-      <div class="font-sans text-xs text-ink-medium tracking-wider">喜用：<span class="font-medium" v-for="el in favorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
+      <div class="font-sans text-xs text-ink-medium tracking-wider">助你：<span class="font-medium" v-for="el in favorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
       <div class="font-sans text-xs text-ink-medium tracking-wider">忌神：<span v-for="el in unfavorableElements" :key="el" class="opacity-60" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
     </div>
   </div>

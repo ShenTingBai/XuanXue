@@ -2,6 +2,10 @@
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
     <InkDivider>四柱排盘</InkDivider>
 
+    <p class="font-sans text-xs text-ink-light/70 mb-3 leading-relaxed">
+      年柱代表家族根基，月柱代表成长环境，日柱代表你自己和婚姻，时柱代表晚年与子女。
+    </p>
+
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
@@ -112,7 +116,13 @@
           </div>
         </div>
       </div>
-      <div class="text-center text-[0.55rem] text-ink-lighter mt-0.5">← 左右滑动查看四柱 →</div>
+      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-[0.55rem] text-ink-lighter font-sans">
+        <div>天干 — 上面的彩色大字</div>
+        <div>地支 — 下面的彩色大字</div>
+        <div>十神 — 人际关系标签</div>
+        <div>藏干 — 地支暗藏能量</div>
+        <div>纳音 — 五行音律气质</div>
+      </div>
     </div>
   </div>
   </div>
