@@ -134,6 +134,31 @@ describe('calculateBaZi', () => {
     expect(result.daYun.length).toBeGreaterThan(0)
   })
 
+  it('handles reverse daYun direction for 阴男逆排 (1965 乙巳年)', () => {
+    // 1965 is 乙巳年, 乙=阴, 阴男 → reverse direction
+    // Month pillar 壬午, reverse first cycle = 辛巳
+    const result = calculateBaZi({
+      birthYear: 1965, birthMonth: 6, birthDay: 15, birthCalendar: 'solar' as const,
+      birthHour: 8, gender: '男' as const,
+    })
+    expect(result.daYun.length).toBeGreaterThan(0)
+    expect(result.daYun[0].stemBranch).toBe('辛巳')
+    // Last cycle after reversing should be predictable
+    expect(result.daYun[result.daYun.length - 1].stemBranch).toBeTruthy()
+  })
+
+  it('handles reverse daYun direction for 阳女逆排 (1964 甲辰年)', () => {
+    // 1964 is 甲辰年, 甲=阳, 阳女 → reverse direction
+    // Month pillar 庚午, reverse first cycle = 己巳
+    const result = calculateBaZi({
+      birthYear: 1964, birthMonth: 6, birthDay: 15, birthCalendar: 'solar' as const,
+      birthHour: 8, gender: '女' as const,
+    })
+    expect(result.daYun.length).toBeGreaterThan(0)
+    expect(result.daYun[0].stemBranch).toBe('己巳')
+    expect(result.daYun[result.daYun.length - 1].stemBranch).toBeTruthy()
+  })
+
   it('returns element percentages summing to ~100', () => {
     const result = calculateBaZi(baseProfile)
     const pctSum = Object.values(result.elementPercentages).reduce((a, b) => a + b, 0)
