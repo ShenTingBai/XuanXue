@@ -50,10 +50,11 @@ const submit = async () => {
   try {
     if (isLogin.value) {
       await login(nickname.value.trim(), pin.value.trim())
+      router.push('/')
     } else {
       await register(nickname.value.trim(), pin.value.trim())
+      router.push(`/profile/${currentProfile.value?.id}?onboarding=true`)
     }
-    router.push('/')
   } catch (e: any) {
     error.value = e?.data?.statusMessage || e?.message || '操作失败'
   } finally {
