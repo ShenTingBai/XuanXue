@@ -1,6 +1,14 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
-    <InkDivider>流年详批（&plusmn;{{ range }}年）</InkDivider>
+    <div class="flex items-center gap-3 flex-wrap">
+      <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
+      <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-faint">
+        <span class="inline-block w-2 h-2 rounded-full" style="background: #4A7C59" aria-hidden="true"></span>顺遂
+        <span class="inline-block w-2 h-2 rounded-full" style="background: #8B6914" aria-hidden="true"></span>平稳
+        <span class="inline-block w-2 h-2 rounded-full" style="background: #6E6E6E" aria-hidden="true"></span>需注意
+        <span class="inline-block w-2 h-2 rounded-full" style="background: #C62828" aria-hidden="true"></span>挑战
+      </span>
+    </div>
 
     <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
       以今年（{{ currentYear }}年）为中心的{{ years.length }}年运势概述。高亮卡片为今年展开详批，其余年份为紧凑概览。
@@ -208,16 +216,16 @@ function monthLabel(month: number): string {
 
 function scoreColor(score: number): string {
   if (score >= 70) return '#4A7C59'
-  if (score >= 50) return '#B8860B'
-  if (score >= 30) return '#8E8E8E'
+  if (score >= 50) return '#8B6914'
+  if (score >= 30) return '#6E6E6E'
   return '#C62828'
 }
 
 const RELATION_COLORS: Record<string, { bg: string; text: string }> = {
   '合': { bg: '#4A7C5918', text: '#4A7C59' },
   '冲': { bg: '#C6282818', text: '#C62828' },
-  '刑': { bg: '#B8860B18', text: '#B8860B' },
-  '害': { bg: '#8E8E8E18', text: '#8E8E8E' },
+  '刑': { bg: '#8B691418', text: '#8B6914' },
+  '害': { bg: '#6E6E6E18', text: '#6E6E6E' },
   '破': { bg: '#6B5B4F18', text: '#6B5B4F99' },
 }
 
