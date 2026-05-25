@@ -70,8 +70,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    color: #6B5B4F;
-    font-size: 0.75rem;
     letter-spacing: 0.1em;
   }
   .divider-ink::before,

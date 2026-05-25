@@ -39,12 +39,23 @@ onMounted(() => {
   computeResult()
 })
 
+function parseDate(str: string): { year: number; month: number; day: number } | null {
+  const parts = str.split('T')[0].split('-')
+  if (parts.length !== 3) return null
+  const year = parseInt(parts[0], 10)
+  const month = parseInt(parts[1], 10)
+  const day = parseInt(parts[2], 10)
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return null
+  return { year, month, day }
+}
+
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
 
   loading.value = true
-  const birthDate = new Date(currentProfile.value.birth_date)
-  const year = birthDate.getFullYear()
+  const parsed = parseDate(currentProfile.value.birth_date)
+  if (!parsed) { loading.value = false; return }
+  const year = parsed.year
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
   if (loadingTimer.value) clearTimeout(loadingTimer.value)

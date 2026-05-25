@@ -38,6 +38,10 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 }
 
+watch(() => route.path, () => {
+  showDropdown.value = false
+})
+
 const handleMenuKeydown = (e: KeyboardEvent) => {
   const items = dropdownInnerRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]')
   if (!items || items.length === 0) return

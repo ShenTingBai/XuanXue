@@ -29,23 +29,23 @@ describe('getSolarTerm', () => {
 
 describe('getMonthBranch', () => {
   it('returns 寅 for solar date Feb 4 (立春)', () => {
-    expect(getMonthBranch(2, 4)).toBe('寅')
+    expect(getMonthBranch(2000, 2, 4)).toBe('寅')
   })
 
   it('returns 卯 for solar date Mar 6 (惊蛰)', () => {
-    expect(getMonthBranch(3, 6)).toBe('卯')
+    expect(getMonthBranch(2000, 3, 6)).toBe('卯')
   })
 
   it('returns 辰 for solar date Apr 5 (清明)', () => {
-    expect(getMonthBranch(4, 5)).toBe('辰')
+    expect(getMonthBranch(2000, 4, 5)).toBe('辰')
   })
 
   it('returns 丑 for solar date Feb 3 (before 立春)', () => {
-    expect(getMonthBranch(2, 3)).toBe('丑')
+    expect(getMonthBranch(2000, 2, 3)).toBe('丑')
   })
 
   it('returns 子 for solar date Dec 7', () => {
-    expect(getMonthBranch(12, 7)).toBe('子')
+    expect(getMonthBranch(2000, 12, 7)).toBe('子')
   })
 })
 

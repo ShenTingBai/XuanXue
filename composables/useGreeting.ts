@@ -26,6 +26,18 @@ export function useGreeting() {
     _subtitle = useState<string>('greeting:subtitle', () => defaults.subtitle)
   }
 
+  // Rehydrate from localStorage on client (fixes SSR cache issue)
+  if (import.meta.client) {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        if (saved.prefix) _prefix!.value = saved.prefix
+        if (saved.subtitle) _subtitle!.value = saved.subtitle
+      }
+    } catch {}
+  }
+
   function save(newPrefix: string, newSubtitle: string) {
     if (import.meta.client) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ prefix: newPrefix, subtitle: newSubtitle }))

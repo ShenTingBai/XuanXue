@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
 import type { DaYunCycle } from '~/composables/useBaZi'
+import InkDivider from '~/components/tools/InkDivider.vue'
 
 const props = defineProps<{
   cycles: DaYunCycle[]
