@@ -41,7 +41,7 @@ describe('calculateShenSha', () => {
       expect(ss).toHaveProperty('position')
       expect(ss).toHaveProperty('description')
       expect(['吉', '凶', '中性']).toContain(ss.category)
-      expect(['年柱', '月柱', '日柱', '时柱', '命宫', '大运']).toContain(ss.pillar)
+      expect(['年柱', '月柱', '日柱', '时柱', '命宫', '大运', '流年']).toContain(ss.pillar)
       expect(['天干', '地支', '本柱']).toContain(ss.position)
       expect(ss.description.length).toBeGreaterThan(0)
     }

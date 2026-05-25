@@ -17,7 +17,7 @@ export interface ShenSha {
   name: string
   category: '吉' | '凶' | '中性'
   source: string
-  pillar: '年柱' | '月柱' | '日柱' | '时柱' | '命宫' | '大运'
+  pillar: '年柱' | '月柱' | '日柱' | '时柱' | '命宫' | '大运' | '流年'
   position: '天干' | '地支' | '本柱'
   description: string
 }
