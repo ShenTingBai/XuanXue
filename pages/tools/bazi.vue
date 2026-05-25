@@ -90,6 +90,8 @@ function computeResult() {
   savedDivinationId.value = null
   saveError.value = ''
   showHistoryDropdown.value = false
+  showSaveErrorToast.value = false
+  restoreError.value = ''
 
   const parsed = parseDate(currentProfile.value.birth_date)
   if (!parsed) { loading.value = false; return }
@@ -224,9 +226,14 @@ async function restoreFromHistory(id: number) {
       })
     }
     showHistoryDropdown.value = false
+    restoreError.value = ''
   } catch {
-    // silently fail
+    restoreError.value = '历史记录加载失败，请稍后重试'
   }
+}
+
+function dismissRestoreError() {
+  restoreError.value = ''
 }
 
 function toggleHistoryDropdown() {
@@ -257,6 +264,16 @@ function onDropdownKeydown(e: KeyboardEvent) {
     } else {
       nextIdx = currentIdx < 0 ? items.length - 1 : (currentIdx - 1 + items.length) % items.length
     }
+    items[nextIdx].focus()
+    return
+  }
+
+  if (e.key === 'Tab') {
+    if (currentIdx < 0) return
+    e.preventDefault()
+    const nextIdx = e.shiftKey
+      ? (currentIdx - 1 + items.length) % items.length
+      : (currentIdx + 1) % items.length
     items[nextIdx].focus()
   }
 }
@@ -425,6 +442,42 @@ function getDaYunMeaning(tenGod: string): string {
         <!-- Result -->
         <template v-else-if="result">
           <div class="max-w-2xl mx-auto" aria-live="polite" aria-atomic="true">
+            <!-- Save error toast -->
+            <Transition name="toast">
+              <div
+                v-if="showSaveErrorToast"
+                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                role="alert"
+              >
+                <span>结果保存失败，稍后重试</span>
+                <button
+                  @click="dismissSaveErrorToast"
+                  @keydown.enter="dismissSaveErrorToast"
+                  @keydown.space.prevent="dismissSaveErrorToast"
+                  class="ml-3 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  aria-label="关闭提示"
+                >&times;</button>
+              </div>
+            </Transition>
+
+            <!-- Restore error toast -->
+            <Transition name="toast">
+              <div
+                v-if="restoreError"
+                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                role="alert"
+              >
+                <span>{{ restoreError }}</span>
+                <button
+                  @click="dismissRestoreError"
+                  @keydown.enter="dismissRestoreError"
+                  @keydown.space.prevent="dismissRestoreError"
+                  class="ml-3 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  aria-label="关闭提示"
+                >&times;</button>
+              </div>
+            </Transition>
+
             <!-- Personal info summary (mobile/tablet only, desktop uses right sidebar) -->
             <div class="xl:hidden mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/3 border border-cinnabar/15">
               <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-base">
@@ -663,9 +716,6 @@ function getDaYunMeaning(tenGod: string): string {
                 <span v-if="savedDivinationId" class="font-sans text-xs text-wuxing-wood">
                   已保存
                 </span>
-                <span v-if="saveError" class="font-sans text-xs text-cinnabar/70">
-                  保存失败
-                </span>
 
                 <!-- History button -->
                 <div class="relative">
@@ -737,3 +787,18 @@ function getDaYunMeaning(tenGod: string): string {
     </div>
   </div>
 </template>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+</style>
