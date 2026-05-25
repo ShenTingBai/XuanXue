@@ -178,7 +178,7 @@ function scrollToAnimalNav() {
               @keydown.space.prevent="computeResult"
               class="btn-seal"
             >
-              <span>📜 重新排盘</span>
+              <span>重新排盘</span>
             </button>
             <button
               @click="scrollToAnimalNav"

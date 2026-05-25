@@ -31,6 +31,8 @@ const shenShaList = ref<ShenSha[]>([])
 const liuNianYears = ref<LiuNianYear[]>([])
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
+const showSaveErrorToast = ref(false)
+const restoreError = ref('')
 const historyRecords = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
 const showHistoryDropdown = ref(false)
 const historyDropdownRef = ref<HTMLElement | null>(null)
@@ -170,7 +172,12 @@ async function saveDivinationResult(
   } catch (e: any) {
     saveError.value = e?.statusMessage || '保存失败'
     savedDivinationId.value = null
+    showSaveErrorToast.value = true
   }
+}
+
+function dismissSaveErrorToast() {
+  showSaveErrorToast.value = false
 }
 
 async function fetchHistory() {

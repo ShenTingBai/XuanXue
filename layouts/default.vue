@@ -13,11 +13,11 @@ interface NavTool {
 }
 
 const navTools: NavTool[] = [
-  { id: 'shengxiao', name: '生肖', emoji: '🐯', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', emoji: '♈', route: '/tools/constellation', available: true },
-  { id: 'bazi', name: '八字', emoji: '☯', route: '/tools/bazi', available: true },
-  { id: 'yijing', name: '六爻', emoji: '📜', route: '/tools/yijing', available: false },
-  { id: 'ziwei', name: '紫微斗数', emoji: '⭐', route: '/tools/ziwei', available: false },
+  { id: 'shengxiao', name: '生肖', emoji: '肖', route: '/tools/shengxiao', available: true },
+  { id: 'constellation', name: '星座', emoji: '星', route: '/tools/constellation', available: true },
+  { id: 'bazi', name: '八字', emoji: '命', route: '/tools/bazi', available: true },
+  { id: 'yijing', name: '六爻', emoji: '卦', route: '/tools/yijing', available: false },
+  { id: 'ziwei', name: '紫微斗数', emoji: '斗', route: '/tools/ziwei', available: false },
 ]
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownInnerRef = ref<HTMLElement | null>(null)
@@ -52,6 +52,12 @@ const handleMenuKeydown = (e: KeyboardEvent) => {
     case 'ArrowUp': nextIdx = (currentIdx - 1 + items.length) % items.length; break
     case 'Home': nextIdx = 0; break
     case 'End': nextIdx = items.length - 1; break
+    case 'Tab':
+      if (currentIdx < 0) return
+      nextIdx = e.shiftKey
+        ? (currentIdx - 1 + items.length) % items.length
+        : (currentIdx + 1) % items.length
+      break
     default: return
   }
   e.preventDefault()
@@ -111,7 +117,7 @@ const closeDropdown = (e: FocusEvent) => {
                 :tabindex="navItem.available ? 0 : -1"
                 :aria-disabled="!navItem.available"
               >
-                <span class="text-base" aria-hidden="true">{{ navItem.emoji }}</span>
+                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.emoji }}</span>
                 <span>{{ navItem.name }}</span>
                 <span v-if="!navItem.available" class="text-[0.625rem] text-ink-light ml-0.5">*</span>
               </NuxtLink>

@@ -180,7 +180,7 @@ function compatibilityBorderClass(level: string): string {
               @keydown.space.prevent="computeResult"
               class="btn-seal"
             >
-              <span>🔄 刷新运势</span>
+              <span>刷新运势</span>
             </button>
           </div>
           </div>
