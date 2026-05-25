@@ -9,7 +9,7 @@
     <div class="card-paper-solid rounded-xl p-4 sm:p-5 space-y-4">
       <!-- Empty state: no shenshas at all -->
       <p v-if="auspicious.length === 0 && neutral.length === 0 && inauspicious.length === 0"
-        class="font-sans text-sm text-ink-faint">
+        class="font-sans text-sm text-ink-muted">
         该命局无特殊神煞标记
       </p>
 
@@ -119,14 +119,7 @@
 <script setup lang="ts">
 import type { ShenSha } from '~/composables/useShenSha'
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
-
-function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},${alpha.toFixed(3)})`
-}
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
 
 function buttonStyle(category: '吉' | '凶' | '中性'): Record<string, string> {
   const wood = WUXING_COLORS['木']
