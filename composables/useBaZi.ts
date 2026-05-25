@@ -240,17 +240,38 @@ function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number)
   return '弱'
 }
 
-/** Determine favorable and unfavorable elements based on day master strength */
+/**
+ * Determine favorable and unfavorable elements based on day master strength.
+ *
+ * Theory:
+ * - 身强/偏强: 喜克泄耗 = 官杀(克我) + 食伤(我生) + 财(我克)
+ * - 身弱/偏弱: 喜扶帮 = 印(生我) + 比劫(同我)
+ * - 中和: simplified balance, could require further 调候 analysis
+ */
 function getFavorableElements(dayMasterWuxing: string, strength: string): [string[], string[]] {
+  // 我生 (食伤/EXPRESSION): DM generates this element
   const generating: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
+  // 我克 (财/WEALTH): DM controls this element
   const controlling: Record<string, string> = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' }
+  // 克我 (官杀/OFFICER): this element controls DM
   const controlled: Record<string, string> = { '木': '金', '火': '水', '土': '木', '金': '火', '水': '土' }
+  // 生我 (印/RESOURCE): this element generates DM
+  const generatedBy: Record<string, string> = { '木': '水', '火': '木', '土': '火', '金': '土', '水': '金' }
 
   if (strength === '强' || strength === '偏强') {
-    return [[generating[dayMasterWuxing], controlling[dayMasterWuxing]], [dayMasterWuxing, controlled[dayMasterWuxing]]]
+    // 身强喜克泄耗: 官杀(克我) + 食伤(我生) + 财(我克) are favorable
+    return [
+      [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]],
+      [dayMasterWuxing, generatedBy[dayMasterWuxing]],
+    ]
   } else if (strength === '弱' || strength === '偏弱') {
-    return [[dayMasterWuxing, controlled[dayMasterWuxing]], [generating[dayMasterWuxing], controlling[dayMasterWuxing]]]
+    // 身弱喜扶帮: 印(生我) + 比劫(同我) are favorable
+    return [
+      [generatedBy[dayMasterWuxing], dayMasterWuxing],
+      [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]],
+    ]
   } else {
+    // 中和 → full analysis needed; simple balance for now
     return [[controlled[dayMasterWuxing], generating[dayMasterWuxing]], [controlling[dayMasterWuxing], dayMasterWuxing]]
   }
 }

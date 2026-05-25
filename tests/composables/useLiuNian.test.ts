@@ -126,7 +126,7 @@ describe('calculateLiuNian', () => {
   // === Scoring algorithm tests ===
 
   it('scoring starts at base 50', () => {
-    // 1998-05-25 壬日主弱, favorable=[水,土], unfavorable=[木,火], neutral=[金]
+    // 1998-05-25 壬日主偏弱, favorable=[金,水] (印+比劫), unfavorable=[木,火,土] (食伤+财+官杀)
     // 2026=丙午年 (丙=火, in unfavorableElements) → isUnfavorable=true, score <= 50
     const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
     const year2026 = result.find(y => y.year === 2026)
@@ -136,7 +136,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('unfavorable year stem reduces score', () => {
-    // 壬日主弱, unfavorable=[木,火]. 木/火 year stems score <= 50.
+    // 壬日主偏弱, unfavorable=[木,火,土]. 木/火/土 year stems score <= 50.
     const result = calculateLiuNian({ baZi: bazi, currentYear: 2025, shenSha: [] })
     const unfavorableYears = result.filter(y => y.isUnfavorable)
     if (unfavorableYears.length > 0) {
