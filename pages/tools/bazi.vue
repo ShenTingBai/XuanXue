@@ -6,6 +6,10 @@ import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
 import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
+import InkDivider from '~/components/tools/InkDivider.vue'
+import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import SkeletonCard from '~/components/tools/SkeletonCard.vue'
+import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
 const router = useRouter()
 const { currentProfile, restoreSession } = useAuth()
@@ -37,6 +41,35 @@ onMounted(async () => {
   computeResult()
 })
 
+function parseDate(str: string): { year: number; month: number; day: number } | null {
+  const parts = str.split('T')[0].split('-')
+  if (parts.length !== 3) return null
+  const year = parseInt(parts[0], 10)
+  const month = parseInt(parts[1], 10)
+  const day = parseInt(parts[2], 10)
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return null
+  return { year, month, day }
+}
+
+function getCurrentAge(): number {
+  if (!currentProfile.value?.birth_date) return 0
+  const parsed = parseDate(currentProfile.value.birth_date)
+  if (!parsed) return 0
+  const now = new Date()
+  let age = now.getFullYear() - parsed.year
+  const monthDiff = now.getMonth() + 1 - parsed.month
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < parsed.day)) {
+    age--
+  }
+  return Math.max(0, age)
+}
+
+const currentDaYunIndex = computed(() => {
+  if (!result.value?.daYun.length) return -1
+  const age = getCurrentAge()
+  return result.value.daYun.findIndex(c => age >= c.startAge && age <= c.endAge)
+})
+
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
 
@@ -46,10 +79,9 @@ function computeResult() {
   // Clear previous timeout
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
 
-  const birthDate = new Date(currentProfile.value.birth_date)
-  const year = birthDate.getFullYear()
-  const month = birthDate.getMonth() + 1
-  const day = birthDate.getDate()
+  const parsed = parseDate(currentProfile.value.birth_date)
+  if (!parsed) { loading.value = false; return }
+  const { year, month, day } = parsed
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
   const hour = currentProfile.value.birth_hour ?? null
@@ -99,21 +131,6 @@ const animalName = computed(() => {
   <div class="ink-wash-bg min-h-screen">
     <div class="relative z-10">
       <ToolPageLayout>
-        <template #nav>
-          <div class="card-paper-solid rounded-xl p-3">
-            <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">命理工具</div>
-            <NuxtLink to="/tools/shengxiao" class="nav-link w-full">
-              <span aria-hidden="true">🐯</span> 生肖
-            </NuxtLink>
-            <NuxtLink to="/tools/constellation" class="nav-link w-full">
-              <span aria-hidden="true">♈</span> 星座
-            </NuxtLink>
-            <NuxtLink to="/tools/bazi" class="nav-link nav-link--active w-full">
-              <span aria-hidden="true">☯</span> 八字
-            </NuxtLink>
-          </div>
-        </template>
-
         <template #nav-right>
           <BaziInfoSidebar
             v-if="result"
@@ -151,7 +168,12 @@ const animalName = computed(() => {
         <div v-else-if="error" class="text-center py-16">
           <p class="font-sans text-sm text-cinnabar" role="alert">{{ error }}</p>
           <div class="flex justify-center mt-6">
-            <button @click="computeResult" class="btn-seal">
+            <button
+              @click="computeResult"
+              @keydown.enter="computeResult"
+              @keydown.space.prevent="computeResult"
+              class="btn-seal"
+            >
               <span>📜 重新排盘</span>
             </button>
           </div>
@@ -204,7 +226,7 @@ const animalName = computed(() => {
             />
 
             <!-- Da Yun Timeline -->
-            <DaYunTimeline :cycles="result.daYun" />
+            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
 
             <!-- Reading Guide -->
             <div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-cinnabar/3 to-paper-lightest border border-cinnabar/15">
@@ -248,7 +270,12 @@ const animalName = computed(() => {
 
             <!-- Recalculate -->
             <div class="flex justify-center mt-8">
-              <button @click="computeResult" class="btn-seal">
+              <button
+                @click="computeResult"
+                @keydown.enter="computeResult"
+                @keydown.space.prevent="computeResult"
+                class="btn-seal"
+              >
                 <span>重新排盘</span>
               </button>
             </div>
