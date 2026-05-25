@@ -279,9 +279,9 @@ html {
     @apply rounded;
     background: linear-gradient(
       90deg,
-      rgba(214, 197, 176, 0.15) 25%,
-      rgba(214, 197, 176, 0.30) 50%,
-      rgba(214, 197, 176, 0.15) 75%
+      rgba(214, 197, 176, 0.25) 25%,
+      rgba(214, 197, 176, 0.40) 50%,
+      rgba(214, 197, 176, 0.25) 75%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
