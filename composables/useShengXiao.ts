@@ -41,13 +41,6 @@ const HAI_PAIRS: number[][] = [[0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10]]
 
 // ── Fortune multipliers ───────────────────────────────────────
 
-const FORTUNE_CONFIG: Array<{ key: keyof Fortune; multiplier: number; addend: number }> = [
-  { key: 'career', multiplier: 19, addend: 11 },
-  { key: 'wealth', multiplier: 23, addend: 17 },
-  { key: 'love', multiplier: 29, addend: 5 },
-  { key: 'health', multiplier: 31, addend: 13 },
-]
-
 // ── Personality Data ──────────────────────────────────────────
 
 const PERSONALITY_PRO: Record<string, string[]> = {
@@ -148,7 +141,7 @@ function mod(n: number, m: number): number {
   return ((n % m) + m) % m
 }
 
-function getAnimalIndex(year: number): number {
+export function getAnimalIndex(year: number): number {
   return mod(year - 4, 12)
 }
 

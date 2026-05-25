@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { calculateShengXiao, type ShengXiaoResult } from '~/composables/useShengXiao'
+import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -50,13 +50,9 @@ function computeResult() {
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
   loadingTimer.value = setTimeout(() => {
     result.value = calculateShengXiao(year, calendar, new Date())
-    selectedAnimal.value = computeAnimalIndex(year)
+    selectedAnimal.value = getAnimalIndex(year)
     loading.value = false
   }, 200)
-}
-
-function computeAnimalIndex(year: number): number {
-  return ((year - 4) % 12 + 12) % 12
 }
 
 onUnmounted(() => {
@@ -69,8 +65,8 @@ function selectAnimal(index: number) {
   loading.value = true
 
   const currentYear = new Date().getFullYear()
-  const currentAnimalIdx = computeAnimalIndex(currentYear)
-  const diff = ((index - currentAnimalIdx) % 12 + 12) % 12
+  const currentAnimalIdx = getAnimalIndex(currentYear)
+  const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
   const representativeYear = currentYear - diff
 
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
