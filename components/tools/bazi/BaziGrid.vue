@@ -82,7 +82,7 @@
         <div role="row">
           <div v-for="(p, idx) in pillars" :key="'ny-' + idx"
             role="cell"
-            class="py-1.5 px-2 text-center text-[0.625rem] text-ink-faint font-sans"
+            class="py-1.5 px-2 text-center text-[0.6875rem] text-ink-muted font-sans"
             :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
           >
             {{ getNaYin(p.stem, p.branch) }}
@@ -91,7 +91,7 @@
       </div>
 
       <!-- Desktop legend -->
-      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-faint font-sans">
+      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-muted font-sans">
         <div>天干 — 上面的彩色大字</div>
         <div>地支 — 下面的彩色大字</div>
         <div>十神 — 人际关系标签</div>
@@ -110,9 +110,9 @@
           >
             <!-- Mobile header -->
             <div class="py-1 text-center font-sans"
-              :class="idx === 2 ? 'bg-cinnabar/10' : 'bg-cinnabar/4'"
+              :class="idx === 2 ? 'bg-cinnabar/18' : 'bg-cinnabar/4'"
             >
-              <span class="text-[0.625rem] text-ink-medium tracking-wider">
+              <span class="text-[0.6875rem] text-ink-medium tracking-wider">
                 {{ ['年', '月', '日', '时'][idx] }}柱
               </span>
             </div>
@@ -128,13 +128,13 @@
             </div>
             <!-- Ten God -->
             <div class="px-1 pb-1 text-center">
-              <span class="inline-block px-1.5 py-0.5 rounded-full text-[0.625rem] font-sans"
+              <span class="inline-block px-1.5 py-0.5 rounded-full text-[0.6875rem] font-sans"
                 :class="tenGodBadgeClass(p.stemTenGod)">
                 {{ p.stemTenGod }}
               </span>
             </div>
             <!-- Hidden Stems -->
-            <div class="px-1 pb-1 text-center text-[0.625rem] text-ink-light leading-tight">
+            <div class="px-1 pb-1 text-center text-[0.6875rem] text-ink-light leading-tight">
               <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
                 class="mr-0.5" :style="{ color: wuxingColor(hs.wuxing) }">
                 {{ hs.stem }}

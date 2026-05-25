@@ -16,6 +16,7 @@ export default {
           DEFAULT: '#2C1810',
           medium: '#6B5B4F',
           light: '#7A6A5C',
+          muted: '#8E8070',
           faint: '#D4C5B0',
         },
         paper: {

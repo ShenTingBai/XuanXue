@@ -639,10 +639,12 @@ function getDaYunMeaning(tenGod: string): string {
                   <template v-if="result.unfavorableElements.length > 0">
                     <p class="text-xs text-ink-light mt-2 mb-1">以下元素适度即可，不必刻意回避：</p>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                      <div v-for="el in result.unfavorableElements" :key="el" class="p-2 rounded-lg border border-paper-dark/40 bg-paper-dark/10">
-                        <span class="font-medium text-ink-light">{{ el }}</span>
-                        <span class="text-ink-faint ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
-                        <span class="text-ink-faint ml-1">（适度）</span>
+                      <div v-for="el in result.unfavorableElements" :key="el"
+                        class="p-2 rounded-lg border"
+                        :style="{ borderColor: ELEMENT_COLORS[el] + '25', backgroundColor: ELEMENT_COLORS[el] + '05' }">
+                        <span class="font-medium" :style="{ color: ELEMENT_COLORS[el], opacity: 0.7 }">{{ el }}</span>
+                        <span class="text-ink-muted ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
+                        <span class="text-ink-muted ml-1">（适度）</span>
                       </div>
                     </div>
                   </template>
@@ -752,7 +754,7 @@ function getDaYunMeaning(tenGod: string): string {
                     <div class="p-2">
                       <p class="font-sans text-xs text-ink-light px-2 py-1">最近测算记录</p>
                       <div v-if="historyRecords.length === 0" class="px-2 py-3 text-center">
-                        <p class="font-sans text-xs text-ink-faint">暂无记录</p>
+                        <p class="font-sans text-xs text-ink-muted">暂无记录</p>
                       </div>
                       <div v-else class="space-y-0.5">
                         <button
@@ -767,7 +769,7 @@ function getDaYunMeaning(tenGod: string): string {
                           <div class="font-sans text-xs text-ink-dark">
                             {{ formatHistoryDate(rec.created_at) }}
                           </div>
-                          <div class="font-sans text-[0.65rem] text-ink-faint truncate">
+                          <div class="font-sans text-[0.65rem] text-ink-muted truncate">
                             {{ formatHistoryLabel(rec.input_data) }}
                           </div>
                         </button>

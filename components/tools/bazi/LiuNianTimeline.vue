@@ -15,7 +15,7 @@
     </p>
 
     <!-- No data state -->
-    <p v-if="years.length === 0" class="font-sans text-sm text-ink-faint">
+    <p v-if="years.length === 0" class="font-sans text-sm text-ink-muted">
       暂无流年数据
     </p>
 
@@ -77,10 +77,10 @@
                     :style="relationBadgeStyle(rel.type)"
                   >{{ rel.type }}</span>
                   <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
-                  <span class="text-ink-faint">{{ rel.description }}</span>
+                  <span class="text-ink-muted">{{ rel.description }}</span>
                 </div>
               </div>
-              <p v-else class="font-sans text-sm text-ink-faint">
+              <p v-else class="font-sans text-sm text-ink-muted">
                 流年地支与命局各柱无特殊关系
               </p>
             </div>
@@ -127,7 +127,7 @@
         <div v-else
           class="card-paper-solid rounded-xl p-3 sm:p-4 border border-paper-dark hover:border-ink-faint transition-colors cursor-pointer"
           role="button"
-          :aria-expanded="expandedYears.has(idx)"
+          :aria-expanded="expandedYearIdx === idx"
           :aria-label="`${year.year}年 ${year.stem}${year.branch} 流年运势`"
           :tabindex="0"
           @click="toggleExpand(idx)"
@@ -156,7 +156,7 @@
 
           <!-- Expanded detail -->
           <Transition name="expand">
-          <div v-if="expandedYears.has(idx)" class="mt-3 pt-3 border-t border-paper-dark/50 space-y-2">
+          <div v-if="expandedYearIdx === idx" class="mt-3 pt-3 border-t border-paper-dark/50 space-y-2">
             <div v-if="year.earthRelations.length > 0">
               <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
                 class="flex items-center gap-2 text-sm font-sans"
@@ -165,10 +165,10 @@
                   :style="relationBadgeStyle(rel.type)"
                 >{{ rel.type }}</span>
                 <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
-                <span class="text-ink-faint hidden sm:inline">{{ rel.description }}</span>
+                <span class="text-ink-muted hidden sm:inline">{{ rel.description }}</span>
               </div>
             </div>
-            <p v-else class="font-sans text-sm text-ink-faint">流年地支与命局无特殊关系</p>
+            <p v-else class="font-sans text-sm text-ink-muted">流年地支与命局无特殊关系</p>
 
             <!-- Shensha tags for expanded compact card -->
             <div v-if="year.shenSha.length > 0" class="flex flex-wrap gap-1">
@@ -197,15 +197,10 @@ const props = defineProps<{
   range: number
 }>()
 
-const expandedYears = ref(new Set<number>())
+const expandedYearIdx = ref<number | null>(null)
 
 function toggleExpand(idx: number) {
-  if (expandedYears.value.has(idx)) {
-    expandedYears.value.clear()
-  } else {
-    expandedYears.value.clear()
-    expandedYears.value.add(idx)
-  }
+  expandedYearIdx.value = expandedYearIdx.value === idx ? null : idx
 }
 
 const MONTH_LABELS: Record<number, string> = {
