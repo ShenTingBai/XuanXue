@@ -132,21 +132,6 @@ const animalName = computed(() => {
   <div class="ink-wash-bg min-h-screen">
     <div class="relative z-10">
       <ToolPageLayout>
-        <template #nav-right>
-          <BaziInfoSidebar
-            v-if="result"
-            :birth-year="result.birthYear"
-            :birth-calendar="result.birthCalendar"
-            :animal="animalName"
-            :gender="result.gender"
-            :day-master="result.dayMaster"
-            :day-master-wuxing="result.dayMasterWuxing"
-            :day-master-strength="result.dayMasterStrength"
-            :favorable-elements="result.favorableElements"
-            :unfavorable-elements="result.unfavorableElements"
-          />
-        </template>
-
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
@@ -304,6 +289,21 @@ const animalName = computed(() => {
               </button>
             </div>
           </div>
+
+          <!-- Desktop fixed sidebar: positioned to the right of the centered content -->
+          <BaziInfoSidebar
+            class="hidden xl:block fixed top-20"
+            style="left: calc(50% + 23rem); width: 14rem;"
+            :birth-year="result.birthYear"
+            :birth-calendar="result.birthCalendar"
+            :animal="animalName"
+            :gender="result.gender"
+            :day-master="result.dayMaster"
+            :day-master-wuxing="result.dayMasterWuxing"
+            :day-master-strength="result.dayMasterStrength"
+            :favorable-elements="result.favorableElements"
+            :unfavorable-elements="result.unfavorableElements"
+          />
         </template>
       </ToolPageLayout>
     </div>
