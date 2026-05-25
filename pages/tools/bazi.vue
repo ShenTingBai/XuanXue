@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
+import { WUXING_COLORS as ELEMENT_COLORS } from '~/constants/bazi'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
@@ -166,19 +167,42 @@ const animalName = computed(() => {
         <!-- Result -->
         <template v-else-if="result">
           <div class="max-w-2xl mx-auto">
-            <!-- Mobile info bar -->
-            <div class="sm:hidden flex items-center gap-2 mb-4 p-3 bg-cinnabar/3 rounded-lg">
-              <div class="flex-1 font-sans text-xs text-ink-medium">
-                <span class="text-[0.55rem] text-ink-light">本命：</span>
-                <strong class="text-cinnabar">{{ result.dayMaster }}</strong>（{{ result.dayMasterWuxing }}）
-                <span class="text-[0.55rem] text-ink-light ml-1">力量：</span>{{ result.dayMasterStrength }}
-                <span class="text-[0.55rem] text-ink-light ml-1">助你：</span>
-                {{ result.favorableElements.join('') }}
-              </div>
-              <div class="font-sans text-[0.6rem] text-ink-light">
-                {{ result.birthYear }} · {{ animalName }}
+            <!-- Personal info summary -->
+            <div class="mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/3 border border-cinnabar/15">
+              <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm">
+                <div>
+                  <span class="text-ink-light">出生</span>
+                  <strong class="text-ink-dark ml-1">{{ result.birthYear }}年</strong>
+                  <span class="text-ink-light ml-2">{{ result.birthCalendar === 'solar' ? '阳历' : '农历' }}</span>
+                </div>
+                <div>
+                  <span class="text-ink-light">生肖</span>
+                  <strong class="text-ink-dark ml-1">{{ animalName }}</strong>
+                </div>
+                <div v-if="result.gender">
+                  <span class="text-ink-light">性别</span>
+                  <strong class="text-ink-dark ml-1">{{ result.gender }}</strong>
+                </div>
+                <div>
+                  <span class="text-ink-light">本命</span>
+                  <strong class="text-cinnabar ml-1 font-display text-lg">{{ result.dayMaster }}{{ result.dayMasterWuxing }}</strong>
+                </div>
+                <div>
+                  <span class="text-ink-light">力量</span>
+                  <strong class="ml-1" :class="result.dayMasterStrength === '强' || result.dayMasterStrength === '偏强' ? 'text-cinnabar' : result.dayMasterStrength === '偏弱' || result.dayMasterStrength === '弱' ? 'text-wuxing-water' : 'text-gold'">{{ result.dayMasterStrength }}</strong>
+                </div>
+                <div>
+                  <span class="text-ink-light">喜用神</span>
+                  <span v-for="el in result.favorableElements" :key="el" class="ml-1 font-medium" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
+                </div>
+                <div v-if="result.unfavorableElements.length">
+                  <span class="text-ink-light">忌神</span>
+                  <span v-for="el in result.unfavorableElements" :key="el" class="ml-1 opacity-60" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
+                </div>
               </div>
             </div>
+
+            <!-- End: Personal info summary -->
 
             <!-- Brief intro -->
             <div class="mb-6 p-3 rounded-lg bg-paper-lightest/50 border border-paper-dark/30 text-center">
