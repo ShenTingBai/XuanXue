@@ -12,19 +12,24 @@
       <div class="grid gap-0 border-2 border-cinnabar/50 rounded-lg overflow-clip" role="table" aria-label="四柱排盘"
         :style="{ gridTemplateColumns: `repeat(${pillars.length}, 1fr)` }"
       >
-        <!-- Header row -->
-        <div role="row">
-          <div v-for="h in headers" :key="h.label"
-            role="columnheader"
-            class="py-1.5 px-2 text-center border-b border-cinnabar/50 text-xs text-ink-medium tracking-widest font-sans"
-            :class="h.isDay ? 'bg-cinnabar/18' : 'bg-cinnabar/4'"
-            :style="h.isDay ? { 'border-right': '2px solid rgba(198,40,40,0.50)' } : {}"
-          >
-            {{ h.label }}
-            <span v-if="h.isDay" class="text-cinnabar text-xs ml-1">日主</span>
+        <!-- Header rowgroup -->
+        <div role="rowgroup">
+          <!-- Header row -->
+          <div role="row">
+            <div v-for="h in headers" :key="h.label"
+              role="columnheader"
+              class="py-1.5 px-2 text-center border-b border-cinnabar/50 text-xs text-ink-medium tracking-widest font-sans"
+              :class="h.isDay ? 'bg-cinnabar/18' : 'bg-cinnabar/4'"
+              :style="h.isDay ? { 'border-right': '2px solid rgba(198,40,40,0.50)' } : {}"
+            >
+              {{ h.label }}
+              <span v-if="h.isDay" class="text-cinnabar text-xs ml-1">日主</span>
+            </div>
           </div>
         </div>
 
+        <!-- Data rowgroup -->
+        <div role="rowgroup">
         <!-- Stem row -->
         <div role="row">
           <div v-for="(p, idx) in pillars" :key="'stem-' + idx"
@@ -87,6 +92,7 @@
           >
             {{ getNaYin(p.stem, p.branch) }}
           </div>
+        </div>
         </div>
       </div>
 
