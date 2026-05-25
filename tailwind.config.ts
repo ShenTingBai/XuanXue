@@ -37,19 +37,19 @@ export default {
           light: '#A8862A',
         },
         jade: {
-          DEFAULT: '#4A7C59',
-          light: '#5D8F6A',
+          DEFAULT: '#3D6B4B',
+          light: '#4D7A5A',
         },
         wuxing: {
-          wood: '#4A7C59',
+          wood: '#3D6B4B',
           fire: '#C62828',
-          earth: '#8B6914',
-          metal: '#6E6E6E',
+          earth: '#7A5E12',
+          metal: '#5E5E5E',
           water: '#2C5F7C',
         },
         compat: {
-          great: '#4A7C59',
-          good: '#8B6914',
+          great: '#3D6B4B',
+          good: '#7A5E12',
         },
       },
       fontFamily: {
