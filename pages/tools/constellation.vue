@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { calculateConstellation, getZodiacIndex, ZODIACS, type ConstellationResult } from '~/composables/useConstellation'
 import { parseDate } from '~/utils/date'
@@ -22,8 +21,8 @@ const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const selectedZodiac = ref(0)
-onMounted(async () => {
-  await restoreSession()
+onMounted(() => {
+  restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return
@@ -81,8 +80,6 @@ function compatibilityBorderClass(level: string): string {
 </script>
 
 <template>
-  <div class="ink-wash-bg min-h-screen">
-    <div class="relative z-10">
       <ToolPageLayout>
         <template #nav>
           <ConstellationNav
@@ -186,6 +183,4 @@ function compatibilityBorderClass(level: string): string {
           </div>
         </template>
       </ToolPageLayout>
-    </div>
-  </div>
 </template>

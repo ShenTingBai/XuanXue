@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
 import { parseDate } from '~/utils/date'
@@ -77,8 +76,6 @@ function scrollToAnimalNav() {
 </script>
 
 <template>
-  <div class="ink-wash-bg min-h-screen">
-    <div class="relative z-10">
       <ToolPageLayout>
         <template #nav>
           <AnimalNav
@@ -190,6 +187,4 @@ function scrollToAnimalNav() {
           </div>
         </template>
       </ToolPageLayout>
-    </div>
-  </div>
 </template>

@@ -120,6 +120,12 @@ onMounted(() => {
   }
 
   window.addEventListener('beforeunload', beforeUnloadHandler)
+
+  // Clear onboarding query param to prevent banner on refresh
+  if (isOnboarding.value) {
+    const { onboarding, ...rest } = route.query
+    router.replace({ query: rest })
+  }
 })
 
 function goBack() {
@@ -264,6 +270,15 @@ const saveProfile = async () => {
         档案已更新
       </div>
     </Transition>
+
+    <!-- Onboarding CTA -->
+    <NuxtLink
+      v-if="isOnboarding && success"
+      to="/tools/bazi"
+      class="btn-seal inline-flex mb-6"
+    >
+      <span>开始体验</span>
+    </NuxtLink>
 
     <!-- Error -->
     <Transition name="toast">

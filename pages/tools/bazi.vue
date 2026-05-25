@@ -42,8 +42,8 @@ onUnmounted(() => {
   document.removeEventListener('click', onClickOutside)
 })
 
-onMounted(async () => {
-  await restoreSession()
+onMounted(() => {
+  restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return
