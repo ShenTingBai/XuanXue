@@ -3,10 +3,10 @@
     <div class="flex items-center gap-3 flex-wrap">
       <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
       <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-faint">
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>顺遂
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(60) }" aria-hidden="true"></span>平稳
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(40) }" aria-hidden="true"></span>需注意
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(20) }" aria-hidden="true"></span>挑战
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>70+ 顺遂
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(60) }" aria-hidden="true"></span>50-69 平稳
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(40) }" aria-hidden="true"></span>30-49 需注意
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(20) }" aria-hidden="true"></span>&lt;30 挑战
       </span>
     </div>
 
