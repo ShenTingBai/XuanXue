@@ -16,9 +16,9 @@
       <!-- 吉神 -->
       <div v-if="auspicious.length > 0" role="group" aria-labelledby="shensha-ji">
         <h4 id="shensha-ji" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">吉神</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" tabindex="0" @keydown="handleRovingKeydown" @focus="handleUlFocus" :aria-label="'吉神清单'">
+        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="'吉神清单'">
           <li
-            v-for="ss in auspicious"
+            v-for="(ss, ssIdx) in auspicious"
             :key="ss.name + ss.pillar + ss.position"
             class="relative group"
           >
@@ -26,7 +26,7 @@
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
               :style="{ background: '#4A7C5918', color: '#4A7C59', border: '1px solid #4A7C5930' }"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
-              tabindex="-1"
+              :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
             >
               {{ ss.name }}
@@ -50,9 +50,9 @@
       <!-- 中性 -->
       <div v-if="neutral.length > 0" role="group" aria-labelledby="shensha-zhongxing">
         <h4 id="shensha-zhongxing" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">中性</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" tabindex="0" @keydown="handleRovingKeydown" @focus="handleUlFocus" :aria-label="'中性神煞清单'">
+        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="'中性神煞清单'">
           <li
-            v-for="ss in neutral"
+            v-for="(ss, ssIdx) in neutral"
             :key="ss.name + ss.pillar + ss.position"
             class="relative group"
           >
@@ -60,7 +60,7 @@
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
               :style="{ background: '#6B5B4F12', color: '#6B5B4F', border: '1px solid #6B5B4F28' }"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
-              tabindex="-1"
+              :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
             >
               {{ ss.name }}
@@ -83,9 +83,9 @@
       <!-- 凶煞 -->
       <div v-if="inauspicious.length > 0" role="group" aria-labelledby="shensha-xiong">
         <h4 id="shensha-xiong" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">凶煞</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" tabindex="0" @keydown="handleRovingKeydown" @focus="handleUlFocus" :aria-label="'凶煞清单'">
+        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="'凶煞清单'">
           <li
-            v-for="ss in inauspicious"
+            v-for="(ss, ssIdx) in inauspicious"
             :key="ss.name + ss.pillar + ss.position"
             class="relative group"
           >
@@ -93,7 +93,7 @@
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
               :style="{ background: '#C628280E', color: '#8E1D1D', border: '1px solid #C6282820' }"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
-              tabindex="-1"
+              :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
             >
               {{ ss.name }}
@@ -149,14 +149,8 @@ function handleRovingKeydown(e: KeyboardEvent) {
     default: return
   }
   e.preventDefault()
+  // Dynamically switch tabindex: set current button to 0, all others to -1
+  buttons.forEach((b, i) => { b.tabIndex = i === nextIdx ? 0 : -1 })
   buttons[nextIdx].focus()
-}
-
-function handleUlFocus(e: FocusEvent) {
-  const ul = e.currentTarget as HTMLElement
-  const buttons = ul.querySelectorAll<HTMLElement>('button')
-  if (buttons.length > 0 && !ul.contains(document.activeElement)) {
-    buttons[0].focus()
-  }
 }
 </script>
