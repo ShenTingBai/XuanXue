@@ -33,6 +33,7 @@ const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
 const showSaveErrorToast = ref(false)
 const restoreError = ref('')
+const restoredFromHistory = ref(false)
 const historyRecords = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
 const showHistoryDropdown = ref(false)
 const historyDropdownRef = ref<HTMLElement | null>(null)
@@ -92,6 +93,7 @@ function computeResult() {
   showHistoryDropdown.value = false
   showSaveErrorToast.value = false
   restoreError.value = ''
+  restoredFromHistory.value = false
 
   const parsed = parseDate(currentProfile.value.birth_date)
   if (!parsed) { loading.value = false; return }
@@ -165,7 +167,7 @@ async function saveDivinationResult(
         body: {
           type: 'bazi',
           input_data: inputData,
-          result_data: JSON.parse(JSON.stringify(baziResult)),
+          result_data: structuredClone(baziResult),
         },
       })
       savedDivinationId.value = saveRes.id
@@ -227,6 +229,7 @@ async function restoreFromHistory(id: number) {
     }
     showHistoryDropdown.value = false
     restoreError.value = ''
+    restoredFromHistory.value = true
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
   }
@@ -252,12 +255,13 @@ function onDropdownKeydown(e: KeyboardEvent) {
     closeHistoryDropdown()
     return
   }
+  const menu = e.currentTarget as HTMLElement
+  const items = menu.querySelectorAll<HTMLElement>('[role="menuitem"]')
+  if (items.length === 0) return
+  const currentIdx = Array.from(items).indexOf(document.activeElement as HTMLElement)
+
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault()
-    const menu = e.currentTarget as HTMLElement
-    const items = menu.querySelectorAll<HTMLElement>('[role="menuitem"]')
-    if (items.length === 0) return
-    const currentIdx = Array.from(items).indexOf(document.activeElement as HTMLElement)
     let nextIdx: number
     if (e.key === 'ArrowDown') {
       nextIdx = currentIdx < 0 ? 0 : (currentIdx + 1) % items.length
@@ -697,8 +701,9 @@ function getDaYunMeaning(tenGod: string): string {
             />
             </div>
 
-            <!-- Recalculate -->
-            <div class="flex justify-center mt-8">
+            <!-- Recalculate — only shown after history restore -->
+            <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
+              <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
               <button
                 @click="computeResult"
                 @keydown.enter="computeResult"
