@@ -38,7 +38,7 @@
           <div class="flex gap-2">
             <span v-for="el in unfavorableElements" :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-sans font-medium"
-              :class="[elementBgClass(el), 'opacity-60']" :style="{ color: elementColor(el) }">
+              :class="elementBgClass(el)" :style="{ color: elementColor(el) }">
               {{ el }}
             </span>
           </div>

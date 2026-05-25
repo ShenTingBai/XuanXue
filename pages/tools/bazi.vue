@@ -518,7 +518,7 @@ function getDaYunMeaning(tenGod: string): string {
                 </div>
                 <div v-if="result.unfavorableElements.length">
                   <span class="text-ink-light">忌神</span>
-                  <span v-for="el in result.unfavorableElements" :key="el" class="ml-1 opacity-60" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
+                  <span v-for="el in result.unfavorableElements" :key="el" class="ml-1" :style="{ color: ELEMENT_COLORS[el], opacity: 0.8 }">{{ el }}</span>
                 </div>
               </div>
             </div>
