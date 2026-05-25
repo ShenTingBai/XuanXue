@@ -185,6 +185,10 @@ const submit = async () => {
           还没有档案？
           <button @click="switchMode" class="text-cinnabar hover:underline">创建新档案</button>
         </div>
+        <div v-else class="mt-6 text-center text-xs text-ink-medium">
+          已有档案？
+          <button @click="switchMode" class="text-cinnabar hover:underline">去登录</button>
+        </div>
       </div>
     </div>
   </div>
