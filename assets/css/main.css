@@ -463,4 +463,8 @@ a:focus-visible {
   .tool-card:hover:not(.tool-card--locked) {
     transform: none;
   }
+  body::after {
+    opacity: 0.15;
+    background-image: none;
+  }
 }
