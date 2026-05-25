@@ -90,14 +90,6 @@
         </div>
       </div>
 
-      <!-- Desktop legend -->
-      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-muted font-sans">
-        <div>天干 — 上面的彩色大字</div>
-        <div>地支 — 下面的彩色大字</div>
-        <div>十神 — 人际关系标签</div>
-        <div>藏干 — 地支暗藏能量</div>
-        <div>纳音 — 五行音律气质</div>
-      </div>
     </div>
 
     <!-- Mobile: horizontal scroll cards -->
@@ -143,14 +135,17 @@
           </div>
         </div>
       </div>
-      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-faint font-sans">
-        <div>天干 — 上面的彩色大字</div>
-        <div>地支 — 下面的彩色大字</div>
-        <div>十神 — 人际关系标签</div>
-        <div>藏干 — 地支暗藏能量</div>
-        <div>纳音 — 五行音律气质</div>
-      </div>
     </div>
+
+    <!-- Shared legend (below both desktop and mobile views) -->
+    <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-faint font-sans">
+      <div>天干 — 外在表现，他人可见的特质</div>
+      <div>地支 — 内在根基，潜藏的能量与倾向</div>
+      <div>十神 — 六亲关系与人际互动模式</div>
+      <div>藏干 — 地支中暗藏的天干能量</div>
+      <div>纳音 — 五行音律，命格气质类型</div>
+    </div>
+  </div>
   </div>
   </div>
 </template>
