@@ -81,6 +81,11 @@ function selectAnimal(index: number) {
 }
 
 const currentYear = computed(() => new Date().getFullYear())
+
+function scrollToAnimalNav() {
+  const el = document.querySelector('[data-animal-nav]')
+  el?.scrollIntoView({ behavior: 'smooth' })
+}
 </script>
 
 <template>
@@ -95,17 +100,20 @@ const currentYear = computed(() => new Date().getFullYear())
           />
         </template>
         <template #mobile-nav>
-          <button
-            v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
-            :key="idx"
-            @click="selectAnimal(idx)"
-            :class="[
-              'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
-              idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
-            ]"
-          >
-            {{ animal }}
-          </button>
+          <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2">
+            <button
+              v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
+              :key="idx"
+              @click="selectAnimal(idx)"
+              :aria-current="idx === selectedAnimal ? 'true' : undefined"
+              :class="[
+                'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
+                idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
+              ]"
+            >
+              {{ animal }}
+            </button>
+          </div>
         </template>
 
         <!-- Missing birth info -->
@@ -130,6 +138,26 @@ const currentYear = computed(() => new Date().getFullYear())
         <template v-else-if="result">
           <ShengXiaoHero :result="result" />
           <WuXingGrid :result="result" />
+
+          <!-- Lucky information -->
+          <div class="fade-in card-paper-solid rounded-2xl mt-6" :style="{ '--delay': '0.25s' }">
+            <InkDivider>幸运信息</InkDivider>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-8">
+              <div>
+                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运数字</h4>
+                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.numbers.join('、') }}</p>
+              </div>
+              <div>
+                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运颜色</h4>
+                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.colors.join('、') }}</p>
+              </div>
+              <div>
+                <h4 class="font-noto text-ink-400 text-sm mb-2">幸运方位</h4>
+                <p class="font-noto text-ink-700 text-lg">{{ result.lucky.direction }}</p>
+              </div>
+            </div>
+          </div>
+
           <PersonalityCard :result="result" />
 
           <InkDivider>{{ currentYear }}年流年运势</InkDivider>
@@ -147,6 +175,9 @@ const currentYear = computed(() => new Date().getFullYear())
           <div class="flex flex-wrap gap-3 justify-center mt-8">
             <button @click="computeResult" class="btn-seal">
               <span>📜 重新排盘</span>
+            </button>
+            <button @click="scrollToAnimalNav" class="btn-seal">
+              <span>切换生肖</span>
             </button>
           </div>
         </template>

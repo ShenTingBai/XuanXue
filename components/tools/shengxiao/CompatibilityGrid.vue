@@ -42,7 +42,7 @@ function levelClass(level: string): string {
   return level === 'great'
     ? 'bg-wuxing-wood/10 text-wuxing-wood'
     : level === 'good'
-      ? 'bg-[rgba(184,134,11,0.1)] text-gold'
+      ? 'bg-compat-good/10 text-gold'
       : 'bg-cinnabar/5 text-cinnabar/80'
 }
 </script>
