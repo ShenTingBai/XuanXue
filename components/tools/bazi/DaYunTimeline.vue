@@ -2,7 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.4s' }">
     <InkDivider>大运</InkDivider>
 
-    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       大运是你人生每十年一段的运势走向。高亮的卡片对应你当前的年龄段。
     </p>
 
@@ -15,7 +15,7 @@
           ? 'border-2 border-cinnabar bg-cinnabar/3 shadow-sm'
           : 'border border-paper-dark bg-paper-lightest/80 hover:border-ink-faint'"
       >
-        <div class="font-sans text-[0.6rem] text-ink-light tracking-wider mb-1">
+        <div class="font-sans text-[0.625rem] text-ink-light tracking-wider mb-1">
           {{ cycle.startAge }}-{{ cycle.endAge }}岁
         </div>
         <div class="font-display text-lg font-medium text-ink-dark mb-1">
@@ -36,9 +36,9 @@
             ? 'border border-cinnabar bg-cinnabar/3'
             : 'border border-paper-dark'"
         >
-          <div class="font-sans text-[0.5rem] text-ink-light">{{ cycle.startAge }}-{{ cycle.endAge }}岁</div>
+          <div class="font-sans text-[0.625rem] text-ink-light">{{ cycle.startAge }}-{{ cycle.endAge }}岁</div>
           <div class="font-display text-sm font-medium text-ink-dark">{{ cycle.stemBranch }}</div>
-          <div class="font-sans text-[0.5rem] text-ink-medium">{{ cycle.description.slice(0, 3) }}</div>
+          <div class="font-sans text-[0.625rem] text-ink-medium" :title="cycle.description">{{ cycle.stemTenGod }}</div>
         </div>
       </div>
     </div>

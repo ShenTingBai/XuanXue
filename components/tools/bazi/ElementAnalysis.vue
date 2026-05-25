@@ -2,7 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.2s' }">
     <InkDivider>五行旺衰</InkDivider>
 
-    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       五行（金木水火土）在你八字中的分布。柱条越长，该能量越强，对你影响越大。
     </p>
 

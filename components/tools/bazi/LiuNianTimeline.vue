@@ -10,12 +10,12 @@
       </span>
     </div>
 
-    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       以今年（{{ currentYear }}年）为中心的{{ years.length }}年运势概述。高亮卡片为今年展开详批，其余年份为紧凑概览。
     </p>
 
     <!-- No data state -->
-    <p v-if="years.length === 0" class="font-sans text-sm text-ink-light/60">
+    <p v-if="years.length === 0" class="font-sans text-sm text-ink-faint">
       暂无流年数据
     </p>
 
@@ -77,10 +77,10 @@
                     :style="relationBadgeStyle(rel.type)"
                   >{{ rel.type }}</span>
                   <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
-                  <span class="text-ink-light/60">{{ rel.description }}</span>
+                  <span class="text-ink-faint">{{ rel.description }}</span>
                 </div>
               </div>
-              <p v-else class="font-sans text-sm text-ink-light/60">
+              <p v-else class="font-sans text-sm text-ink-faint">
                 流年地支与命局各柱无特殊关系
               </p>
             </div>
@@ -93,7 +93,7 @@
                   class="text-center rounded py-1 px-1 bg-paper-lightest/80 border border-paper-dark/30"
                   role="gridcell"
                 >
-                  <div class="font-sans text-[0.6rem] text-ink-light">{{ monthLabel(ms.month) }}</div>
+                  <div class="font-sans text-[0.625rem] text-ink-light">{{ monthLabel(ms.month) }}</div>
                   <div class="font-display text-sm text-ink-dark">{{ ms.stem }}{{ ms.branch }}</div>
                 </div>
               </div>
@@ -152,7 +152,7 @@
               {{ year.score }}
             </span>
           </div>
-          <p class="font-sans text-sm text-ink-light/70 mt-1.5 truncate">{{ year.summary }}</p>
+          <p class="font-sans text-sm text-ink-light mt-1.5 truncate">{{ year.summary }}</p>
 
           <!-- Expanded detail -->
           <div v-if="expandedYears.has(idx)" class="mt-3 pt-3 border-t border-paper-dark/50 space-y-2">
@@ -164,10 +164,10 @@
                   :style="relationBadgeStyle(rel.type)"
                 >{{ rel.type }}</span>
                 <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
-                <span class="text-ink-light/60 hidden sm:inline">{{ rel.description }}</span>
+                <span class="text-ink-faint hidden sm:inline">{{ rel.description }}</span>
               </div>
             </div>
-            <p v-else class="font-sans text-sm text-ink-light/60">流年地支与命局无特殊关系</p>
+            <p v-else class="font-sans text-sm text-ink-faint">流年地支与命局无特殊关系</p>
 
             <!-- Shensha tags for expanded compact card -->
             <div v-if="year.shenSha.length > 0" class="flex flex-wrap gap-1">

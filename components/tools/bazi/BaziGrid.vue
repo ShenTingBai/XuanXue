@@ -2,30 +2,32 @@
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
     <InkDivider>四柱排盘</InkDivider>
 
-    <p class="font-sans text-base text-ink-light/70 mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       年柱代表家族根基，月柱代表成长环境，日柱代表你自己和婚姻，时柱代表晚年与子女。
     </p>
 
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
-      <div class="grid gap-0 border border-cinnabar/25 rounded-lg overflow-hidden"
+      <div class="grid gap-0 border border-cinnabar/25 rounded-lg overflow-visible" role="table" aria-label="四柱排盘"
         :style="{ gridTemplateColumns: `repeat(${pillars.length}, 1fr)` }"
       >
         <!-- Header -->
         <div v-for="h in headers" :key="h.label"
+          role="columnheader"
           class="py-1.5 px-2 text-center border-b border-cinnabar/25 text-[0.65rem] text-ink-medium tracking-widest font-sans"
-          :class="h.isDay ? 'bg-cinnabar/7' : 'bg-cinnabar/4'"
+          :class="h.isDay ? 'bg-cinnabar/10' : 'bg-cinnabar/4'"
           :style="h.isDay ? { 'border-right': '1px solid rgba(198,40,40,0.25)' } : {}"
         >
           {{ h.label }}
-          <span v-if="h.isDay" class="text-cinnabar text-[0.55rem] ml-1">日主</span>
+          <span v-if="h.isDay" class="text-cinnabar text-[0.625rem] ml-1">日主</span>
         </div>
 
         <!-- Stem row -->
         <div v-for="(p, idx) in pillars" :key="'stem-' + idx"
+          role="cell"
           class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
+          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
           :style="{ color: wuxingColor(p.stemWuxing) }"
         >
           {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
@@ -33,8 +35,9 @@
 
         <!-- Branch row -->
         <div v-for="(p, idx) in pillars" :key="'branch-' + idx"
+          role="cell"
           class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
+          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
           :style="{ color: wuxingColor(p.branchWuxing) }"
         >
           {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
@@ -42,10 +45,11 @@
 
         <!-- Ten God row -->
         <div v-for="(p, idx) in pillars" :key="'tg-' + idx"
+          role="cell"
           class="py-1.5 px-2 text-center border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
+          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
         >
-          <span class="inline-block px-2 py-0.5 rounded-full text-[0.6rem] leading-tight font-sans"
+          <span class="inline-block px-2 py-0.5 rounded-full text-[0.625rem] leading-tight font-sans"
             :class="tenGodBadgeClass(p.stemTenGod)">
             {{ p.stemTenGod }}
           </span>
@@ -53,8 +57,9 @@
 
         <!-- Hidden Stems row -->
         <div v-for="(p, idx) in pillars" :key="'hs-' + idx"
+          role="cell"
           class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-paper-dark"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
+          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
         >
           <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
             class="inline-block mr-1 last:mr-0"
@@ -65,11 +70,21 @@
 
         <!-- NaYin row -->
         <div v-for="(p, idx) in pillars" :key="'ny-' + idx"
-          class="py-1.5 px-2 text-center text-[0.6rem] text-ink-lighter font-sans"
-          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
+          role="cell"
+          class="py-1.5 px-2 text-center text-[0.625rem] text-ink-faint font-sans"
+          :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/8' : '']"
         >
           {{ getNaYin(p.stem, p.branch) }}
         </div>
+      </div>
+
+      <!-- Desktop legend -->
+      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-faint font-sans">
+        <div>天干 — 上面的彩色大字</div>
+        <div>地支 — 下面的彩色大字</div>
+        <div>十神 — 人际关系标签</div>
+        <div>藏干 — 地支暗藏能量</div>
+        <div>纳音 — 五行音律气质</div>
       </div>
     </div>
 
@@ -85,7 +100,7 @@
             <div class="py-1 text-center font-sans"
               :class="idx === 2 ? 'bg-cinnabar/10' : 'bg-cinnabar/4'"
             >
-              <span class="text-[0.55rem] text-ink-medium tracking-wider">
+              <span class="text-[0.625rem] text-ink-medium tracking-wider">
                 {{ ['年', '月', '日', '时'][idx] }}柱
               </span>
             </div>
@@ -101,13 +116,13 @@
             </div>
             <!-- Ten God -->
             <div class="px-1 pb-1 text-center">
-              <span class="inline-block px-1.5 py-0.5 rounded-full text-[0.5rem] font-sans"
+              <span class="inline-block px-1.5 py-0.5 rounded-full text-[0.625rem] font-sans"
                 :class="tenGodBadgeClass(p.stemTenGod)">
                 {{ p.stemTenGod }}
               </span>
             </div>
             <!-- Hidden Stems -->
-            <div class="px-1 pb-1 text-center text-[0.55rem] text-ink-light leading-tight">
+            <div class="px-1 pb-1 text-center text-[0.625rem] text-ink-light leading-tight">
               <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
                 class="mr-0.5" :style="{ color: wuxingColor(hs.wuxing) }">
                 {{ hs.stem }}
@@ -116,7 +131,7 @@
           </div>
         </div>
       </div>
-      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-lighter font-sans">
+      <div class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-faint font-sans">
         <div>天干 — 上面的彩色大字</div>
         <div>地支 — 下面的彩色大字</div>
         <div>十神 — 人际关系标签</div>
