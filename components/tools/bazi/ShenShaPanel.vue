@@ -13,18 +13,21 @@
         该命局无特殊神煞标记
       </p>
 
-      <!-- 吉神 -->
-      <div v-if="auspicious.length > 0" role="group" aria-labelledby="shensha-ji">
-        <h4 id="shensha-ji" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">吉神</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="'吉神清单'">
+      <!-- Category groups: 吉神 / 中性 / 凶煞 -->
+      <div v-for="group in shenShaGroups" :key="group.id"
+        v-if="group.items.length > 0"
+        role="group" :aria-labelledby="group.id"
+      >
+        <h4 :id="group.id" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">{{ group.label }}</h4>
+        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="group.ariaLabel">
           <li
-            v-for="(ss, ssIdx) in auspicious"
+            v-for="(ss, ssIdx) in group.items"
             :key="ss.name + ss.pillar + ss.position"
             class="relative group"
           >
             <button
               class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="buttonStyle('吉')"
+              :style="buttonStyle(group.category)"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
               @click="toggleShen(ss.name + ss.pillar + ss.position)"
@@ -32,72 +35,6 @@
               {{ ss.name }}
             </button>
             <!-- Tooltip -->
-            <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
-              :class="[
-                'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
-                expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
-              ]"
-              :style="tooltipStyle"
-            >
-              {{ ss.description }}
-              <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- 中性 -->
-      <div v-if="neutral.length > 0" role="group" aria-labelledby="shensha-zhongxing">
-        <h4 id="shensha-zhongxing" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">中性</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="'中性神煞清单'">
-          <li
-            v-for="(ss, ssIdx) in neutral"
-            :key="ss.name + ss.pillar + ss.position"
-            class="relative group"
-          >
-            <button
-              class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="buttonStyle('中性')"
-              :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
-              :tabindex="ssIdx === 0 ? 0 : -1"
-              @click="toggleShen(ss.name + ss.pillar + ss.position)"
-            >
-              {{ ss.name }}
-            </button>
-            <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
-              :class="[
-                'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
-                expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
-              ]"
-              :style="tooltipStyle"
-            >
-              {{ ss.description }}
-              <span class="block mt-0.5 opacity-60 text-[0.65rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- 凶煞 -->
-      <div v-if="inauspicious.length > 0" role="group" aria-labelledby="shensha-xiong">
-        <h4 id="shensha-xiong" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">凶煞</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="'凶煞清单'">
-          <li
-            v-for="(ss, ssIdx) in inauspicious"
-            :key="ss.name + ss.pillar + ss.position"
-            class="relative group"
-          >
-            <button
-              class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="buttonStyle('凶')"
-              :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
-              :tabindex="ssIdx === 0 ? 0 : -1"
-              @click="toggleShen(ss.name + ss.pillar + ss.position)"
-            >
-              {{ ss.name }}
-            </button>
             <span
               class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
               :class="[
@@ -150,6 +87,12 @@ const props = defineProps<{
 const auspicious = computed(() => props.shenSha.filter(s => s.category === '吉'))
 const neutral = computed(() => props.shenSha.filter(s => s.category === '中性'))
 const inauspicious = computed(() => props.shenSha.filter(s => s.category === '凶'))
+
+const shenShaGroups = computed(() => [
+  { id: 'shensha-ji', label: '吉神', ariaLabel: '吉神清单', items: auspicious.value, category: '吉' as const },
+  { id: 'shensha-zhongxing', label: '中性', ariaLabel: '中性神煞清单', items: neutral.value, category: '中性' as const },
+  { id: 'shensha-xiong', label: '凶煞', ariaLabel: '凶煞清单', items: inauspicious.value, category: '凶' as const },
+])
 
 const expandedShen = ref('')
 function toggleShen(key: string) {
