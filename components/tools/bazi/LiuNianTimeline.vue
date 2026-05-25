@@ -133,6 +133,7 @@
             <span class="font-sans text-sm px-1.5 py-0.5 rounded"
               :style="tenGodBadgeStyle(year.isFavorable, year.isUnfavorable)"
             >{{ year.tenGod }}</span>
+            <span class="sr-only">({{ year.isFavorable ? '喜用神' : year.isUnfavorable ? '忌神' : '中性' }})</span>
             <!-- Score bar -->
             <div class="flex-1 h-1.5 rounded-full bg-paper-dark/40 overflow-hidden">
               <div class="h-full rounded-full transition-all"

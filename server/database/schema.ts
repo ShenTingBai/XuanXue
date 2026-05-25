@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS divination_results (
 `
 
 export const INDEX_SESSIONS_PROFILE = `CREATE INDEX IF NOT EXISTS idx_sessions_profile ON sessions(profile_id)`
+export const INDEX_SESSIONS_TOKEN = `CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token)`
 export const INDEX_DIVINATION_PROFILE = `CREATE INDEX IF NOT EXISTS idx_divination_profile ON divination_results(profile_id)`
 
 export const CREATE_SECURITY_LOG_TABLE = `

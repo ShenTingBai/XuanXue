@@ -63,6 +63,33 @@ describe('getMonthStemStart', () => {
   })
 })
 
+describe('all 12 major solar terms for 2024', () => {
+  const expected2024 = [
+    { name: '立春', termIndex: 0, month: 2, day: 4 },
+    { name: '惊蛰', termIndex: 1, month: 3, day: 5 },
+    { name: '清明', termIndex: 2, month: 4, day: 4 },
+    { name: '立夏', termIndex: 3, month: 5, day: 5 },
+    { name: '芒种', termIndex: 4, month: 6, day: 5 },
+    { name: '小暑', termIndex: 5, month: 7, day: 6 },
+    { name: '立秋', termIndex: 6, month: 8, day: 7 },
+    { name: '白露', termIndex: 7, month: 9, day: 7 },
+    { name: '寒露', termIndex: 8, month: 10, day: 8 },
+    { name: '立冬', termIndex: 9, month: 11, day: 7 },
+    { name: '大雪', termIndex: 10, month: 12, day: 6 },
+    { name: '小寒', termIndex: 11, month: 1, day: 5 },
+  ]
+
+  it.each(expected2024)('$name should be in correct month (termIndex=$termIndex)', ({ termIndex, month }) => {
+    const result = getSolarTerm(2024, termIndex)
+    expect(result.month).toBe(month)
+  })
+
+  it.each(expected2024)('$name day should be within ±1 of expected', ({ termIndex, day }) => {
+    const result = getSolarTerm(2024, termIndex)
+    expect(Math.abs(result.day - day)).toBeLessThanOrEqual(1)
+  })
+})
+
 describe('getMonthPillar', () => {
   it('returns 甲寅 for 1998-02-04 solar (戊寅年 立春=寅月, 戊癸年起甲寅)', () => {
     // 1998 is 戊寅年 (stem index 4), 戊癸年起甲寅

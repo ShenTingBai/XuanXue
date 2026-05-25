@@ -28,7 +28,7 @@
           :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
           :style="{ color: wuxingColor(p.stemWuxing) }"
         >
-          {{ p.stem }}
+          {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
         </div>
 
         <!-- Branch row -->
@@ -37,7 +37,7 @@
           :class="[idx < 3 ? 'border-r border-paper-dark' : '', idx === 2 ? 'bg-cinnabar/3' : '']"
           :style="{ color: wuxingColor(p.branchWuxing) }"
         >
-          {{ p.branch }}
+          {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
         </div>
 
         <!-- Ten God row -->
@@ -92,12 +92,12 @@
             <!-- Stem -->
             <div class="py-1 text-center text-xl font-sans font-medium"
               :style="{ color: wuxingColor(p.stemWuxing) }">
-              {{ p.stem }}
+              {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
             </div>
             <!-- Branch -->
             <div class="pb-1 text-center text-xl font-sans font-medium"
               :style="{ color: wuxingColor(p.branchWuxing) }">
-              {{ p.branch }}
+              {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
             </div>
             <!-- Ten God -->
             <div class="px-1 pb-1 text-center">
@@ -131,7 +131,7 @@
 <script setup lang="ts">
 import type { BaZiPillar } from '~/composables/useBaZi'
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, STEMS, BRANCHES } from '~/constants/bazi'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, STEMS, BRANCHES, NAYIN_TABLE, getNaYin } from '~/constants/bazi'
 
 const props = defineProps<{
   pillars: BaZiPillar[]
@@ -160,25 +160,4 @@ function tenGodBadgeClass(tg: string): string {
   return 'bg-ink-faint/20 text-ink-medium'
 }
 
-/** Simplified NaYin lookup (60-cycle pair index) */
-const NAYIN_TABLE = [
-  '海中金', '炉中火', '大林木', '路旁土', '剑锋金',
-  '山头火', '涧下水', '城头土', '白蜡金', '杨柳木',
-  '泉中水', '屋上土', '霹雳火', '松柏木', '长流水',
-  '沙中金', '山下火', '平地木', '壁上土', '金箔金',
-  '佛灯火', '天河水', '大驿土', '钗钏金', '桑柘木',
-  '大溪水', '沙中土', '天上火', '石榴木', '大海水',
-]
-
-function getNaYin(stem: string, branch: string): string {
-  const stemIdx = STEMS.indexOf(stem)
-  const branchIdx = BRANCHES.indexOf(branch)
-  if (stemIdx < 0 || branchIdx < 0) return ''
-  // Valid sexagenary pairs: stem and branch indices must have same parity
-  if ((stemIdx - branchIdx) % 2 !== 0) return ''
-  // Sexagenary cycle position formula
-  const k = (((stemIdx - branchIdx) / 2) + 6) % 6
-  const sexagenaryPos = ((stemIdx + 10 * k) % 60 + 60) % 60
-  return NAYIN_TABLE[Math.floor(sexagenaryPos / 2)] || ''
-}
 </script>

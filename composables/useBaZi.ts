@@ -222,7 +222,7 @@ function getHourStemStart(dayStemIndex: number): number {
 }
 
 /** Determine day master strength based on month order */
-function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number): '强' | '偏强' | '中和' | '偏弱' | '弱' {
+export function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number): '强' | '偏强' | '中和' | '偏弱' | '弱' {
   const monthStrength: Record<string, number[]> = {
     //   子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥
     '木': [0, -1, 2, 2, -1, -1, -1, 0, -2, -2, 0, 1],
@@ -248,7 +248,7 @@ function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number)
  * - 身弱/偏弱: 喜扶帮 = 印(生我) + 比劫(同我)
  * - 中和: simplified balance, could require further 调候 analysis
  */
-function getFavorableElements(dayMasterWuxing: string, strength: string): [string[], string[]] {
+export function getFavorableElements(dayMasterWuxing: string, strength: string): [string[], string[]] {
   // 我生 (食伤/EXPRESSION): DM generates this element
   const generating: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
   // 我克 (财/WEALTH): DM controls this element

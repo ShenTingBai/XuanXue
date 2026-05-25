@@ -9,6 +9,8 @@ interface ProfileUpdateBody {
   birth_minute: number | null
 }
 
+useHead({ title: '编辑档案 - 玄学' })
+
 const { restoreSession, currentProfile, getAuthHeaders, updateProfile } = useAuth()
 const router = useRouter()
 const route = useRoute()

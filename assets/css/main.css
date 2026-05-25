@@ -382,9 +382,10 @@
 
 /* ===== Custom Focus Styles ===== */
 input:focus-visible, select:focus-visible {
-  outline: none;
+  outline: 2px solid #C62828;
+  outline-offset: 1px;
   border-bottom-color: #C62828;
-  box-shadow: 0 1px 0 #C62828;
+  box-shadow: none;
 }
 button:focus-visible {
   outline: 2px solid #C62828;

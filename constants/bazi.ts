@@ -10,3 +10,25 @@ export const WUXING_FALLBACK_COLOR = '#6B5B4F'
 export function getStemIndex(stem: string): number {
   return STEMS.indexOf(stem)
 }
+
+/** NaYin table for 60-cycle sexagenary pairs (one entry per pair of stem+branch). */
+export const NAYIN_TABLE: string[] = [
+  '海中金', '炉中火', '大林木', '路旁土', '剑锋金', '山头火',
+  '涧下水', '城头土', '白蜡金', '杨柳木', '泉中水', '屋上土',
+  '霹雳火', '松柏木', '长流水', '沙中金', '山下火', '平地木',
+  '壁上土', '金箔金', '佛灯火', '天河水', '大驿土', '钗钏金',
+  '桑柘木', '大溪水', '沙中土', '天上火', '石榴木', '大海水',
+]
+
+/** Get the NaYin element for a given stem-branch pair. Returns empty string if invalid. */
+export function getNaYin(stem: string, branch: string): string {
+  const stemIdx = STEMS.indexOf(stem)
+  const branchIdx = BRANCHES.indexOf(branch)
+  if (stemIdx < 0 || branchIdx < 0) return ''
+  // Valid sexagenary pairs: stem and branch indices must have same parity
+  if ((stemIdx - branchIdx) % 2 !== 0) return ''
+  // Sexagenary cycle position formula
+  const k = (((stemIdx - branchIdx) / 2) + 6) % 6
+  const sexagenaryPos = ((stemIdx + 10 * k) % 60 + 60) % 60
+  return NAYIN_TABLE[Math.floor(sexagenaryPos / 2)] || ''
+}

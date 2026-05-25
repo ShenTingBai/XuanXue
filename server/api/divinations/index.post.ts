@@ -36,8 +36,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: '缺少结果数据' })
   }
 
-  const inputDataStr = typeof input_data === 'string' ? input_data : JSON.stringify(input_data)
-  const resultDataStr = typeof result_data === 'string' ? result_data : JSON.stringify(result_data)
+  let inputDataStr: string
+  try {
+    inputDataStr = typeof input_data === 'string' ? input_data : JSON.stringify(input_data)
+  } catch {
+    inputDataStr = ''
+  }
+  let resultDataStr: string
+  try {
+    resultDataStr = typeof result_data === 'string' ? result_data : JSON.stringify(result_data)
+  } catch {
+    resultDataStr = ''
+  }
 
   // Size limits: prevent oversized payloads from exhausting memory or bloating the database
   const MAX_PAYLOAD_BYTES = 100_000

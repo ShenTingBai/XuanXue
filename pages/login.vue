@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useHead({ title: '登录 - 玄学' })
+
 const { login, register, restoreSession, currentProfile } = useAuth()
 const router = useRouter()
 
@@ -178,10 +180,10 @@ const submit = async () => {
         </div>
 
         <!-- Switch hint -->
-        <p v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium">
+        <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium">
           还没有档案？
           <button @click="switchMode" class="text-cinnabar hover:underline">创建新档案</button>
-        </p>
+        </div>
       </div>
     </div>
   </div>

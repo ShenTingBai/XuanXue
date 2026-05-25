@@ -35,6 +35,16 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 
+  // Account lockout: count failed logins in the last 15 minutes
+  const recentFailures = dbGet(
+    "SELECT COUNT(*) as count FROM security_log WHERE profile_id = ? AND event_type = 'login_failed' AND created_at > datetime('now', '-15 minutes')",
+    [profile.id]
+  )
+
+  if (recentFailures && (recentFailures.count as number) >= 10) {
+    throw createError({ statusCode: 429, statusMessage: '账户已被临时锁定，请15分钟后再试' })
+  }
+
   const storedPin = profile.pin as string
 
   // Verify PIN using hashed comparison

@@ -4,6 +4,7 @@ import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/u
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
 import { WUXING_COLORS as ELEMENT_COLORS, getStemIndex } from '~/constants/bazi'
+import { parseDate } from '~/utils/date'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
@@ -15,6 +16,8 @@ import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
+
+useHead({ title: '八字排盘 - 玄学' })
 
 const router = useRouter()
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -55,16 +58,6 @@ onMounted(async () => {
   document.addEventListener('click', onClickOutside)
   computeResult()
 })
-
-function parseDate(str: string): { year: number; month: number; day: number } | null {
-  const parts = str.split('T')[0].split('-')
-  if (parts.length !== 3) return null
-  const year = parseInt(parts[0], 10)
-  const month = parseInt(parts[1], 10)
-  const day = parseInt(parts[2], 10)
-  if (isNaN(year) || isNaN(month) || isNaN(day)) return null
-  return { year, month, day }
-}
 
 function getCurrentAge(): number {
   if (!currentProfile.value?.birth_date) return 0
@@ -383,6 +376,11 @@ function getDaYunMeaning(tenGod: string): string {
   <div class="ink-wash-bg min-h-screen">
     <div class="relative z-10">
       <ToolPageLayout>
+        <!-- Screen reader status -->
+        <div role="status" class="sr-only" aria-live="polite">
+          {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
+        </div>
+
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
@@ -396,7 +394,8 @@ function getDaYunMeaning(tenGod: string): string {
         </div>
 
         <!-- Loading -->
-        <div v-else-if="loading" class="space-y-6">
+        <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
+          <span class="sr-only">正在加载...</span>
           <SkeletonCard />
           <SkeletonBars />
         </div>
@@ -418,7 +417,7 @@ function getDaYunMeaning(tenGod: string): string {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div class="max-w-2xl mx-auto">
+          <div class="max-w-2xl mx-auto" aria-live="polite" aria-atomic="true">
             <!-- Personal info summary (mobile/tablet only, desktop uses right sidebar) -->
             <div class="xl:hidden mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/3 border border-cinnabar/15">
               <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-base">

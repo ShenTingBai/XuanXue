@@ -86,6 +86,9 @@ const closeDropdown = (e: FocusEvent) => {
     <div class="relative z-10">
       <!-- Top Bar -->
       <header class="sticky top-0 z-50 backdrop-blur-md bg-paper-light/80 border-b border-paper-dark">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-paper-lightest focus:text-cinnabar focus:rounded focus:border-2 focus:border-cinnabar">
+          跳转到主要内容
+        </a>
         <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-14 sm:h-16">
             <!-- Logo -->
@@ -179,7 +182,7 @@ const closeDropdown = (e: FocusEvent) => {
       </header>
 
       <!-- Page Content -->
-      <main>
+      <main id="main-content">
         <slot />
       </main>
     </div>

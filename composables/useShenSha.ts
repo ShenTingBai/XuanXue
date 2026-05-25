@@ -26,6 +26,11 @@ export interface ShenSha {
 
 function branchIdx(branch: string): number { return BRANCHES.indexOf(branch) }
 
+/** Get the branch at a given offset from the source branch. Offset +2 is used historically for both 血刃 and 丧门. */
+function offsetBranch(srcBranch: string, offset: number): string {
+  return BRANCHES[(branchIdx(srcBranch) + offset + 12) % 12]
+}
+
 /** Get 三合 group index: 0=申子辰, 1=巳酉丑, 2=寅午戌, 3=亥卯未 */
 export function sanHeGroup(branch: string): number {
   const groups: Record<string, number> = {
@@ -376,24 +381,16 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
     }
   }
 
-  // 血刃 (by month branch, simplified: month branch + 2)
-  const xueRenMap: Record<string, string> = {
-    '子': '寅', '丑': '卯', '寅': '辰', '卯': '巳', '辰': '午', '巳': '未',
-    '午': '申', '未': '酉', '申': '戌', '酉': '亥', '戌': '子', '亥': '丑',
-  }
+  // 血刃 (by month branch, branch + 2; same offset formula as 丧门 historically)
   for (const { pillar, pillarLabel } of allPillars) {
-    if (xueRenMap[monthBranch] === pillar.branch) {
+    if (offsetBranch(monthBranch, 2) === pillar.branch) {
       results.push({ name: '血刃', category: '凶', source: '月支', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['血刃'] })
     }
   }
 
-  // 丧门 (by year branch, sequential +2 from year branch)
-  const sangMenMap: Record<string, string> = {
-    '子': '寅', '丑': '卯', '寅': '辰', '卯': '巳', '辰': '午', '巳': '未',
-    '午': '申', '未': '酉', '申': '戌', '酉': '亥', '戌': '子', '亥': '丑',
-  }
+  // 丧门 (by year branch, branch + 2; same offset formula as 血刃 historically)
   for (const { pillar, pillarLabel } of allPillars) {
-    if (sangMenMap[yearBranch] === pillar.branch) {
+    if (offsetBranch(yearBranch, 2) === pillar.branch) {
       results.push({ name: '丧门', category: '凶', source: '年支', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['丧门'] })
     }
   }

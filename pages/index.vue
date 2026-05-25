@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useHead({ title: '首页 - 玄学' })
+
 const { restoreSession, currentProfile } = useAuth()
 const greeting = useGreeting()
 const router = useRouter()
@@ -52,6 +54,7 @@ onMounted(() => {
         :key="tool.id"
         :tabindex="tool.available ? 0 : -1"
         :role="tool.available ? 'button' : undefined"
+        :aria-label="'打开' + tool.name + '工具'"
                 @click="tool.available && router.push(tool.route)"
         @keydown.enter="tool.available && router.push(tool.route)"
         @keydown.space.prevent="tool.available && router.push(tool.route)"

@@ -35,7 +35,6 @@ describe('calculateLiuNian', () => {
       expect(year).toHaveProperty('stemWuxing')
       expect(year).toHaveProperty('branchWuxing')
       expect(year).toHaveProperty('tenGod')
-      expect(year).toHaveProperty('tenGodWuxing')
       expect(year).toHaveProperty('isFavorable')
       expect(year).toHaveProperty('earthRelations')
       expect(year).toHaveProperty('shenSha')
@@ -238,5 +237,39 @@ describe('calculateLiuNian', () => {
       expect(year.daYunStem.length).toBe(1)
       expect(year.daYunBranch.length).toBe(1)
     }
+  })
+
+  // === Earth relations — 自刑 ===
+
+  it('辰流年 vs 辰年柱 triggers self-xing', () => {
+    // 2000-02-05 → 庚辰年, year pillar branch = 辰
+    const baZi = calculateBaZi({
+      birthYear: 2000, birthMonth: 2, birthDay: 5,
+      birthCalendar: 'solar', birthHour: 12, gender: '男',
+    })
+    // 2024 = 甲辰年, 流年 branch = 辰 → 辰辰自刑
+    const liuNian = calculateLiuNian({ baZi, shenSha: [], currentYear: 2024, range: 0 })
+    const year2024 = liuNian[0]
+    const yearXing = year2024.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '刑')
+    expect(yearXing.length).toBeGreaterThan(0)
+    expect(yearXing[0].description).toContain('自刑')
+  })
+
+  // === Earth relations — 合破 conflict ===
+
+  it('寅亥合应抑制破', () => {
+    // 2007-02-05 → 丁亥年, year pillar branch = 亥
+    const baZi = calculateBaZi({
+      birthYear: 2007, birthMonth: 2, birthDay: 5,
+      birthCalendar: 'solar', birthHour: 12, gender: '男',
+    })
+    // 2022 = 壬寅年, 流年 branch = 寅 → 寅亥 is both 六合 and 六破
+    // The code suppresses 破 when 合 exists for the same branch pair
+    const liuNian = calculateLiuNian({ baZi, shenSha: [], currentYear: 2022, range: 0 })
+    const year2022 = liuNian[0]
+    const yearHe = year2022.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '合')
+    const yearPo = year2022.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '破')
+    expect(yearHe.length).toBeGreaterThan(0)   // 合应存在
+    expect(yearPo.length).toBe(0)               // 破应被抑制
   })
 })

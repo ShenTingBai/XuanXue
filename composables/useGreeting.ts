@@ -46,5 +46,8 @@ export function useGreeting() {
     _subtitle!.value = newSubtitle
   }
 
-  return { prefix: _prefix!, subtitle: _subtitle!, save }
+  if (!_prefix || !_subtitle) {
+    throw new Error('useGreeting not initialized')
+  }
+  return { prefix: _prefix, subtitle: _subtitle, save }
 }

@@ -23,11 +23,19 @@
             class="relative group inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default transition-colors"
             :style="{ background: '#4A7C5918', color: '#4A7C59', border: '1px solid #4A7C5930' }"
             :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
+            tabindex="0"
+            @click="toggleShen(ss.name + ss.pillar + ss.position)"
+            @keydown.enter="toggleShen(ss.name + ss.pillar + ss.position)"
+            @keydown.space.prevent="toggleShen(ss.name + ss.pillar + ss.position)"
           >
             {{ ss.name }}
             <!-- Tooltip -->
             <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
+              :class="[
+                'opacity-0 group-hover:opacity-100',
+                expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
+              ]"
               style="background: #2C2C2C; color: #D4C9B8; max-width: 16rem; white-space: normal;"
             >
               {{ ss.description }}
@@ -47,10 +55,18 @@
             class="relative group inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default transition-colors"
             :style="{ background: '#6B5B4F12', color: '#6B5B4F', border: '1px solid #6B5B4F28' }"
             :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
+            tabindex="0"
+            @click="toggleShen(ss.name + ss.pillar + ss.position)"
+            @keydown.enter="toggleShen(ss.name + ss.pillar + ss.position)"
+            @keydown.space.prevent="toggleShen(ss.name + ss.pillar + ss.position)"
           >
             {{ ss.name }}
             <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
+              :class="[
+                'opacity-0 group-hover:opacity-100',
+                expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
+              ]"
               style="background: #2C2C2C; color: #D4C9B8; max-width: 16rem; white-space: normal;"
             >
               {{ ss.description }}
@@ -70,10 +86,18 @@
             class="relative group inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default transition-colors"
             :style="{ background: '#C628280E', color: '#C6282890', border: '1px solid #C6282820' }"
             :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
+            tabindex="0"
+            @click="toggleShen(ss.name + ss.pillar + ss.position)"
+            @keydown.enter="toggleShen(ss.name + ss.pillar + ss.position)"
+            @keydown.space.prevent="toggleShen(ss.name + ss.pillar + ss.position)"
           >
             {{ ss.name }}
             <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-20"
+              :class="[
+                'opacity-0 group-hover:opacity-100',
+                expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
+              ]"
               style="background: #2C2C2C; color: #D4C9B8; max-width: 16rem; white-space: normal;"
             >
               {{ ss.description }}
@@ -97,4 +121,9 @@ const props = defineProps<{
 const auspicious = computed(() => props.shenSha.filter(s => s.category === '吉'))
 const neutral = computed(() => props.shenSha.filter(s => s.category === '中性'))
 const inauspicious = computed(() => props.shenSha.filter(s => s.category === '凶'))
+
+const expandedShen = ref('')
+function toggleShen(key: string) {
+  expandedShen.value = expandedShen.value === key ? '' : key
+}
 </script>

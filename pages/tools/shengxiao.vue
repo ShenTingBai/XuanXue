@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
+import { parseDate } from '~/utils/date'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -16,6 +17,8 @@ import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
+
+useHead({ title: '生肖 - 玄学' })
 
 const result = ref<ShengXiaoResult | null>(null)
 const loading = ref(true)
@@ -38,16 +41,6 @@ onMounted(() => {
 
   computeResult()
 })
-
-function parseDate(str: string): { year: number; month: number; day: number } | null {
-  const parts = str.split('T')[0].split('-')
-  if (parts.length !== 3) return null
-  const year = parseInt(parts[0], 10)
-  const month = parseInt(parts[1], 10)
-  const day = parseInt(parts[2], 10)
-  if (isNaN(year) || isNaN(month) || isNaN(day)) return null
-  return { year, month, day }
-}
 
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
@@ -112,6 +105,8 @@ function scrollToAnimalNav() {
               v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
               :key="idx"
               @click="selectAnimal(idx)"
+              @keydown.enter="selectAnimal(idx)"
+              @keydown.space.prevent="selectAnimal(idx)"
               :aria-current="idx === selectedAnimal ? 'true' : undefined"
               :class="[
                 'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
@@ -122,6 +117,11 @@ function scrollToAnimalNav() {
             </button>
           </div>
         </template>
+
+        <!-- Screen reader status -->
+        <div role="status" class="sr-only" aria-live="polite">
+          {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
+        </div>
 
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
@@ -136,13 +136,15 @@ function scrollToAnimalNav() {
         </div>
 
         <!-- Loading skeleton -->
-        <div v-else-if="loading" class="space-y-6">
+        <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
+          <span class="sr-only">正在加载...</span>
           <SkeletonCard />
           <SkeletonBars />
         </div>
 
         <!-- Result -->
         <template v-else-if="result">
+          <div aria-live="polite" aria-atomic="true">
           <ShengXiaoHero :result="result" />
           <WuXingGrid :result="result" />
 
@@ -180,12 +182,23 @@ function scrollToAnimalNav() {
           <CompatibilityGrid :items="result.compatibility" />
 
           <div class="flex flex-wrap gap-3 justify-center mt-8">
-            <button @click="computeResult" class="btn-seal">
+            <button
+              @click="computeResult"
+              @keydown.enter="computeResult"
+              @keydown.space.prevent="computeResult"
+              class="btn-seal"
+            >
               <span>📜 重新排盘</span>
             </button>
-            <button @click="scrollToAnimalNav" class="btn-seal">
+            <button
+              @click="scrollToAnimalNav"
+              @keydown.enter="scrollToAnimalNav"
+              @keydown.space.prevent="scrollToAnimalNav"
+              class="btn-seal"
+            >
               <span>切换生肖</span>
             </button>
+          </div>
           </div>
         </template>
       </ToolPageLayout>

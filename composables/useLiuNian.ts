@@ -25,7 +25,6 @@ export interface LiuNianYear {
   stemWuxing: string
   branchWuxing: string
   tenGod: string
-  tenGodWuxing: string
   isFavorable: boolean
   isUnfavorable: boolean
   earthRelations: EarthRelation[]
@@ -220,6 +219,7 @@ function buildSummary(
     parts.push(`防范${xiongSha[0].name}`)
   }
 
+  if (parts.length === 0) return '流年运势平稳，宜按部就班。'
   return parts.join('，') + '。'
 }
 
@@ -333,7 +333,6 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
     const stemWuxing = WUXING_STEM[stem]
     const branchWuxing = WUXING_BRANCH[branch]
     const tenGod = getTenGod(dayMasterIdx, stem)
-    const tenGodWuxing = WUXING_STEM[stem]
 
     // Is the year stem's wuxing favorable? Neutral elements score 0.
     const isFavorable = favorableElements.includes(stemWuxing)
@@ -405,7 +404,6 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
       stemWuxing,
       branchWuxing,
       tenGod,
-      tenGodWuxing,
       isFavorable,
       isUnfavorable,
       earthRelations,
