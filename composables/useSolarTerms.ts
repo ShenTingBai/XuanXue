@@ -17,9 +17,19 @@ function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 }
 
+/**
+ * Count calendar days from year 1-01-01 to year Y-01-01 (exclusive).
+ * Uses the Gregorian year-length formula: 365 days + leap days.
+ * Days since epoch = Y*365 + floor(Y/4) - floor(Y/100) + floor(Y/400)
+ */
+function daysFromYearOne(year: number): number {
+  const Y = year
+  return Y * 365 + Math.floor(Y / 4) - Math.floor(Y / 100) + Math.floor(Y / 400)
+}
+
 /** Get number of days in a given year */
 function daysInYear(year: number): number {
-  return isLeapYear(year) ? 366 : 365
+  return daysFromYearOne(year + 1) - daysFromYearOne(year)
 }
 
 /**
@@ -37,17 +47,8 @@ function daysInYear(year: number): number {
  * @returns { month, day }
  */
 export function getSolarTerm(year: number, termIndex: number): { month: number, day: number } {
-  // Exact calendar days from 2000-01-01 to target-year-01-01
-  let calendarDaysToYearStart = 0
-  if (year > 2000) {
-    for (let y = 2000; y < year; y++) {
-      calendarDaysToYearStart += daysInYear(y)
-    }
-  } else if (year < 2000) {
-    for (let y = year; y < 2000; y++) {
-      calendarDaysToYearStart -= daysInYear(y)
-    }
-  }
+  // Exact calendar days from 2000-01-01 to target-year-01-01 (O(1) formula)
+  const calendarDaysToYearStart = daysFromYearOne(year) - daysFromYearOne(2000)
 
   // Tropical days elapsed from 2000-01-01 to target-year-01-01
   const yearsFrom2000 = year - 2000
