@@ -4,7 +4,9 @@
 
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
-      <div class="grid grid-cols-4 gap-0 border border-cinnabar/25 rounded-lg overflow-hidden">
+      <div class="grid gap-0 border border-cinnabar/25 rounded-lg overflow-hidden"
+        :style="{ gridTemplateColumns: `repeat(${pillars.length}, 1fr)` }"
+      >
         <!-- Header -->
         <div v-for="h in headers" :key="h.label"
           class="py-1.5 px-2 text-center border-b border-cinnabar/25 text-[0.65rem] text-ink-medium tracking-widest font-sans"
@@ -117,16 +119,19 @@
 <script setup lang="ts">
 import type { BaZiPillar } from '~/composables/useBaZi'
 
-defineProps<{
+const props = defineProps<{
   pillars: BaZiPillar[]
 }>()
 
-const headers = [
-  { label: '年柱', isDay: false },
-  { label: '月柱', isDay: false },
-  { label: '日柱', isDay: true },
-  { label: '时柱', isDay: false },
-]
+const headers = computed(() => {
+  const allHeaders = [
+    { label: '年柱', isDay: false },
+    { label: '月柱', isDay: false },
+    { label: '日柱', isDay: true },
+    { label: '时柱', isDay: false },
+  ]
+  return allHeaders.slice(0, props.pillars.length)
+})
 
 const wuxingColors: Record<string, string> = {
   '木': '#4A7C59', '火': '#C62828', '土': '#B8860B',
@@ -141,7 +146,7 @@ function tenGodBadgeClass(tg: string): string {
   if (tg === '日主') return 'bg-ink-dark/10 text-ink-dark'
   if (['正印', '偏印'].includes(tg)) return 'bg-wuxing-wood/10 text-wuxing-wood'
   if (['正官', '偏官'].includes(tg)) return 'bg-cinnabar/10 text-cinnabar'
-  if (['正财', '偏财'].includes(tg)) return 'bg-[rgba(184,134,11,0.1)] text-gold'
+  if (['正财', '偏财'].includes(tg)) return 'bg-gold/10 text-gold'
   if (['食神', '伤官'].includes(tg)) return 'bg-wuxing-water/10 text-wuxing-water'
   return 'bg-ink-faint/20 text-ink-medium'
 }

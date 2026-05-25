@@ -39,14 +39,16 @@ const ELEMENT_COLORS: Record<string, string> = {
   '金': '#8E8E8E', '水': '#2C5F7C',
 }
 
-const elements = Object.entries(props.elementCounts)
-  .filter(([_, count]) => count > 0)
-  .map(([name, count]) => ({
-    name,
-    count,
-    percent: props.elementPercentages[name] || 0,
-    color: ELEMENT_COLORS[name] || '#A69586',
-  }))
+const elements = computed(() =>
+  Object.entries(props.elementCounts)
+    .filter(([_, count]) => count > 0)
+    .map(([name, count]) => ({
+      name,
+      count,
+      percent: props.elementPercentages[name] || 0,
+      color: ELEMENT_COLORS[name] || '#A69586',
+    }))
+)
 
 // Strength description
 const strengthMap: Record<string, string> = {

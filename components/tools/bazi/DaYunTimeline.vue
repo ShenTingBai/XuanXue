@@ -4,7 +4,7 @@
 
     <!-- Desktop: horizontal cards -->
     <div class="hidden sm:flex gap-3 overflow-x-auto pb-2">
-      <div v-for="(cycle, idx) in cycles" :key="idx"
+      <div v-for="(cycle, idx) in cycles" :key="cycle.startAge"
         class="flex-shrink-0 w-[110px] rounded-lg p-3 text-center transition-all duration-300"
         :class="idx === currentCycleIdx
           ? 'border-2 border-cinnabar bg-cinnabar/3 shadow-sm'
@@ -25,7 +25,7 @@
     <!-- Mobile: smaller horizontal scroll -->
     <div class="sm:hidden overflow-x-auto -mx-4 px-4 pb-2">
       <div class="inline-flex gap-2">
-        <div v-for="(cycle, idx) in cycles" :key="idx"
+        <div v-for="(cycle, idx) in cycles" :key="cycle.startAge"
           class="inline-flex flex-col w-[64px] rounded-lg py-1.5 px-1 text-center flex-shrink-0"
           :class="idx === currentCycleIdx
             ? 'border border-cinnabar bg-cinnabar/3'
@@ -45,11 +45,10 @@ import type { DaYunCycle } from '~/composables/useBaZi'
 
 const props = defineProps<{
   cycles: DaYunCycle[]
+  currentCycleIdx?: number
 }>()
 
 const currentCycleIdx = computed(() => {
-  // Find the current cycle based on user's age
-  // For now, return index 0; the page JS will pass the correct index
-  return 0
+  return props.currentCycleIdx ?? -1
 })
 </script>

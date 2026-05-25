@@ -19,8 +19,8 @@
     <hr class="border-paper-dark my-3">
 
     <div class="space-y-1">
-      <div class="font-sans text-xs text-ink-medium tracking-wider">喜用：<span class="font-medium" v-for="el in favorable" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
-      <div class="font-sans text-xs text-ink-medium tracking-wider">忌神：<span v-for="el in unfavorable" :key="el" class="opacity-60" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
+      <div class="font-sans text-xs text-ink-medium tracking-wider">喜用：<span class="font-medium" v-for="el in favorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
+      <div class="font-sans text-xs text-ink-medium tracking-wider">忌神：<span v-for="el in unfavorableElements" :key="el" class="opacity-60" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
     </div>
   </div>
 </template>
@@ -34,8 +34,8 @@ const props = defineProps<{
   dayMaster: string
   dayMasterWuxing: string
   dayMasterStrength: string
-  favorable: string[]
-  unfavorable: string[]
+  favorableElements: string[]
+  unfavorableElements: string[]
 }>()
 
 const strengthClass = computed(() => {

@@ -21,7 +21,7 @@
         <div>
           <h4 class="font-sans text-xs text-ink-light tracking-wider mb-2">喜用神</h4>
           <div class="flex gap-2">
-            <span v-for="el in favorable" :key="el"
+            <span v-for="el in favorableElements" :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-sans font-medium"
               :class="elementBgClass(el)" :style="{ color: elementColor(el) }">
               {{ el }}
@@ -31,9 +31,9 @@
         <div>
           <h4 class="font-sans text-xs text-ink-light tracking-wider mb-2">忌神</h4>
           <div class="flex gap-2">
-            <span v-for="el in unfavorable" :key="el"
+            <span v-for="el in unfavorableElements" :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-sans font-medium"
-              :class="elementBgClass(el)" :style="{ color: elementColor(el), opacity: 0.6 }">
+              :class="[elementBgClass(el), 'opacity-60']" :style="{ color: elementColor(el) }">
               {{ el }}
             </span>
           </div>
@@ -48,8 +48,8 @@ const props = defineProps<{
   dayMaster: string
   dayMasterWuxing: string
   dayMasterStrength: string
-  favorable: string[]
-  unfavorable: string[]
+  favorableElements: string[]
+  unfavorableElements: string[]
 }>()
 
 const strengthColorClass = computed(() => {
