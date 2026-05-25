@@ -298,6 +298,85 @@ const animalName = computed(() => {
   if (!result.value) return ''
   return getAnimal(result.value.birthYear)
 })
+
+/** Key shenshas for the reading guide: prioritize day pillar, favor auspicious, limit to 5 */
+const readingGuideShensha = computed(() => {
+  const list = shenShaList.value
+  if (list.length === 0) return []
+
+  // Sort: day pillar first, then by category (吉 > 中性 > 凶)
+  const categoryOrder: Record<ShenSha['category'], number> = { '吉': 0, '中性': 1, '凶': 2 }
+  const sorted = [...list].sort((a, b) => {
+    // Day pillar first
+    const aDay = a.pillar === '日柱' ? 0 : 1
+    const bDay = b.pillar === '日柱' ? 0 : 1
+    if (aDay !== bDay) return aDay - bDay
+    // Then category
+    if (a.category !== b.category) return categoryOrder[a.category] - categoryOrder[b.category]
+    return 0
+  })
+
+  // Deduplicate by name (keep first occurrence which has highest priority pillar)
+  const seen = new Set<string>()
+  const deduped: typeof sorted = []
+  for (const s of sorted) {
+    if (seen.has(s.name)) continue
+    seen.add(s.name)
+    deduped.push(s)
+  }
+
+  // Take top 5, but at most 2 凶
+  const result: typeof deduped = []
+  let xiongCount = 0
+  for (const s of deduped) {
+    if (s.category === '凶') {
+      if (xiongCount >= 2) continue
+      xiongCount++
+    }
+    result.push(s)
+    if (result.length >= 5) break
+  }
+  return result
+})
+
+/** The current year's liunian analysis, if available */
+const currentYearLiuNian = computed(() => {
+  return liuNianYears.value.find(y => y.year === currentYear) || null
+})
+
+/** The current da yun cycle, if available */
+const currentDaYun = computed(() => {
+  if (currentDaYunIndex.value >= 0 && result.value) {
+    return result.value.daYun[currentDaYunIndex.value] || null
+  }
+  return null
+})
+
+/** Element-to-life-area mapping from standard five element theory */
+const ELEMENT_LIFE_AREA: Record<string, string> = {
+  '木': '成长、学习、创造',
+  '火': '行动、社交、热情',
+  '土': '稳定、储蓄、规划',
+  '金': '纪律、决策、果断',
+  '水': '沟通、智慧、灵活',
+}
+
+/** Rule-based da yun meaning from the stem's ten god type */
+function getDaYunMeaning(tenGod: string): string {
+  const map: Record<string, string> = {
+    '正官': '正官大运，事业运旺，利于建立规范与秩序',
+    '偏官': '七杀大运，挑战与机遇并存，宜果断突破',
+    '正财': '正财大运，财运稳定，利于积累与储蓄',
+    '偏财': '偏财大运，偏财运佳，但需注意风险把控',
+    '正印': '正印大运，学习运强，有贵人长辈提携',
+    '偏印': '偏印大运，思维敏锐，适合钻研与内省',
+    '食神': '食神大运，创造力旺盛，生活轻松愉悦',
+    '伤官': '伤官大运，才华得以施展，但需注意言行分寸',
+    '比肩': '比肩大运，竞争与协作并存，宜借助团队力量',
+    '劫财': '劫财大运，需防范破财损耗，宜守不宜攻',
+  }
+  return map[tenGod] || `${tenGod}大运，宜顺势而为`
+}
 </script>
 
 <template>
@@ -422,33 +501,113 @@ const animalName = computed(() => {
 
             <!-- Reading Guide -->
             <div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-cinnabar/3 to-paper-lightest border border-cinnabar/15">
-              <h3 class="font-display text-xl text-cinnabar mb-4 flex items-center gap-2">
+              <h3 class="font-display text-xl text-cinnabar mb-5 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
                 你的八字解读
               </h3>
 
-              <div class="space-y-3 font-sans text-base text-ink-medium leading-relaxed">
-                <p>
-                  <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
-                  日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
-                  命局整体力量<strong class="text-ink-dark">{{ result.dayMasterStrength }}</strong>。
-                </p>
+              <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
+                <!-- Section 1: 命局总览 -->
+                <div>
+                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">命局总览</h4>
+                  <p>
+                    <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
+                    日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
+                    命局整体力量<strong class="text-ink-dark">{{ result.dayMasterStrength }}</strong>。
+                  </p>
+                  <p class="mt-2">
+                    五行之中，对你最有帮助的能量是
+                    <strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
+                    生活中可多接触这些元素相关的事物。
+                    <template v-if="result.unfavorableElements.length > 0">
+                      而<strong class="text-ink-dark">{{ result.unfavorableElements.join('、') }}</strong>与你相克，
+                      适当平衡即可，不必刻意回避。
+                    </template>
+                  </p>
+                </div>
 
-                <p>
-                  五行之中，对你最有帮助的能量是
-                  <strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
-                  生活中可多接触这些元素相关的事物。
-                </p>
+                <!-- Section 2: 神煞精要 -->
+                <div v-if="readingGuideShensha.length > 0">
+                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">神煞精要</h4>
+                  <div class="flex flex-wrap gap-2 mb-2">
+                    <span
+                      v-for="shen in readingGuideShensha"
+                      :key="shen.name + shen.pillar"
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                      :class="{
+                        'bg-wuxing-wood/10 text-wuxing-wood border border-wuxing-wood/25': shen.category === '吉',
+                        'bg-cinnabar/5 text-cinnabar/80 border border-cinnabar/20': shen.category === '凶',
+                        'bg-paper-dark/30 text-ink-medium border border-paper-dark/50': shen.category === '中性',
+                      }"
+                    >
+                      <span class="font-display text-sm">{{ shen.name }}</span>
+                      <span class="opacity-60 text-[0.65rem]">{{ shen.pillar }}</span>
+                    </span>
+                  </div>
+                  <p class="text-sm">
+                    <template v-for="(shen, i) in readingGuideShensha" :key="shen.name + shen.pillar">
+                      <strong :class="shen.category === '吉' ? 'text-wuxing-wood' : shen.category === '凶' ? 'text-cinnabar/80' : 'text-ink-medium'">{{ shen.name }}</strong>（{{ shen.pillar }}）：{{ shen.description }}<template v-if="i < readingGuideShensha.length - 1">；</template>
+                    </template>
+                  </p>
+                </div>
 
-                <p v-if="result.unfavorableElements.length > 0">
-                  而<strong class="text-ink-dark">{{ result.unfavorableElements.join('、') }}</strong>与你相克，
-                  适当平衡即可，不必刻意回避。
-                </p>
+                <!-- Section 3: 今年运势 -->
+                <div v-if="currentYearLiuNian">
+                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">今年运势（{{ currentYearLiuNian.year }}年）</h4>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="font-display text-lg text-ink-dark">{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span>
+                    <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{ currentYearLiuNian.tenGod }}</span>
+                    <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar/80' : 'text-ink-light'">
+                      {{ currentYearLiuNian.isFavorable ? '喜用' : currentYearLiuNian.isUnfavorable ? '忌神' : '中性' }}
+                    </span>
+                    <span class="ml-auto font-sans text-xs text-ink-light">运势评分 {{ currentYearLiuNian.score }}/100</span>
+                  </div>
+                  <p class="text-sm">{{ currentYearLiuNian.summary }}</p>
+                  <div v-if="currentYearLiuNian.earthRelations.length > 0" class="mt-1.5">
+                    <p class="text-xs text-ink-light">流年地支与命局关系：</p>
+                    <ul class="mt-0.5 space-y-0.5 text-xs text-ink-medium">
+                      <li v-for="(rel, i) in currentYearLiuNian.earthRelations" :key="i">
+                        <span class="font-medium">{{ rel.targetPillar }}{{ rel.type }}</span>：{{ rel.description }}
+                      </li>
+                    </ul>
+                  </div>
+                  <p v-if="currentYearLiuNian.detail?.daYunInteraction" class="mt-1.5 text-xs text-ink-light">{{ currentYearLiuNian.detail.daYunInteraction }}</p>
+                </div>
 
-                <p v-if="result.daYun.length > 0">
-                  你目前处于大运周期中，
-                  人生每十年换一次运，具体走势可参考上方「大运」时间线。
-                </p>
+                <!-- Section 4: 当前大运 -->
+                <div v-if="currentDaYun">
+                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">当前大运</h4>
+                  <div class="flex items-center gap-3 mb-1">
+                    <span class="font-display text-lg text-ink-dark">{{ currentDaYun.stemBranch }}</span>
+                    <span class="text-xs text-ink-light">{{ currentDaYun.startAge }}岁 - {{ currentDaYun.endAge }}岁</span>
+                  </div>
+                  <p class="text-sm">{{ currentDaYun.description }}，{{ getDaYunMeaning(currentDaYun.stemTenGod) }}</p>
+                </div>
+
+                <!-- Section 5: 五行建议 -->
+                <div>
+                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">五行建议</h4>
+                  <p class="text-sm mb-2">
+                    你的喜用神为<strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
+                    生活中多接触与这些元素相关的事物有助于运势提升。
+                  </p>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                    <div v-for="el in result.favorableElements" :key="el" class="p-2 rounded-lg border" :style="{ borderColor: ELEMENT_COLORS[el] + '40', backgroundColor: ELEMENT_COLORS[el] + '08' }">
+                      <span class="font-medium" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
+                      <span class="text-ink-light ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
+                    </div>
+                  </div>
+                  <template v-if="result.unfavorableElements.length > 0">
+                    <p class="text-xs text-ink-light mt-2 mb-1">以下元素适度即可，不必刻意回避：</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                      <div v-for="el in result.unfavorableElements" :key="el" class="p-2 rounded-lg border border-paper-dark/40 bg-paper-dark/10">
+                        <span class="font-medium text-ink-light">{{ el }}</span>
+                        <span class="text-ink-light/60 ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
+                        <span class="text-ink-light/40 ml-1">（适度）</span>
+                      </div>
+                    </div>
+                  </template>
+                </div>
               </div>
             </div>
 
