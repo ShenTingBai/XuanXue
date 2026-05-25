@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
-import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
 import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
@@ -131,21 +130,6 @@ const animalName = computed(() => {
   <div class="ink-wash-bg min-h-screen">
     <div class="relative z-10">
       <ToolPageLayout>
-        <template #nav-right>
-          <BaziInfoSidebar
-            v-if="result"
-            :birth-year="result.birthYear"
-            :birth-calendar="result.birthCalendar"
-            :animal="animalName"
-            :gender="result.gender"
-            :day-master="result.dayMaster"
-            :day-master-wuxing="result.dayMasterWuxing"
-            :day-master-strength="result.dayMasterStrength"
-            :favorable-elements="result.favorableElements"
-            :unfavorable-elements="result.unfavorableElements"
-          />
-        </template>
-
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
