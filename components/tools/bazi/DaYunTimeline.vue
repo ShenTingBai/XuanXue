@@ -12,7 +12,7 @@
       <div v-for="(cycle, idx) in cycles" :key="cycle.startAge"
         class="flex-shrink-0 w-[110px] rounded-lg p-3 text-center transition-all duration-300"
         :class="idx === currentCycleIdx
-          ? 'border-2 border-cinnabar bg-cinnabar/3 shadow-sm'
+          ? 'border-2 border-cinnabar bg-cinnabar/5 shadow-sm'
           : 'border border-paper-dark bg-paper-lightest/80 hover:border-ink-faint'"
       >
         <div class="font-sans text-[0.625rem] text-ink-light tracking-wider mb-1">
@@ -33,7 +33,7 @@
         <div v-for="(cycle, idx) in cycles" :key="cycle.startAge"
           class="inline-flex flex-col w-[64px] rounded-lg py-1.5 px-1 text-center flex-shrink-0"
           :class="idx === currentCycleIdx
-            ? 'border border-cinnabar bg-cinnabar/3'
+            ? 'border border-cinnabar bg-cinnabar/5'
             : 'border border-paper-dark'"
         >
           <div class="font-sans text-[0.625rem] text-ink-light">{{ cycle.startAge }}-{{ cycle.endAge }}岁</div>
