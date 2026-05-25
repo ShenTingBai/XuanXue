@@ -45,9 +45,7 @@ const strengthClass = computed(() => {
   return 'text-gold'
 })
 
-const ELEMENT_COLORS: Record<string, string> = {
-  '木': '#4A7C59', '火': '#C62828', '土': '#B8860B',
-  '金': '#8E8E8E', '水': '#2C5F7C',
-}
-function elementColor(el: string): string { return ELEMENT_COLORS[el] || '#6B5B4F' }
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
+function elementColor(el: string): string { return WUXING_COLORS[el] || WUXING_FALLBACK_COLOR }
 </script>

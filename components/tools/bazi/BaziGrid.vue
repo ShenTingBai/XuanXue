@@ -130,6 +130,8 @@
 
 <script setup lang="ts">
 import type { BaZiPillar } from '~/composables/useBaZi'
+import InkDivider from '~/components/tools/InkDivider.vue'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, STEMS, BRANCHES } from '~/constants/bazi'
 
 const props = defineProps<{
   pillars: BaZiPillar[]
@@ -145,13 +147,8 @@ const headers = computed(() => {
   return allHeaders.slice(0, props.pillars.length)
 })
 
-const wuxingColors: Record<string, string> = {
-  '木': '#4A7C59', '火': '#C62828', '土': '#B8860B',
-  '金': '#8E8E8E', '水': '#2C5F7C',
-}
-
 function wuxingColor(wx: string): string {
-  return wuxingColors[wx] || '#6B5B4F'
+  return WUXING_COLORS[wx] || WUXING_FALLBACK_COLOR
 }
 
 function tenGodBadgeClass(tg: string): string {
@@ -174,11 +171,13 @@ const NAYIN_TABLE = [
 ]
 
 function getNaYin(stem: string, branch: string): string {
-  const stemIdx = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'].indexOf(stem)
-  const branchIdx = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(branch)
+  const stemIdx = STEMS.indexOf(stem)
+  const branchIdx = BRANCHES.indexOf(branch)
   if (stemIdx < 0 || branchIdx < 0) return ''
+  // Valid sexagenary pairs: stem and branch indices must have same parity
+  if ((stemIdx - branchIdx) % 2 !== 0) return ''
   // Sexagenary cycle position formula
-  const k = Math.floor(((stemIdx - branchIdx) / 2) + 6) % 6
+  const k = (((stemIdx - branchIdx) / 2) + 6) % 6
   const sexagenaryPos = ((stemIdx + 10 * k) % 60 + 60) % 60
   return NAYIN_TABLE[Math.floor(sexagenaryPos / 2)] || ''
 }

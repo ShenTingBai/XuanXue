@@ -3,8 +3,7 @@
 // termIndex: 0=立春, 1=惊蛰, 2=清明, 3=立夏, 4=芒种, 5=小暑,
 //            6=立秋, 7=白露, 8=寒露, 9=立冬, 10=大雪, 11=小寒
 
-const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const
-const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const
+import { STEMS, BRANCHES } from '~/constants/bazi'
 
 // Base day-of-year for each term in year 2000 (a leap year).
 // These are actual calendar DOY values for Gregorian year 2000:
@@ -66,6 +65,14 @@ export function getSolarTerm(year: number, termIndex: number): { month: number, 
   return doyToDate(year, doy)
 }
 
+/** Calculate day-of-year from month and day */
+function dayOfYear(month: number, day: number, leap: boolean): number {
+  const monthDays = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  let doy = 0
+  for (let i = 0; i < month - 1; i++) doy += monthDays[i]
+  return doy + day
+}
+
 /** Convert day-of-year to { month, day } */
 function doyToDate(year: number, doy: number): { month: number, day: number } {
   let y = year
@@ -91,41 +98,56 @@ function doyToDate(year: number, doy: number): { month: number, day: number } {
 }
 
 /**
- * Determine the month earthly branch based on solar month and day.
- * Month boundaries are defined by solar terms (节气).
+ * Determine the month earthly branch based on year, solar month, and day.
+ * Month boundaries are defined by computed solar terms (节气) for the given year.
  */
-export function getMonthBranch(month: number, day: number): typeof BRANCHES[number] {
-  // Solar term boundary (month, day) for each branch transition
-  const boundaries: [number, number, number, number, typeof BRANCHES[number]][] = [
-    [2, 4, 3, 5, '寅'],   // 立春 ~ 惊蛰
-    [3, 6, 4, 4, '卯'],   // 惊蛰 ~ 清明
-    [4, 5, 5, 5, '辰'],   // 清明 ~ 立夏
-    [5, 6, 6, 5, '巳'],   // 立夏 ~ 芒种
-    [6, 6, 7, 6, '午'],   // 芒种 ~ 小暑
-    [7, 7, 8, 6, '未'],   // 小暑 ~ 立秋
-    [8, 7, 9, 7, '申'],   // 立秋 ~ 白露
-    [9, 8, 10, 7, '酉'],  // 白露 ~ 寒露
-    [10, 8, 11, 6, '戌'], // 寒露 ~ 立冬
-    [11, 7, 12, 6, '亥'], // 立冬 ~ 大雪
-    [12, 7, 12, 31, '子'], // 大雪 ~ 冬至 (12/31 year-end catch-all)
-    [1, 1, 1, 5, '子'],   // 年初 ~ 小寒 (continuation of 子月)
-    [1, 6, 2, 3, '丑'],   // 小寒 ~ 立春
-  ]
+export function getMonthBranch(year: number, month: number, day: number): typeof BRANCHES[number] {
+  const liChun = getSolarTerm(year, 0)
 
-  for (const [sm, sd, em, ed, branch] of boundaries) {
-    if (month === sm && month === em) {
-      if (day >= sd && day <= ed) return branch
-    } else if (month === sm) {
-      if (day >= sd) return branch
-    } else if (month === em) {
-      if (day <= ed) return branch
-    } else if (month > sm && month < em) {
-      return branch
+  // If before 立春, use the previous cycle (子月 or 丑月)
+  if (month < liChun.month || (month === liChun.month && day < liChun.day)) {
+    const prevXiaoHan = getSolarTerm(year - 1, 11)
+    if (month < prevXiaoHan.month || (month === prevXiaoHan.month && day < prevXiaoHan.day)) {
+      return '子'
+    } else {
+      return '丑'
     }
   }
 
-  // Fallback (shouldn't reach for valid dates)
-  return '子'
+  // On or after 立春: use current cycle terms from 立春 through 小寒 (next year)
+  const termDates = [
+    getSolarTerm(year, 0),   // 立春
+    getSolarTerm(year, 1),   // 惊蛰
+    getSolarTerm(year, 2),   // 清明
+    getSolarTerm(year, 3),   // 立夏
+    getSolarTerm(year, 4),   // 芒种
+    getSolarTerm(year, 5),   // 小暑
+    getSolarTerm(year, 6),   // 立秋
+    getSolarTerm(year, 7),   // 白露
+    getSolarTerm(year, 8),   // 寒露
+    getSolarTerm(year, 9),   // 立冬
+    getSolarTerm(year, 10),  // 大雪
+    getSolarTerm(year, 11),  // 小寒 (in next year)
+  ]
+
+  const branches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
+
+  const doy = dayOfYear(month, day, isLeapYear(year))
+  const termDOYs = termDates.map((t, i) => {
+    const d = dayOfYear(t.month, t.day, isLeapYear(year))
+    // Term 11 (小寒) is always in the next year, adjust its DOY for comparison
+    return i === 11 ? d + daysInYear(year) : d
+  })
+
+  // Find which term boundary we're past (check from last to first)
+  for (let i = termDOYs.length - 1; i >= 0; i--) {
+    if (doy >= termDOYs[i]) {
+      return branches[i]
+    }
+  }
+
+  // Fallback (shouldn't reach for post-立春 dates)
+  return branches[branches.length - 1]
 }
 
 /**
@@ -156,7 +178,7 @@ export function getMonthPillar(
 
   let monthBranch: typeof BRANCHES[number]
   if (calendar === 'solar') {
-    monthBranch = getMonthBranch(month, day)
+    monthBranch = getMonthBranch(year, month, day)
   } else {
     // For lunar, approximate month branch by month number (shifted by ~1)
     // 农历正月≈寅月, 二月≈卯月, etc.

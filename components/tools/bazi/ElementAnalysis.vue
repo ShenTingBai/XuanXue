@@ -31,6 +31,9 @@
 </template>
 
 <script setup lang="ts">
+import InkDivider from '~/components/tools/InkDivider.vue'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
 const props = defineProps<{
   elementCounts: Record<string, number>
   elementPercentages: Record<string, number>
@@ -40,11 +43,6 @@ const props = defineProps<{
   monthBranch: string
 }>()
 
-const ELEMENT_COLORS: Record<string, string> = {
-  '木': '#4A7C59', '火': '#C62828', '土': '#B8860B',
-  '金': '#8E8E8E', '水': '#2C5F7C',
-}
-
 const elements = computed(() =>
   Object.entries(props.elementCounts)
     .filter(([_, count]) => count > 0)
@@ -52,7 +50,7 @@ const elements = computed(() =>
       name,
       count,
       percent: props.elementPercentages[name] || 0,
-      color: ELEMENT_COLORS[name] || '#A69586',
+      color: WUXING_COLORS[name] || WUXING_FALLBACK_COLOR,
     }))
 )
 

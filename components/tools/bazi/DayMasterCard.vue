@@ -49,6 +49,9 @@
 </template>
 
 <script setup lang="ts">
+import InkDivider from '~/components/tools/InkDivider.vue'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
 const props = defineProps<{
   dayMaster: string
   dayMasterWuxing: string
@@ -69,11 +72,6 @@ const ELEMENT_BG: Record<string, string> = {
   '金': 'bg-wuxing-metal/8', '水': 'bg-wuxing-water/8',
 }
 
-const ELEMENT_COLORS: Record<string, string> = {
-  '木': '#4A7C59', '火': '#C62828', '土': '#B8860B',
-  '金': '#8E8E8E', '水': '#2C5F7C',
-}
-
-function elementColor(el: string): string { return ELEMENT_COLORS[el] || '#6B5B4F' }
+function elementColor(el: string): string { return WUXING_COLORS[el] || WUXING_FALLBACK_COLOR }
 function elementBgClass(el: string): string { return ELEMENT_BG[el] || 'bg-paper-medium/50' }
 </script>
