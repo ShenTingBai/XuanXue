@@ -132,8 +132,10 @@ function goBack() {
   const redirect = route.query.redirect as string | undefined
   if (redirect) {
     router.push(redirect)
-  } else {
+  } else if (window.history.length > 1) {
     router.back()
+  } else {
+    router.push('/')
   }
 }
 
