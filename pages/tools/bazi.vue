@@ -453,7 +453,7 @@ function getDaYunMeaning(tenGod: string): string {
                 class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
                 role="alert"
               >
-                <span>结果保存失败，稍后重试</span>
+                <span>{{ saveError }}</span>
                 <button
                   @click="dismissSaveErrorToast"
                   @keydown.enter="dismissSaveErrorToast"
