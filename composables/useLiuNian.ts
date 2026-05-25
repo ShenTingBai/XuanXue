@@ -1,6 +1,6 @@
 import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
 import { getTenGod, WUXING_STEM, WUXING_BRANCH, type BaZiResult } from './useBaZi'
-import { sanHeGroup, checkSanHeBranch, type ShenSha } from './useShenSha'
+import { checkSanHeBranch, type ShenSha } from './useShenSha'
 import { getMonthStemStart } from './useSolarTerms'
 
 // === Typed Exports ===
@@ -173,8 +173,7 @@ function buildSummary(
   year: Omit<LiuNianYear, 'score' | 'summary'>,
   tenGod: string,
   isFavorable: boolean,
-  tenGodWuxing: string,
-  dayMasterWuxing: string,
+  isUnfavorable: boolean,
 ): string {
   const parts: string[] = []
 
@@ -187,10 +186,10 @@ function buildSummary(
   // Part 2: wuxing match
   if (isFavorable) {
     parts.push(WUXING_MATCH_TEMPLATES['favorable'])
-  } else if (tenGodWuxing === dayMasterWuxing) {
-    parts.push(WUXING_MATCH_TEMPLATES['neutral'])
-  } else {
+  } else if (isUnfavorable) {
     parts.push(WUXING_MATCH_TEMPLATES['unfavorable'])
+  } else {
+    parts.push(WUXING_MATCH_TEMPLATES['neutral'])
   }
 
   // Part 3: earth relation
@@ -283,8 +282,6 @@ function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch
 function computeYearShensha(
   yearBranch: string,
   birthYearBranch: string,
-  _year: number,
-  _birthShenSha: ShenSha[],
 ): ShenSha[] {
   const results: ShenSha[] = []
 
@@ -313,7 +310,7 @@ function computeYearShensha(
 // === Main calculation function ===
 
 export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
-  const { baZi, shenSha: birthShenSha = [], currentYear, range = 5 } = input
+  const { baZi, currentYear, range = 5 } = input
 
   const dayMasterIdx = getStemIndex(baZi.dayMaster)
   const favorableElements = baZi.favorableElements
@@ -382,17 +379,21 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
         })
       }
       if (checkPo(yearBranch, pillarBranch)) {
-        earthRelations.push({
-          type: '破',
-          target: pillarBranch,
-          targetPillar: pillar.pillarName,
-          description: RELATION_DESC_TEMPLATES['破'].replace('{year}', String(year)),
-        })
+        // 合 takes precedence over 破 — skip 破 if 合 already exists for this branch pair
+        const hasHe = earthRelations.some(r => r.type === '合' && r.target === pillarBranch && r.targetPillar === pillar.pillarName)
+        if (!hasHe) {
+          earthRelations.push({
+            type: '破',
+            target: pillarBranch,
+            targetPillar: pillar.pillarName,
+            description: RELATION_DESC_TEMPLATES['破'].replace('{year}', String(year)),
+          })
+        }
       }
     }
 
     // Year-specific shensha: check year's branch against birth year branch triggers
-    const yearShenSha = computeYearShensha(branch, baZi.yearPillar.branch, year, birthShenSha)
+    const yearShenSha = computeYearShensha(branch, baZi.yearPillar.branch)
 
     // DaYun for this year
     const daYun = getDaYunForYear(baZi, year)
@@ -418,7 +419,7 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
     const fullYearInfo: LiuNianYear = {
       ...yearInfo,
       score,
-      summary: buildSummary(yearInfo, tenGod, isFavorable, tenGodWuxing, WUXING_STEM[baZi.dayMaster]),
+      summary: buildSummary(yearInfo, tenGod, isFavorable, isUnfavorable),
     }
 
     // Add detail for current year

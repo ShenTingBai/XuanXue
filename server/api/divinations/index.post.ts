@@ -1,6 +1,6 @@
 import { dbGet, dbRun } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
-import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
+import { checkRateLimit } from '../../utils/rateLimit'
 
 const VALID_TYPES = new Set(['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei'])
 

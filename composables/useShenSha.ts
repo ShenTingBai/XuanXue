@@ -1,4 +1,4 @@
-import { STEMS, BRANCHES } from '~/constants/bazi'
+import { BRANCHES } from '~/constants/bazi'
 import type { BaZiPillar } from './useBaZi'
 
 // === Typed Exports ===
@@ -24,7 +24,6 @@ export interface ShenSha {
 
 // === Helper: stem/branch index helpers ===
 
-function stemIdx(stem: string): number { return STEMS.indexOf(stem) }
 function branchIdx(branch: string): number { return BRANCHES.indexOf(branch) }
 
 /** Get 三合 group index: 0=申子辰, 1=巳酉丑, 2=寅午戌, 3=亥卯未 */
@@ -106,21 +105,6 @@ function addIfMatch(
   targetBranch: string,
 ): void {
   if (condition(srcBranch, targetBranch)) {
-    results.push({ ...shensha })
-  }
-}
-
-/**
- * Build a shensha if the source stem condition matches the target branch.
- */
-function addIfStemMatch(
-  results: ShenSha[],
-  condition: (srcStemIdx: number, tgtBranch: string) => boolean,
-  shensha: Omit<ShenSha, 'category'> & { category: '吉' | '凶' | '中性' },
-  srcStemIdx: number,
-  targetBranch: string,
-): void {
-  if (condition(srcStemIdx, targetBranch)) {
     results.push({ ...shensha })
   }
 }
@@ -256,7 +240,6 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
 
   for (const { pillar, pillarLabel } of allPillars) {
     const b = pillar.branch
-    const s = pillar.stem
 
     // 禄神
     if (luShenMap[dayStem] === b) {
@@ -358,13 +341,6 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
 
   // 空亡: 根据日柱干支确定旬空
   // Each 旬 (10-day cycle) leaves 2 branches empty
-  const xunKongMap: Record<string, string[]> = {
-    '甲子': ['戌', '亥'], '甲戌': ['申', '酉'], '甲申': ['午', '未'],
-    '甲午': ['辰', '巳'], '甲辰': ['寅', '卯'], '甲寅': ['子', '丑'],
-  }
-  // General-purpose: compute 空亡 by day stem index
-  // stemIndex determines which 旬: 0(甲), 1(乙)... each 旬 is 10 stems+branches
-  // The empty branches = (stemIndex - 0) % 10 → compute gap
   const dmIdx = dayMasterIndex
   // The xun leader stem index: find the 甲 that leads this day's xun
   // The xun is determined by (branchIndex - stemIndex + 12) % 12

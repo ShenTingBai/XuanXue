@@ -1,6 +1,7 @@
 import { dbAll } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 import { checkRateLimit } from '../../utils/rateLimit'
+import { safeJsonParse } from '../../utils/json'
 
 export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
@@ -38,8 +39,3 @@ export default defineEventHandler(async (event) => {
     created_at: row.created_at,
   }))
 })
-
-function safeJsonParse(str: unknown): unknown {
-  if (typeof str !== 'string') return str
-  try { return JSON.parse(str) } catch { return str }
-}

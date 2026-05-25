@@ -1,6 +1,7 @@
 import { dbGet } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 import { checkRateLimit } from '../../utils/rateLimit'
+import { safeJsonParse } from '../../utils/json'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(event.context.params!.id)
@@ -41,8 +42,3 @@ export default defineEventHandler(async (event) => {
     created_at: record.created_at,
   }
 })
-
-function safeJsonParse(str: unknown): unknown {
-  if (typeof str !== 'string') return str
-  try { return JSON.parse(str) } catch { return str }
-}
