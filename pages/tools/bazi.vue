@@ -101,6 +101,21 @@ const animalName = computed(() => {
           </div>
         </template>
 
+        <template #nav-right>
+          <BaziInfoSidebar
+            v-if="result"
+            :birth-year="result.birthYear"
+            :birth-calendar="result.birthCalendar"
+            :animal="animalName"
+            :gender="result.gender"
+            :day-master="result.dayMaster"
+            :day-master-wuxing="result.dayMasterWuxing"
+            :day-master-strength="result.dayMasterStrength"
+            :favorable-elements="result.favorableElements"
+            :unfavorable-elements="result.unfavorableElements"
+          />
+        </template>
+
         <!-- Missing birth info -->
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
@@ -126,20 +141,6 @@ const animalName = computed(() => {
 
         <!-- Result -->
         <template v-else-if="result">
-          <!-- Desktop sidebar content -->
-          <template #nav-right>
-            <BaziInfoSidebar
-              :birth-year="result.birthYear"
-              :birth-calendar="result.birthCalendar"
-              :animal="animalName"
-              :gender="result.gender"
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :favorable-elements="result.favorableElements"
-              :unfavorable-elements="result.unfavorableElements"
-            />
-          </template>
 
           <!-- Main content -->
           <!-- Mobile info bar -->
