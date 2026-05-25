@@ -261,16 +261,13 @@ function calculateScore(yearInfo: Omit<LiuNianYear, 'score' | 'summary'>): numbe
 
 function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch: string } {
   const currentAge = year - baZi.birthYear
-  for (const cycle of baZi.daYun) {
-    if (currentAge >= cycle.startAge && currentAge <= cycle.endAge) {
-      return { stem: cycle.stemBranch[0], branch: cycle.stemBranch[1] }
-    }
-  }
-  // Fallback: first cycle
-  if (baZi.daYun.length > 0) {
-    return { stem: baZi.daYun[0].stemBranch[0], branch: baZi.daYun[0].stemBranch[1] }
-  }
-  return { stem: '甲', branch: '子' }
+  if (baZi.daYun.length === 0) return { stem: '甲', branch: '子' }
+
+  // Direct index: each da yun cycle spans exactly 10 years
+  const cycleIdx = Math.floor((currentAge - baZi.daYun[0].startAge) / 10)
+  const clamped = Math.max(0, Math.min(cycleIdx, baZi.daYun.length - 1))
+  const cycle = baZi.daYun[clamped]
+  return { stem: cycle.stemBranch[0], branch: cycle.stemBranch[1] }
 }
 
 // === Year-specific shensha helpers ===
