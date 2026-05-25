@@ -24,6 +24,8 @@ export function isLegacyPin(stored: string): boolean {
 }
 
 export function createSessionToken(profileId: number): string {
+  // Enforce single-session: delete existing sessions for this profile before creating a new one
+  dbRun('DELETE FROM sessions WHERE profile_id = ?', [profileId])
   const token = randomBytes(24).toString('hex')
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
   dbRun('INSERT INTO sessions (profile_id, token, expires_at) VALUES (?, ?, ?)', [profileId, token, expiresAt])
