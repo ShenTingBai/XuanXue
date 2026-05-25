@@ -746,6 +746,7 @@ function getDaYunMeaning(tenGod: string): string {
                     ref="historyDropdownRef"
                     class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 rounded-lg border border-paper-dark bg-paper shadow-lg z-30"
                     role="menu"
+                    aria-label="历史记录菜单"
                     @keydown="onDropdownKeydown"
                   >
                     <div class="p-2">
