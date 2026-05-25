@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
   cleanupExpiredSessions()
 
   // Look up profile by nickname only (without PIN comparison)
+  // If account doesn't exist or is locked, return the same generic error to prevent nickname enumeration
   const profile = dbGet('SELECT * FROM profiles WHERE nickname = ?', [nickname])
 
   if (!profile) {
@@ -42,7 +43,8 @@ export default defineEventHandler(async (event) => {
   )
 
   if (recentFailures && (recentFailures.count as number) >= 10) {
-    throw createError({ statusCode: 429, statusMessage: '账户已被临时锁定，请15分钟后再试' })
+    logSecurityEvent('login_failed', profile.id as number, clientIp, `Account locked for ${nickname}`)
+    throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 
   const storedPin = profile.pin as string
