@@ -93,7 +93,7 @@ function scrollToAnimalNav() {
               @keydown.space.prevent="selectAnimal(idx)"
               :aria-current="idx === selectedAnimal ? 'true' : undefined"
               :class="[
-                'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
+                'flex-shrink-0 px-3 py-2.5 min-h-[40px] rounded-lg text-sm transition-colors',
                 idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
               ]"
             >

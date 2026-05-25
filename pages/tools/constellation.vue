@@ -95,7 +95,7 @@ function compatibilityBorderClass(level: string): string {
             @keydown.space.prevent="selectZodiac(idx)"
             :aria-current="idx === selectedZodiac ? 'true' : undefined"
             :class="[
-              'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
+              'flex-shrink-0 px-3 py-2.5 min-h-[40px] rounded-lg text-sm transition-colors',
               idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
             ]"
           >
