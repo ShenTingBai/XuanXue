@@ -152,7 +152,7 @@ function compatibilityBorderClass(level: string): string {
               <div
                 v-for="item in result.compatibility"
                 :key="item.name"
-                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
+                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
                 :class="compatibilityBorderClass(item.level)"
                 :title="item.label"
               >
