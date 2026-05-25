@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4" aria-hidden="true">
     <div v-for="i in 4" :key="i" class="space-y-1">
       <div class="skeleton-block w-16 mb-1"></div>
       <div class="fortune-bar">
