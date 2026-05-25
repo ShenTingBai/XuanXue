@@ -165,4 +165,53 @@ describe('calculateBaZi', () => {
     expect(Math.round(pctSum)).toBeGreaterThanOrEqual(95)
     expect(Math.round(pctSum)).toBeLessThanOrEqual(105)
   })
+
+  it('day pillar stemTenGod is 日主, no other pillar has it', () => {
+    const result = calculateBaZi(baseProfile)
+    expect(result.dayPillar.stemTenGod).toBe('日主')
+    expect(result.yearPillar.stemTenGod).not.toBe('日主')
+    expect(result.monthPillar.stemTenGod).not.toBe('日主')
+    expect(result.hourPillar!.stemTenGod).not.toBe('日主')
+  })
+
+  it('same-stem non-day pillar gets 比肩 not 日主 (甲年甲日)', () => {
+    // 1964-07-14: 甲辰年 甲寅日 — year stem = day stem = 甲
+    const result = calculateBaZi({
+      birthYear: 1964, birthMonth: 7, birthDay: 14,
+      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+    })
+    expect(result.dayMaster).toBe('甲')
+    expect(result.yearPillar.stem).toBe('甲')
+    expect(result.yearPillar.stemTenGod).not.toBe('日主')
+    expect(result.yearPillar.stemTenGod).toBe('比肩')
+  })
+
+  it('hidden stems never show 日主, matching stem gets 比肩', () => {
+    // 1964-07-14: 甲寅日, day branch 寅 hidden stems [甲, 丙, 戊]
+    // The hidden 甲 matches day master — must be 比肩, not 日主
+    const result = calculateBaZi({
+      birthYear: 1964, birthMonth: 7, birthDay: 14,
+      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+    })
+    const allPillars = [result.yearPillar, result.monthPillar, result.dayPillar]
+    if (result.hourPillar) allPillars.push(result.hourPillar)
+    for (const pillar of allPillars) {
+      for (const hs of pillar.hiddenStems) {
+        expect(hs.tenGod).not.toBe('日主')
+      }
+    }
+    // Day pillar branch 寅: first hidden stem is 甲, should be 比肩
+    const jiaHidden = result.dayPillar.hiddenStems.find(hs => hs.stem === '甲')
+    expect(jiaHidden).toBeDefined()
+    expect(jiaHidden!.tenGod).toBe('比肩')
+  })
+
+  it('daYun first cycle ten god is a valid non-日主 value', () => {
+    const result = calculateBaZi(baseProfile)
+    const firstCycle = result.daYun[0]
+    expect(firstCycle.stemTenGod).toBeTruthy()
+    expect(firstCycle.stemTenGod).not.toBe('日主')
+    const validTenGods = ['比肩', '劫财', '食神', '伤官', '偏财', '正财', '偏官', '正官', '偏印', '正印']
+    expect(validTenGods).toContain(firstCycle.stemTenGod)
+  })
 })
