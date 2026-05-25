@@ -3,6 +3,8 @@ import { getProfileIdFromToken } from '../../utils/auth'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
 
+const VALID_TYPES = new Set(['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei'])
+
 export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
@@ -18,6 +20,11 @@ export default defineEventHandler(async (event) => {
 
   const query = getQuery(event)
   const type = query.type as string | undefined
+
+  // Validate type against known set — reject invalid types with 400
+  if (type && !VALID_TYPES.has(type)) {
+    throw createError({ statusCode: 400, statusMessage: '无效的测算类型，支持: shengxiao, constellation, bazi, yijing, ziwei' })
+  }
 
   let sql = 'SELECT id, type, input_data, created_at FROM divination_results WHERE profile_id = ?'
   const params: any[] = [profileId]
