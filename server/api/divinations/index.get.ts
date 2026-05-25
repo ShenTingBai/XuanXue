@@ -1,0 +1,39 @@
+import { dbAll } from '../../database/db'
+import { getProfileIdFromToken } from '../../utils/auth'
+
+export default defineEventHandler(async (event) => {
+  const authHeader = getHeader(event, 'authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const profileId = token ? getProfileIdFromToken(token) : null
+  if (!profileId) {
+    throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
+  }
+
+  const query = getQuery(event)
+  const type = query.type as string | undefined
+
+  let sql = 'SELECT id, type, input_data, created_at FROM divination_results WHERE profile_id = ?'
+  const params: any[] = [profileId]
+
+  if (type) {
+    sql += ' AND type = ?'
+    params.push(type)
+  }
+
+  sql += ' ORDER BY created_at DESC LIMIT 20'
+
+  const rows = dbAll(sql, params)
+
+  // Parse input_data JSON for convenience, but exclude result_data from list
+  return rows.map(row => ({
+    id: row.id,
+    type: row.type,
+    input_data: safeJsonParse(row.input_data),
+    created_at: row.created_at,
+  }))
+})
+
+function safeJsonParse(str: unknown): unknown {
+  if (typeof str !== 'string') return str
+  try { return JSON.parse(str) } catch { return str }
+}
