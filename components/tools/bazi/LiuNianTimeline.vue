@@ -40,7 +40,7 @@
                 :aria-label="`运势评分 ${year.score}分`"
                 role="img"
               >
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#D4C9B820" stroke-width="4" />
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#E0D5C0" stroke-opacity="0.25" stroke-width="4" />
                 <circle
                   cx="18" cy="18" r="14" fill="none"
                   :stroke="scoreColor(year.score)"
@@ -165,7 +165,7 @@
                   :style="relationBadgeStyle(rel.type)"
                 >{{ rel.type }}</span>
                 <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
-                <span class="text-ink-muted hidden sm:inline">{{ rel.description }}</span>
+                <span class="text-ink-muted">{{ rel.description }}</span>
               </div>
             </div>
             <p v-else class="font-sans text-sm text-ink-muted">流年地支与命局无特殊关系</p>
@@ -199,6 +199,7 @@ const props = defineProps<{
 
 const expandedYearIdx = ref<number | null>(null)
 
+
 function toggleExpand(idx: number) {
   expandedYearIdx.value = expandedYearIdx.value === idx ? null : idx
 }
@@ -209,7 +210,8 @@ const MONTH_LABELS: Record<number, string> = {
 }
 
 function monthLabel(month: number): string {
-  return MONTH_LABELS[month] || String(month)
+  const branch = MONTH_LABELS[month]
+  return branch ? `${branch}(${month})` : String(month)
 }
 
 function scoreColor(score: number): string {
@@ -237,7 +239,7 @@ function tenGodBadgeStyle(isFavorable: boolean, isUnfavorable: boolean): Record<
     return { background: hexToRgba(WUXING_COLORS['木'], 24 / 255), color: WUXING_COLORS['木'] }
   }
   if (isUnfavorable) {
-    return { background: hexToRgba(WUXING_COLORS['火'], 14 / 255), color: hexToRgba(WUXING_COLORS['火'], 144 / 255) }
+    return { background: hexToRgba(WUXING_COLORS['火'], 14 / 255), color: WUXING_COLORS['火'] }
   }
   return { background: hexToRgba(WUXING_FALLBACK_COLOR, 18 / 255), color: WUXING_FALLBACK_COLOR }
 }
@@ -250,7 +252,7 @@ function shenShaBadgeStyle(category: '吉' | '凶' | '中性'): Record<string, s
     case '吉':
       return { background: hexToRgba(wood, 24 / 255), color: wood, border: `1px solid ${hexToRgba(wood, 48 / 255)}` }
     case '凶':
-      return { background: hexToRgba(fire, 14 / 255), color: hexToRgba(fire, 144 / 255), border: `1px solid ${hexToRgba(fire, 32 / 255)}` }
+      return { background: hexToRgba(fire, 14 / 255), color: fire, border: `1px solid ${hexToRgba(fire, 32 / 255)}` }
     case '中性':
       return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
     default:

@@ -49,55 +49,45 @@ export interface LiuNianInput {
 
 // === Constants ===
 
-// === Earth branch relations ===
+// === Earth branch relations — single consolidated map ===
 
-const LIU_HE: [string, string][] = [
-  ['子', '丑'], ['寅', '亥'], ['卯', '戌'], ['辰', '酉'], ['巳', '申'], ['午', '未'],
-]
-
-const LIU_CHONG: [string, string][] = [
-  ['子', '午'], ['丑', '未'], ['寅', '申'], ['卯', '酉'], ['辰', '戌'], ['巳', '亥'],
-]
-
-const SAN_XING: string[][] = [
-  ['寅', '巳', '申'], ['丑', '戌', '未'], ['子', '卯'],
-]
-
-const LIU_HAI: [string, string][] = [
-  ['子', '未'], ['丑', '午'], ['寅', '巳'], ['卯', '辰'], ['申', '亥'], ['酉', '戌'],
-]
-
-const LIU_PO: [string, string][] = [
-  ['子', '酉'], ['寅', '亥'], ['辰', '丑'], ['午', '卯'], ['申', '巳'], ['戌', '未'],
-]
-
-function checkHe(b1: string, b2: string): boolean {
-  return LIU_HE.some(([a, b]) => (a === b1 && b === b2) || (a === b2 && b === b1))
-}
-
-function checkChong(b1: string, b2: string): boolean {
-  return LIU_CHONG.some(([a, b]) => (a === b1 && b === b2) || (a === b2 && b === b1))
-}
-
-// Branches that form self刑: 辰辰, 午午, 酉酉, 亥亥
-const SELF_XING = new Set(['辰', '午', '酉', '亥'])
-
-function checkXing(b1: string, b2: string): { isXing: boolean; isSelfXing: boolean } {
-  // Self刑: same branch in the self刑 set
-  if (b1 === b2 && SELF_XING.has(b1)) return { isXing: true, isSelfXing: true }
-  // Group三刑: different branches in the same 三刑 group
-  for (const group of SAN_XING) {
-    if (group.includes(b1) && group.includes(b2) && b1 !== b2) return { isXing: true, isSelfXing: false }
-  }
-  return { isXing: false, isSelfXing: false }
-}
-
-function checkHai(b1: string, b2: string): boolean {
-  return LIU_HAI.some(([a, b]) => (a === b1 && b === b2) || (a === b2 && b === b1))
-}
-
-function checkPo(b1: string, b2: string): boolean {
-  return LIU_PO.some(([a, b]) => (a === b1 && b === b2) || (a === b2 && b === b1))
+// Key: sorted branch pair (by Unicode value). Value: relation type(s).
+// 合 takes precedence over 破 for the same pair.
+// 自刑 entries (辰辰, 午午, 酉酉, 亥亥) are stored as '自刑' for correct description template.
+const EARTH_RELATIONS: Record<string, string[]> = {
+  // 六合
+  '丑子': ['合'],
+  '亥寅': ['合'],         // 破 excluded — 合 takes precedence
+  '卯戌': ['合'],
+  '辰酉': ['合'],
+  '巳申': ['合', '刑'],    // 破 excluded — 合 takes precedence; +刑 from 三刑
+  '午未': ['合'],
+  // 六冲
+  '午子': ['冲'],
+  '丑未': ['冲', '刑'],
+  '寅申': ['冲', '刑'],
+  '卯酉': ['冲'],
+  '戌辰': ['冲'],
+  '亥巳': ['冲'],
+  // 六害
+  '子未': ['害'],
+  '丑午': ['害'],
+  '寅巳': ['害', '刑'],
+  '卯辰': ['害'],
+  '亥申': ['害'],
+  '戌酉': ['害'],
+  // 六破
+  '子酉': ['破'],
+  '丑辰': ['破'],
+  '午卯': ['破'],
+  '戌未': ['破', '刑'],
+  // 三刑 and 自刑
+  '丑戌': ['刑'],
+  '卯子': ['刑'],
+  '辰辰': ['自刑'],
+  '午午': ['自刑'],
+  '酉酉': ['自刑'],
+  '亥亥': ['自刑'],
 }
 
 const RELATION_DESC_TEMPLATES: Record<string, string> = {
@@ -335,56 +325,22 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
     const isFavorable = favorableElements.includes(stemWuxing)
     const isUnfavorable = unfavorableElements.includes(stemWuxing)
 
-    // Earth relations: check year branch against each pillar branch
+    // Earth relations: check year branch against each pillar branch (single pass)
     const earthRelations: EarthRelation[] = []
     for (const pillar of allPillars) {
-      const yearBranch = branch
-      const pillarBranch = pillar.branch
-      if (checkHe(yearBranch, pillarBranch)) {
+      const key = branch < pillar.branch ? branch + pillar.branch : pillar.branch + branch
+      const types = EARTH_RELATIONS[key]
+      if (!types) continue
+      for (const type of types) {
+        // type is '合' | '冲' | '害' | '破' | '刑' | '自刑'
+        const templateKey = type
+        const relationType = type === '自刑' ? '刑' : type as EarthRelation['type']
         earthRelations.push({
-          type: '合',
-          target: pillarBranch,
+          type: relationType,
+          target: pillar.branch,
           targetPillar: pillar.pillarName,
-          description: RELATION_DESC_TEMPLATES['合'].replace('{year}', String(year)),
+          description: RELATION_DESC_TEMPLATES[templateKey].replace('{year}', String(year)),
         })
-      }
-      if (checkChong(yearBranch, pillarBranch)) {
-        earthRelations.push({
-          type: '冲',
-          target: pillarBranch,
-          targetPillar: pillar.pillarName,
-          description: RELATION_DESC_TEMPLATES['冲'].replace('{year}', String(year)),
-        })
-      }
-      const xingResult = checkXing(yearBranch, pillarBranch)
-      if (xingResult.isXing) {
-        const xingTemplateKey = xingResult.isSelfXing ? '自刑' : '刑'
-        earthRelations.push({
-          type: '刑',
-          target: pillarBranch,
-          targetPillar: pillar.pillarName,
-          description: RELATION_DESC_TEMPLATES[xingTemplateKey].replace('{year}', String(year)),
-        })
-      }
-      if (checkHai(yearBranch, pillarBranch)) {
-        earthRelations.push({
-          type: '害',
-          target: pillarBranch,
-          targetPillar: pillar.pillarName,
-          description: RELATION_DESC_TEMPLATES['害'].replace('{year}', String(year)),
-        })
-      }
-      if (checkPo(yearBranch, pillarBranch)) {
-        // 合 takes precedence over 破 — skip 破 if 合 already exists for this branch pair
-        const hasHe = earthRelations.some(r => r.type === '合' && r.target === pillarBranch && r.targetPillar === pillar.pillarName)
-        if (!hasHe) {
-          earthRelations.push({
-            type: '破',
-            target: pillarBranch,
-            targetPillar: pillar.pillarName,
-            description: RELATION_DESC_TEMPLATES['破'].replace('{year}', String(year)),
-          })
-        }
       }
     }
 

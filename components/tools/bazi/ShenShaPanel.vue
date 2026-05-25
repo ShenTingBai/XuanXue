@@ -18,7 +18,7 @@
         <div v-if="group.items.length > 0"
           role="group" :aria-labelledby="group.id"
         >
-        <h4 :id="group.id" class="font-sans text-xs font-medium text-ink-light tracking-wider mb-2">{{ group.label }}</h4>
+        <h4 :id="group.id" class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">{{ group.label }}</h4>
         <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="group.ariaLabel">
           <li
             v-for="(ss, ssIdx) in group.items"
@@ -26,7 +26,7 @@
             class="relative group"
           >
             <button
-              class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
+              class="inline-flex items-center px-3 py-2.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
               :style="buttonStyle(group.category)"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
@@ -36,12 +36,11 @@
             </button>
             <!-- Tooltip -->
             <span
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-50"
+              class="tooltip-anchor px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-50 bg-ink-darkest text-paper-medium border border-ink-medium shadow-lg"
               :class="[
                 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
                 expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
               ]"
-              :style="tooltipStyle"
             >
               {{ ss.description }}
               <span class="block mt-0.5 opacity-75 text-[0.7rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
@@ -71,16 +70,6 @@ function buttonStyle(category: '吉' | '凶' | '中性'): Record<string, string>
     case '中性':
       return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
   }
-}
-
-const tooltipStyle = {
-  background: '#1A0F0A',
-  color: '#EDE4D3',
-  border: `1px solid ${WUXING_FALLBACK_COLOR}`,
-  maxWidth: '16rem',
-  minWidth: '10rem',
-  whiteSpace: 'normal' as const,
-  boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
 }
 
 const props = defineProps<{
@@ -130,3 +119,26 @@ function handleRovingKeydown(e: KeyboardEvent) {
   buttons[nextIdx].focus()
 }
 </script>
+
+<style scoped>
+/* Desktop: tooltip anchored above the badge */
+.tooltip-anchor {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 0.375rem;
+}
+
+/* Mobile: fixed tooltip centered in viewport to avoid overflow */
+@media (max-width: 640px) {
+  .tooltip-anchor {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-bottom: 0;
+    z-index: 100;
+  }
+}
+</style>

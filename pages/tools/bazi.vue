@@ -37,9 +37,26 @@ const historyRecords = ref<Array<{ id: number; type: string; input_data: any; cr
 const showHistoryDropdown = ref(false)
 const historyDropdownRef = ref<HTMLElement | null>(null)
 const currentYear = new Date().getFullYear()
+const showScrollTop = ref(false)
+const scrollTopOffset = ref('1rem')
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function updateScrollTopOffset() {
+  const el = document.querySelector('.max-w-\\[48rem\\]')
+  if (el) {
+    const rect = el.getBoundingClientRect()
+    const gap = window.innerWidth - rect.right + 4
+    scrollTopOffset.value = `${Math.max(gap, 4)}px`
+  }
+}
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutside)
+  window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('resize', updateScrollTopOffset)
 })
 
 onMounted(() => {
@@ -56,6 +73,9 @@ onMounted(() => {
   }
 
   document.addEventListener('click', onClickOutside)
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  window.addEventListener('resize', updateScrollTopOffset, { passive: true })
+  updateScrollTopOffset()
   computeResult()
 })
 
@@ -239,12 +259,7 @@ function dismissRestoreError() {
 }
 
 function scrollToTop() {
-  const el = document.getElementById('reading-guide')
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function toggleHistoryDropdown() {
@@ -406,10 +421,31 @@ function getDaYunMeaning(tenGod: string): string {
   }
   return map[tenGod] || `${tenGod}大运，宜顺势而为`
 }
+
+const sectionMap: Record<string, string> = {
+  '排盘': 'bazi-grid',
+  '神煞': 'shensha',
+  '日主': 'day-master',
+  '五行': 'elements',
+  '大运': 'dayun',
+  '流年': 'liunian',
+  '解读': 'reading-guide',
+}
+
+function scrollToSection(anchorName: string) {
+  const id = sectionMap[anchorName]
+  if (!id) return
+  const el = document.getElementById(id)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' })
+    el.focus({ preventScroll: true })
+  }
+}
 </script>
 
 <template>
   <ToolPageLayout>
+        <h1 class="sr-only">八字排盘</h1>
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">
           {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
@@ -451,7 +487,8 @@ function getDaYunMeaning(tenGod: string): string {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div class="max-w-2xl mx-auto" aria-live="polite" aria-atomic="true">
+          <div class="xl:flex xl:gap-8 xl:justify-center">
+            <div class="min-w-0 max-w-[48rem] relative">
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -464,7 +501,7 @@ function getDaYunMeaning(tenGod: string): string {
                   @click="dismissSaveErrorToast"
                   @keydown.enter="dismissSaveErrorToast"
                   @keydown.space.prevent="dismissSaveErrorToast"
-                  class="ml-3 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>
@@ -482,48 +519,31 @@ function getDaYunMeaning(tenGod: string): string {
                   @click="dismissRestoreError"
                   @keydown.enter="dismissRestoreError"
                   @keydown.space.prevent="dismissRestoreError"
-                  class="ml-3 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>
             </Transition>
 
             <!-- Personal info summary (mobile/tablet only, desktop uses right sidebar) -->
-            <div class="xl:hidden mb-6 p-4 sm:p-5 rounded-xl bg-cinnabar/5 border border-cinnabar/15">
-              <div class="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-base">
-                <div>
-                  <span class="text-ink-light">出生</span>
-                  <strong class="text-ink-dark ml-1">{{ result.birthYear }}年</strong>
-                  <span class="text-ink-light ml-2">{{ result.birthCalendar === 'solar' ? '阳历' : '农历' }}</span>
-                </div>
-                <div>
-                  <span class="text-ink-light">生肖</span>
-                  <strong class="text-ink-dark ml-1">{{ animalName }}</strong>
-                </div>
-                <div v-if="result.gender">
-                  <span class="text-ink-light">性别</span>
-                  <strong class="text-ink-dark ml-1">{{ result.gender }}</strong>
-                </div>
-                <div>
-                  <span class="text-ink-light">本命</span>
-                  <strong class="text-cinnabar ml-1 font-display text-lg">{{ result.dayMaster }}{{ result.dayMasterWuxing }}</strong>
-                </div>
-                <div>
-                  <span class="text-ink-light">力量</span>
-                  <strong class="ml-1" :class="result.dayMasterStrength === '强' || result.dayMasterStrength === '偏强' ? 'text-cinnabar' : result.dayMasterStrength === '偏弱' || result.dayMasterStrength === '弱' ? 'text-wuxing-water' : 'text-gold'">{{ result.dayMasterStrength }}</strong>
-                </div>
-                <div>
-                  <span class="text-ink-light">喜用神</span>
-                  <span v-for="el in result.favorableElements" :key="el" class="ml-1 font-medium" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
-                </div>
-                <div v-if="result.unfavorableElements.length">
-                  <span class="text-ink-light">忌神</span>
-                  <span v-for="el in result.unfavorableElements" :key="el" class="ml-1" :style="{ color: ELEMENT_COLORS[el], opacity: 0.8 }">{{ el }}</span>
-                </div>
+            <div class="xl:hidden mb-6 p-4 sm:p-4 rounded-xl bg-cinnabar/5 border border-cinnabar/15">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <span class="font-sans text-sm text-ink-medium">
+                  {{ result.birthYear }}年 · {{ result.birthCalendar === 'solar' ? '阳历' : '农历' }} · {{ animalName }} · {{ result.gender || '未设置' }}
+                </span>
+                <span class="font-sans text-sm text-ink-dark">
+                  {{ result.dayMaster }}{{ result.dayMasterWuxing }} · {{ result.dayMasterStrength }} · 喜：{{ result.favorableElements.join('、') }} · 忌：{{ result.unfavorableElements.join('、') }}
+                </span>
               </div>
             </div>
 
-            <!-- End: Personal info summary -->
+            <!-- Hour missing notice - promoted warning -->
+            <div v-if="missingHour" class="mb-6 p-4 rounded-xl bg-cinnabar/10 border-2 border-cinnabar/30 text-center font-sans">
+              <p class="text-sm text-ink-dark">
+                出生时辰未设置，时柱暂不显示。缺少时柱会影响四柱排盘完整度、神煞匹配、五行统计及流年分析。
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="inline-block px-3 py-2 text-cinnabar font-medium hover:underline whitespace-nowrap">前往设置</NuxtLink>
+              </p>
+            </div>
 
             <!-- Anchor navigation -->
             <nav
@@ -531,16 +551,66 @@ function getDaYunMeaning(tenGod: string): string {
               aria-label="结果区块导航"
             >
               <a
-                v-for="anchor in ['解读', '排盘', '神煞', '日主', '五行', '大运', '流年']"
+                v-for="anchor in ['排盘', '神煞', '日主', '五行', '大运', '流年', '解读']"
                 :key="anchor"
-                :href="`#${({ '解读': 'reading-guide', '排盘': 'bazi-grid', '神煞': 'shensha', '日主': 'day-master', '五行': 'elements', '大运': 'dayun', '流年': 'liunian' })[anchor]}`"
-                class="px-3 py-1 text-xs rounded-full font-sans border border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30 transition-colors no-underline"
+                :href="`#${sectionMap[anchor]}`"
+                class="px-3 py-2.5 text-xs rounded-full font-sans border border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30 transition-colors no-underline"
+                @click.prevent="scrollToSection(anchor)"
               >{{ anchor }}</a>
             </nav>
 
+            <!-- Four Pillars Grid -->
+            <div id="bazi-grid" class="scroll-mt-20" tabindex="-1">
+            <BaziGrid :pillars="pillars" />
+            </div>
+
+
+            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
+            <div id="shensha" class="scroll-mt-20" tabindex="-1">
+            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
+            </div>
+
+            <!-- Day Master Card -->
+            <div id="day-master" class="scroll-mt-20" tabindex="-1">
+            <DayMasterCard
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :favorable-elements="result.favorableElements"
+              :unfavorable-elements="result.unfavorableElements"
+            />
+            </div>
+
+            <!-- Element Analysis -->
+            <div id="elements" class="scroll-mt-20" tabindex="-1">
+            <ElementAnalysis
+              :element-counts="result.elementCounts"
+              :element-percentages="result.elementPercentages"
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :month-branch="result.monthPillar.branch"
+            />
+            </div>
+
+            <!-- Da Yun Timeline -->
+            <div id="dayun" class="scroll-mt-20" tabindex="-1">
+            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+            </div>
+
+            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
+            <div id="liunian" class="scroll-mt-20" tabindex="-1">
+            <LiuNianTimeline
+              v-if="liuNianYears.length > 0"
+              :years="liuNianYears"
+              :current-year="currentYear"
+              :range="5"
+            />
+            </div>
+
             <!-- Reading Guide -->
-            <div id="reading-guide" class="mb-8 p-5 sm:p-6 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20">
-              <h3 class="font-display text-xl text-cinnabar mb-5 flex items-center gap-2">
+            <div id="reading-guide" class="mb-8 p-4 sm:p-5 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20" tabindex="-1">
+              <h3 class="font-display text-xl sm:text-2xl text-cinnabar mb-5 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
                 你的八字解读
               </h3>
@@ -548,7 +618,7 @@ function getDaYunMeaning(tenGod: string): string {
               <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
                 <!-- Section 1: 命局总览 -->
                 <div>
-                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">命局总览</h4>
+                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">命局总览</h4>
                   <p>
                     <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
                     日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
@@ -567,7 +637,7 @@ function getDaYunMeaning(tenGod: string): string {
 
                 <!-- Section 2: 神煞精要 -->
                 <div v-if="readingGuideShensha.length > 0">
-                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">神煞精要</h4>
+                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">神煞精要</h4>
                   <div class="flex flex-wrap gap-2 mb-2">
                     <span
                       v-for="shen in readingGuideShensha"
@@ -575,7 +645,7 @@ function getDaYunMeaning(tenGod: string): string {
                       class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
                       :class="{
                         'bg-wuxing-wood/10 text-wuxing-wood border border-wuxing-wood/25': shen.category === '吉',
-                        'bg-cinnabar/5 text-cinnabar/80 border border-cinnabar/20': shen.category === '凶',
+                        'bg-cinnabar/5 text-cinnabar border border-cinnabar/20': shen.category === '凶',
                         'bg-paper-dark/30 text-ink-medium border border-paper-dark/50': shen.category === '中性',
                       }"
                     >
@@ -592,7 +662,7 @@ function getDaYunMeaning(tenGod: string): string {
 
                 <!-- Section 3: 今年运势 -->
                 <div v-if="currentYearLiuNian">
-                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">今年运势（{{ currentYearLiuNian.year }}年）</h4>
+                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">今年运势（{{ currentYearLiuNian.year }}年）</h4>
                   <div class="flex items-center gap-3 mb-2">
                     <span class="font-display text-lg text-ink-dark">{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span>
                     <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{ currentYearLiuNian.tenGod }}</span>
@@ -615,7 +685,7 @@ function getDaYunMeaning(tenGod: string): string {
 
                 <!-- Section 4: 当前大运 -->
                 <div v-if="currentDaYun">
-                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">当前大运</h4>
+                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">当前大运</h4>
                   <div class="flex items-center gap-3 mb-1">
                     <span class="font-display text-lg text-ink-dark">{{ currentDaYun.stemBranch }}</span>
                     <span class="text-xs text-ink-light">{{ currentDaYun.startAge }}岁 - {{ currentDaYun.endAge }}岁</span>
@@ -625,7 +695,7 @@ function getDaYunMeaning(tenGod: string): string {
 
                 <!-- Section 5: 五行建议 -->
                 <div>
-                  <h4 class="font-sans text-sm font-medium text-cinnabar/80 mb-2">五行建议</h4>
+                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">五行建议</h4>
                   <p class="text-sm mb-2">
                     你的喜用神为<strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
                     生活中多接触与这些元素相关的事物有助于运势提升。
@@ -650,62 +720,6 @@ function getDaYunMeaning(tenGod: string): string {
                   </template>
                 </div>
               </div>
-            </div>
-
-            <!-- Four Pillars Grid -->
-            <div id="bazi-grid" class="scroll-mt-20">
-            <BaziGrid :pillars="pillars" />
-            </div>
-
-            <!-- Hour missing notice -->
-            <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
-              <p class="font-sans text-base text-ink-medium">
-                出生时辰未设置，时柱暂不显示。
-                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-cinnabar hover:underline">前往设置</NuxtLink>
-              </p>
-            </div>
-
-            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
-            <div id="shensha" class="scroll-mt-20">
-            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
-            </div>
-
-            <!-- Day Master Card -->
-            <div id="day-master" class="scroll-mt-20">
-            <DayMasterCard
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :favorable-elements="result.favorableElements"
-              :unfavorable-elements="result.unfavorableElements"
-            />
-            </div>
-
-            <!-- Element Analysis -->
-            <div id="elements" class="scroll-mt-20">
-            <ElementAnalysis
-              :element-counts="result.elementCounts"
-              :element-percentages="result.elementPercentages"
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :month-branch="result.monthPillar.branch"
-            />
-            </div>
-
-            <!-- Da Yun Timeline -->
-            <div id="dayun" class="scroll-mt-20">
-            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
-            </div>
-
-            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
-            <div id="liunian" class="scroll-mt-20">
-            <LiuNianTimeline
-              v-if="liuNianYears.length > 0"
-              :years="liuNianYears"
-              :current-year="currentYear"
-              :range="5"
-            />
             </div>
 
             <!-- Recalculate — only shown after history restore -->
@@ -735,7 +749,7 @@ function getDaYunMeaning(tenGod: string): string {
                     @click="toggleHistoryDropdown"
                     @keydown.enter="toggleHistoryDropdown"
                     @keydown.space.prevent="toggleHistoryDropdown"
-                    class="font-sans text-xs text-ink-light hover:text-ink-medium transition-colors underline underline-offset-2"
+                    class="px-3 py-2 font-sans text-xs text-ink-light hover:text-ink-medium transition-colors underline underline-offset-2"
                     aria-haspopup="menu"
                     :aria-expanded="showHistoryDropdown"
                   >
@@ -746,7 +760,7 @@ function getDaYunMeaning(tenGod: string): string {
                   <div
                     v-if="showHistoryDropdown"
                     ref="historyDropdownRef"
-                    class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 rounded-lg border border-paper-dark bg-paper shadow-lg z-30"
+                    class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 rounded-lg border border-paper-dark bg-paper shadow-lg z-30"
                     role="menu"
                     aria-label="历史记录菜单"
                     @keydown="onDropdownKeydown"
@@ -760,7 +774,7 @@ function getDaYunMeaning(tenGod: string): string {
                         <button
                           v-for="rec in historyRecords"
                           :key="rec.id"
-                          class="w-full text-left px-2 py-1.5 rounded hover:bg-paper-lightest transition-colors"
+                          class="w-full text-left px-2 py-2.5 rounded hover:bg-paper-lightest transition-colors"
                           role="menuitem"
                           @click="restoreFromHistory(rec.id)"
                           @keydown.enter="restoreFromHistory(rec.id)"
@@ -780,32 +794,36 @@ function getDaYunMeaning(tenGod: string): string {
               </div>
             </div>
 
-            <!-- Back to top -->
-            <div class="flex justify-center mt-8">
-              <button
-                @click="scrollToTop"
-                class="btn-seal"
-              >
-                <span>返回顶部</span>
-              </button>
+            <!-- Back to top: floating button, visible after scrolling past 300px -->
+            <button
+              v-if="showScrollTop"
+              @click="scrollToTop"
+              :style="{ right: scrollTopOffset }"
+              class="fixed bottom-8 z-50 w-14 h-14 flex items-center justify-center rounded-lg border border-cinnabar/40 bg-paper-lightest/80 text-cinnabar backdrop-blur-sm shadow-lg hover:bg-cinnabar hover:text-paper-lightest transition-colors duration-300 text-xl"
+              aria-label="回到顶部"
+            >
+              ↑
+            </button>
             </div>
-          </div>
 
-          <!-- Desktop fixed sidebar: positioned to the right of the centered content -->
-          <BaziInfoSidebar
-            class="hidden xl:block fixed top-20"
-            style="left: calc(50% + 23rem); width: 14rem;"
-            :birth-year="result.birthYear"
-            :birth-calendar="result.birthCalendar"
-            :animal="animalName"
-            :gender="result.gender"
-            :day-master="result.dayMaster"
-            :day-master-wuxing="result.dayMasterWuxing"
-            :day-master-strength="result.dayMasterStrength"
-            :favorable-elements="result.favorableElements"
-            :unfavorable-elements="result.unfavorableElements"
-          />
+            <aside v-if="result" class="hidden xl:block xl:w-56 flex-shrink-0">
+              <div class="sticky top-20">
+                <BaziInfoSidebar
+                  :birth-year="result.birthYear"
+                  :birth-calendar="result.birthCalendar"
+                  :animal="animalName"
+                  :gender="result.gender"
+                  :day-master="result.dayMaster"
+                  :day-master-wuxing="result.dayMasterWuxing"
+                  :day-master-strength="result.dayMasterStrength"
+                  :favorable-elements="result.favorableElements"
+                  :unfavorable-elements="result.unfavorableElements"
+                />
+              </div>
+            </aside>
+          </div>
         </template>
+
   </ToolPageLayout>
 </template>
 

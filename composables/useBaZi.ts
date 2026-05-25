@@ -360,14 +360,16 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   let yearStemIndex = getYearStemIndex(birthYear)
   let yearBranchIndex = getYearBranchIndex(birthYear)
 
-  // 立春 boundary for solar calendar
-  if (birthCalendar === 'solar' && isBeforeLiChun(birthYear, birthMonth, birthDay)) {
+  // 立春 boundary for solar calendar (compute once, reuse for month pillar)
+  const beforeLiChun = birthCalendar === 'solar' && isBeforeLiChun(birthYear, birthMonth, birthDay)
+
+  if (beforeLiChun) {
     yearStemIndex = getYearStemIndex(birthYear - 1)
     yearBranchIndex = getYearBranchIndex(birthYear - 1)
   }
 
   // --- Month Pillar ---
-  const monthPillarYear = (birthCalendar === 'solar' && isBeforeLiChun(birthYear, birthMonth, birthDay)) ? birthYear - 1 : birthYear
+  const monthPillarYear = beforeLiChun ? birthYear - 1 : birthYear
   const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, birthCalendar)
   const monthStemIndex = (STEMS as readonly string[]).indexOf(monthPillarResult.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)

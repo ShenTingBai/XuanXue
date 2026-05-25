@@ -36,6 +36,7 @@ export const useAuth = () => {
   }
 
   function setStoredSession(token: string, profile: Profile) {
+    if (!import.meta.client) return
     localStorage.setItem(SESSION_KEY, JSON.stringify({ token, profile }))
   }
 

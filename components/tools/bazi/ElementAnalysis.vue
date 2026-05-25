@@ -21,8 +21,8 @@
             :style="{ width: el.percent + '%', background: el.color }"
           />
         </div>
-        <span class="w-6 text-sm text-ink-light text-right font-sans flex-shrink-0">
-          {{ el.count }}
+        <span class="w-14 text-sm text-ink-light text-right font-sans flex-shrink-0">
+          {{ el.count }}（{{ el.percent }}%）
         </span>
       </div>
     </div>

@@ -1,9 +1,4 @@
-<script setup lang="ts">
-const { currentProfile, restoreSession, logout } = useAuth()
-const router = useRouter()
-const showDropdown = ref(false)
-const route = useRoute()
-
+<script lang="ts">
 interface NavTool {
   id: string
   name: string
@@ -19,6 +14,13 @@ const navTools: NavTool[] = [
   { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: false },
   { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: false },
 ]
+</script>
+
+<script setup lang="ts">
+const { currentProfile, restoreSession, logout } = useAuth()
+const router = useRouter()
+const showDropdown = ref(false)
+const route = useRoute()
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownInnerRef = ref<HTMLElement | null>(null)
 const toggleRef = ref<HTMLElement | null>(null)
@@ -53,11 +55,9 @@ const handleMenuKeydown = (e: KeyboardEvent) => {
     case 'Home': nextIdx = 0; break
     case 'End': nextIdx = items.length - 1; break
     case 'Tab':
-      if (currentIdx < 0) return
-      nextIdx = e.shiftKey
-        ? (currentIdx - 1 + items.length) % items.length
-        : (currentIdx + 1) % items.length
-      break
+      e.preventDefault()
+      showDropdown.value = false
+      return
     default: return
   }
   e.preventDefault()

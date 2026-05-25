@@ -9,92 +9,76 @@
     <div class="card-paper-solid rounded-xl p-4 sm:p-5">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
-      <div class="grid gap-0 border-2 border-cinnabar/50 rounded-lg overflow-clip" role="table" aria-label="四柱排盘"
-        :style="{ gridTemplateColumns: `repeat(${pillars.length}, 1fr)` }"
-      >
-        <!-- Header rowgroup -->
-        <div role="rowgroup" class="contents">
-          <!-- Header row -->
-          <div role="row" class="contents">
-            <div v-for="(h, idx) in headers" :key="h.label"
-              role="columnheader"
+      <table class="border-2 border-cinnabar/50 rounded-lg overflow-clip w-full border-separate" style="border-spacing: 0" aria-label="四柱排盘">
+        <thead>
+          <tr>
+            <th v-for="(h, idx) in headers" :key="h.label"
+              scope="col"
               class="py-1.5 px-2 text-center border-b border-cinnabar/50 text-xs text-ink-medium tracking-widest font-sans"
               :class="[h.isDay ? 'bg-cinnabar/18' : 'bg-cinnabar/4', idx < 3 ? 'border-r-2 border-cinnabar/50' : '']"
             >
               {{ h.label }}
               <span v-if="h.isDay" class="text-cinnabar text-xs ml-1">日主</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Data rowgroup -->
-        <div role="rowgroup" class="contents">
-        <!-- Stem row -->
-        <div role="row" class="contents">
-          <div v-for="(p, idx) in pillars" :key="'stem-' + idx"
-            role="cell"
-            class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
-            :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
-            :style="{ color: wuxingColor(p.stemWuxing) }"
-          >
-            {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
-          </div>
-        </div>
-
-        <!-- Branch row -->
-        <div role="row" class="contents">
-          <div v-for="(p, idx) in pillars" :key="'branch-' + idx"
-            role="cell"
-            class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
-            :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
-            :style="{ color: wuxingColor(p.branchWuxing) }"
-          >
-            {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
-          </div>
-        </div>
-
-        <!-- Ten God row -->
-        <div role="row" class="contents">
-          <div v-for="(p, idx) in pillars" :key="'tg-' + idx"
-            role="cell"
-            class="py-1.5 px-2 text-center border-b border-cinnabar/30"
-            :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
-          >
-            <span class="inline-block px-2 py-0.5 rounded-full text-[0.6875rem] leading-tight font-sans"
-              :class="tenGodBadgeClass(p.stemTenGod)">
-              {{ p.stemTenGod }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Hidden Stems row -->
-        <div role="row" class="contents">
-          <div v-for="(p, idx) in pillars" :key="'hs-' + idx"
-            role="cell"
-            class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-cinnabar/30"
-            :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
-          >
-            <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
-              class="inline-block mr-1 last:mr-0"
-              :style="{ color: wuxingColor(hs.wuxing) }">
-              {{ hs.stem }}
-            </span>
-          </div>
-        </div>
-
-        <!-- NaYin row -->
-        <div role="row" class="contents">
-          <div v-for="(p, idx) in pillars" :key="'ny-' + idx"
-            role="cell"
-            class="py-1.5 px-2 text-center text-[0.6875rem] text-ink-muted font-sans border-b border-cinnabar/30"
-            :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
-          >
-            {{ getNaYin(p.stem, p.branch) }}
-          </div>
-        </div>
-        </div>
-      </div>
-
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Stem row -->
+          <tr>
+            <td v-for="(p, idx) in pillars" :key="'stem-' + idx"
+              class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
+              :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
+              :style="{ color: wuxingColor(p.stemWuxing) }"
+            >
+              {{ p.stem }}<span class="sr-only">({{ p.stemWuxing }})</span>
+            </td>
+          </tr>
+          <!-- Branch row -->
+          <tr>
+            <td v-for="(p, idx) in pillars" :key="'branch-' + idx"
+              class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
+              :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
+              :style="{ color: wuxingColor(p.branchWuxing) }"
+            >
+              {{ p.branch }}<span class="sr-only">({{ p.branchWuxing }})</span>
+            </td>
+          </tr>
+          <!-- Ten God row -->
+          <tr>
+            <td v-for="(p, idx) in pillars" :key="'tg-' + idx"
+              class="py-1.5 px-2 text-center border-b border-cinnabar/30"
+              :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
+            >
+              <span class="inline-block px-2 py-0.5 rounded-full text-[0.6875rem] leading-tight font-sans"
+                :class="tenGodBadgeClass(p.stemTenGod)">
+                {{ p.stemTenGod }}
+              </span>
+            </td>
+          </tr>
+          <!-- Hidden Stems row -->
+          <tr>
+            <td v-for="(p, idx) in pillars" :key="'hs-' + idx"
+              class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-cinnabar/30"
+              :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
+            >
+              <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
+                class="inline-block mr-1 last:mr-0"
+                :style="{ color: wuxingColor(hs.wuxing) }">
+                {{ hs.stem }}
+              </span>
+            </td>
+          </tr>
+          <!-- NaYin row -->
+          <tr>
+            <td v-for="(p, idx) in pillars" :key="'ny-' + idx"
+              class="py-1.5 px-2 text-center text-[0.6875rem] text-ink-muted font-sans border-b border-cinnabar/30"
+              :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
+            >
+              {{ getNaYin(p.stem, p.branch) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Mobile: horizontal scroll cards -->
@@ -102,8 +86,8 @@
       <div class="overflow-x-auto -mx-4 px-4 pb-3 scrollbar-hide">
         <div class="inline-flex gap-2">
           <div v-for="(p, idx) in pillars" :key="'card-' + idx"
-            class="inline-flex flex-col w-[72px] rounded-lg overflow-hidden flex-shrink-0"
-            :class="idx === 2 ? 'border-2 border-cinnabar' : 'border border-paper-dark'"
+            class="inline-flex flex-col w-[88px] rounded-lg overflow-hidden flex-shrink-0"
+            :class="idx === 2 ? 'border-2 border-cinnabar bg-cinnabar/15' : 'border border-paper-dark'"
           >
             <!-- Mobile header -->
             <div class="py-1 text-center font-sans"
@@ -112,6 +96,7 @@
               <span class="text-[0.6875rem] text-ink-medium tracking-wider">
                 {{ ['年', '月', '日', '时'][idx] }}柱
               </span>
+              <span v-if="idx === 2" class="text-xs leading-none text-cinnabar">日主</span>
             </div>
             <!-- Stem -->
             <div class="py-1 text-center text-xl font-sans font-medium"

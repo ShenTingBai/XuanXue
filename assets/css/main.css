@@ -304,10 +304,10 @@ html {
   .fortune-bar__fill {
     @apply absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out;
   }
-  .fortune-bar__fill--great  { background: #3D6B4B; }
-  .fortune-bar__fill--good   { background: #7A5E12; }
-  .fortune-bar__fill--normal { background: #6B5B4F; }
-  .fortune-bar__fill--low    { background: #C62828; }
+  .fortune-bar__fill--great  { @apply bg-jade; }
+  .fortune-bar__fill--good   { @apply bg-gold; }
+  .fortune-bar__fill--normal { @apply bg-ink-medium; }
+  .fortune-bar__fill--low    { @apply bg-cinnabar; }
 
   /* ===== Yi/Ji Panel ===== */
   .yiyi-card {
@@ -440,17 +440,19 @@ a:focus-visible {
 /* ===== Expand/Collapse Transition ===== */
 .expand-enter-active,
 .expand-leave-active {
-  transition: opacity 0.3s ease, max-height 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   overflow: hidden;
+  transform-origin: top;
 }
 .expand-enter-from,
 .expand-leave-to {
   opacity: 0;
-  max-height: 0;
+  transform: scaleY(0);
 }
 .expand-enter-to,
 .expand-leave-from {
-  max-height: 600px;
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 /* ===== Reduced Motion ===== */
@@ -459,6 +461,7 @@ a:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
   .tool-card:hover:not(.tool-card--locked) {
     transform: none;
