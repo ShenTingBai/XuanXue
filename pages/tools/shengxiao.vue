@@ -90,7 +90,6 @@ function scrollToAnimalNav() {
               v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
               :key="idx"
               @click="selectAnimal(idx)"
-              @keydown.enter="selectAnimal(idx)"
               @keydown.space.prevent="selectAnimal(idx)"
               :aria-current="idx === selectedAnimal ? 'true' : undefined"
               :class="[
@@ -169,7 +168,6 @@ function scrollToAnimalNav() {
           <div class="flex flex-wrap gap-3 justify-center mt-8">
             <button
               @click="computeResult"
-              @keydown.enter="computeResult"
               @keydown.space.prevent="computeResult"
               class="btn-seal"
             >
@@ -177,7 +175,6 @@ function scrollToAnimalNav() {
             </button>
             <button
               @click="scrollToAnimalNav"
-              @keydown.enter="scrollToAnimalNav"
               @keydown.space.prevent="scrollToAnimalNav"
               class="btn-seal"
             >

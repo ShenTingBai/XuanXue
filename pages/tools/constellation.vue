@@ -92,7 +92,6 @@ function compatibilityBorderClass(level: string): string {
             v-for="(name, idx) in ZODIACS.map(z => z.name.slice(0, 2))"
             :key="idx"
             @click="selectZodiac(idx)"
-            @keydown.enter="selectZodiac(idx)"
             @keydown.space.prevent="selectZodiac(idx)"
             :aria-current="idx === selectedZodiac ? 'true' : undefined"
             :class="[
@@ -173,7 +172,6 @@ function compatibilityBorderClass(level: string): string {
           <div class="flex flex-wrap gap-3 justify-center mt-8">
             <button
               @click="computeResult"
-              @keydown.enter="computeResult"
               @keydown.space.prevent="computeResult"
               class="btn-seal"
             >
