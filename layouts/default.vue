@@ -2,6 +2,23 @@
 const { currentProfile, restoreSession, logout } = useAuth()
 const router = useRouter()
 const showDropdown = ref(false)
+const route = useRoute()
+
+interface NavTool {
+  id: string
+  name: string
+  emoji: string
+  route: string
+  available: boolean
+}
+
+const navTools: NavTool[] = [
+  { id: 'shengxiao', name: '生肖', emoji: '🐯', route: '/tools/shengxiao', available: true },
+  { id: 'constellation', name: '星座', emoji: '♈', route: '/tools/constellation', available: true },
+  { id: 'bazi', name: '八字', emoji: '☯', route: '/tools/bazi', available: false },
+  { id: 'yijing', name: '六爻', emoji: '📜', route: '/tools/yijing', available: false },
+  { id: 'ziwei', name: '紫微斗数', emoji: '⭐', route: '/tools/ziwei', available: false },
+]
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownInnerRef = ref<HTMLElement | null>(null)
 const toggleRef = ref<HTMLElement | null>(null)
@@ -68,13 +85,33 @@ const closeDropdown = (e: FocusEvent) => {
         <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-14 sm:h-16">
             <!-- Logo -->
-            <NuxtLink to="/" class="flex items-center gap-2 no-underline">
+            <NuxtLink to="/" class="flex items-center gap-2 no-underline flex-shrink-0">
               <span class="font-display text-2xl sm:text-3xl text-ink-dark">玄学</span>
               <span class="seal-mark text-[10px] hidden sm:flex" aria-hidden="true">玄</span>
             </NuxtLink>
 
+            <!-- Tool Navigation (desktop) -->
+            <nav class="hidden md:flex items-center gap-0.5" aria-label="命理工具导航">
+              <NuxtLink
+                v-for="navItem in navTools"
+                :key="navItem.id"
+                :to="navItem.route"
+                :class="[
+                  'nav-link',
+                  { 'nav-link--active': route.path === navItem.route },
+                  { 'nav-link--locked': !navItem.available },
+                ]"
+                :tabindex="navItem.available ? 0 : -1"
+                :aria-disabled="!navItem.available"
+              >
+                <span class="text-base" aria-hidden="true">{{ navItem.emoji }}</span>
+                <span>{{ navItem.name }}</span>
+                <span v-if="!navItem.available" class="text-[0.625rem] text-ink-light ml-0.5">*</span>
+              </NuxtLink>
+            </nav>
+
             <!-- Profile Section -->
-            <div v-if="currentProfile" ref="dropdownRef" class="relative" @focusout="closeDropdown">
+            <div v-if="currentProfile" ref="dropdownRef" class="relative flex-shrink-0" @focusout="closeDropdown">
               <button
                 ref="toggleRef"
                 @click="showDropdown = !showDropdown"

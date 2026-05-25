@@ -13,8 +13,8 @@ interface Tool {
 }
 
 const tools: Tool[] = [
-  { id: 'shengxiao', name: '生肖', char: '兽', description: '生肖排盘 · 五行性格 · 生肖配对', route: '/tools/shengxiao', available: false },
-  { id: 'constellation', name: '星座', char: '辰', description: '十二星座 · 性格特征 · 今日运势', route: '/tools/constellation', available: false },
+  { id: 'shengxiao', name: '生肖', char: '兽', description: '生肖排盘 · 五行性格 · 生肖配对', route: '/tools/shengxiao', available: true },
+  { id: 'constellation', name: '星座', char: '辰', description: '十二星座 · 性格特征 · 今日运势', route: '/tools/constellation', available: true },
   { id: 'bazi', name: '八字', char: '命', description: '四柱排盘 · 十神定位 · 五行生克', route: '/tools/bazi', available: false },
   { id: 'yijing', name: '六爻', char: '卦', description: '数字起卦 · 卦象解读 · 吉凶判断', route: '/tools/yijing', available: false },
   { id: 'ziwei', name: '紫微斗数', char: '斗', description: '十二宫排盘 · 星曜分析 · 命盘解读', route: '/tools/ziwei', available: false },
