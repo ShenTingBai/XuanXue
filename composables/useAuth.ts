@@ -20,6 +20,7 @@ export const useAuth = () => {
   const SESSION_KEY = 'xuanxue:session'
 
   function getStoredSession(): StoredSession | null {
+    if (!import.meta.client) return null
     try {
       const raw = localStorage.getItem(SESSION_KEY)
       if (!raw) return null

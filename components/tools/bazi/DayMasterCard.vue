@@ -7,7 +7,7 @@
       "忌神"是容易与你有冲突的能量，生活中可有意平衡。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-5 sm:p-6">
+    <div class="card-paper-solid rounded-xl p-4 sm:p-5">
       <div class="flex items-center gap-4 mb-4">
         <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-cinnabar/5 border border-cinnabar/20 flex items-center justify-center">
           <span class="font-display text-2xl text-cinnabar">{{ dayMaster }}</span>
@@ -24,7 +24,7 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <h4 class="font-sans text-xs text-ink-light tracking-wider mb-2">喜用神</h4>
+          <h4 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">喜用神</h4>
           <div class="flex gap-2">
             <span v-for="el in favorableElements" :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-sans font-medium"
@@ -34,7 +34,7 @@
           </div>
         </div>
         <div>
-          <h4 class="font-sans text-xs text-ink-light tracking-wider mb-2">忌神</h4>
+          <h4 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">忌神</h4>
           <div class="flex gap-2">
             <span v-for="el in unfavorableElements" :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-sans font-medium"

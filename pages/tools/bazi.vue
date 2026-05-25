@@ -531,9 +531,9 @@ function getDaYunMeaning(tenGod: string): string {
               aria-label="结果区块导航"
             >
               <a
-                v-for="anchor in ['解读', '排盘', '神煞', '五行', '日主', '大运', '流年']"
+                v-for="anchor in ['解读', '排盘', '神煞', '日主', '五行', '大运', '流年']"
                 :key="anchor"
-                :href="`#${({ '解读': 'reading-guide', '排盘': 'bazi-grid', '神煞': 'shensha', '五行': 'elements', '日主': 'day-master', '大运': 'dayun', '流年': 'liunian' })[anchor]}`"
+                :href="`#${({ '解读': 'reading-guide', '排盘': 'bazi-grid', '神煞': 'shensha', '日主': 'day-master', '五行': 'elements', '大运': 'dayun', '流年': 'liunian' })[anchor]}`"
                 class="px-3 py-1 text-xs rounded-full font-sans border border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30 transition-colors no-underline"
               >{{ anchor }}</a>
             </nav>
@@ -670,6 +670,17 @@ function getDaYunMeaning(tenGod: string): string {
             <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
             </div>
 
+            <!-- Day Master Card -->
+            <div id="day-master" class="scroll-mt-20">
+            <DayMasterCard
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :favorable-elements="result.favorableElements"
+              :unfavorable-elements="result.unfavorableElements"
+            />
+            </div>
+
             <!-- Element Analysis -->
             <div id="elements" class="scroll-mt-20">
             <ElementAnalysis
@@ -679,17 +690,6 @@ function getDaYunMeaning(tenGod: string): string {
               :day-master-wuxing="result.dayMasterWuxing"
               :day-master-strength="result.dayMasterStrength"
               :month-branch="result.monthPillar.branch"
-            />
-            </div>
-
-            <!-- Day Master Card -->
-            <div id="day-master" class="scroll-mt-20">
-            <DayMasterCard
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :favorable-elements="result.favorableElements"
-              :unfavorable-elements="result.unfavorableElements"
             />
             </div>
 

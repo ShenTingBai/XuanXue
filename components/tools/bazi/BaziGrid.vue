@@ -16,11 +16,10 @@
         <div role="rowgroup" class="contents">
           <!-- Header row -->
           <div role="row" class="contents">
-            <div v-for="h in headers" :key="h.label"
+            <div v-for="(h, idx) in headers" :key="h.label"
               role="columnheader"
               class="py-1.5 px-2 text-center border-b border-cinnabar/50 text-xs text-ink-medium tracking-widest font-sans"
-              :class="h.isDay ? 'bg-cinnabar/18' : 'bg-cinnabar/4'"
-              :style="h.isDay ? { 'border-right': '2px solid rgba(198,40,40,0.50)' } : {}"
+              :class="[h.isDay ? 'bg-cinnabar/18' : 'bg-cinnabar/4', idx < 3 ? 'border-r-2 border-cinnabar/50' : '']"
             >
               {{ h.label }}
               <span v-if="h.isDay" class="text-cinnabar text-xs ml-1">日主</span>
@@ -104,7 +103,7 @@
         <div class="inline-flex gap-2">
           <div v-for="(p, idx) in pillars" :key="'card-' + idx"
             class="inline-flex flex-col w-[72px] rounded-lg overflow-hidden flex-shrink-0"
-            :class="idx === 2 ? 'border-2 border-cinnabar' : 'border border-cinnabar/20'"
+            :class="idx === 2 ? 'border-2 border-cinnabar' : 'border border-paper-dark'"
           >
             <!-- Mobile header -->
             <div class="py-1 text-center font-sans"
@@ -138,6 +137,10 @@
                 {{ hs.stem }}
               </span>
             </div>
+            <!-- NaYin -->
+            <div class="px-1 pb-1 text-center text-[0.6875rem] text-ink-muted font-sans">
+              {{ getNaYin(p.stem, p.branch) }}
+            </div>
           </div>
         </div>
       </div>
@@ -150,6 +153,14 @@
       <div>十神 — 六亲关系与人际互动模式</div>
       <div>藏干 — 地支中暗藏的天干能量</div>
       <div>纳音 — 五行音律，命格气质类型</div>
+      <!-- Ten god color legend -->
+      <div class="col-span-2 sm:col-span-3 grid grid-cols-5 gap-x-2 gap-y-0.5 text-xs mt-1 pt-1.5 border-t border-paper-dark/30">
+        <span class="text-wuxing-wood">印—学识</span>
+        <span class="text-cinnabar">官—事业</span>
+        <span class="text-gold">财—财富</span>
+        <span class="text-wuxing-water">食伤—才华</span>
+        <span class="text-wuxing-earth">比劫—人际</span>
+      </div>
     </div>
   </div>
   </div>

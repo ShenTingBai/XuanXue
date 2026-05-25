@@ -3,10 +3,10 @@
     <div class="flex items-center gap-3 flex-wrap">
       <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
       <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-faint">
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>70+ 顺遂
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(60) }" aria-hidden="true"></span>50-69 平稳
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(40) }" aria-hidden="true"></span>30-49 需注意
-        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(20) }" aria-hidden="true"></span>&lt;30 挑战
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>75+ 顺遂
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(65) }" aria-hidden="true"></span>60-74 平稳
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(50) }" aria-hidden="true"></span>45-59 需注意
+        <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(30) }" aria-hidden="true"></span>&lt;45 挑战
       </span>
     </div>
 
@@ -68,7 +68,7 @@
 
             <!-- Earth relations -->
             <div>
-              <h5 class="font-sans text-xs font-medium text-ink-dark mb-1.5">四柱地支关系</h5>
+              <h5 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">四柱地支关系</h5>
               <div v-if="year.earthRelations.length > 0" class="space-y-1.5">
                 <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
                   class="flex items-center gap-2 text-sm font-sans"
@@ -87,7 +87,7 @@
 
             <!-- Monthly stems grid -->
             <div>
-              <h5 class="font-sans text-xs font-medium text-ink-dark mb-2">流月干支</h5>
+              <h5 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">流月干支</h5>
               <div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" role="grid">
                 <div v-for="ms in year.detail.monthlyStems" :key="ms.month"
                   class="text-center rounded py-1 px-1 bg-paper-lightest/80 border border-paper-dark/30"
@@ -101,7 +101,7 @@
 
             <!-- Year-specific shensha tags -->
             <div v-if="year.shenSha.length > 0">
-              <h5 class="font-sans text-xs font-medium text-ink-dark mb-1.5">流年神煞</h5>
+              <h5 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">流年神煞</h5>
               <div class="flex flex-wrap gap-1.5">
                 <span v-for="ss in year.shenSha" :key="ss.name"
                   class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default"
@@ -113,7 +113,7 @@
 
             <!-- Pillars interaction -->
             <div>
-              <h5 class="font-sans text-xs font-medium text-ink-dark mb-1.5">各柱影响</h5>
+              <h5 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">各柱影响</h5>
               <ul class="space-y-0.5">
                 <li v-for="(interaction, i) in year.detail.pillarsInteraction" :key="i"
                   class="font-sans text-sm text-ink-medium"
@@ -213,9 +213,9 @@ function monthLabel(month: number): string {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 70) return WUXING_COLORS['木']
-  if (score >= 50) return WUXING_COLORS['土']
-  if (score >= 30) return WUXING_COLORS['金']
+  if (score >= 75) return WUXING_COLORS['木']
+  if (score >= 60) return WUXING_COLORS['土']
+  if (score >= 45) return WUXING_FALLBACK_COLOR
   return WUXING_COLORS['火']
 }
 

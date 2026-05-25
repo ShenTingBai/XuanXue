@@ -8,7 +8,7 @@
 
     <div class="card-paper-solid rounded-xl p-4 sm:p-5 space-y-4">
       <!-- Empty state: no shenshas at all -->
-      <p v-if="auspicious.length === 0 && neutral.length === 0 && inauspicious.length === 0"
+      <p v-if="groupedShenSha.auspicious.length === 0 && groupedShenSha.neutral.length === 0 && groupedShenSha.inauspicious.length === 0"
         class="font-sans text-sm text-ink-muted">
         该命局无特殊神煞标记
       </p>
@@ -87,14 +87,21 @@ const props = defineProps<{
   shenSha: ShenSha[]
 }>()
 
-const auspicious = computed(() => props.shenSha.filter(s => s.category === '吉'))
-const neutral = computed(() => props.shenSha.filter(s => s.category === '中性'))
-const inauspicious = computed(() => props.shenSha.filter(s => s.category === '凶'))
+type ShenShaGroup = { auspicious: ShenSha[], neutral: ShenSha[], inauspicious: ShenSha[] }
+const groupedShenSha = computed<ShenShaGroup>(() => {
+  const groups: ShenShaGroup = { auspicious: [], neutral: [], inauspicious: [] }
+  for (const s of props.shenSha) {
+    if (s.category === '吉') groups.auspicious.push(s)
+    else if (s.category === '中性') groups.neutral.push(s)
+    else groups.inauspicious.push(s)
+  }
+  return groups
+})
 
 const shenShaGroups = computed(() => [
-  { id: 'shensha-ji', label: '吉神', ariaLabel: '吉神清单', items: auspicious.value, category: '吉' as const },
-  { id: 'shensha-zhongxing', label: '中性', ariaLabel: '中性神煞清单', items: neutral.value, category: '中性' as const },
-  { id: 'shensha-xiong', label: '凶煞', ariaLabel: '凶煞清单', items: inauspicious.value, category: '凶' as const },
+  { id: 'shensha-ji', label: '吉神', ariaLabel: '吉神清单', items: groupedShenSha.value.auspicious, category: '吉' as const },
+  { id: 'shensha-zhongxing', label: '中性', ariaLabel: '中性神煞清单', items: groupedShenSha.value.neutral, category: '中性' as const },
+  { id: 'shensha-xiong', label: '凶煞', ariaLabel: '凶煞清单', items: groupedShenSha.value.inauspicious, category: '凶' as const },
 ])
 
 const expandedShen = ref('')

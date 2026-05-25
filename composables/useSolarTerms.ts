@@ -5,6 +5,8 @@
 
 import { STEMS, BRANCHES } from '~/constants/bazi'
 
+const solarTermCache = new Map<string, { month: number, day: number }>()
+
 /** Check if a year is a Gregorian leap year */
 function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
@@ -49,6 +51,10 @@ function jdToGregorian(jd: number): { month: number, day: number } {
  * @returns { month, day }
  */
 export function getSolarTerm(year: number, termIndex: number): { month: number, day: number } {
+  const cacheKey = `${year}-${termIndex}`
+  const cached = solarTermCache.get(cacheKey)
+  if (cached) return cached
+
   const LONGITUDES = [315, 345, 15, 45, 75, 105, 135, 165, 195, 225, 255, 285]
   const longitude = LONGITUDES[termIndex]
 
@@ -73,7 +79,9 @@ export function getSolarTerm(year: number, termIndex: number): { month: number, 
     if (Math.abs(corr) < 0.00001) break
   }
 
-  return jdToGregorian(jd)
+  const result = jdToGregorian(jd)
+  solarTermCache.set(cacheKey, result)
+  return result
 }
 
 /** Calculate day-of-year from month and day */
