@@ -529,7 +529,6 @@ function getDaYunMeaning(tenGod: string): string {
                 :key="anchor"
                 :href="`#${({ '解读': 'reading-guide', '排盘': 'bazi-grid', '神煞': 'shensha', '五行': 'elements', '日主': 'day-master', '大运': 'dayun', '流年': 'liunian' })[anchor]}`"
                 class="px-3 py-1 text-xs rounded-full font-sans border border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30 transition-colors no-underline"
-                style="scroll-behavior: smooth"
               >{{ anchor }}</a>
             </nav>
 
