@@ -23,6 +23,18 @@ describe('calculateBaZi', () => {
     expect(result.dayMasterWuxing).toBe('水')
   })
 
+  it('adjusts month pillar year stem for pre-立春 dates (2001-02-02 → 己丑 month, 庚辰 year)', () => {
+    // 2001 is 辛巳, but before 立春 so year=2000 (庚辰)
+    // Month pillar must use 2000's stem (庚) for 五虎遁 → 己丑, not 辛丑
+    const result = calculateBaZi({
+      ...baseProfile, birthYear: 2001, birthMonth: 2, birthDay: 2, birthHour: null,
+    })
+    expect(result.yearPillar.stem).toBe('庚')
+    expect(result.yearPillar.branch).toBe('辰')
+    expect(result.monthPillar.stem).toBe('己')
+    expect(result.monthPillar.branch).toBe('丑')
+  })
+
   it('handles 立春 boundary: Feb 3 1998 is still 丁丑 (previous year)', () => {
     const result = calculateBaZi({
       ...baseProfile, birthYear: 1998, birthMonth: 2, birthDay: 3,

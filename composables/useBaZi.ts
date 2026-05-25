@@ -347,7 +347,8 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   }
 
   // --- Month Pillar ---
-  const monthPillarResult = getMonthPillar(birthYear, birthMonth, birthDay, birthCalendar)
+  const monthPillarYear = (birthCalendar === 'solar' && isBeforeLiChun(birthMonth, birthDay)) ? birthYear - 1 : birthYear
+  const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, birthCalendar)
   const monthStemIndex = (STEMS as readonly string[]).indexOf(monthPillarResult.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)
 
