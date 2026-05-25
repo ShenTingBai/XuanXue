@@ -1,4 +1,4 @@
-import { getMonthPillar } from './useSolarTerms'
+import { getMonthPillar, getSolarTerm } from './useSolarTerms'
 
 // === Constants ===
 
@@ -138,7 +138,6 @@ const TEN_GOD_MATRIX: string[][] = (() => {
 function getTenGod(dayMasterIndex: number, targetStem: string): string {
   const targetIndex = (STEMS as readonly string[]).indexOf(targetStem)
   if (targetIndex < 0) return '—'
-  if (targetIndex === dayMasterIndex) return '日主'
   return TEN_GOD_MATRIX[dayMasterIndex][targetIndex]
 }
 
@@ -157,9 +156,10 @@ function getYearBranchIndex(year: number): number {
   return ((year - 4) % 12 + 12) % 12
 }
 
-/** Check if a date is before 立春 (approximately Feb 4) */
-function isBeforeLiChun(month: number, day: number): boolean {
-  return month < 2 || (month === 2 && day < 4)
+/** Check if a date is before 立春 using the computed solar term date for the given year */
+function isBeforeLiChun(year: number, month: number, day: number): boolean {
+  const liChun = getSolarTerm(year, 0)
+  return month < liChun.month || (month === liChun.month && day < liChun.day)
 }
 
 /** Build a pillar object */
@@ -171,7 +171,7 @@ function buildPillar(
   const stem = STEMS[stemIndex]
   const branch = BRANCHES[branchIndex]
   const hiddenStemChars = HIDDEN_STEMS[branch] || []
-  const stemTenGod = stemIndex === dayMasterIndex ? '日主' : getTenGod(dayMasterIndex, stem)
+  const stemTenGod = getTenGod(dayMasterIndex, stem)
 
   return {
     stem,
@@ -341,13 +341,13 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   let yearBranchIndex = getYearBranchIndex(birthYear)
 
   // 立春 boundary for solar calendar
-  if (birthCalendar === 'solar' && isBeforeLiChun(birthMonth, birthDay)) {
+  if (birthCalendar === 'solar' && isBeforeLiChun(birthYear, birthMonth, birthDay)) {
     yearStemIndex = getYearStemIndex(birthYear - 1)
     yearBranchIndex = getYearBranchIndex(birthYear - 1)
   }
 
   // --- Month Pillar ---
-  const monthPillarYear = (birthCalendar === 'solar' && isBeforeLiChun(birthMonth, birthDay)) ? birthYear - 1 : birthYear
+  const monthPillarYear = (birthCalendar === 'solar' && isBeforeLiChun(birthYear, birthMonth, birthDay)) ? birthYear - 1 : birthYear
   const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, birthCalendar)
   const monthStemIndex = (STEMS as readonly string[]).indexOf(monthPillarResult.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)
@@ -368,6 +368,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   const yearPillar = buildPillar(yearStemIndex, yearBranchIndex, dayStemIndex)
   const monthPillar = buildPillar(monthStemIndex, monthBranchIndex, dayStemIndex)
   const dayPillar = buildPillar(dayStemIndex, dayBranchIndex, dayStemIndex)
+  dayPillar.stemTenGod = '日主'
 
   const pillars = [yearPillar, monthPillar, dayPillar, hourPillar].filter(Boolean) as BaZiPillar[]
 
