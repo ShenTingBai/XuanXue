@@ -42,7 +42,7 @@ interface ZodiacEntry {
   personality: string
 }
 
-const ZODIACS: ZodiacEntry[] = [
+export const ZODIACS: ZodiacEntry[] = [
   {
     name: '白羊座',
     symbol: '♈',
@@ -197,7 +197,7 @@ const JI_POOLS: Record<string, string[]> = {
  * Determine which zodiac constellation a given birth month/day falls into.
  * Returns the index into the ZODIACS array.
  */
-function getZodiacIndex(month: number, day: number): number {
+export function getZodiacIndex(month: number, day: number): number {
   for (let i = 0; i < ZODIACS.length; i++) {
     const z = ZODIACS[i]
     if (isDateInRange(month, day, z.startMonth, z.startDay, z.endMonth, z.endDay)) {

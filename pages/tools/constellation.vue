@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { calculateConstellation, type ConstellationResult } from '~/composables/useConstellation'
+import { calculateConstellation, getZodiacIndex, ZODIACS, type ConstellationResult } from '~/composables/useConstellation'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -46,13 +46,12 @@ function computeResult() {
   if (!currentProfile.value?.birth_date) return
   loading.value = true
 
-  const birthDate = new Date(currentProfile.value.birth_date)
-  const month = birthDate.getMonth() + 1
-  const day = birthDate.getDate()
+  const [, month, day] = currentProfile.value.birth_date.split('-').map(Number)
 
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
   loadingTimer.value = setTimeout(() => {
     result.value = calculateConstellation(month, day, new Date())
+    selectedZodiac.value = getZodiacIndex(month, day)
     loading.value = false
   }, 200)
 }
@@ -61,25 +60,13 @@ function selectZodiac(index: number) {
   selectedZodiac.value = index
   loading.value = true
 
-  const zodiacDates: { month: number; day: number }[] = [
-    { month: 4, day: 1 },   // 白羊
-    { month: 5, day: 1 },   // 金牛
-    { month: 6, day: 1 },   // 双子
-    { month: 7, day: 1 },   // 巨蟹
-    { month: 8, day: 1 },   // 狮子
-    { month: 9, day: 1 },   // 处女
-    { month: 10, day: 1 },  // 天秤
-    { month: 11, day: 1 },  // 天蝎
-    { month: 12, day: 1 },  // 射手
-    { month: 1, day: 1 },   // 摩羯
-    { month: 2, day: 1 },   // 水瓶
-    { month: 3, day: 1 },   // 双鱼
-  ]
-
-  const d = zodiacDates[index]
   if (loadingTimer.value) clearTimeout(loadingTimer.value)
   loadingTimer.value = setTimeout(() => {
-    result.value = calculateConstellation(d.month, d.day, new Date())
+    result.value = calculateConstellation(
+      ZODIACS[index].startMonth,
+      ZODIACS[index].startDay,
+      new Date()
+    )
     loading.value = false
   }, 200)
 }
@@ -90,7 +77,7 @@ function compatibilityBadgeClass(level: string): string {
   return level === 'great'
     ? 'bg-wuxing-wood/10 text-wuxing-wood'
     : level === 'good'
-      ? 'bg-[rgba(184,134,11,0.1)] text-gold'
+      ? 'bg-compat-good/10 text-gold'
       : 'bg-cinnabar/5 text-cinnabar/80'
 }
 
@@ -118,6 +105,7 @@ function compatibilityBorderClass(level: string): string {
             v-for="(name, idx) in ['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼']"
             :key="idx"
             @click="selectZodiac(idx)"
+            :aria-current="idx === selectedZodiac ? 'true' : undefined"
             :class="[
               'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
               idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
