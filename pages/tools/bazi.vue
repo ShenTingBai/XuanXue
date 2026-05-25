@@ -174,11 +174,10 @@ const animalName = computed(() => {
               </div>
             </div>
 
-            <!-- Overview intro card -->
-            <div class="mb-6 p-4 sm:p-5 rounded-lg bg-paper-lightest/70 border border-paper-dark/40">
-              <p class="font-sans text-sm text-ink-medium leading-relaxed">
-                八字由你的出生时间推算而来，包含年、月、日、时四个时间柱，
-                每柱一干一支，共八个字。红色标注的"日主"代表你自己。
+            <!-- Brief intro -->
+            <div class="mb-6 p-3 rounded-lg bg-paper-lightest/50 border border-paper-dark/30 text-center">
+              <p class="font-sans text-xs text-ink-light">
+                以下是你的八字排盘结果，底部有解读总结
               </p>
             </div>
 
@@ -206,6 +205,38 @@ const animalName = computed(() => {
 
             <!-- Da Yun Timeline -->
             <DaYunTimeline :cycles="result.daYun" />
+
+            <!-- Reading Guide -->
+            <div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-cinnabar/3 to-paper-lightest border border-cinnabar/15">
+              <h3 class="font-display text-xl text-cinnabar mb-4 flex items-center gap-2">
+                <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
+                你的八字解读
+              </h3>
+
+              <div class="space-y-3 font-sans text-sm text-ink-medium leading-relaxed">
+                <p>
+                  <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
+                  日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
+                  命局整体力量<strong class="text-ink-dark">{{ result.dayMasterStrength }}</strong>。
+                </p>
+
+                <p>
+                  五行之中，对你最有帮助的能量是
+                  <strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
+                  生活中可多接触这些元素相关的事物。
+                </p>
+
+                <p v-if="result.unfavorableElements.length > 0">
+                  而<strong class="text-ink-dark">{{ result.unfavorableElements.join('、') }}</strong>与你相克，
+                  适当平衡即可，不必刻意回避。
+                </p>
+
+                <p v-if="result.daYun.length > 0">
+                  你目前处于大运周期中，
+                  人生每十年换一次运，具体走势可参考上方「大运」时间线。
+                </p>
+              </div>
+            </div>
 
             <!-- Hour missing notice -->
             <div v-if="missingHour" class="mt-4 p-4 rounded-lg bg-ink-faint/10 border border-ink-faint/30 text-center">
