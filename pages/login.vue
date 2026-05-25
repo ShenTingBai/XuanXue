@@ -67,7 +67,7 @@ const submit = async () => {
   <div class="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
       <!-- Card -->
-      <div class="card-paper-solid rounded-2xl p-8 sm:p-10">
+      <div class="card-paper-solid rounded-xl p-8 sm:p-10">
         <!-- Logo Area -->
         <div class="text-center mb-8">
           <h1 class="sr-only">玄学 - 登录</h1>

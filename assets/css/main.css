@@ -93,6 +93,17 @@ html {
     box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
   }
 
+  .card-paper-solid--interactive {
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .card-paper-solid--interactive:hover {
+    border-color: #D4C5B0;
+  }
+  .card-paper-solid--interactive:active {
+    border-color: #C0B098;
+  }
+
   /* ===== Seal Stamp Button ===== */
   .btn-seal {
     @apply relative inline-flex items-center justify-center overflow-hidden;
@@ -180,6 +191,10 @@ html {
   }
   .input-ink--readonly:focus {
     border-bottom-color: #D4C5B0;
+    outline: none;
+  }
+  .input-ink--readonly:focus-visible {
+    outline: none;
   }
   .input-ink:disabled {
     opacity: 0.5;
