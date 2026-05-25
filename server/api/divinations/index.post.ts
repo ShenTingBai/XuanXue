@@ -40,13 +40,13 @@ export default defineEventHandler(async (event) => {
   try {
     inputDataStr = typeof input_data === 'string' ? input_data : JSON.stringify(input_data)
   } catch {
-    inputDataStr = ''
+    throw createError({ statusCode: 400, statusMessage: '输入数据格式无效' })
   }
   let resultDataStr: string
   try {
     resultDataStr = typeof result_data === 'string' ? result_data : JSON.stringify(result_data)
   } catch {
-    resultDataStr = ''
+    throw createError({ statusCode: 400, statusMessage: '结果数据格式无效' })
   }
 
   // Size limits: prevent oversized payloads from exhausting memory or bloating the database
