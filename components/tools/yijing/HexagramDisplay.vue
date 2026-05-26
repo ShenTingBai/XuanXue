@@ -4,36 +4,25 @@
   </div>
 
   <div v-else class="hexagram-container fade-in" :style="{ '--delay': '0.15s' }">
-    <!-- Hexagram label -->
-    <div v-if="label" class="mb-3">
-      <span class="font-sans text-xs tracking-widest text-ink-medium uppercase">{{ label }}</span>
+    <!-- Label + name header -->
+    <div class="text-center mb-5">
+      <span v-if="label" class="font-sans text-[0.625rem] tracking-[0.2em] text-ink-light uppercase">{{ label }}</span>
+      <h3 class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight mt-1">
+        {{ hexagram.name }}
+      </h3>
+      <!-- Decorative accent -->
+      <div class="flex items-center justify-center gap-2 mt-2" aria-hidden="true">
+        <span class="block w-8 h-px bg-paper-dark"></span>
+        <span class="block w-1.5 h-1.5 rounded-full bg-cinnabar/60"></span>
+        <span class="block w-8 h-px bg-paper-dark"></span>
+      </div>
     </div>
 
-    <!-- Hexagram overview: trigrams, changing lines -->
-    <div class="flex flex-wrap items-start gap-x-6 gap-y-1 mb-4">
-      <!-- Upper trigram -->
-      <span class="inline-flex items-center gap-1.5 font-sans text-xs text-ink-light">
-        <span class="text-ink-medium">上卦</span>
-        <span class="font-medium text-ink">{{ upperTrigramName }}</span>
-        <span v-if="upperWuxing" class="text-[0.625rem]">({{ upperWuxing }})</span>
-      </span>
-      <!-- Lower trigram -->
-      <span class="inline-flex items-center gap-1.5 font-sans text-xs text-ink-light">
-        <span class="text-ink-medium">下卦</span>
-        <span class="font-medium text-ink">{{ lowerTrigramName }}</span>
-        <span v-if="lowerWuxing" class="text-[0.625rem]">({{ lowerWuxing }})</span>
-      </span>
-      <!-- Changing lines -->
-      <span v-if="changingCount > 0" class="inline-flex items-center gap-1.5 font-sans text-xs text-ink-light">
-        <span class="text-ink-medium">动爻</span>
-        <span class="font-medium text-cinnabar">{{ changingDisplay }}</span>
-      </span>
-    </div>
-
-    <div class="flex items-start gap-5 sm:gap-6">
-      <!-- Yao lines -->
+    <!-- Main body: yao lines + judgment -->
+    <div class="flex gap-5 sm:gap-8">
+      <!-- Yao lines column -->
       <div class="flex-shrink-0">
-        <div class="card-paper-solid rounded-xl px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="group" :aria-label="`${hexagram.name}卦象`">
+        <div class="bg-paper-medium/40 rounded-lg px-3 sm:px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="group" :aria-label="`${hexagram.name}卦象`">
           <div
             v-for="(yao, idx) in hexagram.lines"
             :key="idx"
@@ -47,19 +36,18 @@
             }"
             :aria-label="getYaoLabel(yao, idx, hexagram)"
           >
-            <!-- Yang line -->
+            <!-- Yao bar(s) -->
             <template v-if="yao.isYang">
               <span class="yao-bar yao-bar--solid"></span>
             </template>
-            <!-- Yin line -->
             <template v-else>
               <span class="yao-bar yao-bar--left"></span>
               <span class="yao-gap"></span>
               <span class="yao-bar yao-bar--right"></span>
             </template>
 
-            <!-- Position marker -->
-            <span class="yao-label" :class="{ 'yao-label--shi': hexagram.shiPosition === (idx + 1), 'yao-label--ying': hexagram.yingPosition === (idx + 1) }" aria-hidden="true">
+            <!-- Position + shi/ying label (always visible) -->
+            <span class="yao-label" aria-hidden="true">
               <template v-if="hexagram.shiPosition === (idx + 1)">世</template>
               <template v-else-if="hexagram.yingPosition === (idx + 1)">应</template>
               <template v-else>{{ ['初', '二', '三', '四', '五', '上'][idx] }}</template>
@@ -68,14 +56,36 @@
         </div>
       </div>
 
-      <!-- Name and judgment -->
-      <div class="min-w-0 pt-1">
-        <h3 class="font-display text-xl sm:text-2xl text-ink-dark leading-tight mb-1">
-          {{ hexagram.name }}
-        </h3>
-        <p v-if="hexagram.judgment" class="font-sans text-sm text-ink-light leading-relaxed">
-          {{ hexagram.judgment }}
-        </p>
+      <!-- Judgment + metadata column -->
+      <div class="min-w-0 flex-1 flex flex-col justify-between">
+        <!-- Hexagram judgment -->
+        <div>
+          <p v-if="hexagram.judgment" class="font-sans text-sm sm:text-base text-ink leading-relaxed !border-l-[3px] !border-cinnabar/50 pl-4">
+            {{ hexagram.judgment }}
+          </p>
+        </div>
+
+        <!-- Metadata footer -->
+        <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3">
+          <span class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
+            <span>上</span>
+            <span class="font-medium text-ink-medium">{{ upperTrigramName }}</span>
+            <span v-if="upperWuxing">({{ upperWuxing }})</span>
+          </span>
+          <span class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
+            <span>下</span>
+            <span class="font-medium text-ink-medium">{{ lowerTrigramName }}</span>
+            <span v-if="lowerWuxing">({{ lowerWuxing }})</span>
+          </span>
+          <span class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
+            <span>属</span>
+            <span class="font-medium text-ink-medium">{{ palaceDisplay }}</span>
+          </span>
+          <span v-if="changingCount > 0" class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
+            <span>动</span>
+            <span class="font-medium text-cinnabar">{{ changingDisplay }}</span>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -101,7 +111,6 @@ const props = defineProps<{
 
 function trigramIndex(lines: YaoResult[], start: number): number {
   const bits = [lines[start], lines[start + 1], lines[start + 2]]
-  // bit0 = bottom of trigram (lines[start])
   return (bits[2].isYang ? 4 : 0) | (bits[1].isYang ? 2 : 0) | (bits[0].isYang ? 1 : 0)
 }
 
@@ -112,6 +121,8 @@ const upperTrigramName = computed(() => upperIdx.value >= 0 ? TRIGRAM_NAMES[uppe
 const lowerTrigramName = computed(() => lowerIdx.value >= 0 ? TRIGRAM_NAMES[lowerIdx.value] : '')
 const upperWuxing = computed(() => upperIdx.value >= 0 ? TRIGRAM_WUXING[upperIdx.value] : '')
 const lowerWuxing = computed(() => lowerIdx.value >= 0 ? TRIGRAM_WUXING[lowerIdx.value] : '')
+
+const palaceDisplay = computed(() => '')
 
 const changingCount = computed(() => props.hexagram?.lines.filter(l => l.isChanging).length ?? 0)
 const changingDisplay = computed(() => {
@@ -137,7 +148,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   display: flex;
   align-items: center;
   gap: 0;
-  height: 12px;
+  height: 14px;
   position: relative;
 }
 
@@ -150,12 +161,12 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .yao-bar--solid {
-  width: 52px;
+  width: 56px;
 }
 
 .yao-bar--left,
 .yao-bar--right {
-  width: 22px;
+  width: 24px;
 }
 
 .yao-gap {
@@ -172,10 +183,9 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .yao-label {
-  position: absolute;
-  right: -1.75rem;
+  margin-left: 6px;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   @apply text-ink-light;
   line-height: 1;
   white-space: nowrap;
@@ -197,12 +207,15 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 @media (min-width: 640px) {
+  .yao-line {
+    height: 16px;
+  }
   .yao-bar--solid {
-    width: 64px;
+    width: 68px;
   }
   .yao-bar--left,
   .yao-bar--right {
-    width: 27px;
+    width: 29px;
   }
   .yao-gap {
     width: 10px;
