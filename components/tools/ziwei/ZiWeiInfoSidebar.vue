@@ -12,7 +12,7 @@
       </div>
       <div>
         <span class="block text-ink-dark/50 text-[10px]">性别</span>
-        <span>{{ astrolabe.gender }}</span>
+        <span>{{ genderLabel }}</span>
       </div>
       <div>
         <span class="block text-ink-dark/50 text-[10px]">命宫</span>
@@ -47,5 +47,9 @@ const solarDate = computed(() => {
     month: parts[1] || '',
     day: parts[2] || '',
   }
+})
+
+const genderLabel = computed(() => {
+  return props.astrolabe.gender === 'male' ? '男' : '女'
 })
 </script>

@@ -11,11 +11,9 @@ defineProps<{
 
 <template>
   <div
-    class="palace-cell h-full cursor-pointer select-none flex flex-col"
-    :class="[
-      isSelected ? 'ring-2 ring-cinnabar bg-cinnabar/5' : 'border border-paper-dark/30 hover:border-cinnabar/40 hover:bg-cinnabar/[0.02]',
-      isMingGong ? 'border-cinnabar/50' : '',
-    ]"
+    class="h-full cursor-pointer select-none flex flex-col overflow-hidden relative border"
+    :class="[isSelected ? 'z-[2] cell-selected' : 'hover:bg-paper-mid']"
+    :style="{ borderColor: isSelected ? '#C62828' : 'rgba(93,78,55,0.08)' }"
     @click="onClick"
     @keydown.enter="onClick"
     @keydown.space.prevent="onClick"
@@ -23,69 +21,73 @@ defineProps<{
     :tabindex="0"
     :aria-label="`${palace.name} - ${palace.earthlyBranch}宫`"
   >
+
     <!-- 顶栏：地支 + 宫名 -->
-    <div class="flex items-center justify-between px-1.5 py-0.5 border-b border-paper-dark/20">
-      <span class="text-xs font-semibold text-cinnabar-dark/70 font-serif">{{ palace.earthlyBranch }}</span>
+    <div class="flex items-baseline gap-1 px-1.5 py-0.5">
+      <span class="text-[0.6rem] text-ink-light font-serif">{{ palace.earthlyBranch }}</span>
       <span
-        class="text-[10px] px-1.5 py-0.5 rounded"
-        :class="isMingGong
-          ? 'bg-cinnabar text-paper font-medium'
-          : 'bg-ink-dark/5 text-ink-dark/70'"
+        class="font-display text-[0.8rem] leading-tight"
+        :class="isMingGong ? 'text-cinnabar' : 'text-ink-dark'"
       >{{ palace.name }}</span>
     </div>
 
-    <!-- 主星 -->
-    <div class="px-1.5 py-1 min-h-[28px]">
-      <div v-if="palace.majorStars.length > 0" class="flex flex-wrap gap-x-1">
-        <span
-          v-for="star in palace.majorStars"
-          :key="star.name"
-          class="text-[11px] font-medium text-ink-dark leading-tight"
-          :class="{
-            'text-amber-700': star.name === '紫微',
-            'text-emerald-700': star.name === '天机',
-            'text-orange-600': star.name === '太阳',
-            'text-slate-600': star.name === '武曲',
-            'text-rose-600': ['廉贞', '贪狼'].includes(star.name),
-            'text-indigo-600': star.name === '天府',
-            'text-blue-600': star.name === '太阴',
-            'text-stone-500': ['七杀', '破军'].includes(star.name),
-            'text-ink-light': star.brightness === '陷',
-          }"
-        >
-          {{ star.name }}<span v-if="star.brightness && star.brightness !== '平'" class="text-[9px] opacity-60">[{{ star.brightness }}]</span>
-        </span>
+    <!-- 主星 (single joined string) -->
+    <div class="mb-0.5">
+      <div v-if="palace.majorStars.length > 0" class="font-serif text-[0.72rem] text-cinnabar leading-snug tracking-[0.04em]">
+        {{ palace.majorStars.map(s => s.name).join('  ') }}
       </div>
-      <div v-else class="text-[10px] text-ink-light/50 italic">(空)</div>
+      <div v-else class="font-serif text-[0.6rem] text-ink-light/50 italic">空宫</div>
     </div>
 
     <!-- 辅星 -->
-    <div v-if="palace.minorStars.length > 0" class="px-1.5 pb-0.5 flex flex-wrap gap-x-1">
-      <span
-        v-for="star in palace.minorStars"
-        :key="star.name"
-        class="text-[9px] text-ink-light"
-      >{{ star.name }}</span>
+    <div v-if="palace.minorStars.length > 0" class="px-1.5 pb-0.5">
+      <span class="font-serif text-[0.6rem] cell-minor leading-tight tracking-[0.03em]">
+        {{ palace.minorStars.map(s => s.name).join('  ') }}
+      </span>
     </div>
 
-    <!-- 四化 chip -->
-    <div v-if="palace.majorStars.some(s => s.mutagen)" class="px-1.5 pb-0.5 flex flex-wrap gap-0.5">
+    <!-- 四化 chips -->
+    <div v-if="palace.majorStars.some(s => s.mutagen) || palace.minorStars.some(s => s.mutagen)" class="px-1.5 pb-0.5 flex flex-wrap gap-0.5">
       <span
-        v-for="star in palace.majorStars.filter(s => s.mutagen)"
-        :key="star.name"
-        class="text-[8px] px-1 rounded-sm font-medium"
+        v-for="star in [...palace.majorStars, ...palace.minorStars].filter(s => s.mutagen)"
+        :key="star.name + (star.mutagen || '')"
+        class="mutagen-chip"
         :class="{
-          'bg-red-50 text-red-700': star.mutagen === '禄',
-          'bg-blue-50 text-blue-700': star.mutagen === '权',
-          'bg-green-50 text-green-700': star.mutagen === '科',
-          'bg-gray-100 text-gray-500': star.mutagen === '忌',
+          'lu': star.mutagen === '禄',
+          'quan': star.mutagen === '权',
+          'ke': star.mutagen === '科',
+          'ji': star.mutagen === '忌',
         }"
-      >{{ star.name }}化{{ star.mutagen }}</span>
+      >化{{ star.mutagen }}</span>
     </div>
 
     <!-- 大限 -->
     <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="px-1.5 pb-0.5 mt-auto">
-      <span class="text-[8px] text-ink-light/60">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}</span>
+      <span class="text-[0.5rem] text-ink-light tracking-[0.03em]">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}</span>
     </div>
   </div>
 </template>
+
+<style scoped>
+.mutagen-chip {
+  font-size: 0.5rem;
+  padding: 0.04rem 0.3rem;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+  font-family: 'Noto Serif SC', serif;
+}
+
+.mutagen-chip.lu { background: rgba(198,40,40,0.12); color: #C62828; }
+.mutagen-chip.quan { background: rgba(74,140,111,0.12); color: #4A8C6F; }
+.mutagen-chip.ke { background: rgba(107,168,200,0.12); color: #6BA8C8; }
+.mutagen-chip.ji { background: rgba(93,78,55,0.1); color: #5D4E37; }
+
+.cell-minor {
+  color: #5D4E37;
+}
+
+.cell-selected {
+  outline: 1.5px solid #C62828;
+  outline-offset: -1px;
+}
+</style>
