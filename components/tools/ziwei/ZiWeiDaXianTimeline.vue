@@ -69,17 +69,17 @@ function focusNode(idx: number): void {
     <!-- Timeline track -->
     <div class="relative mb-1 mt-5">
       <!-- Background track -->
-      <div class="absolute inset-x-0 h-px top-1/2 -translate-y-1/2 bg-ink-faint/25 rounded-sm" />
+      <div class="absolute inset-x-0 h-px top-[7px] bg-ink-faint/25 rounded-sm" />
       <!-- Progress fill -->
       <div
-        class="absolute left-0 h-px top-1/2 -translate-y-1/2 rounded-sm transition-all duration-700 ease-out"
+        class="absolute left-0 h-px top-[7px] rounded-sm transition-all duration-700 ease-out"
         style="background: linear-gradient(90deg, rgba(198,40,40,0.15), rgba(198,40,40,0.4));"
         :style="{ width: fillPercent + '%' }"
       />
     </div>
 
     <!-- Timeline nodes -->
-    <div class="flex justify-between relative -mt-[7px]">
+    <div class="flex justify-between">
       <div
         v-for="(period, i) in periods"
         :key="i"
@@ -99,8 +99,9 @@ function focusNode(idx: number): void {
         <!-- Dot -->
         <div
           class="dot-element rounded-full transition-transform duration-200"
+          :style="{ marginTop: (isActive(period) ? 0 : isPast(period) ? 2 : 3) + 'px' }"
           :class="{
-            'w-3.5 h-3.5 bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110': isActive(period),
+            'w-3.5 h-3.5 bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110 ring-1 ring-white/80': isActive(period),
             'w-2.5 h-2.5 bg-ink-light/35': isPast(period),
             'w-2 h-2 bg-ink-faint/40': !isActive(period) && !isPast(period),
           }"

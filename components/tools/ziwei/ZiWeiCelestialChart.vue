@@ -144,15 +144,17 @@ function renderOrbitRings() {
   svg.innerHTML = ''
 
   // Orbit rings — perfect circles so stars travel exactly on them
-  RINGS.forEach(ring => {
+  RINGS.forEach((ring, idx) => {
     const el = document.createElementNS(SVG_NS, "circle")
     el.setAttribute("cx", String(CX))
     el.setAttribute("cy", String(CY))
     el.setAttribute("r", String(ring.r))
     el.setAttribute("fill", "none")
-    el.setAttribute("stroke", "#B8A898")
+    const isOuter = idx >= 3
+    const isInner = idx <= 1
+    el.setAttribute("stroke", isOuter ? "#A89888" : isInner ? "#C8B8A8" : "#B8A898")
     el.setAttribute("stroke-width", "0.8")
-    el.setAttribute("opacity", "0.35")
+    el.setAttribute("opacity", isOuter ? "0.40" : isInner ? "0.30" : "0.35")
     svg.appendChild(el)
   })
 
@@ -214,7 +216,7 @@ function renderSectorLabels() {
     const label = document.createElement('div')
     scope(label)
     label.className = 'sector-label' + (isMingGong ? ' ming-gong' : '')
-    label.textContent = palace.name + (isMingGong ? ' 命' : '')
+    label.textContent = palace.name
     label.style.left = x + 'px'
     label.style.top = y + 'px'
     label.dataset.index = String(i)
@@ -272,13 +274,19 @@ function createStarElements() {
     el.className = 'chart-star' + (star.major ? '' : ' minor')
     el.dataset.index = String(i)
 
+    // Label position: right of orb by default, left for right-half stars (60°-240°)
+    const normAngle = ((star.angleDeg % 360) + 360) % 360
+    if (normAngle >= 60 && normAngle <= 240) {
+      el.classList.add('label-left')
+    }
+
     // Orb element
     const orb = document.createElement('div')
     scope(orb)
     orb.className = 'star-orb cls-' + star.color
     el.appendChild(orb)
 
-    // Label below orb
+    // Label beside orb (absolutely positioned via CSS)
     const label = document.createElement('div')
     scope(label)
     label.className = 'star-label'
@@ -432,7 +440,7 @@ function animateCelestial(timestamp: number) {
         const sy = parseFloat(parentEl.style.top)
         if (!isNaN(sx)) {
           chip.style.left = (sx + 10) + 'px'
-          chip.style.top = (sy - 8) + 'px'
+          chip.style.top = (sy - 5) + 'px'
         }
       }
     }
@@ -568,7 +576,7 @@ watch(() => props.isVisible, (visible) => {
       >
         <span
           class="font-display text-[1.5rem] text-[#D4A84B]"
-          style="text-shadow: 0 0 8px rgba(212,168,75,0.3);"
+          style="text-shadow: 0 0 8px rgba(212,168,75,0.3), 0 0 8px rgba(198,40,40,0.3), 0 0 16px rgba(198,40,40,0.1);"
         >紫</span>
       </div>
       <div
@@ -589,9 +597,9 @@ watch(() => props.isVisible, (visible) => {
 .celestial-chart :deep(.sector-label) {
   position: absolute;
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: #5D4E37;
   opacity: 0.75;
   transition: opacity 0.3s, color 0.3s, text-shadow 0.3s;
@@ -626,9 +634,6 @@ watch(() => props.isVisible, (visible) => {
   position: absolute;
   pointer-events: auto;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   transform: translate(-50%, -50%);
   z-index: 3;
   transition: z-index 0.2s;
@@ -660,7 +665,10 @@ watch(() => props.isVisible, (visible) => {
 
 /* ── Star Labels ── */
 .celestial-chart :deep(.star-label) {
-  margin-top: 2px;
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 4px);
+  transform: translateY(-50%);
   color: #4A3828;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -670,6 +678,10 @@ watch(() => props.isVisible, (visible) => {
   font-family: 'Noto Sans SC', sans-serif;
   text-shadow: 0 1px 0 rgba(245,240,232,0.5);
 }
+.celestial-chart :deep(.chart-star.label-left .star-label) {
+  left: auto;
+  right: calc(100% + 4px);
+}
 .celestial-chart :deep(.chart-star:not(.minor) .star-label) {
   font-size: 0.78rem;
   font-weight: 600;
@@ -678,7 +690,7 @@ watch(() => props.isVisible, (visible) => {
   font-size: 0.65rem;
   font-weight: 400;
 }
-.celestial-chart :deep(.chart-star:hover .star-label) { opacity: 0.95; }
+.celestial-chart :deep(.chart-star:hover .star-label) { opacity: 0.95; color: #C62828; }
 .celestial-chart :deep(.chart-star.active .star-label) { opacity: 0.95; color: #C62828; text-shadow: 0 0 4px rgba(198,40,40,0.15); }
 
 .celestial-chart :deep(.chart-star.active::before) {
@@ -720,10 +732,11 @@ watch(() => props.isVisible, (visible) => {
   pointer-events: none;
   background: rgba(245,240,232,0.95);
   border: 1px solid rgba(198,40,40,0.2);
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
+  border-left: 2px solid #C62828;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #5D4E37;
   max-width: 160px;
   box-shadow: 0 2px 8px rgba(93,78,55,0.12);

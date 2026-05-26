@@ -196,7 +196,7 @@ function getMutagenClass(transformation: string): string {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.68rem;
-  color: #7A6A5C;
+  color: #4A3828;
   letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -298,14 +298,14 @@ function getMutagenClass(transformation: string): string {
 .reading-line {
   margin-bottom: 0.3rem;
   font-size: 0.875rem;
-  line-height: 1.7;
+  line-height: 1.75;
   color: #6B5B4F;
 }
 
 .combination-note {
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  line-height: 1.7;
+  line-height: 1.75;
   color: #C62828;
   opacity: 0.85;
 }
