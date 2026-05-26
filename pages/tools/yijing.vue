@@ -24,12 +24,16 @@
           <p class="font-sans text-sm text-ink-light">解卦中...</p>
         </div>
 
+        <div aria-live="polite" class="sr-only">
+          <span v-if="processing">解卦中，请稍候</span>
+        </div>
+
         <!-- Results -->
         <div v-if="result && !processing" class="mt-8">
           <YijingInterpretation :result="result" :score="score" />
 
           <!-- Auto-save placeholder -->
-          <div v-if="saveError" class="mt-4 text-center">
+          <div v-if="saveError" role="alert" class="mt-4 text-center">
             <p class="font-sans text-xs text-ink-light">
               {{ saveError }}
             </p>
@@ -122,6 +126,7 @@ function handleCoinAutoResult() {
 
 // Number casting
 function handleCastNumber(data: { first: number; second: number; third: number }) {
+  castingMode.value = 'number'
   processing.value = true
 
   setTimeout(() => {

@@ -12,7 +12,7 @@
     <div class="flex items-start gap-5 sm:gap-6">
       <!-- Yao lines -->
       <div class="flex-shrink-0">
-        <div class="card-paper-solid rounded-lg px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="img" :aria-label="`${hexagram.name}卦象`">
+        <div class="card-paper-solid rounded-xl px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="img" :aria-label="`${hexagram.name}卦象`">
           <div
             v-for="(yao, idx) in hexagram.lines"
             :key="idx"
@@ -37,7 +37,7 @@
             </template>
 
             <!-- Position marker -->
-            <span class="yao-label" aria-hidden="true">
+            <span class="yao-label" :class="{ 'yao-label--shi': hexagram.shiPosition === (idx + 1), 'yao-label--ying': hexagram.yingPosition === (idx + 1) }" aria-hidden="true">
               <template v-if="hexagram.shiPosition === (idx + 1)">世</template>
               <template v-else-if="hexagram.yingPosition === (idx + 1)">应</template>
               <template v-else>{{ ['初', '二', '三', '四', '五', '上'][idx] }}</template>

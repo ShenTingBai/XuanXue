@@ -8,36 +8,36 @@
     <InkDivider>卦象评分</InkDivider>
     <div class="flex justify-center mb-8">
       <div class="score-ring-wrapper">
-        <svg class="score-ring" viewBox="0 0 120 120" aria-label="卦象评分：{{ score }}分">
+        <svg class="score-ring" viewBox="0 0 120 120" :aria-label="`卦象评分：${score}分`">
           <!-- Background circle -->
           <circle
             cx="60" cy="60" r="52"
             fill="none"
-            stroke="#E0D5C0"
+            class="stroke-paper-medium"
             stroke-width="6"
           />
           <!-- Score circle -->
           <circle
             cx="60" cy="60" r="52"
             fill="none"
-            stroke="#C62828"
+            class="stroke-cinnabar"
             stroke-width="6"
             stroke-linecap="round"
             :stroke-dasharray="circumference"
             :stroke-dashoffset="dashOffset"
-            class="score-ring-fill"
+            class="score-ring-fill stroke-cinnabar"
           />
         </svg>
         <div class="score-ring-text">
-          <span class="score-number">{{ score }}</span>
-          <span class="score-label">分</span>
+          <span class="score-number text-ink-dark">{{ score }}</span>
+          <span class="score-label text-ink-light">分</span>
         </div>
       </div>
     </div>
 
     <!-- Primary hexagram -->
     <InkDivider>本卦</InkDivider>
-    <div class="card-paper-solid rounded-xl p-4 sm:p-6 mb-6">
+    <div class="card-paper-solid rounded-xl p-8 mb-6">
       <HexagramDisplay
         :hexagram="{
           name: result.hexagram.name,
@@ -53,7 +53,7 @@
     <!-- Derived hexagram (变卦) -->
     <template v-if="result.derivedHexagram && result.derivedLines">
       <InkDivider>变卦</InkDivider>
-      <div class="card-paper-solid rounded-xl p-4 sm:p-6 mb-6">
+      <div class="card-paper-solid rounded-xl p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.derivedHexagram.name,
@@ -70,7 +70,7 @@
     <!-- Mutual hexagram (互卦) — collapsible -->
     <template v-if="result.huGua && result.huGuaLines">
       <InkDivider>互卦</InkDivider>
-      <div class="card-paper-solid rounded-xl p-4 sm:p-6 mb-6">
+      <div class="card-paper-solid rounded-xl p-8 mb-6">
         <button
           class="flex items-center gap-2 w-full text-left mb-3"
           @click="showHuGua = !showHuGua"
@@ -103,8 +103,8 @@
 
     <!-- Interpretation text -->
     <InkDivider>卦象解读</InkDivider>
-    <div class="card-paper-solid rounded-xl p-4 sm:p-6 mb-6">
-      <div class="interpretation-text">
+    <div class="card-paper-solid rounded-xl p-8 mb-6">
+      <div class="interpretation-text !border-l-3 !border-cinnabar pl-4">
         <p
           v-for="(paragraph, idx) in interpretationParagraphs"
           :key="idx"
@@ -118,7 +118,7 @@
 
     <!-- Line detail table -->
     <InkDivider>纳甲装卦</InkDivider>
-    <div class="card-paper-solid rounded-xl p-4 sm:p-6 mb-6">
+    <div class="card-paper-solid rounded-xl p-8 mb-6">
       <h3 class="font-display text-lg text-ink-dark mb-4">六爻详表</h3>
       <ZhuangGuaTable :lines="result.lines" />
 
@@ -191,22 +191,17 @@ const interpretationParagraphs = computed(() => {
   font-family: 'Ma Shan Zheng', cursive;
   font-size: 2.25rem;
   line-height: 1;
-  color: #2C1810;
 }
 
 .score-label {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
-  color: #7A6A5C;
   margin-top: 2px;
 }
 
 .interpretation-text {
-  border-left: 3px solid #C62828;
-  padding-left: 1rem;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.9375rem;
-  color: #2C1810;
   line-height: 1.75;
 }
 </style>

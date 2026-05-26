@@ -14,7 +14,7 @@
     </div>
 
     <!-- Coin casting mode -->
-    <div v-if="mode === 'coin'" class="card-paper-solid rounded-xl p-6 sm:p-8 text-center">
+    <div v-if="mode === 'coin'" class="card-paper-solid rounded-xl p-8 text-center">
       <h2 class="font-display text-2xl sm:text-3xl text-ink-dark mb-6">
         摇卦
       </h2>
@@ -75,7 +75,7 @@
     </div>
 
     <!-- Number casting mode -->
-    <div v-else class="card-paper-solid rounded-xl p-6 sm:p-8">
+    <div v-else class="card-paper-solid rounded-xl p-8">
       <h2 class="font-display text-2xl sm:text-3xl text-ink-dark mb-6 text-center">
         数字起卦
       </h2>

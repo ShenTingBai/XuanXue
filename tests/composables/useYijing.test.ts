@@ -10,6 +10,9 @@ import {
   calculateYijingScore,
   computeYijingResult,
 } from '../../composables/useYijing'
+import {
+  HEXAGRAM_NAMES, HEXAGRAM_JUDGMENTS, LINE_JUDGMENTS,
+} from '../../constants/yijing'
 
 // ============================
 // 1. Coin Casting (castByCoin)
@@ -167,9 +170,9 @@ describe('getZhuangGuaLines', () => {
   })
 
   it('乾为天 line 5 positionName', () => {
-    // Implementation uses position label before yin/yang label: '五' + '九'
+    // Standard Zhouyi format: 九五 (yin/yang label before position label)
     const lines = getZhuangGuaLines([7, 7, 7, 7, 7, 7], hexQian)
-    expect(lines[4].positionName).toBe('五九')
+    expect(lines[4].positionName).toBe('九五')
   })
 
   it('sixRelation for line with same wuxing as palace is 兄弟', () => {
@@ -236,6 +239,46 @@ describe('sixRelation correctness', () => {
     // line 4: 午(火)
     const lines = getZhuangGuaLines([7, 7, 7, 7, 7, 7], hexQian)
     expect(lines[3].sixRelation).toBe('官鬼')
+  })
+})
+
+describe('non-palace hexagram Na Jia correctness', () => {
+  // 天地否 (upper=乾=7, lower=坤=0) belongs to 乾宫 position 4
+  // Lines 1-3 (lower/Kun): should use 坤 Na Jia inner = [乙未, 乙巳, 乙卯]
+  // Lines 4-6 (upper/Qian): should use 乾 Na Jia outer = [壬午, 壬申, 壬戌]
+  const values = [8, 8, 8, 7, 7, 7] // 天地否: 坤下乾上
+  const hex = getHexagramInfo(values)
+
+  it('天地否 lower trigram (坤) uses 坤 Na Jia inner', () => {
+    const lines = getZhuangGuaLines(values, hex)
+    // 坤 inner: 乙未, 乙巳, 乙卯
+    expect(lines[0].naJiaDisplay).toBe('乙未')
+    expect(lines[1].naJiaDisplay).toBe('乙巳')
+    expect(lines[2].naJiaDisplay).toBe('乙卯')
+  })
+
+  it('天地否 upper trigram (乾) uses 乾 Na Jia outer', () => {
+    const lines = getZhuangGuaLines(values, hex)
+    // 乾 outer: 壬午, 壬申, 壬戌
+    expect(lines[3].naJiaDisplay).toBe('壬午')
+    expect(lines[4].naJiaDisplay).toBe('壬申')
+    expect(lines[5].naJiaDisplay).toBe('壬戌')
+  })
+
+  it('天地否 six relations are correct for 乾宫金', () => {
+    const lines = getZhuangGuaLines(values, hex)
+    // 乙未(土) -> 土生金 -> 父母
+    expect(lines[0].sixRelation).toBe('父母')
+    // 乙巳(火) -> 火克金 -> 官鬼
+    expect(lines[1].sixRelation).toBe('官鬼')
+    // 乙卯(木) -> 金克木 -> 妻财
+    expect(lines[2].sixRelation).toBe('妻财')
+    // 壬午(火) -> 火克金 -> 官鬼
+    expect(lines[3].sixRelation).toBe('官鬼')
+    // 壬申(金) -> 同金 -> 兄弟
+    expect(lines[4].sixRelation).toBe('兄弟')
+    // 壬戌(土) -> 土生金 -> 父母
+    expect(lines[5].sixRelation).toBe('父母')
   })
 })
 
@@ -362,5 +405,32 @@ describe('computeYijingResult', () => {
     const result = computeYijingResult([7, 7, 7, 7, 7, 7])
     expect(typeof result.interpretation).toBe('string')
     expect(result.interpretation.length).toBeGreaterThan(0)
+  })
+})
+
+describe('64-hexagram data integrity', () => {
+  const testCases = Object.entries(HEXAGRAM_NAMES)
+
+  it('all 64 hexagrams have non-empty names and judgments', () => {
+    expect(testCases.length).toBe(64)
+    for (const [key, name] of testCases) {
+      expect(name.length).toBeGreaterThan(0)
+      const judgment = HEXAGRAM_JUDGMENTS[key]
+      expect(judgment?.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('all 384 line judgments (64x6) are non-empty', () => {
+    let totalLines = 0
+    for (const [, name] of testCases) {
+      const lines = LINE_JUDGMENTS[name]
+      expect(lines).toBeDefined()
+      expect(lines).toHaveLength(6)
+      for (const line of lines) {
+        expect(line.length).toBeGreaterThan(0)
+      }
+      totalLines += lines.length
+    }
+    expect(totalLines).toBe(384)
   })
 })
