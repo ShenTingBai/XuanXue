@@ -4,7 +4,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
       <!-- Yi card -->
-      <div class="yiyi-card yiyi-card--yi">
+      <div class="yiji-card yiji-card--yi">
         <h4 class="font-sans text-sm font-medium text-wuxing-wood mb-3 flex items-center gap-1.5">
           <span aria-hidden="true" class="w-1.5 h-1.5 rounded-full bg-wuxing-wood inline-block" />
           宜
@@ -22,7 +22,7 @@
       </div>
 
       <!-- Ji card -->
-      <div class="yiyi-card yiyi-card--ji">
+      <div class="yiji-card yiji-card--ji">
         <h4 class="font-sans text-sm font-medium text-ink-medium mb-3 flex items-center gap-1.5">
           <span aria-hidden="true" class="w-1.5 h-1.5 rounded-full bg-ink-light inline-block" />
           忌

@@ -32,9 +32,9 @@ defineProps<{
 
 function borderClass(level: string): string {
   return level === 'great'
-    ? 'hover:border-compat-great'
+    ? 'hover:border-jade'
     : level === 'good'
-      ? 'hover:border-compat-good'
+      ? 'hover:border-gold'
       : 'hover:border-cinnabar/30'
 }
 
@@ -42,7 +42,7 @@ function levelClass(level: string): string {
   return level === 'great'
     ? 'bg-wuxing-wood/10 text-wuxing-wood'
     : level === 'good'
-      ? 'bg-compat-good/10 text-gold'
+      ? 'bg-gold/10 text-gold'
       : 'bg-cinnabar/5 text-cinnabar/80'
 }
 </script>
