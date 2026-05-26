@@ -1,7 +1,7 @@
 <template>
   <div class="mb-8 flex flex-col items-center text-center fade-in" :style="{ '--delay': '0.02s' }">
     <!-- Birth notation: marginal annotation -->
-    <p class="font-sans text-[0.6875rem] text-ink-muted tracking-wide mb-3">
+    <p class="font-sans text-xs text-ink-muted tracking-wide mb-3">
       {{ birthYear }}年{{ birthCalendar === 'solar' ? '阳历' : '农历' }} · 生肖{{ animalName }}<template v-if="gender"> · {{ gender }}</template>
     </p>
 
@@ -17,13 +17,13 @@
       </span>
     </div>
 
-    <span class="mt-1 font-sans text-[0.625rem] text-ink-muted/50 tracking-widest select-none">日 主</span>
+    <span class="mt-1 font-sans text-[0.625rem] text-ink-muted tracking-widest select-none">日 主</span>
 
     <!-- Element affinities -->
     <p class="mt-3 font-sans text-sm tracking-wide">
       <span class="text-ink-muted text-xs">喜</span>
       <span v-for="el in favorableElements" :key="el" :style="{ color: elementColor(el) }" class="font-medium mx-0.5">{{ el }}</span>
-      <span class="text-ink-muted/30 mx-2 select-none">|</span>
+      <span class="text-ink-muted mx-2 select-none">|</span>
       <span class="text-ink-muted text-xs">忌</span>
       <span v-for="el in unfavorableElements" :key="el" :style="{ color: elementColor(el) }" class="font-medium mx-0.5">{{ el }}</span>
     </p>

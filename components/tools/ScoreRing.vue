@@ -21,7 +21,7 @@
         stroke-linecap="round"
         :stroke-dasharray="circumference"
         :stroke-dashoffset="dashOffset"
-        stroke="#C62828"
+        :stroke="computedStrokeColor"
         class="score-ring-fill"
       />
     </svg>
@@ -34,25 +34,36 @@
 
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
-  score: number
+  score?: number
   size?: number
   label?: string
+  strokeColor?: string
 }>(), {
   size: 120,
 })
 
+const computedStrokeColor = computed(() => {
+  if (props.strokeColor) return props.strokeColor
+  if (props.score == null) return '#C62828'
+  const s = Math.max(0, Math.min(100, Number(props.score)))
+  if (s >= 75) return '#3D6B4B'
+  if (s >= 60) return '#7A5E12'
+  if (s >= 45) return '#6B5B4F'
+  return '#C62828'
+})
+
 const safeScore = computed(() => {
-  const s = Number(props.score)
+  const s = Number(props.score ?? NaN)
   return Number.isFinite(s) ? Math.max(0, Math.min(100, s)) : 0
 })
 
 const displayScore = computed(() => {
-  const s = Number(props.score)
+  const s = Number(props.score ?? NaN)
   return Number.isFinite(s) ? Math.round(s) : '--'
 })
 
 const ariaLabel = computed(() => {
-  const s = Number(props.score)
+  const s = Number(props.score ?? NaN)
   if (!Number.isFinite(s)) return '暂无评分'
   return `${props.label || '评分'}：${Math.round(s)}${props.label ? '' : '分'}`
 })

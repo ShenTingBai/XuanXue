@@ -114,7 +114,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         <!-- Card: star almanac scroll -->
         <div
-          class="relative card-paper-solid rounded-xl max-w-md w-full max-h-[80vh] flex flex-col overflow-hidden shadow-elevated"
+          class="relative card-paper-solid rounded-xl max-w-md w-full max-h-[80vh] flex flex-col overflow-hidden shadow-elevated p-8"
           @click.stop
           @keydown="handleKeydown"
         >
@@ -165,8 +165,8 @@ function handleKeydown(e: KeyboardEvent) {
 
             <!-- Empty: ancient ledger void -->
             <div v-else-if="records.length === 0" class="py-20 text-center">
-              <p class="font-display text-lg text-ink-muted/45 mb-2 select-none">卷帙尚空</p>
-              <p class="font-sans text-xs text-ink-muted/30 select-none">测算后方可留存</p>
+              <p class="font-display text-lg text-ink-muted mb-2 select-none">卷帙尚空</p>
+              <p class="font-sans text-xs text-ink-muted select-none">测算后方可留存</p>
             </div>
 
             <!-- Records list -->

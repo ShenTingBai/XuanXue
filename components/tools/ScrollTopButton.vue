@@ -1,6 +1,6 @@
 <template>
   <button
-    class="fixed bottom-8 z-50 flex items-center justify-center rounded-lg border border-cinnabar/40 bg-paper-lightest/80 text-cinnabar backdrop-blur-sm shadow-lg hover:bg-cinnabar hover:text-paper-lightest transition-colors duration-300"
+    class="fixed bottom-8 right-6 z-50 flex items-center justify-center rounded-lg border border-cinnabar/40 bg-paper-lightest/80 text-cinnabar backdrop-blur-sm shadow-lg hover:bg-cinnabar hover:text-paper-lightest transition-colors duration-300"
     :class="sizeClass"
     aria-label="回到顶部"
     v-bind="$attrs"
@@ -12,13 +12,13 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   size?: 'sm' | 'lg'
 }>(), {
   size: 'lg',
 })
 
 const sizeClass = computed(() => {
-  return 'w-14 h-14'
+  return props.size === 'sm' ? 'w-10 h-10' : 'w-14 h-14'
 })
 </script>

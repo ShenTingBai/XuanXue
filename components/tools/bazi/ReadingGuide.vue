@@ -1,9 +1,6 @@
 <template>
   <div id="reading-guide" class="mb-8 p-8 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20" tabindex="-1">
-    <h2 class="font-display text-xl sm:text-2xl text-cinnabar mb-2 flex items-center gap-2">
-      <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
-      命理速览
-    </h2>
+    <InkDivider color="cinnabar">命理速览</InkDivider>
     <p class="font-sans text-xs text-ink-light mb-5">本结果为算法推演，仅供参考，不能替代专业命理师分析。</p>
 
     <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
@@ -41,7 +38,7 @@
             }"
           >
             <span class="font-display text-sm">{{ shen.name }}</span>
-            <span class="opacity-60 text-[0.65rem]">{{ shen.pillar }}</span>
+            <span class="opacity-60 text-xs">{{ shen.pillar }}</span>
           </span>
         </div>
         <p class="text-sm">
@@ -118,6 +115,7 @@
 import type { ShenSha } from '~/composables/useShenSha'
 import type { LiuNianYear } from '~/composables/useLiuNian'
 import type { DaYunCycle } from '~/composables/useBaZi'
+import InkDivider from '~/components/tools/InkDivider.vue'
 import { WUXING_COLORS as ELEMENT_COLORS, ELEMENT_LIFE_AREA, getDaYunMeaning } from '~/constants/bazi'
 
 defineProps<{

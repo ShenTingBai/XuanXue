@@ -49,7 +49,7 @@
               class="py-1.5 px-2 text-center border-b border-cinnabar/30"
               :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
             >
-              <span class="inline-block px-2 py-0.5 rounded-full text-[0.6875rem] leading-tight font-sans"
+              <span class="inline-block px-2 py-0.5 rounded-full text-xs leading-tight font-sans"
                 :class="tenGodBadgeClass(p.stemTenGod)">
                 {{ p.stemTenGod }}
               </span>
@@ -71,7 +71,7 @@
           <!-- NaYin row -->
           <tr>
             <td v-for="(p, idx) in pillars" :key="'ny-' + idx"
-              class="py-1.5 px-2 text-center text-[0.6875rem] text-ink-muted font-sans border-b border-cinnabar/30"
+              class="py-1.5 px-2 text-center text-xs text-ink-muted font-sans border-b border-cinnabar/30"
               :class="[idx < 3 ? 'border-r-2 border-cinnabar/30' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
             >
               {{ getNaYin(p.stem, p.branch) }}
@@ -83,7 +83,7 @@
 
     <!-- Mobile: horizontal scroll cards -->
     <div class="sm:hidden">
-      <div class="overflow-x-auto -mx-4 px-4 pb-3 scrollbar-hide">
+      <div class="overflow-x-auto -mx-4 px-4 pb-3">
         <div class="inline-flex gap-2">
           <div v-for="(p, idx) in pillars" :key="'card-' + idx"
             class="inline-flex flex-col w-[104px] rounded-lg overflow-hidden flex-shrink-0"
@@ -93,7 +93,7 @@
             <div class="py-1 text-center font-sans"
               :class="idx === 2 ? 'bg-cinnabar/18' : 'bg-cinnabar/4'"
             >
-              <span class="text-[0.6875rem] text-ink-medium tracking-wider">
+              <span class="text-xs text-ink-medium tracking-wider">
                 {{ ['年', '月', '日', '时'][idx] }}柱
               </span>
               <span v-if="idx === 2" class="text-xs leading-none text-cinnabar">日主</span>
@@ -110,20 +110,20 @@
             </div>
             <!-- Ten God -->
             <div class="px-1 pb-1 text-center">
-              <span class="inline-block px-1.5 py-0.5 rounded-full text-[0.6875rem] font-sans"
+              <span class="inline-block px-1.5 py-0.5 rounded-full text-xs font-sans"
                 :class="tenGodBadgeClass(p.stemTenGod)">
                 {{ p.stemTenGod }}
               </span>
             </div>
             <!-- Hidden Stems -->
-            <div class="px-1 pb-1 text-center text-[0.6875rem] text-ink-light leading-tight">
+            <div class="px-1 pb-1 text-center text-xs text-ink-light leading-tight">
               <span v-for="(hs, hIdx) in p.hiddenStems" :key="hIdx"
                 class="mr-0.5" :style="{ color: wuxingColor(hs.wuxing) }">
                 {{ hs.stem }}
               </span>
             </div>
             <!-- NaYin -->
-            <div class="px-1 pb-1 text-center text-[0.6875rem] text-ink-muted font-sans">
+            <div class="px-1 pb-1 text-center text-xs text-ink-muted font-sans">
               {{ getNaYin(p.stem, p.branch) }}
             </div>
           </div>

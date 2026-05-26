@@ -12,7 +12,7 @@
       ]"
       :aria-current="idx === currentIndex ? 'true' : undefined"
     >
-      <span class="text-base flex-shrink-0" role="img" :aria-label="zodiac.name">{{ zodiac.symbol }}</span>
+      <span class="text-base flex-shrink-0" aria-hidden="true">{{ zodiac.symbol }}</span><span class="sr-only">{{ zodiac.name }}</span>
       <span class="font-sans">{{ zodiac.name }}</span>
     </button>
   </div>

@@ -17,7 +17,7 @@
           ? 'border-2 border-cinnabar bg-cinnabar/5 shadow-sm'
           : 'border border-paper-dark bg-paper-lightest/80 hover:border-ink-faint transition-colors'"
       >
-        <div class="font-sans text-[0.625rem] text-ink-light tracking-wider mb-1">
+        <div class="font-sans text-xs text-ink-light tracking-wider mb-1">
           {{ cycle.startAge }}-{{ cycle.endAge }}岁
         </div>
         <div class="font-display text-lg font-medium text-ink-dark mb-1">
@@ -38,9 +38,9 @@
             ? 'border border-cinnabar bg-cinnabar/5'
             : 'border border-paper-dark bg-paper-lightest/80 hover:border-ink-faint transition-colors'"
         >
-          <div class="font-sans text-[0.625rem] text-ink-light">{{ cycle.startAge }}-{{ cycle.endAge }}岁</div>
+          <div class="font-sans text-xs text-ink-light">{{ cycle.startAge }}-{{ cycle.endAge }}岁</div>
           <div class="font-display text-sm font-medium text-ink-dark">{{ cycle.stemBranch }}</div>
-          <div class="font-sans text-[0.6875rem] text-ink-medium">{{ cycle.description }}</div>
+          <div class="font-sans text-xs text-ink-medium">{{ cycle.description }}</div>
         </div>
       </div>
     </div>
