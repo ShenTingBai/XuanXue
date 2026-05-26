@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calculateLiuNian } from '../../composables/useLiuNian'
 import { calculateBaZi } from '../../composables/useBaZi'
-import { calculateShenSha } from '../../composables/useShenSha'
-import { getStemIndex } from '../../constants/bazi'
 
 describe('calculateLiuNian', () => {
   const baseProfile = {
@@ -17,19 +15,19 @@ describe('calculateLiuNian', () => {
   const bazi = calculateBaZi(baseProfile)
 
   it('returns 2*range+1 years (default range=5 -> 11 years)', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     expect(result.length).toBe(11)
   })
 
   it('returns the correct year span', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, range: 2, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, range: 2 })
     expect(result.length).toBe(5)
     expect(result[0].year).toBe(2024)
     expect(result[4].year).toBe(2028)
   })
 
   it('each year has correct structure', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       expect(year).toHaveProperty('year')
       expect(year).toHaveProperty('stem')
@@ -60,7 +58,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('current year (middle element) has detail', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const currentYear = result[5] // middle of 11 (index 5 = 2026)
     expect(currentYear.year).toBe(2026)
     expect(currentYear.detail).toBeDefined()
@@ -76,7 +74,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('non-current years do NOT have detail', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (let i = 0; i < result.length; i++) {
       if (i !== 5) {
         expect(result[i].detail).toBeUndefined()
@@ -88,7 +86,7 @@ describe('calculateLiuNian', () => {
     // 2026 = 丙午年, year stem index = (2026-4)%10 = 2 (丙)
     // 五虎遁: (2*2+2)%10 = 6%10 = 6 (庚)
     // So 寅月 = 庚寅, 卯月 = 辛卯, ...
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const monthlyStems = result[5].detail!.monthlyStems
     expect(monthlyStems[0].stem).toBe('庚') // 寅月 = 庚寅
     expect(monthlyStems[0].branch).toBe('寅')
@@ -97,7 +95,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('monthly stems include solar term boundary dates (startMonth, startDay)', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const monthlyStems = result[5].detail!.monthlyStems
     for (const ms of monthlyStems) {
       expect(ms.startMonth).toBeGreaterThanOrEqual(1)
@@ -116,15 +114,15 @@ describe('calculateLiuNian', () => {
   })
 
   it('is deterministic (same input = same output)', () => {
-    const a = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
-    const b = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const a = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
+    const b = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     expect(a[5].year).toBe(b[5].year)
     expect(a[5].score).toBe(b[5].score)
     expect(a[5].summary).toBe(b[5].summary)
   })
 
   it('known year stems: 2024=甲辰, 2025=乙巳, 2026=丙午', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const year2024 = result.find(y => y.year === 2024)
     const year2025 = result.find(y => y.year === 2025)
     const year2026 = result.find(y => y.year === 2026)
@@ -138,7 +136,7 @@ describe('calculateLiuNian', () => {
 
   it('handles chart with null hourPillar', () => {
     const baziNoHour = calculateBaZi({ ...baseProfile, birthHour: null })
-    const result = calculateLiuNian({ baZi: baziNoHour, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: baziNoHour, currentYear: 2026 })
     expect(result.length).toBe(11)
     expect(result[5].detail).toBeDefined()
   })
@@ -148,7 +146,7 @@ describe('calculateLiuNian', () => {
   it('scoring starts at base 50', () => {
     // 1998-05-25 壬日主偏弱, favorable=[金,水] (印+比劫), unfavorable=[木,火,土] (食伤+财+官杀)
     // 2026=丙午年 (丙=火, in unfavorableElements) → isUnfavorable=true, score <= 50
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const year2026 = result.find(y => y.year === 2026)
     expect(year2026!.isUnfavorable).toBe(true)
     // Score base 50 - 20 for unfavorable + earth relations adjustments
@@ -157,7 +155,7 @@ describe('calculateLiuNian', () => {
 
   it('unfavorable year stem reduces score', () => {
     // 壬日主偏弱, unfavorable=[木,火,土]. 木/火/土 year stems score <= 50.
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2025, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2025 })
     const unfavorableYears = result.filter(y => y.isUnfavorable)
     if (unfavorableYears.length > 0) {
       // An unfavorable year should have score <= 50 (base 50 - 20)
@@ -168,7 +166,7 @@ describe('calculateLiuNian', () => {
   it('neutral year (neither favorable nor unfavorable) has score near 50', () => {
     // For a neutral year, isFavorable=false && isUnfavorable=false
     // The score should be 50 ± earth relations and shensha
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const neutralYears = result.filter(y => !y.isFavorable && !y.isUnfavorable)
     if (neutralYears.length > 0) {
       // Score is 50 + earth relations adjustments + shensha adjustments
@@ -182,7 +180,7 @@ describe('calculateLiuNian', () => {
 
   it('detects 六冲 between year branch and pillar branch', () => {
     // 子午冲: 2020=庚子年, if any pillar has branch=午 → should detect 冲
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2020, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2020 })
     const year2020 = result.find(y => y.year === 2020)
     const chongRelations = year2020!.earthRelations.filter(r => r.type === '冲')
     // 子冲午 — if any pillar has 午 branch
@@ -199,7 +197,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('earth relations include proper description strings', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       for (const rel of year.earthRelations) {
         expect(rel.description.length).toBeGreaterThan(0)
@@ -212,7 +210,7 @@ describe('calculateLiuNian', () => {
   // === Summary tests ===
 
   it('summary is a non-empty string ending with Chinese period', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       expect(year.summary.length).toBeGreaterThan(0)
       expect(year.summary).toMatch(/。$/)
@@ -220,7 +218,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('summary contains ten god name for favorable year', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     const favorableYears = result.filter(y => y.isFavorable)
     if (favorableYears.length > 0) {
       // Favorable year should mention the ten god or use the positive template
@@ -233,7 +231,7 @@ describe('calculateLiuNian', () => {
   // === Shensha tests ===
 
   it('year-specific shenshas include pillar "流年"', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       for (const ss of year.shenSha) {
         expect(ss.pillar).toContain('流年')
@@ -242,7 +240,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('shenshas have valid categories', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       for (const ss of year.shenSha) {
         expect(['吉', '凶', '中性']).toContain(ss.category)
@@ -253,7 +251,7 @@ describe('calculateLiuNian', () => {
   // === DaYun tests ===
 
   it('each year has daYun stem and branch assigned', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       expect(year.daYunStem.length).toBe(1)
       expect(year.daYunBranch.length).toBe(1)
@@ -269,7 +267,7 @@ describe('calculateLiuNian', () => {
       birthCalendar: 'solar', birthHour: 12, gender: '男',
     })
     // 2024 = 甲辰年, 流年 branch = 辰 → 辰辰自刑
-    const liuNian = calculateLiuNian({ baZi, shenSha: [], currentYear: 2024, range: 0 })
+    const liuNian = calculateLiuNian({ baZi, currentYear: 2024, range: 0 })
     const year2024 = liuNian[0]
     const yearXing = year2024.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '刑')
     expect(yearXing.length).toBeGreaterThan(0)
@@ -278,22 +276,12 @@ describe('calculateLiuNian', () => {
 
   // === Year-specific shensha tests ===
 
-  it('accepts real ShenSha input array (not empty)', () => {
-    // Create a chart and compute shensha, then pass to liunian
+  it('returns year-specific shensha computed internally', () => {
     const baZi = calculateBaZi({
       birthYear: 1998, birthMonth: 5, birthDay: 25,
       birthCalendar: 'solar', birthHour: 14, gender: '男',
     })
-    const chartShenSha = calculateShenSha({
-      yearPillar: baZi.yearPillar,
-      monthPillar: baZi.monthPillar,
-      dayPillar: baZi.dayPillar,
-      hourPillar: baZi.hourPillar,
-      dayMaster: baZi.dayMaster,
-      dayMasterIndex: getStemIndex(baZi.dayMaster),
-      gender: '男',
-    })
-    const result = calculateLiuNian({ baZi, currentYear: 2026, shenSha: chartShenSha })
+    const result = calculateLiuNian({ baZi, currentYear: 2026 })
     expect(result.length).toBe(11)
     for (const year of result) {
       expect(Array.isArray(year.shenSha)).toBe(true)
@@ -308,7 +296,7 @@ describe('calculateLiuNian', () => {
       birthYear: 1998, birthMonth: 5, birthDay: 25,
       birthCalendar: 'solar', birthHour: 14, gender: '男',
     })
-    const result = calculateLiuNian({ baZi, currentYear: 2023, range: 5, shenSha: [] })
+    const result = calculateLiuNian({ baZi, currentYear: 2023, range: 5 })
     const year2023 = result.find(y => y.year === 2023)
     expect(year2023).toBeDefined()
     // 2023=癸卯, year branch=卯 → 寅午戌桃花在卯 → 桃花 should be present
@@ -323,7 +311,7 @@ describe('calculateLiuNian', () => {
   })
 
   it('all year-specific shensha have pillar set to 流年', () => {
-    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026 })
     for (const year of result) {
       for (const ss of year.shenSha) {
         expect(ss.pillar).toBe('流年')
@@ -338,7 +326,7 @@ describe('calculateLiuNian', () => {
       birthYear: 1998, birthMonth: 5, birthDay: 25,
       birthCalendar: 'solar', birthHour: 14, gender: '男',
     })
-    const result = calculateLiuNian({ baZi, currentYear: 2020, range: 5, shenSha: [] })
+    const result = calculateLiuNian({ baZi, currentYear: 2020, range: 5 })
     // 2020=庚子年, 子 → 寅午戌将星在子 → 将星(吉) triggers +5
     const yearWithJiangXing = result.filter(y => y.shenSha.some(s => s.name === '将星'))
     if (yearWithJiangXing.length > 0) {
@@ -348,6 +336,22 @@ describe('calculateLiuNian', () => {
 
   // === Earth relations — 合破 conflict ===
 
+  // === Empty daYun fallback ===
+
+  it('handles empty daYun array gracefully', () => {
+    const baZiEmptyDaYun = { ...bazi, daYun: [] }
+    const result = calculateLiuNian({ baZi: baZiEmptyDaYun, currentYear: 2024, range: 1 })
+    // Should produce 3 years (2023, 2024, 2025)
+    expect(result.length).toBe(3)
+    result.forEach(year => {
+      expect(year.daYunStem).toBeTruthy()
+      expect(year.daYunBranch).toBeTruthy()
+    })
+    // All years should use fallback 甲子
+    expect(result[0].daYunStem).toBe('甲')
+    expect(result[0].daYunBranch).toBe('子')
+  })
+
   it('寅亥合应抑制破', () => {
     // 2007-02-05 → 丁亥年, year pillar branch = 亥
     const baZi = calculateBaZi({
@@ -356,7 +360,7 @@ describe('calculateLiuNian', () => {
     })
     // 2022 = 壬寅年, 流年 branch = 寅 → 寅亥 is both 六合 and 六破
     // The code suppresses 破 when 合 exists for the same branch pair
-    const liuNian = calculateLiuNian({ baZi, shenSha: [], currentYear: 2022, range: 0 })
+    const liuNian = calculateLiuNian({ baZi, currentYear: 2022, range: 0 })
     const year2022 = liuNian[0]
     const yearHe = year2022.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '合')
     const yearPo = year2022.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '破')

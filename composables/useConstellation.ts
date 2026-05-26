@@ -245,7 +245,7 @@ function angularDistance(a: number, b: number): number {
  */
 function aspectScore(angle: number): number {
   const ORB = 8
-  if (angle <= 6) return 8     // conjunction — intense focus
+  if (angle <= 8) return 8     // conjunction — intense focus
   if (Math.abs(angle - 60) <= ORB) return 5   // sextile — opportunity
   if (Math.abs(angle - 90) <= ORB) return -6  // square — challenge
   if (Math.abs(angle - 120) <= ORB) return 10 // trine — harmony
@@ -262,14 +262,16 @@ function elementForSign(signIndex: number): ConstellationResult['element'] {
 
 /**
  * Element compatibility boost.
- * Fire-Air compatible, Earth-Water compatible.
+ * 火 compatible with 土, 风 compatible with 水 (opposites in the 4-element cycle match).
  * Same element: strong boost. Compatible: moderate boost. Incompatible: penalty.
  */
 function elementBoost(myElement: ConstellationResult['element'], otherElement: ConstellationResult['element']): number {
   if (myElement === otherElement) return 5
+  // Element compatibility based on zodiac element ordering:
+  // 火 compatible with 土, 风 compatible with 水
   const compatible: Record<string, string[]> = {
-    '火': ['风'], '风': ['火'],
-    '水': ['土'], '土': ['水'],
+    '火': ['土'], '土': ['火'],
+    '风': ['水'], '水': ['风'],
   }
   if (compatible[myElement]?.includes(otherElement)) return 3
   return -3

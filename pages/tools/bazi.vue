@@ -218,7 +218,6 @@ function computeResult() {
     // Compute liunian (with birth chart shensha for year-specific lookups)
     liuNianYears.value = calculateLiuNian({
       baZi: baziResult,
-      shenSha: shenShaList.value,
       currentYear,
       range: 5,
     })
@@ -306,7 +305,6 @@ async function restoreFromHistory(id: number) {
         // Recalculate liunian
         liuNianYears.value = calculateLiuNian({
           baZi: baziResult,
-          shenSha: shenShaList.value,
           currentYear,
           range: 5,
         })

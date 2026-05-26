@@ -108,25 +108,39 @@ function getTaiSuiRelationships(birthIdx: number, taiSuiIdx: number): { positive
     negativeWeight = RELATIONSHIP_WEIGHTS['值太岁']
   }
   if (inPairList(birthIdx, taiSuiIdx, CHONG_PAIRS)) {
-    negative = '冲太岁'
-    negativeWeight = RELATIONSHIP_WEIGHTS['冲太岁']
+    if (negativeWeight === 0) {
+      negative = '冲太岁'
+      negativeWeight = RELATIONSHIP_WEIGHTS['冲太岁']
+    } else {
+      negative += '、冲太岁'
+      negativeWeight += RELATIONSHIP_WEIGHTS['冲太岁'] * 0.5
+    }
   }
-  if (inPairList(birthIdx, taiSuiIdx, XING_PAIRS) || SELF_XING.includes(birthIdx) && birthIdx === taiSuiIdx) {
+  if (inPairList(birthIdx, taiSuiIdx, XING_PAIRS) || (SELF_XING.includes(birthIdx) && birthIdx === taiSuiIdx)) {
     if (negativeWeight === 0) {
       negative = '刑太岁'
       negativeWeight = RELATIONSHIP_WEIGHTS['刑太岁']
+    } else {
+      negative += '、刑太岁'
+      negativeWeight += RELATIONSHIP_WEIGHTS['刑太岁'] * 0.5
     }
   }
   if (inPairList(birthIdx, taiSuiIdx, HAI_PAIRS)) {
     if (negativeWeight === 0) {
       negative = '害太岁'
       negativeWeight = RELATIONSHIP_WEIGHTS['害太岁']
+    } else {
+      negative += '、害太岁'
+      negativeWeight += RELATIONSHIP_WEIGHTS['害太岁'] * 0.5
     }
   }
   if (inPairList(birthIdx, taiSuiIdx, PO_PAIRS)) {
     if (negativeWeight === 0) {
       negative = '破太岁'
       negativeWeight = RELATIONSHIP_WEIGHTS['破太岁']
+    } else {
+      negative += '、破太岁'
+      negativeWeight += RELATIONSHIP_WEIGHTS['破太岁'] * 0.5
     }
   }
 
@@ -134,8 +148,7 @@ function getTaiSuiRelationships(birthIdx: number, taiSuiIdx: number): { positive
   if (inSameSanHeGroup(birthIdx, taiSuiIdx) && birthIdx !== taiSuiIdx) {
     positive = '三合'
     positiveWeight = RELATIONSHIP_WEIGHTS['三合']
-  }
-  if (inPairList(birthIdx, taiSuiIdx, LIUHE_PAIRS)) {
+  } else if (inPairList(birthIdx, taiSuiIdx, LIUHE_PAIRS)) {
     positive = '六合'
     positiveWeight = RELATIONSHIP_WEIGHTS['六合']
   }
@@ -239,7 +252,7 @@ export interface Fortune {
 export interface Compatibility {
   animal: string
   emoji: string
-  relation: '三合' | '六合' | '中吉' | '相冲' | '相害' | '相刑' | '相克'
+  relation: '三合' | '六合' | '中吉' | '相冲' | '相害'
   level: 'great' | 'good' | 'bad'
 }
 
@@ -279,17 +292,6 @@ export function getAnimalIndex(year: number): number {
 
 function getStemIndex(year: number): number {
   return mod(year - 4, 10)
-}
-
-/**
- * Determine the effective zodiac year based on a current date.
- * Uses a simplified rule: the lunar (zodiac) new year starts on Feb 4.
- * Dates before Feb 4 are still in the previous year's zodiac.
- */
-function getCurrentZodiacYear(currentDate: Date): number {
-  const year = currentDate.getFullYear()
-  const feb4 = new Date(year, 1, 4) // month is 0-indexed, so 1 = February
-  return currentDate < feb4 ? year - 1 : year
 }
 
 /**
@@ -408,25 +410,10 @@ function getCompatibility(animalIndex: number): Compatibility[] {
 
 export function calculateShengXiao(
   birthYear: number,
-  calendar: 'solar' | 'lunar',
   currentDate?: Date,
 ): ShengXiaoResult {
   // ── Determine animal index ──
-  let animalIndex: number
-
-  if (calendar === 'solar' && currentDate) {
-    const currentZodiacYear = getCurrentZodiacYear(currentDate)
-    // When the birth year is the same as or the immediate previous year
-    // of the current zodiac year, use the current zodiac year's animal
-    // to handle lunar new year boundary transitions.
-    if (birthYear === currentZodiacYear || birthYear === currentZodiacYear - 1) {
-      animalIndex = getAnimalIndex(currentZodiacYear)
-    } else {
-      animalIndex = getAnimalIndex(birthYear)
-    }
-  } else {
-    animalIndex = getAnimalIndex(birthYear)
-  }
+  const animalIndex = getAnimalIndex(birthYear)
 
   // ── Basic fields ──
   const animal = ANIMALS[animalIndex]
@@ -450,14 +437,15 @@ export function calculateShengXiao(
   // ── Yin/Yang ──
   const yangOrYin = stemIndex % 2 === 0 ? '阳' : '阴'
 
-  // ── Fortune ──
-  const fortuneYear = currentDate ? currentDate.getFullYear() : birthYear
-  const fortuneSeed = fortuneYear * 7 + animalIndex * 13 + stemIndex * 17
+  // ── Fortune (TaiSui-based) ──
+  const currentYear = currentDate ? currentDate.getFullYear() : birthYear
+  const taiSuiIdx = getAnimalIndex(currentYear)
+  const { positiveWeight, negativeWeight } = getTaiSuiRelationships(animalIndex, taiSuiIdx)
 
-  const careerScore = ((fortuneSeed * 19 + 11) % 61) + 30
-  const wealthScore = ((fortuneSeed * 23 + 17) % 61) + 30
-  const loveScore = ((fortuneSeed * 29 + 5) % 61) + 30
-  const healthScore = ((fortuneSeed * 31 + 13) % 61) + 30
+  const careerScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 19 + animalIndex * 7 + 1)
+  const wealthScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 23 + animalIndex * 11 + 2)
+  const loveScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 29 + animalIndex * 13 + 3)
+  const healthScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 31 + animalIndex * 17 + 4)
 
   // ── Compatibility ──
   const compatibility = getCompatibility(animalIndex)

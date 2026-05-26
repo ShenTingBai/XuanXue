@@ -184,6 +184,40 @@ describe('calculateBaZi', () => {
     )
   })
 
+  it('falls back to treating input as solar when lunar conversion fails', () => {
+    // Invalid lunar date (month 13 doesn't exist)
+    const result = calculateBaZi({
+      birthYear: 2024,
+      birthMonth: 13,
+      birthDay: 1,
+      birthCalendar: 'lunar',
+      birthHour: 8,
+      gender: '男',
+    })
+    // Should still produce a result (fallback), not throw
+    expect(result.dayMaster).toBeTruthy()
+    expect(result.yearPillar).toHaveProperty('stem')
+    expect(result.monthPillar).toHaveProperty('stem')
+    expect(result.dayPillar).toHaveProperty('stem')
+    expect(result.hourPillar).not.toBeNull()
+  })
+
+  it('handles null birthHour without crashing', () => {
+    const result = calculateBaZi({
+      birthYear: 1990,
+      birthMonth: 5,
+      birthDay: 15,
+      birthCalendar: 'solar',
+      birthHour: null,
+      gender: '男',
+    })
+    expect(result.hourPillar).toBeNull()
+    expect(result.dayMaster).toBeTruthy()
+    expect(result.yearPillar).toHaveProperty('stem')
+    expect(result.monthPillar).toHaveProperty('stem')
+    expect(result.dayPillar).toHaveProperty('stem')
+  })
+
   it('农历输入转换为公历后再计算八字', () => {
     const lunar = calculateBaZi({
       ...baseProfile, birthCalendar: 'lunar' as const,

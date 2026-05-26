@@ -20,28 +20,53 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 ├── app.vue                       # 根组件：<NuxtLayout> + <NuxtPage>
 ├── nuxt.config.ts                # 模块、CSP/HSTS 头、字体预加载
 ├── tailwind.config.ts            # 设计令牌：墨/纸/朱砂色板
-├── constants/bazi.ts             # STEMS、BRANCHES、WUXING_COLORS（唯一数据源）
+├── vitest.config.ts              # Vitest 测试配置
+├── assets/                       # 静态资源（Nuxt assets 目录）
+├── docs/                         # 项目文档
+├── public/                       # 公共静态资源（fonts 等）
+├── constants/
+│   ├── bazi.ts                   # STEMS、BRANCHES、WUXING_COLORS（唯一数据源）
+│   └── yijing.ts                 # 易经六十四卦、八卦常量
+├── types/
+│   └── lunar-javascript.d.ts     # lunar-javascript 库类型声明
+├── utils/
+│   └── date.ts                   # 日期解析工具（parseDate 等）
 ├── composables/                  # 计算引擎 + 共享状态
 │   ├── useAuth.ts                # 认证状态（基于 useState）
 │   ├── useSolarTerms.ts          # 节气日期、月柱、五虎遁
 │   ├── useBaZi.ts                # 四柱、十神、大运
 │   ├── useShenSha.ts             # 25+ 查找表，按维度组织
-│   └── useLiuNian.ts             # 11 年跨度、评分、规则模板文本
+│   ├── useLiuNian.ts             # 11 年跨度、评分、规则模板文本
+│   ├── useShengXiao.ts           # 生肖性格、五行、婚配
+│   ├── useConstellation.ts       # 星座星盘、星座解读
+│   ├── useGreeting.ts            # 问候语（localStorage 持久化）
+│   └── useYijing.ts              # 易经起卦、变卦、爻辞
 ├── components/tools/
-│   ├── bazi/                     # BaziGrid、ElementAnalysis、DayMasterCard 等
-│   ├── constellation/
-│   ├── shengxiao/
-│   └── ToolPageLayout.vue        # 三栏布局：#nav / #mobile-nav / #nav-right
-├── pages/                        # login、index、profile/[id]、tools/{bazi,shengxiao,constellation}
+│   ├── bazi/                     # BaziGrid、ElementAnalysis、DayMasterCard、DaYunTimeline 等
+│   ├── constellation/            # Nav、Hero、HoroscopePanel、YiJiPanel
+│   ├── shengxiao/                # AnimalNav、Hero、Personality、WuXingGrid、CompatibilityGrid
+│   ├── yijing/                   # HexagramDisplay、YijingCastingPanel、YijingInterpretation、ZhuangGuaTable
+│   ├── ToolPageLayout.vue        # 三栏布局：#nav / #mobile-nav / #nav-right
+│   ├── HistoryModal.vue          # 历史记录模态框
+│   ├── InkDivider.vue            # 墨韵分割线
+│   ├── PageHero.vue              # 页面标题区
+│   ├── FortuneBars.vue           # 运势柱状图
+│   ├── ScoreRing.vue             # 评分环形图
+│   ├── SkeletonCard.vue          # 骨架屏卡片
+│   ├── SkeletonBars.vue          # 骨架屏柱状图
+│   └── ScrollTopButton.vue       # 回到顶部按钮
+├── pages/                        # login、index、profile/[id]、tools/{bazi,shengxiao,constellation,yijing}
 ├── server/
 │   ├── api/auth/                 # login.post、register.post、logout.delete
 │   ├── api/divinations/          # CRUD：index.post、index.get、[id].get
+│   ├── api/profiles/             # [id].get、[id].put
 │   ├── database/db.ts            # sql.js SQLite
-│   └── utils/                    # auth（令牌提取）、rateLimit（内存限流）
+│   ├── plugins/database.ts       # Nitro 插件：数据库初始化
+│   └── utils/                    # auth（令牌提取）、rateLimit（内存限流）、json（安全解析）、profile、securityLog
 └── tests/                        # 仅组合式函数 — tests/composables/*.test.ts
 ```
 
-**类型与组合式函数放在一起**——没有独立的 `types/` 目录。共享接口（`Profile`、`BaZiResult`）从其所属的组合式函数中 `export`。
+**类型与组合式函数放在一起**——没有独立的 `types/` 目录（仅 `types/lunar-javascript.d.ts` 类型声明存于此处）。共享接口（`Profile`、`BaZiResult`）从其所属的组合式函数中 `export`。
 
 ## 开发原则
 
@@ -76,7 +101,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 传统中式书房美学：
 
-- **色板**：墨（5 阶）、纸（6 阶）、朱砂（#C62828 主色）、金、玉。
+- **色板**：墨（7 阶）、纸（6 阶）、朱砂（#C62828 主色）、金、玉。
 - **纸纹**：`body::after` SVG feTurbulence，`z-index: 40`，页面内容在 `.relative.z-10`。
 - **组件**：`btn-seal`（印章按钮）、`input-ink`（下划线输入框）、`tool-card`（玻璃卡片）、`divider-ink`、`seal-mark`、`dropdown-panel`。
 - 卡片使用 `backdrop-filter: blur(8px)` 覆盖在墨韵渐变背景上。
@@ -98,7 +123,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ### 关键约定
 
-- API 响应用泛型类型：`$fetch<Type>(url, ...)`。**禁止**使用 `as any`。
+- API 响应用泛型类型：`$fetch<Type>(url, ...)`。**禁止**使用 `as any`（在测试文件中可适当使用）。
 - 跨文件引用的类型必须在定义模块中 `export`（如 `export interface Profile` 在 `useAuth.ts` 中）。
 - `setTimeout` 句柄必须先追踪并清除，再设置新的，防止快速重复提交时的过期闭包。在 `onUnmounted` 中清理。
 - 带 `min`/`max` 的数字输入**必须**在 JS 中再次校验范围——HTML `type="number"` 不能阻止手动输入越界值。
@@ -124,9 +149,9 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - **`getTenGod` 永远不能返回 `'日主'`。**`'日主'` 标签是展示概念，不是十神。仅在日柱天干构建后手动赋值：`dayPillar.stemTenGod = '日主'`。十神矩阵对相同天干正确返回 `'比肩'`。
 - **节气边界**：使用 `useSolarTerms.ts` 中的 `getSolarTerm()` 做节气判定。**禁止**硬编码日期如 `day < 4` 判断立春——节气日期每年不同。
 - **纳音公式**：天干和地支索引必须同奇偶（同偶或同奇）才构成有效甲子对。加入奇偶校验：`if ((stemIdx - branchIdx) % 2 !== 0) return ''`。
-- **大运起运年龄**当前使用简化公式 `((birthYear * 7 + 13) % 6) + 3`。真正的八字根据出生日期到最近节气边界的距离除以 3 计算。这是已知缺陷。
+- **大运起运年龄**使用标准子平法：阳男阴女顺排、阴男阳女逆排，计算出生日期到最近节气（节）的天数差 ÷ 3 = 起运岁数。12 个"节"通过 `getSolarTerm()` 精确计算。
 - **日期解析**：使用显式的 `parseDate(str)`（按 `-` 分割后 `parseInt`），**禁止**使用 `new Date(str)`——它依赖时区，对 YYYY-MM-DD 字符串不可靠。
-- **农历**：标记为农历的出生日期在日柱计算中被视为公历。这是已知缺陷——农历生日的计算结果仅为近似值。
+- **农历**：通过 `lunar-javascript` 库的 `Lunar.fromYmd().getSolar()` 将农历转换为公历后再计算。所有 BaZi 计算（年柱/月柱/日柱/时柱/大运/神煞/流年）均基于转换后的公历日期。
 
 ### ShenSha / LiuNian / Divinations 约定
 
@@ -135,9 +160,9 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - `calculateShenSha()` 返回 `ShenSha[]`，每条匹配规则返回一条——同一柱上可出现多个神煞。
 - 神煞按查找维度组织：年支（三合，6 种模式通过 `checkSanHeBranch()`）、日干（天干，9 类含禄神/羊刃/天乙贵人/太极贵人/文昌贵人/学堂/词馆/金舆/福星贵人）、月支（天德贵人/月德贵人/血刃/勾绞）、日支（天赦/十恶大败/魁罡）、通用（空亡/红鸾/天喜/丧门/吊客/孤辰/寡宿/元辰）。
 - `ShenSha.category` 取值为：`'吉'` | `'凶'` | `'中性'`。
-- `ShenSha.pillar` 可为：`'年柱'` | `'月柱'` | `'日柱'` | `'时柱'` | `'流年'`。
+- `ShenSha.pillar` 可为：`'年柱'` | `'月柱'` | `'日柱'` | `'时柱'` | `'流年'` | `'命宫'` | `'大运'`。
 - `ShenSha.position` 为：`'天干'` | `'地支'` | `'本柱'`。
-- LiuNian 的流年神煞在 `useLiuNian.ts` 中通过 `computeYearShensha()` 计算，覆盖 6 种模式：桃花(3)/驿马(2)/将星(0)/华盖(1)/劫煞(4)/灾煞(5)——索引对应 `checkSanHeBranch()` 模式数组位置。
+- LiuNian 的流年神煞在 `useLiuNian.ts` 中通过 `computeYearShensha()` 计算，覆盖三个维度：年支→流年地支（6 种三合模式）、日干→流年地支（禄神/羊刃/天乙/太极/文昌/学堂/词馆/金舆/福星共 9 类）、月支→流年（天德贵人/月德贵人）。
 - 神煞查找表是权威来源——未经核对文献**禁止修改**映射。
 
 #### LiuNian
@@ -147,7 +172,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - 评分算法：基准 50 + 喜用神(+30) / 中性(0) / 忌神(-20) + 地支关系（+10 到 -22.5，加权：日柱=1.5x，其他柱=1.0x）+ 神煞（±5），压缩到 0-100。
 - 地支关系覆盖全部 5 种：六合(+10)、六冲(-15)、三刑(-12)、六害(-8)、六破(-6)。每种关系对每个柱都检查。
 - 总结文本是纯规则模板拼接——**不是 AI 生成**。模板顺序：十神流年短语 + 五行匹配 + 地支关系结论 + 神煞提及。
-- 月干使用五虎遁（年上起月法）通过 `useSolarTerms.ts` 中的 `getMonthStemStart()` 计算。月份边界使用顺序编号（寅月=1...丑月=12）；精确的节气边界尚未实现。
+- 月干使用五虎遁（年上起月法）通过 `useSolarTerms.ts` 中的 `getMonthStemStart()` 计算。月份边界通过 `getSolarTerm()` 获取精确的节气日期（立春→寅月...小寒→丑月）。
 - 大运查找使用 `getDaYunForYear()`，将年龄匹配到周期范围；无匹配时回退到第一个周期。
 
 #### Divinations API
@@ -157,13 +182,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - 自动保存是静默的 fire-and-forget——保存失败不阻塞用户查看结果。
 - GET 列表排除 `result_data`（仅元数据以节省带宽），GET 详情包含 `result_data` 并校验归属（`profile_id` 不匹配返回 403）。
 - `input_data` 和 `result_data` 在 SQLite 中以 JSON 字符串存储；读取时通过 `safeJsonParse()` 反序列化。
-- BaZi 页面的历史下拉显示最近 5 条记录；点击恢复完整结果并重新计算神煞/流年。
-
-#### 已知缺陷
-
-- **神煞变体来源**：部分神煞有多个查找来源变体（如天乙贵人同时有日干版本和年干版本）。本实现使用日干版本，这是子平法中使用最广的版本。年干变体尚未实现。
-- **LiuNian 神煞覆盖**：流年神煞仅覆盖 6 种最常见的年支模式（桃花、驿马、将星、华盖、劫煞、灾煞）。更深层的传播——日干和月支神煞对流年地支的触发——留待后续增强。
-- **LiuNian 月份边界**：月干使用年上起月法（五虎遁），但月份边界使用简化的顺序编号（寅月=1 到 丑月=12）。精确的节气边界需要为年内每月集成 `getSolarTerm`。
+- BaZi 页面的历史下拉显示最近 20 条记录；点击恢复完整结果并重新计算神煞/流年。
 
 ### Nuxt 自动导入注意事项
 

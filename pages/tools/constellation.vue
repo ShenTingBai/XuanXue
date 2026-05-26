@@ -298,7 +298,7 @@ function dismissRestoreError() {
                 :class="compatibilityBorderClass(item.level)"
                 :title="item.label"
               >
-                <div class="text-2xl sm:text-3xl mb-1"><span role="img" :aria-label="item.name">{{ item.symbol }}</span></div>
+                <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.symbol }}</div>
                 <div class="font-display text-base text-ink-dark">{{ item.name }}</div>
                 <span
                   class="inline-block mt-1 px-2 py-0.5 rounded text-[0.625rem] font-sans tracking-wider"

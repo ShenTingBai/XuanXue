@@ -60,7 +60,7 @@ function computeResult() {
   saveError.value = ''
   showSaveErrorToast.value = false
 
-  result.value = calculateShengXiao(year, calendar, new Date())
+  result.value = calculateShengXiao(year, new Date())
   selectedAnimal.value = getAnimalIndex(year)
   saveDivinationResult(result.value, year, calendar)
   loading.value = false
@@ -81,7 +81,7 @@ function selectAnimal(index: number) {
   saveError.value = ''
   showSaveErrorToast.value = false
 
-  result.value = calculateShengXiao(representativeYear, calendar, new Date())
+  result.value = calculateShengXiao(representativeYear, new Date())
   saveDivinationResult(result.value, representativeYear, calendar)
   loading.value = false
 }

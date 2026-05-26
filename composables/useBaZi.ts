@@ -337,50 +337,57 @@ function computeStartAge(
   for (let i = 0; i < birthMonth - 1; i++) birthDOY += monthDays[i]
   birthDOY += birthDay
 
-  // 12 节 DOYs for birth year (小寒 index 11 is in the following year)
-  const termDOYs: number[] = []
-  for (let i = 0; i < 12; i++) {
-    const term = getSolarTerm(birthYear, i)
-    let doy = 0
-    for (let m = 0; m < term.month - 1; m++) doy += monthDays[m]
-    doy += term.day
-    if (i === 11) doy += isLeap ? 366 : 365
-    termDOYs.push(doy)
-  }
-
-  let diffDays: number
-
   if (forward) {
+    // Forward: look at terms after birth DOY in the current year
+    const termDOYs: number[] = []
+    for (let i = 0; i < 12; i++) {
+      const term = getSolarTerm(birthYear, i)
+      let doy = 0
+      for (let m = 0; m < term.month - 1; m++) doy += monthDays[m]
+      doy += term.day
+      if (i === 11) doy += isLeap ? 366 : 365
+      termDOYs.push(doy)
+    }
     const next = termDOYs.filter(d => d > birthDOY)
     if (next.length > 0) {
-      diffDays = Math.min(...next) - birthDOY
-    } else {
-      // After all terms → next term is next year's 立春
-      const nextLiChun = getSolarTerm(birthYear + 1, 0)
-      const nextIsLeap = ((birthYear + 1) % 4 === 0 && (birthYear + 1) % 100 !== 0) || (birthYear + 1) % 400 === 0
-      const nextMD = [31, nextIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-      let nextDOY = 0
-      for (let m = 0; m < nextLiChun.month - 1; m++) nextDOY += nextMD[m]
-      nextDOY += nextLiChun.day
-      diffDays = (isLeap ? 366 : 365) - birthDOY + nextDOY
+      return (Math.min(...next) - birthDOY) / 3
     }
-  } else {
-    const prev = termDOYs.filter(d => d < birthDOY)
-    if (prev.length > 0) {
-      diffDays = birthDOY - Math.max(...prev)
-    } else {
-      // Before all terms → prev term is previous year's 小寒
-      const prevXH = getSolarTerm(birthYear - 1, 11)
-      const prevIsLeap = ((birthYear - 1) % 4 === 0 && (birthYear - 1) % 100 !== 0) || (birthYear - 1) % 400 === 0
-      const prevMD = [31, prevIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-      let prevDOY = 0
-      for (let m = 0; m < prevXH.month - 1; m++) prevDOY += prevMD[m]
-      prevDOY += prevXH.day
-      diffDays = (prevIsLeap ? 366 : 365) - prevDOY + birthDOY
-    }
+    // After all terms → next term is next year's 立春
+    const nextLiChun = getSolarTerm(birthYear + 1, 0)
+    const nextIsLeap = ((birthYear + 1) % 4 === 0 && (birthYear + 1) % 100 !== 0) || (birthYear + 1) % 400 === 0
+    const nextMD = [31, nextIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    let nextDOY = 0
+    for (let m = 0; m < nextLiChun.month - 1; m++) nextDOY += nextMD[m]
+    nextDOY += nextLiChun.day
+    return ((isLeap ? 366 : 365) - birthDOY + nextDOY) / 3
   }
 
-  return diffDays / 3
+  // Backward: look at terms from the PREVIOUS year's cycle
+  const prevYear = birthYear - 1
+  const prevIsLeap = (prevYear % 4 === 0 && prevYear % 100 !== 0) || prevYear % 400 === 0
+  const prevMonthDays = [31, prevIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+  const prevTermDOYs: number[] = []
+  for (let i = 0; i < 12; i++) {
+    const term = getSolarTerm(prevYear, i)
+    let doy = 0
+    for (let m = 0; m < term.month - 1; m++) doy += prevMonthDays[m]
+    doy += term.day
+    if (i === 11) doy += prevIsLeap ? 366 : 365
+    prevTermDOYs.push(doy)
+  }
+
+  // The "next" term after birth in the previous year's extended cycle
+  const next = prevTermDOYs.filter(d => d > birthDOY)
+  if (next.length > 0) {
+    return (Math.min(...next) - birthDOY) / 3
+  }
+  // Before all terms in previous year too — use 立春 of previous year
+  const prevLiChun = getSolarTerm(prevYear, 0)
+  let prevLiChunDOY = 0
+  for (let m = 0; m < prevLiChun.month - 1; m++) prevLiChunDOY += prevMonthDays[m]
+  prevLiChunDOY += prevLiChun.day
+  return (birthDOY - prevLiChunDOY) / 3
 }
 
 /** Compute da yun (great fortune) cycles */
@@ -410,8 +417,8 @@ function computeDaYun(
     const stem = STEMS[stemIdx]
     const branch = BRANCHES[branchIdx]
     cycles.push({
-      startAge: Math.round(startAge) + i * 10,
-      endAge: Math.round(startAge) + i * 10 + 9,
+      startAge: Math.floor(startAge) + i * 10,
+      endAge: Math.floor(startAge) + i * 10 + 9,
       stemBranch: stem + branch,
       stemTenGod: '',
       branchTenGod: '',
@@ -461,6 +468,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
       birthCalendar = 'solar'
     } catch {
       // If conversion fails (e.g. invalid lunar date), fall through with original values
+      console.warn(`[useBaZi] Failed to convert lunar date ${birthYear}-${birthMonth}-${birthDay}, treating as solar`)
     }
   }
 
@@ -478,7 +486,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
 
   // --- Month Pillar ---
   const monthPillarYear = beforeLiChun ? birthYear - 1 : birthYear
-  const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, 'solar')
+  const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay)
   const monthStemIndex = getStemIndex(monthPillarResult.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)
 

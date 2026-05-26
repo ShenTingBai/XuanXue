@@ -44,9 +44,16 @@ async function fetchHistory() {
 
 function formatHistoryDate(dateStr: string): string {
   try {
-    const d = new Date(dateStr)
+    // Parse ISO timestamp manually to avoid timezone ambiguity (CLAUDE.md convention)
+    const [datePart, timePart] = dateStr.split('T')
+    if (!datePart) return dateStr
+    const [y, m, d] = datePart.split('-').map(Number)
     const pad = (n: number) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+    if (timePart) {
+      const [hh, mm] = timePart.split(':').map(Number)
+      return `${y}-${pad(m)}-${pad(d)} ${pad(hh)}:${pad(mm)}`
+    }
+    return `${y}-${pad(m)}-${pad(d)}`
   } catch {
     return dateStr
   }
