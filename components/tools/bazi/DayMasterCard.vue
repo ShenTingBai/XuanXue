@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, strengthColorClass as strengthColorClassFn } from '~/constants/bazi'
+import { wuxingColor, strengthColorClass as strengthColorClassFn } from '~/constants/bazi'
 
 const props = defineProps<{
   dayMaster: string
@@ -67,6 +67,6 @@ const ELEMENT_BG: Record<string, string> = {
   '金': 'bg-wuxing-metal/8', '水': 'bg-wuxing-water/8',
 }
 
-function elementColor(el: string): string { return WUXING_COLORS[el] || WUXING_FALLBACK_COLOR }
+function elementColor(el: string): string { return wuxingColor(el) }
 function elementBgClass(el: string): string { return ELEMENT_BG[el] || 'bg-paper-medium/50' }
 </script>

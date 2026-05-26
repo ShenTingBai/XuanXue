@@ -47,3 +47,15 @@ export function strengthColorClass(strength: string): string {
   if (strength === '偏弱' || strength === '弱') return 'text-wuxing-water font-medium'
   return 'text-gold font-medium'
 }
+
+/** Get the display color for a wuxing element with fallback */
+export function wuxingColor(wx: string): string {
+  return WUXING_COLORS[wx] || WUXING_FALLBACK_COLOR
+}
+
+/** Get badge style for a shensha category (shared between ShenShaPanel and LiuNianTimeline) */
+export function shenShaBadgeStyle(category: '吉' | '中性' | '凶'): { bg: string; text: string; border: string } {
+  if (category === '吉') return { bg: hexToRgba('#3D6B4B', 0.08), text: '#3D6B4B', border: hexToRgba('#3D6B4B', 0.25) }
+  if (category === '凶') return { bg: hexToRgba('#C62828', 0.08), text: '#C62828', border: hexToRgba('#C62828', 0.25) }
+  return { bg: hexToRgba('#6B5B4F', 0.08), text: '#6B5B4F', border: hexToRgba('#6B5B4F', 0.25) }
+}

@@ -26,7 +26,7 @@
             class="relative group"
           >
             <button
-              class="inline-flex items-center px-3 py-2.5 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
+              class="inline-flex items-center px-3 py-3 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
               :style="buttonStyle(group.category)"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
@@ -43,7 +43,7 @@
               ]"
             >
               {{ ss.description }}
-              <span class="block mt-0.5 opacity-75 text-[0.7rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
+              <span class="block mt-0.5 opacity-75 text-[0.75rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
             </span>
           </li>
         </ul>
@@ -56,20 +56,11 @@
 <script setup lang="ts">
 import type { ShenSha } from '~/composables/useShenSha'
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
+import { shenShaBadgeStyle } from '~/constants/bazi'
 
 function buttonStyle(category: '吉' | '凶' | '中性'): Record<string, string> {
-  const wood = WUXING_COLORS['木']
-  const fire = WUXING_COLORS['火']
-  const fb = WUXING_FALLBACK_COLOR
-  switch (category) {
-    case '吉':
-      return { background: hexToRgba(wood, 24 / 255), color: wood, border: `1px solid ${hexToRgba(wood, 48 / 255)}` }
-    case '凶':
-      return { background: hexToRgba(fire, 14 / 255), color: fire, border: `1px solid ${hexToRgba(fire, 32 / 255)}` }
-    case '中性':
-      return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
-  }
+  const style = shenShaBadgeStyle(category)
+  return { background: style.bg, color: style.text, border: `1px solid ${style.border}` }
 }
 
 const props = defineProps<{

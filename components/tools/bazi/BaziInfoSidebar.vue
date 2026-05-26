@@ -38,9 +38,9 @@ const props = defineProps<{
   unfavorableElements: string[]
 }>()
 
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, strengthColorClass } from '~/constants/bazi'
+import { wuxingColor, strengthColorClass } from '~/constants/bazi'
 
 const strengthClass = computed(() => strengthColorClass(props.dayMasterStrength))
 
-function elementColor(el: string): string { return WUXING_COLORS[el] || WUXING_FALLBACK_COLOR }
+function elementColor(el: string): string { return wuxingColor(el) }
 </script>

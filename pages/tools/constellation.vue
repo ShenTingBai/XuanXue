@@ -68,15 +68,15 @@ function compatibilityBadgeClass(level: string): string {
   return level === 'great'
     ? 'bg-wuxing-wood/10 text-wuxing-wood'
     : level === 'good'
-      ? 'bg-compat-good/10 text-gold'
+      ? 'bg-gold/10 text-gold'
       : 'bg-cinnabar/5 text-cinnabar/80'
 }
 
 function compatibilityBorderClass(level: string): string {
   return level === 'great'
-    ? 'hover:border-compat-great'
+    ? 'hover:border-jade'
     : level === 'good'
-      ? 'hover:border-compat-good'
+      ? 'hover:border-gold'
       : 'hover:border-cinnabar/30'
 }
 </script>
@@ -154,11 +154,11 @@ function compatibilityBorderClass(level: string): string {
               <div
                 v-for="item in result.compatibility"
                 :key="item.name"
-                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
+                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
                 :class="compatibilityBorderClass(item.level)"
                 :title="item.label"
               >
-                <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.symbol }}</div>
+                <div class="text-2xl sm:text-3xl mb-1"><span role="img" :aria-label="item.name">{{ item.symbol }}</span></div>
                 <div class="font-display text-base text-ink-dark">{{ item.name }}</div>
                 <span
                   class="inline-block mt-1 px-2 py-0.5 rounded text-[0.625rem] font-sans tracking-wider"

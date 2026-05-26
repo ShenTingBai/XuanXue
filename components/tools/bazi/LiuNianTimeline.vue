@@ -2,7 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
     <div class="flex items-center gap-3 flex-wrap">
       <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
-      <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-faint">
+      <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-medium">
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>75+ 顺遂
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(65) }" aria-hidden="true"></span>60-74 平稳
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(50) }" aria-hidden="true"></span>45-59 需注意
@@ -35,22 +35,7 @@
             <span class="font-sans text-base text-cinnabar font-medium">{{ year.tenGod }}</span>
             <!-- Score ring -->
             <div class="ml-auto flex items-center gap-1.5">
-              <svg class="w-10 h-10 -rotate-90"
-                viewBox="0 0 36 36"
-                :aria-label="`运势评分 ${year.score}分`"
-                role="img"
-              >
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#E0D5C0" stroke-opacity="0.25" stroke-width="4" />
-                <circle
-                  cx="18" cy="18" r="14" fill="none"
-                  :stroke="scoreColor(year.score)"
-                  stroke-width="4" stroke-linecap="round"
-                  :stroke-dasharray="`${(year.score / 100) * 87.96} 87.96`"
-                />
-              </svg>
-              <span class="font-sans text-base font-medium" :style="{ color: scoreColor(year.score) }">
-                {{ year.score }}
-              </span>
+              <ScoreRing :score="year.score" :size="40" label="" />
             </div>
           </div>
 
@@ -105,7 +90,7 @@
               <div class="flex flex-wrap gap-1.5">
                 <span v-for="ss in year.shenSha" :key="ss.name"
                   class="inline-flex items-center px-2 py-0.5 rounded text-sm font-sans cursor-default"
-                  :style="shenShaBadgeStyle(ss.category)"
+                  :style="shenShaBadgeStyleLocal(ss.category)"
                   :title="ss.description"
                 >{{ ss.name }}</span>
               </div>
@@ -174,7 +159,7 @@
             <div v-if="year.shenSha.length > 0" class="flex flex-wrap gap-1">
               <span v-for="ss in year.shenSha" :key="ss.name"
                 class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-sans cursor-default"
-                :style="shenShaBadgeStyle(ss.category)"
+                :style="shenShaBadgeStyleLocal(ss.category)"
                 :title="ss.description"
               >{{ ss.name }}</span>
             </div>
@@ -189,7 +174,8 @@
 <script setup lang="ts">
 import type { LiuNianYear } from '~/composables/useLiuNian'
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
+import ScoreRing from '~/components/tools/ScoreRing.vue'
+import { shenShaBadgeStyle, WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
 
 const props = defineProps<{
   years: LiuNianYear[]
@@ -244,19 +230,8 @@ function tenGodBadgeStyle(isFavorable: boolean, isUnfavorable: boolean): Record<
   return { background: hexToRgba(WUXING_FALLBACK_COLOR, 18 / 255), color: WUXING_FALLBACK_COLOR }
 }
 
-function shenShaBadgeStyle(category: '吉' | '凶' | '中性'): Record<string, string> {
-  const wood = WUXING_COLORS['木']
-  const fire = WUXING_COLORS['火']
-  const fb = WUXING_FALLBACK_COLOR
-  switch (category) {
-    case '吉':
-      return { background: hexToRgba(wood, 24 / 255), color: wood, border: `1px solid ${hexToRgba(wood, 48 / 255)}` }
-    case '凶':
-      return { background: hexToRgba(fire, 14 / 255), color: fire, border: `1px solid ${hexToRgba(fire, 32 / 255)}` }
-    case '中性':
-      return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
-    default:
-      return { background: hexToRgba(fb, 18 / 255), color: fb, border: `1px solid ${hexToRgba(fb, 40 / 255)}` }
-  }
+function shenShaBadgeStyleLocal(category: '吉' | '凶' | '中性'): Record<string, string> {
+  const s = shenShaBadgeStyle(category)
+  return { background: s.bg, color: s.text, border: `1px solid ${s.border}` }
 }
 </script>

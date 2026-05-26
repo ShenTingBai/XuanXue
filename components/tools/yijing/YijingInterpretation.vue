@@ -8,36 +8,7 @@
     <h2 class="sr-only">卦象评分</h2>
     <InkDivider>卦象评分</InkDivider>
     <div class="flex justify-center mb-8">
-      <div class="score-ring-wrapper">
-        <svg class="score-ring" viewBox="0 0 120 120" :aria-label="`卦象评分：${score}分`" role="img">
-          <!-- Background circle -->
-          <circle
-            cx="60" cy="60" r="52"
-            fill="none"
-            stroke="#E0D5C0"
-            stroke-width="6"
-            aria-hidden="true"
-            focusable="false"
-          />
-          <!-- Score circle -->
-          <circle
-            cx="60" cy="60" r="52"
-            fill="none"
-            stroke-width="6"
-            stroke-linecap="round"
-            :stroke-dasharray="circumference"
-            :stroke-dashoffset="dashOffset"
-            stroke="#C62828"
-            class="score-ring-fill"
-            aria-hidden="true"
-            focusable="false"
-          />
-        </svg>
-        <div class="score-ring-text" aria-hidden="true">
-          <span class="score-number">{{ score }}</span>
-          <span class="score-label">分</span>
-        </div>
-      </div>
+      <ScoreRing :score="score" />
     </div>
 
     <!-- Primary hexagram -->
@@ -51,6 +22,8 @@
           lines: result.lines.map(l => l.yao),
           shiPosition: result.hexagram.shiPosition,
           yingPosition: result.hexagram.yingPosition,
+          palaceName: result.hexagram.palaceName,
+          palaceWuxing: result.hexagram.palaceWuxing,
         }"
         :judgments="result.lines.map(l => l.judgment)"
         label="本卦"
@@ -69,6 +42,8 @@
             lines: result.derivedLines.map(l => l.yao),
             shiPosition: result.derivedHexagram.shiPosition,
             yingPosition: result.derivedHexagram.yingPosition,
+            palaceName: result.derivedHexagram.palaceName,
+            palaceWuxing: result.derivedHexagram.palaceWuxing,
           }"
           :judgments="result.derivedLines.map(l => l.judgment)"
           label="变卦"
@@ -88,6 +63,8 @@
             lines: result.huGuaLines.map(l => l.yao),
             shiPosition: result.huGua.shiPosition,
             yingPosition: result.huGua.yingPosition,
+            palaceName: result.huGua.palaceName,
+            palaceWuxing: result.huGua.palaceWuxing,
           }"
           :judgments="result.huGuaLines.map(l => l.judgment)"
           label="互卦"
@@ -133,25 +110,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { YijingResult } from '~/composables/useYijing'
 import HexagramDisplay from '~/components/tools/yijing/HexagramDisplay.vue'
 import ZhuangGuaTable from '~/components/tools/yijing/ZhuangGuaTable.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import ScoreRing from '~/components/tools/ScoreRing.vue'
 
 const props = defineProps<{
   result: YijingResult | null
   score: number
 }>()
-
-// Score ring circumference
-const radius = 52
-const circumference = 2 * Math.PI * radius
-
-const dashOffset = computed(() => {
-  const fraction = Math.max(0, Math.min(100, props.score)) / 100
-  return circumference - fraction * circumference
-})
 
 const interpretationParagraphs = computed(() => {
   if (!props.result) return []
@@ -161,47 +129,6 @@ const interpretationParagraphs = computed(() => {
 </script>
 
 <style scoped>
-.score-ring-wrapper {
-  position: relative;
-  width: 120px;
-  height: 120px;
-}
-
-.score-ring {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.score-ring-fill {
-  transition: stroke-dashoffset 1s ease-out;
-  filter: drop-shadow(0 0 3px rgba(198, 40, 40, 0.3));
-}
-
-.score-ring-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.score-number {
-  font-family: 'Ma Shan Zheng', cursive;
-  font-size: 2.25rem;
-  line-height: 1;
-  color: #2C1810;
-}
-
-.score-label {
-  font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.75rem;
-  margin-top: 2px;
-  color: #7A6A5C;
-}
-
 .section-card {
   background: rgba(251, 248, 244, 0.95);
   border: 1px solid #E0D5C0;

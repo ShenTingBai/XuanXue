@@ -86,7 +86,7 @@
       <div class="overflow-x-auto -mx-4 px-4 pb-3 scrollbar-hide">
         <div class="inline-flex gap-2">
           <div v-for="(p, idx) in pillars" :key="'card-' + idx"
-            class="inline-flex flex-col w-[88px] rounded-lg overflow-hidden flex-shrink-0"
+            class="inline-flex flex-col w-[104px] rounded-lg overflow-hidden flex-shrink-0"
             :class="idx === 2 ? 'border-2 border-cinnabar bg-cinnabar/15' : 'border border-paper-dark'"
           >
             <!-- Mobile header -->
@@ -154,25 +154,22 @@
 <script setup lang="ts">
 import type { BaZiPillar } from '~/composables/useBaZi'
 import InkDivider from '~/components/tools/InkDivider.vue'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, STEMS, BRANCHES, NAYIN_TABLE, getNaYin } from '~/constants/bazi'
+import { wuxingColor, getNaYin } from '~/constants/bazi'
 
 const props = defineProps<{
   pillars: BaZiPillar[]
 }>()
 
+const allHeaders = [
+  { label: '年柱', isDay: false },
+  { label: '月柱', isDay: false },
+  { label: '日柱', isDay: true },
+  { label: '时柱', isDay: false },
+]
+
 const headers = computed(() => {
-  const allHeaders = [
-    { label: '年柱', isDay: false },
-    { label: '月柱', isDay: false },
-    { label: '日柱', isDay: true },
-    { label: '时柱', isDay: false },
-  ]
   return allHeaders.slice(0, props.pillars.length)
 })
-
-function wuxingColor(wx: string): string {
-  return WUXING_COLORS[wx] || WUXING_FALLBACK_COLOR
-}
 
 function tenGodBadgeClass(tg: string): string {
   if (tg === '日主') return 'bg-ink-dark/10 text-ink-dark'
