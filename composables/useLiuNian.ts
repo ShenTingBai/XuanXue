@@ -1,7 +1,7 @@
 import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
 import { getTenGod, WUXING_STEM, WUXING_BRANCH, type BaZiResult } from './useBaZi'
 import { checkSanHeBranch, type ShenSha } from './useShenSha'
-import { getMonthStemStart } from './useSolarTerms'
+import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
 
 // === Typed Exports ===
 
@@ -16,6 +16,8 @@ export interface LiuNianMonthlyStem {
   month: number  // 1-12 (寅月=1, 卯月=2, ... 丑月=12)
   stem: string
   branch: string
+  startMonth: number  // Gregorian month of the solar term that starts this month (e.g., 2 for 立春)
+  startDay: number     // Gregorian day of the solar term that starts this month
 }
 
 export interface LiuNianYear {
@@ -109,21 +111,32 @@ function getYearStemBranch(year: number): { stem: string; stemIdx: number; branc
   return { stem: STEMS[stemIdx], stemIdx, branch: BRANCHES[branchIdx], branchIdx }
 }
 
-// === Monthly stems (年上起月法) ===
+// === Monthly stems (年上起月法, with precise solar-term boundaries) ===
 
 function getMonthlyStems(year: number): LiuNianMonthlyStem[] {
   const { stemIdx: yearStemIdx } = getYearStemBranch(year)
   const monthStemStart = getMonthStemStart(yearStemIdx)
   const monthBranches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
 
-  // NOTE: Month boundaries are sequential (寅月=1, etc.). Precise solar-term-based
-  // boundaries would require integrating getSolarTerm for each month within the year.
+  // Compute precise solar-term boundaries for each month.
+  // Terms 0-10 (立春 through 大雪) use the given calendar year.
+  // Term 11 (小寒) falls in the NEXT calendar year (typically early January).
+  const termDates: Array<{ month: number; day: number }> = []
+  for (let ti = 0; ti < 11; ti++) {
+    termDates.push(getSolarTerm(year, ti))
+  }
+  termDates.push(getSolarTerm(year + 1, 11)) // 小寒 is in January of year+1
 
-  return monthBranches.map((branch, i) => ({
-    month: i + 1, // 1=寅月, 2=卯月, ... 12=丑月
-    stem: STEMS[(monthStemStart + i) % 10],
-    branch,
-  }))
+  return monthBranches.map((branch, i) => {
+    const term = termDates[i]
+    return {
+      month: i + 1, // 1=寅月, 2=卯月, ... 12=丑月
+      stem: STEMS[(monthStemStart + i) % 10],
+      branch,
+      startMonth: term.month,
+      startDay: term.day,
+    }
+  })
 }
 
 // === Summary sentence generation ===

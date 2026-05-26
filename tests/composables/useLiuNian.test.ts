@@ -96,6 +96,25 @@ describe('calculateLiuNian', () => {
     expect(monthlyStems[1].branch).toBe('卯')
   })
 
+  it('monthly stems include solar term boundary dates (startMonth, startDay)', () => {
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    const monthlyStems = result[5].detail!.monthlyStems
+    for (const ms of monthlyStems) {
+      expect(ms.startMonth).toBeGreaterThanOrEqual(1)
+      expect(ms.startMonth).toBeLessThanOrEqual(12)
+      expect(ms.startDay).toBeGreaterThanOrEqual(1)
+      expect(ms.startDay).toBeLessThanOrEqual(31)
+    }
+    // 寅月 starts at 立春 (~Feb 4)
+    expect(monthlyStems[0].startMonth).toBe(2)
+    expect(monthlyStems[0].startDay).toBeGreaterThanOrEqual(3)
+    expect(monthlyStems[0].startDay).toBeLessThanOrEqual(5)
+    // 丑月 starts at 小寒 (~Jan 5 of NEXT year, i.e., 2027)
+    expect(monthlyStems[11].startMonth).toBe(1)
+    expect(monthlyStems[11].startDay).toBeGreaterThanOrEqual(4)
+    expect(monthlyStems[11].startDay).toBeLessThanOrEqual(6)
+  })
+
   it('is deterministic (same input = same output)', () => {
     const a = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
     const b = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })

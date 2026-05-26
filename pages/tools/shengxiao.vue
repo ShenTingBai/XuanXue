@@ -3,7 +3,7 @@
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
 import { parseDate } from '~/utils/date'
 
-const { currentProfile, restoreSession } = useAuth()
+const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
 
 import ShengXiaoHero from '~/components/tools/shengxiao/Hero.vue'
@@ -14,6 +14,7 @@ import AnimalNav from '~/components/tools/shengxiao/AnimalNav.vue'
 import FortuneBars from '~/components/tools/FortuneBars.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
@@ -23,6 +24,9 @@ const result = ref<ShengXiaoResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const selectedAnimal = ref<number | null>(null)
+const savedDivinationId = ref<number | null>(null)
+const saveError = ref('')
+const showSaveErrorToast = ref(false)
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -48,8 +52,13 @@ function computeResult() {
   const year = parsed.year
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
+  savedDivinationId.value = null
+  saveError.value = ''
+  showSaveErrorToast.value = false
+
   result.value = calculateShengXiao(year, calendar, new Date())
   selectedAnimal.value = getAnimalIndex(year)
+  saveDivinationResult(result.value, year, calendar)
   loading.value = false
 }
 
@@ -62,8 +71,14 @@ function selectAnimal(index: number) {
   const currentAnimalIdx = getAnimalIndex(currentYear)
   const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
   const representativeYear = currentYear - diff
+  const calendar = currentProfile.value?.birth_calendar || 'solar'
 
-  result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar', new Date())
+  savedDivinationId.value = null
+  saveError.value = ''
+  showSaveErrorToast.value = false
+
+  result.value = calculateShengXiao(representativeYear, calendar, new Date())
+  saveDivinationResult(result.value, representativeYear, calendar)
   loading.value = false
 }
 
@@ -73,6 +88,37 @@ function scrollToAnimalNav() {
   const el = document.querySelector('[data-animal-nav]')
   el?.scrollIntoView({ behavior: 'smooth' })
 }
+
+// ── Auto-save ────────────────────────────────────────
+
+async function saveDivinationResult(result: ShengXiaoResult, representativeYear: number, calendar: string) {
+  try {
+    const headers = getAuthHeaders()
+    if (headers.Authorization) {
+      const inputData = { representativeYear, calendar }
+      const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+        method: 'POST',
+        headers,
+        body: {
+          type: 'shengxiao',
+          input_data: inputData,
+          result_data: JSON.parse(JSON.stringify(result)),
+        },
+      })
+      savedDivinationId.value = saveRes.id
+      saveError.value = ''
+    }
+  } catch (e: unknown) {
+    saveError.value = e instanceof Error ? e.message : '保存失败'
+    savedDivinationId.value = null
+    showSaveErrorToast.value = true
+  }
+}
+
+function dismissSaveErrorToast() {
+  showSaveErrorToast.value = false
+}
+
 </script>
 
 <template>
@@ -129,6 +175,24 @@ function scrollToAnimalNav() {
         <!-- Result -->
         <template v-else-if="result">
           <div aria-live="polite" aria-atomic="true">
+            <!-- Save error toast -->
+            <Transition name="toast">
+              <div
+                v-if="showSaveErrorToast"
+                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                role="alert"
+              >
+                <span>{{ saveError }}</span>
+                <button
+                  @click="dismissSaveErrorToast"
+                  @keydown.enter="dismissSaveErrorToast"
+                  @keydown.space.prevent="dismissSaveErrorToast"
+                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  aria-label="关闭提示"
+                >&times;</button>
+              </div>
+            </Transition>
+
           <ShengXiaoHero :result="result" />
           <WuXingGrid :result="result" />
 
@@ -185,7 +249,23 @@ function scrollToAnimalNav() {
               <span>切换生肖</span>
             </button>
           </div>
+
           </div>
         </template>
       </ToolPageLayout>
 </template>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+</style>

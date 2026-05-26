@@ -10,6 +10,7 @@ export interface ShenShaInput {
   hourPillar: BaZiPillar | null
   dayMaster: string
   dayMasterIndex: number
+  yearStemIndex?: number  // 年干索引 0-9 (甲=0), for year-stem-based shensha lookups; falls back to yearPillar.stem
   gender: '男' | '女' | null  // reserved for future use (e.g., gender-specific shensha priorities)
 }
 
@@ -316,6 +317,28 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
     // 福星贵人
     if (FU_XING_MAP[dayStem] === b) {
       results.push({ name: '福星贵人', category: '吉', source: '日干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['福星贵人'] })
+    }
+  }
+
+  // === 年干查神煞 (year stem as source, coexists with 日干 versions) ===
+  // Use year pillar stem for lookup; the same maps work because the formulas
+  // for 天乙贵人/太极贵人/文昌贵人 are identical for day stem and year stem.
+  const yearStem = yearPillar.stem
+
+  for (const { pillar, pillarLabel } of allPillars) {
+    const b = pillar.branch
+
+    // 天乙贵人 (年干版)
+    if (TIAN_YI_MAP[yearStem]?.includes(b)) {
+      results.push({ name: '天乙贵人', category: '吉', source: '年干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['天乙贵人'] })
+    }
+    // 太极贵人 (年干版)
+    if (TAI_JI_MAP[yearStem]?.includes(b)) {
+      results.push({ name: '太极贵人', category: '吉', source: '年干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['太极贵人'] })
+    }
+    // 文昌贵人 (年干版)
+    if (WEN_CHANG_MAP[yearStem] === b) {
+      results.push({ name: '文昌贵人', category: '吉', source: '年干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['文昌贵人'] })
     }
   }
 

@@ -13,8 +13,7 @@
       :aria-current="idx === currentIndex ? 'true' : undefined"
     >
       <span class="text-base flex-shrink-0" aria-hidden="true">{{ animal.emoji }}</span>
-      <span class="font-sans">{{ animal.name }}</span>
-      <span class="text-[0.625rem] text-ink-light ml-auto flex-shrink-0">{{ animal.branch }}</span>
+      <span class="font-sans">{{ animal.branch }}{{ animal.name }}</span>
     </button>
   </div>
 </template>
