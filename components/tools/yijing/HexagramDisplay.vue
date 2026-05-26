@@ -3,26 +3,32 @@
     暂无卦象
   </div>
 
-  <div v-else class="hexagram-container fade-in" :style="{ '--delay': '0.15s' }">
-    <!-- Label + name header -->
+  <div v-else class="hexagram-container" :style="{ '--delay': '0.15s' }">
+    <!-- Hexagram name header -->
     <div class="text-center mb-5">
       <span v-if="label" class="font-sans text-[0.625rem] tracking-[0.2em] text-ink-light uppercase">{{ label }}</span>
-      <h3 class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight mt-1">
-        {{ hexagram.name }}
-      </h3>
-      <!-- Decorative accent -->
+      <div class="flex items-center justify-center gap-2 mt-1">
+        <span class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight">
+          {{ hexagram.name }}
+        </span>
+      </div>
+      <!-- Decorative ink-wash accent -->
       <div class="flex items-center justify-center gap-2 mt-2" aria-hidden="true">
-        <span class="block w-8 h-px bg-paper-dark"></span>
-        <span class="block w-1.5 h-1.5 rounded-full bg-cinnabar/60"></span>
-        <span class="block w-8 h-px bg-paper-dark"></span>
+        <span class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
+        <span class="block w-1.5 h-1.5 rotate-45 bg-cinnabar/60"></span>
+        <span class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
       </div>
     </div>
 
-    <!-- Main body: yao lines + judgment -->
-    <div class="flex gap-5 sm:gap-8">
+    <!-- Main body: yao lines + content -->
+    <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
       <!-- Yao lines column -->
-      <div class="flex-shrink-0">
-        <div class="bg-paper-medium/40 rounded-lg px-3 sm:px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="group" :aria-label="`${hexagram.name}卦象`">
+      <div class="flex-shrink-0 mx-auto sm:mx-0">
+        <div
+          class="yao-container"
+          role="group"
+          :aria-label="`${hexagram.name}卦象`"
+        >
           <div
             v-for="(yao, idx) in hexagram.lines"
             :key="idx"
@@ -34,56 +40,65 @@
               'yao-line--shi': hexagram.shiPosition === (idx + 1),
               'yao-line--ying': hexagram.yingPosition === (idx + 1),
             }"
-            :aria-label="getYaoLabel(yao, idx, hexagram)"
           >
-            <!-- Yao bar(s) -->
-            <template v-if="yao.isYang">
-              <span class="yao-bar yao-bar--solid"></span>
-            </template>
-            <template v-else>
-              <span class="yao-bar yao-bar--left"></span>
-              <span class="yao-gap"></span>
-              <span class="yao-bar yao-bar--right"></span>
-            </template>
-
-            <!-- Position + shi/ying label (always visible) -->
-            <span class="yao-label" aria-hidden="true">
+            <!-- Position + shi/ying label on the left of bar -->
+            <span class="yao-pos" aria-hidden="true">
               <template v-if="hexagram.shiPosition === (idx + 1)">世</template>
               <template v-else-if="hexagram.yingPosition === (idx + 1)">应</template>
               <template v-else>{{ ['初', '二', '三', '四', '五', '上'][idx] }}</template>
+            </span>
+
+            <!-- Yao bar(s) -->
+            <span class="yao-bars" :aria-label="getYaoLabel(yao, idx, hexagram)">
+              <template v-if="yao.isYang">
+                <span class="yao-bar yao-bar--solid"></span>
+              </template>
+              <template v-else>
+                <span class="yao-bar yao-bar--left"></span>
+                <span class="yao-gap"></span>
+                <span class="yao-bar yao-bar--right"></span>
+              </template>
+            </span>
+
+            <!-- Changing indicator dot -->
+            <span v-if="yao.isChanging" class="yao-changing-dot" aria-hidden="true"></span>
+
+            <!-- Per-line judgment (fills rightwards space) -->
+            <span v-if="judgments && judgments[idx]" class="yao-judgment">
+              {{ judgments[idx] }}
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Judgment + metadata column -->
-      <div class="min-w-0 flex-1 flex flex-col justify-between">
-        <!-- Hexagram judgment -->
-        <div>
-          <p v-if="hexagram.judgment" class="font-sans text-sm sm:text-base text-ink leading-relaxed !border-l-[3px] !border-cinnabar/50 pl-4">
-            {{ hexagram.judgment }}
-          </p>
+      <!-- Hexagram judgment + metadata column -->
+      <div class="min-w-0 flex-1 flex flex-col justify-center">
+        <div v-if="hexagram.judgment" class="hexagram-judgment">
+          <p class="judgment-text">{{ hexagram.judgment }}</p>
         </div>
 
-        <!-- Metadata footer -->
-        <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3">
-          <span class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
-            <span>上</span>
-            <span class="font-medium text-ink-medium">{{ upperTrigramName }}</span>
-            <span v-if="upperWuxing">({{ upperWuxing }})</span>
+        <!-- Bottom metadata -->
+        <div class="hexagram-meta">
+          <span class="meta-item">
+            <span class="meta-label">上</span>
+            <span class="meta-value">{{ upperTrigramName }}</span>
+            <span v-if="upperWuxing" class="meta-badge" :style="{ color: wuxingColor(upperWuxing), borderColor: wuxingColor(upperWuxing) + '40' }">{{ upperWuxing }}</span>
           </span>
-          <span class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
-            <span>下</span>
-            <span class="font-medium text-ink-medium">{{ lowerTrigramName }}</span>
-            <span v-if="lowerWuxing">({{ lowerWuxing }})</span>
+          <span class="meta-divider" aria-hidden="true">·</span>
+          <span class="meta-item">
+            <span class="meta-label">下</span>
+            <span class="meta-value">{{ lowerTrigramName }}</span>
+            <span v-if="lowerWuxing" class="meta-badge" :style="{ color: wuxingColor(lowerWuxing), borderColor: wuxingColor(lowerWuxing) + '40' }">{{ lowerWuxing }}</span>
           </span>
-          <span class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
-            <span>属</span>
-            <span class="font-medium text-ink-medium">{{ palaceDisplay }}</span>
+          <span class="meta-divider" aria-hidden="true">·</span>
+          <span class="meta-item">
+            <span class="meta-label">属</span>
+            <span class="meta-value">{{ palaceDisplay }}</span>
           </span>
-          <span v-if="changingCount > 0" class="inline-flex items-center gap-1 font-sans text-[0.625rem] text-ink-light tracking-wider">
-            <span>动</span>
-            <span class="font-medium text-cinnabar">{{ changingDisplay }}</span>
+          <span v-if="changingCount > 0" class="meta-divider" aria-hidden="true">·</span>
+          <span v-if="changingCount > 0" class="meta-item meta-item--changing">
+            <span class="meta-label">动</span>
+            <span class="meta-value meta-value--changing">{{ changingDisplay }}</span>
           </span>
         </div>
       </div>
@@ -95,6 +110,7 @@
 import { computed } from 'vue'
 import type { YaoResult } from '~/composables/useYijing'
 import { TRIGRAM_NAMES, TRIGRAM_WUXING } from '~/constants/yijing'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
 interface HexagramProp {
   name: string
@@ -107,7 +123,12 @@ interface HexagramProp {
 const props = defineProps<{
   hexagram: HexagramProp | null
   label?: string
+  judgments?: string[]
 }>()
+
+function wuxingColor(wx: string): string {
+  return WUXING_COLORS[wx] || WUXING_FALLBACK_COLOR
+}
 
 function trigramIndex(lines: YaoResult[], start: number): number {
   const bits = [lines[start], lines[start + 1], lines[start + 2]]
@@ -144,19 +165,57 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 </script>
 
 <style scoped>
+.hexagram-container {
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+/* ── Yao lines container ── */
+.yao-container {
+  display: inline-flex;
+  flex-direction: column-reverse;
+  gap: 5px;
+  padding: 14px 16px 14px 10px;
+  background: rgba(44, 24, 16, 0.035);
+  border: 1px solid rgba(44, 24, 16, 0.08);
+  border-radius: 10px;
+}
+
 .yao-line {
   display: flex;
   align-items: center;
-  gap: 0;
-  height: 14px;
+  gap: 6px;
+  height: 20px;
   position: relative;
+}
+
+/* Position label on the left */
+.yao-pos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.55rem;
+  line-height: 1;
+  color: #7A6A5C;
+  letter-spacing: 0;
+}
+
+/* Yao bars */
+.yao-bars {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .yao-bar {
   display: block;
-  height: 5px;
-  border-radius: 2px;
-  @apply bg-ink-dark;
+  height: 6px;
+  border-radius: 3px;
+  background: #1E1210;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -175,40 +234,135 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .yao-bar--left {
-  border-radius: 2px 0 0 2px;
+  border-radius: 3px 0 0 3px;
 }
 
 .yao-bar--right {
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 3px 3px 0;
 }
 
-.yao-label {
-  margin-left: 6px;
+/* Per-line judgment text */
+.yao-judgment {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
-  @apply text-ink-light;
-  line-height: 1;
+  font-size: 0.7rem;
+  color: #6B5B4F;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+  padding-left: 2px;
 }
 
+/* Changing dot indicator */
+.yao-changing-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #C62828;
+  flex-shrink: 0;
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+/* ── Changing line glow ── */
 .yao-line--changing .yao-bar {
-  @apply bg-cinnabar;
+  background: #C62828;
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
-.yao-line--shi .yao-label {
-  @apply text-cinnabar;
+.yao-line--changing .yao-pos {
+  color: #C62828;
+}
+
+.yao-line--changing .yao-judgment {
+  color: #C62828;
+}
+
+/* Shi/Ying styling */
+.yao-line--shi .yao-pos {
+  color: #C62828;
+  font-weight: 600;
+}
+
+.yao-line--ying .yao-pos {
+  color: #7A5E12;
+  font-weight: 600;
+}
+
+/* ── Judgment text ── */
+.hexagram-judgment {
+  margin-bottom: 10px;
+}
+
+.judgment-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: #2C1810;
+  padding-left: 12px;
+  border-left: 3px solid rgba(198, 40, 40, 0.45);
+}
+
+/* ── Metadata ── */
+.hexagram-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.65rem;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #7A6A5C;
+}
+
+.meta-label {
+  color: #6B5B4F;
+  opacity: 0.6;
+}
+
+.meta-value {
+  color: #6B5B4F;
   font-weight: 500;
 }
 
-.yao-line--ying .yao-label {
-  @apply text-gold;
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  border: 1px solid;
+  border-radius: 3px;
+  font-size: 0.55rem;
+  line-height: 1.3;
   font-weight: 500;
 }
 
+.meta-divider {
+  color: #D4C5B0;
+  margin: 0 6px;
+  font-weight: 300;
+}
+
+.meta-item--changing .meta-value {
+  color: #C62828;
+}
+
+/* ── Responsive ── */
 @media (min-width: 640px) {
+  .yao-container {
+    gap: 6px;
+    padding: 16px 20px 16px 12px;
+  }
   .yao-line {
-    height: 16px;
+    height: 24px;
+    gap: 8px;
+  }
+  .yao-pos {
+    width: 20px;
+    font-size: 0.6rem;
   }
   .yao-bar--solid {
     width: 68px;
@@ -220,10 +374,36 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   .yao-gap {
     width: 10px;
   }
+  .yao-bar {
+    height: 7px;
+    border-radius: 3.5px;
+  }
+  .yao-judgment {
+    font-size: 0.75rem;
+  }
+  .judgment-text {
+    font-size: 0.925rem;
+  }
+  .hexagram-meta {
+    font-size: 0.7rem;
+  }
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 0px #C62828; }
   50% { box-shadow: 0 0 8px #C62828; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 </style>

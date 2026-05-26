@@ -1,11 +1,6 @@
 <template>
   <ToolPageLayout>
-      <PageHero
-        emoji="☯"
-        emoji-label="太极"
-        title="六爻占卜"
-        subtitle="纳甲装卦 · 周易古法"
-      />
+      <h1 class="sr-only">六爻占卜</h1>
 
       <div class="max-w-[48rem] mx-auto">
         <!-- Casting panel -->
@@ -70,13 +65,11 @@
 
 <script setup lang="ts">
 import {
-  castByCoin,
   castByNumbers,
   computeYijingResult,
   type YijingResult,
 } from '~/composables/useYijing'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
-import PageHero from '~/components/tools/PageHero.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'

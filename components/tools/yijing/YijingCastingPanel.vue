@@ -14,13 +14,26 @@
     </div>
 
     <!-- Coin casting mode -->
-    <div v-if="mode === 'coin'" class="card-paper-solid rounded-xl p-8 text-center">
-      <h2 class="font-display text-2xl sm:text-3xl text-ink-dark mb-6">
-        摇卦
-      </h2>
+    <div v-if="mode === 'coin'" class="casting-card rounded-xl p-6 sm:p-8 text-center">
+      <!-- Decorative top accent -->
+      <div class="flex items-center justify-center gap-3 mb-5" aria-hidden="true">
+        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
+        <span class="font-display text-2xl sm:text-3xl text-ink-dark tracking-widest">摇卦</span>
+        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
+      </div>
+
+      <!-- Toss progress indicator -->
+      <div class="flex justify-center gap-1.5 mb-6" aria-hidden="true">
+        <span
+          v-for="n in 6"
+          :key="n"
+          class="w-2.5 h-2.5 rounded-full transition-all duration-500"
+          :class="n <= currentToss ? 'bg-cinnabar/70' : 'bg-ink-dark/10'"
+        ></span>
+      </div>
 
       <!-- Three coins -->
-      <div class="flex justify-center gap-5 mb-6" aria-label="三枚铜钱">
+      <div class="flex justify-center gap-5 mb-5" aria-label="三枚铜钱">
         <div
           v-for="n in 3"
           :key="n"
@@ -38,16 +51,16 @@
         </div>
       </div>
 
-      <!-- Progress -->
-      <p class="font-sans text-sm text-ink-light mb-6" aria-live="polite" aria-atomic="true">
+      <!-- Progress text -->
+      <p class="font-sans text-sm text-ink-light mb-6 leading-relaxed" aria-live="polite" aria-atomic="true">
         <template v-if="currentToss === 0">
-          请诚心默念所问之事，然后摇动铜钱
+          诚心默念所问之事，然后摇动铜钱
         </template>
         <template v-else-if="currentToss < 6">
-          第 {{ currentToss }}/6 次
+          第 <strong class="text-cinnabar">{{ currentToss }}</strong>/6 次
         </template>
         <template v-else>
-          装卦完成
+          卦象已成，正在解卦...
         </template>
       </p>
 
@@ -77,57 +90,58 @@
     </div>
 
     <!-- Number casting mode -->
-    <div v-else class="card-paper-solid rounded-xl p-8">
-      <h2 class="font-display text-2xl sm:text-3xl text-ink-dark mb-6 text-center">
-        数字起卦
-      </h2>
+    <div v-else class="casting-card rounded-xl p-6 sm:p-8">
+      <div class="flex items-center justify-center gap-3 mb-6" aria-hidden="true">
+        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
+        <span class="font-display text-2xl sm:text-3xl text-ink-dark tracking-widest">数字起卦</span>
+        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
+      </div>
 
       <p class="font-sans text-sm text-ink-light mb-6 text-center leading-relaxed">
-        请输入三个数字（1-8）。<br class="sm:hidden" />
-        第一个为上卦数，第二个为下卦数，第三个为动爻数。
+        请输入三个数字。第一个为上卦数，第二个为下卦数，第三个为动爻数。
       </p>
 
-      <form class="max-w-sm mx-auto space-y-5" @submit.prevent="handleNumberSubmit">
-        <div>
-          <label for="yijing-upper" class="block font-sans text-sm text-ink mb-2">上卦数字（1-8）</label>
-          <input
-            id="yijing-upper"
-            v-model="upperNum"
-            type="number"
-            min="1"
-            max="8"
-            class="input-ink"
-            placeholder="如 1 为乾"
-            required
-          />
-        </div>
-
-        <div>
-          <label for="yijing-lower" class="block font-sans text-sm text-ink mb-2">下卦数字（1-8）</label>
-          <input
-            id="yijing-lower"
-            v-model="lowerNum"
-            type="number"
-            min="1"
-            max="8"
-            class="input-ink"
-            placeholder="如 8 为坤"
-            required
-          />
-        </div>
-
-        <div>
-          <label for="yijing-moving" class="block font-sans text-sm text-ink mb-2">动爻数字（1-6）</label>
-          <input
-            id="yijing-moving"
-            v-model="movingNum"
-            type="number"
-            min="1"
-            max="6"
-            class="input-ink"
-            placeholder="动爻位置"
-            required
-          />
+      <form class="max-w-xs mx-auto space-y-4" @submit.prevent="handleNumberSubmit">
+        <div class="flex gap-3 items-end">
+          <div class="flex-1">
+            <label for="yijing-upper" class="block font-sans text-xs text-ink-light mb-1.5">上卦</label>
+            <input
+              id="yijing-upper"
+              v-model="upperNum"
+              type="number"
+              min="1"
+              max="8"
+              class="input-ink text-center"
+              placeholder="1-8"
+              required
+            />
+          </div>
+          <div class="flex-1">
+            <label for="yijing-lower" class="block font-sans text-xs text-ink-light mb-1.5">下卦</label>
+            <input
+              id="yijing-lower"
+              v-model="lowerNum"
+              type="number"
+              min="1"
+              max="8"
+              class="input-ink text-center"
+              placeholder="1-8"
+              required
+            />
+          </div>
+          <div class="flex-1">
+            <label for="yijing-moving" class="block font-sans text-xs text-ink-light mb-1.5">动爻</label>
+            <input
+              id="yijing-moving"
+              v-model="movingNum"
+              type="number"
+              min="1"
+              max="6"
+              class="input-ink text-center"
+              placeholder="1-6"
+              required
+            />
+          </div>
         </div>
 
         <div class="text-center pt-2">
@@ -137,7 +151,7 @@
         </div>
       </form>
 
-      <div v-if="validationError" role="alert" class="text-cinnabar text-sm mt-2 text-center">
+      <div v-if="validationError" role="alert" class="text-cinnabar text-sm mt-3 text-center">
         {{ validationError }}
       </div>
 
@@ -242,9 +256,15 @@ function handleNumberSubmit() {
 </script>
 
 <style scoped>
+.casting-card {
+  background: rgba(44, 24, 16, 0.03);
+  border: 1px solid rgba(44, 24, 16, 0.08);
+  box-shadow: 0 2px 12px rgba(44, 24, 16, 0.04);
+}
+
 .coin-circle {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #D4A017, #B8860B, #8B6914, #B8860B, #D4A017);
   border: 2px solid #7A5E12;
@@ -252,8 +272,8 @@ function handleNumberSubmit() {
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.25),
-    inset 0 1px 2px rgba(255, 215, 0, 0.3);
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 3px rgba(255, 215, 0, 0.3);
   position: relative;
 }
 
@@ -279,9 +299,9 @@ function handleNumberSubmit() {
 
 .coin-face {
   font-family: 'Ma Shan Zheng', cursive;
-  font-size: 0.85rem;
-  @apply text-paper-lightest;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-size: 0.95rem;
+  color: #FFF8E7;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   line-height: 1;
   z-index: 1;
 }
@@ -295,6 +315,16 @@ function handleNumberSubmit() {
 @media (prefers-reduced-motion: reduce) {
   .coin-circle.coin-flipping {
     animation: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .coin-circle {
+    width: 56px;
+    height: 56px;
+  }
+  .coin-face {
+    font-size: 1.1rem;
   }
 }
 </style>

@@ -379,98 +379,185 @@ export function calculateYijingScore(values: number[], hex: HexagramInfo, lines:
   return Math.max(0, Math.min(100, Math.round(base)))
 }
 
+/**
+ * Trigram symbolic meanings for interpretation.
+ * Indexed by trigram index 0-7 (坤震坎兑艮离巽乾).
+ */
+const TRIGRAM_SYMBOLS: Record<number, { symbol: string; meaning: string; character: string }> = {
+  0: { symbol: '地', meaning: '柔顺包容，厚德载物', character: '坤' },
+  1: { symbol: '雷', meaning: '震动奋起，临危不乱', character: '震' },
+  2: { symbol: '水', meaning: '险陷流动，智谋应变', character: '坎' },
+  3: { symbol: '泽', meaning: '悦而柔顺，沟通感化', character: '兑' },
+  4: { symbol: '山', meaning: '静止稳重，笃实坚定', character: '艮' },
+  5: { symbol: '火', meaning: '光明照耀，文明礼敬', character: '离' },
+  6: { symbol: '风', meaning: '顺入谦逊，灵活变通', character: '巽' },
+  7: { symbol: '天', meaning: '刚健不息，自强自立', character: '乾' },
+}
+
+/**
+ * Palace position descriptions (八宫卦序).
+ * Keyed by palacePosition (1-8).
+ */
+const PALACE_POSITION_DESC: Record<number, { name: string; desc: string }> = {
+  1: { name: '本宫卦', desc: '此为本宫的核心卦象，代表该宫最本质的特质' },
+  2: { name: '一世卦', desc: '初爻已变，事情尚在萌芽阶段，变数初现' },
+  3: { name: '二世卦', desc: '两爻已变，根基开始动摇，事态逐渐深入' },
+  4: { name: '三世卦', desc: '三爻皆变，格局初步成型，已到关键转折' },
+  5: { name: '四世卦', desc: '四爻皆变，影响由内而外扩散，范围渐广' },
+  6: { name: '五世卦', desc: '五爻皆变，变化已达极致，即将回归本源' },
+  7: { name: '游魂卦', desc: '上卦游移不定，心神未安，事态尚不明朗' },
+  8: { name: '归魂卦', desc: '下卦归复本宫，回归本源，终有归宿' },
+}
+
+/** Extract upper and lower trigram indices from a hexagram's binary string. */
+function getTrigramIndices(binary: string): { upper: number; lower: number } {
+  const bits = binary.split('').map(Number)
+  const lower = (bits[2] << 2) | (bits[1] << 1) | bits[0]
+  const upper = (bits[5] << 2) | (bits[4] << 1) | bits[3]
+  return { upper, lower }
+}
+
 /** Generate rule-based interpretation text (not AI-generated). */
 export function generateInterpretation(hex: HexagramInfo, score: number, numChanging: number, lines: ZhuangGuaLine[]): string {
   const texts: string[] = []
+  const posLabels = ['初', '二', '三', '四', '五', '上']
 
-  // 1. Hexagram nature
-  texts.push(`本次占得「${hex.name}」，属${hex.palaceName}，五行属${hex.palaceWuxing}。`)
+  // ── 1. Hexagram nature ──
+  const { upper: upperTri, lower: lowerTri } = getTrigramIndices(hex.binary)
+  const upperSym = TRIGRAM_SYMBOLS[upperTri]
+  const lowerSym = TRIGRAM_SYMBOLS[lowerTri]
+  const palacePosDesc = PALACE_POSITION_DESC[hex.palacePosition]
 
-  // 2. Judgment
+  texts.push(
+    `本次占得「${hex.name}」。\n` +
+    `上卦为${upperSym.symbol}（${upperSym.character}），${upperSym.meaning}；` +
+    `下卦为${lowerSym.symbol}（${lowerSym.character}），${lowerSym.meaning}。\n` +
+    `此卦属${hex.palaceName}（五行${hex.palaceWuxing}），为${palacePosDesc.name}，${palacePosDesc.desc}。`
+  )
+
+  // ── 2. Judgment ──
   if (hex.judgment) {
-    texts.push(`卦辞曰：${hex.judgment}`)
+    texts.push(`▎卦辞\n${hex.judgment}`)
   }
 
-  // 3. Changing line analysis
-  if (numChanging === 0) {
-    texts.push('此卦静而不动，六爻无变，宜静守待时。')
-  } else if (numChanging === 1) {
-    texts.push('一爻发动，事有专主之象，变化在于关键之处。')
-  } else if (numChanging <= 3) {
-    texts.push('数爻有变，事态正在演化之中，多层面需兼顾。')
-  } else {
-    texts.push('多爻皆变，局势变动较大，宜沉着应对，不宜轻举妄动。')
-  }
-
-  // 4. 世应
-  texts.push(`世在${['初', '二', '三', '四', '五', '上'][hex.shiPosition - 1]}爻，应在${['初', '二', '三', '四', '五', '上'][hex.yingPosition - 1]}爻。`)
-
-  // 5. Six relations dynamics (六亲动向)
+  // ── 3. Changing line analysis ──
   const changingLines = lines.filter(l => l.yao.isChanging)
+  if (numChanging === 0) {
+    texts.push('▎爻动分析\n此卦静而不动，六爻无变。宜静守待时，以不变应万变。所问之事尚无明确变数，宜保持现状，观察事态发展。')
+  } else {
+    const changeDetail = changingLines.map(l =>
+      `${l.positionName}（${l.sixRelation}·${l.sixSpirit}）：${l.judgment}`
+    ).join('\n')
+
+    const changeSummary =
+      numChanging === 1
+        ? '一爻独发，事有专主之象。此爻为核心变机，需重点关注其爻辞提示。'
+        : numChanging <= 3
+          ? `共${numChanging}爻发动，事态正在多层面演化，需兼顾各方。`
+          : `共${numChanging}爻皆变，局势变动较大，宜沉着应对，不宜轻举妄动。`
+
+    texts.push(`▎爻动分析\n${changeSummary}\n\n发动之爻：\n${changeDetail}`)
+  }
+
+  // ── 4. 世应（自身与对方） ──
+  const shiPos = posLabels[hex.shiPosition - 1]
+  const yingPos = posLabels[hex.yingPosition - 1]
+  const shiYingMeanings: Record<string, string> = {
+    '初': '初爻为事情的开端，代表此事尚在初始阶段',
+    '二': '二爻代表自身和身边之事',
+    '三': '三爻代表家庭和内部事务',
+    '四': '四爻代表外部环境和社交',
+    '五': '五爻代表大事和重要决策',
+    '上': '上爻代表过往和远因',
+  }
+  const shiMeaning = shiYingMeanings[shiPos] || ''
+
+  texts.push(
+    `▎世应关系\n` +
+    `「世」为自己（在${shiPos}爻，${shiMeaning}），「应」为对方或外部环境（在${yingPos}爻）。\n` +
+    `世应相${hex.shiPosition === hex.yingPosition ? '同，自相呼应，事在自身' : '对，表里相应，有参照或合作关系'}。`
+  )
+
+  // ── 5. Six relations dynamics (六亲动向) ──
   if (changingLines.length > 0) {
     const sixRelations = [...new Set(changingLines.map(l => l.sixRelation))]
     const relationTexts: string[] = []
 
     if (sixRelations.includes('官鬼')) {
-      relationTexts.push('官鬼发动，主事业有变，需防小人')
+      relationTexts.push('官鬼发动：主事业变动、职务升迁或官非之事。若临青龙，则为功名喜事；若临白虎，则需防是非')
     }
     if (sixRelations.includes('妻财')) {
-      relationTexts.push('妻财发动，求财有利，可把握机会')
+      relationTexts.push('妻财发动：主财运有动、求财可成。若临青龙，财运顺遂；若临玄武，则防暗财纠纷')
     }
     if (sixRelations.includes('父母')) {
-      relationTexts.push('父母发动，主文书、长辈相关事务')
+      relationTexts.push('父母发动：主文书、契约、长辈之事。若为考试、签约之事，得父母爻动为吉')
     }
     if (sixRelations.includes('子孙')) {
-      relationTexts.push('子孙发动，主去灾解厄，谋事顺遂')
+      relationTexts.push('子孙发动：主消灾解厄、谋事顺遂、福神临门。子孙为福德之神，发动多吉')
     }
     if (sixRelations.includes('兄弟')) {
-      relationTexts.push('兄弟发动，主竞争、损耗，宜谨慎')
+      relationTexts.push('兄弟发动：主竞争、破耗、需防他人争夺。然兄弟亦主朋友助力，视所问之事而定')
     }
 
     if (relationTexts.length > 0) {
-      texts.push(`六亲动向：${relationTexts.join('；')}。`)
+      texts.push(`▎六亲动向\n${relationTexts.join('\n')}`)
     }
   }
 
-  // 6. Six spirits hints (神煞提示)
+  // ── 6. Six spirits hints (神煞提示) ──
   if (changingLines.length > 0) {
     const changingSpirits = [...new Set(changingLines.map(l => l.sixSpirit))]
     const spiritTexts: string[] = []
 
     if (changingSpirits.includes('青龙')) {
-      spiritTexts.push('青龙发动，主喜事临门')
+      spiritTexts.push('青龙为东方青木，主喜庆之事。青龙临动，预示喜事将至、贵人相助')
     }
     if (changingSpirits.includes('朱雀')) {
-      spiritTexts.push('朱雀发动，主口舌之争')
+      spiritTexts.push('朱雀为南方火神，主口舌是非。朱雀发动，需注意言辞、谨防争吵')
     }
     if (changingSpirits.includes('勾陈')) {
-      spiritTexts.push('勾陈发动，主田土、房产之事')
+      spiritTexts.push('勾陈为中央土神，主田土房产、文书契约之事。勾陈发动，与不动产相关事宜需关注')
     }
     if (changingSpirits.includes('螣蛇')) {
-      spiritTexts.push('螣蛇发动，主虚惊怪异')
+      spiritTexts.push('螣蛇为虚灵之神，主虚惊、怪异、梦境之事。螣蛇发动，勿信传言，宜务实求证')
     }
     if (changingSpirits.includes('白虎')) {
-      spiritTexts.push('白虎发动，主刑伤、丧服')
+      spiritTexts.push('白虎为西方金神，主刑伤、丧服、急变之事。白虎发动，诸事宜慎，重大决策宜缓')
     }
     if (changingSpirits.includes('玄武')) {
-      spiritTexts.push('玄武发动，主暗昧、盗贼')
+      spiritTexts.push('玄武为北方水神，主暗昧、隐秘、盗贼之事。玄武发动，需防暗中小人，不宜轻信')
     }
 
     if (spiritTexts.length > 0) {
-      texts.push(`神煞提示：${spiritTexts.join('；')}。`)
+      texts.push(`▎神煞提示\n${spiritTexts.join('\n')}`)
     }
   }
 
-  // 7. Score-based summary
+  // ── 7. Score-based summary and advice ──
   if (score >= 70) {
-    texts.push('卦象吉顺，所求之事多有可为，可积极进取。')
+    texts.push(
+      `▎综合建议\n` +
+      `卦象评分 ${score} 分，整体吉顺。\n` +
+      `所求之事多有可为，天地人三才相合，宜顺势而为，积极进取。\n` +
+      `行动建议：把握时机，果断行动。可主动推进计划，机遇多于挑战。注意善待身边贵人，他日或有助益。`
+    )
   } else if (score >= 45) {
-    texts.push('卦势平缓，吉凶参半，宜审时度势，循序渐进。')
+    texts.push(
+      `▎综合建议\n` +
+      `卦象评分 ${score} 分，势态平缓。\n` +
+      `吉凶参半，宜审时度势，不可冒进亦不宜退缩。此卦多需耐心与等待，静观其变，待机而动。\n` +
+      `行动建议：保持现状，稳健推进。对重要决策可多征询意见，不宜独断专行。待时机明朗后再做定夺。`
+    )
   } else {
-    texts.push('卦势未顺，诸事宜谨慎，暂缓而行，待机而动。')
+    texts.push(
+      `▎综合建议\n` +
+      `卦象评分 ${score} 分，势未顺畅。\n` +
+      `诸事宜谨慎，暂时不宜大举行动。此卦象提示需反思自身，劳心惕厉，方可化险为夷。\n` +
+      `行动建议：暂缓而行，以守为主。修身养性，积累实力。若所问之事非紧急，可待他日再占。`
+    )
   }
 
-  return texts.join('\n')
+  return texts.join('\n\n')
 }
 
 // ============================
