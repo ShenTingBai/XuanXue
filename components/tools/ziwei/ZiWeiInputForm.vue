@@ -15,13 +15,16 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-6 mb-6 max-w-md mx-auto">
-    <h2 class="font-serif text-lg font-bold text-ink-dark mb-4 text-center">紫微斗数排盘</h2>
+  <div class="ziwei-form bg-paper/70 backdrop-blur-sm rounded-xl border border-ink-faint/20 p-7 mb-6 max-w-md mx-auto relative overflow-hidden">
+    <!-- Decorative top ornament -->
+    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(198,40,40,0.2) 20%, rgba(198,40,40,0.35) 50%, rgba(198,40,40,0.2) 80%, transparent);" />
 
-    <div class="space-y-4">
+    <h2 class="font-display text-xl tracking-[0.12em] mb-6 text-center" style="color: #1A1A1A;">紫微斗数排盘</h2>
+
+    <div class="space-y-5">
       <!-- Birth date -->
       <div>
-        <label for="ziwei-birth-date" class="block text-sm text-ink-dark/70 mb-1">出生日期</label>
+        <label for="ziwei-birth-date" class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">出生日期</label>
         <input
           id="ziwei-birth-date"
           type="date"
@@ -33,7 +36,7 @@ defineProps<{
 
       <!-- Birth hour -->
       <div>
-        <label for="ziwei-birth-hour" class="block text-sm text-ink-dark/70 mb-1">出生时辰</label>
+        <label for="ziwei-birth-hour" class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">出生时辰</label>
         <select
           id="ziwei-birth-hour"
           :value="birthHour ?? ''"
@@ -49,7 +52,7 @@ defineProps<{
 
       <!-- Gender -->
       <div>
-        <label class="block text-sm text-ink-dark/70 mb-1">性别</label>
+        <span class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">性别</span>
         <div class="flex gap-3">
           <label
             v-for="opt in GENDER_OPTIONS"
@@ -65,10 +68,10 @@ defineProps<{
               class="sr-only"
             />
             <span
-              class="px-4 py-2 text-sm rounded-lg border transition-colors"
+              class="px-4 py-2 text-sm rounded-lg border transition-all duration-300"
               :class="gender === opt.value
-                ? 'border-cinnabar bg-cinnabar/5 text-cinnabar font-medium'
-                : 'border-paper-dark/30 text-ink-light hover:border-ink-dark/30'"
+                ? 'border-cinnabar/40 bg-cinnabar/5 text-cinnabar font-medium shadow-[0_0_8px_rgba(198,40,40,0.06)]'
+                : 'border-ink-faint/20 text-ink-light hover:border-ink-faint/40 hover:text-ink-dark'"
             >{{ opt.label }}</span>
           </label>
         </div>
@@ -80,7 +83,7 @@ defineProps<{
         @keydown.enter="onCalculate"
         @keydown.space.prevent="onCalculate"
         :disabled="loading || !birthDate || birthHour === null || !gender"
-        class="btn-seal w-full justify-center"
+        class="btn-seal w-full justify-center mt-2"
       >
         <span>{{ loading ? '排盘中...' : '开始排盘' }}</span>
       </button>

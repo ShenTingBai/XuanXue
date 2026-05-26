@@ -155,8 +155,9 @@ const sortedPeriods = computed(() => {
     </div>
 
     <!-- Loading -->
-    <div v-else-if="loading" class="text-center py-16" aria-busy="true">
-      <p class="font-sans text-base text-ink-light animate-pulse">正在排盘...</p>
+    <div v-else-if="loading" class="flex flex-col items-center justify-center py-20" aria-busy="true">
+      <div class="w-8 h-8 mb-4 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin" />
+      <p class="font-display text-sm text-ink-light/60 tracking-[0.1em]">正在排盘...</p>
     </div>
 
     <!-- Error -->
@@ -203,7 +204,7 @@ const sortedPeriods = computed(() => {
 
         <!-- DaXian Timeline -->
         <div class="mt-4">
-          <h3 class="text-xs text-ink-light/60 mb-2 text-center">大限</h3>
+          
           <ZiWeiDaXianTimeline
             :periods="sortedPeriods"
             :current-age="currentAge"
@@ -214,10 +215,9 @@ const sortedPeriods = computed(() => {
       </div>
     </template>
 
-    <!-- nav-right slot: profile info + palace detail -->
+    <!-- nav-right slot: palace detail panel -->
     <template v-if="astrolabe" #nav-right>
       <ZiWeiDetailPanel
-        v-if="selectedPalace"
         :palace="selectedPalace"
       />
     </template>

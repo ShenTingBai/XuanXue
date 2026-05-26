@@ -147,15 +147,16 @@ function renderOrbitRings() {
 
   const ns = 'http://www.w3.org/2000/svg'
 
-  // Wobbly orbit rings
+  // Orbit rings — perfect circles so stars travel exactly on them
   RINGS.forEach(ring => {
-    const pathData = createWobblyCircle(CX, CY, ring.r, 1.2)
-    const el = document.createElementNS(ns, 'path')
-    el.setAttribute('d', pathData)
-    el.setAttribute('fill', 'none')
-    el.setAttribute('stroke', '#C5B8A8')
-    el.setAttribute('stroke-width', '0.8')
-    el.setAttribute('opacity', '0.35')
+    const el = document.createElementNS(ns, "circle")
+    el.setAttribute("cx", String(CX))
+    el.setAttribute("cy", String(CY))
+    el.setAttribute("r", String(ring.r))
+    el.setAttribute("fill", "none")
+    el.setAttribute("stroke", "#C5B8A8")
+    el.setAttribute("stroke-width", "0.8")
+    el.setAttribute("opacity", "0.35")
     svg.appendChild(el)
   })
 
@@ -437,16 +438,16 @@ watch(() => props.selectedIndex, () => {
       class="center-seal absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[52px] h-[52px] z-10 pointer-events-none"
     >
       <div
-        class="seal-body w-full h-full rounded-full border-2 border-[#D4A84B] flex items-center justify-center"
-        style="background: radial-gradient(circle at 40% 35%, #D44040, #C62828 50%, #8A1B1B); box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1); animation: seal-breathe 4s ease-in-out infinite;"
+        class="seal-body w-full h-full rounded-full border-[1.5px] border-[#D4A84B] flex items-center justify-center relative"
+        style="background: radial-gradient(circle at 40% 35%, #D44040, #C62828 50%, #8A1B1B); box-shadow: 0 0 20px rgba(93,78,55,0.2), 0 0 44px rgba(93,78,55,0.08), inset 0 1px 2px rgba(255,255,255,0.1); animation: seal-breathe 4s ease-in-out infinite;"
       >
         <span
           class="font-display text-[1.5rem] text-[#D4A84B]"
-          style="text-shadow: 0 0 6px rgba(212,168,75,0.3);"
+          style="text-shadow: 0 0 8px rgba(212,168,75,0.3);"
         >紫</span>
       </div>
       <div
-        class="absolute -bottom-[18px] left-1/2 -translate-x-1/2 font-display text-[0.65rem] text-ink-light whitespace-nowrap tracking-[0.1em] opacity-60"
+        class="absolute -bottom-[18px] left-1/2 -translate-x-1/2 font-display text-[0.7rem] text-ink-light whitespace-nowrap tracking-[0.12em] opacity-50"
       >紫微星</div>
     </div>
 
@@ -463,26 +464,29 @@ watch(() => props.selectedIndex, () => {
   position: absolute;
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: #8B7D6B;
-  opacity: 0.6;
-  transition: opacity 0.3s, color 0.3s;
+  opacity: 0.55;
+  transition: opacity 0.3s, color 0.3s, text-shadow 0.3s;
   white-space: nowrap;
   transform: translate(-50%, -50%);
   pointer-events: auto;
   cursor: pointer;
+  text-shadow: 0 1px 0 rgba(245,240,232,0.6);
 }
 .sector-label:hover {
   opacity: 0.9;
   color: #5D4E37;
+  text-shadow: 0 1px 2px rgba(245,240,232,0.8);
 }
 .sector-label.ming-gong {
   color: #C62828;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 .sector-label.selected {
   opacity: 0.9;
-  color: #6B5B4F;
+  color: #5D4E37;
+  text-shadow: 0 0 6px rgba(198,40,40,0.15);
 }
 
 .chart-star {
@@ -518,17 +522,18 @@ watch(() => props.selectedIndex, () => {
 
 .star-label {
   margin-top: 2px;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   color: #5D4E37;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  opacity: 0.5;
-  transition: opacity 0.3s;
+  opacity: 0.55;
+  transition: opacity 0.3s, color 0.3s;
   pointer-events: none;
   font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
+  text-shadow: 0 1px 0 rgba(245,240,232,0.5);
 }
-.chart-star:hover .star-label { opacity: 0.9; }
-.chart-star.active .star-label { opacity: 0.9; color: #C62828; }
+.chart-star:hover .star-label { opacity: 0.95; }
+.chart-star.active .star-label { opacity: 0.95; color: #C62828; text-shadow: 0 0 4px rgba(198,40,40,0.15); }
 
 .chart-star.active::before {
   content: '';
@@ -547,7 +552,7 @@ watch(() => props.selectedIndex, () => {
   position: absolute;
   padding: 1px 4px;
   border-radius: 2px;
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   letter-spacing: 0.04em;
   pointer-events: none;
   z-index: 5;
@@ -569,7 +574,7 @@ watch(() => props.selectedIndex, () => {
 }
 
 @keyframes seal-breathe {
-  0%, 100% { box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1); }
-  50% { box-shadow: 0 0 24px rgba(93,78,55,0.35), 0 0 50px rgba(93,78,55,0.15); }
+  0%, 100% { box-shadow: 0 0 20px rgba(93,78,55,0.2), 0 0 44px rgba(93,78,55,0.08), inset 0 1px 2px rgba(255,255,255,0.1); }
+  50% { box-shadow: 0 0 28px rgba(93,78,55,0.28), 0 0 52px rgba(93,78,55,0.12), inset 0 1px 2px rgba(255,255,255,0.08); }
 }
 </style>

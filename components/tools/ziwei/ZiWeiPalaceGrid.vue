@@ -17,16 +17,21 @@ defineProps<{
 
 <template>
   <div
-    class="grid grid-cols-4 grid-rows-4 aspect-square max-w-[620px] mx-auto"
+    class="palace-grid grid grid-cols-4 grid-rows-4 aspect-square max-w-[620px] mx-auto relative"
     role="grid"
     aria-label="紫微斗数命盘"
-    style="border: 1px solid rgba(93,78,55,0.15)"
   >
+    <!-- Outer decorative border -->
+    <div
+      class="absolute -inset-px pointer-events-none z-10"
+      style="border: 1px solid rgba(93,78,55,0.15);"
+    />
+
     <div
       v-for="palace in palaces"
       :key="palace.index"
-      class="bg-paper"
-      style="border: 1px solid rgba(93,78,55,0.08)"
+      class="bg-paper relative"
+      style="border: 1px solid rgba(93,78,55,0.07);"
       :style="{
         gridRow: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.row,
         gridColumn: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.col,
@@ -39,8 +44,9 @@ defineProps<{
         :on-click="() => onSelectPalace(palace.index)"
       />
     </div>
-    <!-- Center area: 4 info cells -->
-    <div class="col-start-2 col-end-4 row-start-2 row-end-4 grid grid-cols-2 grid-rows-2">
+
+    <!-- Center info area -->
+    <div class="col-start-2 col-end-4 row-start-2 row-end-4 grid grid-cols-2 grid-rows-2 relative z-[1]">
       <div
         v-for="(item, i) in [
           { label: '五行局', value: fiveElementsClass },
@@ -49,15 +55,15 @@ defineProps<{
           { label: '命宫', value: mingGongBranch + '宫' },
         ]"
         :key="i"
-        class="flex flex-col items-center justify-center text-center gap-0"
+        class="flex flex-col items-center justify-center text-center"
         :class="[
           i < 2 ? 'border-b' : '',
           i % 2 === 0 ? 'border-r' : '',
         ]"
-        style="background: #EDE4D6; border-color: rgba(93,78,55,0.12)"
+        style="background: #EDE4D6; border-color: rgba(93,78,55,0.1);"
       >
-        <div class="text-[0.55rem] tracking-[0.05em] text-ink-light/60 font-sans">{{ item.label }}</div>
-        <div class="text-[12px] font-display tracking-[0.08em]" style="color: #5D4E37">{{ item.value }}</div>
+        <div class="text-[0.62rem] tracking-[0.08em] text-ink-light/55 font-sans mb-0.5">{{ item.label }}</div>
+        <div class="text-[13px] font-display tracking-[0.08em]" style="color: #5D4E37;">{{ item.value }}</div>
       </div>
     </div>
   </div>
