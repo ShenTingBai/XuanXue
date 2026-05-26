@@ -1,23 +1,26 @@
 <!-- pages/tools/ziwei.vue -->
 <script setup lang="ts">
-import { calculateZiWei, getDetailedPalaceView, getMingGongIndex, serializeAstrolabe } from '~/composables/useZiwei'
+import { calculateZiWei, getMingGongIndex } from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
-import SkeletonCard from '~/components/tools/SkeletonCard.vue'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
+import ZiWeiInputForm from '~/components/tools/ziwei/ZiWeiInputForm.vue'
+import ZiWeiTabSwitcher from '~/components/tools/ziwei/ZiWeiTabSwitcher.vue'
+import ZiWeiCelestialChart from '~/components/tools/ziwei/ZiWeiCelestialChart.vue'
+import ZiWeiPalaceGrid from '~/components/tools/ziwei/ZiWeiPalaceGrid.vue'
+import ZiWeiDaXianTimeline from '~/components/tools/ziwei/ZiWeiDaXianTimeline.vue'
+import ZiWeiDetailPanel from '~/components/tools/ziwei/ZiWeiDetailPanel.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
 const router = useRouter()
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 
 const loading = ref(false)
 const error = ref('')
 const astrolabe = ref<IFunctionalAstrolabe | null>(null)
 const selectedPalace = ref<IFunctionalPalace | null>(null)
 const selectedIndex = ref(0)
-const showHistoryModal = ref(false)
 const currentView = ref<'celestial' | 'grid'>('celestial')
 
 // Form state
@@ -76,8 +79,6 @@ function handleCalculate() {
     astrolabe.value = ziweiResult
     selectedIndex.value = getMingGongIndex(ziweiResult.palaces)
     selectedPalace.value = ziweiResult.palaces[selectedIndex.value] || null
-
-    saveDivinationResult(ziweiResult)
   } catch {
     error.value = '排盘计算出错，请检查出生信息'
   }
@@ -91,48 +92,40 @@ function handleSelectPalace(index: number) {
   selectedPalace.value = astrolabe.value.palaces[index] || null
 }
 
-async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
-  try {
-    const headers = getAuthHeaders()
-    if (headers.Authorization) {
-      await $fetch('/api/divinations', {
-        method: 'POST',
-        headers,
-        body: {
-          type: 'ziwei',
-          input_data: { birthDate: birthDate.value, birthHour: birthHour.value, gender: gender.value },
-          result_data: serializeAstrolabe(astroData),
-        },
-      })
-    }
-  } catch {
-    // Fire-and-forget: silent fail
-  }
-}
+const currentAge = computed(() => {
+  if (!astrolabe.value) return 0
+  const parts = astrolabe.value.solarDate.split('-')
+  const birthYear = parseInt(parts[0], 10)
+  return new Date().getFullYear() - birthYear
+})
 
-function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  restoreFromHistory(id)
-}
+const CLOCKWISE_BRANCHES = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
 
-async function restoreFromHistory(id: number) {
-  try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
-    const record = await $fetch<{ input_data: any; result_data: any }>(
-      `/api/divinations/${id}`,
-      { headers },
-    )
-    if (record.input_data?.birthDate) {
-      birthDate.value = record.input_data.birthDate
-      birthHour.value = record.input_data.birthHour ?? birthHour.value
-      gender.value = record.input_data.gender ?? gender.value
-      handleCalculate()
-    }
-  } catch {
-    // Silent fail
-  }
-}
+const sortedPeriods = computed(() => {
+  if (!astrolabe.value) return []
+  const palaces = [...astrolabe.value.palaces]
+  const mingIdx = getMingGongIndex(palaces)
+
+  const branchOrder = Object.fromEntries(CLOCKWISE_BRANCHES.map((b, i) => [b, i]))
+  palaces.sort((a, b) => {
+    const orderA = branchOrder[a.earthlyBranch] ?? 999
+    const orderB = branchOrder[b.earthlyBranch] ?? 999
+    return orderA - orderB
+  })
+
+  const rotateIdx = palaces.findIndex(p => p.index === mingIdx)
+  const ordered = rotateIdx > 0
+    ? palaces.slice(rotateIdx).concat(palaces.slice(0, rotateIdx))
+    : palaces
+
+  return ordered.map(p => ({
+    startAge: p.decadal?.range[0] ?? 0,
+    endAge: p.decadal?.range[1] ?? 0,
+    palaceName: p.name,
+    palaceIndex: p.index,
+    stars: p.majorStars.map(s => s.name).join(' '),
+  }))
+})
 </script>
 
 <template>
@@ -162,8 +155,8 @@ async function restoreFromHistory(id: number) {
     </div>
 
     <!-- Loading -->
-    <div v-else-if="loading" class="space-y-6" aria-busy="true">
-      <SkeletonCard />
+    <div v-else-if="loading" class="text-center py-16" aria-busy="true">
+      <p class="font-sans text-base text-ink-light animate-pulse">正在排盘...</p>
     </div>
 
     <!-- Error -->
@@ -178,7 +171,7 @@ async function restoreFromHistory(id: number) {
 
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
-      <div class="max-w-[620px] mx-auto">
+      <div class="w-full max-w-[620px] mx-auto">
 
         <!-- Tab Switcher -->
         <ZiWeiTabSwitcher
@@ -202,6 +195,9 @@ async function restoreFromHistory(id: number) {
           :selected-index="selectedIndex"
           :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
           :five-elements-class="astrolabe.fiveElementsClass"
+          :soul="astrolabe.soul"
+          :body="astrolabe.body"
+          :ming-gong-branch="astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''"
           :on-select-palace="handleSelectPalace"
         />
 
@@ -209,45 +205,22 @@ async function restoreFromHistory(id: number) {
         <div class="mt-4">
           <h3 class="text-xs text-ink-light/60 mb-2 text-center">大限</h3>
           <ZiWeiDaXianTimeline
-            :periods="astrolabe.palaces.map(p => ({
-              startAge: p.decadal?.range[0] ?? 0,
-              endAge: p.decadal?.range[1] ?? 0,
-              palaceName: p.name,
-              stars: p.majorStars.map(s => s.name).join(' '),
-            }))"
-            :current-age="new Date().getFullYear() - parseInt(astrolabe.solarDate.split('-')[0])"
+            :periods="sortedPeriods"
+            :current-age="currentAge"
+            @select="handleSelectPalace"
           />
         </div>
 
-        <!-- History -->
-        <div class="flex justify-center mt-6">
-          <button
-            @click="showHistoryModal = true"
-            class="btn-seal"
-            aria-haspopup="dialog"
-          >
-            <span>浏览历史</span>
-          </button>
-        </div>
       </div>
     </template>
 
     <!-- nav-right slot: profile info + palace detail -->
     <template v-if="astrolabe" #nav-right>
-      <div class="space-y-4">
-        <ZiWeiInfoSidebar :astrolabe="astrolabe" :birth-hour="birthHour" />
-        <ZiWeiDetailPanel
-          v-if="selectedPalace"
-          :palace="selectedPalace"
-        />
-      </div>
+      <ZiWeiDetailPanel
+        v-if="selectedPalace"
+        :palace="selectedPalace"
+      />
     </template>
   </ToolPageLayout>
 
-  <HistoryModal
-    :show="showHistoryModal"
-    type="ziwei"
-    @close="showHistoryModal = false"
-    @restore="onHistoryRestore"
-  />
 </template>

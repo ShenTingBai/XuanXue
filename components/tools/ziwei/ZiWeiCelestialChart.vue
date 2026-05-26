@@ -1,8 +1,12 @@
 <!-- components/tools/ziwei/ZiWeiCelestialChart.vue -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import { BRANCH_TO_ANGLE } from '~/constants/ziwei'
+
+// Vue scoped style ID — dynamically created DOM elements need this attribute
+// for scoped CSS to apply (e.g. position:absolute, colors, fonts).
+const scopeId = (getCurrentInstance()?.type as any)?.__scopeId as string | undefined
 
 // ── Geometry constants (BASE 600 viewBox) ──
 const BASE = 600
@@ -55,36 +59,27 @@ let starElements: HTMLElement[] = []
 let animFrameId: number | null = null
 let chartAnimStart = 0
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
-let initialized = false
 
-// ── Star name → color mapping for orbs ──
-const STAR_COLOR_MAP: Record<string, string> = {
-  '紫微': 'gold', '天府': 'gold', '武曲': 'gold', '天梁': 'gold',
-  '天相': 'jade', '天机': 'jade', '天同': 'jade',
-  '太阳': 'cinnabar', '廉贞': 'cinnabar', '贪狼': 'cinnabar', '七杀': 'cinnabar',
-  '巨门': 'gray', '破军': 'gray',
-  '太阴': 'ice', '文昌': 'ice', '文曲': 'ice', '天马': 'ice',
-  '左辅': 'jade', '右弼': 'jade', '禄存': 'gold', '天魁': 'gold', '天钺': 'gold',
-  '擎羊': 'gray', '陀罗': 'gray', '火星': 'gray', '铃星': 'gray',
-  '地劫': 'gray', '地空': 'gray',
+// Apply Vue scoped style attribute to dynamically created DOM elements
+function scope(el: HTMLElement) {
+  if (scopeId) el.setAttribute(scopeId, '')
 }
+
+// ── Star category Sets (classified by type, not individual name) ──
+const MAJOR_STARS = new Set(['紫微', '天机', '太阳', '武曲', '天同', '廉贞', '天府', '太阴', '贪狼', '巨门', '天相', '天梁', '七杀', '破军'])
+const MALEFIC_STARS = new Set(['陀罗', '擎羊', '火星', '铃星'])
+const AUSPICIOUS_STARS = new Set(['左辅', '右弼', '文昌', '文曲', '天魁', '天钺', '禄存', '天马'])
 
 const MUTAGEN_CLS: Record<string, string> = {
   '禄': 'lu', '权': 'quan', '科': 'ke', '忌': 'ji',
 }
 
-const ORB_BASE_STYLES: Record<string, Record<string, string>> = {
-  gold:      { background: '#C62828', border: '1.5px solid #D4A84B', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  cinnabar:  { background: '#A02020', border: '1px solid rgba(198,40,40,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  jade:      { background: '#3D6B4B', border: '1px solid rgba(61,107,75,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  ice:       { background: '#6BA8C8', border: '1px solid rgba(107,168,200,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  purple:    { background: '#7B6FA0', border: '1px solid rgba(123,111,160,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  gray:      { background: '#5D4E37', border: '1px solid rgba(93,78,55,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  white:     { background: '#8B7D6B', border: '1px solid rgba(139,125,107,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.15)' },
-}
 
 function getStarColor(name: string): string {
-  return STAR_COLOR_MAP[name] || 'white'
+  if (MAJOR_STARS.has(name)) return 'gold'
+  if (MALEFIC_STARS.has(name)) return 'gray'
+  if (AUSPICIOUS_STARS.has(name)) return 'jade'
+  return 'ice'
 }
 
 // ── Wobbly (hand-drawn) circle path SVG ──
@@ -121,6 +116,12 @@ function buildCelestialStars() {
       ...palace.adjectiveStars.map(s => ({ name: s.name, major: false, mutagen: s.mutagen || null })),
     ]
 
+    // Find last major star index for mutagen chip attachment
+    let lastMajorIdx = -1
+    allStars.forEach((s, idx) => { if (s.major) lastMajorIdx = idx })
+    // Collect all mutagens for this palace
+    const palaceMutagens = allStars.filter(s => s.mutagen).map(s => s.mutagen)
+
     allStars.forEach((star, i) => {
       const angleOffset = (i - (allStars.length - 1) / 2) * 4
       celestialStars.push({
@@ -132,7 +133,7 @@ function buildCelestialStars() {
         radius: starRadii[i % starRadii.length] || RINGS[2].r,
         speed: 0.003 + Math.random() * 0.004,
         phase: Math.random() * Math.PI * 2,
-        mutagen: star.mutagen,
+        mutagen: (i === lastMajorIdx && palaceMutagens.length > 0) ? palaceMutagens.join(',') : null,
       })
     })
   })
@@ -152,7 +153,7 @@ function renderOrbitRings() {
     const el = document.createElementNS(ns, 'path')
     el.setAttribute('d', pathData)
     el.setAttribute('fill', 'none')
-    el.setAttribute('stroke', '#D4C5B0')
+    el.setAttribute('stroke', '#C5B8A8')
     el.setAttribute('stroke-width', '0.8')
     el.setAttribute('opacity', '0.35')
     svg.appendChild(el)
@@ -188,7 +189,7 @@ function renderOrbitRings() {
     line.setAttribute('y1', String(y1))
     line.setAttribute('x2', String(x2))
     line.setAttribute('y2', String(y2))
-    line.setAttribute('stroke', '#D4C5B0')
+    line.setAttribute('stroke', '#C5B8A8')
     line.setAttribute('stroke-width', '0.4')
     line.setAttribute('opacity', '0.12')
     line.setAttribute('stroke-dasharray', '3,5')
@@ -198,6 +199,7 @@ function renderOrbitRings() {
 
 // ── Sector labels around chart edge ──
 function renderSectorLabels() {
+  if (chartScale === 0) return
   const container = sectorLabelsContainer.value
   if (!container) return
   container.innerHTML = ''
@@ -209,6 +211,7 @@ function renderSectorLabels() {
     const y = (CY + Math.sin(angleRad) * LABEL_R) * chartScale
 
     const label = document.createElement('div')
+    scope(label)
     label.className = 'sector-label' + (palace.index === props.mingGongIndex ? ' ming-gong' : '')
     label.textContent = palace.name
     label.style.left = x + 'px'
@@ -228,24 +231,25 @@ function createStarElements() {
 
   // Container for mutagen chips (layered above stars)
   const chipsContainer = document.createElement('div')
+  scope(chipsContainer)
   chipsContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:4;'
   container.appendChild(chipsContainer)
 
   celestialStars.forEach((star, i) => {
     const el = document.createElement('div')
+    scope(el)
     el.className = 'chart-star' + (star.major ? '' : ' minor')
     el.dataset.index = String(i)
 
     // Orb element
     const orb = document.createElement('div')
-    orb.className = 'star-orb'
-    const size = star.major ? '14px' : '11px'
-    const styles = ORB_BASE_STYLES[star.color] || ORB_BASE_STYLES.white
-    Object.assign(orb.style, { width: size, height: size, borderRadius: '50%' }, styles)
+    scope(orb)
+    orb.className = 'star-orb cls-' + star.color
     el.appendChild(orb)
 
     // Label below orb
     const label = document.createElement('div')
+    scope(label)
     label.className = 'star-label'
     label.textContent = star.name
     el.appendChild(label)
@@ -257,22 +261,18 @@ function createStarElements() {
 
     // 四化 chip for stars with mutagen
     if (star.mutagen) {
-      const chip = document.createElement('div')
-      chip.className = 'mutagen-chip-tx ' + (MUTAGEN_CLS[star.mutagen] || 'ji')
-      chip.textContent = star.name + '化' + star.mutagen
-      chip.dataset.starIdx = String(i)
-      chipsContainer.appendChild(chip)
+      const mutagens = star.mutagen.split(',')
+      mutagens.forEach(m => {
+        const chip = document.createElement('div')
+        scope(chip)
+        chip.className = 'mutagen-chip-tx ' + (MUTAGEN_CLS[m] || 'ji')
+        chip.textContent = '化' + m
+        chip.dataset.starIdx = String(i)
+        chipsContainer.appendChild(chip)
+      })
     }
   })
 
-  // Staggered entrance fade-in
-  starElements.forEach((el, i) => {
-    el.style.opacity = '0'
-    setTimeout(() => {
-      el.style.transition = 'opacity 0.5s ease'
-      el.style.opacity = '1'
-    }, 100 + i * 25)
-  })
 }
 
 // ── Palace arc highlight ──
@@ -291,6 +291,10 @@ function drawPalaceArc(index: number) {
 
 // ── Animation loop (orbital drift + twinkle) ──
 function animateCelestial(timestamp: number) {
+  if (chartScale === 0) {
+    animFrameId = requestAnimationFrame(animateCelestial)
+    return
+  }
   const t = (timestamp - chartAnimStart) / 1000
 
   for (let i = 0; i < celestialStars.length; i++) {
@@ -336,13 +340,21 @@ function updateChartScale() {
   if (chartContainer.value) {
     chartScale = chartContainer.value.offsetWidth / BASE
   }
+  return chartScale
 }
 
 function handleResize() {
   if (resizeTimer) clearTimeout(resizeTimer)
   resizeTimer = setTimeout(() => {
-    updateChartScale()
-    renderSectorLabels()
+    const newScale = updateChartScale()
+    if (newScale > 0) {
+      if (celestialStars.length === 0) {
+        // First render was deferred — do full init now
+        doRender()
+      } else {
+        renderSectorLabels()
+      }
+    }
   }, 200)
 }
 
@@ -364,9 +376,24 @@ function updateSelection() {
 
 // ── Init ──
 function init() {
-  if (initialized) return
-  initialized = true
-  updateChartScale()
+  if (updateChartScale() === 0) {
+    // Container has no width yet — wait for layout
+    if (chartContainer.value) {
+      const observer = new ResizeObserver((entries) => {
+        if (entries[0] && entries[0].contentRect.width > 0) {
+          observer.disconnect()
+          updateChartScale()
+          doRender()
+        }
+      })
+      observer.observe(chartContainer.value)
+    }
+    return
+  }
+  doRender()
+}
+
+function doRender() {
   buildCelestialStars()
   renderOrbitRings()
   renderSectorLabels()
@@ -388,8 +415,10 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// Expose updateSelection for parent component
-defineExpose({ updateSelection })
+// Watch selectedIndex prop for selection changes
+watch(() => props.selectedIndex, () => {
+  updateSelection()
+})
 </script>
 
 <template>
@@ -435,7 +464,7 @@ defineExpose({ updateSelection })
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
-  color: #7A6A5C;
+  color: #8B7D6B;
   opacity: 0.6;
   transition: opacity 0.3s, color 0.3s;
   white-space: nowrap;
@@ -445,11 +474,15 @@ defineExpose({ updateSelection })
 }
 .sector-label:hover {
   opacity: 0.9;
-  color: #6B5B4F;
+  color: #5D4E37;
 }
 .sector-label.ming-gong {
   color: #C62828;
   opacity: 0.8;
+}
+.sector-label.selected {
+  opacity: 0.9;
+  color: #6B5B4F;
 }
 
 .chart-star {
@@ -467,16 +500,32 @@ defineExpose({ updateSelection })
 .star-orb { border-radius: 50%; transition: transform 0.3s; }
 .chart-star:hover .star-orb { transform: scale(1.25); }
 
+/* Star color orbs */
+.star-orb.cls-gold { width: 14px; height: 14px; background: #C62828; border: 1.5px solid #D4A84B; box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.star-orb.cls-cinnabar { width: 14px; height: 14px; background: #A02020; border: 1px solid rgba(198,40,40,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.star-orb.cls-jade { width: 14px; height: 14px; background: #4A8C6F; border: 1px solid rgba(74,140,111,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.star-orb.cls-ice { width: 14px; height: 14px; background: #6BA8C8; border: 1px solid rgba(107,168,200,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.star-orb.cls-purple { width: 14px; height: 14px; background: #7B6FA0; border: 1px solid rgba(123,111,160,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.star-orb.cls-gray { width: 14px; height: 14px; background: #5D4E37; border: 1px solid rgba(93,78,55,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.star-orb.cls-white { width: 14px; height: 14px; background: #8B7D6B; border: 1px solid rgba(139,125,107,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.15); }
+.chart-star.minor .star-orb.cls-gold { width: 11px; height: 11px; }
+.chart-star.minor .star-orb.cls-cinnabar { width: 11px; height: 11px; }
+.chart-star.minor .star-orb.cls-jade { width: 11px; height: 11px; }
+.chart-star.minor .star-orb.cls-ice { width: 11px; height: 11px; }
+.chart-star.minor .star-orb.cls-purple { width: 11px; height: 11px; }
+.chart-star.minor .star-orb.cls-gray { width: 11px; height: 11px; }
+.chart-star.minor .star-orb.cls-white { width: 11px; height: 11px; }
+
 .star-label {
   margin-top: 2px;
   font-size: 0.55rem;
-  color: #6B5B4F;
+  color: #5D4E37;
   letter-spacing: 0.04em;
   white-space: nowrap;
   opacity: 0.5;
   transition: opacity 0.3s;
   pointer-events: none;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
 }
 .chart-star:hover .star-label { opacity: 0.9; }
 .chart-star.active .star-label { opacity: 0.9; color: #C62828; }
@@ -504,11 +553,11 @@ defineExpose({ updateSelection })
   z-index: 5;
   white-space: nowrap;
   line-height: 1.2;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
   transition: opacity 0.3s;
 }
 .mutagen-chip-tx.lu { background: rgba(198,40,40,0.15); color: #C62828; border: 0.5px solid rgba(198,40,40,0.2); }
-.mutagen-chip-tx.quan { background: rgba(61,107,75,0.15); color: #3D6B4B; border: 0.5px solid rgba(61,107,75,0.2); }
+.mutagen-chip-tx.quan { background: rgba(74,140,111,0.15); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.2); }
 .mutagen-chip-tx.ke { background: rgba(107,168,200,0.15); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.2); }
 .mutagen-chip-tx.ji { background: rgba(93,78,55,0.12); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.15); }
 
