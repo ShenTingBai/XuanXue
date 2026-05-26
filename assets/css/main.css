@@ -46,7 +46,8 @@ html {
     --color-ink-dark: #1E1210;
     --color-ink: #2C1810;
     --color-ink-medium: #6B5B4F;
-    --color-ink-light: #7A6A5C;
+    --color-ink-light: #5E5045;
+    --color-ink-muted: #4D4037;
     --color-ink-faint: #D4C5B0;
     --color-paper-lightest: #FBF8F4;
     --color-paper-light: #F5F0E8;
@@ -626,6 +627,20 @@ html {
   .wuxing-card--earth { border-color: var(--color-gold); }
   .wuxing-card--metal { border-color: #5E5E5E; }
   .wuxing-card--water { border-color: #2C5F7C; }
+
+  /* ── Toast Transition ── */
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: all 0.3s ease;
+  }
+  .toast-enter-from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .toast-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 /* Keyframes must be OUTSIDE @layer for Tailwind PostCSS compat */
@@ -702,6 +717,12 @@ a:focus-visible {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* ── Scroll Hint: fade-out gradient on right edge ── */
+  .scroll-hint-x {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+    mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  }
 }
 
 /* ── Expand/Collapse Transition ── */
@@ -720,6 +741,17 @@ a:focus-visible {
 .expand-leave-from {
   opacity: 1;
   transform: scaleY(1);
+}
+
+/* ── Toast Transition ── */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
 /* ── Reduced Motion ── */

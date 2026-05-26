@@ -20,6 +20,7 @@ import ReadingGuide from '~/components/tools/bazi/ReadingGuide.vue'
 
 import SectionNav from '~/components/tools/bazi/SectionNav.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
+import HistoryModal from '~/components/tools/HistoryModal.vue'
 
 useHead({ title: '八字排盘 - 玄学' })
 
@@ -36,6 +37,9 @@ const liuNianYears = ref<LiuNianYear[]>([])
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
 const showSaveErrorToast = ref(false)
+const showHistoryModal = ref(false)
+const restoreError = ref('')
+const restoredFromHistory = ref(false)
 const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
 const scrollTopOffset = ref('1rem')
@@ -235,6 +239,63 @@ function dismissSaveErrorToast() {
   showSaveErrorToast.value = false
 }
 
+function dismissRestoreError() {
+  restoreError.value = ''
+}
+
+function onHistoryRestore(id: number) {
+  showHistoryModal.value = false
+  restoreFromHistory(id)
+}
+
+async function restoreFromHistory(id: number) {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+      `/api/divinations/${id}`,
+      { headers },
+    )
+    if (record.result_data) {
+      const data = record.result_data
+      if (data && typeof data === 'object' && 'dayMaster' in data && 'yearPillar' in data && 'daYun' in data) {
+        const baziResult = data as BaZiResult
+        result.value = baziResult
+        cachedAge.value = getCurrentAge()
+
+        // Recalculate shensha
+        const dayMasterIndex = getStemIndex(baziResult.dayMaster)
+        shenShaList.value = calculateShenSha({
+          yearPillar: baziResult.yearPillar,
+          monthPillar: baziResult.monthPillar,
+          dayPillar: baziResult.dayPillar,
+          hourPillar: baziResult.hourPillar,
+          dayMaster: baziResult.dayMaster,
+          dayMasterIndex,
+          yearStemIndex: getStemIndex(baziResult.yearPillar.stem),
+          gender: baziResult.gender,
+        })
+
+        // Recalculate liunian
+        liuNianYears.value = calculateLiuNian({
+          baZi: baziResult,
+          shenSha: shenShaList.value,
+          currentYear,
+          range: 5,
+        })
+
+        restoreError.value = ''
+        restoredFromHistory.value = true
+        missingHour.value = baziResult.birthHour === null
+        return
+      }
+    }
+    restoreError.value = '历史记录数据无效'
+  } catch {
+    restoreError.value = '历史记录加载失败，请稍后重试'
+  }
+}
+
 function scrollToTop() {
   const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
   if (!prefersReducedMotion) {
@@ -378,6 +439,24 @@ function onSectionNavigate(sectionName: string) {
               </div>
             </Transition>
 
+            <!-- Restore error toast -->
+            <Transition name="toast">
+              <div
+                v-if="restoreError"
+                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                role="alert"
+              >
+                <span>{{ restoreError }}</span>
+                <button
+                  @click="dismissRestoreError"
+                  @keydown.enter="dismissRestoreError"
+                  @keydown.space.prevent="dismissRestoreError"
+                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  aria-label="关闭提示"
+                >&times;</button>
+              </div>
+            </Transition>
+
             <!-- 命主签 — Day Master Identity Seal -->
             <DayMasterSeal
               :birth-year="result.birthYear"
@@ -472,23 +551,48 @@ function onSectionNavigate(sectionName: string) {
               @click="scrollToTop"
               @keydown.enter="scrollToTop"
             />
+
+            <!-- Restored from history notice -->
+            <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-6">
+              <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
+              <button
+                @click="computeResult"
+                @keydown.enter="computeResult"
+                @keydown.space.prevent="computeResult"
+                class="btn-seal"
+              >
+                <span>重新排盘</span>
+              </button>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-wrap gap-3 justify-center mt-8">
+              <button
+                @click="computeResult"
+                @keydown.space.prevent="computeResult"
+                class="btn-seal"
+              >
+                <span>重新排盘</span>
+              </button>
+              <button
+                @click="showHistoryModal = true"
+                @keydown.enter="showHistoryModal = true"
+                @keydown.space.prevent="showHistoryModal = true"
+                class="btn-seal"
+                aria-haspopup="dialog"
+              >
+                <span>浏览历史</span>
+              </button>
+            </div>
         </div>
         </template>
 
   </ToolPageLayout>
-</template>
 
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>
+  <HistoryModal
+    :show="showHistoryModal"
+    type="bazi"
+    @close="showHistoryModal = false"
+    @restore="onHistoryRestore"
+  />
+</template>

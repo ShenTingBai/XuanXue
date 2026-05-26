@@ -181,7 +181,7 @@ function dismissRestoreError() {
             @keydown.space.prevent="selectZodiac(idx)"
             :aria-current="idx === selectedZodiac ? 'true' : undefined"
             :class="[
-              'flex-shrink-0 px-3 py-2.5 min-h-[40px] rounded-lg text-sm transition-colors',
+              'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
               idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
             ]"
           >
@@ -333,18 +333,3 @@ function dismissRestoreError() {
         </template>
       </ToolPageLayout>
 </template>
-
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>

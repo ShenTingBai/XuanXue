@@ -17,6 +17,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
+import HistoryModal from '~/components/tools/HistoryModal.vue'
 
 useHead({ title: '生肖 - 玄学' })
 
@@ -27,6 +28,9 @@ const selectedAnimal = ref<number | null>(null)
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
 const showSaveErrorToast = ref(false)
+const showHistoryModal = ref(false)
+const restoreError = ref('')
+const restoredFromHistory = ref(false)
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -119,6 +123,39 @@ function dismissSaveErrorToast() {
   showSaveErrorToast.value = false
 }
 
+function dismissRestoreError() {
+  restoreError.value = ''
+}
+
+function onHistoryRestore(id: number) {
+  showHistoryModal.value = false
+  restoreFromHistory(id)
+}
+
+async function restoreFromHistory(id: number) {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+      `/api/divinations/${id}`,
+      { headers },
+    )
+    if (record.result_data) {
+      const data = record.result_data
+      if (data && typeof data === 'object' && 'animal' in data && 'wuXing' in data && 'fortune' in data) {
+        result.value = data as ShengXiaoResult
+        selectedAnimal.value = getAnimalIndex(data.year)
+        restoreError.value = ''
+        restoredFromHistory.value = true
+        return
+      }
+    }
+    restoreError.value = '历史记录数据无效'
+  } catch {
+    restoreError.value = '历史记录加载失败，请稍后重试'
+  }
+}
+
 </script>
 
 <template>
@@ -139,7 +176,7 @@ function dismissSaveErrorToast() {
               @keydown.space.prevent="selectAnimal(idx)"
               :aria-current="idx === selectedAnimal ? 'true' : undefined"
               :class="[
-                'flex-shrink-0 px-3 py-2.5 min-h-[40px] rounded-lg text-sm transition-colors',
+                'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
                 idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
               ]"
             >
@@ -193,6 +230,24 @@ function dismissSaveErrorToast() {
               </div>
             </Transition>
 
+            <!-- Restore error toast -->
+            <Transition name="toast">
+              <div
+                v-if="restoreError"
+                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                role="alert"
+              >
+                <span>{{ restoreError }}</span>
+                <button
+                  @click="dismissRestoreError"
+                  @keydown.enter="dismissRestoreError"
+                  @keydown.space.prevent="dismissRestoreError"
+                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  aria-label="关闭提示"
+                >&times;</button>
+              </div>
+            </Transition>
+
           <ShengXiaoHero :result="result" />
           <WuXingGrid :result="result" />
 
@@ -233,6 +288,19 @@ function dismissSaveErrorToast() {
 
           <CompatibilityGrid :items="result.compatibility" />
 
+          <!-- Restored from history notice -->
+          <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
+            <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
+            <button
+              @click="computeResult"
+              @keydown.enter="computeResult"
+              @keydown.space.prevent="computeResult"
+              class="btn-seal"
+            >
+              <span>刷新结果</span>
+            </button>
+          </div>
+
           <div class="flex flex-wrap gap-3 justify-center mt-8">
             <button
               @click="computeResult"
@@ -248,24 +316,25 @@ function dismissSaveErrorToast() {
             >
               <span>切换生肖</span>
             </button>
+            <button
+              @click="showHistoryModal = true"
+              @keydown.enter="showHistoryModal = true"
+              @keydown.space.prevent="showHistoryModal = true"
+              class="btn-seal"
+              aria-haspopup="dialog"
+            >
+              <span>浏览历史</span>
+            </button>
           </div>
 
           </div>
         </template>
       </ToolPageLayout>
-</template>
 
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>
+  <HistoryModal
+    :show="showHistoryModal"
+    type="shengxiao"
+    @close="showHistoryModal = false"
+    @restore="onHistoryRestore"
+  />
+</template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import InkDivider from '~/components/tools/InkDivider.vue'
+
 useHead({ title: '玄学 - 命理推演 · 知己知天' })
 
 const { restoreSession, currentProfile } = useAuth()
@@ -312,6 +314,15 @@ const goToLogin = () => {
               <div class="ink-branch__dot ink-branch__dot--mid" />
               <div class="ink-branch__dot ink-branch__dot--far" />
             </div>
+          </div>
+        </div>
+
+        <!-- ── Ink Divider with Seal Mark ── -->
+        <div class="mb-8 sm:mb-12 fade-in" :style="{ '--delay': '0.15s' }" aria-hidden="true">
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">术</span>
+            <InkDivider>命理推演</InkDivider>
+            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">法</span>
           </div>
         </div>
 

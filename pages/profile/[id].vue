@@ -28,6 +28,7 @@ const error = ref('')
 const maxDate = computed(() => new Date().toISOString().split('T')[0])
 const minYear = 1920
 const isOnboarding = computed(() => route.query.onboarding === 'true')
+const redirectPath = computed(() => (route.query.redirect as string) || (route.query.from as string) || '')
 let successTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Initial values for dirty detection
@@ -283,6 +284,15 @@ const saveProfile = async () => {
       <span>开始体验</span>
     </NuxtLink>
 
+    <!-- Redirect back to tool -->
+    <NuxtLink
+      v-if="redirectPath && success && !isOnboarding"
+      :to="redirectPath"
+      class="btn-seal inline-flex mb-6"
+    >
+      <span>返回命理工具</span>
+    </NuxtLink>
+
     <!-- Error -->
     <Transition name="toast">
       <div
@@ -457,18 +467,3 @@ const saveProfile = async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>
