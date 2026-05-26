@@ -63,7 +63,7 @@ function selectAnimal(index: number) {
   const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
   const representativeYear = currentYear - diff
 
-  result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar')
+  result.value = calculateShengXiao(representativeYear, currentProfile.value?.birth_calendar || 'solar', new Date())
   loading.value = false
 }
 

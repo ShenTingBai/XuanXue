@@ -117,9 +117,15 @@ const showResetConfirm = ref(false)
 const coinTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const numberTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
+const router = useRouter()
+
 onMounted(() => {
-  const { restoreSession } = useAuth()
+  const { restoreSession, currentProfile } = useAuth()
   restoreSession()
+  if (!currentProfile.value) {
+    router.push('/login')
+    return
+  }
   window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
 })
