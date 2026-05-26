@@ -111,6 +111,7 @@ Traditional Chinese scholar's study aesthetic:
 - Feature development happens in dedicated branches (`phase-*`, `feat/*`, `fix/*`), never directly on `main`.
 - `main` should always remain clean — no in-progress feature commits, no planning/spec commits.
 - After feature completion, merge back to `main` via PR (`gh pr create`).
+- **Always use `git merge --no-ff` when merging branches into `main`** to preserve branch topology as visible merge bubbles in the commit graph. Fast-forward merges are prohibited — every feature branch must leave a visible line in the graph.
 
 ### Key Conventions
 
