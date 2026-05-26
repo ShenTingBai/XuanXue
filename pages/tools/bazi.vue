@@ -55,6 +55,7 @@ import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 
 useHead({ title: '八字排盘 - 玄学' })
 

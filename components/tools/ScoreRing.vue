@@ -26,9 +26,9 @@
       />
     </svg>
     <div class="score-ring-text" aria-hidden="true">
-      <span class="score-number">{{ displayScore }}</span>
-      <span v-if="label" class="score-label">{{ label }}</span>
-      <span v-else class="score-label">分</span>
+      <span class="score-number" :style="{ fontSize: scoreFontSize }">{{ displayScore }}</span>
+      <span v-if="label" class="score-label" :style="{ fontSize: labelFontSize }">{{ label }}</span>
+      <span v-else class="score-label" :style="{ fontSize: labelFontSize }">分</span>
     </div>
   </div>
 </template>
@@ -65,6 +65,9 @@ const dashOffset = computed(() => {
   const fraction = safeScore.value / 100
   return circumference - fraction * circumference
 })
+
+const scoreFontSize = computed(() => Math.max(12, props.size * 0.3) + 'px')
+const labelFontSize = computed(() => Math.max(10, props.size * 0.1) + 'px')
 </script>
 
 <style scoped>

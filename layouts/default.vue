@@ -106,21 +106,27 @@ const closeDropdown = (e: FocusEvent) => {
             <!-- Tool Navigation (desktop) -->
             <nav class="hidden md:flex items-center gap-0.5" aria-label="命理工具导航">
               <NuxtLink
-                v-for="navItem in navTools"
+                v-for="navItem in navTools.filter(t => t.available)"
                 :key="navItem.id"
                 :to="navItem.route"
                 :class="[
                   'nav-link',
                   { 'nav-link--active': route.path === navItem.route },
-                  { 'nav-link--locked': !navItem.available },
                 ]"
-                :tabindex="navItem.available ? 0 : -1"
-                :aria-disabled="!navItem.available"
               >
                 <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.char }}</span>
                 <span>{{ navItem.name }}</span>
-                <span v-if="!navItem.available" class="text-[0.625rem] text-ink-light ml-0.5">*</span>
               </NuxtLink>
+              <span
+                v-for="navItem in navTools.filter(t => !t.available)"
+                :key="navItem.id"
+                class="nav-link nav-link--locked"
+                :aria-label="navItem.name + '（即将上线）'"
+              >
+                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.char }}</span>
+                <span>{{ navItem.name }}</span>
+                <span class="text-[0.625rem] text-ink-light ml-0.5">*</span>
+              </span>
             </nav>
 
             <!-- Profile Section -->
