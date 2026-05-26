@@ -28,36 +28,36 @@ defineProps<{
     <div
       v-if="isSelected"
       class="absolute inset-0 z-0 pointer-events-none"
-      style="box-shadow: inset 0 0 18px rgba(198,40,40,0.12); border: 1.5px solid #C62828;"
+      style="box-shadow: inset 0 0 18px rgba(198,40,40,0.15), 0 0 10px rgba(198,40,40,0.08); border: 1px solid #C62828;"
     />
 
     <!-- Top bar: branch + name -->
-    <div class="relative z-[1] flex items-baseline gap-1 px-1.5 pt-1 pb-0">
-      <span class="text-[0.65rem] text-ink-light/70 font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
+    <div class="relative z-[1] flex items-baseline gap-1 px-2 pt-1.5 pb-0.5">
+      <span class="text-[0.55rem] text-ink-light/50 font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
       <span
-        class="font-display text-[0.9rem] leading-tight tracking-[0.05em]"
+        class="font-display text-[0.9rem] leading-tight tracking-[0.05em] font-semibold"
         :class="isMingGong ? 'text-cinnabar' : 'text-ink-deep'"
       >{{ palace.name }}</span>
-      <span v-if="isMingGong" class="text-[0.55rem] text-cinnabar/70 ml-0.5" aria-hidden="true">命</span>
+      <span v-if="isMingGong" class="text-[0.6rem] text-cinnabar/70 ml-0.5" aria-hidden="true">命</span>
     </div>
 
     <!-- Major stars -->
-    <div class="relative z-[1] px-1.5 mb-0.5">
-      <div v-if="palace.majorStars.length > 0" class="font-display text-[0.82rem] text-cinnabar leading-snug tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap">
+    <div class="relative z-[1] px-2 mb-1.5">
+      <div v-if="palace.majorStars.length > 0" class="font-display text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {{ palace.majorStars.map(s => s.name).join(' ') }}
       </div>
-      <div v-else class="font-display text-[0.65rem] text-ink-light/40 italic tracking-[0.04em]">空宫</div>
+      <div v-else class="font-display text-[0.65rem] text-ink-light/50 italic tracking-[0.04em]">空宫</div>
     </div>
 
     <!-- Minor stars -->
-    <div v-if="palace.minorStars.length > 0" class="relative z-[1] px-1.5 pb-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
-      <span class="font-display text-[0.68rem] leading-tight tracking-[0.03em]" style="color: #6B5B4F;">
+    <div v-if="palace.minorStars.length > 0" class="relative z-[1] px-2 pb-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
+      <span class="font-display text-[0.68rem] leading-snug tracking-[0.03em]" style="color: #6B5B4F;">
         {{ palace.minorStars.map(s => s.name).join(' ') }}
       </span>
     </div>
 
     <!-- 四化 chips -->
-    <div v-if="palace.majorStars.some(s => s.mutagen) || palace.minorStars.some(s => s.mutagen)" class="relative z-[1] px-1.5 pb-0.5 flex flex-wrap gap-0.5">
+    <div v-if="palace.majorStars.some(s => s.mutagen) || palace.minorStars.some(s => s.mutagen)" class="relative z-[1] px-2 pb-1.5 flex flex-wrap gap-0.5">
       <span
         v-for="star in [...palace.majorStars, ...palace.minorStars].filter(s => s.mutagen)"
         :key="star.name + (star.mutagen || '')"
@@ -72,8 +72,8 @@ defineProps<{
     </div>
 
     <!-- Decadal range -->
-    <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="relative z-[1] px-1.5 pb-0.5 mt-auto">
-      <span class="text-[0.58rem] text-ink-light/60 tracking-[0.04em]">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
+    <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="relative z-[1] px-2 pb-1.5 mt-auto">
+      <span class="text-[0.7rem] text-ink-medium/60 tracking-[0.04em] font-medium">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
     </div>
   </div>
 </template>

@@ -24,7 +24,7 @@ defineProps<{
     <!-- Outer decorative border -->
     <div
       class="absolute -inset-px pointer-events-none z-10"
-      style="border: 1px solid rgba(107,91,79,0.12);"
+      style="border: 1px solid rgba(107,91,79,0.15);"
     />
 
     <div
@@ -32,7 +32,7 @@ defineProps<{
       :key="palace.index"
       class="bg-paper relative"
       role="listitem"
-      style="border: 1px solid rgba(107,91,79,0.08);"
+      style="border: 1px solid rgba(107,91,79,0.1);"
       :style="{
         gridRow: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.row,
         gridColumn: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.col,
@@ -47,7 +47,7 @@ defineProps<{
     </div>
 
     <!-- Center info area -->
-    <div class="col-start-2 col-end-4 row-start-2 row-end-4 grid grid-cols-2 grid-rows-2 relative z-[1]">
+    <div class="col-start-2 col-end-4 row-start-2 row-end-4 grid grid-cols-2 grid-rows-2 relative z-[1]" style="box-shadow: inset 0 0 0 1px rgba(107,91,79,0.06);">
       <div
         v-for="(item, i) in [
           { label: '五行局', value: fiveElementsClass },
@@ -61,10 +61,10 @@ defineProps<{
           i < 2 ? 'border-b' : '',
           i % 2 === 0 ? 'border-r' : '',
         ]"
-        style="background: #EDE4D3; border-color: rgba(107,91,79,0.1);"
+        style="background: #E8DED0; border-color: rgba(107,91,79,0.1);"
       >
-        <div class="text-[0.62rem] tracking-[0.08em] text-ink-light/55 font-sans mb-0.5">{{ item.label }}</div>
-        <div class="text-[13px] font-display tracking-[0.08em]" style="color: #5D4E37;">{{ item.value }}</div>
+        <div class="text-[0.68rem] tracking-[0.08em] text-ink-light/55 font-sans mb-0.5 font-medium">{{ item.label }}</div>
+        <div class="text-[14px] font-display tracking-[0.08em] font-semibold" style="color: #4A3828;">{{ item.value }}</div>
       </div>
     </div>
   </div>
