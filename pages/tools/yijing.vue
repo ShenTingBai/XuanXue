@@ -28,6 +28,8 @@
           <span v-if="processing">解卦中，请稍候</span>
         </div>
 
+        <InkDivider v-if="result && !processing" />
+
         <!-- Results -->
         <div v-if="result && !processing" class="mt-8">
           <YijingInterpretation :result="result" :score="score" />
@@ -42,7 +44,7 @@
           <!-- Reset -->
           <div class="text-center mt-6 pb-8">
             <button
-              class="btn-ghost"
+              class="btn-seal"
               @click="handleReset"
               @keydown.enter="handleReset"
               @keydown.space.prevent="handleReset"
@@ -51,6 +53,17 @@
             </button>
           </div>
         </div>
+        <button
+          v-if="showScrollTop"
+          class="fixed bottom-8 right-8 z-40 w-10 h-10 rounded-full bg-ink-dark/80 text-paper-lightest flex items-center justify-center shadow-lg hover:bg-ink-dark transition-all"
+          @click="scrollToTop"
+          @keydown.enter="scrollToTop"
+          aria-label="返回顶部"
+        >
+          <svg aria-hidden="true" class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M10 16V4M4 10l6-6 6 6" />
+          </svg>
+        </button>
       </div>
   </ToolPageLayout>
 </template>
@@ -66,6 +79,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import PageHero from '~/components/tools/PageHero.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
+import InkDivider from '~/components/tools/InkDivider.vue'
 useHead({ title: '六爻占卜 - 玄学' })
 
 // State
@@ -76,10 +90,13 @@ const result = ref<YijingResult | null>(null)
 const score = ref(0)
 const processing = ref(false)
 const saveError = ref('')
+const showScrollTop = ref(false)
 
 onMounted(() => {
   const { restoreSession } = useAuth()
   restoreSession()
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
 })
 
 // Coin casting
@@ -160,6 +177,18 @@ function handleReset() {
   processing.value = false
   saveError.value = ''
 }
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 
 // Silent auto-save (fire-and-forget)
 async function tryAutoSave(values: number[], yijingResult: YijingResult) {
