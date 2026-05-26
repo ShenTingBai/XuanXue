@@ -24,7 +24,7 @@
       <div v-for="(year, idx) in years" :key="year.year">
         <!-- Current year: expanded card -->
         <div v-if="year.detail"
-          class="card-paper-solid rounded-xl p-4 sm:p-5 border-2 border-cinnabar bg-cinnabar/3"
+          class="card-paper-solid rounded-xl p-8 border-2 border-cinnabar bg-cinnabar/3"
           :role="'region'"
           :aria-label="`${year.year}年流年详批`"
         >
@@ -125,7 +125,7 @@
 
         <!-- Other years: compact card -->
         <div v-else
-          class="card-paper-solid rounded-xl p-3 sm:p-4 border border-paper-dark hover:border-ink-faint transition-colors cursor-pointer"
+          class="card-paper-solid rounded-xl p-4 border border-paper-dark hover:border-ink-faint transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cinnabar"
           role="button"
           :aria-expanded="expandedYearIdx === idx"
           :aria-label="`${year.year}年 ${year.stem}${year.branch} 流年运势`"

@@ -10,7 +10,7 @@ export interface SafeProfile {
   updated_at: string
 }
 
-export function toSafeProfile(row: Record<string, unknown> | undefined): SafeProfile | never {
+export function toSafeProfile(row: Record<string, unknown> | undefined): SafeProfile {
   if (!row) throw new Error('Profile row is undefined')
   const { pin, ...safe } = row
   return {

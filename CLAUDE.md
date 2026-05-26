@@ -133,7 +133,7 @@ Traditional Chinese scholar's study aesthetic:
 ### Shared Constants
 
 - `constants/bazi.ts` is the single source of truth for `STEMS`, `BRANCHES`, `WUXING_COLORS`, and `WUXING_FALLBACK_COLOR`. Import from here — never redefine these in components or composables.
-- `WUXING_COLORS` maps element names to hex colors: `'{ '木': '#4A7C59', '火': '#C62828', '土': '#8B6914', '金': '#6E6E6E', '水': '#2C5F7C' }'`. Use `WUXING_FALLBACK_COLOR` (`#6B5B4F`) for fallback, not a hardcoded value.
+- `WUXING_COLORS` maps element names to hex colors: `'{ '木': '#3D6B4B', '火': '#C62828', '土': '#7A5E12', '金': '#5E5E5E', '水': '#2C5F7C' }'`. Use `WUXING_FALLBACK_COLOR` (`#6B5B4F`) for fallback, not a hardcoded value.
 
 ### BaZi Engine Conventions
 

@@ -1,6 +1,6 @@
 import { getMonthPillar, getSolarTerm } from './useSolarTerms'
 
-import { STEMS, BRANCHES } from '~/constants/bazi'
+import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
 
 // === Constants ===
 
@@ -135,7 +135,7 @@ const TEN_GOD_MATRIX: string[][] = (() => {
 
 /** Get ten god relationship between day master stem and another stem */
 export function getTenGod(dayMasterIndex: number, targetStem: string): string {
-  const targetIndex = (STEMS as readonly string[]).indexOf(targetStem)
+  const targetIndex = getStemIndex(targetStem)
   if (targetIndex < 0) return '—'
   return TEN_GOD_MATRIX[dayMasterIndex][targetIndex]
 }
@@ -303,7 +303,7 @@ function computeDaYun(
   // 阳男阴女 → 顺排, 阴男阳女 → 逆排
   const forward = (yangYear && isMale) || (!yangYear && !isMale)
 
-  const monthStemIndex = (STEMS as readonly string[]).indexOf(monthPillar.stem)
+  const monthStemIndex = getStemIndex(monthPillar.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillar.branch)
 
   // Simplified start age
@@ -334,7 +334,7 @@ function patchDaYunTenGods(cycles: DaYunCycle[], dayMasterIndex: number): DaYunC
     const branch = cycle.stemBranch[1]
     const stemTenGod = getTenGod(dayMasterIndex, stem)
     const branchTenGod = getTenGod(dayMasterIndex, branch)
-    const shortDesc = stemTenGod === '日主' ? branchTenGod : [stemTenGod, branchTenGod].filter(Boolean).join('/')
+    const shortDesc = [stemTenGod, branchTenGod].filter(Boolean).join('/')
     return { ...cycle, stemTenGod, branchTenGod, description: shortDesc }
   })
 }
@@ -371,7 +371,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   // --- Month Pillar ---
   const monthPillarYear = beforeLiChun ? birthYear - 1 : birthYear
   const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, birthCalendar)
-  const monthStemIndex = (STEMS as readonly string[]).indexOf(monthPillarResult.stem)
+  const monthStemIndex = getStemIndex(monthPillarResult.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)
 
   // --- Day Pillar ---

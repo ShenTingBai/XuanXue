@@ -594,3 +594,75 @@ describe('diverse hexagram combinations', () => {
     })
   })
 })
+
+// ============================
+// 17. 归魂卦 (Returning Soul Hexagram)
+// ============================
+
+describe('归魂卦 (Returning Soul Hexagram)', () => {
+  it('火天大有 (离上乾下) is 乾宫归魂卦 with palacePosition = 8', () => {
+    // 归魂卦: position 8 in a palace. For 乾宫:
+    // upper=离(1,0,1), lower=乾(1,1,1) → yinYang [1,1,1, 1,0,1] → values [7,7,7,7,8,7]
+    const hex = getHexagramInfo([7, 7, 7, 7, 8, 7])
+    expect(hex.name).toBe('火天大有')
+    expect(hex.palaceName).toBe('乾宫')
+    expect(hex.palacePosition).toBe(8)
+    // Position 8 (归魂): 世在三爻, 应在六爻
+    expect(hex.shiPosition).toBe(3)
+    expect(hex.yingPosition).toBe(6)
+  })
+
+  it('雷泽归妹 (震上兑下) is 兑宫归魂卦 with palacePosition = 8', () => {
+    // 兑宫(P=3), position 8: upper=u4, lower=l1
+    // P=3(011), l1=3, u4=flipBit(flipBit(flipBit(3,0),1),0)
+    // l2=flipBit(3,0)=2, l3=flipBit(2,1)=0, l4=flipBit(0,2)=4
+    // u2=2, u3=0, u4=flipBit(0,0)=1
+    // Upper=1(震=001), Lower=3(兑=011)
+    // yinYang upper: [1,0,0], lower: [1,1,0] → [1,1,0, 1,0,0] → [7,7,8,7,8,8]
+    const hex = getHexagramInfo([7, 7, 8, 7, 8, 8])
+    expect(hex.name).toBe('雷泽归妹')
+    expect(hex.palaceName).toBe('兑宫')
+    expect(hex.palacePosition).toBe(8)
+    expect(hex.shiPosition).toBe(3)
+    expect(hex.yingPosition).toBe(6)
+  })
+
+  it('归魂卦 with changing lines produces valid derived hexagram', () => {
+    // 火天大有 with line 3 changing (7→9): values [7,7,9,7,8,7]
+    const result = computeYijingResult([7, 7, 9, 7, 8, 7])
+    expect(result.hexagram.name).toBe('火天大有')
+    expect(result.hexagram.palacePosition).toBe(8)
+    // Derived hexagram should be valid
+    expect(result.derivedHexagram).not.toBeNull()
+    expect(result.derivedLines).toHaveLength(6)
+    if (result.derivedHexagram) {
+      expect(result.derivedHexagram.name).toBeTruthy()
+      expect(result.derivedHexagram.judgment).toBeTruthy()
+    }
+  })
+})
+
+// ============================
+// 18. Six spirits SSR guard
+// ============================
+
+describe('six spirits consistency', () => {
+  it('all six spirits are assigned in cyclic order regardless of current day stem', () => {
+    const VALID_SPIRITS = ['青龙', '朱雀', '勾陈', '螣蛇', '白虎', '玄武']
+    // Test across multiple runs to verify stability
+    for (let i = 0; i < 10; i++) {
+      const values: number[] = []
+      for (let j = 0; j < 6; j++) {
+        values.push(Math.random() < 0.5 ? 7 : 8)
+      }
+      const result = computeYijingResult(values)
+      expect(result.lines).toHaveLength(6)
+      for (const line of result.lines) {
+        expect(VALID_SPIRITS).toContain(line.sixSpirit)
+      }
+      // All 6 spirits are distinct in cyclic order
+      const spirits = result.lines.map(l => l.sixSpirit)
+      expect(new Set(spirits).size).toBe(6)
+    }
+  })
+})

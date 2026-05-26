@@ -8,7 +8,7 @@
 
     <p v-if="cycles.length === 0" class="font-sans text-sm text-ink-muted">暂无大运数据</p>
 
-    <div v-else class="card-paper-solid rounded-xl p-4 sm:p-5">
+    <div v-else class="card-paper-solid rounded-xl p-8">
     <!-- Desktop: horizontal cards -->
     <div class="hidden sm:flex gap-3 overflow-x-auto pb-2">
       <div v-for="(cycle, idx) in cycles" :key="cycle.startAge"

@@ -80,18 +80,11 @@
 
 <script setup lang="ts">
 import type { ZhuangGuaLine } from '~/composables/useYijing'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
 
 defineProps<{
   lines: ZhuangGuaLine[]
 }>()
-
-function hexToRgba(hex: string, opacity: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
-}
 
 function wuxingTextColor(wuxing: string): string {
   return WUXING_COLORS[wuxing] || WUXING_FALLBACK_COLOR

@@ -4,7 +4,7 @@
     <div class="flex justify-end mb-4">
       <button
         class="btn-ghost text-sm"
-        aria-label="切换起卦方式"
+        :aria-label="mode === 'coin' ? '切换到数字起卦' : '切换到摇卦起卦'"
         @click="toggleMode"
         @keydown.enter="toggleMode"
       >
@@ -290,5 +290,11 @@ function handleNumberSubmit() {
   0% { transform: rotateY(0deg); }
   50% { transform: rotateY(720deg); }
   100% { transform: rotateY(720deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-circle.coin-flipping {
+    animation: none;
+  }
 }
 </style>

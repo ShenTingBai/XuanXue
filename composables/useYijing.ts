@@ -76,6 +76,7 @@ export interface YijingResult {
 
 /** Compute a pseudo day stem index for 六神 assignment. */
 function getDayStemIndex(): number {
+  if (!import.meta.client) return 0  // SSR: return default
   const d = new Date()
   // Simplified: fixed offset from a known reference (2000-01-01 was a Saturday,
   // approximate stem index). For yi-jing divination this is decorative — exact
@@ -85,8 +86,10 @@ function getDayStemIndex(): number {
   return ((diff % 10) + 10) % 10
 }
 
+const STEM_NAMES = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
+
 function getSixSpirits(startStemIndex: number): string[] {
-  const startIdx = STEM_GROUPS[['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'][startStemIndex]] ?? 0
+  const startIdx = STEM_GROUPS[STEM_NAMES[startStemIndex]] ?? 0
   return Array.from({ length: 6 }, (_, i) => SIX_SPIRITS[(startIdx + i) % 6])
 }
 
