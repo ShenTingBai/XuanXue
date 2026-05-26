@@ -1,8 +1,48 @@
+<script lang="ts">
+/* Module-level static data — never re-created on re-render */
+
+/** Element-to-life-area mapping from standard five element theory */
+export const ELEMENT_LIFE_AREA: Record<string, string> = {
+  '木': '成长、学习、创造',
+  '火': '行动、社交、热情',
+  '土': '稳定、储蓄、规划',
+  '金': '纪律、决策、果断',
+  '水': '沟通、智慧、灵活',
+}
+
+export const sectionMap: Record<string, string> = {
+  '排盘': 'bazi-grid',
+  '神煞': 'shensha',
+  '日主': 'day-master',
+  '五行': 'elements',
+  '大运': 'dayun',
+  '流年': 'liunian',
+  '解读': 'reading-guide',
+}
+
+/** Rule-based da yun meaning from the stem's ten god type */
+export function getDaYunMeaning(tenGod: string): string {
+  const map: Record<string, string> = {
+    '正官': '正官大运，事业运旺，利于建立规范与秩序',
+    '偏官': '七杀大运，挑战与机遇并存，宜果断突破',
+    '正财': '正财大运，财运稳定，利于积累与储蓄',
+    '偏财': '偏财大运，偏财运佳，但需注意风险把控',
+    '正印': '正印大运，学习运强，有贵人长辈提携',
+    '偏印': '偏印大运，思维敏锐，适合钻研与内省',
+    '食神': '食神大运，创造力旺盛，生活轻松愉悦',
+    '伤官': '伤官大运，才华得以施展，但需注意言行分寸',
+    '比肩': '比肩大运，竞争与协作并存，宜借助团队力量',
+    '劫财': '劫财大运，需防范破财损耗，宜守不宜攻',
+  }
+  return map[tenGod] || `${tenGod}大运，宜顺势而为`
+}
+</script>
+
 <script setup lang="ts">
 import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
-import { WUXING_COLORS as ELEMENT_COLORS, WUXING_FALLBACK_COLOR, getStemIndex, strengthColorClass } from '~/constants/bazi'
+import { WUXING_COLORS as ELEMENT_COLORS, wuxingColor, getStemIndex, strengthColorClass } from '~/constants/bazi'
 import { parseDate } from '~/utils/date'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 
@@ -39,13 +79,16 @@ const historyDropdownRef = ref<HTMLElement | null>(null)
 const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
 const scrollTopOffset = ref('1rem')
+const mainContainer = ref<HTMLElement | null>(null)
+const cachedAge = ref(0)
+const activeNavSection = ref('排盘')
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
 }
 
 function updateScrollTopOffset() {
-  const el = document.querySelector('.max-w-\\[48rem\\]')
+  const el = mainContainer.value || document.querySelector('.max-w-\\[48rem\\]')
   if (el) {
     const rect = el.getBoundingClientRect()
     const gap = window.innerWidth - rect.right + 4
@@ -53,7 +96,10 @@ function updateScrollTopOffset() {
   }
 }
 
+let sectionObserver: IntersectionObserver | null = null
+
 onUnmounted(() => {
+  if (sectionObserver) sectionObserver.disconnect()
   document.removeEventListener('click', onClickOutside)
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', updateScrollTopOffset)
@@ -77,6 +123,35 @@ onMounted(() => {
   window.addEventListener('resize', updateScrollTopOffset, { passive: true })
   updateScrollTopOffset()
   computeResult()
+
+  // IntersectionObserver for nav section highlighting
+  if (import.meta.client) {
+    sectionObserver = new IntersectionObserver(
+      (entries) => {
+        // Find the first visible section that's mostly in view
+        const visible = entries.filter(e => e.isIntersecting)
+        if (visible.length > 0) {
+          // Pick the one with the highest intersection ratio
+          const best = visible.reduce((a, b) => a.intersectionRatio >= b.intersectionRatio ? a : b)
+          // Map section id back to nav label
+          for (const [label, id] of Object.entries(sectionMap)) {
+            if (id === best.target.id) {
+              activeNavSection.value = label
+              break
+            }
+          }
+        }
+      },
+      { threshold: [0.3, 0.5, 0.7] },
+    )
+    // Observe all sections after a short delay to let DOM render
+    setTimeout(() => {
+      for (const id of Object.values(sectionMap)) {
+        const el = document.getElementById(id)
+        if (el) sectionObserver!.observe(el)
+      }
+    }, 100)
+  }
 })
 
 function getCurrentAge(): number {
@@ -94,11 +169,12 @@ function getCurrentAge(): number {
 
 const currentDaYunIndex = computed(() => {
   if (!result.value?.daYun.length) return -1
-  const age = getCurrentAge()
-  return result.value.daYun.findIndex(c => age >= c.startAge && age <= c.endAge)
+  return result.value.daYun.findIndex(c => cachedAge.value >= c.startAge && cachedAge.value <= c.endAge)
 })
 
 function computeResult() {
+  // Cache current age once for use throughout the result computation
+  cachedAge.value = getCurrentAge()
   if (!currentProfile.value?.birth_date) return
 
   loading.value = true
@@ -192,8 +268,8 @@ async function saveDivinationResult(
       savedDivinationId.value = saveRes.id
       saveError.value = ''
     }
-  } catch (e: any) {
-    saveError.value = e?.statusMessage || '保存失败'
+  } catch (e: unknown) {
+    saveError.value = e instanceof Error ? e.message : '保存失败'
     savedDivinationId.value = null
     showSaveErrorToast.value = true
   }
@@ -226,7 +302,13 @@ async function restoreFromHistory(id: number) {
       { headers },
     )
     if (record.result_data) {
-      result.value = record.result_data as BaZiResult
+      const data = record.result_data
+      if (data && typeof data === 'object' && 'dayMaster' in data && 'yearPillar' in data) {
+        result.value = data as BaZiResult
+      } else {
+        restoreError.value = '历史记录数据无效'
+        return
+      }
 
       // Re-compute shensha and liunian from restored result
       const dayMasterIndex = getStemIndex(result.value.dayMaster)
@@ -268,7 +350,7 @@ function scrollToTop() {
 }
 
 function elementColor(el: string): string {
-  return ELEMENT_COLORS[el] || WUXING_FALLBACK_COLOR
+  return wuxingColor(el)
 }
 
 function toggleHistoryDropdown() {
@@ -405,42 +487,6 @@ const currentDaYun = computed(() => {
   return null
 })
 
-/** Element-to-life-area mapping from standard five element theory */
-const ELEMENT_LIFE_AREA: Record<string, string> = {
-  '木': '成长、学习、创造',
-  '火': '行动、社交、热情',
-  '土': '稳定、储蓄、规划',
-  '金': '纪律、决策、果断',
-  '水': '沟通、智慧、灵活',
-}
-
-/** Rule-based da yun meaning from the stem's ten god type */
-function getDaYunMeaning(tenGod: string): string {
-  const map: Record<string, string> = {
-    '正官': '正官大运，事业运旺，利于建立规范与秩序',
-    '偏官': '七杀大运，挑战与机遇并存，宜果断突破',
-    '正财': '正财大运，财运稳定，利于积累与储蓄',
-    '偏财': '偏财大运，偏财运佳，但需注意风险把控',
-    '正印': '正印大运，学习运强，有贵人长辈提携',
-    '偏印': '偏印大运，思维敏锐，适合钻研与内省',
-    '食神': '食神大运，创造力旺盛，生活轻松愉悦',
-    '伤官': '伤官大运，才华得以施展，但需注意言行分寸',
-    '比肩': '比肩大运，竞争与协作并存，宜借助团队力量',
-    '劫财': '劫财大运，需防范破财损耗，宜守不宜攻',
-  }
-  return map[tenGod] || `${tenGod}大运，宜顺势而为`
-}
-
-const sectionMap: Record<string, string> = {
-  '排盘': 'bazi-grid',
-  '神煞': 'shensha',
-  '日主': 'day-master',
-  '五行': 'elements',
-  '大运': 'dayun',
-  '流年': 'liunian',
-  '解读': 'reading-guide',
-}
-
 function scrollToSection(anchorName: string) {
   const id = sectionMap[anchorName]
   if (!id) return
@@ -501,7 +547,7 @@ function scrollToSection(anchorName: string) {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div class="max-w-[48rem] mx-auto relative">
+          <div ref="mainContainer" class="max-w-[48rem] mx-auto relative">
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -589,66 +635,23 @@ function scrollToSection(anchorName: string) {
                 v-for="anchor in ['排盘', '神煞', '日主', '五行', '大运', '流年', '解读']"
                 :key="anchor"
                 :href="`#${sectionMap[anchor]}`"
-                class="px-3 py-2.5 text-xs rounded-full font-sans border border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30 transition-colors no-underline"
+                :class="[
+                  'px-3 py-2.5 text-xs rounded-full font-sans border transition-colors no-underline',
+                  activeNavSection === anchor
+                    ? 'bg-cinnabar text-paper-lightest border-cinnabar'
+                    : 'border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30'
+                ]"
                 @click.prevent="scrollToSection(anchor)"
               >{{ anchor }}</a>
             </nav>
 
-            <!-- Four Pillars Grid -->
-            <div id="bazi-grid" class="scroll-mt-20" tabindex="-1">
-            <BaziGrid :pillars="pillars" />
-            </div>
-
-
-            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
-            <div id="shensha" class="scroll-mt-20" tabindex="-1">
-            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
-            </div>
-
-            <!-- Day Master Card -->
-            <div id="day-master" class="scroll-mt-20" tabindex="-1">
-            <DayMasterCard
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :favorable-elements="result.favorableElements"
-              :unfavorable-elements="result.unfavorableElements"
-            />
-            </div>
-
-            <!-- Element Analysis -->
-            <div id="elements" class="scroll-mt-20" tabindex="-1">
-            <ElementAnalysis
-              :element-counts="result.elementCounts"
-              :element-percentages="result.elementPercentages"
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :month-branch="result.monthPillar.branch"
-            />
-            </div>
-
-            <!-- Da Yun Timeline -->
-            <div id="dayun" class="scroll-mt-20" tabindex="-1">
-            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
-            </div>
-
-            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
-            <div id="liunian" class="scroll-mt-20" tabindex="-1">
-            <LiuNianTimeline
-              v-if="liuNianYears.length > 0"
-              :years="liuNianYears"
-              :current-year="currentYear"
-              :range="5"
-            />
-            </div>
-
-            <!-- Reading Guide -->
+            <!-- Reading Guide (命理速览) -->
             <div id="reading-guide" class="mb-8 p-8 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20" tabindex="-1">
-              <h2 class="font-display text-xl sm:text-2xl text-cinnabar mb-5 flex items-center gap-2">
+              <h2 class="font-display text-xl sm:text-2xl text-cinnabar mb-2 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
-                你的八字解读
+                命理速览
               </h2>
+              <p class="font-sans text-xs text-ink-light mb-5">本结果为算法推演，仅供参考，不能替代专业命理师分析。</p>
 
               <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
                 <!-- Section 1: 命局总览 -->
@@ -701,21 +704,21 @@ function scrollToSection(anchorName: string) {
                   <div class="flex items-center gap-3 mb-2">
                     <span class="font-display text-lg text-ink-dark">{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span>
                     <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{ currentYearLiuNian.tenGod }}</span>
-                    <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar/80' : 'text-ink-light'">
+                    <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar/80' : 'text-ink-medium'">
                       {{ currentYearLiuNian.isFavorable ? '喜用' : currentYearLiuNian.isUnfavorable ? '忌神' : '中性' }}
                     </span>
-                    <span class="ml-auto font-sans text-xs text-ink-light">运势评分 {{ currentYearLiuNian.score }}/100</span>
+                    <span class="ml-auto font-sans text-xs text-ink-medium">运势评分 {{ currentYearLiuNian.score }}/100</span>
                   </div>
                   <p class="text-sm">{{ currentYearLiuNian.summary }}</p>
                   <div v-if="currentYearLiuNian.earthRelations.length > 0" class="mt-1.5">
-                    <p class="text-xs text-ink-light">流年地支与命局关系：</p>
+                    <p class="text-xs text-ink-medium">流年地支与命局关系：</p>
                     <ul class="mt-0.5 space-y-0.5 text-xs text-ink-medium">
                       <li v-for="(rel, i) in currentYearLiuNian.earthRelations" :key="i">
                         <span class="font-medium">{{ rel.targetPillar }}{{ rel.type }}</span>：{{ rel.description }}
                       </li>
                     </ul>
                   </div>
-                  <p v-if="currentYearLiuNian.detail?.daYunInteraction" class="mt-1.5 text-xs text-ink-light">{{ currentYearLiuNian.detail.daYunInteraction }}</p>
+                  <p v-if="currentYearLiuNian.detail?.daYunInteraction" class="mt-1.5 text-xs text-ink-medium">{{ currentYearLiuNian.detail.daYunInteraction }}</p>
                 </div>
 
                 <!-- Section 4: 当前大运 -->
@@ -723,7 +726,7 @@ function scrollToSection(anchorName: string) {
                   <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">当前大运</h3>
                   <div class="flex items-center gap-3 mb-1">
                     <span class="font-display text-lg text-ink-dark">{{ currentDaYun.stemBranch }}</span>
-                    <span class="text-xs text-ink-light">{{ currentDaYun.startAge }}岁 - {{ currentDaYun.endAge }}岁</span>
+                    <span class="text-xs text-ink-medium">{{ currentDaYun.startAge }}岁 - {{ currentDaYun.endAge }}岁</span>
                   </div>
                   <p class="text-sm">{{ currentDaYun.description }}，{{ getDaYunMeaning(currentDaYun.stemTenGod) }}</p>
                 </div>
@@ -738,11 +741,11 @@ function scrollToSection(anchorName: string) {
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                     <div v-for="el in result.favorableElements" :key="el" class="p-2 rounded-lg border" :style="{ borderColor: ELEMENT_COLORS[el] + '40', backgroundColor: ELEMENT_COLORS[el] + '08' }">
                       <span class="font-medium" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
-                      <span class="text-ink-light ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
+                      <span class="text-ink-medium ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
                     </div>
                   </div>
                   <template v-if="result.unfavorableElements.length > 0">
-                    <p class="text-xs text-ink-light mt-2 mb-1">以下元素适度即可，不必刻意回避：</p>
+                    <p class="text-xs text-ink-medium mt-2 mb-1">以下元素适度即可，不必刻意回避：</p>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                       <div v-for="el in result.unfavorableElements" :key="el"
                         class="p-2 rounded-lg border"
@@ -755,6 +758,55 @@ function scrollToSection(anchorName: string) {
                   </template>
                 </div>
               </div>
+            </div>
+
+            <!-- Four Pillars Grid -->
+            <div id="bazi-grid" class="scroll-mt-20" tabindex="-1">
+            <BaziGrid :pillars="pillars" />
+            </div>
+
+
+            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
+            <div id="shensha" class="scroll-mt-20" tabindex="-1">
+            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
+            </div>
+
+            <!-- Day Master Card -->
+            <div id="day-master" class="scroll-mt-20" tabindex="-1">
+            <DayMasterCard
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :favorable-elements="result.favorableElements"
+              :unfavorable-elements="result.unfavorableElements"
+            />
+            </div>
+
+            <!-- Element Analysis -->
+            <div id="elements" class="scroll-mt-20" tabindex="-1">
+            <ElementAnalysis
+              :element-counts="result.elementCounts"
+              :element-percentages="result.elementPercentages"
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :month-branch="result.monthPillar.branch"
+            />
+            </div>
+
+            <!-- Da Yun Timeline -->
+            <div id="dayun" class="scroll-mt-20" tabindex="-1">
+            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+            </div>
+
+            <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
+            <div id="liunian" class="scroll-mt-20" tabindex="-1">
+            <LiuNianTimeline
+              v-if="liuNianYears.length > 0"
+              :years="liuNianYears"
+              :current-year="currentYear"
+              :range="5"
+            />
             </div>
 
             <!-- Recalculate — only shown after history restore -->
@@ -830,15 +882,12 @@ function scrollToSection(anchorName: string) {
             </div>
 
             <!-- Back to top: floating button, visible after scrolling past 300px -->
-            <button
+            <ScrollTopButton
               v-if="showScrollTop"
-              @click="scrollToTop"
               :style="{ right: scrollTopOffset }"
-              class="fixed bottom-8 z-50 w-14 h-14 flex items-center justify-center rounded-lg border border-cinnabar/40 bg-paper-lightest/80 text-cinnabar backdrop-blur-sm shadow-lg hover:bg-cinnabar hover:text-paper-lightest transition-colors duration-300 text-xl"
-              aria-label="回到顶部"
-            >
-              ↑
-            </button>
+              @click="scrollToTop"
+              @keydown.enter="scrollToTop"
+            />
         </div>
         </template>
 
