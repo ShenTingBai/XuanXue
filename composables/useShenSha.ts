@@ -10,6 +10,7 @@ export interface ShenShaInput {
   hourPillar: BaZiPillar | null
   dayMaster: string
   dayMasterIndex: number
+  yearStemIndex?: number  // 年干索引 0-9 (甲=0), for year-stem-based shensha lookups; falls back to yearPillar.stem
   gender: '男' | '女' | null  // reserved for future use (e.g., gender-specific shensha priorities)
 }
 
@@ -114,11 +115,11 @@ const GUA_SU_MAP: Record<string, string> = {
 }
 
 // 日干-based lookup tables
-const LU_SHEN_MAP: Record<string, string> = {
+export const LU_SHEN_MAP: Record<string, string> = {
   '甲': '寅', '乙': '卯', '丙': '巳', '丁': '午', '戊': '巳',
   '己': '午', '庚': '申', '辛': '酉', '壬': '亥', '癸': '子',
 }
-const YANG_REN_MAP: Record<string, string> = {
+export const YANG_REN_MAP: Record<string, string> = {
   '甲': '卯', '乙': '寅', '丙': '午', '丁': '巳', '戊': '午',
   '己': '巳', '庚': '酉', '辛': '申', '壬': '子', '癸': '亥',
 }
@@ -126,47 +127,53 @@ const FEI_REN_MAP: Record<string, string> = {
   '甲': '申', '乙': '酉', '丙': '亥', '丁': '子', '戊': '亥',
   '己': '子', '庚': '寅', '辛': '卯', '壬': '巳', '癸': '午',
 }
-const TIAN_YI_MAP: Record<string, string[]> = {
+export const TIAN_YI_MAP: Record<string, string[]> = {
   '甲': ['丑', '未'], '戊': ['丑', '未'], '庚': ['丑', '未'],
   '乙': ['子', '申'], '己': ['子', '申'],
   '丙': ['亥', '酉'], '丁': ['亥', '酉'],
   '辛': ['寅', '午'],
   '壬': ['卯', '巳'], '癸': ['卯', '巳'],
 }
-const TAI_JI_MAP: Record<string, string[]> = {
+export const TAI_JI_MAP: Record<string, string[]> = {
   '甲': ['子', '午'], '乙': ['子', '午'],
   '丙': ['卯', '酉'], '丁': ['卯', '酉'],
   '戊': ['辰', '戌', '丑', '未'], '己': ['辰', '戌', '丑', '未'],
   '庚': ['寅', '亥'], '辛': ['寅', '亥'],
   '壬': ['巳', '申'], '癸': ['巳', '申'],
 }
-const WEN_CHANG_MAP: Record<string, string> = {
+export const WEN_CHANG_MAP: Record<string, string> = {
   '甲': '巳', '乙': '午', '丙': '申', '丁': '酉', '戊': '申',
   '己': '酉', '庚': '亥', '辛': '子', '壬': '寅', '癸': '卯',
 }
-const XUE_TANG_MAP: Record<string, string> = {
+export const XUE_TANG_MAP: Record<string, string> = {
   '甲': '亥', '乙': '午', '丙': '寅', '丁': '酉', '戊': '寅',
   '己': '酉', '庚': '巳', '辛': '子', '壬': '申', '癸': '卯',
 }
-const JIN_YU_MAP: Record<string, string> = {
+export const JIN_YU_MAP: Record<string, string> = {
   '甲': '辰', '乙': '巳', '丙': '未', '丁': '申', '戊': '未',
   '己': '申', '庚': '戌', '辛': '亥', '壬': '丑', '癸': '寅',
 }
-const FU_XING_MAP: Record<string, string> = {
+export const FU_XING_MAP: Record<string, string> = {
   '甲': '寅', '乙': '卯', '丙': '巳', '丁': '午', '戊': '巳',
   '己': '午', '庚': '申', '辛': '酉', '壬': '亥', '癸': '子',
 }
 
 // 月支-based lookup tables
-const TIAN_DE_MAP: Record<string, string> = {
+export const TIAN_DE_MAP: Record<string, string> = {
   '寅': '丁', '卯': '申', '辰': '壬', '巳': '辛', '午': '亥', '未': '甲',
   '申': '癸', '酉': '寅', '戌': '丙', '亥': '乙', '子': '巳', '丑': '庚',
 }
-const YUE_DE_MAP: Record<string, string[]> = {
+export const YUE_DE_MAP: Record<string, string[]> = {
   '寅': ['丙'], '午': ['丙'], '戌': ['丙'],
   '申': ['壬'], '子': ['壬'], '辰': ['壬'],
   '巳': ['庚'], '酉': ['庚'], '丑': ['庚'],
   '亥': ['甲'], '卯': ['甲'], '未': ['甲'],
+}
+
+export const XUE_REN_MAP: Record<string, string> = {
+  '寅': '丑', '卯': '未', '辰': '寅', '巳': '午',
+  '午': '辰', '未': '亥', '申': '酉', '酉': '丑',
+  '戌': '巳', '亥': '子', '子': '寅', '丑': '巳',
 }
 
 // 日支-based lookup tables
@@ -210,7 +217,7 @@ function addIfMatch(
 
 export function calculateShenSha(input: ShenShaInput): ShenSha[] {
   const results: ShenSha[] = []
-  const { yearPillar, monthPillar, dayPillar, hourPillar, dayMaster, dayMasterIndex } = input
+  const { yearPillar, monthPillar, dayPillar, hourPillar, dayMasterIndex } = input
 
   const yearBranch = yearPillar.branch
   const monthBranch = monthPillar.branch
@@ -304,8 +311,8 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
     if (XUE_TANG_MAP[dayStem] === b) {
       results.push({ name: '学堂', category: '吉', source: '日干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['学堂'] })
     }
-    // 词馆 (opposite of 学堂: 学堂+6支)
-    const ciGuanBranch = BRANCHES[(branchIdx(XUE_TANG_MAP[dayStem]) + 6) % 12]
+    // 词馆 = 临官位 (same as 禄神)
+    const ciGuanBranch = LU_SHEN_MAP[dayStem]
     if (b === ciGuanBranch) {
       results.push({ name: '词馆', category: '吉', source: '日干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['词馆'] })
     }
@@ -316,6 +323,28 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
     // 福星贵人
     if (FU_XING_MAP[dayStem] === b) {
       results.push({ name: '福星贵人', category: '吉', source: '日干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['福星贵人'] })
+    }
+  }
+
+  // === 年干查神煞 (year stem as source, coexists with 日干 versions) ===
+  // Use year pillar stem for lookup; the same maps work because the formulas
+  // for 天乙贵人/太极贵人/文昌贵人 are identical for day stem and year stem.
+  const yearStem = yearPillar.stem
+
+  for (const { pillar, pillarLabel } of allPillars) {
+    const b = pillar.branch
+
+    // 天乙贵人 (年干版)
+    if (TIAN_YI_MAP[yearStem]?.includes(b)) {
+      results.push({ name: '天乙贵人', category: '吉', source: '年干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['天乙贵人'] })
+    }
+    // 太极贵人 (年干版)
+    if (TAI_JI_MAP[yearStem]?.includes(b)) {
+      results.push({ name: '太极贵人', category: '吉', source: '年干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['太极贵人'] })
+    }
+    // 文昌贵人 (年干版)
+    if (WEN_CHANG_MAP[yearStem] === b) {
+      results.push({ name: '文昌贵人', category: '吉', source: '年干', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['文昌贵人'] })
     }
   }
 
@@ -389,9 +418,9 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
     }
   }
 
-  // 血刃 (by month branch, branch + 2; same offset formula as 丧门 historically)
+  // 血刃 (traditional lookup table based on month branch)
   for (const { pillar, pillarLabel } of allPillars) {
-    if (offsetBranch(monthBranch, 2) === pillar.branch) {
+    if (XUE_REN_MAP[monthBranch] === pillar.branch) {
       results.push({ name: '血刃', category: '凶', source: '月支', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['血刃'] })
     }
   }
@@ -410,18 +439,18 @@ export function calculateShenSha(input: ShenShaInput): ShenSha[] {
     }
   }
 
-  // 勾绞 (by month branch: month + 4 and month + 7)
+  // 勾绞 (by month branch: 勾神=月支+3, 绞神=月支+9)
   for (const { pillar, pillarLabel } of allPillars) {
-    const gouJiao1 = BRANCHES[(monthPillarBranchIdx + 4) % 12]
-    const gouJiao2 = BRANCHES[(monthPillarBranchIdx + 7) % 12]
+    const gouJiao1 = BRANCHES[(monthPillarBranchIdx + 3) % 12] // 勾神
+    const gouJiao2 = BRANCHES[(monthPillarBranchIdx + 9) % 12] // 绞神
     if (pillar.branch === gouJiao1 || pillar.branch === gouJiao2) {
       results.push({ name: '勾绞', category: '凶', source: '月支', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['勾绞'] })
     }
   }
 
-  // 元辰/大耗 (by year branch: year + 7)
+  // 元辰/大耗: year + 6 = 对冲 (岁破)
   for (const { pillar, pillarLabel } of allPillars) {
-    const yuanChenBranch = BRANCHES[(branchIdx(yearBranch) + 7) % 12]
+    const yuanChenBranch = BRANCHES[(branchIdx(yearBranch) + 6) % 12]
     if (pillar.branch === yuanChenBranch) {
       results.push({ name: '元辰', category: '凶', source: '年支', pillar: pillarLabel, position: '地支', description: SHENSHA_DESC['元辰'] })
     }

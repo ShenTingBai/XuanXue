@@ -184,22 +184,56 @@ describe('calculateBaZi', () => {
     )
   })
 
-  it('农历 path: birth_calendar="lunar" treats dates as Gregorian for day and year pillars (known limitation)', () => {
+  it('falls back to treating input as solar when lunar conversion fails', () => {
+    // Invalid lunar date (month 13 doesn't exist)
+    const result = calculateBaZi({
+      birthYear: 2024,
+      birthMonth: 13,
+      birthDay: 1,
+      birthCalendar: 'lunar',
+      birthHour: 8,
+      gender: '男',
+    })
+    // Should still produce a result (fallback), not throw
+    expect(result.dayMaster).toBeTruthy()
+    expect(result.yearPillar).toHaveProperty('stem')
+    expect(result.monthPillar).toHaveProperty('stem')
+    expect(result.dayPillar).toHaveProperty('stem')
+    expect(result.hourPillar).not.toBeNull()
+  })
+
+  it('handles null birthHour without crashing', () => {
+    const result = calculateBaZi({
+      birthYear: 1990,
+      birthMonth: 5,
+      birthDay: 15,
+      birthCalendar: 'solar',
+      birthHour: null,
+      gender: '男',
+    })
+    expect(result.hourPillar).toBeNull()
+    expect(result.dayMaster).toBeTruthy()
+    expect(result.yearPillar).toHaveProperty('stem')
+    expect(result.monthPillar).toHaveProperty('stem')
+    expect(result.dayPillar).toHaveProperty('stem')
+  })
+
+  it('农历输入转换为公历后再计算八字', () => {
     const lunar = calculateBaZi({
       ...baseProfile, birthCalendar: 'lunar' as const,
     })
     const solar = calculateBaZi({
       ...baseProfile, birthCalendar: 'solar' as const,
     })
-    // Day pillar uses the raw date (no lunar-to-solar conversion)
-    expect(lunar.dayPillar.stem).toBe(solar.dayPillar.stem)
-    expect(lunar.dayPillar.branch).toBe(solar.dayPillar.branch)
-    // Year pillar: for May 25 (after 立春), both use same year
-    expect(lunar.yearPillar.stem).toBe(solar.yearPillar.stem)
-    expect(lunar.yearPillar.branch).toBe(solar.yearPillar.branch)
-    // Month pillar may differ because the calendar param affects
-    // month boundary logic (solar uses solar terms, lunar uses raw month)
-    // This is expected behavior — month pillar is NOT part of the known limitation
+    // 农历 1998-05-25 转换为公历后 ≠ 公历 1998-05-25，日柱应不同
+    expect(lunar.dayPillar.stem + lunar.dayPillar.branch).not.toBe(
+      solar.dayPillar.stem + solar.dayPillar.branch,
+    )
+    // 结果结构仍然完整
+    expect(lunar.dayMaster).toBeTruthy()
+    expect(lunar.daYun.length).toBeGreaterThan(0)
+    expect(lunar.yearPillar.stem).toBeTruthy()
+    expect(lunar.monthPillar.stem).toBeTruthy()
   })
 
   it('handles invalid date (2024-02-30) without crashing', () => {

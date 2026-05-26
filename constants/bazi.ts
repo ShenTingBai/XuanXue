@@ -53,6 +53,53 @@ export function wuxingColor(wx: string): string {
   return WUXING_COLORS[wx] || WUXING_FALLBACK_COLOR
 }
 
+// === Shared static data (migrated from pages/tools/bazi.vue) ===
+
+/** Element-to-life-area mapping from standard five element theory */
+export const ELEMENT_LIFE_AREA: Record<string, string> = {
+  '木': '成长、学习、创造',
+  '火': '行动、社交、热情',
+  '土': '稳定、储蓄、规划',
+  '金': '纪律、决策、果断',
+  '水': '沟通、智慧、灵活',
+}
+
+/** Section name to DOM id mapping for anchor navigation */
+export const sectionMap: Record<string, string> = {
+  '排盘': 'bazi-grid',
+  '神煞': 'shensha',
+  '日主': 'day-master',
+  '五行': 'elements',
+  '大运': 'dayun',
+  '流年': 'liunian',
+  '解读': 'reading-guide',
+}
+
+/** Rule-based da yun meaning from the stem's ten god type */
+export function getDaYunMeaning(tenGod: string): string {
+  const map: Record<string, string> = {
+    '正官': '正官大运，事业运旺，利于建立规范与秩序',
+    '偏官': '七杀大运，挑战与机遇并存，宜果断突破',
+    '正财': '正财大运，财运稳定，利于积累与储蓄',
+    '偏财': '偏财大运，偏财运佳，但需注意风险把控',
+    '正印': '正印大运，学习运强，有贵人长辈提携',
+    '偏印': '偏印大运，思维敏锐，适合钻研与内省',
+    '食神': '食神大运，创造力旺盛，生活轻松愉悦',
+    '伤官': '伤官大运，才华得以施展，但需注意言行分寸',
+    '比肩': '比肩大运，竞争与协作并存，宜借助团队力量',
+    '劫财': '劫财大运，需防范破财损耗，宜守不宜攻',
+  }
+  return map[tenGod] || `${tenGod}大运，宜顺势而为`
+}
+
+/** Chinese zodiac animal names in order (starting from Rat/鼠) */
+export const ANIMALS = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
+
+/** Get the zodiac animal name for a given year */
+export function getAnimal(year: number): string {
+  return ANIMALS[((year - 4) % 12 + 12) % 12]
+}
+
 /** Get badge style for a shensha category (shared between ShenShaPanel and LiuNianTimeline) */
 export function shenShaBadgeStyle(category: '吉' | '中性' | '凶'): { bg: string; text: string; border: string } {
   if (category === '吉') return { bg: hexToRgba('#3D6B4B', 0.08), text: '#3D6B4B', border: hexToRgba('#3D6B4B', 0.25) }

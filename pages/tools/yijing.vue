@@ -57,7 +57,7 @@
         <InkDivider v-if="result && !processing" />
 
         <!-- Results -->
-        <div v-if="result && !processing" class="mt-8">
+        <div ref="resultSection" v-if="result && !processing" class="mt-8">
           <YijingInterpretation :result="result" :score="score" />
 
           <!-- Auto-save placeholder -->
@@ -112,14 +112,21 @@ const processing = ref(false)
 const saveError = ref('')
 const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
+const resultSection = ref<HTMLElement | null>(null)
 
 // Timer refs for setTimeout cleanup
 const coinTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const numberTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
+const router = useRouter()
+
 onMounted(() => {
-  const { restoreSession } = useAuth()
+  const { restoreSession, currentProfile } = useAuth()
   restoreSession()
+  if (!currentProfile.value) {
+    router.push('/login')
+    return
+  }
   window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
 })
@@ -165,6 +172,9 @@ function handleCoinAutoResult() {
       saveError.value = '解卦出错，请重新尝试。'
     } finally {
       processing.value = false
+      nextTick(() => {
+        resultSection.value?.scrollIntoView({ behavior: 'smooth' })
+      })
     }
   }, 400)
 }
@@ -193,6 +203,9 @@ function handleCastNumber(data: { first: number; second: number; third: number }
       saveError.value = '解卦出错，请检查输入后重新尝试。'
     } finally {
       processing.value = false
+      nextTick(() => {
+        resultSection.value?.scrollIntoView({ behavior: 'smooth' })
+      })
     }
   }, 400)
 }

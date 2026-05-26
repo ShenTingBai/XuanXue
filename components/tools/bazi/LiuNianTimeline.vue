@@ -2,7 +2,7 @@
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
     <div class="flex items-center gap-3 flex-wrap">
       <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
-      <span class="inline-flex items-center gap-1.5 text-[0.625rem] font-sans text-ink-medium">
+      <span class="inline-flex items-center gap-1.5 text-xs font-sans text-ink-medium">
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>75+ 顺遂
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(65) }" aria-hidden="true"></span>60-74 平稳
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(50) }" aria-hidden="true"></span>45-59 需注意
@@ -58,7 +58,7 @@
                 <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
                   class="flex items-center gap-2 text-sm font-sans"
                 >
-                  <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-medium"
+                  <span class="px-1.5 py-0.5 rounded text-xs font-medium"
                     :style="relationBadgeStyle(rel.type)"
                   >{{ rel.type }}</span>
                   <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
@@ -78,7 +78,7 @@
                   class="text-center rounded py-1 px-1 bg-paper-lightest/80 border border-paper-dark/30"
                   role="gridcell"
                 >
-                  <div class="font-sans text-[0.625rem] text-ink-light">{{ monthLabel(ms.month) }}</div>
+                  <div class="font-sans text-xs text-ink-light">{{ monthLabel(ms.month) }}</div>
                   <div class="font-display text-sm text-ink-dark">{{ ms.stem }}{{ ms.branch }}</div>
                 </div>
               </div>
@@ -146,7 +146,7 @@
               <div v-for="rel in year.earthRelations" :key="rel.targetPillar + rel.type"
                 class="flex items-center gap-2 text-sm font-sans"
               >
-                <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-medium"
+                <span class="px-1.5 py-0.5 rounded text-xs font-medium"
                   :style="relationBadgeStyle(rel.type)"
                 >{{ rel.type }}</span>
                 <span class="text-ink-medium">{{ rel.targetPillar }}({{ rel.target }})</span>
@@ -158,7 +158,7 @@
             <!-- Shensha tags for expanded compact card -->
             <div v-if="year.shenSha.length > 0" class="flex flex-wrap gap-1">
               <span v-for="ss in year.shenSha" :key="ss.name"
-                class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-sans cursor-default"
+                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-sans cursor-default"
                 :style="shenShaBadgeStyleLocal(ss.category)"
                 :title="ss.description"
               >{{ ss.name }}</span>

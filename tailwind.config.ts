@@ -46,7 +46,7 @@ export default {
           wood: '#3D6B4B',
           fire: '#C62828',
           earth: '#7A5E12',
-          metal: '#8A8A8A',
+          metal: '#5E5E5E',
           water: '#2C5F7C',
         },
       },

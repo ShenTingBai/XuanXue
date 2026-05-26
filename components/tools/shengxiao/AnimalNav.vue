@@ -13,8 +13,7 @@
       :aria-current="idx === currentIndex ? 'true' : undefined"
     >
       <span class="text-base flex-shrink-0" aria-hidden="true">{{ animal.emoji }}</span>
-      <span class="font-sans">{{ animal.name }}</span>
-      <span class="text-[0.625rem] text-ink-light ml-auto flex-shrink-0">{{ animal.branch }}</span>
+      <span class="font-sans">{{ animal.branch }}{{ animal.name }}</span>
     </button>
   </div>
 </template>
@@ -29,17 +28,17 @@ defineEmits<{
 }>()
 
 const animals = [
-  { name: '子鼠', emoji: '🐭', branch: '子' },
-  { name: '丑牛', emoji: '🐮', branch: '丑' },
-  { name: '寅虎', emoji: '🐯', branch: '寅' },
-  { name: '卯兔', emoji: '🐰', branch: '卯' },
-  { name: '辰龙', emoji: '🐲', branch: '辰' },
-  { name: '巳蛇', emoji: '🐍', branch: '巳' },
-  { name: '午马', emoji: '🐴', branch: '午' },
-  { name: '未羊', emoji: '🐑', branch: '未' },
-  { name: '申猴', emoji: '🐵', branch: '申' },
-  { name: '酉鸡', emoji: '🐔', branch: '酉' },
-  { name: '戌狗', emoji: '🐶', branch: '戌' },
-  { name: '亥猪', emoji: '🐷', branch: '亥' },
+  { name: '鼠', emoji: '🐭', branch: '子' },
+  { name: '牛', emoji: '🐮', branch: '丑' },
+  { name: '虎', emoji: '🐯', branch: '寅' },
+  { name: '兔', emoji: '🐰', branch: '卯' },
+  { name: '龙', emoji: '🐲', branch: '辰' },
+  { name: '蛇', emoji: '🐍', branch: '巳' },
+  { name: '马', emoji: '🐴', branch: '午' },
+  { name: '羊', emoji: '🐑', branch: '未' },
+  { name: '猴', emoji: '🐵', branch: '申' },
+  { name: '鸡', emoji: '🐔', branch: '酉' },
+  { name: '狗', emoji: '🐶', branch: '戌' },
+  { name: '猪', emoji: '🐷', branch: '亥' },
 ]
 </script>

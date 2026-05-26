@@ -95,7 +95,7 @@ describe('getMonthPillar', () => {
     // 1998 is 戊寅年 (stem index 4), 戊癸年起甲寅
     // month 2 day 4 = 立春 so 寅月, monthIndex = 0
     // monthStem = 甲(0) + 0 = 甲(0) → 甲寅
-    const pillar = getMonthPillar(1998, 2, 4, 'solar')
+    const pillar = getMonthPillar(1998, 2, 4)
     expect(pillar.stem).toBe('甲')
     expect(pillar.branch).toBe('寅')
   })

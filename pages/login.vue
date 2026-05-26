@@ -68,7 +68,7 @@ const submit = async () => {
   <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
       <!-- Card -->
-      <div class="card-paper-solid rounded-xl p-8 sm:p-10">
+      <div class="card-paper-solid rounded-xl p-8">
         <!-- Logo Area -->
         <div class="text-center mb-8">
           <h1 class="sr-only">玄学 - 登录</h1>
@@ -184,6 +184,7 @@ const submit = async () => {
                   type="button"
                   class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-2 text-xs text-ink-light hover:text-ink-medium transition-colors"
                   :aria-label="showPin ? '隐藏 PIN 码' : '显示 PIN 码'"
+                  :aria-pressed="showPin"
                   @click="showPin = !showPin"
                 >
                   <span v-if="showPin">隐藏</span>
@@ -206,11 +207,11 @@ const submit = async () => {
         <!-- Switch hint -->
         <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium">
           还没有档案？
-          <button @click="switchMode" class="text-cinnabar hover:underline">创建新档案</button>
+          <button @click="switchMode" class="btn-link">创建新档案</button>
         </div>
         <div v-else class="mt-6 text-center text-xs text-ink-medium">
           已有档案？
-          <button @click="switchMode" class="text-cinnabar hover:underline">去登录</button>
+          <button @click="switchMode" class="btn-link">去登录</button>
         </div>
       </div>
     </div>

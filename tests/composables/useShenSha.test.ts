@@ -153,7 +153,8 @@ describe('calculateShenSha', () => {
     const input = getShenShaInput()
     expect(input.dayMaster).toBe('壬')
     const result = calculateShenSha(input)
-    const tianYi = result.filter(s => s.name === '天乙贵人')
+    // Filter to 日干-sourced only — 年干 variants may use different branches
+    const tianYi = result.filter(s => s.name === '天乙贵人' && s.source === '日干')
     expect(tianYi.length).toBeGreaterThan(0)
     // 壬 天乙在 卯/巳
     for (const ty of tianYi) {
@@ -472,6 +473,67 @@ describe('calculateShenSha', () => {
     for (const ss of result) {
       expect(validPillars).toContain(ss.pillar)
     }
+  })
+
+  // === Year-stem (年干) shensha tests ===
+
+  it('年干天乙贵人 coexists with 日干天乙贵人', () => {
+    // Use 1964-07-14: 甲辰年 甲寅日, year stem=甲, day stem=甲
+    // Both year and day stem are 甲, so 天乙贵人 from both sources
+    // 甲→天乙 in 丑/未
+    const bazi = calculateBaZi({
+      birthYear: 1964, birthMonth: 7, birthDay: 14,
+      birthCalendar: 'solar' as const, birthHour: 2, gender: '男' as const,
+    })
+    expect(bazi.yearPillar.stem).toBe('甲')
+    expect(bazi.dayMaster).toBe('甲')
+    const input = {
+      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      dayMasterIndex: getStemIndex(bazi.dayMaster),
+      yearStemIndex: 0, // 甲
+      gender: '男' as const,
+    }
+    const result = calculateShenSha(input)
+    const tianYi = result.filter(s => s.name === '天乙贵人')
+    // Should have both 日干 and 年干 sourced versions
+    const riGan = tianYi.filter(s => s.source === '日干')
+    const nianGan = tianYi.filter(s => s.source === '年干')
+    expect(riGan.length).toBeGreaterThan(0)
+    expect(nianGan.length).toBeGreaterThan(0)
+  })
+
+  it('年干 shensha have source="年干" and position="地支"', () => {
+    const bazi = calculateBaZi({
+      birthYear: 1964, birthMonth: 7, birthDay: 14,
+      birthCalendar: 'solar' as const, birthHour: 2, gender: '男' as const,
+    })
+    const input = {
+      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      dayMasterIndex: getStemIndex(bazi.dayMaster),
+      yearStemIndex: 0,
+      gender: '男' as const,
+    }
+    const result = calculateShenSha(input)
+    const nianGanShensha = result.filter(s => s.source === '年干')
+    expect(nianGanShensha.length).toBeGreaterThan(0)
+    for (const ss of nianGanShensha) {
+      expect(ss.source).toBe('年干')
+      expect(ss.position).toBe('地支')
+      expect(ss.category).toBe('吉')
+      expect(['天乙贵人', '太极贵人', '文昌贵人']).toContain(ss.name)
+    }
+  })
+
+  it('yearStemIndex is optional (falls back to yearPillar.stem)', () => {
+    const input = getShenShaInput()
+    const resultWithout = calculateShenSha(input) // no yearStemIndex
+    const resultWith = calculateShenSha({ ...input, yearStemIndex: getStemIndex(input.yearPillar.stem) })
+    // Both should produce identical results since yearStemIndex matches yearPillar.stem
+    const withoutNianGan = resultWithout.filter(s => s.source === '年干')
+    const withNianGan = resultWith.filter(s => s.source === '年干')
+    expect(withoutNianGan.length).toBe(withNianGan.length)
   })
 
   it('劫煞 present for 年支寅 (寅午戌劫煞在亥)', () => {

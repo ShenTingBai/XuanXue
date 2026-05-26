@@ -1,7 +1,7 @@
 import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
 import { getTenGod, WUXING_STEM, WUXING_BRANCH, type BaZiResult } from './useBaZi'
-import { checkSanHeBranch, type ShenSha } from './useShenSha'
-import { getMonthStemStart } from './useSolarTerms'
+import { checkSanHeBranch, TIAN_YI_MAP, TAI_JI_MAP, WEN_CHANG_MAP, XUE_TANG_MAP, JIN_YU_MAP, FU_XING_MAP, LU_SHEN_MAP, YANG_REN_MAP, TIAN_DE_MAP, YUE_DE_MAP, type ShenSha } from './useShenSha'
+import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
 
 // === Typed Exports ===
 
@@ -16,6 +16,8 @@ export interface LiuNianMonthlyStem {
   month: number  // 1-12 (寅月=1, 卯月=2, ... 丑月=12)
   stem: string
   branch: string
+  startMonth: number  // Gregorian month of the solar term that starts this month (e.g., 2 for 立春)
+  startDay: number     // Gregorian day of the solar term that starts this month
 }
 
 export interface LiuNianYear {
@@ -42,7 +44,6 @@ export interface LiuNianYear {
 
 export interface LiuNianInput {
   baZi: BaZiResult
-  shenSha: ShenSha[]        // pre-computed birth chart shensha for year-specific lookups
   currentYear: number
   range?: number  // default 5
 }
@@ -109,21 +110,32 @@ function getYearStemBranch(year: number): { stem: string; stemIdx: number; branc
   return { stem: STEMS[stemIdx], stemIdx, branch: BRANCHES[branchIdx], branchIdx }
 }
 
-// === Monthly stems (年上起月法) ===
+// === Monthly stems (年上起月法, with precise solar-term boundaries) ===
 
 function getMonthlyStems(year: number): LiuNianMonthlyStem[] {
   const { stemIdx: yearStemIdx } = getYearStemBranch(year)
   const monthStemStart = getMonthStemStart(yearStemIdx)
   const monthBranches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
 
-  // NOTE: Month boundaries are sequential (寅月=1, etc.). Precise solar-term-based
-  // boundaries would require integrating getSolarTerm for each month within the year.
+  // Compute precise solar-term boundaries for each month.
+  // Terms 0-10 (立春 through 大雪) use the given calendar year.
+  // Term 11 (小寒) falls in the NEXT calendar year (typically early January).
+  const termDates: Array<{ month: number; day: number }> = []
+  for (let ti = 0; ti < 11; ti++) {
+    termDates.push(getSolarTerm(year, ti))
+  }
+  termDates.push(getSolarTerm(year + 1, 11)) // 小寒 is in January of year+1
 
-  return monthBranches.map((branch, i) => ({
-    month: i + 1, // 1=寅月, 2=卯月, ... 12=丑月
-    stem: STEMS[(monthStemStart + i) % 10],
-    branch,
-  }))
+  return monthBranches.map((branch, i) => {
+    const term = termDates[i]
+    return {
+      month: i + 1, // 1=寅月, 2=卯月, ... 12=丑月
+      stem: STEMS[(monthStemStart + i) % 10],
+      branch,
+      startMonth: term.month,
+      startDay: term.day,
+    }
+  })
 }
 
 // === Summary sentence generation ===
@@ -254,6 +266,7 @@ function calculateScore(yearInfo: Omit<LiuNianYear, 'score' | 'summary'>): numbe
 function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch: string } {
   const currentAge = year - baZi.birthYear
   if (baZi.daYun.length === 0) return { stem: '甲', branch: '子' }
+  // No matching cycle found: fall back to first DaYun cycle
 
   // Direct index: each da yun cycle spans exactly 10 years
   const cycleIdx = Math.floor((currentAge - baZi.daYun[0].startAge) / 10)
@@ -265,15 +278,23 @@ function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch
 // === Year-specific shensha helpers ===
 
 /**
- * Compute year-specific shenshas by checking if the year's branch triggers
- * any of the 年支-based shensha patterns against the birth year branch.
+ * Compute year-specific shenshas triggered by the flowing year's branch.
+ *
+ * Covers three lookup dimensions:
+ *   1. 年支 → 流年地支 (桃花/驿马/将星/华盖/劫煞/灾煞)
+ *   2. 日干 → 流年地支 (禄神/羊刃/天乙/太极/文昌/学堂/词馆/金舆/福星)
+ *   3. 月支 → 流年地支 (天德/月德, and stem-based 天德 via year stem)
  */
 function computeYearShensha(
   yearBranch: string,
+  yearStem: string,
   birthYearBranch: string,
+  dayStem: string,
+  monthBranch: string,
 ): ShenSha[] {
   const results: ShenSha[] = []
 
+  // ── 年支 → 流年地支 (三合 patterns) ──
   if (checkSanHeBranch(birthYearBranch, yearBranch, 3)) {
     results.push({ name: '桃花', category: '中性', source: '年支', pillar: '流年', position: '地支', description: '流年逢桃花，人缘佳，异性缘旺' })
   }
@@ -291,6 +312,45 @@ function computeYearShensha(
   }
   if (checkSanHeBranch(birthYearBranch, yearBranch, 5)) {
     results.push({ name: '灾煞', category: '凶', source: '年支', pillar: '流年', position: '地支', description: '流年逢灾煞，需行事谨慎防意外' })
+  }
+
+  // ── 日干 → 流年地支 ──
+  if (LU_SHEN_MAP[dayStem] === yearBranch) {
+    results.push({ name: '禄神', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢禄神，主福禄丰足，事业顺遂' })
+  }
+  if (YANG_REN_MAP[dayStem] === yearBranch) {
+    results.push({ name: '羊刃', category: '凶', source: '日干', pillar: '流年', position: '地支', description: '流年逢羊刃，刚强易折，需防冲动行事' })
+  }
+  if (TIAN_YI_MAP[dayStem]?.includes(yearBranch)) {
+    results.push({ name: '天乙贵人', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢天乙贵人，遇难有贵人相助' })
+  }
+  if (TAI_JI_MAP[dayStem]?.includes(yearBranch)) {
+    results.push({ name: '太极贵人', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢太极贵人，智慧开悟，利于学术研究' })
+  }
+  if (WEN_CHANG_MAP[dayStem] === yearBranch) {
+    results.push({ name: '文昌贵人', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢文昌贵人，文采出众，利于考学应试' })
+  }
+  if (XUE_TANG_MAP[dayStem] === yearBranch) {
+    results.push({ name: '学堂', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢学堂，好学上进，利于进修深造' })
+  }
+  // 词馆 = 临官位 (same as 禄神)
+  if (LU_SHEN_MAP[dayStem] === yearBranch) {
+    results.push({ name: '词馆', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢词馆，口才出众，利于演讲教学' })
+  }
+  if (JIN_YU_MAP[dayStem] === yearBranch) {
+    results.push({ name: '金舆', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢金舆，主出行顺利，得贵人提携' })
+  }
+  if (FU_XING_MAP[dayStem] === yearBranch) {
+    results.push({ name: '福星贵人', category: '吉', source: '日干', pillar: '流年', position: '地支', description: '流年逢福星贵人，天生福气，少灾少难' })
+  }
+
+  // ── 月支 → 流年 (天德/月德) ──
+  if (yearStem === TIAN_DE_MAP[monthBranch] || yearBranch === TIAN_DE_MAP[monthBranch]) {
+    results.push({ name: '天德贵人', category: '吉', source: '月支', pillar: '流年', position: yearStem === TIAN_DE_MAP[monthBranch] ? '天干' : '地支', description: '流年逢天德贵人，上天庇佑，逢凶化吉' })
+  }
+  const yueDeStems = YUE_DE_MAP[monthBranch] || []
+  if (yueDeStems.includes(yearStem)) {
+    results.push({ name: '月德贵人', category: '吉', source: '月支', pillar: '流年', position: '天干', description: '流年逢月德贵人，人缘佳，心地善良得助' })
   }
 
   return results
@@ -318,7 +378,7 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
 
   for (let offset = -range; offset <= range; offset++) {
     const year = currentYear + offset
-    const { stem, branch, stemIdx, branchIdx } = getYearStemBranch(year)
+    const { stem, branch } = getYearStemBranch(year)
     const stemWuxing = WUXING_STEM[stem]
     const branchWuxing = WUXING_BRANCH[branch]
     const tenGod = getTenGod(dayMasterIdx, stem)
@@ -346,8 +406,8 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
       }
     }
 
-    // Year-specific shensha: check year's branch against birth year branch triggers
-    const yearShenSha = computeYearShensha(branch, baZi.yearPillar.branch)
+    // Year-specific shensha: year branch vs. birth chart (年支/日干/月支 → 流年)
+    const yearShenSha = computeYearShensha(branch, stem, baZi.yearPillar.branch, baZi.dayMaster, baZi.monthPillar.branch)
 
     // DaYun for this year
     const daYun = getDaYunForYear(baZi, year)

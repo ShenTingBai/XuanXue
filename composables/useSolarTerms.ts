@@ -161,25 +161,14 @@ export function getMonthStemStart(yearStemIndex: number): number {
  * @param year - Birth year
  * @param month - Birth month (1-12)
  * @param day - Birth day (1-31)
- * @param calendar - 'solar' or 'lunar'
  */
 export function getMonthPillar(
   year: number,
   month: number,
   day: number,
-  calendar: 'solar' | 'lunar'
 ): { stem: typeof STEMS[number]; branch: typeof BRANCHES[number] } {
   const yearStemIndex = ((year - 4) % 10 + 10) % 10
-
-  let monthBranch: typeof BRANCHES[number]
-  if (calendar === 'solar') {
-    monthBranch = getMonthBranch(year, month, day)
-  } else {
-    // For lunar, approximate month branch by month number (shifted by ~1)
-    // 农历正月≈寅月, 二月≈卯月, etc.
-    const lunarBranchIndex = ((month + 1) % 12 + 12) % 12
-    monthBranch = BRANCHES[lunarBranchIndex]
-  }
+  const monthBranch = getMonthBranch(year, month, day)
 
   const branchIndex = BRANCHES.indexOf(monthBranch)
   const monthIndex = ((branchIndex - 2) % 12 + 12) % 12 // 寅=0, 卯=1, ..., 丑=11

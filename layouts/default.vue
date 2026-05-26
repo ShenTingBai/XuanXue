@@ -8,10 +8,10 @@ interface NavTool {
 }
 
 const navTools: NavTool[] = [
-  { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
   { id: 'bazi', name: '八字', char: '命', route: '/tools/bazi', available: true },
   { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: true },
+  { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
+  { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
   { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: false },
 ]
 </script>
@@ -70,10 +70,18 @@ const handleMenuEscape = () => {
   toggleRef.value?.focus()
 }
 
+const loggingOut = ref(false)
+
 const handleLogout = async () => {
+  if (loggingOut.value) return
   showDropdown.value = false
-  await logout()
-  router.push('/login')
+  loggingOut.value = true
+  try {
+    await logout()
+    router.push('/login')
+  } finally {
+    loggingOut.value = false
+  }
 }
 
 const closeDropdown = (e: FocusEvent) => {
@@ -177,14 +185,15 @@ const closeDropdown = (e: FocusEvent) => {
                     @click="handleLogout"
                     role="menuitem"
                     tabindex="-1"
-                    class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors"
+                    :disabled="loggingOut"
+                    class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                       <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3" />
                       <path d="M11 11l3-3-3-3" />
                       <path d="M14 8H6" />
                     </svg>
-                    退出
+                    {{ loggingOut ? '退出中...' : '退出' }}
                   </button>
                 </div>
               </Transition>

@@ -21,7 +21,7 @@
       </div>
 
       <!-- Right sidebar: hidden on <xl, shown on xl+ (only when slot is provided) -->
-      <aside v-if="$slots['nav-right']" class="hidden xl:block w-56 flex-shrink-0">
+      <aside v-if="$slots['nav-right']" class="hidden lg:block w-56 flex-shrink-0">
         <slot name="nav-right" />
       </aside>
     </div>

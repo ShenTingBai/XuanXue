@@ -1,48 +1,8 @@
-<script lang="ts">
-/* Module-level static data — never re-created on re-render */
-
-/** Element-to-life-area mapping from standard five element theory */
-export const ELEMENT_LIFE_AREA: Record<string, string> = {
-  '木': '成长、学习、创造',
-  '火': '行动、社交、热情',
-  '土': '稳定、储蓄、规划',
-  '金': '纪律、决策、果断',
-  '水': '沟通、智慧、灵活',
-}
-
-export const sectionMap: Record<string, string> = {
-  '排盘': 'bazi-grid',
-  '神煞': 'shensha',
-  '日主': 'day-master',
-  '五行': 'elements',
-  '大运': 'dayun',
-  '流年': 'liunian',
-  '解读': 'reading-guide',
-}
-
-/** Rule-based da yun meaning from the stem's ten god type */
-export function getDaYunMeaning(tenGod: string): string {
-  const map: Record<string, string> = {
-    '正官': '正官大运，事业运旺，利于建立规范与秩序',
-    '偏官': '七杀大运，挑战与机遇并存，宜果断突破',
-    '正财': '正财大运，财运稳定，利于积累与储蓄',
-    '偏财': '偏财大运，偏财运佳，但需注意风险把控',
-    '正印': '正印大运，学习运强，有贵人长辈提携',
-    '偏印': '偏印大运，思维敏锐，适合钻研与内省',
-    '食神': '食神大运，创造力旺盛，生活轻松愉悦',
-    '伤官': '伤官大运，才华得以施展，但需注意言行分寸',
-    '比肩': '比肩大运，竞争与协作并存，宜借助团队力量',
-    '劫财': '劫财大运，需防范破财损耗，宜守不宜攻',
-  }
-  return map[tenGod] || `${tenGod}大运，宜顺势而为`
-}
-</script>
-
 <script setup lang="ts">
-import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
+import { calculateBaZi, type BaZiResult, type BaZiPillar, type DaYunCycle } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
-import { WUXING_COLORS as ELEMENT_COLORS, wuxingColor, getStemIndex, strengthColorClass } from '~/constants/bazi'
+import { getStemIndex, getAnimal, sectionMap } from '~/constants/bazi'
 import { parseDate } from '~/utils/date'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 
@@ -56,6 +16,12 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ReadingGuide from '~/components/tools/bazi/ReadingGuide.vue'
+
+import SectionNav from '~/components/tools/bazi/SectionNav.vue'
+import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
+import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
+import HistoryModal from '~/components/tools/HistoryModal.vue'
 
 useHead({ title: '八字排盘 - 玄学' })
 
@@ -72,17 +38,41 @@ const liuNianYears = ref<LiuNianYear[]>([])
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
 const showSaveErrorToast = ref(false)
+const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
-const historyRecords = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
-const showHistoryDropdown = ref(false)
-const historyDropdownRef = ref<HTMLElement | null>(null)
 const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
 const scrollTopOffset = ref('1rem')
 const mainContainer = ref<HTMLElement | null>(null)
 const cachedAge = ref(0)
 const activeNavSection = ref('排盘')
+
+// Collapsible section state — ReadingGuide is expanded by default as the entry summary
+const expandedSections = ref<Record<string, boolean>>({
+  'bazi-grid': false,
+  'shensha': false,
+  'day-master': false,
+  'elements': false,
+  'dayun': false,
+  'liunian': false,
+})
+
+function toggleSection(sectionId: string) {
+  expandedSections.value[sectionId] = !expandedSections.value[sectionId]
+}
+
+/** Called by SectionNav before scrolling — expand the target section so scroll lands correctly */
+async function handleBeforeNavigate(sectionName: string) {
+  const sectionId = sectionMap[sectionName]
+  // Only handle sections that are actually collapsible (skip ReadingGuide which is always visible)
+  if (sectionId && sectionId in expandedSections.value && !expandedSections.value[sectionId]) {
+    expandedSections.value[sectionId] = true
+    await nextTick()
+    // Let the browser calculate layout after grid expansion before scrolling
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -101,7 +91,6 @@ let sectionObserver: IntersectionObserver | null = null
 
 onUnmounted(() => {
   if (sectionObserver) sectionObserver.disconnect()
-  document.removeEventListener('click', onClickOutside)
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', updateScrollTopOffset)
 })
@@ -119,7 +108,6 @@ onMounted(() => {
     return
   }
 
-  document.addEventListener('click', onClickOutside)
   window.addEventListener('scroll', handleScroll, { passive: true })
   window.addEventListener('resize', updateScrollTopOffset, { passive: true })
   updateScrollTopOffset()
@@ -186,10 +174,7 @@ function computeResult() {
   liuNianYears.value = []
   savedDivinationId.value = null
   saveError.value = ''
-  showHistoryDropdown.value = false
   showSaveErrorToast.value = false
-  restoreError.value = ''
-  restoredFromHistory.value = false
 
   const parsed = parseDate(currentProfile.value.birth_date)
   if (!parsed) { loading.value = false; return }
@@ -226,13 +211,13 @@ function computeResult() {
       hourPillar: baziResult.hourPillar,
       dayMaster: baziResult.dayMaster,
       dayMasterIndex,
+      yearStemIndex: getStemIndex(baziResult.yearPillar.stem),
       gender,
     })
 
     // Compute liunian (with birth chart shensha for year-specific lookups)
     liuNianYears.value = calculateLiuNian({
       baZi: baziResult,
-      shenSha: shenShaList.value,
       currentYear,
       range: 5,
     })
@@ -280,18 +265,13 @@ function dismissSaveErrorToast() {
   showSaveErrorToast.value = false
 }
 
-async function fetchHistory() {
-  try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
-    const records = await $fetch<Array<{ id: number; type: string; input_data: any; created_at: string }>>(
-      '/api/divinations?type=bazi',
-      { headers },
-    )
-    historyRecords.value = records.slice(0, 5)
-  } catch {
-    historyRecords.value = []
-  }
+function dismissRestoreError() {
+  restoreError.value = ''
+}
+
+function onHistoryRestore(id: number) {
+  showHistoryModal.value = false
+  restoreFromHistory(id)
 }
 
 async function restoreFromHistory(id: number) {
@@ -304,41 +284,41 @@ async function restoreFromHistory(id: number) {
     )
     if (record.result_data) {
       const data = record.result_data
-      if (data && typeof data === 'object' && 'dayMaster' in data && 'yearPillar' in data) {
-        result.value = data as BaZiResult
-      } else {
-        restoreError.value = '历史记录数据无效'
+      if (data && typeof data === 'object' && 'dayMaster' in data && 'yearPillar' in data && 'daYun' in data) {
+        const baziResult = data as BaZiResult
+        result.value = baziResult
+        cachedAge.value = getCurrentAge()
+
+        // Recalculate shensha
+        const dayMasterIndex = getStemIndex(baziResult.dayMaster)
+        shenShaList.value = calculateShenSha({
+          yearPillar: baziResult.yearPillar,
+          monthPillar: baziResult.monthPillar,
+          dayPillar: baziResult.dayPillar,
+          hourPillar: baziResult.hourPillar,
+          dayMaster: baziResult.dayMaster,
+          dayMasterIndex,
+          yearStemIndex: getStemIndex(baziResult.yearPillar.stem),
+          gender: baziResult.gender,
+        })
+
+        // Recalculate liunian
+        liuNianYears.value = calculateLiuNian({
+          baZi: baziResult,
+          currentYear,
+          range: 5,
+        })
+
+        restoreError.value = ''
+        restoredFromHistory.value = true
+        missingHour.value = baziResult.birthHour === null
         return
       }
-
-      // Re-compute shensha and liunian from restored result
-      const dayMasterIndex = getStemIndex(result.value.dayMaster)
-      shenShaList.value = calculateShenSha({
-        yearPillar: result.value.yearPillar,
-        monthPillar: result.value.monthPillar,
-        dayPillar: result.value.dayPillar,
-        hourPillar: result.value.hourPillar,
-        dayMaster: result.value.dayMaster,
-        dayMasterIndex,
-        gender: result.value.gender,
-      })
-      liuNianYears.value = calculateLiuNian({
-        baZi: result.value,
-        shenSha: shenShaList.value,
-        currentYear,
-        range: 5,
-      })
     }
-    showHistoryDropdown.value = false
-    restoreError.value = ''
-    restoredFromHistory.value = true
+    restoreError.value = '历史记录数据无效'
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
   }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
 }
 
 function scrollToTop() {
@@ -349,79 +329,6 @@ function scrollToTop() {
     window.scrollTo({ top: 0 })
   }
 }
-
-function elementColor(el: string): string {
-  return wuxingColor(el)
-}
-
-function toggleHistoryDropdown() {
-  showHistoryDropdown.value = !showHistoryDropdown.value
-  if (showHistoryDropdown.value) {
-    fetchHistory()
-  }
-}
-
-function closeHistoryDropdown() {
-  showHistoryDropdown.value = false
-}
-
-function onDropdownKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    closeHistoryDropdown()
-    return
-  }
-  const menu = e.currentTarget as HTMLElement
-  const items = menu.querySelectorAll<HTMLElement>('[role="menuitem"]')
-  if (items.length === 0) return
-  const currentIdx = Array.from(items).indexOf(document.activeElement as HTMLElement)
-
-  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-    e.preventDefault()
-    let nextIdx: number
-    if (e.key === 'ArrowDown') {
-      nextIdx = currentIdx < 0 ? 0 : (currentIdx + 1) % items.length
-    } else {
-      nextIdx = currentIdx < 0 ? items.length - 1 : (currentIdx - 1 + items.length) % items.length
-    }
-    items[nextIdx].focus()
-    return
-  }
-
-  if (e.key === 'Tab') {
-    if (currentIdx < 0) return
-    e.preventDefault()
-    const nextIdx = e.shiftKey
-      ? (currentIdx - 1 + items.length) % items.length
-      : (currentIdx + 1) % items.length
-    items[nextIdx].focus()
-  }
-}
-
-function onClickOutside(e: MouseEvent) {
-  if (historyDropdownRef.value && !historyDropdownRef.value.contains(e.target as Node)) {
-    closeHistoryDropdown()
-  }
-}
-
-function formatHistoryDate(dateStr: string): string {
-  try {
-    const d = new Date(dateStr)
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  } catch {
-    return dateStr
-  }
-}
-
-function formatHistoryLabel(inputData: any): string {
-  if (!inputData) return ''
-  const { birthYear, birthMonth, birthDay, gender } = inputData
-  let label = `${birthYear}-${String(birthMonth || '').padStart(2, '0')}-${String(birthDay || '').padStart(2, '0')}`
-  if (gender) label += ` ${gender}`
-  return label
-}
-
-const ANIMALS = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
-const getAnimal = (year: number) => ANIMALS[((year - 4) % 12 + 12) % 12]
 
 const pillars = computed<BaZiPillar[]>(() => {
   if (!result.value) return []
@@ -462,17 +369,17 @@ const readingGuideShensha = computed(() => {
   }
 
   // Take top 5, but at most 2 凶
-  const result: typeof deduped = []
+  const result2: typeof deduped = []
   let xiongCount = 0
   for (const s of deduped) {
     if (s.category === '凶') {
       if (xiongCount >= 2) continue
       xiongCount++
     }
-    result.push(s)
-    if (result.length >= 5) break
+    result2.push(s)
+    if (result2.length >= 5) break
   }
-  return result
+  return result2
 })
 
 /** The current year's liunian analysis, if available */
@@ -488,18 +395,13 @@ const currentDaYun = computed(() => {
   return null
 })
 
-function scrollToSection(anchorName: string) {
-  const id = sectionMap[anchorName]
-  if (!id) return
-  const el = document.getElementById(id)
-  if (el) {
-    const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
-    if (prefersReducedMotion) {
-      el.scrollIntoView()
-    } else {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
-    el.focus({ preventScroll: true })
+/** Immediate visual feedback when user clicks a nav anchor; also auto-expands the section */
+function onSectionNavigate(sectionName: string) {
+  activeNavSection.value = sectionName
+  const sectionId = sectionMap[sectionName]
+  // Only auto-expand for collapsible sections (skip ReadingGuide)
+  if (sectionId && sectionId in expandedSections.value) {
+    expandedSections.value[sectionId] = true
   }
 }
 </script>
@@ -586,38 +488,17 @@ function scrollToSection(anchorName: string) {
             </Transition>
 
             <!-- 命主签 — Day Master Identity Seal -->
-            <div class="mb-8 flex flex-col items-center text-center fade-in" :style="{ '--delay': '0.02s' }">
-              <!-- Birth notation: marginal annotation -->
-              <p class="font-sans text-[0.6875rem] text-ink-muted tracking-wide mb-3">
-                {{ result.birthYear }}年{{ result.birthCalendar === 'solar' ? '阳历' : '农历' }} · 生肖{{ animalName }}<template v-if="result.gender"> · {{ result.gender }}</template>
-              </p>
-
-              <!-- Day Master: seal impression -->
-              <div class="flex items-center gap-3">
-                <span class="inline-flex items-baseline gap-1.5 px-4 py-1.5 rounded-sm bg-cinnabar shadow-sm">
-                  <span class="font-display text-2xl sm:text-3xl text-paper-lightest leading-none">{{ result.dayMaster }}</span>
-                  <span class="font-sans text-sm sm:text-base text-paper-lightest/90 font-medium">{{ result.dayMasterWuxing }}</span>
-                </span>
-                <span class="flex-shrink-0 px-2 py-0.5 rounded-sm bg-ink-dark/10 font-sans text-[0.625rem] text-ink-medium tracking-wider"
-                  :class="strengthColorClass(result.dayMasterStrength)">
-                  {{ result.dayMasterStrength }}
-                </span>
-              </div>
-
-              <span class="mt-1 font-sans text-[0.625rem] text-ink-muted/50 tracking-widest select-none">日 主</span>
-
-              <!-- Element affinities -->
-              <p class="mt-3 font-sans text-sm tracking-wide">
-                <span class="text-ink-muted text-xs">喜</span>
-                <span v-for="el in result.favorableElements" :key="el" :style="{ color: elementColor(el) }" class="font-medium mx-0.5">{{ el }}</span>
-                <span class="text-ink-muted/30 mx-2 select-none">|</span>
-                <span class="text-ink-muted text-xs">忌</span>
-                <span v-for="el in result.unfavorableElements" :key="el" :style="{ color: elementColor(el) }" class="font-medium mx-0.5">{{ el }}</span>
-              </p>
-
-              <!-- Ink-wash divider: fades at edges -->
-              <div class="mt-5 w-32 h-px bg-gradient-to-r from-transparent via-cinnabar/25 to-transparent" aria-hidden="true"></div>
-            </div>
+            <DayMasterSeal
+              :birth-year="result.birthYear"
+              :birth-calendar="result.birthCalendar"
+              :animal-name="animalName"
+              :gender="result.gender"
+              :day-master="result.dayMaster"
+              :day-master-wuxing="result.dayMasterWuxing"
+              :day-master-strength="result.dayMasterStrength"
+              :favorable-elements="result.favorableElements"
+              :unfavorable-elements="result.unfavorableElements"
+            />
 
             <!-- Hour missing notice - promoted warning -->
             <div v-if="missingHour" class="mb-6 p-4 rounded-xl bg-cinnabar/10 border-2 border-cinnabar/30 text-center font-sans">
@@ -628,190 +509,119 @@ function scrollToSection(anchorName: string) {
             </div>
 
             <!-- Anchor navigation -->
-            <nav
-              class="mb-6 flex flex-wrap gap-1.5 justify-center"
-              aria-label="结果区块导航"
-            >
-              <a
-                v-for="anchor in ['排盘', '神煞', '日主', '五行', '大运', '流年', '解读']"
-                :key="anchor"
-                :href="`#${sectionMap[anchor]}`"
-                :class="[
-                  'px-3 py-2.5 text-xs rounded-full font-sans border transition-colors no-underline',
-                  activeNavSection === anchor
-                    ? 'bg-cinnabar text-paper-lightest border-cinnabar'
-                    : 'border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30'
-                ]"
-                @click.prevent="scrollToSection(anchor)"
-              >{{ anchor }}</a>
-            </nav>
+            <SectionNav
+              :active-nav-section="activeNavSection"
+              :on-before-navigate="handleBeforeNavigate"
+              @navigate="onSectionNavigate"
+            />
 
             <!-- Reading Guide (命理速览) -->
-            <div id="reading-guide" class="mb-8 p-8 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20" tabindex="-1">
-              <h2 class="font-display text-xl sm:text-2xl text-cinnabar mb-2 flex items-center gap-2">
-                <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
-                命理速览
-              </h2>
-              <p class="font-sans text-xs text-ink-light mb-5">本结果为算法推演，仅供参考，不能替代专业命理师分析。</p>
-
-              <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
-                <!-- Section 1: 命局总览 -->
-                <div>
-                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">命局总览</h3>
-                  <p>
-                    <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
-                    日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
-                    命局整体力量<strong class="text-ink-dark">{{ result.dayMasterStrength }}</strong>。
-                  </p>
-                  <p class="mt-2">
-                    五行之中，对你最有帮助的能量是
-                    <strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
-                    生活中可多接触这些元素相关的事物。
-                    <template v-if="result.unfavorableElements.length > 0">
-                      而<strong class="text-ink-dark">{{ result.unfavorableElements.join('、') }}</strong>与你相克，
-                      适当平衡即可，不必刻意回避。
-                    </template>
-                  </p>
-                </div>
-
-                <!-- Section 2: 神煞精要 -->
-                <div v-if="readingGuideShensha.length > 0">
-                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">神煞精要</h3>
-                  <div class="flex flex-wrap gap-2 mb-2">
-                    <span
-                      v-for="shen in readingGuideShensha"
-                      :key="shen.name + shen.pillar"
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-                      :class="{
-                        'bg-wuxing-wood/10 text-wuxing-wood border border-wuxing-wood/25': shen.category === '吉',
-                        'bg-cinnabar/5 text-cinnabar border border-cinnabar/20': shen.category === '凶',
-                        'bg-paper-dark/30 text-ink-medium border border-paper-dark/50': shen.category === '中性',
-                      }"
-                    >
-                      <span class="font-display text-sm">{{ shen.name }}</span>
-                      <span class="opacity-60 text-[0.65rem]">{{ shen.pillar }}</span>
-                    </span>
-                  </div>
-                  <p class="text-sm">
-                    <template v-for="(shen, i) in readingGuideShensha" :key="shen.name + shen.pillar">
-                      <strong :class="shen.category === '吉' ? 'text-wuxing-wood' : shen.category === '凶' ? 'text-cinnabar/80' : 'text-ink-medium'">{{ shen.name }}</strong>（{{ shen.pillar }}）：{{ shen.description }}<template v-if="i < readingGuideShensha.length - 1">；</template>
-                    </template>
-                  </p>
-                </div>
-
-                <!-- Section 3: 今年运势 -->
-                <div v-if="currentYearLiuNian">
-                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">今年运势（{{ currentYearLiuNian.year }}年）</h3>
-                  <div class="flex items-center gap-3 mb-2">
-                    <span class="font-display text-lg text-ink-dark">{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span>
-                    <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{ currentYearLiuNian.tenGod }}</span>
-                    <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar/80' : 'text-ink-medium'">
-                      {{ currentYearLiuNian.isFavorable ? '喜用' : currentYearLiuNian.isUnfavorable ? '忌神' : '中性' }}
-                    </span>
-                    <span class="ml-auto font-sans text-xs text-ink-medium">运势评分 {{ currentYearLiuNian.score }}/100</span>
-                  </div>
-                  <p class="text-sm">{{ currentYearLiuNian.summary }}</p>
-                  <div v-if="currentYearLiuNian.earthRelations.length > 0" class="mt-1.5">
-                    <p class="text-xs text-ink-medium">流年地支与命局关系：</p>
-                    <ul class="mt-0.5 space-y-0.5 text-xs text-ink-medium">
-                      <li v-for="(rel, i) in currentYearLiuNian.earthRelations" :key="i">
-                        <span class="font-medium">{{ rel.targetPillar }}{{ rel.type }}</span>：{{ rel.description }}
-                      </li>
-                    </ul>
-                  </div>
-                  <p v-if="currentYearLiuNian.detail?.daYunInteraction" class="mt-1.5 text-xs text-ink-medium">{{ currentYearLiuNian.detail.daYunInteraction }}</p>
-                </div>
-
-                <!-- Section 4: 当前大运 -->
-                <div v-if="currentDaYun">
-                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">当前大运</h3>
-                  <div class="flex items-center gap-3 mb-1">
-                    <span class="font-display text-lg text-ink-dark">{{ currentDaYun.stemBranch }}</span>
-                    <span class="text-xs text-ink-medium">{{ currentDaYun.startAge }}岁 - {{ currentDaYun.endAge }}岁</span>
-                  </div>
-                  <p class="text-sm">{{ currentDaYun.description }}，{{ getDaYunMeaning(currentDaYun.stemTenGod) }}</p>
-                </div>
-
-                <!-- Section 5: 五行建议 -->
-                <div>
-                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">五行建议</h3>
-                  <p class="text-sm mb-2">
-                    你的喜用神为<strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
-                    生活中多接触与这些元素相关的事物有助于运势提升。
-                  </p>
-                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                    <div v-for="el in result.favorableElements" :key="el" class="p-2 rounded-lg border" :style="{ borderColor: ELEMENT_COLORS[el] + '40', backgroundColor: ELEMENT_COLORS[el] + '08' }">
-                      <span class="font-medium" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
-                      <span class="text-ink-medium ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
-                    </div>
-                  </div>
-                  <template v-if="result.unfavorableElements.length > 0">
-                    <p class="text-xs text-ink-medium mt-2 mb-1">以下元素适度即可，不必刻意回避：</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                      <div v-for="el in result.unfavorableElements" :key="el"
-                        class="p-2 rounded-lg border"
-                        :style="{ borderColor: ELEMENT_COLORS[el] + '25', backgroundColor: ELEMENT_COLORS[el] + '05' }">
-                        <span class="font-medium" :style="{ color: ELEMENT_COLORS[el], opacity: 0.7 }">{{ el }}</span>
-                        <span class="text-ink-muted ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
-                        <span class="text-ink-muted ml-1">（适度）</span>
-                      </div>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </div>
-
-            <!-- Four Pillars Grid -->
-            <div id="bazi-grid" class="scroll-mt-20" tabindex="-1">
-            <BaziGrid :pillars="pillars" />
-            </div>
-
-
-            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
-            <div id="shensha" class="scroll-mt-20" tabindex="-1">
-            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
-            </div>
-
-            <!-- Day Master Card -->
-            <div id="day-master" class="scroll-mt-20" tabindex="-1">
-            <DayMasterCard
+            <ReadingGuide
               :day-master="result.dayMaster"
               :day-master-wuxing="result.dayMasterWuxing"
               :day-master-strength="result.dayMasterStrength"
               :favorable-elements="result.favorableElements"
               :unfavorable-elements="result.unfavorableElements"
+              :reading-guide-shensha="readingGuideShensha"
+              :current-year-liu-nian="currentYearLiuNian"
+              :current-da-yun="currentDaYun"
             />
-            </div>
+
+            <!-- Four Pillars Grid -->
+            <CollapsibleSection
+              section-id="bazi-grid"
+              title="四柱排盘"
+              subtitle="命盘"
+              :expanded="expandedSections['bazi-grid']"
+              @toggle="toggleSection"
+            >
+              <BaziGrid :pillars="pillars" />
+            </CollapsibleSection>
+
+            <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
+            <CollapsibleSection
+              v-if="shenShaList.length > 0"
+              section-id="shensha"
+              title="神煞"
+              subtitle="吉凶"
+              :expanded="expandedSections['shensha']"
+              @toggle="toggleSection"
+            >
+              <ShenShaPanel :shen-sha="shenShaList" />
+            </CollapsibleSection>
+
+            <!-- Day Master Card -->
+            <CollapsibleSection
+              section-id="day-master"
+              title="日主分析"
+              subtitle="元神"
+              :expanded="expandedSections['day-master']"
+              @toggle="toggleSection"
+            >
+              <DayMasterCard
+                :day-master="result.dayMaster"
+                :day-master-wuxing="result.dayMasterWuxing"
+                :day-master-strength="result.dayMasterStrength"
+                :favorable-elements="result.favorableElements"
+                :unfavorable-elements="result.unfavorableElements"
+              />
+            </CollapsibleSection>
 
             <!-- Element Analysis -->
-            <div id="elements" class="scroll-mt-20" tabindex="-1">
-            <ElementAnalysis
-              :element-counts="result.elementCounts"
-              :element-percentages="result.elementPercentages"
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :month-branch="result.monthPillar.branch"
-            />
-            </div>
+            <CollapsibleSection
+              section-id="elements"
+              title="五行分析"
+              subtitle="强弱"
+              :expanded="expandedSections['elements']"
+              @toggle="toggleSection"
+            >
+              <ElementAnalysis
+                :element-counts="result.elementCounts"
+                :element-percentages="result.elementPercentages"
+                :day-master="result.dayMaster"
+                :day-master-wuxing="result.dayMasterWuxing"
+                :day-master-strength="result.dayMasterStrength"
+                :month-branch="result.monthPillar.branch"
+              />
+            </CollapsibleSection>
 
             <!-- Da Yun Timeline -->
-            <div id="dayun" class="scroll-mt-20" tabindex="-1">
-            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
-            </div>
+            <CollapsibleSection
+              section-id="dayun"
+              title="大运"
+              subtitle="十年"
+              :expanded="expandedSections['dayun']"
+              @toggle="toggleSection"
+            >
+              <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+            </CollapsibleSection>
 
             <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
-            <div id="liunian" class="scroll-mt-20" tabindex="-1">
-            <LiuNianTimeline
-              v-if="liuNianYears.length > 0"
-              :years="liuNianYears"
-              :current-year="currentYear"
-              :range="5"
-            />
-            </div>
+            <CollapsibleSection
+              section-id="liunian"
+              title="流年"
+              subtitle="岁运"
+              :expanded="expandedSections['liunian']"
+              @toggle="toggleSection"
+            >
+              <LiuNianTimeline
+                v-if="liuNianYears.length > 0"
+                :years="liuNianYears"
+                :current-year="currentYear"
+                :range="5"
+              />
+            </CollapsibleSection>
 
-            <!-- Recalculate — only shown after history restore -->
-            <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
+            <!-- Back to top: floating button, visible after scrolling past 300px -->
+            <ScrollTopButton
+              v-if="showScrollTop"
+              :style="{ right: scrollTopOffset }"
+              @click="scrollToTop"
+              @keydown.enter="scrollToTop"
+            />
+
+            <!-- Restored from history notice -->
+            <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-6">
               <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
               <button
                 @click="computeResult"
@@ -823,89 +633,34 @@ function scrollToSection(anchorName: string) {
               </button>
             </div>
 
-            <!-- Save status & History dropdown -->
-            <div class="relative mt-6">
-              <div class="flex items-center justify-center gap-3">
-                <!-- Save status -->
-                <span v-if="savedDivinationId" class="font-sans text-xs text-wuxing-wood">
-                  已保存
-                </span>
-
-                <!-- History button -->
-                <div class="relative">
-                  <button
-                    @click="toggleHistoryDropdown"
-                    @keydown.enter="toggleHistoryDropdown"
-                    @keydown.space.prevent="toggleHistoryDropdown"
-                    class="px-3 py-2 font-sans text-xs text-ink-light hover:text-ink-medium transition-colors underline underline-offset-2"
-                    aria-haspopup="menu"
-                    :aria-expanded="showHistoryDropdown"
-                  >
-                    历史记录
-                  </button>
-
-                  <!-- Dropdown menu -->
-                  <div
-                    v-if="showHistoryDropdown"
-                    ref="historyDropdownRef"
-                    class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 rounded-lg border border-paper-dark bg-paper shadow-lg z-30"
-                    role="menu"
-                    aria-label="历史记录菜单"
-                    @keydown="onDropdownKeydown"
-                  >
-                    <div class="p-2">
-                      <p class="font-sans text-xs text-ink-light px-2 py-1">最近测算记录</p>
-                      <div v-if="historyRecords.length === 0" class="px-2 py-3 text-center">
-                        <p class="font-sans text-xs text-ink-muted">暂无记录</p>
-                      </div>
-                      <div v-else class="space-y-0.5">
-                        <button
-                          v-for="rec in historyRecords"
-                          :key="rec.id"
-                          class="w-full text-left px-2 py-2.5 rounded hover:bg-paper-lightest transition-colors"
-                          role="menuitem"
-                          @click="restoreFromHistory(rec.id)"
-                          @keydown.enter="restoreFromHistory(rec.id)"
-                          @keydown.space.prevent="restoreFromHistory(rec.id)"
-                        >
-                          <div class="font-sans text-xs text-ink-dark">
-                            {{ formatHistoryDate(rec.created_at) }}
-                          </div>
-                          <div class="font-sans text-[0.65rem] text-ink-muted truncate">
-                            {{ formatHistoryLabel(rec.input_data) }}
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <!-- Action buttons -->
+            <div class="flex flex-wrap gap-3 justify-center mt-8">
+              <button
+                @click="computeResult"
+                @keydown.space.prevent="computeResult"
+                class="btn-seal"
+              >
+                <span>重新排盘</span>
+              </button>
+              <button
+                @click="showHistoryModal = true"
+                @keydown.enter="showHistoryModal = true"
+                @keydown.space.prevent="showHistoryModal = true"
+                class="btn-seal"
+                aria-haspopup="dialog"
+              >
+                <span>浏览历史</span>
+              </button>
             </div>
-
-            <!-- Back to top: floating button, visible after scrolling past 300px -->
-            <ScrollTopButton
-              v-if="showScrollTop"
-              :style="{ right: scrollTopOffset }"
-              @click="scrollToTop"
-              @keydown.enter="scrollToTop"
-            />
         </div>
         </template>
 
   </ToolPageLayout>
-</template>
 
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>
+  <HistoryModal
+    :show="showHistoryModal"
+    type="bazi"
+    @close="showHistoryModal = false"
+    @restore="onHistoryRestore"
+  />
+</template>
