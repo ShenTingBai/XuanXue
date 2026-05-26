@@ -1,4 +1,5 @@
 import { getMonthPillar, getSolarTerm } from './useSolarTerms'
+import { Lunar } from 'lunar-javascript'
 
 import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
 
@@ -290,12 +291,106 @@ function computeElementCounts(pillars: BaZiPillar[]): Record<string, number> {
   return counts
 }
 
+/**
+ * Calculate the starting age for DaYun (大运起运年龄).
+ *
+ * Standard 子平法 algorithm:
+ *   - 阳男阴女 → 顺排: count days from birth to NEXT 节气 (节), ÷ 3
+ *   - 阴男阳女 → 逆排: count days from PREVIOUS 节气 (节) to birth, ÷ 3
+ *
+ * Only the 12 "节" (odd-month solar terms) are used:
+ *   立春 惊蛰 清明 立夏 芒种 小暑 立秋 白露 寒露 立冬 大雪 小寒
+ */
+function computeDaYunStartAge(
+  birthYear: number,
+  birthMonth: number,
+  birthDay: number,
+  yearStemIndex: number,
+  gender: '男' | '女' | null,
+): number {
+  if (!gender) {
+    // Fallback for missing gender: approximate as 阳年 birth
+    const yangYear = isYangYear(yearStemIndex)
+    // Default to forward (顺排) for 阳年, backward for 阴年
+    return computeStartAge(birthYear, birthMonth, birthDay, yangYear)
+  }
+
+  const yangYear = isYangYear(yearStemIndex)
+  const isMale = gender === '男'
+  // 阳男阴女 → 顺排, 阴男阳女 → 逆排
+  const forward = (yangYear && isMale) || (!yangYear && !isMale)
+
+  return computeStartAge(birthYear, birthMonth, birthDay, forward)
+}
+
+function computeStartAge(
+  birthYear: number,
+  birthMonth: number,
+  birthDay: number,
+  forward: boolean,
+): number {
+  const isLeap = (birthYear % 4 === 0 && birthYear % 100 !== 0) || birthYear % 400 === 0
+  const monthDays = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+  // Birth day-of-year
+  let birthDOY = 0
+  for (let i = 0; i < birthMonth - 1; i++) birthDOY += monthDays[i]
+  birthDOY += birthDay
+
+  // 12 节 DOYs for birth year (小寒 index 11 is in the following year)
+  const termDOYs: number[] = []
+  for (let i = 0; i < 12; i++) {
+    const term = getSolarTerm(birthYear, i)
+    let doy = 0
+    for (let m = 0; m < term.month - 1; m++) doy += monthDays[m]
+    doy += term.day
+    if (i === 11) doy += isLeap ? 366 : 365
+    termDOYs.push(doy)
+  }
+
+  let diffDays: number
+
+  if (forward) {
+    const next = termDOYs.filter(d => d > birthDOY)
+    if (next.length > 0) {
+      diffDays = Math.min(...next) - birthDOY
+    } else {
+      // After all terms → next term is next year's 立春
+      const nextLiChun = getSolarTerm(birthYear + 1, 0)
+      const nextIsLeap = ((birthYear + 1) % 4 === 0 && (birthYear + 1) % 100 !== 0) || (birthYear + 1) % 400 === 0
+      const nextMD = [31, nextIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      let nextDOY = 0
+      for (let m = 0; m < nextLiChun.month - 1; m++) nextDOY += nextMD[m]
+      nextDOY += nextLiChun.day
+      diffDays = (isLeap ? 366 : 365) - birthDOY + nextDOY
+    }
+  } else {
+    const prev = termDOYs.filter(d => d < birthDOY)
+    if (prev.length > 0) {
+      diffDays = birthDOY - Math.max(...prev)
+    } else {
+      // Before all terms → prev term is previous year's 小寒
+      const prevXH = getSolarTerm(birthYear - 1, 11)
+      const prevIsLeap = ((birthYear - 1) % 4 === 0 && (birthYear - 1) % 100 !== 0) || (birthYear - 1) % 400 === 0
+      const prevMD = [31, prevIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      let prevDOY = 0
+      for (let m = 0; m < prevXH.month - 1; m++) prevDOY += prevMD[m]
+      prevDOY += prevXH.day
+      diffDays = (prevIsLeap ? 366 : 365) - prevDOY + birthDOY
+    }
+  }
+
+  return diffDays / 3
+}
+
 /** Compute da yun (great fortune) cycles */
 function computeDaYun(
   monthPillar: BaZiPillar,
   yearStemIndex: number,
   gender: '男' | '女' | null,
   birthYear: number,
+  birthMonth: number,
+  birthDay: number,
 ): DaYunCycle[] {
   const cycles: DaYunCycle[] = []
   const yangYear = isYangYear(yearStemIndex)
@@ -306,8 +401,7 @@ function computeDaYun(
   const monthStemIndex = getStemIndex(monthPillar.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillar.branch)
 
-  // Simplified start age
-  const startAge = ((birthYear * 7 + 13) % 6) + 3
+  const startAge = computeDaYunStartAge(birthYear, birthMonth, birthDay, yearStemIndex, gender)
 
   for (let i = 0; i < 8; i++) {
     const offset = forward ? i + 1 : -(i + 1)
@@ -316,8 +410,8 @@ function computeDaYun(
     const stem = STEMS[stemIdx]
     const branch = BRANCHES[branchIdx]
     cycles.push({
-      startAge: startAge + i * 10,
-      endAge: startAge + i * 10 + 9,
+      startAge: Math.round(startAge) + i * 10,
+      endAge: Math.round(startAge) + i * 10 + 9,
       stemBranch: stem + branch,
       stemTenGod: '',
       branchTenGod: '',
@@ -354,14 +448,28 @@ export interface BaZiInput {
  * Calculate BaZi (Four Pillars) from birth information.
  */
 export function calculateBaZi(input: BaZiInput): BaZiResult {
-  const { birthYear, birthMonth, birthDay, birthCalendar, birthHour, gender } = input
+  let { birthYear, birthMonth, birthDay, birthCalendar, birthHour, gender } = input
+
+  // --- Lunar to Solar Conversion ---
+  if (birthCalendar === 'lunar') {
+    try {
+      const lunar = Lunar.fromYmd(birthYear, birthMonth, birthDay)
+      const solar = lunar.getSolar()
+      birthYear = solar.getYear()
+      birthMonth = solar.getMonth()
+      birthDay = solar.getDay()
+      birthCalendar = 'solar'
+    } catch {
+      // If conversion fails (e.g. invalid lunar date), fall through with original values
+    }
+  }
 
   // --- Year Pillar ---
   let yearStemIndex = getYearStemIndex(birthYear)
   let yearBranchIndex = getYearBranchIndex(birthYear)
 
-  // 立春 boundary for solar calendar (compute once, reuse for month pillar)
-  const beforeLiChun = birthCalendar === 'solar' && isBeforeLiChun(birthYear, birthMonth, birthDay)
+  // 立春 boundary (now always solar after potential conversion)
+  const beforeLiChun = isBeforeLiChun(birthYear, birthMonth, birthDay)
 
   if (beforeLiChun) {
     yearStemIndex = getYearStemIndex(birthYear - 1)
@@ -370,7 +478,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
 
   // --- Month Pillar ---
   const monthPillarYear = beforeLiChun ? birthYear - 1 : birthYear
-  const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, birthCalendar)
+  const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay, 'solar')
   const monthStemIndex = getStemIndex(monthPillarResult.stem)
   const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)
 
@@ -409,7 +517,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   const [favorableElements, unfavorableElements] = getFavorableElements(dayMasterWuxing, dayMasterStrength)
 
   // Da Yun
-  const rawDaYun = computeDaYun(monthPillar, yearStemIndex, gender, birthYear)
+  const rawDaYun = computeDaYun(monthPillar, yearStemIndex, gender, birthYear, birthMonth, birthDay)
   const daYun = patchDaYunTenGods(rawDaYun, dayStemIndex)
 
   return {
