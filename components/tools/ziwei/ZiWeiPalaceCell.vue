@@ -84,8 +84,8 @@ defineProps<{
     </div>
 
     <!-- 大限 -->
-    <div v-if="palace.decadalRange && palace.decadalRange[0] > 0" class="px-1.5 pb-0.5 mt-auto">
-      <span class="text-[8px] text-ink-light/60">{{ palace.decadalRange[0] }}~{{ palace.decadalRange[1] }}</span>
+    <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="px-1.5 pb-0.5 mt-auto">
+      <span class="text-[8px] text-ink-light/60">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}</span>
     </div>
   </div>
 </template>

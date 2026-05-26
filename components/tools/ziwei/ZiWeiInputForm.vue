@@ -26,7 +26,7 @@ defineProps<{
           id="ziwei-birth-date"
           type="date"
           :value="birthDate"
-          @input="onDateChange($event.target.value)"
+          @input="onDateChange(($event.target as HTMLInputElement).value)"
           class="input-ink w-full"
         />
       </div>
@@ -37,7 +37,7 @@ defineProps<{
         <select
           id="ziwei-birth-hour"
           :value="birthHour ?? ''"
-          @change="onHourChange($event.target.value ? Number($event.target.value) : null)"
+          @change="onHourChange(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
           class="input-ink w-full"
         >
           <option value="">— 选择时辰 —</option>

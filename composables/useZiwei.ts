@@ -64,9 +64,9 @@ export function getPalaceDetail(palace: IFunctionalPalace): {
   combinationNote: string
 } {
   const palaceSummary = getPalaceInterpretation(palace.name)
-  const starReadings = palace.majorStars.map(s => getStarInterpretation(s.name)).filter(Boolean)
+  const starReadings = palace.majorStars.map(s => getStarInterpretation(s.name as string)).filter(Boolean)
 
-  const starNames = palace.majorStars.map(s => s.name)
+  const starNames: string[] = palace.majorStars.map(s => s.name as string)
   let combinationNote = ''
   if (starNames.includes('紫微') && starNames.includes('天相')) {
     combinationNote = '紫微天相同宫，辅弼之星入命，格局高贵。'
