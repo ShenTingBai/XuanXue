@@ -167,7 +167,7 @@ function renderOrbitRings() {
   const branches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
   branches.forEach(br => {
     const rawAngle = BRANCH_TO_ANGLE[br] || 0
-    const angleRad = (rawAngle - 90) * Math.PI / 180
+    const angleRad = rawAngle * Math.PI / 180
     const x1 = CX + Math.cos(angleRad) * RINGS[0].r
     const y1 = CY + Math.sin(angleRad) * RINGS[0].r
     const x2 = CX + Math.cos(angleRad) * (RINGS[4].r + 8)
@@ -212,7 +212,7 @@ function renderSectorLabels() {
 
   props.palaces.forEach((palace, i) => {
     const rawAngle = BRANCH_TO_ANGLE[palace.earthlyBranch] || 0
-    const angleRad = ((rawAngle + 15) - 90) * Math.PI / 180
+    const angleRad = (rawAngle + 15) * Math.PI / 180
     const x = (CX + Math.cos(angleRad) * LABEL_R) * chartScale
     const y = (CY + Math.sin(angleRad) * LABEL_R) * chartScale
 
@@ -364,13 +364,13 @@ function drawPalaceArc(index: number) {
   }
   const rawAngle = BRANCH_TO_ANGLE[props.palaces[index].earthlyBranch] || 0
   el.style.background =
-    `conic-gradient(from ${rawAngle - 15}deg, transparent 0deg, rgba(198,40,40,0.12) 0deg, rgba(198,40,40,0.20) 30deg, transparent 30deg, transparent 360deg)`
+    `conic-gradient(from ${(rawAngle + 90) % 360}deg, transparent 0deg, rgba(198,40,40,0.12) 0deg, rgba(198,40,40,0.20) 30deg, transparent 30deg, transparent 360deg)`
   el.classList.add('visible')
 
   // Draw boundary lines at sector edges
   if (svg) {
-    const startAngleRad = (rawAngle - 15 - 90) * Math.PI / 180
-    const endAngleRad = (rawAngle + 15 - 90) * Math.PI / 180
+    const startAngleRad = (rawAngle - 15) * Math.PI / 180
+    const endAngleRad = (rawAngle + 15) * Math.PI / 180
     const innerR = RINGS[0].r - 10
     const outerR = RINGS[2].r + 15
 
@@ -404,7 +404,7 @@ function animateCelestial(timestamp: number) {
       const el = starElements[i]
       if (!el) continue
 
-      const angleRad = (star.angleDeg - 90) * Math.PI / 180
+      const angleRad = star.angleDeg * Math.PI / 180
       const x = (CX + Math.cos(angleRad) * star.radius) * chartScale
       const y = (CY + Math.sin(angleRad) * star.radius) * chartScale
 
@@ -421,7 +421,7 @@ function animateCelestial(timestamp: number) {
     const el = starElements[i]
     if (!el) continue
 
-    const angleRad = ((star.angleDeg + t * star.speed * 15) - 90) * Math.PI / 180
+    const angleRad = (star.angleDeg + t * star.speed * 15) * Math.PI / 180
     const x = (CX + Math.cos(angleRad) * star.radius) * chartScale
     const y = (CY + Math.sin(angleRad) * star.radius) * chartScale
 
