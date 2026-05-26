@@ -9,6 +9,7 @@ const pin = ref('')
 const error = ref('')
 const loading = ref(false)
 const isLogin = ref(true)
+const showPin = ref(false)
 
 onMounted(() => {
   restoreSession()
@@ -130,6 +131,7 @@ const submit = async () => {
         <Transition name="fade">
           <div
             v-if="error"
+            id="login-error"
             class="mb-6 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm"
             role="alert"
           >
@@ -141,7 +143,9 @@ const submit = async () => {
         <div id="tabpanel-auth" role="tabpanel" :aria-labelledby="isLogin ? 'tab-login' : 'tab-register'">
           <form @submit.prevent="submit" novalidate class="space-y-5">
             <div>
-              <label for="login-nickname" class="block text-xs text-ink-medium tracking-wider mb-1.5">昵称</label>
+              <label for="login-nickname" class="block text-xs text-ink-medium tracking-wider mb-1.5">
+                昵称<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
+              </label>
               <input
                 id="login-nickname"
                 v-model="nickname"
@@ -150,23 +154,42 @@ const submit = async () => {
                 placeholder="输入你的昵称"
                 maxlength="20"
                 autocomplete="off"
+                required
+                aria-required="true"
+                :aria-describedby="error ? 'login-error' : undefined"
                 :disabled="loading"
               />
             </div>
 
             <div>
-              <label for="login-pin" class="block text-xs text-ink-medium tracking-wider mb-1.5">PIN 码</label>
-              <input
-                id="login-pin"
-                v-model="pin"
-                type="password"
-                class="input-ink"
-                placeholder="4位数字密码"
-                maxlength="4"
-                inputmode="numeric"
-                autocomplete="off"
-                :disabled="loading"
-              />
+              <label for="login-pin" class="block text-xs text-ink-medium tracking-wider mb-1.5">
+                PIN 码<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  id="login-pin"
+                  v-model="pin"
+                  :type="showPin ? 'text' : 'password'"
+                  class="input-ink pr-10"
+                  placeholder="4位数字密码"
+                  maxlength="4"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                  aria-required="true"
+                  :aria-describedby="error ? 'login-error' : undefined"
+                  :disabled="loading"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-2 text-xs text-ink-light hover:text-ink-medium transition-colors"
+                  :aria-label="showPin ? '隐藏 PIN 码' : '显示 PIN 码'"
+                  @click="showPin = !showPin"
+                >
+                  <span v-if="showPin">隐藏</span>
+                  <span v-else>显示</span>
+                </button>
+              </div>
             </div>
 
             <button

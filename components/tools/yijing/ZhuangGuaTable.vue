@@ -33,7 +33,7 @@
           </td>
 
           <!-- 纳甲 -->
-          <td class="px-2 sm:px-3 py-2.5 whitespace-nowrap font-mono text-ink">
+          <td class="px-2 sm:px-3 py-2.5 whitespace-nowrap font-sans tabular-nums text-ink">
             {{ line.naJiaDisplay }}
           </td>
 
@@ -80,18 +80,14 @@
 
 <script setup lang="ts">
 import type { ZhuangGuaLine } from '~/composables/useYijing'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
+import { wuxingColor as wuxingTextColor, hexToRgba } from '~/constants/bazi'
 
 defineProps<{
   lines: ZhuangGuaLine[]
 }>()
 
-function wuxingTextColor(wuxing: string): string {
-  return WUXING_COLORS[wuxing] || WUXING_FALLBACK_COLOR
-}
-
 function wuxingBgColor(wuxing: string): string {
-  const color = WUXING_COLORS[wuxing] || WUXING_FALLBACK_COLOR
+  const color = wuxingTextColor(wuxing)
   return hexToRgba(color, 0.08)
 }
 

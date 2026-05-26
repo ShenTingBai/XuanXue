@@ -218,8 +218,8 @@ const saveProfile = async () => {
     success.value = true
     if (successTimeout) clearTimeout(successTimeout)
     successTimeout = setTimeout(() => { success.value = false }, 2500)
-  } catch (e: any) {
-    error.value = e?.data?.statusMessage || e?.message || '保存失败'
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : '保存失败'
   } finally {
     saving.value = false
   }
@@ -316,10 +316,12 @@ const saveProfile = async () => {
 
             <!-- Gender -->
             <div>
-              <label class="block text-xs text-ink-medium tracking-wider mb-2">性别</label>
+              <label class="block text-xs text-ink-medium tracking-wider mb-2">
+                性别<span class="text-ink-light text-[0.65rem] ml-1">(推荐)</span>
+              </label>
               <div class="flex gap-4" role="radiogroup" aria-label="性别">
                 <label class="flex items-center gap-2 cursor-pointer group">
-                  <input v-model="gender" type="radio" :value="''" class="sr-only" />
+                  <input v-model="gender" type="radio" name="gender" :value="''" class="sr-only" />
                   <span class="w-4 h-4 rounded-full border-2 border-ink-faint flex items-center justify-center transition-colors duration-200 group-hover:border-cinnabar"><span v-if="!gender" class="w-2 h-2 rounded-full bg-ink-faint transition-colors duration-200"></span></span>
                   <span class="text-sm text-ink-medium">未设置</span>
                 </label>
@@ -327,6 +329,7 @@ const saveProfile = async () => {
                   <input
                     v-model="gender"
                     type="radio"
+                    name="gender"
                     value="男"
                     class="sr-only"
                   />
@@ -345,6 +348,7 @@ const saveProfile = async () => {
                   <input
                     v-model="gender"
                     type="radio"
+                    name="gender"
                     value="女"
                     class="sr-only"
                   />
@@ -370,7 +374,9 @@ const saveProfile = async () => {
           <div class="space-y-5">
             <!-- Birth date -->
             <div>
-              <label for="profile-birth-date" class="block text-xs text-ink-medium tracking-wider mb-1.5">出生日期</label>
+              <label for="profile-birth-date" class="block text-xs text-ink-medium tracking-wider mb-1.5">
+                出生日期<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
+              </label>
               <div class="flex flex-col sm:flex-row gap-3">
                 <input
                   id="profile-birth-date"
@@ -395,7 +401,9 @@ const saveProfile = async () => {
 
             <!-- Birth time -->
             <div>
-              <label for="profile-birth-hour" class="block text-xs text-ink-medium tracking-wider mb-1.5">出生时辰</label>
+              <label for="profile-birth-hour" class="block text-xs text-ink-medium tracking-wider mb-1.5">
+                出生时辰<span class="text-ink-light text-[0.65rem] ml-1">(推荐)</span>
+              </label>
               <p class="text-xs text-ink-light mb-2">如果不确定时辰，请输入大致出生时间</p>
               <div class="flex flex-col sm:flex-row gap-3">
                 <select
@@ -408,16 +416,18 @@ const saveProfile = async () => {
                     {{ opt.label }}
                   </option>
                 </select>
-                <label for="profile-birth-minute" class="sr-only">分钟</label>
-                <input
-                  id="profile-birth-minute"
-                  v-model="birthMinuteStr"
-                  type="number"
-                  min="0"
-                  max="59"
-                  class="input-ink input-ink--no-spinner sm:w-20 text-center"
-                  placeholder="分"
-                />
+                <div class="sm:w-28">
+                  <label for="profile-birth-minute" class="block text-xs text-ink-light tracking-wider mb-1">分钟（选填）</label>
+                  <input
+                    id="profile-birth-minute"
+                    v-model="birthMinuteStr"
+                    type="number"
+                    min="0"
+                    max="59"
+                    class="input-ink input-ink--no-spinner w-full text-center"
+                    placeholder="分"
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -90,11 +90,13 @@
             <span class="meta-value">{{ lowerTrigramName }}</span>
             <span v-if="lowerWuxing" class="meta-badge" :style="{ color: wuxingColor(lowerWuxing), borderColor: wuxingColor(lowerWuxing) + '40' }">{{ lowerWuxing }}</span>
           </span>
+          <template v-if="hexagram?.palaceName">
           <span class="meta-divider" aria-hidden="true">·</span>
           <span class="meta-item">
             <span class="meta-label">属</span>
             <span class="meta-value">{{ palaceDisplay }}</span>
           </span>
+          </template>
           <span v-if="changingCount > 0" class="meta-divider" aria-hidden="true">·</span>
           <span v-if="changingCount > 0" class="meta-item meta-item--changing">
             <span class="meta-label">动</span>
@@ -107,10 +109,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { YaoResult } from '~/composables/useYijing'
 import { TRIGRAM_NAMES, TRIGRAM_WUXING } from '~/constants/yijing'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { wuxingColor } from '~/constants/bazi'
 
 interface HexagramProp {
   name: string
@@ -118,6 +119,8 @@ interface HexagramProp {
   lines: YaoResult[]
   shiPosition?: number
   yingPosition?: number
+  palaceName?: string
+  palaceWuxing?: string
 }
 
 const props = defineProps<{
@@ -125,10 +128,6 @@ const props = defineProps<{
   label?: string
   judgments?: string[]
 }>()
-
-function wuxingColor(wx: string): string {
-  return WUXING_COLORS[wx] || WUXING_FALLBACK_COLOR
-}
 
 function trigramIndex(lines: YaoResult[], start: number): number {
   const bits = [lines[start], lines[start + 1], lines[start + 2]]
@@ -143,7 +142,12 @@ const lowerTrigramName = computed(() => lowerIdx.value >= 0 ? TRIGRAM_NAMES[lowe
 const upperWuxing = computed(() => upperIdx.value >= 0 ? TRIGRAM_WUXING[upperIdx.value] : '')
 const lowerWuxing = computed(() => lowerIdx.value >= 0 ? TRIGRAM_WUXING[lowerIdx.value] : '')
 
-const palaceDisplay = computed(() => '')
+const palaceDisplay = computed(() => {
+  if (!props.hexagram?.palaceName) return ''
+  let display = props.hexagram.palaceName
+  if (props.hexagram.palaceWuxing) display += `·${props.hexagram.palaceWuxing}`
+  return display
+})
 
 const changingCount = computed(() => props.hexagram?.lines.filter(l => l.isChanging).length ?? 0)
 const changingDisplay = computed(() => {

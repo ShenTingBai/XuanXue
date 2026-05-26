@@ -8,9 +8,10 @@
           :mode="castingMode"
           :current-toss="currentToss"
           :coin-results="coinResults"
+          :processing="processing"
           @toss="handleToss"
           @cast-number="handleCastNumber"
-          @reset="handleReset"
+          @reset="requestReset"
           @update:mode="castingMode = $event"
         />
 
@@ -19,9 +20,39 @@
           <p class="font-sans text-sm text-ink-light">解卦中...</p>
         </div>
 
-        <div aria-live="polite" class="sr-only">
+        <div aria-live="polite" role="status" class="sr-only">
           <span v-if="processing">解卦中，请稍候</span>
+          <span v-else-if="result">卦象已就绪</span>
         </div>
+
+        <!-- Reset confirmation dialog -->
+        <Transition name="confirm-dialog">
+          <div
+            v-if="showResetConfirm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-ink-dark/20 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-label="确认重新起卦"
+            @keydown.escape="cancelReset"
+          >
+            <div class="card-paper-solid rounded-xl p-6 sm:p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
+              <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
+              <p class="font-sans text-sm text-ink-medium mb-6">当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。</p>
+              <div class="flex gap-3 justify-end">
+                <button
+                  class="btn-ghost text-sm"
+                  @click="cancelReset"
+                  @keydown.enter="cancelReset"
+                >继续摇卦</button>
+                <button
+                  class="btn-seal"
+                  @click="confirmReset"
+                  @keydown.enter="confirmReset"
+                >确定重新起卦</button>
+              </div>
+            </div>
+          </div>
+        </Transition>
 
         <InkDivider v-if="result && !processing" />
 
@@ -40,25 +71,20 @@
           <div class="text-center mt-6 pb-8">
             <button
               class="btn-seal"
-              @click="handleReset"
-              @keydown.enter="handleReset"
-              @keydown.space.prevent="handleReset"
+              @click="requestReset"
+              @keydown.enter="requestReset"
+              @keydown.space.prevent="requestReset"
             >
               重新占卜
             </button>
           </div>
         </div>
-        <button
+        <ScrollTopButton
           v-if="showScrollTop"
-          class="fixed bottom-8 right-8 z-40 w-10 h-10 rounded-full bg-ink-dark/80 text-paper-lightest flex items-center justify-center shadow-lg hover:bg-ink-dark transition-all"
+          class="right-8"
           @click="scrollToTop"
           @keydown.enter="scrollToTop"
-          aria-label="返回顶部"
-        >
-          <svg aria-hidden="true" class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M10 16V4M4 10l6-6 6 6" />
-          </svg>
-        </button>
+        />
       </div>
   </ToolPageLayout>
 </template>
@@ -73,6 +99,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 useHead({ title: '六爻占卜 - 玄学' })
 
 // State
@@ -84,6 +111,11 @@ const score = ref(0)
 const processing = ref(false)
 const saveError = ref('')
 const showScrollTop = ref(false)
+const showResetConfirm = ref(false)
+
+// Timer refs for setTimeout cleanup
+const coinTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const numberTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 onMounted(() => {
   const { restoreSession } = useAuth()
@@ -94,6 +126,7 @@ onMounted(() => {
 
 // Coin casting
 function handleToss() {
+  if (processing.value) return
   // Cast once
   const singleToss: number[] = []
   for (let j = 0; j < 3; j++) {
@@ -114,8 +147,9 @@ function handleToss() {
 function handleCoinAutoResult() {
   processing.value = true
 
-  // Small delay for animation to settle
-  setTimeout(() => {
+  // Store timer ref for cleanup
+  coinTimer.value = setTimeout(() => {
+    coinTimer.value = null
     try {
       // Build 6 values from toss results (sum of each toss = line value)
       const values = coinResults.value.map(toss => toss[0] + toss[1] + toss[2])
@@ -137,10 +171,12 @@ function handleCoinAutoResult() {
 
 // Number casting
 function handleCastNumber(data: { first: number; second: number; third: number }) {
+  if (processing.value) return
   castingMode.value = 'number'
   processing.value = true
 
-  setTimeout(() => {
+  numberTimer.value = setTimeout(() => {
+    numberTimer.value = null
     try {
       const { values } = castByNumbers(data.first, data.second, data.third)
 
@@ -161,14 +197,46 @@ function handleCastNumber(data: { first: number; second: number; third: number }
   }, 400)
 }
 
+// Clear all timers
+function clearAllTimers() {
+  if (coinTimer.value) {
+    clearTimeout(coinTimer.value)
+    coinTimer.value = null
+  }
+  if (numberTimer.value) {
+    clearTimeout(numberTimer.value)
+    numberTimer.value = null
+  }
+}
+
+// Request reset — show confirmation if mid-casting
+function requestReset() {
+  if (currentToss.value > 0 && currentToss.value < 6) {
+    showResetConfirm.value = true
+  } else {
+    handleReset()
+  }
+}
+
+function confirmReset() {
+  showResetConfirm.value = false
+  handleReset()
+}
+
+function cancelReset() {
+  showResetConfirm.value = false
+}
+
 // Reset all state
 function handleReset() {
+  clearAllTimers()
   coinResults.value = []
   currentToss.value = 0
   result.value = null
   score.value = 0
   processing.value = false
   saveError.value = ''
+  showResetConfirm.value = false
 }
 
 function handleScroll() {
@@ -185,6 +253,7 @@ function scrollToTop() {
 }
 
 onUnmounted(() => {
+  clearAllTimers()
   window.removeEventListener('scroll', handleScroll)
 })
 
@@ -217,3 +286,24 @@ watch(castingMode, () => {
   }
 })
 </script>
+
+<style scoped>
+.confirm-dialog-enter-active,
+.confirm-dialog-leave-active {
+  transition: opacity 0.2s ease;
+}
+.confirm-dialog-enter-active > :deep(.card-paper-solid),
+.confirm-dialog-leave-active > :deep(.card-paper-solid) {
+  transition: transform 0.2s ease;
+}
+.confirm-dialog-enter-from,
+.confirm-dialog-leave-to {
+  opacity: 0;
+}
+.confirm-dialog-enter-from > :deep(.card-paper-solid) {
+  transform: scale(0.95);
+}
+.confirm-dialog-leave-to > :deep(.card-paper-solid) {
+  transform: scale(0.95);
+}
+</style>

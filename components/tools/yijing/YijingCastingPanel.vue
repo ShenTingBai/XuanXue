@@ -46,7 +46,7 @@
           :style="{ animationDelay: `${(n - 1) * 0.1}s` }"
           aria-hidden="true"
         >
-          <span v-if="currentToss > 0 && coinResults[currentToss - 1]" class="coin-face">{{ coinResults[currentToss - 1][n - 1] === 3 ? '乾' : '坤' }}</span>
+          <span v-if="currentToss > 0 && coinResults[currentToss - 1]" class="coin-face">{{ coinResults[currentToss - 1][n - 1] === 3 ? '字' : '背' }}</span>
           <span v-else class="coin-face">?</span>
         </div>
       </div>
@@ -67,7 +67,7 @@
       <!-- Toss button -->
       <button
         class="btn-seal mb-3"
-        :disabled="currentToss >= 6"
+        :disabled="currentToss >= 6 || isFlipping"
         :aria-busy="isFlipping ? 'true' : undefined"
         @click="handleTossClick"
         @keydown.space.prevent="handleTossClick"
@@ -101,7 +101,7 @@
         请输入三个数字。第一个为上卦数，第二个为下卦数，第三个为动爻数。
       </p>
 
-      <form class="max-w-xs mx-auto space-y-4" @submit.prevent="handleNumberSubmit">
+      <form class="max-w-xs mx-auto space-y-4" novalidate @submit.prevent="handleNumberSubmit">
         <div class="flex gap-3 items-end">
           <div class="flex-1">
             <label for="yijing-upper" class="block font-sans text-xs text-ink-light mb-1.5">上卦</label>
@@ -114,6 +114,7 @@
               class="input-ink text-center"
               placeholder="1-8"
               required
+              @blur="validateNumberInput('upper')"
             />
           </div>
           <div class="flex-1">
@@ -127,6 +128,7 @@
               class="input-ink text-center"
               placeholder="1-8"
               required
+              @blur="validateNumberInput('lower')"
             />
           </div>
           <div class="flex-1">
@@ -140,6 +142,7 @@
               class="input-ink text-center"
               placeholder="1-6"
               required
+              @blur="validateNumberInput('moving')"
             />
           </div>
         </div>
@@ -176,6 +179,7 @@ const props = defineProps<{
   mode: 'coin' | 'number'
   currentToss: number
   coinResults: number[][]
+  processing?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -228,7 +232,21 @@ onUnmounted(() => {
   if (tossTimer.value) clearTimeout(tossTimer.value)
 })
 
+function validateNumberInput(field: 'upper' | 'lower' | 'moving') {
+  const val = field === 'upper' ? upperNum.value : field === 'lower' ? lowerNum.value : movingNum.value
+  if (val === null) return
+  const max = field === 'moving' ? 6 : 8
+  if (val < 1 || val > max) {
+    const label = field === 'upper' ? '上卦' : field === 'lower' ? '下卦' : '动爻'
+    validationError.value = `${label}数字超出范围（1-${max}），请重新输入。`
+  } else {
+    validationError.value = ''
+  }
+}
+
 function handleNumberSubmit() {
+  if (props.processing) return
+
   const first = upperNum.value
   const second = lowerNum.value
   const third = movingNum.value
@@ -266,14 +284,14 @@ function handleNumberSubmit() {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #D4A017, #B8860B, #8B6914, #B8860B, #D4A017);
-  border: 2px solid #7A5E12;
+  background: linear-gradient(135deg, #6B5B3A, #5A4A2E, #4A3F28, #3D3420, #4A3F28);
+  border: 2px solid #3D3420;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 3px rgba(255, 215, 0, 0.3);
+    inset 0 1px 3px rgba(180, 160, 120, 0.15);
   position: relative;
 }
 
@@ -286,7 +304,7 @@ function handleNumberSubmit() {
   position: absolute;
   inset: 2px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(180, 160, 120, 0.1);
 }
 
 .coin-circle.coin-tails::after {
@@ -294,13 +312,13 @@ function handleNumberSubmit() {
   position: absolute;
   inset: 2px;
   border-radius: 50%;
-  border: 1px solid rgba(139, 105, 20, 0.3);
+  border: 1px solid rgba(61, 52, 32, 0.2);
 }
 
 .coin-face {
   font-family: 'Ma Shan Zheng', cursive;
   font-size: 0.95rem;
-  color: #FFF8E7;
+  color: #D4C5B0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   line-height: 1;
   z-index: 1;
