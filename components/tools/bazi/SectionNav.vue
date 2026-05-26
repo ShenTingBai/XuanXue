@@ -24,6 +24,7 @@ import { sectionMap } from '~/constants/bazi'
 
 const props = defineProps<{
   activeNavSection: string
+  onBeforeNavigate?: (anchorName: string) => Promise<void> | void
 }>()
 
 const emit = defineEmits<{
@@ -40,9 +41,15 @@ const anchors = [
   { anchor: '解读', label: '解读', subtitle: '速览' },
 ]
 
-function navigateToSection(anchorName: string) {
+async function navigateToSection(anchorName: string) {
   const id = sectionMap[anchorName]
   if (!id) return
+
+  // Allow parent to prepare (e.g. expand a collapsed section) before scrolling
+  if (props.onBeforeNavigate) {
+    await props.onBeforeNavigate(anchorName)
+  }
+
   const el = document.getElementById(id)
   if (el) {
     const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false

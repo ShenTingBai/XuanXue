@@ -33,7 +33,145 @@ const CHONG_PAIRS: number[][] = [[0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11
 /** 相害 pairs: harming animals */
 const HAI_PAIRS: number[][] = [[0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10]]
 
-// ── Fortune multipliers ───────────────────────────────────────
+// ── TaiSui Relationship Tables ─────────────────────────────────
+// These define all standard Earthly Branch relationships used to
+// compute fortune by comparing the user's birth animal branch with
+// the current year's TaiSui (Grand Duke Jupiter) branch.
+
+/** 值太岁: same branch as TaiSui (本命年) */
+function isZhiTaiSui(myIdx: number, taiSuiIdx: number): boolean {
+  return myIdx === taiSuiIdx
+}
+
+/** 刑太岁: punishment branches (三刑 + 自刑) */
+const XING_PAIRS: number[][] = [[0, 3], [2, 5], [5, 8], [2, 8], [1, 10], [10, 7], [1, 7]]
+const SELF_XING: number[] = [4, 6, 9, 11]  // 辰/午/酉/亥 self-punishment
+
+/** 破太岁: break/destruction branches (六破) */
+const PO_PAIRS: number[][] = [[0, 9], [2, 11], [4, 1], [6, 3], [8, 5], [10, 7]]
+
+// ── Relationship scoring weights ──────────────────────────────
+
+/**
+ * Check if myIdx is paired with taiSuiIdx in the given pair list.
+ */
+function inPairList(myIdx: number, taiSuiIdx: number, pairs: number[][]): boolean {
+  for (const [a, b] of pairs) {
+    if ((myIdx === a && taiSuiIdx === b) || (myIdx === b && taiSuiIdx === a)) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Check if myIdx and taiSuiIdx are in the same three-harmony group.
+ */
+function inSameSanHeGroup(myIdx: number, taiSuiIdx: number): boolean {
+  for (const group of SANHE_GROUPS) {
+    if (group.includes(myIdx) && group.includes(taiSuiIdx)) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Score weight for each TaiSui relationship type.
+ * Positive = auspicious, negative = inauspicious.
+ * Values informed by traditional Chinese zodiac theory.
+ */
+const RELATIONSHIP_WEIGHTS: Record<string, number> = {
+  '值太岁': -20,
+  '冲太岁': -15,
+  '刑太岁': -12,
+  '害太岁': -10,
+  '破太岁': -8,
+  '三合': +15,
+  '六合': +10,
+  '平': 0,
+}
+
+/**
+ * Determine all TaiSui relationships between a birth animal and the current year animal.
+ * Returns both the primary positive and negative relationships if both exist.
+ */
+function getTaiSuiRelationships(birthIdx: number, taiSuiIdx: number): { positive: string; positiveWeight: number; negative: string; negativeWeight: number } {
+  let positive = '平'
+  let positiveWeight = 0
+  let negative = '平'
+  let negativeWeight = 0
+
+  // Check negative relationships (most severe first)
+  if (isZhiTaiSui(birthIdx, taiSuiIdx)) {
+    negative = '值太岁'
+    negativeWeight = RELATIONSHIP_WEIGHTS['值太岁']
+  }
+  if (inPairList(birthIdx, taiSuiIdx, CHONG_PAIRS)) {
+    negative = '冲太岁'
+    negativeWeight = RELATIONSHIP_WEIGHTS['冲太岁']
+  }
+  if (inPairList(birthIdx, taiSuiIdx, XING_PAIRS) || SELF_XING.includes(birthIdx) && birthIdx === taiSuiIdx) {
+    if (negativeWeight === 0) {
+      negative = '刑太岁'
+      negativeWeight = RELATIONSHIP_WEIGHTS['刑太岁']
+    }
+  }
+  if (inPairList(birthIdx, taiSuiIdx, HAI_PAIRS)) {
+    if (negativeWeight === 0) {
+      negative = '害太岁'
+      negativeWeight = RELATIONSHIP_WEIGHTS['害太岁']
+    }
+  }
+  if (inPairList(birthIdx, taiSuiIdx, PO_PAIRS)) {
+    if (negativeWeight === 0) {
+      negative = '破太岁'
+      negativeWeight = RELATIONSHIP_WEIGHTS['破太岁']
+    }
+  }
+
+  // Check positive relationships
+  if (inSameSanHeGroup(birthIdx, taiSuiIdx) && birthIdx !== taiSuiIdx) {
+    positive = '三合'
+    positiveWeight = RELATIONSHIP_WEIGHTS['三合']
+  }
+  if (inPairList(birthIdx, taiSuiIdx, LIUHE_PAIRS)) {
+    positive = '六合'
+    positiveWeight = RELATIONSHIP_WEIGHTS['六合']
+  }
+
+  return { positive, positiveWeight, negative, negativeWeight }
+}
+
+/**
+ * Compute a single fortune dimension score using the TaiSui relationship system.
+ * Base = 65. Adjusts with TaiSui relationship weights and a per-dimension
+ * deterministic modifier derived from the birth year stem and current year.
+ */
+function computeFortuneScore(
+  baseScore: number,
+  posWeight: number,
+  negWeight: number,
+  dimensionSeed: number,
+): number {
+  // Combine positive and negative: if both exist, the dominant one
+  // applies at full weight and the other at 40%
+  let adjustment: number
+  if (posWeight > 0 && negWeight < 0) {
+    adjustment = posWeight * 0.6 + negWeight * 0.4
+  } else if (posWeight > 0) {
+    adjustment = posWeight
+  } else if (negWeight < 0) {
+    adjustment = negWeight
+  } else {
+    adjustment = 0
+  }
+
+  // Per-dimension deterministic variation (±8 range)
+  const dimVar = ((dimensionSeed * 7 + 13) % 17) - 8
+
+  return Math.round(Math.max(30, Math.min(90, baseScore + adjustment + dimVar)))
+}
 
 // ── Personality Data ──────────────────────────────────────────
 

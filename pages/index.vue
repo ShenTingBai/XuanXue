@@ -74,7 +74,7 @@ const goToLogin = () => {
           <div class="skeleton-pulse h-px w-44 rounded" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          <div v-for="n in 5" :key="n" class="rounded-xl p-6 sm:p-7 border border-paper-dark/30 bg-paper-lightest/50">
+          <div v-for="n in 5" :key="n" class="tool-card rounded-xl p-6 sm:p-7">
             <div class="flex items-start gap-4">
               <div class="skeleton-pulse w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex-shrink-0" />
               <div class="min-w-0 flex-1 space-y-2">
@@ -168,7 +168,7 @@ const goToLogin = () => {
                 :style="{ '--delay': '0.3s' }"
               >
                 已有档案？
-                <NuxtLink to="/login" class="text-cinnabar hover:underline transition-colors">
+                <NuxtLink to="/login" class="btn-link">
                   去登录
                 </NuxtLink>
               </p>

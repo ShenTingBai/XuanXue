@@ -228,6 +228,16 @@ html {
     border-radius: 4px;
   }
 
+  /* ── Text Link ── */
+  .btn-link {
+    @apply text-cinnabar hover:underline transition-colors;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+  }
+
   /* ── Ink Underline Input ── */
   .input-ink {
     @apply w-full bg-transparent outline-none;

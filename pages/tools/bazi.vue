@@ -19,6 +19,7 @@ import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ReadingGuide from '~/components/tools/bazi/ReadingGuide.vue'
 
 import SectionNav from '~/components/tools/bazi/SectionNav.vue'
+import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 
@@ -46,6 +47,32 @@ const scrollTopOffset = ref('1rem')
 const mainContainer = ref<HTMLElement | null>(null)
 const cachedAge = ref(0)
 const activeNavSection = ref('排盘')
+
+// Collapsible section state — ReadingGuide is expanded by default as the entry summary
+const expandedSections = ref<Record<string, boolean>>({
+  'bazi-grid': false,
+  'shensha': false,
+  'day-master': false,
+  'elements': false,
+  'dayun': false,
+  'liunian': false,
+})
+
+function toggleSection(sectionId: string) {
+  expandedSections.value[sectionId] = !expandedSections.value[sectionId]
+}
+
+/** Called by SectionNav before scrolling — expand the target section so scroll lands correctly */
+async function handleBeforeNavigate(sectionName: string) {
+  const sectionId = sectionMap[sectionName]
+  // Only handle sections that are actually collapsible (skip ReadingGuide which is always visible)
+  if (sectionId && sectionId in expandedSections.value && !expandedSections.value[sectionId]) {
+    expandedSections.value[sectionId] = true
+    await nextTick()
+    // Let the browser calculate layout after grid expansion before scrolling
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -370,9 +397,14 @@ const currentDaYun = computed(() => {
   return null
 })
 
-/** Immediate visual feedback when user clicks a nav anchor */
+/** Immediate visual feedback when user clicks a nav anchor; also auto-expands the section */
 function onSectionNavigate(sectionName: string) {
   activeNavSection.value = sectionName
+  const sectionId = sectionMap[sectionName]
+  // Only auto-expand for collapsible sections (skip ReadingGuide)
+  if (sectionId && sectionId in expandedSections.value) {
+    expandedSections.value[sectionId] = true
+  }
 }
 </script>
 
@@ -481,6 +513,7 @@ function onSectionNavigate(sectionName: string) {
             <!-- Anchor navigation -->
             <SectionNav
               :active-nav-section="activeNavSection"
+              :on-before-navigate="handleBeforeNavigate"
               @navigate="onSectionNavigate"
             />
 
@@ -497,52 +530,89 @@ function onSectionNavigate(sectionName: string) {
             />
 
             <!-- Four Pillars Grid -->
-            <div id="bazi-grid" class="scroll-mt-20" tabindex="-1">
-            <BaziGrid :pillars="pillars" />
-            </div>
+            <CollapsibleSection
+              section-id="bazi-grid"
+              title="四柱排盘"
+              subtitle="命盘"
+              :expanded="expandedSections['bazi-grid']"
+              @toggle="toggleSection"
+            >
+              <BaziGrid :pillars="pillars" />
+            </CollapsibleSection>
 
             <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
-            <div id="shensha" class="scroll-mt-20" tabindex="-1">
-            <ShenShaPanel v-if="shenShaList.length > 0" :shen-sha="shenShaList" />
-            </div>
+            <CollapsibleSection
+              v-if="shenShaList.length > 0"
+              section-id="shensha"
+              title="神煞"
+              subtitle="吉凶"
+              :expanded="expandedSections['shensha']"
+              @toggle="toggleSection"
+            >
+              <ShenShaPanel :shen-sha="shenShaList" />
+            </CollapsibleSection>
 
             <!-- Day Master Card -->
-            <div id="day-master" class="scroll-mt-20" tabindex="-1">
-            <DayMasterCard
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :favorable-elements="result.favorableElements"
-              :unfavorable-elements="result.unfavorableElements"
-            />
-            </div>
+            <CollapsibleSection
+              section-id="day-master"
+              title="日主分析"
+              subtitle="元神"
+              :expanded="expandedSections['day-master']"
+              @toggle="toggleSection"
+            >
+              <DayMasterCard
+                :day-master="result.dayMaster"
+                :day-master-wuxing="result.dayMasterWuxing"
+                :day-master-strength="result.dayMasterStrength"
+                :favorable-elements="result.favorableElements"
+                :unfavorable-elements="result.unfavorableElements"
+              />
+            </CollapsibleSection>
 
             <!-- Element Analysis -->
-            <div id="elements" class="scroll-mt-20" tabindex="-1">
-            <ElementAnalysis
-              :element-counts="result.elementCounts"
-              :element-percentages="result.elementPercentages"
-              :day-master="result.dayMaster"
-              :day-master-wuxing="result.dayMasterWuxing"
-              :day-master-strength="result.dayMasterStrength"
-              :month-branch="result.monthPillar.branch"
-            />
-            </div>
+            <CollapsibleSection
+              section-id="elements"
+              title="五行分析"
+              subtitle="强弱"
+              :expanded="expandedSections['elements']"
+              @toggle="toggleSection"
+            >
+              <ElementAnalysis
+                :element-counts="result.elementCounts"
+                :element-percentages="result.elementPercentages"
+                :day-master="result.dayMaster"
+                :day-master-wuxing="result.dayMasterWuxing"
+                :day-master-strength="result.dayMasterStrength"
+                :month-branch="result.monthPillar.branch"
+              />
+            </CollapsibleSection>
 
             <!-- Da Yun Timeline -->
-            <div id="dayun" class="scroll-mt-20" tabindex="-1">
-            <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
-            </div>
+            <CollapsibleSection
+              section-id="dayun"
+              title="大运"
+              subtitle="十年"
+              :expanded="expandedSections['dayun']"
+              @toggle="toggleSection"
+            >
+              <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
+            </CollapsibleSection>
 
             <!-- LiuNian Timeline — delay 0.50s, annual analysis after macro da yun cycles -->
-            <div id="liunian" class="scroll-mt-20" tabindex="-1">
-            <LiuNianTimeline
-              v-if="liuNianYears.length > 0"
-              :years="liuNianYears"
-              :current-year="currentYear"
-              :range="5"
-            />
-            </div>
+            <CollapsibleSection
+              section-id="liunian"
+              title="流年"
+              subtitle="岁运"
+              :expanded="expandedSections['liunian']"
+              @toggle="toggleSection"
+            >
+              <LiuNianTimeline
+                v-if="liuNianYears.length > 0"
+                :years="liuNianYears"
+                :current-year="currentYear"
+                :range="5"
+              />
+            </CollapsibleSection>
 
             <!-- Back to top: floating button, visible after scrolling past 300px -->
             <ScrollTopButton

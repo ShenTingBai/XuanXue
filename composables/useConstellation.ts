@@ -191,7 +191,91 @@ const JI_POOLS: Record<string, string[]> = {
   low: ['重大决策', '长途出行', '签订合同', '借贷担保', '投机取巧', '与人冲突'],
 }
 
-// ── Helper Functions ─────────────────────────────────────────
+// ── Astronomical Helpers ────────────────────────────────────
+
+/**
+ * Calculate days since J2000.0 epoch (2000-01-01 12:00 UTC).
+ * Used for simplified solar/lunar position calculations.
+ */
+function daysSinceJ2000(date: Date): number {
+  const epoch = Date.UTC(2000, 0, 1, 12, 0, 0)
+  const ms = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0)
+  return (ms - epoch) / 86400000
+}
+
+/**
+ * Calculate the Sun's approximate ecliptic longitude (0-360 degrees).
+ * Simplified formula accurate to ~1 degree for years 1900-2100.
+ */
+function solarLongitude(days: number): number {
+  const M = (357.5291 + 0.98560028 * days) % 360
+  const mRad = M * Math.PI / 180
+  const C = 1.9148 * Math.sin(mRad) + 0.02 * Math.sin(2 * mRad) + 0.0003 * Math.sin(3 * mRad)
+  const lambda = (M + C + 180 + 102.9372) % 360
+  return (lambda + 360) % 360
+}
+
+/**
+ * Calculate the Moon's approximate ecliptic longitude (0-360 degrees).
+ * Mean lunar longitude — simplified, accurate to ~5 degrees.
+ */
+function lunarLongitude(days: number): number {
+  return ((218.3165 + 13.176396 * days) % 360 + 360) % 360
+}
+
+/**
+ * Get the zodiac sign index (0=Aries, 11=Pisces) from ecliptic longitude.
+ */
+function getSignFromLongitude(lon: number): number {
+  return Math.floor(lon / 30)
+}
+
+/**
+ * Compute angular distance between two ecliptic longitudes (0-180 degrees).
+ */
+function angularDistance(a: number, b: number): number {
+  let d = Math.abs(a - b) % 360
+  if (d > 180) d = 360 - d
+  return d
+}
+
+/**
+ * Compute an astrological aspect score based on angular distance.
+ * Returns positive for harmonious aspects, negative for challenging ones.
+ */
+function aspectScore(angle: number): number {
+  const ORB = 8
+  if (angle <= 6) return 8     // conjunction — intense focus
+  if (Math.abs(angle - 60) <= ORB) return 5   // sextile — opportunity
+  if (Math.abs(angle - 90) <= ORB) return -6  // square — challenge
+  if (Math.abs(angle - 120) <= ORB) return 10 // trine — harmony
+  if (Math.abs(angle - 180) <= ORB) return -8 // opposition — tension
+  return 0
+}
+
+/**
+ * Get the element of a zodiac sign from its index.
+ */
+function elementForSign(signIndex: number): ConstellationResult['element'] {
+  return ZODIACS[signIndex].element
+}
+
+/**
+ * Element compatibility boost.
+ * Fire-Air compatible, Earth-Water compatible.
+ * Same element: strong boost. Compatible: moderate boost. Incompatible: penalty.
+ */
+function elementBoost(myElement: ConstellationResult['element'], otherElement: ConstellationResult['element']): number {
+  if (myElement === otherElement) return 5
+  const compatible: Record<string, string[]> = {
+    '火': ['风'], '风': ['火'],
+    '水': ['土'], '土': ['水'],
+  }
+  if (compatible[myElement]?.includes(otherElement)) return 3
+  return -3
+}
+
+// ── Zodiac Index Helpers ────────────────────────────────────
 
 /**
  * Determine which zodiac constellation a given birth month/day falls into.
@@ -218,33 +302,80 @@ function isDateInRange(
   em: number, ed: number,
 ): boolean {
   if (sm > em) {
-    // Wrap-around (e.g. Capricorn: Dec 22 — Jan 19)
-    // (m > sm || m < em) is always false for Capricorn (no month >12 or <1)
-    // but the function is kept generic for any sm>em wrap-around range.
     return (m > sm || m < em) || (m === sm && d >= sd) || (m === em && d <= ed)
   }
-  // Normal case
   return (m > sm && m < em) || (m === sm && d >= sd) || (m === em && d <= ed)
 }
 
 /**
- * Compute deterministic 5-dimensional horoscope scores based on zodiac index and current date.
+ * Compute deterministic horoscope scores based on simplified solar/lunar positions
+ * and astrological aspects. This replaces the previous pure pseudo-random algorithm.
+ *
+ * Algorithm:
+ * 1. Compute Sun's ecliptic longitude for the current date
+ * 2. Compute Moon's ecliptic longitude for the current date
+ * 3. Calculate aspects between user's sun sign center (15 degrees into the sign)
+ *    and the current moon position — this is the primary daily variation driver
+ * 4. Sun sign transit influence provides seasonal modulation
+ * 5. Derive dimension-specific scores (love/career/wealth/health) from
+ *    planetary archetypes: Moon→emotions, Sun→vitality, element→themes
  */
 function computeHoroscope(zodiacIndex: number, currentDate: Date): ConstellationResult['todayHoroscope'] {
-  const year = currentDate.getFullYear()
-  const month = currentDate.getMonth() + 1
-  const day = currentDate.getDate()
+  const days = daysSinceJ2000(currentDate)
+  const sunLon = solarLongitude(days)
+  const moonLon = lunarLongitude(days)
 
-  const dateNum = year * 10000 + month * 100 + day
-  const seed = (dateNum * 7 + zodiacIndex * 97) % 7919
-  const overall = Math.round((seed / 7919) * 100)
+  // Current sun sign and element (what sign is the sun transiting through)
+  const currentSunSign = getSignFromLongitude(sunLon)
+  const currentMoonSign = getSignFromLongitude(moonLon)
+
+  // User's sun sign center (15 degrees into the sign)
+  const userCenter = zodiacIndex * 30 + 15
+
+  // User's element
+  const userElement = elementForSign(zodiacIndex)
+
+  // -- Core aspects --
+  // Moon-to-user aspect: primary daily variation driver (~13.2 deg/day)
+  const moonAngle = angularDistance(userCenter, moonLon)
+  const moonAspectBonus = aspectScore(moonAngle)
+
+  // Sun-to-user aspect: seasonal/transit influence
+  const sunAngle = angularDistance(userCenter, sunLon)
+  const sunAspectBonus = aspectScore(sunAngle)
+
+  // -- Element resonance --
+  // Current sun's element vs user's element (seasonal influence)
+  const sunElement = elementForSign(currentSunSign)
+  const sunElementBonus = elementBoost(userElement, sunElement)
+
+  // Current moon's element vs user's element (emotional tone)
+  const moonElement = elementForSign(currentMoonSign)
+  const moonElementBonus = elementBoost(userElement, moonElement)
+
+  // -- Base overall score (50 = neutral) --
+  // Moon aspect is the strongest daily driver
+  const overallRaw = 50 + moonAspectBonus * 2.0 + sunAspectBonus * 0.8 + sunElementBonus * 1.2 + moonElementBonus * 0.6
+
+  // -- Dimension-specific adjustments --
+  // Love: Moon-heavy (emotions) + Venus-ruled sign affinity
+  const loveRaw = overallRaw + moonAspectBonus * 0.8 + moonElementBonus * 0.5
+  // Career: Sun-heavy (vitality/action) + Mars-ruled sign affinity
+  const careerRaw = overallRaw + sunAspectBonus * 0.6 + sunElementBonus * 0.8
+  // Wealth: Jupiter influence via element harmony
+  const wealthRaw = overallRaw + sunElementBonus * 1.0 + moonElementBonus * 0.3
+  // Health: Moon (daily rhythm) + overall balance
+  const healthRaw = overallRaw + moonElementBonus * 0.4
+
+  // Clamp to 0-100
+  const clamp = (v: number) => Math.round(Math.max(0, Math.min(100, v)))
 
   return {
-    overall,
-    love: Math.max(0, overall - 12),
-    career: Math.max(0, Math.min(100, overall + 8)),
-    wealth: Math.max(0, overall - 20),
-    health: Math.max(0, overall - 5),
+    overall: clamp(overallRaw),
+    love: clamp(loveRaw),
+    career: clamp(careerRaw),
+    wealth: clamp(wealthRaw),
+    health: clamp(healthRaw),
   }
 }
 

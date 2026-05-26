@@ -252,6 +252,27 @@ function dismissRestoreError() {
               </div>
             </Transition>
           <ConstellationHero :result="result" />
+
+          <!-- Action buttons: placed near Hero for quick access -->
+          <div class="flex flex-wrap gap-3 justify-center mt-6 mb-6">
+            <button
+              @click="computeResult"
+              @keydown.space.prevent="computeResult"
+              class="btn-seal"
+            >
+              <span>刷新运势</span>
+            </button>
+            <button
+              @click="showHistoryModal = true"
+              @keydown.enter="showHistoryModal = true"
+              @keydown.space.prevent="showHistoryModal = true"
+              class="btn-seal"
+              aria-haspopup="dialog"
+            >
+              <span>浏览历史</span>
+            </button>
+          </div>
+
           <HoroscopePanel :horoscope="result.todayHoroscope" />
 
           <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
@@ -299,26 +320,6 @@ function dismissRestoreError() {
               class="btn-seal"
             >
               <span>刷新运势</span>
-            </button>
-          </div>
-
-          <!-- Refresh & history buttons -->
-          <div class="flex flex-wrap gap-3 justify-center mt-8">
-            <button
-              @click="computeResult"
-              @keydown.space.prevent="computeResult"
-              class="btn-seal"
-            >
-              <span>刷新运势</span>
-            </button>
-            <button
-              @click="showHistoryModal = true"
-              @keydown.enter="showHistoryModal = true"
-              @keydown.space.prevent="showHistoryModal = true"
-              class="btn-seal"
-              aria-haspopup="dialog"
-            >
-              <span>浏览历史</span>
             </button>
           </div>
 
