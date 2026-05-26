@@ -55,10 +55,20 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Decorative ink-wash divider -->
-          <div class="mt-6 sm:mt-8 relative" aria-hidden="true">
-            <div class="w-24 h-px bg-gradient-to-r from-cinnabar/30 via-paper-dark to-transparent"></div>
-            <div class="w-16 h-px bg-gradient-to-r from-cinnabar/15 to-transparent mt-0.5"></div>
+          <!-- Decorative ink-branch divider -->
+          <div class="mt-6 sm:mt-8 relative overflow-hidden" aria-hidden="true">
+            <!-- Main branch stroke -->
+            <div class="ink-branch">
+              <div class="ink-branch__main"></div>
+              <!-- Branch offshoots -->
+              <div class="ink-branch__twig ink-branch__twig--top"></div>
+              <div class="ink-branch__twig ink-branch__twig--bottom"></div>
+              <div class="ink-branch__twig ink-branch__twig--far"></div>
+              <!-- Tip dots -->
+              <div class="ink-branch__dot ink-branch__dot--near"></div>
+              <div class="ink-branch__dot ink-branch__dot--mid"></div>
+              <div class="ink-branch__dot ink-branch__dot--far"></div>
+            </div>
           </div>
         </div>
 
@@ -269,6 +279,85 @@ onMounted(() => {
   color: rgba(107, 91, 79, 0.3);
   pointer-events: none;
   user-select: none;
+}
+
+/* ── Ink-wash branch divider ── */
+.ink-branch {
+  position: relative;
+  height: 40px;
+}
+
+.ink-branch__main {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 180px;
+  height: 2px;
+  background: linear-gradient(to right, rgba(198, 40, 40, 0.25), rgba(214, 197, 176, 0.5), transparent);
+  border-radius: 1px;
+}
+
+.ink-branch__twig {
+  position: absolute;
+  background: linear-gradient(to right, rgba(198, 40, 40, 0.15), transparent);
+  border-radius: 1px;
+}
+
+.ink-branch__twig--top {
+  top: 12px;
+  left: 45px;
+  width: 24px;
+  height: 1.5px;
+  transform: rotate(-25deg);
+  transform-origin: left center;
+}
+
+.ink-branch__twig--bottom {
+  top: 26px;
+  left: 70px;
+  width: 18px;
+  height: 1.5px;
+  transform: rotate(20deg);
+  transform-origin: left center;
+}
+
+.ink-branch__twig--far {
+  top: 8px;
+  left: 110px;
+  width: 12px;
+  height: 1px;
+  transform: rotate(-35deg);
+  transform-origin: left center;
+}
+
+.ink-branch__dot {
+  position: absolute;
+  border-radius: 50%;
+  background: #C62828;
+}
+
+.ink-branch__dot--near {
+  top: 18px;
+  left: 35px;
+  width: 3px;
+  height: 3px;
+  opacity: 0.3;
+}
+
+.ink-branch__dot--mid {
+  top: 10px;
+  left: 80px;
+  width: 2px;
+  height: 2px;
+  opacity: 0.2;
+}
+
+.ink-branch__dot--far {
+  top: 24px;
+  left: 130px;
+  width: 2px;
+  height: 2px;
+  opacity: 0.15;
 }
 
 /* ── Responsive ── */
