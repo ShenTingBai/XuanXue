@@ -66,64 +66,63 @@ function focusNode(idx: number): void {
       <span class="text-[11px] text-cinnabar tracking-[0.06em] font-medium">当前 {{ currentAge }} 岁</span>
     </div>
 
-    <!-- Timeline track -->
-    <div class="relative mb-1 mt-5">
+    <!-- Timeline: track + nodes in ONE container -->
+    <div class="relative mt-5 mb-1">
       <!-- Background track -->
-      <div class="absolute inset-x-0 h-px top-[7px] bg-ink-faint/25 rounded-sm" />
+      <div class="absolute inset-x-0 h-px top-[11px] bg-ink-faint/25 rounded-sm" />
       <!-- Progress fill -->
       <div
-        class="absolute left-0 h-px top-[7px] rounded-sm transition-all duration-700 ease-out"
+        class="absolute left-0 h-px top-[11px] rounded-sm transition-all duration-700 ease-out"
         style="background: linear-gradient(90deg, rgba(198,40,40,0.15), rgba(198,40,40,0.4));"
         :style="{ width: fillPercent + '%' }"
       />
-    </div>
-
-    <!-- Timeline nodes -->
-    <div class="flex justify-between">
-      <div
-        v-for="(period, i) in periods"
-        :key="i"
-        :ref="setNodeRef(i)"
-        class="timeline-node flex flex-col items-center gap-0.5 cursor-pointer group"
-        :class="{ 'node-future': !isActive(period) && !isPast(period) }"
-        role="button"
-        :tabindex="isActive(period) ? 0 : -1"
-        :aria-label="`${period.palaceName} ${period.startAge}-${period.endAge}岁`"
-        :aria-current="isActive(period) ? 'true' : undefined"
-        @click="emit('select', period.palaceIndex)"
-        @keydown.enter.prevent="emit('select', period.palaceIndex)"
-        @keydown.space.prevent="emit('select', period.palaceIndex)"
-        @keydown.left.prevent="focusNode((i - 1 + periods.length) % periods.length)"
-        @keydown.right.prevent="focusNode((i + 1) % periods.length)"
-      >
-        <!-- Dot -->
+      <!-- Nodes -->
+      <div class="flex justify-between">
         <div
-          class="dot-element rounded-full transition-transform duration-200"
-          :style="{ marginTop: (isActive(period) ? 0 : isPast(period) ? 2 : 3) + 'px' }"
-          :class="{
-            'w-3.5 h-3.5 bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110 ring-1 ring-white/80': isActive(period),
-            'w-2.5 h-2.5 bg-ink-light/35': isPast(period),
-            'w-2 h-2 bg-ink-faint/40': !isActive(period) && !isPast(period),
-          }"
-        />
-        <!-- Palace name -->
-        <span
-          class="text-[0.72rem] font-medium whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-display"
-          :class="{
-            'text-cinnabar text-[0.78rem]': isActive(period),
-            'text-ink-medium/70': isPast(period),
-            'text-ink-medium/50': !isActive(period) && !isPast(period),
-          }"
-        >{{ period.palaceName }}</span>
-        <!-- Age range -->
-        <span
-          class="text-[0.65rem] transition-colors duration-300 font-sans tracking-[0.04em]"
-          :class="{
-            'text-cinnabar/70': isActive(period),
-            'text-ink-light/35': isPast(period),
-            'text-ink-medium/50': !isActive(period) && !isPast(period),
-          }"
-        >{{ period.startAge }}-{{ period.endAge }}</span>
+          v-for="(period, i) in periods"
+          :key="i"
+          :ref="setNodeRef(i)"
+          class="timeline-node flex flex-col items-center gap-0.5 cursor-pointer group"
+          :class="{ 'node-future': !isActive(period) && !isPast(period) }"
+          role="button"
+          :tabindex="isActive(period) ? 0 : -1"
+          :aria-label="`${period.palaceName} ${period.startAge}-${period.endAge}岁`"
+          :aria-current="isActive(period) ? 'true' : undefined"
+          @click="emit('select', period.palaceIndex)"
+          @keydown.enter.prevent="emit('select', period.palaceIndex)"
+          @keydown.space.prevent="emit('select', period.palaceIndex)"
+          @keydown.left.prevent="focusNode((i - 1 + periods.length) % periods.length)"
+          @keydown.right.prevent="focusNode((i + 1) % periods.length)"
+        >
+          <!-- Dot -->
+          <div
+            class="dot-element rounded-full transition-transform duration-200"
+            :style="{ marginTop: (isActive(period) ? 0 : isPast(period) ? 2 : 3) + 'px' }"
+            :class="{
+              'w-3.5 h-3.5 bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110 ring-1 ring-white/80': isActive(period),
+              'w-2.5 h-2.5 bg-ink-light/35': isPast(period),
+              'w-2 h-2 bg-ink-faint/40': !isActive(period) && !isPast(period),
+            }"
+          />
+          <!-- Palace name -->
+          <span
+            class="text-[0.72rem] font-medium whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-display"
+            :class="{
+              'text-cinnabar text-[0.78rem]': isActive(period),
+              'text-ink-medium/70': isPast(period),
+              'text-ink-medium/50': !isActive(period) && !isPast(period),
+            }"
+          >{{ period.palaceName }}</span>
+          <!-- Age range -->
+          <span
+            class="text-[0.65rem] transition-colors duration-300 font-sans tracking-[0.04em]"
+            :class="{
+              'text-cinnabar/70': isActive(period),
+              'text-ink-light/35': isPast(period),
+              'text-ink-medium/50': !isActive(period) && !isPast(period),
+            }"
+          >{{ period.startAge }}-{{ period.endAge }}</span>
+        </div>
       </div>
     </div>
   </div>

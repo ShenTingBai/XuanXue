@@ -102,32 +102,17 @@ const currentAge = computed(() => {
   return new Date().getFullYear() - birthYear + 1
 })
 
-const CLOCKWISE_BRANCHES = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
-
 const sortedPeriods = computed(() => {
   if (!astrolabe.value) return []
-  const palaces = [...astrolabe.value.palaces]
-  const mingIdx = getMingGongIndex(palaces)
-
-  const branchOrder = Object.fromEntries(CLOCKWISE_BRANCHES.map((b, i) => [b, i]))
-  palaces.sort((a, b) => {
-    const orderA = branchOrder[a.earthlyBranch] ?? 999
-    const orderB = branchOrder[b.earthlyBranch] ?? 999
-    return orderA - orderB
-  })
-
-  const rotateIdx = palaces.findIndex(p => p.index === mingIdx)
-  const ordered = rotateIdx > 0
-    ? palaces.slice(rotateIdx).concat(palaces.slice(0, rotateIdx))
-    : palaces
-
-  return ordered.map(p => ({
-    startAge: p.decadal?.range[0] ?? 0,
-    endAge: p.decadal?.range[1] ?? 0,
-    palaceName: p.name,
-    palaceIndex: p.index,
-    stars: p.majorStars.map(s => s.name).join(' '),
-  }))
+  return astrolabe.value.palaces
+    .map(p => ({
+      startAge: p.decadal?.range[0] ?? 0,
+      endAge: p.decadal?.range[1] ?? 0,
+      palaceName: p.name,
+      palaceIndex: p.index,
+      stars: p.majorStars.map(s => s.name).join(' '),
+    }))
+    .sort((a, b) => a.startAge - b.startAge)
 })
 </script>
 

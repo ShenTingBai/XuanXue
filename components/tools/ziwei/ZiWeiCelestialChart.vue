@@ -102,10 +102,12 @@ function getStarColor(name: string): string {
 // ── Build celestial star data from iztro palaces ──
 function buildCelestialStars() {
   celestialStars = []
-  const starRadii = [RINGS[0].r, RINGS[2].r, RINGS[4].r, RINGS[1].r, RINGS[3].r]
+  const innerR = RINGS[0].r  // 100
+  const outerR = RINGS[4].r  // 255
 
   props.palaces.forEach((palace, pIdx) => {
     const baseAngle = BRANCH_TO_ANGLE[palace.earthlyBranch] || 0
+    const centerAngle = baseAngle + 15
     const allStars: { name: string; major: boolean; mutagen: string | null }[] = [
       ...palace.majorStars.map(s => ({ name: s.name, major: true, mutagen: s.mutagen || null })),
       ...palace.minorStars.map(s => ({ name: s.name, major: false, mutagen: s.mutagen || null })),
@@ -118,15 +120,18 @@ function buildCelestialStars() {
     // Collect all mutagens for this palace
     const palaceMutagens = allStars.filter(s => s.mutagen).map(s => s.mutagen)
 
+    // Spread stars evenly from inner to outer ring along the same radial line
+    const n = allStars.length
+    const radiusStep = n > 1 ? (outerR - innerR) / (n - 1) : 0
+
     allStars.forEach((star, i) => {
-      const angleOffset = (i - (allStars.length - 1) / 2) * 4
       celestialStars.push({
         name: star.name,
         color: getStarColor(star.name),
         major: star.major,
         palaceIdx: pIdx,
-        angleDeg: baseAngle + 15 + angleOffset,
-        radius: starRadii[i % starRadii.length] || RINGS[2].r,
+        angleDeg: centerAngle,
+        radius: innerR + radiusStep * i,
         speed: 0.003 + Math.random() * 0.004,
         phase: Math.random() * Math.PI * 2,
         mutagen: (palaceMutagens.length > 0 &&
@@ -439,8 +444,8 @@ function animateCelestial(timestamp: number) {
         const sx = parseFloat(parentEl.style.left)
         const sy = parseFloat(parentEl.style.top)
         if (!isNaN(sx)) {
-          chip.style.left = (sx + 10) + 'px'
-          chip.style.top = (sy - 5) + 'px'
+          chip.style.left = (sx + 12) + 'px'
+          chip.style.top = (sy - 8) + 'px'
         }
       }
     }
