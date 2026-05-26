@@ -185,10 +185,11 @@ export function castByCoin(): number[] {
  */
 export function castByNumbers(upperNum: number, lowerNum: number, movingNum: number): { values: number[]; changingLine: number } {
   // Map 1-8 to trigram indices (8=坤=0, 7=艮=4, 6=坎=2, 5=巽=6, 4=震=1, 3=离=5, 2=兑=3, 1=乾=7)
+  // Apply Math.abs() before modulo per spec: negative numbers use absolute value
   const numToTrigram = [7, 3, 5, 1, 6, 2, 4, 0]
-  const upperIdx = numToTrigram[((upperNum - 1) % 8 + 8) % 8]
-  const lowerIdx = numToTrigram[((lowerNum - 1) % 8 + 8) % 8]
-  const changeLine = Math.max(1, Math.min(6, Math.round(movingNum)))
+  const upperIdx = numToTrigram[((Math.abs(upperNum) - 1) % 8 + 8) % 8]
+  const lowerIdx = numToTrigram[((Math.abs(lowerNum) - 1) % 8 + 8) % 8]
+  const changeLine = Math.round(Math.abs(movingNum)) % 6 || 6
 
   // Convert trigrams to 3-bit values (bit0=bottom of trigram)
   const uLines = linesFromValue(upperIdx)
@@ -330,7 +331,7 @@ export function getHuGuaValues(values: number[]): number[] {
 }
 
 /** Calculate score (0-100) for the hexagram. */
-export function calculateYijingScore(values: number[], hex: HexagramInfo): number {
+export function calculateYijingScore(values: number[], hex: HexagramInfo, lines: ZhuangGuaLine[]): number {
   const numChanging = values.filter(v => v === 6 || v === 9).length
   const numYang = values.filter(v => v === 7 || v === 9).length
 
@@ -350,6 +351,21 @@ export function calculateYijingScore(values: number[], hex: HexagramInfo): numbe
   const balance = 3 - Math.abs(numYang - 3)
   base += balance * 5
 
+  // Six relations dynamic adjustment (六亲动向)
+  const changingLines = lines.filter(l => l.yao.isChanging)
+  for (const line of changingLines) {
+    switch (line.sixRelation) {
+      case '官鬼': base -= 8; break
+      case '妻财': base += 5; break
+      case '父母': base -= 3; break
+      case '子孙': base += 6; break
+      case '兄弟': base -= 5; break
+    }
+    // 世爻/应爻 adjustment
+    if (line.isShi) base -= 10
+    if (line.isYing) base += 8
+  }
+
   // Shen-sha style adjustment from hexagram nature (rough: 乾=strong, 坤=stable, 屯=hard start, etc.)
   const name = hex.name
   if (name.includes('泰') || name.includes('益') || name.includes('大有') || name.includes('谦')) base += 10
@@ -361,7 +377,7 @@ export function calculateYijingScore(values: number[], hex: HexagramInfo): numbe
 }
 
 /** Generate rule-based interpretation text (not AI-generated). */
-export function generateInterpretation(hex: HexagramInfo, score: number, numChanging: number): string {
+export function generateInterpretation(hex: HexagramInfo, score: number, numChanging: number, lines: ZhuangGuaLine[]): string {
   const texts: string[] = []
 
   // 1. Hexagram nature
@@ -386,7 +402,63 @@ export function generateInterpretation(hex: HexagramInfo, score: number, numChan
   // 4. 世应
   texts.push(`世在${['初', '二', '三', '四', '五', '上'][hex.shiPosition - 1]}爻，应在${['初', '二', '三', '四', '五', '上'][hex.yingPosition - 1]}爻。`)
 
-  // 5. Score-based summary
+  // 5. Six relations dynamics (六亲动向)
+  const changingLines = lines.filter(l => l.yao.isChanging)
+  if (changingLines.length > 0) {
+    const sixRelations = [...new Set(changingLines.map(l => l.sixRelation))]
+    const relationTexts: string[] = []
+
+    if (sixRelations.includes('官鬼')) {
+      relationTexts.push('官鬼发动，主事业有变，需防小人')
+    }
+    if (sixRelations.includes('妻财')) {
+      relationTexts.push('妻财发动，求财有利，可把握机会')
+    }
+    if (sixRelations.includes('父母')) {
+      relationTexts.push('父母发动，主文书、长辈相关事务')
+    }
+    if (sixRelations.includes('子孙')) {
+      relationTexts.push('子孙发动，主去灾解厄，谋事顺遂')
+    }
+    if (sixRelations.includes('兄弟')) {
+      relationTexts.push('兄弟发动，主竞争、损耗，宜谨慎')
+    }
+
+    if (relationTexts.length > 0) {
+      texts.push(`六亲动向：${relationTexts.join('；')}。`)
+    }
+  }
+
+  // 6. Six spirits hints (神煞提示)
+  if (changingLines.length > 0) {
+    const changingSpirits = [...new Set(changingLines.map(l => l.sixSpirit))]
+    const spiritTexts: string[] = []
+
+    if (changingSpirits.includes('青龙')) {
+      spiritTexts.push('青龙发动，主喜事临门')
+    }
+    if (changingSpirits.includes('朱雀')) {
+      spiritTexts.push('朱雀发动，主口舌之争')
+    }
+    if (changingSpirits.includes('勾陈')) {
+      spiritTexts.push('勾陈发动，主田土、房产之事')
+    }
+    if (changingSpirits.includes('螣蛇')) {
+      spiritTexts.push('螣蛇发动，主虚惊怪异')
+    }
+    if (changingSpirits.includes('白虎')) {
+      spiritTexts.push('白虎发动，主刑伤、丧服')
+    }
+    if (changingSpirits.includes('玄武')) {
+      spiritTexts.push('玄武发动，主暗昧、盗贼')
+    }
+
+    if (spiritTexts.length > 0) {
+      texts.push(`神煞提示：${spiritTexts.join('；')}。`)
+    }
+  }
+
+  // 7. Score-based summary
   if (score >= 70) {
     texts.push('卦象吉顺，所求之事多有可为，可积极进取。')
   } else if (score >= 45) {
@@ -433,8 +505,8 @@ export function computeYijingResult(values: number[]): YijingResult {
   const huGuaLines = getZhuangGuaLines(huGuaValues, huGua)
 
   const numChanging = values.filter(v => v === 6 || v === 9).length
-  const score = calculateYijingScore(values, hexagram)
-  const interpretation = generateInterpretation(hexagram, score, numChanging)
+  const score = calculateYijingScore(values, hexagram, lines)
+  const interpretation = generateInterpretation(hexagram, score, numChanging, lines)
 
   return {
     hexagram,

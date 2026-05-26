@@ -39,7 +39,7 @@
       </div>
 
       <!-- Progress -->
-      <p class="font-sans text-sm text-ink-light mb-6">
+      <p class="font-sans text-sm text-ink-light mb-6" aria-live="polite" aria-atomic="true">
         <template v-if="currentToss === 0">
           请诚心默念所问之事，然后摇动铜钱
         </template>
@@ -57,6 +57,7 @@
         :disabled="currentToss >= 6"
         :aria-busy="isFlipping ? 'true' : undefined"
         @click="handleTossClick"
+        @keydown.space.prevent="handleTossClick"
       >
         <span>{{ currentToss >= 6 ? '卦象已成' : isFlipping ? '摇动中...' : '摇卦' }}</span>
       </button>
@@ -68,6 +69,7 @@
           :disabled="currentToss === 0"
           @click="$emit('reset')"
           @keydown.enter="$emit('reset')"
+          @keydown.space.prevent="$emit('reset')"
         >
           重新起卦
         </button>
@@ -129,17 +131,22 @@
         </div>
 
         <div class="text-center pt-2">
-          <button type="submit" class="btn-seal">
+          <button type="submit" class="btn-seal" @keydown.space.prevent="handleNumberSubmit">
             <span>起卦</span>
           </button>
         </div>
       </form>
+
+      <div v-if="validationError" role="alert" class="text-cinnabar text-sm mt-2 text-center">
+        {{ validationError }}
+      </div>
 
       <div class="text-center mt-4">
         <button
           class="btn-ghost text-sm"
           @click="$emit('reset')"
           @keydown.enter="$emit('reset')"
+          @keydown.space.prevent="$emit('reset')"
         >
           重新起卦
         </button>
@@ -149,6 +156,8 @@
 </template>
 
 <script setup lang="ts">
+import { onUnmounted } from 'vue'
+
 const props = defineProps<{
   mode: 'coin' | 'number'
   currentToss: number
@@ -167,8 +176,21 @@ const upperNum = ref<number | null>(null)
 const lowerNum = ref<number | null>(null)
 const movingNum = ref<number | null>(null)
 
+// Validation state
+const validationError = ref('')
+
+// Clear validation when inputs change or mode changes
+watch([upperNum, lowerNum, movingNum], () => {
+  validationError.value = ''
+})
+
+watch(() => props.mode, () => {
+  validationError.value = ''
+})
+
 // Flipping animation state
 const isFlipping = ref(false)
+const tossTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 function toggleMode() {
   const newMode = props.mode === 'coin' ? 'number' : 'coin'
@@ -176,16 +198,21 @@ function toggleMode() {
 }
 
 function handleTossClick() {
-  if (props.currentToss >= 6) return
+  if (props.currentToss >= 6 || isFlipping.value) return
 
   isFlipping.value = true
 
   // Brief flip animation, then emit toss
-  setTimeout(() => {
+  tossTimer.value = setTimeout(() => {
     isFlipping.value = false
+    tossTimer.value = null
     emit('toss')
   }, 600)
 }
+
+onUnmounted(() => {
+  if (tossTimer.value) clearTimeout(tossTimer.value)
+})
 
 function handleNumberSubmit() {
   const first = upperNum.value
@@ -194,17 +221,23 @@ function handleNumberSubmit() {
 
   if (first === null || second === null || third === null) return
 
-  // Validation
-  const clampedFirst = Math.max(1, Math.min(8, Math.round(first)))
-  const clampedSecond = Math.max(1, Math.min(8, Math.round(second)))
-  const clampedThird = Math.max(1, Math.min(6, Math.round(third)))
+  // Validate ranges before clamping
+  if (first < 1 || first > 8) {
+    validationError.value = '上卦数字超出范围（1-8），请重新输入。'
+    return
+  }
+  if (second < 1 || second > 8) {
+    validationError.value = '下卦数字超出范围（1-8），请重新输入。'
+    return
+  }
+  if (third < 1 || third > 6) {
+    validationError.value = '动爻数字超出范围（1-6），请重新输入。'
+    return
+  }
 
-  // Update inputs with clamped values
-  upperNum.value = clampedFirst
-  lowerNum.value = clampedSecond
-  movingNum.value = clampedThird
+  validationError.value = ''
 
-  emit('cast-number', { first: clampedFirst, second: clampedSecond, third: clampedThird })
+  emit('cast-number', { first, second, third })
 }
 </script>
 
@@ -218,7 +251,6 @@ function handleNumberSubmit() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s ease;
   box-shadow:
     0 2px 6px rgba(0, 0, 0, 0.25),
     inset 0 1px 2px rgba(255, 215, 0, 0.3);
@@ -248,7 +280,7 @@ function handleNumberSubmit() {
 .coin-face {
   font-family: 'Ma Shan Zheng', cursive;
   font-size: 0.85rem;
-  color: #FBF8F4;
+  @apply text-paper-lightest;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   line-height: 1;
   z-index: 1;

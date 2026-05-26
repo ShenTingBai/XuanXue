@@ -3,13 +3,13 @@
     <table class="w-full text-sm font-sans border-collapse" aria-label="纳甲装卦详表">
       <thead>
         <tr class="bg-paper-dark">
-          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink-medium tracking-wider whitespace-nowrap">爻位</th>
-          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink-medium tracking-wider whitespace-nowrap">纳甲</th>
-          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink-medium tracking-wider whitespace-nowrap">五行</th>
-          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink-medium tracking-wider whitespace-nowrap">六亲</th>
-          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink-medium tracking-wider whitespace-nowrap">六神</th>
-          <th scope="col" class="px-2 sm:px-3 py-2 text-center text-xs text-ink-medium tracking-wider whitespace-nowrap">世应</th>
-          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink-medium tracking-wider whitespace-nowrap">爻辞</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap">爻位</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap">纳甲</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap">五行</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap">六亲</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap">六神</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-center text-xs text-ink tracking-wider whitespace-nowrap">世应</th>
+          <th scope="col" class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap">爻辞</th>
         </tr>
       </thead>
       <tbody>
@@ -65,7 +65,7 @@
           <td class="px-2 sm:px-3 py-2.5 text-center whitespace-nowrap">
             <span v-if="line.isShi" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cinnabar/10 text-cinnabar text-xs font-medium">世</span>
             <span v-else-if="line.isYing" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gold/10 text-gold text-xs font-medium">应</span>
-            <span v-else class="text-ink-faint text-xs">—</span>
+            <span v-else class="text-ink-light text-xs">—</span>
           </td>
 
           <!-- 爻辞 -->
@@ -86,29 +86,26 @@ defineProps<{
   lines: ZhuangGuaLine[]
 }>()
 
+function hexToRgba(hex: string, opacity: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
 function wuxingTextColor(wuxing: string): string {
   return WUXING_COLORS[wuxing] || WUXING_FALLBACK_COLOR
 }
 
 function wuxingBgColor(wuxing: string): string {
-  const color = WUXING_COLORS[wuxing]
-  if (!color) {
-    const r = parseInt(WUXING_FALLBACK_COLOR.slice(1, 3), 16)
-    const g = parseInt(WUXING_FALLBACK_COLOR.slice(3, 5), 16)
-    const b = parseInt(WUXING_FALLBACK_COLOR.slice(5, 7), 16)
-    return `rgba(${r}, ${g}, ${b}, 0.08)`
-  }
-  // Convert hex to rgba with 0.08 opacity
-  const r = parseInt(color.slice(1, 3), 16)
-  const g = parseInt(color.slice(3, 5), 16)
-  const b = parseInt(color.slice(5, 7), 16)
-  return `rgba(${r}, ${g}, ${b}, 0.08)`
+  const color = WUXING_COLORS[wuxing] || WUXING_FALLBACK_COLOR
+  return hexToRgba(color, 0.08)
 }
 
 function sixRelationClass(relation: string): string {
   const map: Record<string, string> = {
     '父母': 'bg-jade/10 text-jade',
-    '兄弟': 'bg-ink-faint/20 text-ink-light',
+    '兄弟': 'bg-ink-faint/10 text-ink-light',
     '官鬼': 'bg-gold/10 text-gold',
     '妻财': 'bg-ink-medium/10 text-ink',
     '子孙': 'bg-cinnabar/10 text-cinnabar',

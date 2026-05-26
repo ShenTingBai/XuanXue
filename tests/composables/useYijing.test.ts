@@ -337,7 +337,8 @@ describe('getHuGuaValues', () => {
 describe('calculateYijingScore', () => {
   it('returns a number between 0 and 100', () => {
     const hex = getHexagramInfo([7, 7, 7, 7, 7, 7])
-    const score = calculateYijingScore([7, 7, 7, 7, 7, 7], hex)
+    const lines = getZhuangGuaLines([7, 7, 7, 7, 7, 7], hex)
+    const score = calculateYijingScore([7, 7, 7, 7, 7, 7], hex, lines)
     expect(score).toBeGreaterThanOrEqual(0)
     expect(score).toBeLessThanOrEqual(100)
   })
@@ -346,9 +347,12 @@ describe('calculateYijingScore', () => {
     // numChanging=0 => base=45
     // numYang=6 => balance = 3 - |6-3| = 0 => +0
     // name "乾为天" matches none of the adjustment patterns => +0
+    // six-relations loop iterates only changing lines (none here)
+    // shi/ying: no changing lines, so no adjustment
     // clamped => 45
     const hex = getHexagramInfo([7, 7, 7, 7, 7, 7])
-    const score = calculateYijingScore([7, 7, 7, 7, 7, 7], hex)
+    const lines = getZhuangGuaLines([7, 7, 7, 7, 7, 7], hex)
+    const score = calculateYijingScore([7, 7, 7, 7, 7, 7], hex, lines)
     expect(score).toBe(45)
   })
 })
@@ -432,5 +436,161 @@ describe('64-hexagram data integrity', () => {
       totalLines += lines.length
     }
     expect(totalLines).toBe(384)
+  })
+})
+
+// ============================
+// 11. castByNumbers edge inputs
+// ============================
+
+describe('castByNumbers with edge inputs', () => {
+  it('handles negative numbers via Math.abs before modulo', () => {
+    // Math.abs(-3)=3 (-> 离), Math.abs(-5)=5 (-> 巽), moving=4
+    const result = castByNumbers(-3, -5, 4)
+    expect(result.values).toHaveLength(6)
+    expect(result.changingLine).toBe(4)
+    // 离上巽下 with line 4 changing -> 火风鼎
+    const hex = getHexagramInfo(result.values)
+    expect(hex.name).toBe('火风鼎')
+  })
+
+  it('maps zero moving number to position 6 via mod-6 logic', () => {
+    // Math.round(Math.abs(0)) % 6 || 6 => 0 || 6 => 6 (上爻)
+    const result = castByNumbers(1, 8, 0)
+    expect(result.changingLine).toBe(6)
+    // 乾上坤下 (天地否), line 6 (上爻) changing => top yang becomes 老阳(9)
+    expect(result.values).toEqual([8, 8, 8, 7, 7, 9])
+    const hex = getHexagramInfo(result.values)
+    expect(hex.name).toBe('天地否')
+  })
+})
+
+// ============================
+// 12. calculateYijingScore via computeYijingResult
+// ============================
+
+describe('calculateYijingScore ranges and edge cases', () => {
+  it('returns known score 45 for 乾为天 (no changing, all yang)', () => {
+    // numChanging=0 => base=45, numYang=6 => balance=0, no name pattern => 45
+    const result = computeYijingResult([7, 7, 7, 7, 7, 7])
+    expect(result.score).toBe(45)
+  })
+
+  it('returns scores in valid 0-100 range for diverse changing patterns', () => {
+    const testCases = [
+      [9, 8, 8, 8, 8, 8],  // 1 changing
+      [6, 7, 8, 9, 7, 8],  // 2 changing
+      [6, 9, 6, 8, 8, 8],  // 3 changing
+      [6, 9, 6, 8, 9, 8],  // 4 changing
+      [6, 9, 6, 8, 9, 6],  // 5 changing
+      [6, 9, 6, 9, 9, 6],  // 6 changing
+    ]
+    testCases.forEach(values => {
+      const result = computeYijingResult(values)
+      expect(result.score).toBeGreaterThanOrEqual(0)
+      expect(result.score).toBeLessThanOrEqual(100)
+    })
+  })
+
+  it('applies hexagram name bonus for 泰', () => {
+    // 地天泰: 乾下坤上 => yinYang [1,1,1,0,0,0] => values [7,7,7,8,8,8]
+    const result = computeYijingResult([7, 7, 7, 8, 8, 8])
+    expect(result.hexagram.name).toBe('地天泰')
+    // numChanging=0 => base=45, numYang=3 => balance=3 => +15, '泰' => +10 => 70
+    expect(result.score).toBe(70)
+  })
+})
+
+// ============================
+// 13. generateInterpretation content
+// ============================
+
+describe('generateInterpretation structure', () => {
+  it('contains hexagram nature description with name', () => {
+    const result = computeYijingResult([7, 7, 7, 7, 7, 7])
+    expect(result.interpretation).toContain('乾')
+  })
+
+  it('mentions changing lines when present', () => {
+    const result = computeYijingResult([6, 8, 8, 8, 8, 8])
+    expect(result.interpretation).toContain('动')
+  })
+
+  it('includes palace and wuxing info', () => {
+    const result = computeYijingResult([7, 7, 7, 7, 7, 7])
+    expect(result.interpretation).toContain('乾宫')
+    expect(result.interpretation).toContain('金')
+  })
+})
+
+// ============================
+// 14. Six spirits assignment
+// ============================
+
+describe('six spirits assignment', () => {
+  it('returns valid spirit names for all lines', () => {
+    const VALID_SPIRITS = ['青龙', '朱雀', '勾陈', '螣蛇', '白虎', '玄武']
+    const result = computeYijingResult([7, 7, 7, 7, 7, 7])
+    result.lines.forEach(line => {
+      expect(VALID_SPIRITS).toContain(line.sixSpirit)
+    })
+  })
+
+  it('assigns six distinct spirits in cyclic order', () => {
+    const result = computeYijingResult([7, 7, 7, 7, 7, 7])
+    expect(result.lines).toHaveLength(6)
+    const spirits = result.lines.map(l => l.sixSpirit)
+    expect(new Set(spirits).size).toBe(6)
+  })
+})
+
+// ============================
+// 15. Derived hexagram zhuang gua
+// ============================
+
+describe('derived hexagram zhuang gua', () => {
+  it('produces valid derived lines with all fields', () => {
+    const result = computeYijingResult([6, 8, 8, 8, 8, 9])
+    expect(result.derivedLines).not.toBeNull()
+    expect(result.derivedLines).toHaveLength(6)
+    result.derivedLines!.forEach(line => {
+      expect(line.position).toBeGreaterThanOrEqual(1)
+      expect(line.position).toBeLessThanOrEqual(6)
+      expect(line.sixRelation.length).toBeGreaterThan(0)
+      expect(line.sixSpirit.length).toBeGreaterThan(0)
+      expect(line.naJiaDisplay.length).toBeGreaterThan(0)
+      expect(line.positionName).toBeTruthy()
+    })
+  })
+
+  it('derived hexagram is non-null when changing lines exist', () => {
+    const result = computeYijingResult([7, 7, 7, 7, 7, 9])
+    expect(result.derivedHexagram).not.toBeNull()
+    expect(result.derivedHexagram!.name.length).toBeGreaterThan(0)
+  })
+})
+
+// ============================
+// 16. Diverse hexagram combinations
+// ============================
+
+describe('diverse hexagram combinations', () => {
+  it('supports diverse inputs without throwing', () => {
+    const testCases = [
+      [7, 7, 7, 7, 7, 7],  // 乾为天
+      [8, 8, 8, 8, 8, 8],  // 坤为地
+      [9, 8, 7, 8, 7, 8],  // mixed changing
+      [6, 7, 8, 9, 7, 8],  // multiple changing
+      [6, 6, 6, 6, 6, 6],  // all old yin
+      [9, 9, 9, 9, 9, 9],  // all old yang
+    ]
+    testCases.forEach(values => {
+      const result = computeYijingResult(values)
+      expect(result.hexagram.name).toBeTruthy()
+      expect(result.hexagram.judgment).toBeTruthy()
+      expect(result.lines).toHaveLength(6)
+      expect(typeof result.interpretation).toBe('string')
+      expect(result.interpretation.length).toBeGreaterThan(0)
+    })
   })
 })

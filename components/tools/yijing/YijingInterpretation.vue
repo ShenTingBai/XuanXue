@@ -5,30 +5,34 @@
 
   <div v-else class="fade-in" :style="{ '--delay': '0.25s' }">
     <!-- Score ring -->
+    <h2 class="sr-only">卦象评分</h2>
     <InkDivider>卦象评分</InkDivider>
     <div class="flex justify-center mb-8">
       <div class="score-ring-wrapper">
-        <svg class="score-ring" viewBox="0 0 120 120" :aria-label="`卦象评分：${score}分`">
+        <svg class="score-ring" viewBox="0 0 120 120" :aria-label="`卦象评分：${score}分`" role="img">
           <!-- Background circle -->
           <circle
             cx="60" cy="60" r="52"
             fill="none"
             class="stroke-paper-medium"
             stroke-width="6"
+            aria-hidden="true"
+            focusable="false"
           />
           <!-- Score circle -->
           <circle
             cx="60" cy="60" r="52"
             fill="none"
-            class="stroke-cinnabar"
             stroke-width="6"
             stroke-linecap="round"
             :stroke-dasharray="circumference"
             :stroke-dashoffset="dashOffset"
             class="score-ring-fill stroke-cinnabar"
+            aria-hidden="true"
+            focusable="false"
           />
         </svg>
-        <div class="score-ring-text">
+        <div class="score-ring-text" aria-hidden="true">
           <span class="score-number text-ink-dark">{{ score }}</span>
           <span class="score-label text-ink-light">分</span>
         </div>
@@ -36,6 +40,7 @@
     </div>
 
     <!-- Primary hexagram -->
+    <h2 class="sr-only">本卦</h2>
     <InkDivider>本卦</InkDivider>
     <div class="card-paper-solid rounded-xl p-8 mb-6">
       <HexagramDisplay
@@ -52,6 +57,7 @@
 
     <!-- Derived hexagram (变卦) -->
     <template v-if="result.derivedHexagram && result.derivedLines">
+      <h2 class="sr-only">变卦</h2>
       <InkDivider>变卦</InkDivider>
       <div class="card-paper-solid rounded-xl p-8 mb-6">
         <HexagramDisplay
@@ -69,12 +75,14 @@
 
     <!-- Mutual hexagram (互卦) — collapsible -->
     <template v-if="result.huGua && result.huGuaLines">
+      <h2 class="sr-only">互卦</h2>
       <InkDivider>互卦</InkDivider>
       <div class="card-paper-solid rounded-xl p-8 mb-6">
         <button
           class="flex items-center gap-2 w-full text-left mb-3"
           @click="showHuGua = !showHuGua"
           @keydown.enter="showHuGua = !showHuGua"
+          @keydown.space.prevent="showHuGua = !showHuGua"
           :aria-expanded="showHuGua"
           aria-controls="hu-gua-content"
         >
@@ -102,9 +110,10 @@
     </template>
 
     <!-- Interpretation text -->
+    <h2 class="sr-only">卦象解读</h2>
     <InkDivider>卦象解读</InkDivider>
     <div class="card-paper-solid rounded-xl p-8 mb-6">
-      <div class="interpretation-text !border-l-3 !border-cinnabar pl-4">
+      <div class="interpretation-text !border-l-[3px] !border-cinnabar pl-4">
         <p
           v-for="(paragraph, idx) in interpretationParagraphs"
           :key="idx"
@@ -117,6 +126,7 @@
     </div>
 
     <!-- Line detail table -->
+    <h2 class="sr-only">纳甲装卦</h2>
     <InkDivider>纳甲装卦</InkDivider>
     <div class="card-paper-solid rounded-xl p-8 mb-6">
       <h3 class="font-display text-lg text-ink-dark mb-4">六爻详表</h3>

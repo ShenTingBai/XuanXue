@@ -45,6 +45,7 @@
               class="btn-ghost"
               @click="handleReset"
               @keydown.enter="handleReset"
+              @keydown.space.prevent="handleReset"
             >
               重新占卜
             </button>

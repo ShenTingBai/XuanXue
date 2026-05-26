@@ -12,7 +12,7 @@
     <div class="flex items-start gap-5 sm:gap-6">
       <!-- Yao lines -->
       <div class="flex-shrink-0">
-        <div class="card-paper-solid rounded-xl px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="img" :aria-label="`${hexagram.name}卦象`">
+        <div class="card-paper-solid rounded-xl px-4 py-3 inline-flex flex-col-reverse gap-1.5" role="group" :aria-label="`${hexagram.name}卦象`">
           <div
             v-for="(yao, idx) in hexagram.lines"
             :key="idx"
@@ -24,6 +24,7 @@
               'yao-line--shi': hexagram.shiPosition === (idx + 1),
               'yao-line--ying': hexagram.yingPosition === (idx + 1),
             }"
+            :aria-label="getYaoLabel(yao, idx, hexagram)"
           >
             <!-- Yang line -->
             <template v-if="yao.isYang">
@@ -70,10 +71,18 @@ interface HexagramProp {
   yingPosition?: number
 }
 
-defineProps<{
+const props = defineProps<{
   hexagram: HexagramProp | null
   label?: string
 }>()
+
+function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
+  const posLabels = ['初', '二', '三', '四', '五', '上']
+  const type = yao.isYang ? '阳爻' : '阴爻'
+  const changing = yao.isChanging ? '动爻' : ''
+  const shiYing = hex.shiPosition === (idx + 1) ? '世' : hex.yingPosition === (idx + 1) ? '应' : ''
+  return `${posLabels[idx]}爻 ${type} ${changing} ${shiYing}`.trim()
+}
 </script>
 
 <style scoped>
@@ -89,7 +98,7 @@ defineProps<{
   display: block;
   height: 5px;
   border-radius: 2px;
-  background: #2C1810;
+  @apply bg-ink-dark;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -121,26 +130,26 @@ defineProps<{
   right: -1.75rem;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.65rem;
-  color: #7A6A5C;
+  @apply text-ink-light;
   line-height: 1;
   white-space: nowrap;
 }
 
 /* Changing yao */
 .yao-line--changing .yao-bar {
-  background: #C62828;
+  @apply bg-cinnabar;
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
 /* 世 position */
 .yao-line--shi .yao-label {
-  color: #C62828;
+  @apply text-cinnabar;
   font-weight: 500;
 }
 
 /* 应 position */
 .yao-line--ying .yao-label {
-  color: #7A5E12;
+  @apply text-gold;
   font-weight: 500;
 }
 
