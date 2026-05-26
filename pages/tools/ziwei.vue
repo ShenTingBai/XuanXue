@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { calculateZiWei, getMingGongIndex } from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
+import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import ZiWeiInputForm from '~/components/tools/ziwei/ZiWeiInputForm.vue'
@@ -27,6 +28,7 @@ const currentView = ref<'celestial' | 'grid'>('celestial')
 const birthDate = ref('')
 const birthHour = ref<number | null>(null)
 const gender = ref<'male' | 'female' | null>(null)
+const ready = ref(false)
 
 onMounted(() => {
   restoreSession()
@@ -34,14 +36,14 @@ onMounted(() => {
     router.push('/login')
     return
   }
+  ready.value = true
 
   // Pre-fill from profile if available
   if (currentProfile.value.birth_date) {
     birthDate.value = currentProfile.value.birth_date
   }
   if (currentProfile.value.birth_hour !== null && currentProfile.value.birth_hour !== undefined) {
-    const hour = currentProfile.value.birth_hour
-    birthHour.value = Math.floor((hour + 1) / 2)
+    birthHour.value = getTimeIndex(currentProfile.value.birth_hour)
   }
   if (currentProfile.value.gender) {
     gender.value = currentProfile.value.gender === '男' ? 'male' : 'female'
@@ -79,7 +81,8 @@ function handleCalculate() {
     astrolabe.value = ziweiResult
     selectedIndex.value = getMingGongIndex(ziweiResult.palaces)
     selectedPalace.value = ziweiResult.palaces[selectedIndex.value] || null
-  } catch {
+  } catch (err) {
+    console.error('Ziwei calculation failed:', err)
     error.value = '排盘计算出错，请检查出生信息'
   }
 
@@ -96,7 +99,7 @@ const currentAge = computed(() => {
   if (!astrolabe.value) return 0
   const parts = astrolabe.value.solarDate.split('-')
   const birthYear = parseInt(parts[0], 10)
-  return new Date().getFullYear() - birthYear
+  return new Date().getFullYear() - birthYear + 1
 })
 
 const CLOCKWISE_BRANCHES = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
@@ -132,8 +135,13 @@ const sortedPeriods = computed(() => {
   <ToolPageLayout>
     <h1 class="sr-only">紫微斗数</h1>
 
+    <!-- Initial loading / auth guard -->
+    <div v-if="!ready" class="flex items-center justify-center py-20">
+      <div class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin" />
+    </div>
+
     <!-- Not logged in -->
-    <div v-if="!currentProfile" class="text-center py-16">
+    <div v-else-if="!currentProfile" class="text-center py-16">
       <p class="font-sans text-lg text-ink-medium mb-4">请先登录</p>
       <NuxtLink to="/login" class="btn-seal inline-flex">
         <span>前往登录</span>

@@ -48,15 +48,7 @@ export const TRANSFORMATION_INTERPRETATIONS: Record<string, Record<string, strin
   '忌': {},
 }
 
-/** 宫位对应的地支 */
-export const PALACE_BRANCH_MAP: Record<string, string> = {
-  '命宫': '寅', '兄弟宫': '卯', '夫妻宫': '辰',
-  '子女宫': '巳', '财帛宫': '午', '疾厄宫': '未',
-  '迁移宫': '申', '交友宫': '酉', '官禄宫': '戌',
-  '田宅宫': '亥', '福德宫': '子', '父母宫': '丑',
-}
-
-/** 地支在 3×4 网格中的 grid-row/grid-col 位置
+/** 地支在 4×4 网格中的 grid-row/grid-col 位置
  *  4 列布局：巳午未申（行1），辰+空+酉（行2），卯+空+戌（行3），寅丑子亥（行4） */
 export const BRANCH_GRID_POSITIONS: Record<string, { row: number; col: number }> = {
   '巳': { row: 1, col: 1 },
@@ -85,16 +77,6 @@ export const BRANCH_TO_ANGLE: Record<string, number> = {
   '午': 120, '未': 150, '申': 180, '酉': 210,
   '戌': 240, '亥': 270, '子': 300, '丑': 330,
 }
-
-/** 天星图轨道半径（相对 600×600 viewBox） */
-export const ORBIT_RADII = {
-  INNER: 100,
-  MID_INNER: 145,
-  MID: 185,
-  MID_OUTER: 225,
-  OUTER: 255,
-  LABEL: 282,
-} as const
 
 /** 时辰名称（用于输入选择）。index 0-11 对应早子-亥，index 12=晚子。
  *  注意: iztro timeIndex 0=早子时, 12=晚子时 */

@@ -11,8 +11,8 @@
       style="min-height: 360px;"
     >
       <div class="text-center">
-        <div class="text-[2rem] mb-2 font-display text-ink-light/25">✦</div>
-        <p class="text-xs text-ink-light/50 tracking-[0.12em] font-sans">点击宫位查看详解</p>
+        <div class="text-[2rem] mb-2 font-display text-ink-light/25" aria-hidden="true">✦</div>
+        <p role="status" class="text-xs text-ink-light/50 tracking-[0.12em] font-sans">点击宫位查看详解</p>
       </div>
     </div>
 
@@ -21,7 +21,7 @@
       <!-- Header -->
       <div class="detail-header">
         <div class="flex items-center gap-2.5">
-          <h3 class="font-display text-[1.25rem] tracking-[0.06em]" style="color: #1A1A1A;">{{ detailView.name }}</h3>
+          <h3 class="font-display text-[1.25rem] tracking-[0.06em]" style="color: #1A0F0A;">{{ detailView.name }}</h3>
           <span class="detail-branch-badge">{{ detailView.stem }}{{ detailView.branch }}</span>
         </div>
       </div>
@@ -37,7 +37,7 @@
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot major" :class="getStarColor(star.name)"></span>
+            <span class="star-dot major" :class="getStarColor(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
             <span class="star-name">{{ star.name }}</span>
             <span v-if="star.brightness" class="star-brightness">{{ star.brightness }}</span>
           </div>
@@ -56,7 +56,7 @@
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot" :class="getStarColor(star.name)"></span>
+            <span class="star-dot" :class="getStarColor(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
             <span class="star-name">{{ star.name }}</span>
           </div>
         </div>
@@ -141,8 +141,17 @@ const STAR_COLOR_MAP: Record<string, string> = {
   '天才': 'ice', '天寿': 'jade', '龙德': 'gold', '将星': 'gold', '攀鞍': 'gold',
 }
 
+const STAR_COLOR_LABEL_MAP: Record<string, string> = {
+  'gold': '主星', 'jade': '辅星', 'cinnabar': '煞星', 'ice': '文星', 'purple': '吉星', 'gray': '杂曜',
+}
+
 function getStarColor(name: StarName | string): string {
   return STAR_COLOR_MAP[String(name)] ?? 'gray'
+}
+
+function getStarColorLabel(name: StarName | string): string {
+  const color = getStarColor(name)
+  return STAR_COLOR_LABEL_MAP[color] ?? '杂曜'
 }
 
 const MUTAGEN_CLASS_MAP: Record<string, string> = {
@@ -168,7 +177,7 @@ function getMutagenClass(transformation: string): string {
 .detail-branch-badge {
   font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
   font-size: 0.68rem;
-  color: #8B7D6B;
+  color: #7A6A5C;
   letter-spacing: 0.08em;
   padding: 0.08rem 0.5rem;
   border: 1px solid rgba(93, 78, 55, 0.1);
@@ -176,7 +185,7 @@ function getMutagenClass(transformation: string): string {
 }
 
 .detail-section {
-  padding: 0.85rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   border-bottom: 1px solid rgba(93, 78, 55, 0.06);
 }
 .detail-section:last-child { border-bottom: none; }
@@ -187,7 +196,7 @@ function getMutagenClass(transformation: string): string {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.68rem;
-  color: #8B7D6B;
+  color: #7A6A5C;
   letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
   font-weight: 500;
@@ -240,18 +249,22 @@ function getMutagenClass(transformation: string): string {
 .star-dot.major { width: 10px; height: 10px; }
 
 .star-dot.gold     { background: #C62828; border-color: rgba(212,168,75,0.5); }
-.star-dot.cinnabar { background: #A02020; }
-.star-dot.jade     { background: #4A8C6F; }
+.star-dot.cinnabar { background: #B71C1C; }
+.star-dot.jade     { background: #3D6B4B; }
 .star-dot.ice      { background: #6BA8C8; }
 .star-dot.purple   { background: #7B6FA0; }
 .star-dot.gray     { background: #5D4E37; }
 .star-dot.white    { background: #8B7D6B; }
 
-.star-name { font-size: 0.85rem; color: #5D4E37; }
+.star-name {
+  font-size: 0.85rem;
+  color: #5D4E37;
+  font-family: 'Noto Sans SC', sans-serif;
+}
 
 .star-brightness {
   font-size: 11px;
-  color: #8B7D6B;
+  color: #7A6A5C;
   margin-left: 0.125rem;
 }
 
@@ -264,9 +277,9 @@ function getMutagenClass(transformation: string): string {
   font-family: 'Noto Serif SC', serif;
   white-space: nowrap;
 }
-.mutagen-chip.lu   { background: rgba(198,40,40,0.1); color: #C62828; border: 0.5px solid rgba(198,40,40,0.15); }
-.mutagen-chip.quan { background: rgba(74,140,111,0.1); color: #3D7A5E; border: 0.5px solid rgba(74,140,111,0.15); }
-.mutagen-chip.ke   { background: rgba(107,168,200,0.1); color: #5A94B4; border: 0.5px solid rgba(107,168,200,0.15); }
+.mutagen-chip.lu   { background: rgba(198,40,40,0.12); color: #C62828; border: 0.5px solid rgba(198,40,40,0.15); }
+.mutagen-chip.quan { background: rgba(74,140,111,0.12); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.15); }
+.mutagen-chip.ke   { background: rgba(107,168,200,0.12); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.15); }
 .mutagen-chip.ji   { background: rgba(93,78,55,0.07); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.1); }
 
 /* ── Text content ── */
@@ -284,20 +297,20 @@ function getMutagenClass(transformation: string): string {
 
 .reading-line {
   margin-bottom: 0.3rem;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   color: #6B5B4F;
 }
 
 .combination-note {
   margin-top: 0.5rem;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   color: #C62828;
   opacity: 0.85;
 }
 
 .detail-empty-text {
   font-size: 0.78rem;
-  color: #8B7D6B;
+  color: #7A6A5C;
   opacity: 0.5;
   font-style: italic;
 }

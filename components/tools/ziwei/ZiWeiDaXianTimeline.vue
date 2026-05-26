@@ -1,6 +1,6 @@
 <!-- components/tools/ziwei/ZiWeiDaXianTimeline.vue -->
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 interface DaXianPeriod {
   startAge: number
@@ -44,13 +44,25 @@ function isActive(period: DaXianPeriod): boolean {
 function isPast(period: DaXianPeriod): boolean {
   return props.currentAge > period.endAge
 }
+
+// Template refs for timeline nodes
+const nodeRefs = ref<(HTMLElement | null)[]>([])
+
+function setNodeRef(idx: number) {
+  return (el: unknown) => { nodeRefs.value[idx] = el as HTMLElement | null }
+}
+
+function focusNode(idx: number): void {
+  const el = nodeRefs.value[idx]
+  if (el) el.focus()
+}
 </script>
 
 <template>
   <div v-if="periods.length > 0" class="max-w-[620px] mx-auto px-2 py-3">
     <!-- Header -->
     <div class="flex justify-between items-end mb-4">
-      <h3 class="font-display text-sm tracking-[0.15em]" style="color: #5D4E37;">大限 · 十年运程</h3>
+      <h3 class="font-display text-sm tracking-[0.15em] text-ink-medium">大限 · 十年运程</h3>
       <span class="text-[11px] text-cinnabar tracking-[0.06em] font-medium">当前 {{ currentAge }} 岁</span>
     </div>
 
@@ -71,13 +83,18 @@ function isPast(period: DaXianPeriod): boolean {
       <div
         v-for="(period, i) in periods"
         :key="i"
-        class="flex flex-col items-center gap-0.5 cursor-pointer group"
+        :ref="setNodeRef(i)"
+        class="timeline-node flex flex-col items-center gap-0.5 cursor-pointer group"
+        :class="{ 'node-future': !isActive(period) && !isPast(period) }"
         role="button"
-        tabindex="0"
+        :tabindex="isActive(period) ? 0 : -1"
         :aria-label="`${period.palaceName} ${period.startAge}-${period.endAge}岁`"
+        :aria-current="isActive(period) ? 'true' : undefined"
         @click="emit('select', period.palaceIndex)"
         @keydown.enter.prevent="emit('select', period.palaceIndex)"
         @keydown.space.prevent="emit('select', period.palaceIndex)"
+        @keydown.left.prevent="focusNode((i - 1 + periods.length) % periods.length)"
+        @keydown.right.prevent="focusNode((i + 1) % periods.length)"
       >
         <!-- Dot -->
         <div
@@ -90,11 +107,11 @@ function isPast(period: DaXianPeriod): boolean {
         />
         <!-- Palace name -->
         <span
-          class="text-[0.65rem] whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-serif"
+          class="text-[0.65rem] whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-display"
           :class="{
             'text-cinnabar font-medium': isActive(period),
-            'text-ink-light/50': isPast(period),
-            'text-ink-light/60': !isActive(period) && !isPast(period),
+            'text-ink-medium/70': isPast(period),
+            'text-ink-medium/50': !isActive(period) && !isPast(period),
           }"
         >{{ period.palaceName }}</span>
         <!-- Age range -->
@@ -103,10 +120,22 @@ function isPast(period: DaXianPeriod): boolean {
           :class="{
             'text-cinnabar/70': isActive(period),
             'text-ink-light/35': isPast(period),
-            'text-ink-light/40': !isActive(period) && !isPast(period),
+            'text-ink-medium/50': !isActive(period) && !isPast(period),
           }"
         >{{ period.startAge }}-{{ period.endAge }}</span>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.timeline-node:focus-visible {
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.node-future:hover {
+  opacity: 0.8;
+}
+</style>

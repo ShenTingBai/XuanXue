@@ -1,12 +1,11 @@
 <!-- components/tools/ziwei/ZiWeiCelestialChart.vue -->
 <script setup lang="ts">
-import { getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import { BRANCH_TO_ANGLE } from '~/constants/ziwei'
 
-// Vue scoped style ID — dynamically created DOM elements need this attribute
-// for scoped CSS to apply (e.g. position:absolute, colors, fonts).
-const scopeId = (getCurrentInstance()?.type as any)?.__scopeId as string | undefined
+// Styling attribute for dynamically created DOM elements
+const STYLE_ATTR = 'data-v-ziwei-chart'
 
 // ── Geometry constants (BASE 600 viewBox) ──
 const BASE = 600
@@ -23,11 +22,14 @@ const RINGS = [
 
 const LABEL_R = 282
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   palaces: IFunctionalPalace[]
   selectedIndex: number
   mingGongIndex: number
-}>()
+  isVisible?: boolean
+}>(), {
+  isVisible: true,
+})
 
 const emit = defineEmits<{
   select: [index: number]
@@ -59,10 +61,11 @@ let starElements: HTMLElement[] = []
 let animFrameId: number | null = null
 let chartAnimStart = 0
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
+let focusedSectorIndex = -1
 
-// Apply Vue scoped style attribute to dynamically created DOM elements
+// Apply style attribute to dynamically created DOM elements
 function scope(el: HTMLElement) {
-  if (scopeId) el.setAttribute(scopeId, '')
+  el.setAttribute(STYLE_ATTR, '')
 }
 
 // ── Star category Sets (classified by type, not individual name) ──
@@ -80,27 +83,6 @@ function getStarColor(name: string): string {
   if (MALEFIC_STARS.has(name)) return 'gray'
   if (AUSPICIOUS_STARS.has(name)) return 'jade'
   return 'ice'
-}
-
-// ── Wobbly (hand-drawn) circle path SVG ──
-function createWobblyCircle(cx: number, cy: number, r: number, wobble: number): string {
-  const s = wobble || 1.5
-  const o = (i: number) => Math.sin(r * (1.3 + i * 1.4)) * s
-  const c = (i: number) => Math.cos(r * (2.7 + i * 2.2)) * s
-  const k = 0.5522847498
-  return 'M ' + (cx) + ',' + (cy - r + o(0)) +
-    ' C ' + (cx + k * r + o(1)) + ',' + (cy - r + o(0)) +
-    ' ' + (cx + r + c(1)) + ',' + (cy - k * r + c(2)) +
-    ' ' + (cx + r + c(1)) + ',' + (cy) +
-    ' C ' + (cx + r + c(1)) + ',' + (cy + k * r + c(3)) +
-    ' ' + (cx + k * r + o(1)) + ',' + (cy + r + o(4)) +
-    ' ' + (cx) + ',' + (cy + r + o(4)) +
-    ' C ' + (cx - k * r + o(5)) + ',' + (cy + r + o(4)) +
-    ' ' + (cx - r + c(6)) + ',' + (cy + k * r + c(3)) +
-    ' ' + (cx - r + c(6)) + ',' + (cy) +
-    ' C ' + (cx - r + c(6)) + ',' + (cy - k * r + c(2)) +
-    ' ' + (cx - k * r + o(5)) + ',' + (cy - r + o(0)) +
-    ' ' + (cx) + ',' + (cy - r + o(0)) + ' Z'
 }
 
 // ── Build celestial star data from iztro palaces ──
@@ -133,7 +115,9 @@ function buildCelestialStars() {
         radius: starRadii[i % starRadii.length] || RINGS[2].r,
         speed: 0.003 + Math.random() * 0.004,
         phase: Math.random() * Math.PI * 2,
-        mutagen: (i === lastMajorIdx && palaceMutagens.length > 0) ? palaceMutagens.join(',') : null,
+        mutagen: (palaceMutagens.length > 0 &&
+          (i === lastMajorIdx || (lastMajorIdx === -1 && i === 0)))
+          ? palaceMutagens.join(',') : null,
       })
     })
   })
@@ -205,22 +189,56 @@ function renderSectorLabels() {
   if (!container) return
   container.innerHTML = ''
 
+  focusedSectorIndex = -1
+
   props.palaces.forEach((palace, i) => {
     const rawAngle = BRANCH_TO_ANGLE[palace.earthlyBranch] || 0
     const angleRad = ((rawAngle + 15) - 90) * Math.PI / 180
     const x = (CX + Math.cos(angleRad) * LABEL_R) * chartScale
     const y = (CY + Math.sin(angleRad) * LABEL_R) * chartScale
 
+    const isMingGong = palace.index === props.mingGongIndex
+
     const label = document.createElement('div')
     scope(label)
-    label.className = 'sector-label' + (palace.index === props.mingGongIndex ? ' ming-gong' : '')
-    label.textContent = palace.name
+    label.className = 'sector-label' + (isMingGong ? ' ming-gong' : '')
+    label.textContent = palace.name + (isMingGong ? ' 命' : '')
     label.style.left = x + 'px'
     label.style.top = y + 'px'
     label.dataset.index = String(i)
+    label.setAttribute('tabindex', '0')
+    label.setAttribute('role', 'button')
+    label.setAttribute('aria-label', `${palace.name} ${palace.earthlyBranch}宫`)
     label.addEventListener('click', () => emit('select', i))
+    label.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        emit('select', i)
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        focusSector((i + 1) % 12)
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        focusSector((i + 11) % 12)
+      }
+    })
     container.appendChild(label)
   })
+}
+
+function focusSector(index: number) {
+  const container = sectorLabelsContainer.value
+  if (!container) return
+  const labels = container.querySelectorAll('.sector-label')
+  if (focusedSectorIndex >= 0 && labels[focusedSectorIndex]) {
+    (labels[focusedSectorIndex] as HTMLElement).tabIndex = -1
+  }
+  focusedSectorIndex = index
+  const target = labels[index] as HTMLElement | undefined
+  if (target) {
+    target.tabIndex = 0
+    target.focus()
+  }
 }
 
 // ── Star DOM elements positioned on chart ──
@@ -255,7 +273,16 @@ function createStarElements() {
     label.textContent = star.name
     el.appendChild(label)
 
+    el.setAttribute('tabindex', '0')
+    el.setAttribute('role', 'button')
+    el.setAttribute('aria-label', star.name + (star.mutagen ? ' 化' + star.mutagen : ''))
     el.addEventListener('click', () => emit('select', star.palaceIdx))
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        emit('select', star.palaceIdx)
+      }
+    })
 
     container.appendChild(el)
     starElements.push(el)
@@ -292,8 +319,26 @@ function drawPalaceArc(index: number) {
 
 // ── Animation loop (orbital drift + twinkle) ──
 function animateCelestial(timestamp: number) {
-  if (chartScale === 0) {
+  if (!props.isVisible || chartScale === 0) {
     animFrameId = requestAnimationFrame(animateCelestial)
+    return
+  }
+
+  if (reducedMotion) {
+    // Render stars once at their initial positions
+    for (let i = 0; i < celestialStars.length; i++) {
+      const star = celestialStars[i]
+      const el = starElements[i]
+      if (!el) continue
+
+      const angleRad = (star.angleDeg - 90) * Math.PI / 180
+      const x = (CX + Math.cos(angleRad) * star.radius) * chartScale
+      const y = (CY + Math.sin(angleRad) * star.radius) * chartScale
+
+      el.style.left = x + 'px'
+      el.style.top = y + 'px'
+      el.style.opacity = '0.95'
+    }
     return
   }
   const t = (timestamp - chartAnimStart) / 1000
@@ -406,6 +451,7 @@ function doRender() {
 
 // ── Lifecycle ──
 onMounted(() => {
+  reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   init()
   window.addEventListener('resize', handleResize)
 })
@@ -420,6 +466,22 @@ onUnmounted(() => {
 watch(() => props.selectedIndex, () => {
   updateSelection()
 })
+
+// Pause/resume animation when visibility changes
+let reducedMotion = false
+watch(() => props.isVisible, (visible) => {
+  if (visible) {
+    if (!animFrameId && chartScale > 0) {
+      chartAnimStart = performance.now()
+      animFrameId = requestAnimationFrame(animateCelestial)
+    }
+  } else {
+    if (animFrameId) {
+      cancelAnimationFrame(animFrameId)
+      animFrameId = null
+    }
+  }
+})
 </script>
 
 <template>
@@ -429,6 +491,8 @@ watch(() => props.selectedIndex, () => {
       class="absolute inset-0 w-full h-full z-0 pointer-events-none"
       :viewBox="`0 0 ${BASE} ${BASE}`"
       preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label="紫微斗数天星图 — 十二宫星曜分布"
     ></svg>
     <div ref="sectorLabelsContainer" class="absolute inset-0 z-[1] pointer-events-none"></div>
     <div ref="starsContainer" class="absolute inset-0 z-[3] pointer-events-none"></div>
@@ -436,6 +500,7 @@ watch(() => props.selectedIndex, () => {
     <!-- Center seal -->
     <div
       class="center-seal absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[52px] h-[52px] z-10 pointer-events-none"
+      aria-label="命宫"
     >
       <div
         class="seal-body w-full h-full rounded-full border-[1.5px] border-[#D4A84B] flex items-center justify-center relative"
@@ -460,13 +525,14 @@ watch(() => props.selectedIndex, () => {
 </template>
 
 <style scoped>
-.sector-label {
+/* ── Sector Labels ── */
+.celestial-chart :deep(.sector-label) {
   position: absolute;
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.8rem;
   letter-spacing: 0.1em;
-  color: #8B7D6B;
-  opacity: 0.55;
+  color: #5D4E37;
+  opacity: 0.75;
   transition: opacity 0.3s, color 0.3s, text-shadow 0.3s;
   white-space: nowrap;
   transform: translate(-50%, -50%);
@@ -474,22 +540,28 @@ watch(() => props.selectedIndex, () => {
   cursor: pointer;
   text-shadow: 0 1px 0 rgba(245,240,232,0.6);
 }
-.sector-label:hover {
+.celestial-chart :deep(.sector-label:hover) {
   opacity: 0.9;
   color: #5D4E37;
   text-shadow: 0 1px 2px rgba(245,240,232,0.8);
 }
-.sector-label.ming-gong {
+.celestial-chart :deep(.sector-label.ming-gong) {
   color: #C62828;
   opacity: 0.75;
 }
-.sector-label.selected {
+.celestial-chart :deep(.sector-label.selected) {
   opacity: 0.9;
   color: #5D4E37;
   text-shadow: 0 0 6px rgba(198,40,40,0.15);
 }
+.celestial-chart :deep(.sector-label:focus-visible) {
+  outline: 2px solid rgba(198,40,40,0.4);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
 
-.chart-star {
+/* ── Chart Stars ── */
+.celestial-chart :deep(.chart-star) {
   position: absolute;
   pointer-events: auto;
   cursor: pointer;
@@ -500,42 +572,48 @@ watch(() => props.selectedIndex, () => {
   z-index: 3;
   transition: z-index 0.2s;
 }
-.chart-star:hover { z-index: 20; }
-.star-orb { border-radius: 50%; transition: transform 0.3s; }
-.chart-star:hover .star-orb { transform: scale(1.25); }
+.celestial-chart :deep(.chart-star:hover) { z-index: 20; }
+.celestial-chart :deep(.chart-star:focus-visible) {
+  outline: 2px solid rgba(198,40,40,0.4);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.celestial-chart :deep(.star-orb) { border-radius: 50%; transition: transform 0.3s; }
+.celestial-chart :deep(.chart-star:hover .star-orb) { transform: scale(1.25); }
 
 /* Star color orbs */
-.star-orb.cls-gold { width: 14px; height: 14px; background: #C62828; border: 1.5px solid #D4A84B; box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.star-orb.cls-cinnabar { width: 14px; height: 14px; background: #A02020; border: 1px solid rgba(198,40,40,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.star-orb.cls-jade { width: 14px; height: 14px; background: #4A8C6F; border: 1px solid rgba(74,140,111,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.star-orb.cls-ice { width: 14px; height: 14px; background: #6BA8C8; border: 1px solid rgba(107,168,200,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.star-orb.cls-purple { width: 14px; height: 14px; background: #7B6FA0; border: 1px solid rgba(123,111,160,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.star-orb.cls-gray { width: 14px; height: 14px; background: #5D4E37; border: 1px solid rgba(93,78,55,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.star-orb.cls-white { width: 14px; height: 14px; background: #8B7D6B; border: 1px solid rgba(139,125,107,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.15); }
-.chart-star.minor .star-orb.cls-gold { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-cinnabar { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-jade { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-ice { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-purple { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-gray { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-white { width: 11px; height: 11px; }
+.celestial-chart :deep(.star-orb.cls-gold) { width: 14px; height: 14px; background: #C62828; border: 1.5px solid #D4A84B; box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-cinnabar) { width: 14px; height: 14px; background: #A02020; border: 1px solid rgba(198,40,40,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-jade) { width: 14px; height: 14px; background: #4A8C6F; border: 1px solid rgba(74,140,111,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-ice) { width: 14px; height: 14px; background: #6BA8C8; border: 1px solid rgba(107,168,200,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-purple) { width: 14px; height: 14px; background: #7B6FA0; border: 1px solid rgba(123,111,160,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-gray) { width: 14px; height: 14px; background: #5D4E37; border: 1px solid rgba(93,78,55,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-white) { width: 14px; height: 14px; background: #8B7D6B; border: 1px solid rgba(139,125,107,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.15); }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-gold) { width: 11px; height: 11px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-cinnabar) { width: 11px; height: 11px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-jade) { width: 11px; height: 11px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-ice) { width: 11px; height: 11px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-purple) { width: 11px; height: 11px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-gray) { width: 11px; height: 11px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-white) { width: 11px; height: 11px; }
 
-.star-label {
+/* ── Star Labels ── */
+.celestial-chart :deep(.star-label) {
   margin-top: 2px;
   font-size: 0.65rem;
-  color: #5D4E37;
+  color: #4A3828;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  opacity: 0.55;
+  opacity: 0.72;
   transition: opacity 0.3s, color 0.3s;
   pointer-events: none;
-  font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   text-shadow: 0 1px 0 rgba(245,240,232,0.5);
 }
-.chart-star:hover .star-label { opacity: 0.95; }
-.chart-star.active .star-label { opacity: 0.95; color: #C62828; text-shadow: 0 0 4px rgba(198,40,40,0.15); }
+.celestial-chart :deep(.chart-star:hover .star-label) { opacity: 0.95; }
+.celestial-chart :deep(.chart-star.active .star-label) { opacity: 0.95; color: #C62828; text-shadow: 0 0 4px rgba(198,40,40,0.15); }
 
-.chart-star.active::before {
+.celestial-chart :deep(.chart-star.active::before) {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
@@ -548,7 +626,8 @@ watch(() => props.selectedIndex, () => {
   opacity: 0.5;
 }
 
-.mutagen-chip-tx {
+/* ── Mutagen Chips ── */
+.celestial-chart :deep(.mutagen-chip-tx) {
   position: absolute;
   padding: 1px 4px;
   border-radius: 2px;
@@ -558,16 +637,18 @@ watch(() => props.selectedIndex, () => {
   z-index: 5;
   white-space: nowrap;
   line-height: 1.2;
-  font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   transition: opacity 0.3s;
 }
-.mutagen-chip-tx.lu { background: rgba(198,40,40,0.15); color: #C62828; border: 0.5px solid rgba(198,40,40,0.2); }
-.mutagen-chip-tx.quan { background: rgba(74,140,111,0.15); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.2); }
-.mutagen-chip-tx.ke { background: rgba(107,168,200,0.15); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.2); }
-.mutagen-chip-tx.ji { background: rgba(93,78,55,0.12); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.15); }
+.celestial-chart :deep(.mutagen-chip-tx.lu) { background: rgba(198,40,40,0.12); color: #C62828; border: 0.5px solid rgba(198,40,40,0.2); }
+.celestial-chart :deep(.mutagen-chip-tx.quan) { background: rgba(74,140,111,0.12); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.2); }
+.celestial-chart :deep(.mutagen-chip-tx.ke) { background: rgba(107,168,200,0.12); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.2); }
+.celestial-chart :deep(.mutagen-chip-tx.ji) { background: rgba(93,78,55,0.12); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.15); }
 
+/* ── Palace Arc ── */
 .palace-arc.visible { opacity: 1 !important; }
 
+/* ── Animations ── */
 @keyframes ring-pulse {
   0% { width: 20px; height: 20px; opacity: 0.4; }
   100% { width: 44px; height: 44px; opacity: 0; }
@@ -576,5 +657,12 @@ watch(() => props.selectedIndex, () => {
 @keyframes seal-breathe {
   0%, 100% { box-shadow: 0 0 20px rgba(93,78,55,0.2), 0 0 44px rgba(93,78,55,0.08), inset 0 1px 2px rgba(255,255,255,0.1); }
   50% { box-shadow: 0 0 28px rgba(93,78,55,0.28), 0 0 52px rgba(93,78,55,0.12), inset 0 1px 2px rgba(255,255,255,0.08); }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .celestial-chart :deep(.star-orb) { transition: none !important; }
+  .celestial-chart :deep(.sector-label) { transition: none !important; }
+  .celestial-chart :deep(.chart-star:hover .star-orb) { transform: none; }
 }
 </style>

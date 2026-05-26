@@ -1,6 +1,6 @@
 <template>
   <div class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-4 text-xs space-y-2">
-    <h4 class="font-serif font-semibold text-ink-dark text-sm">命盘信息</h4>
+    <h4 class="font-display font-semibold text-ink-dark text-sm">命盘信息</h4>
     <div class="space-y-1.5 text-ink-light">
       <div>
         <span class="block text-ink-dark/50 text-[10px]">出生</span>

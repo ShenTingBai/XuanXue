@@ -11,7 +11,7 @@ defineProps<{
 
 <template>
   <div
-    class="h-full cursor-pointer select-none flex flex-col overflow-hidden relative"
+    class="palace-cell h-full cursor-pointer select-none flex flex-col overflow-hidden relative"
     :class="[
       isSelected ? 'z-[2]' : '',
       isMingGong ? 'cell-ming' : '',
@@ -21,7 +21,7 @@ defineProps<{
     @keydown.space.prevent="onClick"
     role="button"
     :tabindex="0"
-    :aria-label="`${palace.name} - ${palace.earthlyBranch}宫`"
+    :aria-label="`${palace.name} - ${palace.earthlyBranch}宫${isMingGong ? '（命宫）' : ''}`"
   >
 
     <!-- Selection glow -->
@@ -33,24 +33,25 @@ defineProps<{
 
     <!-- Top bar: branch + name -->
     <div class="relative z-[1] flex items-baseline gap-1 px-1.5 pt-1 pb-0">
-      <span class="text-[0.65rem] text-ink-light/70 font-serif tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
+      <span class="text-[0.65rem] text-ink-light/70 font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
       <span
         class="font-display text-[0.9rem] leading-tight tracking-[0.05em]"
         :class="isMingGong ? 'text-cinnabar' : 'text-ink-deep'"
       >{{ palace.name }}</span>
+      <span v-if="isMingGong" class="text-[0.55rem] text-cinnabar/70 ml-0.5" aria-hidden="true">命</span>
     </div>
 
     <!-- Major stars -->
     <div class="relative z-[1] px-1.5 mb-0.5">
-      <div v-if="palace.majorStars.length > 0" class="font-serif text-[0.82rem] text-cinnabar leading-snug tracking-[0.05em]">
+      <div v-if="palace.majorStars.length > 0" class="font-display text-[0.82rem] text-cinnabar leading-snug tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap">
         {{ palace.majorStars.map(s => s.name).join(' ') }}
       </div>
-      <div v-else class="font-serif text-[0.65rem] text-ink-light/40 italic tracking-[0.04em]">空宫</div>
+      <div v-else class="font-display text-[0.65rem] text-ink-light/40 italic tracking-[0.04em]">空宫</div>
     </div>
 
     <!-- Minor stars -->
-    <div v-if="palace.minorStars.length > 0" class="relative z-[1] px-1.5 pb-0.5">
-      <span class="font-serif text-[0.68rem] leading-tight tracking-[0.03em]" style="color: #6B5B4F;">
+    <div v-if="palace.minorStars.length > 0" class="relative z-[1] px-1.5 pb-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
+      <span class="font-display text-[0.68rem] leading-tight tracking-[0.03em]" style="color: #6B5B4F;">
         {{ palace.minorStars.map(s => s.name).join(' ') }}
       </span>
     </div>
@@ -78,6 +79,15 @@ defineProps<{
 </template>
 
 <style scoped>
+.palace-cell:hover {
+  background: rgba(107, 91, 79, 0.04);
+}
+
+.palace-cell:focus-visible {
+  outline: 2px solid #C62828;
+  outline-offset: -2px;
+}
+
 .mutagen-chip {
   font-size: 0.6rem;
   padding: 0.03rem 0.28rem;
@@ -98,11 +108,11 @@ defineProps<{
   top: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #C62828;
-  opacity: 0.6;
+  opacity: 0.75;
   z-index: 2;
   pointer-events: none;
 }

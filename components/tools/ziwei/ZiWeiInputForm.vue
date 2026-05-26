@@ -15,13 +15,13 @@ defineProps<{
 </script>
 
 <template>
-  <div class="ziwei-form bg-paper/70 backdrop-blur-sm rounded-xl border border-ink-faint/20 p-7 mb-6 max-w-md mx-auto relative overflow-hidden">
+  <div class="ziwei-form bg-paper/70 backdrop-blur-sm rounded-xl border border-ink-faint/20 p-6 mb-6 max-w-md mx-auto relative overflow-hidden">
     <!-- Decorative top ornament -->
     <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(198,40,40,0.2) 20%, rgba(198,40,40,0.35) 50%, rgba(198,40,40,0.2) 80%, transparent);" />
 
-    <h2 class="font-display text-xl tracking-[0.12em] mb-6 text-center" style="color: #1A1A1A;">紫微斗数排盘</h2>
+    <h2 class="font-display text-xl tracking-[0.12em] mb-6 text-center text-ink-darkest">紫微斗数排盘</h2>
 
-    <div class="space-y-5">
+    <div class="space-y-6">
       <!-- Birth date -->
       <div>
         <label for="ziwei-birth-date" class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">出生日期</label>
@@ -51,8 +51,8 @@ defineProps<{
       </div>
 
       <!-- Gender -->
-      <div>
-        <span class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">性别</span>
+      <fieldset>
+        <legend class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">性别</legend>
         <div class="flex gap-3">
           <label
             v-for="opt in GENDER_OPTIONS"
@@ -75,13 +75,11 @@ defineProps<{
             >{{ opt.label }}</span>
           </label>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Calculate button -->
       <button
         @click="onCalculate"
-        @keydown.enter="onCalculate"
-        @keydown.space.prevent="onCalculate"
         :disabled="loading || !birthDate || birthHour === null || !gender"
         class="btn-seal w-full justify-center mt-2"
       >
@@ -90,3 +88,10 @@ defineProps<{
     </div>
   </div>
 </template>
+
+<style scoped>
+.sr-only:focus-visible + span {
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+}
+</style>
