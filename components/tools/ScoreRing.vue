@@ -28,7 +28,6 @@
     <div class="score-ring-text" aria-hidden="true">
       <span class="score-number" :style="{ fontSize: scoreFontSize }">{{ displayScore }}</span>
       <span v-if="label" class="score-label" :style="{ fontSize: labelFontSize }">{{ label }}</span>
-      <span v-else class="score-label" :style="{ fontSize: labelFontSize }">分</span>
     </div>
   </div>
 </template>
@@ -55,7 +54,7 @@ const displayScore = computed(() => {
 const ariaLabel = computed(() => {
   const s = Number(props.score)
   if (!Number.isFinite(s)) return '暂无评分'
-  return `${props.label || '评分'}：${Math.round(s)}分`
+  return `${props.label || '评分'}：${Math.round(s)}${props.label ? '' : '分'}`
 })
 
 const radius = 52
@@ -66,8 +65,11 @@ const dashOffset = computed(() => {
   return circumference - fraction * circumference
 })
 
-const scoreFontSize = computed(() => Math.max(12, props.size * 0.3) + 'px')
-const labelFontSize = computed(() => Math.max(10, props.size * 0.1) + 'px')
+const scoreFontSize = computed(() => {
+  const ratio = props.label ? 0.3 : 0.42
+  return Math.max(12, props.size * ratio) + 'px'
+})
+const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
 </script>
 
 <style scoped>

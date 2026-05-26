@@ -16,8 +16,8 @@ interface Tool {
 }
 
 const tools: Tool[] = [
-  { id: 'shengxiao', name: '生肖', char: '兽', description: '查看你的生肖性格、幸运元素和年度运势', route: '/tools/shengxiao', available: true, accent: '#3D6B4B' },
-  { id: 'constellation', name: '星座', char: '辰', description: '查看你的星座特征、今日宜忌和配对分析', route: '/tools/constellation', available: true, accent: '#7A5E12' },
+  { id: 'shengxiao', name: '生肖', char: '肖', description: '查看你的生肖性格、幸运元素和年度运势', route: '/tools/shengxiao', available: true, accent: '#3D6B4B' },
+  { id: 'constellation', name: '星座', char: '星', description: '查看你的星座特征、今日宜忌和配对分析', route: '/tools/constellation', available: true, accent: '#7A5E12' },
   { id: 'bazi', name: '八字', char: '命', description: '了解你的先天命格、性格特质和人生大运', route: '/tools/bazi', available: true, accent: '#C62828' },
   { id: 'yijing', name: '六爻', char: '卦', description: '针对具体问题（事业、感情、决策）获得卦象指引', route: '/tools/yijing', available: true, accent: '#2C5F7C' },
   { id: 'ziwei', name: '紫微斗数', char: '斗', description: '十二宫精批 ・ 星曜解读 ・ 即将上线', route: '/tools/ziwei', available: false, accent: '#6B5B4F' },

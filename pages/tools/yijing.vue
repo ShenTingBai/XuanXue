@@ -99,6 +99,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 useHead({ title: '六爻占卜 - 玄学' })
 
 // State
