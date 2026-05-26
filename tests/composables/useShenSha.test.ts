@@ -398,6 +398,82 @@ describe('calculateShenSha', () => {
     }
   })
 
+  // ========================================================================
+  // Aggregate assertion tests
+  // ========================================================================
+
+  it('returns at least 15 different shensha name types across all test cases', () => {
+    // Collect unique shensha names from multiple chart configurations
+    const allNames = new Set<string>()
+
+    // Test case 1: 1998-05-25 壬日主
+    const input1 = getShenShaInput()
+    const result1 = calculateShenSha(input1)
+    for (const ss of result1) allNames.add(ss.name)
+
+    // Test case 2: 1964-07-14 甲日主
+    const bazi2 = calculateBaZi({
+      birthYear: 1964, birthMonth: 7, birthDay: 14,
+      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+    })
+    const input2 = {
+      yearPillar: bazi2.yearPillar, monthPillar: bazi2.monthPillar, dayPillar: bazi2.dayPillar,
+      hourPillar: bazi2.hourPillar, dayMaster: bazi2.dayMaster,
+      dayMasterIndex: getStemIndex(bazi2.dayMaster),
+      gender: '男' as const,
+    }
+    const result2 = calculateShenSha(input2)
+    for (const ss of result2) allNames.add(ss.name)
+
+    // Test case 3: 2000-05-15 巳月
+    const bazi3 = calculateBaZi({
+      birthYear: 2000, birthMonth: 5, birthDay: 15,
+      birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+    })
+    const input3 = {
+      yearPillar: bazi3.yearPillar, monthPillar: bazi3.monthPillar, dayPillar: bazi3.dayPillar,
+      hourPillar: bazi3.hourPillar, dayMaster: bazi3.dayMaster,
+      dayMasterIndex: getStemIndex(bazi3.dayMaster),
+      gender: '女' as const,
+    }
+    const result3 = calculateShenSha(input3)
+    for (const ss of result3) allNames.add(ss.name)
+
+    // Test case 4: 2004-02-05 甲申年
+    const bazi4 = calculateBaZi({
+      birthYear: 2004, birthMonth: 2, birthDay: 5,
+      birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+    })
+    const input4 = {
+      yearPillar: bazi4.yearPillar, monthPillar: bazi4.monthPillar, dayPillar: bazi4.dayPillar,
+      hourPillar: bazi4.hourPillar, dayMaster: bazi4.dayMaster,
+      dayMasterIndex: getStemIndex(bazi4.dayMaster),
+      gender: '男' as const,
+    }
+    const result4 = calculateShenSha(input4)
+    for (const ss of result4) allNames.add(ss.name)
+
+    expect(allNames.size).toBeGreaterThanOrEqual(15)
+  })
+
+  it('every shensha category is one of: 吉, 凶, 中性', () => {
+    const validCategories = ['吉', '凶', '中性']
+    const input = getShenShaInput()
+    const result = calculateShenSha(input)
+    for (const ss of result) {
+      expect(validCategories).toContain(ss.category)
+    }
+  })
+
+  it('every shensha pillar field matches valid pillar labels', () => {
+    const validPillars = ['年柱', '月柱', '日柱', '时柱', '命宫', '大运', '流年']
+    const input = getShenShaInput()
+    const result = calculateShenSha(input)
+    for (const ss of result) {
+      expect(validPillars).toContain(ss.pillar)
+    }
+  })
+
   it('劫煞 present for 年支寅 (寅午戌劫煞在亥)', () => {
     // 1998 戊寅年, year branch=寅 → 寅午戌 group → 劫煞在亥
     // Use birthHour=22 (亥时) so hour pillar branch=亥 triggers 劫煞

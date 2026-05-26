@@ -5,7 +5,11 @@ import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
 export default defineEventHandler(async (event) => {
-  const id = parseInt(event.context.params!.id)
+  const idRaw = event.context.params!.id
+  if (!/^\d+$/.test(idRaw)) {
+    throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
+  }
+  const id = parseInt(idRaw)
   if (isNaN(id)) {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
   }

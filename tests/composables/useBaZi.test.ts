@@ -148,6 +148,78 @@ describe('calculateBaZi', () => {
     expect(result.daYun[result.daYun.length - 1].stemBranch).toBeTruthy()
   })
 
+  it('handles 子时 boundary: birthHour=23 produces branch 子', () => {
+    const result = calculateBaZi({
+      ...baseProfile, birthHour: 23,
+    })
+    expect(result.hourPillar).not.toBeNull()
+    expect(result.hourPillar!.branch).toBe('子')
+  })
+
+  it('handles 子时 boundary: birthHour=0 also produces branch 子', () => {
+    const result = calculateBaZi({
+      ...baseProfile, birthHour: 0,
+    })
+    expect(result.hourPillar).not.toBeNull()
+    expect(result.hourPillar!.branch).toBe('子')
+  })
+
+  it('birth at 23:30 (子时 before midnight) uses current day pillar, not next day (known limitation)', () => {
+    // Traditional Chinese timekeeping: 子时 (23:00-00:59) belongs to the next day.
+    // The current implementation calculates the day pillar from birth date directly,
+    // so 23:30 on Date D uses Date D's stem-branch, not Date D+1's.
+    // This test documents the current behavior.
+    const lateNight = calculateBaZi({
+      birthYear: 2000, birthMonth: 1, birthDay: 15,
+      birthCalendar: 'solar' as const, birthHour: 23, gender: '男' as const,
+    })
+    const nextDay = calculateBaZi({
+      birthYear: 2000, birthMonth: 1, birthDay: 16,
+      birthCalendar: 'solar' as const, birthHour: 0, gender: '男' as const,
+    })
+    // Late night uses 15th's day pillar, while next day 00:30 uses 16th's
+    // Since adjacent days have different stem-branch pairs, these must differ
+    expect(lateNight.dayPillar.stem + lateNight.dayPillar.branch).not.toBe(
+      nextDay.dayPillar.stem + nextDay.dayPillar.branch,
+    )
+  })
+
+  it('农历 path: birth_calendar="lunar" treats dates as Gregorian for day and year pillars (known limitation)', () => {
+    const lunar = calculateBaZi({
+      ...baseProfile, birthCalendar: 'lunar' as const,
+    })
+    const solar = calculateBaZi({
+      ...baseProfile, birthCalendar: 'solar' as const,
+    })
+    // Day pillar uses the raw date (no lunar-to-solar conversion)
+    expect(lunar.dayPillar.stem).toBe(solar.dayPillar.stem)
+    expect(lunar.dayPillar.branch).toBe(solar.dayPillar.branch)
+    // Year pillar: for May 25 (after 立春), both use same year
+    expect(lunar.yearPillar.stem).toBe(solar.yearPillar.stem)
+    expect(lunar.yearPillar.branch).toBe(solar.yearPillar.branch)
+    // Month pillar may differ because the calendar param affects
+    // month boundary logic (solar uses solar terms, lunar uses raw month)
+    // This is expected behavior — month pillar is NOT part of the known limitation
+  })
+
+  it('handles invalid date (2024-02-30) without crashing', () => {
+    // Feb 30 does not exist, but the calculation engine should handle it
+    // without throwing — it calculates based on raw date values
+    expect(() => calculateBaZi({
+      birthYear: 2024, birthMonth: 2, birthDay: 30,
+      birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+    })).not.toThrow()
+    const result = calculateBaZi({
+      birthYear: 2024, birthMonth: 2, birthDay: 30,
+      birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+    })
+    // Result should still have all expected structure
+    expect(result.yearPillar).toHaveProperty('stem')
+    expect(result.dayPillar).toHaveProperty('stem')
+    expect(result.monthPillar).toHaveProperty('stem')
+    expect(result.hourPillar).not.toBeNull()
+  })
+
   it('handles reverse daYun direction for 阳女逆排 (1964 甲辰年)', () => {
     // 1964 is 甲辰年, 甲=阳, 阳女 → reverse direction
     // Month pillar 庚午, reverse first cycle = 己巳

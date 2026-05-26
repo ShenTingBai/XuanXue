@@ -1,15 +1,22 @@
 <template>
-  <div class="divider-ink my-8 sm:my-10" role="separator" aria-orientation="horizontal">
+  <component :is="headingTag" class="divider-ink my-8 sm:my-10">
     <span v-if="$slots.default" class="ink-divider-label flex items-center gap-3 text-ink-dark">
       <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
       <slot />
     </span>
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
-// InkDivider — decorative ink-wash style separator
-// Can optionally display a label via the default slot
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{
+  level?: 2 | 3
+}>(), {
+  level: 2,
+})
+
+const headingTag = computed(() => `h${props.level}`)
 </script>
 
 <style scoped>

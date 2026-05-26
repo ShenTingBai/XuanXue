@@ -18,9 +18,7 @@ html {
   }
 
   body {
-    @apply min-h-screen;
-    background-color: #F5F0E8;
-    color: #2C1810;
+    @apply min-h-screen bg-paper-light text-ink;
   }
 
   /* Paper grain texture overlay — fixed to viewport */
@@ -61,8 +59,8 @@ html {
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    border: 1.5px solid #C62828;
-    color: #C62828;
+    border: 1.5px solid;
+    @apply border-cinnabar text-cinnabar;
     font-family: 'Ma Shan Zheng', cursive;
     font-size: 0.75rem;
     line-height: 1;
@@ -86,30 +84,18 @@ html {
 
   /* ===== Cards ===== */
   .card-paper-solid {
-    background: rgba(251, 248, 244, 0.95);
-    border: 1px solid #E0D5C0;
+    border: 1px solid;
+    @apply bg-paper-lightest/95 border-paper-dark shadow-card;
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-    box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
-  }
-
-  .card-paper-solid--interactive {
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-  }
-  .card-paper-solid--interactive:hover {
-    border-color: #D4C5B0;
-  }
-  .card-paper-solid--interactive:active {
-    border-color: #C0B098;
   }
 
   /* ===== Seal Stamp Button ===== */
   .btn-seal {
     @apply relative inline-flex items-center justify-center overflow-hidden;
     padding: 0.75rem 2rem;
-    border: 2px solid #C62828;
-    color: #C62828;
+    border: 2px solid;
+    @apply border-cinnabar text-cinnabar;
     font-family: 'Noto Sans SC', sans-serif;
     font-weight: 500;
     font-size: 0.9375rem;
@@ -122,7 +108,7 @@ html {
     content: '';
     position: absolute;
     inset: 0;
-    background: #C62828;
+    @apply bg-cinnabar;
     transform: scaleX(0);
     transform-origin: right;
     transition: transform 0.35s ease-out;
@@ -132,7 +118,7 @@ html {
     transform-origin: left;
   }
   .btn-seal:hover {
-    color: #FBF8F4;
+    @apply text-paper-lightest;
   }
   .btn-seal > span {
     @apply relative z-10;
@@ -157,7 +143,7 @@ html {
   .btn-ghost {
     @apply relative inline-flex items-center justify-center;
     padding: 0.5rem 1.25rem;
-    color: #6B5B4F;
+    @apply text-ink-medium;
     font-family: 'Noto Sans SC', sans-serif;
     font-size: 0.875rem;
     letter-spacing: 0.05em;
@@ -165,7 +151,7 @@ html {
     cursor: pointer;
   }
   .btn-ghost:hover {
-    color: #C62828;
+    @apply text-cinnabar;
   }
 
   /* ===== Ink Underline Input ===== */
@@ -173,7 +159,7 @@ html {
     @apply w-full bg-transparent outline-none;
     padding: 0.5rem 0.25rem;
     border-bottom: 2px solid #D4C5B0;
-    color: #2C1810;
+    @apply text-ink;
     font-family: 'Noto Sans SC', sans-serif;
     font-size: 1rem;
     transition: border-color 0.2s ease;
@@ -194,7 +180,9 @@ html {
     outline: none;
   }
   .input-ink--readonly:focus-visible {
-    outline: none;
+    outline: 2px solid #C62828;
+    outline-offset: 1px;
+    border-bottom-color: #D4C5B0;
   }
   .input-ink:disabled {
     opacity: 0.5;
@@ -321,13 +309,6 @@ html {
     border-color: #5E5E5E;
     background: rgba(94, 94, 94, 0.06);
   }
-  .yiyi-border {
-    border-width: 3px;
-    border-style: solid;
-  }
-  .yiyi-border--yi { border-color: #3D6B4B; }
-  .yiyi-border--ji { border-color: #5E5E5E; }
-
   /* ===== Nav Link ===== */
   .nav-link {
     @apply relative inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition-colors no-underline;

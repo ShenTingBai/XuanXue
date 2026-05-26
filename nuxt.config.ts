@@ -20,6 +20,13 @@ export default defineNuxtConfig({
   routeRules: {
     '/**': {
       headers: {
+        // FIXME: 'unsafe-inline' in script-src weakens XSS protection.
+        // Nuxt 3 injects inline scripts for hydration and does not natively
+        // support nonce-based CSP. Removing 'unsafe-inline' will break
+        // hydration without a nonce-based approach (see app.head.nonce in
+        // Nuxt docs). For production hardening, implement a nonce strategy
+        // via Nitro render hooks or a Nuxt module like @nuxtjs/csp, then
+        // drop 'unsafe-inline' from script-src.
         'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:; connect-src 'self'",
         'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
         'X-Content-Type-Options': 'nosniff',

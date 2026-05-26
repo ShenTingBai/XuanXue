@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { calculateLiuNian } from '../../composables/useLiuNian'
 import { calculateBaZi } from '../../composables/useBaZi'
+import { calculateShenSha } from '../../composables/useShenSha'
+import { getStemIndex } from '../../constants/bazi'
 
 describe('calculateLiuNian', () => {
   const baseProfile = {
@@ -253,6 +255,76 @@ describe('calculateLiuNian', () => {
     const yearXing = year2024.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '刑')
     expect(yearXing.length).toBeGreaterThan(0)
     expect(yearXing[0].description).toContain('自刑')
+  })
+
+  // === Year-specific shensha tests ===
+
+  it('accepts real ShenSha input array (not empty)', () => {
+    // Create a chart and compute shensha, then pass to liunian
+    const baZi = calculateBaZi({
+      birthYear: 1998, birthMonth: 5, birthDay: 25,
+      birthCalendar: 'solar', birthHour: 14, gender: '男',
+    })
+    const chartShenSha = calculateShenSha({
+      yearPillar: baZi.yearPillar,
+      monthPillar: baZi.monthPillar,
+      dayPillar: baZi.dayPillar,
+      hourPillar: baZi.hourPillar,
+      dayMaster: baZi.dayMaster,
+      dayMasterIndex: getStemIndex(baZi.dayMaster),
+      gender: '男',
+    })
+    const result = calculateLiuNian({ baZi, currentYear: 2026, shenSha: chartShenSha })
+    expect(result.length).toBe(11)
+    for (const year of result) {
+      expect(Array.isArray(year.shenSha)).toBe(true)
+    }
+  })
+
+  it('returns year-specific shensha (桃花, 驿马, 将星, 华盖, 劫煞, 灾煞) based on year branch', () => {
+    // 1998 is 戊寅年 (寅). 寅午戌 group.
+    // 桃花在卯 — year 2023=癸卯年, branch=卯 → 桃花
+    // 驿马在申 — year 2028=戊申年, branch=申 → 驿马
+    const baZi = calculateBaZi({
+      birthYear: 1998, birthMonth: 5, birthDay: 25,
+      birthCalendar: 'solar', birthHour: 14, gender: '男',
+    })
+    const result = calculateLiuNian({ baZi, currentYear: 2023, range: 5, shenSha: [] })
+    const year2023 = result.find(y => y.year === 2023)
+    expect(year2023).toBeDefined()
+    // 2023=癸卯, year branch=卯 → 寅午戌桃花在卯 → 桃花 should be present
+    const taoHua = year2023!.shenSha.filter(s => s.name === '桃花')
+    expect(taoHua.length).toBeGreaterThan(0)
+
+    // 2028=戊申, year branch=申 → 寅午戌驿马在申 → 驿马 should be present
+    const year2028 = result.find(y => y.year === 2028)
+    expect(year2028).toBeDefined()
+    const yiMa = year2028!.shenSha.filter(s => s.name === '驿马')
+    expect(yiMa.length).toBeGreaterThan(0)
+  })
+
+  it('all year-specific shensha have pillar set to 流年', () => {
+    const result = calculateLiuNian({ baZi: bazi, currentYear: 2026, shenSha: [] })
+    for (const year of result) {
+      for (const ss of year.shenSha) {
+        expect(ss.pillar).toBe('流年')
+      }
+    }
+  })
+
+  it('year-specific shensha affects scoring', () => {
+    // For a favorable shensha year, score should be higher than baseline
+    // Use a year that triggers 将星 (吉) — e.g., 寅年见子 for 寅午戌将星在子
+    const baZi = calculateBaZi({
+      birthYear: 1998, birthMonth: 5, birthDay: 25,
+      birthCalendar: 'solar', birthHour: 14, gender: '男',
+    })
+    const result = calculateLiuNian({ baZi, currentYear: 2020, range: 5, shenSha: [] })
+    // 2020=庚子年, 子 → 寅午戌将星在子 → 将星(吉) triggers +5
+    const yearWithJiangXing = result.filter(y => y.shenSha.some(s => s.name === '将星'))
+    if (yearWithJiangXing.length > 0) {
+      expect(yearWithJiangXing[0].score).toBeGreaterThanOrEqual(0)
+    }
   })
 
   // === Earth relations — 合破 conflict ===

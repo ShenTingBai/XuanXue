@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
+import InkDivider from '~/components/tools/InkDivider.vue'
 
 interface ProfileUpdateBody {
   gender: string | null
@@ -299,9 +300,7 @@ const saveProfile = async () => {
 
         <!-- Section: 基本信息 -->
         <section>
-          <div class="divider-ink mb-5">
-            <span>基本信息</span>
-          </div>
+          <InkDivider class="mb-5">基本信息</InkDivider>
           <div class="space-y-5">
             <!-- Nickname (read-only) -->
             <div>
@@ -367,9 +366,7 @@ const saveProfile = async () => {
 
         <!-- Section: 出生信息 -->
         <section>
-          <div class="divider-ink mb-5">
-            <span>出生信息</span>
-          </div>
+          <InkDivider class="mb-5">出生信息</InkDivider>
           <div class="space-y-5">
             <!-- Birth date -->
             <div>

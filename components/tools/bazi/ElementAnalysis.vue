@@ -6,7 +6,7 @@
       五行（金木水火土）在你八字中的分布。柱条越长，该能量越强，对你影响越大。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-4 sm:p-5">
+    <div class="card-paper-solid rounded-xl p-8">
     <div v-if="summary" class="font-sans text-base text-ink-medium mb-4">
       {{ summary }}
     </div>

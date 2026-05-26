@@ -4,7 +4,7 @@
       <!-- Emoji / Symbol icon -->
       <span
         class="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-cinnabar/5 border border-cinnabar/20 text-2xl sm:text-3xl"
-        :aria-label="emojiLabel || title"
+        aria-hidden="true"
       >
         {{ emoji }}
       </span>

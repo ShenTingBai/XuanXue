@@ -7,6 +7,9 @@ export default defineConfig({
       '~': resolve(__dirname),
     },
   },
+  define: {
+    'import.meta.client': 'true',
+  },
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],

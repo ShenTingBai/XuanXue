@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     if (err?.message?.includes('UNIQUE constraint failed: profiles.nickname')) {
       throw createError({ statusCode: 409, statusMessage: '该昵称已被使用' })
     }
-    throw err
+    throw createError({ statusCode: 500, statusMessage: '注册失败，请稍后再试' })
   }
   const profile = dbGet('SELECT * FROM profiles WHERE id = ?', [result.lastInsertRowid])
 

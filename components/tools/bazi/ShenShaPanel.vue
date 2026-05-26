@@ -6,7 +6,7 @@
       神煞是命局中的特殊标记，吉神代表先天福分，凶煞提示需留意之处。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-4 sm:p-5 space-y-4">
+    <div class="card-paper-solid rounded-xl p-8 space-y-4">
       <!-- Empty state: no shenshas at all -->
       <p v-if="groupedShenSha.auspicious.length === 0 && groupedShenSha.neutral.length === 0 && groupedShenSha.inauspicious.length === 0"
         class="font-sans text-sm text-ink-muted">

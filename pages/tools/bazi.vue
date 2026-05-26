@@ -259,7 +259,12 @@ function dismissRestoreError() {
 }
 
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
 }
 
 function elementColor(el: string): string {
@@ -441,7 +446,12 @@ function scrollToSection(anchorName: string) {
   if (!id) return
   const el = document.getElementById(id)
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
+    const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+    if (prefersReducedMotion) {
+      el.scrollIntoView()
+    } else {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
     el.focus({ preventScroll: true })
   }
 }
@@ -634,16 +644,16 @@ function scrollToSection(anchorName: string) {
             </div>
 
             <!-- Reading Guide -->
-            <div id="reading-guide" class="mb-8 p-4 sm:p-5 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20" tabindex="-1">
-              <h3 class="font-display text-xl sm:text-2xl text-cinnabar mb-5 flex items-center gap-2">
+            <div id="reading-guide" class="mb-8 p-8 rounded-xl card-paper-solid border border-cinnabar/15 scroll-mt-20" tabindex="-1">
+              <h2 class="font-display text-xl sm:text-2xl text-cinnabar mb-5 flex items-center gap-2">
                 <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
                 你的八字解读
-              </h3>
+              </h2>
 
               <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
                 <!-- Section 1: 命局总览 -->
                 <div>
-                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">命局总览</h4>
+                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">命局总览</h3>
                   <p>
                     <strong class="text-ink-dark">你是{{ result.dayMaster }}{{ result.dayMasterWuxing }}命。</strong>
                     日主代表你自己——你出生那天的天干是「{{ result.dayMaster }}」，五行属「{{ result.dayMasterWuxing }}」。
@@ -662,7 +672,7 @@ function scrollToSection(anchorName: string) {
 
                 <!-- Section 2: 神煞精要 -->
                 <div v-if="readingGuideShensha.length > 0">
-                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">神煞精要</h4>
+                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">神煞精要</h3>
                   <div class="flex flex-wrap gap-2 mb-2">
                     <span
                       v-for="shen in readingGuideShensha"
@@ -687,7 +697,7 @@ function scrollToSection(anchorName: string) {
 
                 <!-- Section 3: 今年运势 -->
                 <div v-if="currentYearLiuNian">
-                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">今年运势（{{ currentYearLiuNian.year }}年）</h4>
+                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">今年运势（{{ currentYearLiuNian.year }}年）</h3>
                   <div class="flex items-center gap-3 mb-2">
                     <span class="font-display text-lg text-ink-dark">{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span>
                     <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{ currentYearLiuNian.tenGod }}</span>
@@ -710,7 +720,7 @@ function scrollToSection(anchorName: string) {
 
                 <!-- Section 4: 当前大运 -->
                 <div v-if="currentDaYun">
-                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">当前大运</h4>
+                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">当前大运</h3>
                   <div class="flex items-center gap-3 mb-1">
                     <span class="font-display text-lg text-ink-dark">{{ currentDaYun.stemBranch }}</span>
                     <span class="text-xs text-ink-light">{{ currentDaYun.startAge }}岁 - {{ currentDaYun.endAge }}岁</span>
@@ -720,7 +730,7 @@ function scrollToSection(anchorName: string) {
 
                 <!-- Section 5: 五行建议 -->
                 <div>
-                  <h4 class="font-sans text-sm font-medium text-ink-dark mb-2">五行建议</h4>
+                  <h3 class="font-sans text-sm font-medium text-ink-dark mb-2">五行建议</h3>
                   <p class="text-sm mb-2">
                     你的喜用神为<strong class="text-cinnabar">{{ result.favorableElements.join('、') }}</strong>，
                     生活中多接触与这些元素相关的事物有助于运势提升。

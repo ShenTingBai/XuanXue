@@ -1,5 +1,5 @@
 <template>
-  <div class="card-paper-solid rounded-xl p-4 sm:p-5">
+  <div class="card-paper-solid rounded-xl p-8">
     <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-3">基本信息</div>
 
     <div class="font-sans text-xs text-ink-medium space-y-1 mb-3">
