@@ -73,39 +73,21 @@
       </div>
     </template>
 
-    <!-- Mutual hexagram (互卦) — collapsible -->
+    <!-- Mutual hexagram (互卦) -->
     <template v-if="result.huGua && result.huGuaLines">
       <h2 class="sr-only">互卦</h2>
       <InkDivider>互卦</InkDivider>
       <div class="card-paper-solid rounded-xl p-8 mb-6">
-        <button
-          class="flex items-center gap-2 w-full text-left mb-3"
-          @click="showHuGua = !showHuGua"
-          @keydown.enter="showHuGua = !showHuGua"
-          @keydown.space.prevent="showHuGua = !showHuGua"
-          :aria-expanded="showHuGua"
-          aria-controls="hu-gua-content"
-        >
-          <span
-            class="inline-block transition-transform duration-200"
-            :class="{ 'rotate-90': showHuGua }"
-            aria-hidden="true"
-          >&#9654;</span>
-          <span class="font-sans text-sm text-ink-medium tracking-wider">查看互卦</span>
-        </button>
-
-        <div v-show="showHuGua" id="hu-gua-content">
-          <HexagramDisplay
-            :hexagram="{
-              name: result.huGua.name,
-              judgment: result.huGua.judgment,
-              lines: result.huGuaLines.map(l => l.yao),
-              shiPosition: result.huGua.shiPosition,
-              yingPosition: result.huGua.yingPosition,
-            }"
-            label="互卦"
-          />
-        </div>
+        <HexagramDisplay
+          :hexagram="{
+            name: result.huGua.name,
+            judgment: result.huGua.judgment,
+            lines: result.huGuaLines.map(l => l.yao),
+            shiPosition: result.huGua.shiPosition,
+            yingPosition: result.huGua.yingPosition,
+          }"
+          label="互卦"
+        />
       </div>
     </template>
 
@@ -142,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import type { YijingResult } from '~/composables/useYijing'
 import HexagramDisplay from '~/components/tools/yijing/HexagramDisplay.vue'
 import ZhuangGuaTable from '~/components/tools/yijing/ZhuangGuaTable.vue'
@@ -152,8 +134,6 @@ const props = defineProps<{
   result: YijingResult | null
   score: number
 }>()
-
-const showHuGua = ref(false)
 
 // Score ring circumference
 const radius = 52

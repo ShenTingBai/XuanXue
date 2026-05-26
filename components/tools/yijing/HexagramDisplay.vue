@@ -9,6 +9,27 @@
       <span class="font-sans text-xs tracking-widest text-ink-medium uppercase">{{ label }}</span>
     </div>
 
+    <!-- Hexagram overview: trigrams, changing lines -->
+    <div class="flex flex-wrap items-start gap-x-6 gap-y-1 mb-4">
+      <!-- Upper trigram -->
+      <span class="inline-flex items-center gap-1.5 font-sans text-xs text-ink-light">
+        <span class="text-ink-medium">上卦</span>
+        <span class="font-medium text-ink">{{ upperTrigramName }}</span>
+        <span v-if="upperWuxing" class="text-[0.625rem]">({{ upperWuxing }})</span>
+      </span>
+      <!-- Lower trigram -->
+      <span class="inline-flex items-center gap-1.5 font-sans text-xs text-ink-light">
+        <span class="text-ink-medium">下卦</span>
+        <span class="font-medium text-ink">{{ lowerTrigramName }}</span>
+        <span v-if="lowerWuxing" class="text-[0.625rem]">({{ lowerWuxing }})</span>
+      </span>
+      <!-- Changing lines -->
+      <span v-if="changingCount > 0" class="inline-flex items-center gap-1.5 font-sans text-xs text-ink-light">
+        <span class="text-ink-medium">动爻</span>
+        <span class="font-medium text-cinnabar">{{ changingDisplay }}</span>
+      </span>
+    </div>
+
     <div class="flex items-start gap-5 sm:gap-6">
       <!-- Yao lines -->
       <div class="flex-shrink-0">
@@ -61,7 +82,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { YaoResult } from '~/composables/useYijing'
+import { TRIGRAM_NAMES, TRIGRAM_WUXING } from '~/constants/yijing'
 
 interface HexagramProp {
   name: string
@@ -75,6 +98,30 @@ const props = defineProps<{
   hexagram: HexagramProp | null
   label?: string
 }>()
+
+function trigramIndex(lines: YaoResult[], start: number): number {
+  const bits = [lines[start], lines[start + 1], lines[start + 2]]
+  // bit0 = bottom of trigram (lines[start])
+  return (bits[2].isYang ? 4 : 0) | (bits[1].isYang ? 2 : 0) | (bits[0].isYang ? 1 : 0)
+}
+
+const lowerIdx = computed(() => props.hexagram ? trigramIndex(props.hexagram.lines, 0) : -1)
+const upperIdx = computed(() => props.hexagram ? trigramIndex(props.hexagram.lines, 3) : -1)
+
+const upperTrigramName = computed(() => upperIdx.value >= 0 ? TRIGRAM_NAMES[upperIdx.value] : '')
+const lowerTrigramName = computed(() => lowerIdx.value >= 0 ? TRIGRAM_NAMES[lowerIdx.value] : '')
+const upperWuxing = computed(() => upperIdx.value >= 0 ? TRIGRAM_WUXING[upperIdx.value] : '')
+const lowerWuxing = computed(() => lowerIdx.value >= 0 ? TRIGRAM_WUXING[lowerIdx.value] : '')
+
+const changingCount = computed(() => props.hexagram?.lines.filter(l => l.isChanging).length ?? 0)
+const changingDisplay = computed(() => {
+  if (!props.hexagram || changingCount.value === 0) return ''
+  const posLabels = ['初', '二', '三', '四', '五', '上']
+  return props.hexagram.lines
+    .map((l, i) => l.isChanging ? posLabels[i] : null)
+    .filter(Boolean)
+    .join('、')
+})
 
 function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   const posLabels = ['初', '二', '三', '四', '五', '上']
@@ -116,7 +163,6 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   flex-shrink: 0;
 }
 
-/* Increasing/decreasing line */
 .yao-bar--left {
   border-radius: 2px 0 0 2px;
 }
@@ -135,19 +181,16 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   white-space: nowrap;
 }
 
-/* Changing yao */
 .yao-line--changing .yao-bar {
   @apply bg-cinnabar;
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
-/* 世 position */
 .yao-line--shi .yao-label {
   @apply text-cinnabar;
   font-weight: 500;
 }
 
-/* 应 position */
 .yao-line--ying .yao-label {
   @apply text-gold;
   font-weight: 500;
