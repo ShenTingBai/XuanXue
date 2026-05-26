@@ -188,27 +188,30 @@ const sortedPeriods = computed(() => {
           @update:current-view="currentView = $event"
         />
 
-        <!-- Celestial Chart (天星图) -->
-        <ZiWeiCelestialChart
-          v-if="currentView === 'celestial'"
-          :palaces="astrolabe.palaces"
-          :selected-index="selectedIndex"
-          :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-          @select="handleSelectPalace"
-        />
-
-        <!-- Palace Grid (回宫图) -->
-        <ZiWeiPalaceGrid
-          v-if="currentView === 'grid'"
-          :palaces="astrolabe.palaces"
-          :selected-index="selectedIndex"
-          :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-          :five-elements-class="astrolabe.fiveElementsClass"
-          :soul="astrolabe.soul"
-          :body="astrolabe.body"
-          :ming-gong-branch="astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''"
-          :on-select-palace="handleSelectPalace"
-        />
+        <!-- View Transition -->
+        <Transition name="view-fade" mode="out-in">
+          <ZiWeiCelestialChart
+            v-if="currentView === 'celestial'"
+            :key="'celestial'"
+            :palaces="astrolabe.palaces"
+            :selected-index="selectedIndex"
+            :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+            :is-visible="currentView === 'celestial'"
+            @select="handleSelectPalace"
+          />
+          <ZiWeiPalaceGrid
+            v-else
+            :key="'grid'"
+            :palaces="astrolabe.palaces"
+            :selected-index="selectedIndex"
+            :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+            :five-elements-class="astrolabe.fiveElementsClass"
+            :soul="astrolabe.soul"
+            :body="astrolabe.body"
+            :ming-gong-branch="astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''"
+            :on-select-palace="handleSelectPalace"
+          />
+        </Transition>
 
         <!-- DaXian Timeline -->
         <div class="mt-4">
@@ -232,3 +235,14 @@ const sortedPeriods = computed(() => {
   </ToolPageLayout>
 
 </template>
+
+<style scoped>
+.view-fade-enter-active,
+.view-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.view-fade-enter-from,
+.view-fade-leave-to {
+  opacity: 0;
+}
+</style>

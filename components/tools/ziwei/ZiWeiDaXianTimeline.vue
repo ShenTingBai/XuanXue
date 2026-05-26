@@ -98,25 +98,25 @@ function focusNode(idx: number): void {
       >
         <!-- Dot -->
         <div
-          class="w-2.5 h-2.5 rounded-full transition-all duration-300"
+          class="dot-element rounded-full transition-transform duration-200"
           :class="{
-            'bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110': isActive(period),
-            'bg-ink-light/35': isPast(period),
-            'bg-ink-faint/40': !isActive(period) && !isPast(period),
+            'w-3.5 h-3.5 bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110': isActive(period),
+            'w-2.5 h-2.5 bg-ink-light/35': isPast(period),
+            'w-2 h-2 bg-ink-faint/40': !isActive(period) && !isPast(period),
           }"
         />
         <!-- Palace name -->
         <span
-          class="text-[0.65rem] whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-display"
+          class="text-[0.72rem] font-medium whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-display"
           :class="{
-            'text-cinnabar font-medium': isActive(period),
+            'text-cinnabar text-[0.78rem]': isActive(period),
             'text-ink-medium/70': isPast(period),
             'text-ink-medium/50': !isActive(period) && !isPast(period),
           }"
         >{{ period.palaceName }}</span>
         <!-- Age range -->
         <span
-          class="text-[10px] transition-colors duration-300 font-sans tracking-[0.04em]"
+          class="text-[0.65rem] transition-colors duration-300 font-sans tracking-[0.04em]"
           :class="{
             'text-cinnabar/70': isActive(period),
             'text-ink-light/35': isPast(period),
@@ -133,6 +133,19 @@ function focusNode(idx: number): void {
   outline: 2px solid #C62828;
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+.timeline-node {
+  padding: 0.25rem 0.375rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.timeline-node:hover {
+  background-color: rgba(198, 40, 40, 0.04);
+}
+
+.timeline-node:hover .dot-element {
+  transform: scale(1.15);
 }
 
 .node-future:hover {

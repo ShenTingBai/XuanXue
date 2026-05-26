@@ -21,7 +21,7 @@
       <!-- Header -->
       <div class="detail-header">
         <div class="flex items-center gap-2.5">
-          <h3 class="font-display text-[1.25rem] tracking-[0.06em]" style="color: #1A0F0A;">{{ detailView.name }}</h3>
+          <h3 class="font-display text-[1.6rem] tracking-[0.06em]" style="color: #1A0F0A;">{{ detailView.name }}</h3>
           <span class="detail-branch-badge">{{ detailView.stem }}{{ detailView.branch }}</span>
         </div>
       </div>
@@ -176,8 +176,8 @@ function getMutagenClass(transformation: string): string {
 
 .detail-branch-badge {
   font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
-  font-size: 0.68rem;
-  color: #7A6A5C;
+  font-size: 0.75rem;
+  color: rgba(94, 80, 69, 0.6);
   letter-spacing: 0.08em;
   padding: 0.08rem 0.5rem;
   border: 1px solid rgba(93, 78, 55, 0.1);
@@ -199,7 +199,7 @@ function getMutagenClass(transformation: string): string {
   color: #7A6A5C;
   letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
 }
 
@@ -217,7 +217,7 @@ function getMutagenClass(transformation: string): string {
 .detail-star-list {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .detail-star-item {
@@ -240,13 +240,13 @@ function getMutagenClass(transformation: string): string {
 
 .star-dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
   border: 1px solid transparent;
 }
-.star-dot.major { width: 10px; height: 10px; }
+.star-dot.major { width: 11px; height: 11px; }
 
 .star-dot.gold     { background: #C62828; border-color: rgba(212,168,75,0.5); }
 .star-dot.cinnabar { background: #B71C1C; }
@@ -298,12 +298,14 @@ function getMutagenClass(transformation: string): string {
 .reading-line {
   margin-bottom: 0.3rem;
   font-size: 0.875rem;
+  line-height: 1.7;
   color: #6B5B4F;
 }
 
 .combination-note {
   margin-top: 0.5rem;
   font-size: 0.875rem;
+  line-height: 1.7;
   color: #C62828;
   opacity: 0.85;
 }

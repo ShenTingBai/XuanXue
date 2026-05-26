@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
-import { BRANCH_TO_ANGLE } from '~/constants/ziwei'
+import { BRANCH_TO_ANGLE, getStarInterpretation } from '~/constants/ziwei'
 
 // Styling attribute for dynamically created DOM elements
 const STYLE_ATTR = 'data-v-ziwei-chart'
@@ -62,10 +62,24 @@ let animFrameId: number | null = null
 let chartAnimStart = 0
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
 let focusedSectorIndex = -1
+let palaceBoundaryGroup: SVGElement | null = null
+const SVG_NS = 'http://www.w3.org/2000/svg'
 
 // Apply style attribute to dynamically created DOM elements
 function scope(el: HTMLElement) {
   el.setAttribute(STYLE_ATTR, '')
+}
+
+// ── Tooltip ──
+let tooltipEl: HTMLDivElement | null = null
+function getTooltip(): HTMLDivElement {
+  if (!tooltipEl) {
+    tooltipEl = document.createElement('div')
+    tooltipEl.className = 'star-tooltip'
+    scope(tooltipEl)
+    chartContainer.value?.appendChild(tooltipEl)
+  }
+  return tooltipEl
 }
 
 // ── Star category Sets (classified by type, not individual name) ──
@@ -129,16 +143,14 @@ function renderOrbitRings() {
   if (!svg) return
   svg.innerHTML = ''
 
-  const ns = 'http://www.w3.org/2000/svg'
-
   // Orbit rings — perfect circles so stars travel exactly on them
   RINGS.forEach(ring => {
-    const el = document.createElementNS(ns, "circle")
+    const el = document.createElementNS(SVG_NS, "circle")
     el.setAttribute("cx", String(CX))
     el.setAttribute("cy", String(CY))
     el.setAttribute("r", String(ring.r))
     el.setAttribute("fill", "none")
-    el.setAttribute("stroke", "#C5B8A8")
+    el.setAttribute("stroke", "#B8A898")
     el.setAttribute("stroke-width", "0.8")
     el.setAttribute("opacity", "0.35")
     svg.appendChild(el)
@@ -153,7 +165,7 @@ function renderOrbitRings() {
     const y1 = CY + Math.sin(angleRad) * RINGS[0].r
     const x2 = CX + Math.cos(angleRad) * (RINGS[4].r + 8)
     const y2 = CY + Math.sin(angleRad) * (RINGS[4].r + 8)
-    const line = document.createElementNS(ns, 'line')
+    const line = document.createElementNS(SVG_NS, 'line')
     line.setAttribute('x1', String(x1))
     line.setAttribute('y1', String(y1))
     line.setAttribute('x2', String(x2))
@@ -169,14 +181,14 @@ function renderOrbitRings() {
     { x1: CX - RINGS[4].r - 10, y1: CY, x2: CX + RINGS[4].r + 10, y2: CY },
     { x1: CX, y1: CY - RINGS[4].r - 10, x2: CX, y2: CY + RINGS[4].r + 10 },
   ].forEach(({ x1, y1, x2, y2 }) => {
-    const line = document.createElementNS(ns, 'line')
+    const line = document.createElementNS(SVG_NS, 'line')
     line.setAttribute('x1', String(x1))
     line.setAttribute('y1', String(y1))
     line.setAttribute('x2', String(x2))
     line.setAttribute('y2', String(y2))
-    line.setAttribute('stroke', '#C5B8A8')
+    line.setAttribute('stroke', '#B8A898')
     line.setAttribute('stroke-width', '0.4')
-    line.setAttribute('opacity', '0.12')
+    line.setAttribute('opacity', '0.16')
     line.setAttribute('stroke-dasharray', '3,5')
     svg.appendChild(line)
   })
@@ -284,6 +296,24 @@ function createStarElements() {
       }
     })
 
+    // Tooltip handlers
+    el.addEventListener('mouseenter', (e) => {
+      const tip = getTooltip()
+      const interpretation = getStarInterpretation(star.name)
+      if (interpretation) {
+        tip.textContent = star.name + ': ' + interpretation
+        tip.classList.add('visible')
+      }
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+      const containerRect = chartContainer.value!.getBoundingClientRect()
+      tip.style.left = (rect.left - containerRect.left + rect.width + 8) + 'px'
+      tip.style.top = (rect.top - containerRect.top) + 'px'
+    })
+    el.addEventListener('mouseleave', () => {
+      const tip = tooltipEl
+      if (tip) tip.classList.remove('visible')
+    })
+
     container.appendChild(el)
     starElements.push(el)
 
@@ -307,14 +337,44 @@ function createStarElements() {
 function drawPalaceArc(index: number) {
   const el = palaceArcEl.value
   if (!el) return
+
+  // Remove old boundary lines
+  const svg = orbitSvg.value
+  if (svg && palaceBoundaryGroup) {
+    palaceBoundaryGroup.remove()
+    palaceBoundaryGroup = null
+  }
+
   if (index < 0 || !props.palaces[index]) {
     el.classList.remove('visible')
     return
   }
   const rawAngle = BRANCH_TO_ANGLE[props.palaces[index].earthlyBranch] || 0
   el.style.background =
-    `conic-gradient(from ${rawAngle - 15}deg, transparent 0deg, rgba(198,40,40,0.08) 0deg, rgba(198,40,40,0.16) 30deg, transparent 30deg, transparent 360deg)`
+    `conic-gradient(from ${rawAngle - 15}deg, transparent 0deg, rgba(198,40,40,0.12) 0deg, rgba(198,40,40,0.20) 30deg, transparent 30deg, transparent 360deg)`
   el.classList.add('visible')
+
+  // Draw boundary lines at sector edges
+  if (svg) {
+    const startAngleRad = (rawAngle - 15 - 90) * Math.PI / 180
+    const endAngleRad = (rawAngle + 15 - 90) * Math.PI / 180
+    const innerR = RINGS[0].r - 10
+    const outerR = RINGS[2].r + 15
+
+    const g = document.createElementNS(SVG_NS, 'g')
+    ;[startAngleRad, endAngleRad].forEach(angleRad => {
+      const line = document.createElementNS(SVG_NS, 'line')
+      line.setAttribute('x1', String(CX + Math.cos(angleRad) * innerR))
+      line.setAttribute('y1', String(CY + Math.sin(angleRad) * innerR))
+      line.setAttribute('x2', String(CX + Math.cos(angleRad) * outerR))
+      line.setAttribute('y2', String(CY + Math.sin(angleRad) * outerR))
+      line.setAttribute('stroke', 'rgba(198,40,40,0.4)')
+      line.setAttribute('stroke-width', '1.5')
+      g.appendChild(line)
+    })
+    palaceBoundaryGroup = g
+    svg.appendChild(g)
+  }
 }
 
 // ── Animation loop (orbital drift + twinkle) ──
@@ -529,7 +589,8 @@ watch(() => props.isVisible, (visible) => {
 .celestial-chart :deep(.sector-label) {
   position: absolute;
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
   color: #5D4E37;
   opacity: 0.75;
@@ -582,25 +643,24 @@ watch(() => props.isVisible, (visible) => {
 .celestial-chart :deep(.chart-star:hover .star-orb) { transform: scale(1.25); }
 
 /* Star color orbs */
-.celestial-chart :deep(.star-orb.cls-gold) { width: 14px; height: 14px; background: #C62828; border: 1.5px solid #D4A84B; box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.celestial-chart :deep(.star-orb.cls-cinnabar) { width: 14px; height: 14px; background: #A02020; border: 1px solid rgba(198,40,40,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.celestial-chart :deep(.star-orb.cls-jade) { width: 14px; height: 14px; background: #4A8C6F; border: 1px solid rgba(74,140,111,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.celestial-chart :deep(.star-orb.cls-ice) { width: 14px; height: 14px; background: #6BA8C8; border: 1px solid rgba(107,168,200,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.celestial-chart :deep(.star-orb.cls-purple) { width: 14px; height: 14px; background: #7B6FA0; border: 1px solid rgba(123,111,160,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.celestial-chart :deep(.star-orb.cls-gray) { width: 14px; height: 14px; background: #5D4E37; border: 1px solid rgba(93,78,55,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
-.celestial-chart :deep(.star-orb.cls-white) { width: 14px; height: 14px; background: #8B7D6B; border: 1px solid rgba(139,125,107,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.15); }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-gold) { width: 11px; height: 11px; }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-cinnabar) { width: 11px; height: 11px; }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-jade) { width: 11px; height: 11px; }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-ice) { width: 11px; height: 11px; }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-purple) { width: 11px; height: 11px; }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-gray) { width: 11px; height: 11px; }
-.celestial-chart :deep(.chart-star.minor .star-orb.cls-white) { width: 11px; height: 11px; }
+.celestial-chart :deep(.star-orb.cls-gold) { width: 16px; height: 16px; background: #C62828; border: 1.5px solid #D4A84B; box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-cinnabar) { width: 16px; height: 16px; background: #A02020; border: 1px solid rgba(198,40,40,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-jade) { width: 16px; height: 16px; background: #4A8C6F; border: 1px solid rgba(74,140,111,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-ice) { width: 16px; height: 16px; background: #6BA8C8; border: 1px solid rgba(107,168,200,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-purple) { width: 16px; height: 16px; background: #7B6FA0; border: 1px solid rgba(123,111,160,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-gray) { width: 16px; height: 16px; background: #5D4E37; border: 1px solid rgba(93,78,55,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.2); }
+.celestial-chart :deep(.star-orb.cls-white) { width: 16px; height: 16px; background: #8B7D6B; border: 1px solid rgba(139,125,107,0.3); box-shadow: 0 0 6px rgba(93,78,55,0.15); }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-gold) { width: 12px; height: 12px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-cinnabar) { width: 12px; height: 12px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-jade) { width: 12px; height: 12px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-ice) { width: 12px; height: 12px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-purple) { width: 12px; height: 12px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-gray) { width: 12px; height: 12px; }
+.celestial-chart :deep(.chart-star.minor .star-orb.cls-white) { width: 12px; height: 12px; }
 
 /* ── Star Labels ── */
 .celestial-chart :deep(.star-label) {
   margin-top: 2px;
-  font-size: 0.65rem;
   color: #4A3828;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -609,6 +669,14 @@ watch(() => props.isVisible, (visible) => {
   pointer-events: none;
   font-family: 'Noto Sans SC', sans-serif;
   text-shadow: 0 1px 0 rgba(245,240,232,0.5);
+}
+.celestial-chart :deep(.chart-star:not(.minor) .star-label) {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.celestial-chart :deep(.chart-star.minor .star-label) {
+  font-size: 0.65rem;
+  font-weight: 400;
 }
 .celestial-chart :deep(.chart-star:hover .star-label) { opacity: 0.95; }
 .celestial-chart :deep(.chart-star.active .star-label) { opacity: 0.95; color: #C62828; text-shadow: 0 0 4px rgba(198,40,40,0.15); }
@@ -644,6 +712,28 @@ watch(() => props.isVisible, (visible) => {
 .celestial-chart :deep(.mutagen-chip-tx.quan) { background: rgba(74,140,111,0.12); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.2); }
 .celestial-chart :deep(.mutagen-chip-tx.ke) { background: rgba(107,168,200,0.12); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.2); }
 .celestial-chart :deep(.mutagen-chip-tx.ji) { background: rgba(93,78,55,0.12); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.15); }
+
+/* ── Star Tooltip ── */
+.celestial-chart :deep(.star-tooltip) {
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+  background: rgba(245,240,232,0.95);
+  border: 1px solid rgba(198,40,40,0.2);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.7rem;
+  color: #5D4E37;
+  max-width: 160px;
+  box-shadow: 0 2px 8px rgba(93,78,55,0.12);
+  opacity: 0;
+  transition: opacity 0.2s;
+  line-height: 1.4;
+}
+.celestial-chart :deep(.star-tooltip.visible) {
+  opacity: 1;
+}
 
 /* ── Palace Arc ── */
 .palace-arc.visible { opacity: 1 !important; }
