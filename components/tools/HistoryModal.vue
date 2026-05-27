@@ -4,7 +4,7 @@ import { getAnimal } from '~/constants/bazi'
 
 const props = defineProps<{
   show: boolean
-  type: 'bazi' | 'shengxiao' | 'constellation'
+  type: 'bazi' | 'shengxiao' | 'constellation' | 'yijing' | 'ziwei'
 }>()
 
 const emit = defineEmits<{
@@ -72,6 +72,13 @@ function formatHistoryLabel(inputData: any): string {
     const year = inputData.representativeYear
     if (!year) return ''
     return `${year}年 生肖${getAnimal(year)}`
+  }
+  if (props.type === 'ziwei') {
+    const { birthDate, gender } = inputData
+    if (!birthDate) return ''
+    let label = `${birthDate}`
+    if (gender) label += ` ${gender === 'male' ? '男' : '女'}`
+    return label
   }
   // constellation
   const { month, day } = inputData

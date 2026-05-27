@@ -45,9 +45,9 @@ const tools: Tool[] = [
   },
   {
     id: 'ziwei', name: '紫微斗数', char: '斗',
-    description: '十二宫精批 ・ 星曜解读 ・ 即将上线',
+    description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
     landingDescription: '排十二宫垣，解星曜布局与穷通祸福',
-    route: '/tools/ziwei', available: false, accent: '#6B5B4F',
+    route: '/tools/ziwei', available: true, accent: '#6B5B4F',
   },
 ]
 

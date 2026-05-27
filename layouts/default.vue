@@ -12,7 +12,7 @@ const navTools: NavTool[] = [
   { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: true },
   { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
   { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
-  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: false },
+  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
 ]
 </script>
 
