@@ -250,7 +250,7 @@ async function restoreFromHistory(id: number) {
     <!-- Not logged in -->
     <div v-else-if="!currentProfile" class="text-center py-16">
       <p class="font-sans text-lg text-ink-medium mb-4">请先登录</p>
-      <NuxtLink to="/login" class="btn-seal inline-flex">
+      <NuxtLink to="/login" class="btn-cin inline-flex">
         <span>前往登录</span>
       </NuxtLink>
     </div>
@@ -279,7 +279,7 @@ async function restoreFromHistory(id: number) {
     <div v-else-if="error" class="text-center py-16">
       <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
       <div class="flex justify-center mt-6">
-        <button @click="handleCalculate" class="btn-seal">
+        <button @click="handleCalculate" class="btn-cin">
           <span>重新排盘</span>
         </button>
       </div>
@@ -375,7 +375,7 @@ async function restoreFromHistory(id: number) {
           <button
             @click="handleCalculate"
             @keydown.space.prevent="handleCalculate"
-            class="btn-seal"
+            class="btn-cin"
           >
             <span>重新排盘</span>
           </button>
@@ -383,7 +383,7 @@ async function restoreFromHistory(id: number) {
             @click="showHistoryModal = true"
             @keydown.enter="showHistoryModal = true"
             @keydown.space.prevent="showHistoryModal = true"
-            class="btn-seal"
+            class="btn-cin"
             aria-haspopup="dialog"
           >
             <span>浏览历史</span>
