@@ -13,6 +13,7 @@ import ZiWeiDaXianTimeline from '~/components/tools/ziwei/ZiWeiDaXianTimeline.vu
 import ZiWeiDetailPanel from '~/components/tools/ziwei/ZiWeiDetailPanel.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
+import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
@@ -21,6 +22,8 @@ const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 
 const loading = ref(false)
 const error = ref('')
+const saveError = ref('')
+const showSaveErrorToast = ref(false)
 const astrolabe = ref<IFunctionalAstrolabe | null>(null)
 const selectedPalace = ref<IFunctionalPalace | null>(null)
 const selectedIndex = ref(0)
@@ -119,7 +122,7 @@ const sortedPeriods = computed(() => {
     .sort((a, b) => a.startAge - b.startAge)
 })
 
-function saveDivinationResult(astroData: IFunctionalAstrolabe) {
+async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   const headers = getAuthHeaders()
   if (!headers.Authorization) return
   // Build a rich label for the history list so entries are distinguishable
@@ -130,24 +133,36 @@ function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   const hourLabel = birthHour.value !== null ? `第${birthHour.value + 1}时` : ''
   const genderLabel = gender.value === 'male' ? '男' : '女'
   const historyLabel = `${birthDate.value} ${hourLabel} ${genderLabel} | ${mingLabel} | ${astroData.fiveElementsClass}`
-  $fetch('/api/divinations', {
-    method: 'POST',
-    headers,
-    body: {
-      type: 'ziwei',
-      input_data: {
-        birthYear: parseInt(birthDate.value.split('-')[0], 10),
-        birthMonth: parseInt(birthDate.value.split('-')[1], 10),
-        birthDay: parseInt(birthDate.value.split('-')[2], 10),
-        birthHour: birthHour.value,
-        gender: gender.value,
-        historyLabel,
+  try {
+    await $fetch('/api/divinations', {
+      method: 'POST',
+      headers,
+      body: {
+        type: 'ziwei',
+        input_data: {
+          birthYear: parseInt(birthDate.value.split('-')[0], 10),
+          birthMonth: parseInt(birthDate.value.split('-')[1], 10),
+          birthDay: parseInt(birthDate.value.split('-')[2], 10),
+          birthHour: birthHour.value,
+          gender: gender.value,
+          historyLabel,
+        },
+        result_data: serializeAstrolabe(astroData),
       },
-      result_data: serializeAstrolabe(astroData),
-    },
-    // Suppress 401 from Nuxt console logs — session may be stale after server restart
-    onResponseError: () => {},
-  }).catch(() => {})
+    })
+  } catch (e: unknown) {
+    // 401: stale session after server restart, suppress
+    if (e && typeof e === 'object' && 'statusCode' in e && (e as any).statusCode === 401) {
+      console.warn('[ziwei] Save failed: session expired')
+      return
+    }
+    saveError.value = '保存失败，历史记录可能不完整'
+    showSaveErrorToast.value = true
+  }
+}
+
+function dismissSaveToast() {
+  showSaveErrorToast.value = false
 }
 
 function onHistoryRestore(id: number) {
@@ -228,6 +243,24 @@ async function restoreFromHistory(id: number) {
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
       <div class="w-full max-w-[620px] mx-auto">
+
+        <!-- Save error toast -->
+        <Transition name="toast">
+          <div
+            v-if="showSaveErrorToast"
+            class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+            role="alert"
+          >
+            <span>{{ saveError }}</span>
+            <button
+              @click="dismissSaveToast"
+              @keydown.enter="dismissSaveToast"
+              @keydown.space.prevent="dismissSaveToast"
+              class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+              aria-label="关闭提示"
+            >&times;</button>
+          </div>
+        </Transition>
 
         <!-- Tab Switcher -->
         <ZiWeiTabSwitcher
@@ -325,6 +358,12 @@ async function restoreFromHistory(id: number) {
     @close="showHistoryModal = false"
     @restore="onHistoryRestore"
   />
+
+  <ZiWeiDetailSheet
+    :show="selectedPalace !== null"
+    :palace="selectedPalace"
+    @close="selectedPalace = null"
+  />
 </template>
 
 <style scoped>
@@ -335,5 +374,29 @@ async function restoreFromHistory(id: number) {
 .view-fade-enter-from,
 .view-fade-leave-to {
   opacity: 0;
+}
+
+.toast-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-leave-active {
+  transition: opacity 0.2s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.toast-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: none;
+  }
+  .toast-enter-from {
+    transform: none;
+  }
 }
 </style>

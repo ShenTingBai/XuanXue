@@ -61,11 +61,22 @@
           <YijingInterpretation :result="result" :score="score" />
 
           <!-- Auto-save placeholder -->
-          <div v-if="saveError" role="alert" class="mt-4 text-center">
-            <p class="font-sans text-xs text-ink-light">
-              {{ saveError }}
-            </p>
-          </div>
+          <Transition name="toast">
+            <div
+              v-if="showSaveErrorToast"
+              class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+              role="alert"
+            >
+              <span>{{ saveError }}</span>
+              <button
+                @click="showSaveErrorToast = false"
+                @keydown.enter="showSaveErrorToast = false"
+                @keydown.space.prevent="showSaveErrorToast = false"
+                class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                aria-label="关闭提示"
+              >&times;</button>
+            </div>
+          </Transition>
 
           <!-- Reset -->
           <div class="text-center mt-6 pb-8">
@@ -110,6 +121,7 @@ const result = ref<YijingResult | null>(null)
 const score = ref(0)
 const processing = ref(false)
 const saveError = ref('')
+const showSaveErrorToast = ref(false)
 const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
 const resultSection = ref<HTMLElement | null>(null)
@@ -270,7 +282,6 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
-// Silent auto-save (fire-and-forget)
 async function tryAutoSave(values: number[], yijingResult: YijingResult) {
   try {
     const { currentProfile, getAuthHeaders } = useAuth()
@@ -286,8 +297,14 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
         result_data: yijingResult,
       },
     })
-  } catch {
-    // Silent failure — user experience not blocked by save
+  } catch (e: unknown) {
+    // 401: stale session, suppress
+    if (e && typeof e === 'object' && 'statusCode' in e && (e as any).statusCode === 401) {
+      console.warn('[yijing] Save failed: session expired')
+      return
+    }
+    saveError.value = '保存失败，历史记录可能不完整'
+    showSaveErrorToast.value = true
   }
 }
 
@@ -318,5 +335,29 @@ watch(castingMode, () => {
 }
 .confirm-dialog-leave-to > :deep(.card-paper-solid) {
   transform: scale(0.95);
+}
+
+.toast-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-leave-active {
+  transition: opacity 0.2s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.toast-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: none;
+  }
+  .toast-enter-from {
+    transform: none;
+  }
 }
 </style>
