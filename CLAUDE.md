@@ -113,7 +113,6 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 - CSP：`default-src 'self'`，`script-src 'unsafe-inline'`（Nuxt 3 hydration 所需）。生产环境强化需通过 Nitro render hooks 或 `@nuxtjs/csp` 实现 nonce 策略以移除 `unsafe-inline`。
 - HSTS（2 年 max-age + preload）、`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、`Referrer-Policy: strict-origin-when-cross-origin`、`Permissions-Policy: camera=(), microphone=(), geolocation=()`。
-- **公开上线前**必须阅读 `docs/pre-deployment-checklist.md`，处理令牌存储、PIN 策略和 CSP nonce 三项安全加固。
 
 ### Git 工作流
 
@@ -203,3 +202,11 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 - 在初始化中读取 `localStorage` 的组合式函数需要 `if (import.meta.client)` 守卫。Nuxt 在服务端运行组合式函数 setup 时 `localStorage` 不可用。
 - Layout 应监听 `route.path` 以在路由切换时关闭下拉菜单：`watch(() => route.path, () => { showDropdown.value = false })`。
+
+## 公开上线前必须处理
+
+以下为安全审计（2026-05-31）发现的问题，因影响现有用户或需架构调整，推迟到公开上线前解决：
+
+1. **令牌存储迁移**：localStorage → httpOnly cookie。涉及 `useAuth.ts` 和所有服务端 auth 流程。
+2. **PIN 策略扩展**：4 位数字 → 6+ 位字母数字。需迁移流程让已有用户重置。
+3. **CSP nonce 策略**：当前使用 `'unsafe-inline'`。上线前需通过 `@nuxtjs/csp` 或 Nitro render hooks 正确注入 nonce。
