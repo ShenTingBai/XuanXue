@@ -33,7 +33,7 @@ defineProps<{
 
     <!-- Top bar: branch + name -->
     <div class="relative z-[1] flex items-baseline gap-1 px-2 pt-1.5 pb-0.5">
-      <span class="text-[0.55rem] text-ink-light/50 font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
+      <span class="text-[0.55rem] text-ink-light/80 font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
       <span
         class="font-display text-[0.9rem] leading-tight tracking-[0.05em] font-semibold"
         :class="isMingGong ? 'text-cinnabar' : 'text-ink-deep'"
@@ -46,7 +46,7 @@ defineProps<{
       <div v-if="palace.majorStars.length > 0" class="font-sans text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {{ palace.majorStars.map(s => s.name).join(' ') }}
       </div>
-      <div v-else class="font-sans text-[0.65rem] text-ink-light/50 italic tracking-[0.04em]">空宫</div>
+      <div v-else class="font-sans text-[0.65rem] text-ink-light/80 italic tracking-[0.04em]">空宫</div>
     </div>
 
     <!-- Minor stars -->
@@ -73,7 +73,7 @@ defineProps<{
 
     <!-- Decadal range -->
     <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="relative z-[1] px-2 pb-1.5 mt-auto">
-      <span class="text-[0.7rem] text-ink-medium/60 tracking-[0.04em] font-medium">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
+      <span class="text-[0.7rem] text-ink-medium/80 tracking-[0.04em] font-medium">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
     </div>
   </div>
 </template>

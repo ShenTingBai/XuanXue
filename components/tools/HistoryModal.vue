@@ -17,6 +17,7 @@ const { getAuthHeaders } = useAuth()
 
 const records = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
 const loading = ref(false)
+const fetchError = ref('')
 const listRef = ref<HTMLUListElement | null>(null)
 const closeButtonRef = ref<HTMLElement | null>(null)
 const activeOptionIdx = ref(0)
@@ -48,6 +49,7 @@ function trapFocusForward() {
 async function fetchHistory() {
   loading.value = true
   records.value = []
+  fetchError.value = ''
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
@@ -58,6 +60,7 @@ async function fetchHistory() {
     records.value = data.slice(0, 5)
   } catch {
     records.value = []
+    fetchError.value = '历史记录加载失败，请检查网络连接'
   } finally {
     loading.value = false
   }
@@ -216,7 +219,7 @@ function onListboxFocus() {
                 <span>闭</span>
               </button>
             </div>
-            <p class="font-sans text-[10px] text-ink-light/40 text-right mt-2 select-none">最近 5 条</p>
+            <p class="font-sans text-[10px] text-ink-light/80 text-right mt-2 select-none">最近 5 条</p>
           </div>
 
           <!-- ── Content ── -->
@@ -232,6 +235,14 @@ function onListboxFocus() {
                 </div>
               </div>
             </div>
+
+            <!-- Error: failed to load -->
+            <template v-if="fetchError">
+              <div class="text-ink-light/70 text-sm text-center py-8">
+                <p>{{ fetchError }}</p>
+                <button @click="fetchHistory" class="btn-seal mt-4">重试</button>
+              </div>
+            </template>
 
             <!-- Empty: ancient ledger void -->
             <div v-else-if="records.length === 0" class="py-20 text-center">

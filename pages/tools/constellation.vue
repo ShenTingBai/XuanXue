@@ -283,7 +283,7 @@ function dismissRestoreError() {
             </Transition>
           <ConstellationHero :result="result" />
 
-          <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+          <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
             今日运势、宜忌速览及星座性格特征
           </p>
 

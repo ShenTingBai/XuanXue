@@ -1,12 +1,19 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
     <!-- Mode tab switcher -->
-    <div class="flex justify-center mb-6" role="tablist" aria-label="起卦方式">
+    <div
+      class="flex justify-center mb-6"
+      role="tablist"
+      aria-label="起卦方式"
+      @keydown.home.prevent="focusCoinTab"
+      @keydown.end.prevent="focusNumberTab"
+    >
       <div class="inline-flex rounded-lg border border-ink-faint/25 bg-paper-dark/60 p-0.5">
         <button
           ref="coinTabRef"
           role="tab"
           :aria-selected="mode === 'coin'"
+          :tabindex="mode === 'coin' ? 0 : -1"
           class="tab-btn"
           :class="mode === 'coin' ? 'tab-active' : 'tab-inactive'"
           @click="emit('update:mode', 'coin')"
@@ -19,6 +26,7 @@
           ref="numberTabRef"
           role="tab"
           :aria-selected="mode === 'number'"
+          :tabindex="mode === 'number' ? 0 : -1"
           class="tab-btn"
           :class="mode === 'number' ? 'tab-active' : 'tab-inactive'"
           @click="emit('update:mode', 'number')"
@@ -111,7 +119,7 @@
         <div class="space-y-5">
           <!-- Upper trigram -->
           <div>
-            <label for="yijing-upper" class="block font-sans text-xs text-ink-light/60 mb-1.5 tracking-wider text-center">上 卦 — 天数</label>
+            <label for="yijing-upper" class="block font-sans text-xs text-ink-light/80 mb-1.5 tracking-wider text-center">上 卦 — 天数</label>
             <input
               id="yijing-upper"
               v-model="upperNum"
@@ -127,7 +135,7 @@
 
           <!-- Lower trigram -->
           <div>
-            <label for="yijing-lower" class="block font-sans text-xs text-ink-light/60 mb-1.5 tracking-wider text-center">下 卦 — 地数</label>
+            <label for="yijing-lower" class="block font-sans text-xs text-ink-light/80 mb-1.5 tracking-wider text-center">下 卦 — 地数</label>
             <input
               id="yijing-lower"
               v-model="lowerNum"
@@ -143,7 +151,7 @@
 
           <!-- Moving line -->
           <div>
-            <label for="yijing-moving" class="block font-sans text-xs text-ink-light/60 mb-1.5 tracking-wider text-center">动 爻 — 变数</label>
+            <label for="yijing-moving" class="block font-sans text-xs text-ink-light/80 mb-1.5 tracking-wider text-center">动 爻 — 变数</label>
             <input
               id="yijing-moving"
               v-model="movingNum"

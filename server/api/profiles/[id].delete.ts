@@ -19,10 +19,17 @@ export default defineEventHandler(async (event) => {
   }
 
   // Cascade delete: remove associated records before deleting the profile
-  dbRun('DELETE FROM divination_results WHERE profile_id = ?', [id])
-  dbRun('DELETE FROM sessions WHERE profile_id = ?', [id])
-  dbRun('DELETE FROM security_log WHERE profile_id = ?', [id])
-  dbRun('DELETE FROM profiles WHERE id = ?', [id])
+  try {
+    dbRun('BEGIN')
+    dbRun('DELETE FROM divination_results WHERE profile_id = ?', [id])
+    dbRun('DELETE FROM sessions WHERE profile_id = ?', [id])
+    dbRun('DELETE FROM security_log WHERE profile_id = ?', [id])
+    dbRun('DELETE FROM profiles WHERE id = ?', [id])
+    dbRun('COMMIT')
+  } catch (err) {
+    dbRun('ROLLBACK')
+    throw createError({ statusCode: 500, statusMessage: '删除失败' })
+  }
 
   return new Response(null, { status: 204 })
 })

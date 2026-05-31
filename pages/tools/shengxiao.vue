@@ -281,7 +281,7 @@ async function restoreFromHistory(id: number) {
 
           <ShengXiaoHero :result="result" />
 
-          <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+          <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
             下方依次为五行属性、性格特征、幸运信息、流年运势和相性配对
           </p>
 

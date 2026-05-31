@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 export const CREATE_SESSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS sessions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  profile_id INTEGER NOT NULL REFERENCES profiles(id),
+  profile_id INTEGER NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   token_hash TEXT NOT NULL UNIQUE,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   expires_at TEXT
@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 export const CREATE_DIVINATION_TABLE = `
 CREATE TABLE IF NOT EXISTS divination_results (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  profile_id INTEGER NOT NULL REFERENCES profiles(id),
-  type TEXT NOT NULL,
+  profile_id INTEGER NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK(type IN ('shengxiao','constellation','bazi','yijing','ziwei')),
   input_data TEXT NOT NULL,
   result_data TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -46,7 +46,7 @@ export const INDEX_SESSIONS_EXPIRES_AT = `CREATE INDEX IF NOT EXISTS idx_session
 export const CREATE_SECURITY_LOG_TABLE = `
 CREATE TABLE IF NOT EXISTS security_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  profile_id INTEGER REFERENCES profiles(id),
+  profile_id INTEGER REFERENCES profiles(id) ON DELETE SET NULL,
   event_type TEXT NOT NULL,
   ip TEXT,
   details TEXT,

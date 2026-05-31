@@ -63,4 +63,5 @@ export function deleteSession(rawToken: string): void {
 export function cleanupExpiredSessions(): void {
   const now = new Date().toISOString()
   dbRun("DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < ?", [now])
+  dbRun("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")
 }

@@ -310,7 +310,7 @@ const closeDropdown = (e: FocusEvent) => {
 
             <!-- Tool Navigation -->
             <nav class="flex flex-col px-3 gap-1" aria-label="命理工具导航">
-              <p class="px-3 pt-1 pb-1 text-[0.65rem] font-sans text-ink-light/60 tracking-[0.12em] uppercase">工具</p>
+              <p class="px-3 pt-1 pb-1 text-[0.65rem] font-sans text-ink-light/80 tracking-[0.12em] uppercase">工具</p>
               <NuxtLink
                 v-for="navItem in navTools.filter(t => t.available)"
                 :key="navItem.id"
@@ -323,12 +323,12 @@ const closeDropdown = (e: FocusEvent) => {
               >
                 <span class="seal-mark text-[0.7rem] w-7 h-7 flex items-center justify-center shrink-0" aria-hidden="true">{{ navItem.char }}</span>
                 <span class="font-sans text-sm">{{ navItem.name }}</span>
-                <svg aria-hidden="true" class="w-3 h-3 ml-auto text-ink-faint/40 group-hover:text-cinnabar/40 transition-colors" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <svg aria-hidden="true" class="w-3 h-3 ml-auto text-ink-medium/80 group-hover:text-cinnabar/40 transition-colors" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                   <path d="M4 2l4 4-4 4" />
                 </svg>
               </NuxtLink>
               <div v-if="navTools.filter(t => !t.available).length > 0" class="mt-2">
-                <p class="px-3 pt-2 pb-1 text-[0.65rem] font-sans text-ink-light/60 tracking-[0.12em] uppercase">即将上线</p>
+                <p class="px-3 pt-2 pb-1 text-[0.65rem] font-sans text-ink-light/80 tracking-[0.12em] uppercase">即将上线</p>
                 <span
                   v-for="navItem in navTools.filter(t => !t.available)"
                   :key="navItem.id"
@@ -336,8 +336,8 @@ const closeDropdown = (e: FocusEvent) => {
                   :aria-label="navItem.name + '（即将上线）'"
                 >
                   <span class="seal-mark text-[0.7rem] w-7 h-7 flex items-center justify-center opacity-40" aria-hidden="true">{{ navItem.char }}</span>
-                  <span class="font-sans text-sm text-ink-light/50">{{ navItem.name }}</span>
-                  <span class="text-[0.6rem] text-ink-faint/40 ml-auto">即将</span>
+                  <span class="font-sans text-sm text-ink-light/80">{{ navItem.name }}</span>
+                  <span class="text-[0.6rem] text-ink-medium/80 ml-auto">即将</span>
                 </span>
               </div>
             </nav>
@@ -359,7 +359,7 @@ const closeDropdown = (e: FocusEvent) => {
                     <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                   </svg>
                   <span class="font-sans text-sm text-ink-medium">编辑档案</span>
-                  <span class="font-sans text-xs text-ink-light/50 ml-auto truncate max-w-[100px]">{{ currentProfile.nickname }}</span>
+                  <span class="font-sans text-xs text-ink-light/80 ml-auto truncate max-w-[100px]">{{ currentProfile.nickname }}</span>
                 </NuxtLink>
                 <button
                   @click="handleLogout"

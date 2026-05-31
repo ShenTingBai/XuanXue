@@ -83,7 +83,7 @@ html {
 
   body {
     @apply min-h-screen bg-paper-light text-ink;
-    font-family: var(--font-display);
+    font-family: var(--font-sans); /* Noto Sans SC for body text */
   }
 
   /* ── 小字注解（正文可读性） ── */
@@ -158,8 +158,6 @@ html {
   .card-paper-solid {
     border: 1px solid;
     @apply bg-paper-lightest/95 border-paper-dark shadow-card;
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
   }
 
   /* ── Seal Stamp Button ── */
@@ -1246,7 +1244,7 @@ a:focus-visible {
   }
   body::after {
     opacity: 0.15;
-    background-image: none;
+    /* Keep the paper texture — SVG feTurbulence is a static image, not an animation */
   }
   .skeleton-pulse {
     background: rgba(212, 197, 176, 0.3);

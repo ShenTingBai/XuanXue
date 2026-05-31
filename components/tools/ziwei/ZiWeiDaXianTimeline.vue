@@ -111,7 +111,7 @@ function focusNode(idx: number): void {
               :class="{
                 'text-cinnabar text-[0.78rem]': isActive(period),
                 'text-ink-medium/70': isPast(period),
-                'text-ink-medium/50': !isActive(period) && !isPast(period),
+                'text-ink-medium/80': !isActive(period) && !isPast(period),
               }"
             >{{ period.palaceName }}</span>
             <!-- Age range -->
@@ -119,8 +119,8 @@ function focusNode(idx: number): void {
               class="text-[0.65rem] transition-colors duration-300 font-sans tracking-[0.04em]"
               :class="{
                 'text-cinnabar/70': isActive(period),
-                'text-ink-light/35': isPast(period),
-                'text-ink-medium/50': !isActive(period) && !isPast(period),
+                'text-ink-light/80': isPast(period),
+                'text-ink-medium/80': !isActive(period) && !isPast(period),
               }"
             >{{ period.startAge }}-{{ period.endAge }}</span>
           </div>

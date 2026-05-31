@@ -341,7 +341,7 @@ const saveProfile = async () => {
         <!-- ════════════════════════════════════════════════════════
              Document Card 1: 基本信息
              ════════════════════════════════════════════════════════ -->
-        <section class="document-card card-warm card-warm--elevated rounded-xl p-6 sm:p-8 anim-rise anim-delay-1">
+        <section class="document-card card-warm card-warm--elevated rounded-xl p-8 anim-rise anim-delay-1">
           <!-- Decorative corner brackets -->
           <span class="doc-corner doc-corner--tl" aria-hidden="true"></span>
           <span class="doc-corner doc-corner--tr" aria-hidden="true"></span>
@@ -438,7 +438,7 @@ const saveProfile = async () => {
         <!-- ════════════════════════════════════════════════════════
              Document Card 2: 出生信息
              ════════════════════════════════════════════════════════ -->
-        <section class="document-card card-warm card-warm--elevated rounded-xl p-6 sm:p-8 anim-rise anim-delay-2">
+        <section class="document-card card-warm card-warm--elevated rounded-xl p-8 anim-rise anim-delay-2">
           <!-- Decorative corner brackets -->
           <span class="doc-corner doc-corner--tl" aria-hidden="true"></span>
           <span class="doc-corner doc-corner--tr" aria-hidden="true"></span>
@@ -548,6 +548,12 @@ const saveProfile = async () => {
 /* ═══════════════════════════════════════════════════════════════
    命簿如卷 — Profile Page Decorative Styling
    ═══════════════════════════════════════════════════════════════ */
+
+/* ── Radio focus-visible ring ── */
+.sr-only:focus-visible + span {
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+}
 
 /* ── Background Trigram Corner Marks ── */
 .bg-trigrams {
