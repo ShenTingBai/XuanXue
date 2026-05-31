@@ -86,13 +86,14 @@ export function getDetailedPalaceView(palace: IFunctionalPalace): {
   stem: string
   majorStars: FunctionalStar[]
   minorStars: FunctionalStar[]
+  adjectiveStars: FunctionalStar[]
   transformations: { star: string; transformation: string }[]
   interpretation: ReturnType<typeof getPalaceDetail>
   decadalRange: [number, number]
   ages: number[]
 } {
   const trans: { star: string; transformation: string }[] = []
-  for (const s of [...palace.majorStars, ...palace.minorStars]) {
+  for (const s of [...palace.majorStars, ...palace.minorStars, ...palace.adjectiveStars]) {
     if (s.mutagen) trans.push({ star: s.name, transformation: s.mutagen })
   }
 
@@ -101,7 +102,8 @@ export function getDetailedPalaceView(palace: IFunctionalPalace): {
     branch: palace.earthlyBranch,
     stem: palace.heavenlyStem,
     majorStars: palace.majorStars,
-    minorStars: [...palace.minorStars, ...palace.adjectiveStars],
+    minorStars: palace.minorStars,
+    adjectiveStars: palace.adjectiveStars,
     transformations: trans,
     interpretation: getPalaceDetail(palace),
     decadalRange: palace.decadal?.range ?? [0, 0],
@@ -120,6 +122,10 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
     fiveElementsClass: astrolabe.fiveElementsClass,
     soul: astrolabe.soul,
     body: astrolabe.body,
+    solarDate: astrolabe.solarDate,
+    lunarDate: astrolabe.lunarDate,
+    chineseDate: astrolabe.chineseDate,
+    gender: astrolabe.gender,
     palaces: astrolabe.palaces.map(p => ({
       index: p.index,
       name: p.name,

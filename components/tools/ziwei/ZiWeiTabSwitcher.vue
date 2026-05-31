@@ -7,6 +7,7 @@
         :ref="setTabRef(idx)"
         role="tab"
         :aria-selected="currentView === tab.value"
+        :aria-controls="`panel-${tab.value}`"
         :tabindex="currentView === tab.value ? 0 : -1"
         class="tab-btn font-display cursor-pointer transition-all duration-300 relative"
         :class="currentView === tab.value ? 'tab-active' : 'tab-inactive'"

@@ -328,7 +328,7 @@ function focusLabel(idx: number) {
     ref="chartContainer"
     class="celestial-chart"
     :class="{ 'is-hidden': !isVisible }"
-    role="img"
+    role="region"
     aria-label="紫微斗数天星图 — 十二宫星曜分布"
   >
     <!-- ── SVG 底层：轨道 + 分隔 + 选中弧 ── -->
@@ -439,6 +439,7 @@ function focusLabel(idx: number) {
         v-for="star in renderedStars"
         :key="star.id"
         type="button"
+        tabindex="-1"
         class="star-item"
         :class="{
           'st-major': star.isMajor,
@@ -455,7 +456,6 @@ function focusLabel(idx: number) {
           '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
         }"
         :aria-label="star.name + (star.mutagen ? ' 化' + star.mutagen : '')"
-        :aria-describedby="tooltipVisible && tooltipText.startsWith(star.name) ? 'ziwei-star-tooltip' : undefined"
         @click="emit('select', star.palaceIdx)"
         @mouseenter="onStarEnter($event, star)"
         @mouseleave="onStarLeave"
@@ -490,6 +490,11 @@ function focusLabel(idx: number) {
       role="tooltip"
       :aria-hidden="!tooltipVisible"
     >
+      {{ tooltipText }}
+    </div>
+
+    <!-- ── Screen reader announcement (only read on focus, not visual) ── -->
+    <div aria-live="polite" aria-atomic="true" class="sr-only">
       {{ tooltipText }}
     </div>
   </div>

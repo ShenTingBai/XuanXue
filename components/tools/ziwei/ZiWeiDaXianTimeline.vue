@@ -87,7 +87,7 @@ function focusNode(idx: number): void {
           role="button"
           :tabindex="isActive(period) ? 0 : -1"
           :aria-label="`${period.palaceName} ${period.startAge}-${period.endAge}岁`"
-          :aria-current="isActive(period) ? 'true' : undefined"
+          :aria-current="isActive(period) ? 'step' : undefined"
           @click="emit('select', period.palaceIndex)"
           @keydown.enter.prevent="emit('select', period.palaceIndex)"
           @keydown.space.prevent="emit('select', period.palaceIndex)"

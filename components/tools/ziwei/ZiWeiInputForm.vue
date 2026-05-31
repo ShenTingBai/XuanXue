@@ -37,17 +37,19 @@ defineProps<{
       <!-- Birth hour -->
       <div>
         <label for="ziwei-birth-hour" class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">出生时辰</label>
-        <select
-          id="ziwei-birth-hour"
-          :value="birthHour ?? ''"
-          @change="onHourChange(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
-          class="input-ink w-full"
-        >
-          <option value="">— 选择时辰 —</option>
-          <option v-for="(name, idx) in TIME_NAMES" :key="idx" :value="idx">
-            {{ name }}
-          </option>
-        </select>
+        <div class="relative">
+          <select
+            id="ziwei-birth-hour"
+            :value="birthHour ?? ''"
+            @change="onHourChange(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
+            class="input-ink w-full select-appearance"
+          >
+            <option value="">— 选择时辰 —</option>
+            <option v-for="(name, idx) in TIME_NAMES" :key="idx" :value="idx">
+              {{ name }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <!-- Gender -->
@@ -93,5 +95,15 @@ defineProps<{
 .sr-only:focus-visible + span {
   outline: 2px solid #C62828;
   outline-offset: 2px;
+}
+
+.select-appearance {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A6A5C' fill-opacity='0.6' d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.85rem;
+  padding-right: 2rem;
+  cursor: pointer;
 }
 </style>
