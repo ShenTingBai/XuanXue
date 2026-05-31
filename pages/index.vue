@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InkDivider from '~/components/tools/InkDivider.vue'
+import DailyFortune from '~/components/home/DailyFortune.vue'
 
 useHead({ title: '玄学 - 命理推演 · 知己知天' })
 
@@ -396,36 +397,44 @@ const goToLogin = () => {
     <!-- ════════════════════════════════════ -->
     <template v-if="sessionReady && currentProfile">
       <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10">
-        <!-- ── Greeting ── -->
-        <div class="mb-12 sm:mb-16 fade-in" :style="{ '--delay': '0.02s' }">
-          <div class="flex flex-col items-start gap-3">
-            <div class="flex items-center gap-4">
-              <span class="hidden sm:block w-6 h-px bg-gradient-to-r from-cinnabar/40 to-transparent" aria-hidden="true" />
-              <h1 class="font-display text-4xl sm:text-5xl text-ink-dark leading-tight tracking-wide">
-                {{ greeting.prefix }}，<span class="text-cinnabar">{{ currentProfile.nickname }}</span>
-              </h1>
+        <!-- ── Greeting + Daily Fortune (side by side on lg) ── -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-10 mb-12 sm:mb-16">
+          <!-- Greeting — spans 3 cols -->
+          <div class="lg:col-span-3 fade-in" :style="{ '--delay': '0.02s' }">
+            <div class="flex flex-col items-start gap-3">
+              <div class="flex items-center gap-4">
+                <span class="hidden sm:block w-6 h-px bg-gradient-to-r from-cinnabar/40 to-transparent" aria-hidden="true" />
+                <h1 class="font-display text-4xl sm:text-5xl text-ink-dark leading-tight tracking-wide">
+                  {{ greeting.prefix }}，<span class="text-cinnabar">{{ currentProfile.nickname }}</span>
+                </h1>
+              </div>
+              <div class="flex items-center gap-3 ml-0 sm:ml-10">
+                <span class="seal-mark w-7 h-7 text-[9px]">玄</span>
+                <p class="font-sans text-sm sm:text-base text-ink-light tracking-wider leading-relaxed">
+                  {{ greeting.subtitle }}
+                </p>
+              </div>
             </div>
-            <div class="flex items-center gap-3 ml-0 sm:ml-10">
-              <span class="seal-mark w-7 h-7 text-[9px]">玄</span>
-              <p class="font-sans text-sm sm:text-base text-ink-light tracking-wider leading-relaxed">
-                {{ greeting.subtitle }}
-              </p>
+            <div class="mt-6 sm:mt-8 relative overflow-hidden" aria-hidden="true">
+              <div class="ink-branch">
+                <div class="ink-branch__main" />
+                <div class="ink-branch__twig ink-branch__twig--top" />
+                <div class="ink-branch__twig ink-branch__twig--bottom" />
+                <div class="ink-branch__twig ink-branch__twig--far" />
+                <div class="ink-branch__dot ink-branch__dot--near" />
+                <div class="ink-branch__dot ink-branch__dot--mid" />
+                <div class="ink-branch__dot ink-branch__dot--far" />
+              </div>
             </div>
           </div>
-          <div class="mt-6 sm:mt-8 relative overflow-hidden" aria-hidden="true">
-            <div class="ink-branch">
-              <div class="ink-branch__main" />
-              <div class="ink-branch__twig ink-branch__twig--top" />
-              <div class="ink-branch__twig ink-branch__twig--bottom" />
-              <div class="ink-branch__twig ink-branch__twig--far" />
-              <div class="ink-branch__dot ink-branch__dot--near" />
-              <div class="ink-branch__dot ink-branch__dot--mid" />
-              <div class="ink-branch__dot ink-branch__dot--far" />
-            </div>
+
+          <!-- Daily Fortune — spans 2 cols, vertically centered -->
+          <div class="lg:col-span-2 flex items-center">
+            <DailyFortune :profile="currentProfile" />
           </div>
         </div>
 
-        <!-- ── Ink Divider with Seal Mark ── -->
+<!-- ── Ink Divider with Seal Mark ── -->
         <div class="mb-8 sm:mb-12 fade-in" :style="{ '--delay': '0.15s' }" aria-hidden="true">
           <div class="flex items-center justify-center gap-3 mb-2">
             <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">术</span>

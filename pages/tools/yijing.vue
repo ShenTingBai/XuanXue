@@ -41,7 +41,7 @@
             @keydown.escape="cancelReset"
             @keydown.tab="handleDialogTab"
           >
-            <div class="card-paper-solid rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
+            <div class="card-warm rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
               <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
               <p class="font-sans text-sm text-ink-medium mb-6">当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。</p>
               <div class="flex gap-3 justify-end">
@@ -51,7 +51,7 @@
                   @keydown.enter="cancelReset"
                 >继续摇卦</button>
                 <button
-                  class="btn-seal"
+                  class="btn-cin"
                   @click="confirmReset"
                   @keydown.enter="confirmReset"
                 >确定重新起卦</button>
@@ -60,7 +60,11 @@
           </div>
         </Transition>
 
-        <InkDivider v-if="result && !processing" />
+        <div v-if="result && !processing" class="section-header section-header--tool">
+          <span class="bar" aria-hidden="true"></span>
+          <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+          <h2>占卜结果</h2>
+        </div>
 
         <!-- Results -->
         <div ref="resultSection" v-if="result && !processing" class="mt-8">
@@ -87,7 +91,7 @@
           <!-- Reset -->
           <div class="text-center mt-6 pb-8">
             <button
-              class="btn-seal"
+              class="btn-cin"
               @click="requestReset"
               @keydown.enter="requestReset"
               @keydown.space.prevent="requestReset"
@@ -124,7 +128,6 @@ import {
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
@@ -427,18 +430,18 @@ watch(castingMode, () => {
 .confirm-dialog-leave-active {
   transition: opacity 0.2s ease;
 }
-.confirm-dialog-enter-active > :deep(.card-paper-solid),
-.confirm-dialog-leave-active > :deep(.card-paper-solid) {
+.confirm-dialog-enter-active > :deep(.card-warm),
+.confirm-dialog-leave-active > :deep(.card-warm) {
   transition: transform 0.2s ease;
 }
 .confirm-dialog-enter-from,
 .confirm-dialog-leave-to {
   opacity: 0;
 }
-.confirm-dialog-enter-from > :deep(.card-paper-solid) {
+.confirm-dialog-enter-from > :deep(.card-warm) {
   transform: scale(0.95);
 }
-.confirm-dialog-leave-to > :deep(.card-paper-solid) {
+.confirm-dialog-leave-to > :deep(.card-warm) {
   transform: scale(0.95);
 }
 

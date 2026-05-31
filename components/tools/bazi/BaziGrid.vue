@@ -1,12 +1,10 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
-    <InkDivider>四柱排盘</InkDivider>
-
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       年柱代表家族根基，月柱代表成长环境，日柱代表你自己和婚姻，时柱代表晚年与子女。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-8">
+    <div class="card-warm rounded-xl p-8">
     <!-- Desktop: full grid -->
     <div class="hidden sm:block">
       <table class="border-2 border-cinnabar/50 rounded-lg overflow-clip w-full table-fixed border-separate" style="border-spacing: 0" aria-label="四柱排盘">
@@ -154,7 +152,6 @@
 
 <script setup lang="ts">
 import type { BaZiPillar } from '~/composables/useBaZi'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import { wuxingColor, getNaYin } from '~/constants/bazi'
 
 const props = defineProps<{

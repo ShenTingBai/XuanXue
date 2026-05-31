@@ -10,7 +10,6 @@ import ConstellationHero from '~/components/tools/constellation/Hero.vue'
 import HoroscopePanel from '~/components/tools/constellation/HoroscopePanel.vue'
 import YiJiPanel from '~/components/tools/constellation/YiJiPanel.vue'
 import ConstellationNav from '~/components/tools/constellation/Nav.vue'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
@@ -225,7 +224,7 @@ function dismissRestoreError() {
           <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算星座运势</p>
           <NuxtLink
             :to="`/profile/${currentProfile?.id}`"
-            class="btn-seal inline-flex"
+            class="btn-cin inline-flex"
           >
             <span>前往编辑档案</span>
           </NuxtLink>
@@ -295,8 +294,12 @@ function dismissRestoreError() {
 
           <!-- Personality -->
           <div class="fade-in mb-6" :style="{ '--delay': '0.35s' }">
-            <InkDivider>性格特征</InkDivider>
-            <div class="card-paper-solid rounded-xl p-5">
+            <div class="section-header section-header--tool">
+              <span class="bar" aria-hidden="true"></span>
+              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">性</span>
+              <h2>性格特征</h2>
+            </div>
+            <div class="card-warm rounded-xl p-5">
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 {{ result.personality }}
               </p>
@@ -305,12 +308,16 @@ function dismissRestoreError() {
 
           <!-- Compatibility -->
           <div class="fade-in mb-6" :style="{ '--delay': '0.45s' }">
-            <InkDivider>速配星座</InkDivider>
+            <div class="section-header section-header--tool">
+              <span class="bar" aria-hidden="true"></span>
+              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">配</span>
+              <h2>速配星座</h2>
+            </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div
                 v-for="item in result.compatibility"
                 :key="item.name"
-                class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
+                class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
                 :class="compatibilityBorderClass(item.level)"
                 :title="item.label"
               >
@@ -333,7 +340,7 @@ function dismissRestoreError() {
               @click="computeResult"
               @keydown.enter="computeResult"
               @keydown.space.prevent="computeResult"
-              class="btn-seal"
+              class="btn-cin"
             >
               <span>刷新运势</span>
             </button>
@@ -345,7 +352,7 @@ function dismissRestoreError() {
               @click="showHistoryModal = true"
               @keydown.enter="showHistoryModal = true"
               @keydown.space.prevent="showHistoryModal = true"
-              class="btn-seal"
+              class="btn-cin"
               aria-haspopup="dialog"
             >
               <span>浏览历史</span>

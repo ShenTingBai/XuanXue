@@ -1,7 +1,7 @@
 <template>
   <div
     :id="sectionId"
-    class="card-paper-solid rounded-xl p-8 mb-6 scroll-mt-20"
+    class="card-warm rounded-xl p-8 mb-6 scroll-mt-20"
     tabindex="-1"
   >
     <!-- Clickable header bar -->

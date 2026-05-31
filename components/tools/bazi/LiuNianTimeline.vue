@@ -1,7 +1,6 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
-    <div class="flex items-center gap-3 flex-wrap">
-      <InkDivider class="mb-0">流年详批（&plusmn;{{ range }}年）</InkDivider>
+    <div class="flex items-center gap-3 flex-wrap mb-3">
       <span class="inline-flex items-center gap-1.5 text-xs font-sans text-ink-medium">
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>75+ 顺遂
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(65) }" aria-hidden="true"></span>60-74 平稳
@@ -24,7 +23,7 @@
       <div v-for="(year, idx) in years" :key="year.year">
         <!-- Current year: expanded card -->
         <div v-if="year.detail"
-          class="card-paper-solid rounded-xl p-8 border-2 border-cinnabar bg-cinnabar/3"
+          class="card-warm rounded-xl p-8 border-2 border-cinnabar bg-cinnabar/3"
           :role="'region'"
           :aria-label="`${year.year}年流年详批`"
         >
@@ -110,7 +109,7 @@
 
         <!-- Other years: compact card -->
         <div v-else
-          class="card-paper-solid rounded-xl p-4 border border-paper-dark hover:border-ink-faint transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cinnabar"
+          class="card-warm rounded-xl p-4 border border-paper-dark hover:border-ink-faint transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cinnabar"
           role="button"
           :aria-expanded="expandedYearIdx === idx"
           :aria-label="`${year.year}年 ${year.stem}${year.branch} 流年运势`"
@@ -173,7 +172,6 @@
 
 <script setup lang="ts">
 import type { LiuNianYear } from '~/composables/useLiuNian'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
 import { shenShaBadgeStyle, WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
 

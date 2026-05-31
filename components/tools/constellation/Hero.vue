@@ -1,5 +1,5 @@
 <template>
-  <div class="fade-in card-paper-solid rounded-xl p-8 mb-6" :style="{ '--delay': '0.05s' }">
+  <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.05s' }">
     <div class="flex items-start gap-4 sm:gap-6">
       <span class="flex-shrink-0 text-5xl sm:text-6xl" aria-hidden="true">{{ result.symbol }}</span>
       <div class="min-w-0">

@@ -11,7 +11,6 @@ import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
 import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
 import ShenShaPanel from '~/components/tools/bazi/ShenShaPanel.vue'
 import LiuNianTimeline from '~/components/tools/bazi/LiuNianTimeline.vue'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
@@ -427,7 +426,7 @@ function onSectionNavigate(sectionName: string) {
           <p class="font-sans text-base text-ink-light mb-6">需要填写出生日期以进行八字排盘</p>
           <NuxtLink
             :to="`/profile/${currentProfile?.id}`"
-            class="btn-seal inline-flex"
+            class="btn-cin inline-flex"
           >
             <span>前往编辑档案</span>
           </NuxtLink>
@@ -446,7 +445,7 @@ function onSectionNavigate(sectionName: string) {
           <div class="flex justify-center mt-6">
             <NuxtLink
               :to="`/profile/${currentProfile?.id}`"
-              class="btn-seal inline-flex"
+              class="btn-cin inline-flex"
             >
               <span>前往编辑档案</span>
             </NuxtLink>
@@ -642,7 +641,7 @@ function onSectionNavigate(sectionName: string) {
               <button
                 @click="computeResult"
                 @keydown.space.prevent="computeResult"
-                class="btn-seal"
+                class="btn-cin"
               >
                 <span>重新排盘</span>
               </button>
@@ -650,7 +649,7 @@ function onSectionNavigate(sectionName: string) {
                 @click="showHistoryModal = true"
                 @keydown.enter="showHistoryModal = true"
                 @keydown.space.prevent="showHistoryModal = true"
-                class="btn-seal"
+                class="btn-cin"
                 aria-haspopup="dialog"
               >
                 <span>浏览历史</span>

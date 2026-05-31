@@ -1,11 +1,14 @@
 <template>
   <div class="fade-in mb-6" :style="{ '--delay': '0.5s' }">
-    <InkDivider>生肖配对</InkDivider>
+    <div class="section-header section-header--tool section-header--tool-light">
+      <span class="bar" aria-hidden="true"></span>
+      <h2>生肖配对</h2>
+    </div>
     <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
       <div
         v-for="item in items"
         :key="item.animal"
-        class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
+        class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
         :class="borderClass(item.level)"
         :title="item.relation"
       >
@@ -24,7 +27,6 @@
 
 <script setup lang="ts">
 import type { Compatibility } from '~/composables/useShengXiao'
-import InkDivider from '~/components/tools/InkDivider.vue'
 
 defineProps<{
   items: Compatibility[]

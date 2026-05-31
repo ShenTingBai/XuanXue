@@ -15,7 +15,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="ziwei-form card-paper-solid rounded-xl p-8 mb-6 max-w-md mx-auto relative overflow-hidden">
+  <div class="ziwei-form card-warm rounded-xl p-8 mb-6 max-w-md mx-auto relative overflow-hidden">
     <!-- Decorative top ornament -->
     <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(198,40,40,0.2) 20%, rgba(198,40,40,0.35) 50%, rgba(198,40,40,0.2) 80%, transparent);" />
 
@@ -84,7 +84,7 @@ defineProps<{
       <button
         @click="onCalculate"
         :disabled="loading || !birthDate || birthHour === null || !gender"
-        class="btn-seal w-full justify-center mt-2"
+        class="btn-cin w-full justify-center mt-2"
         aria-describedby="ziwei-form-hint"
       >
         <span>{{ loading ? '排盘中...' : '开始排盘' }}</span>

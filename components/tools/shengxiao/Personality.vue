@@ -1,9 +1,12 @@
 <template>
   <div class="fade-in mb-6" :style="{ '--delay': '0.35s' }">
-    <InkDivider>性格特征</InkDivider>
+    <div class="section-header section-header--tool section-header--tool-light">
+      <span class="bar" aria-hidden="true"></span>
+      <h2>性格特征</h2>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
       <!-- Pros -->
-      <div class="card-paper-solid rounded-xl p-5">
+      <div class="card-warm rounded-xl p-5">
         <h4 class="font-sans text-sm font-medium text-wuxing-wood mb-3 flex items-center gap-1.5">
           <span aria-hidden="true">▸</span> 优点
         </h4>
@@ -19,7 +22,7 @@
         </ul>
       </div>
       <!-- Cons -->
-      <div class="card-paper-solid rounded-xl p-5">
+      <div class="card-warm rounded-xl p-5">
         <h4 class="font-sans text-sm font-medium text-cinnabar mb-3 flex items-center gap-1.5">
           <span aria-hidden="true">▸</span> 缺点
         </h4>
@@ -40,7 +43,6 @@
 
 <script setup lang="ts">
 import type { ShengXiaoResult } from '~/composables/useShengXiao'
-import InkDivider from '~/components/tools/InkDivider.vue'
 
 defineProps<{
   result: ShengXiaoResult

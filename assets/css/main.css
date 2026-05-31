@@ -53,11 +53,14 @@ html {
     --color-paper-lightest: #FBF8F4;
     --color-paper-light: #F5F0E8;
     --color-paper-medium: #EDE4D3;
+    --color-paper-card: #E8DCC6;
     --color-paper-dark: #E0D5C0;
     --color-paper-darker: #D0C0A8;
     --color-cinnabar: #C62828;
     --color-cinnabar-light: #E53935;
     --color-cinnabar-dark: #8E1D1D;
+    --color-cinnabar-deeper: #9C1A1C;
+    --color-cinnabar-deepest: #7A1416;
     --color-gold: #7A5E12;
     --color-gold-light: #9A7818;
     --color-jade: #3D6B4B;
@@ -80,6 +83,12 @@ html {
 
   body {
     @apply min-h-screen bg-paper-light text-ink;
+    font-family: var(--font-display);
+  }
+
+  /* ── 小字注解（正文可读性） ── */
+  .ui {
+    font-family: var(--font-sans);
   }
 
   /* Paper grain texture overlay — fixed to viewport */
@@ -602,9 +611,8 @@ html {
 
   /* ── Nav Link ── */
   .nav-link {
-    @apply relative inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm transition-colors no-underline;
+    @apply relative inline-flex items-center px-2.5 py-2 rounded-lg text-sm transition-colors no-underline;
     color: var(--color-ink-medium);
-    font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
   }
   .nav-link:hover {
     color: var(--color-cinnabar);
@@ -638,6 +646,469 @@ html {
   .wuxing-card--metal { border-color: #5E5E5E; }
   .wuxing-card--water { border-color: #2C5F7C; }
 
+  /* ── ── ── ── ── ──
+     新 · 玄道 设计系统组件
+     ── ── ── ── ── ── */
+
+  /* ── 满印朱砂按钮 ── */
+  .btn-cin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2.5rem;
+    background: var(--color-cinnabar-deeper);
+    color: var(--color-paper-light);
+    border: none;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.35s ease;
+    box-shadow: 0 4px 24px rgba(156,26,28,0.06);
+  }
+  .btn-cin::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(245,240,232,0.06);
+    pointer-events: none;
+  }
+  .btn-cin::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 3px solid rgba(156,26,28,0.015);
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at center, transparent 65%, black 100%);
+    -webkit-mask-image: radial-gradient(ellipse at center, transparent 65%, black 100%);
+  }
+  .btn-cin:hover {
+    background: var(--color-cinnabar-deepest);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(156,26,28,0.10);
+  }
+  .btn-cin:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── 墨色描边按钮 ── */
+  .btn-ink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2.5rem;
+    background: transparent;
+    color: var(--color-ink-medium);
+    border: 1px solid rgba(44,26,14,0.06);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    transition: all 0.35s ease;
+  }
+  .btn-ink:hover {
+    color: var(--color-ink);
+    border-color: rgba(44,26,14,0.15);
+    background: rgba(44,26,14,0.01);
+    transform: translateY(-2px);
+  }
+
+  /* ── 分区标题（朱砂短横 + 文字） ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-bottom: 1.75rem;
+  }
+  .section-header .bar {
+    width: 24px;
+    height: 2px;
+    background: rgba(156,26,28,0.12);
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    color: var(--color-ink-medium);
+    font-size: 0.6875rem;
+    letter-spacing: 0.5em;
+    font-weight: 400;
+  }
+  .section-header--tool h2 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    color: var(--color-ink);
+    letter-spacing: 0.2em;
+  }
+  @media (min-width: 640px) {
+    .section-header--tool h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .section-header--tool-light h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--color-ink-medium);
+    letter-spacing: 0.2em;
+  }
+  @media (min-width: 640px) {
+    .section-header--tool-light h2 {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* ── 朱砂印章（通用） ── */
+  .seal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--color-cinnabar-deeper);
+    color: var(--color-paper-card);
+    font-size: 0.875rem;
+    transform: rotate(-5deg);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .seal-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(232,220,198,0.04) 2px, rgba(232,220,198,0.04) 3px
+    );
+    pointer-events: none;
+  }
+  .seal-icon--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.375rem;
+  }
+  .seal-icon--hero {
+    width: 100px;
+    height: 100px;
+    font-size: 2.75rem;
+    box-shadow:
+      0 0 0 4px rgba(156,26,28,0.08),
+      0 0 0 10px rgba(156,26,28,0.025),
+      0 12px 48px rgba(156,26,28,0.06);
+  }
+
+  /* ── 符头顶线 ── */
+  .talisman-line {
+    position: absolute;
+    top: -1px;
+    left: 15%;
+    right: 15%;
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156,26,28,0.04) 0px, rgba(156,26,28,0.04) 6px,
+      transparent 6px, transparent 10px
+    );
+    transition: all 0.45s ease;
+    pointer-events: none;
+  }
+  .group:hover .talisman-line {
+    left: 6%;
+    right: 6%;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156,26,28,0.08) 0px, rgba(156,26,28,0.08) 6px,
+      transparent 6px, transparent 10px
+    );
+    height: 4px;
+  }
+
+  /* ── 暖纸卡片（金笺） ── */
+  .card-warm {
+    position: relative;
+    background: var(--color-paper-card);
+    box-shadow:
+      inset 0 0 0 1px rgba(44,26,14,0.015),
+      0 4px 20px rgba(44,26,14,0.04);
+  }
+  .card-warm--elevated {
+    box-shadow:
+      inset 0 0 0 1px rgba(44,26,14,0.015),
+      0 4px 24px rgba(44,26,14,0.04);
+  }
+
+  /* ── Hero 咒语排版 ── */
+  .hero-incant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .hero-incant__line {
+    font-size: 0.9375rem;
+    color: var(--color-ink-medium);
+    letter-spacing: 0.5em;
+    line-height: 2;
+    opacity: 0.65;
+    transition: opacity 0.4s;
+  }
+  .hero-incant__line:hover { opacity: 1; }
+  .hero-incant__divider {
+    width: 20px;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156,26,28,0.08) 0px, rgba(156,26,28,0.08) 3px,
+      transparent 3px, transparent 6px
+    );
+    margin: 4px 0;
+  }
+
+  /* ── Hero 标题中的朱砂点 ── */
+  .title-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--color-cinnabar-deeper);
+    border-radius: 50%;
+    margin: 0 14px;
+    vertical-align: middle;
+    opacity: 0.12;
+  }
+
+  /* ── 线装册页：天地界栏 ── */
+  .rule-boundary {
+    position: absolute;
+    left: 44px;
+    right: 44px;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156,26,28,0.035) 0px, rgba(156,26,28,0.035) 6px,
+      transparent 6px, transparent 12px
+    );
+    pointer-events: none;
+  }
+  .rule-boundary--top { top: 22px; }
+  .rule-boundary--bottom { bottom: 22px; }
+
+  /* ── 鱼尾 ── */
+  .fish-tail {
+    position: absolute;
+    top: 26px;
+    right: 48px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    user-select: none;
+    pointer-events: none;
+  }
+  .fish-tail__v {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 9px solid rgba(156,26,28,0.02);
+  }
+  .fish-tail__bar {
+    width: 22px;
+    height: 1px;
+    background: rgba(156,26,28,0.02);
+  }
+
+  /* ── 朱砂双线网格（八字表） ── */
+  .grid-cinnabar {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 2px solid rgba(156,26,28,0.07);
+  }
+  .grid-cinnabar th {
+    padding: 7px 8px;
+    text-align: center;
+    border-bottom: 1px solid rgba(156,26,28,0.07);
+    font-family: var(--font-sans);
+    font-size: 0.625rem;
+    color: var(--color-ink-medium);
+    letter-spacing: 0.15em;
+    font-weight: 500;
+    background: rgba(156,26,28,0.015);
+  }
+  .grid-cinnabar th:not(:last-child) { border-right: 2px solid rgba(156,26,28,0.07); }
+  .grid-cinnabar th .mk { font-size: 0.5rem; color: var(--color-cinnabar-deeper); margin-left: 3px; }
+  .grid-cinnabar th.is-day { background: rgba(156,26,28,0.05); }
+  .grid-cinnabar td {
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid rgba(156,26,28,0.035);
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  .grid-cinnabar td:not(:last-child) { border-right: 2px solid rgba(156,26,28,0.035); }
+  .grid-cinnabar td.is-day { background: rgba(156,26,28,0.03); }
+  .grid-cinnabar td.sub { padding: 7px 8px; }
+
+  /* ── 日主朱砂块 ── */
+  .master-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .master-block__box {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 20px;
+    background: var(--color-cinnabar-deeper);
+    box-shadow: 0 2px 12px rgba(156,26,28,0.06);
+  }
+  .master-block__big {
+    font-size: 1.75rem;
+    color: var(--color-paper-card);
+    line-height: 1.3;
+  }
+  .master-block__sub {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: rgba(232,220,198,0.85);
+  }
+
+  /* ── 分割线（带印章） ── */
+  .divider-seal {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .divider-seal__line {
+    flex: 1;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156,26,28,0.035) 0px, rgba(156,26,28,0.035) 4px,
+      transparent 4px, transparent 8px
+    );
+  }
+  .divider-seal__word {
+    font-size: 0.9375rem;
+    color: rgba(44,26,14,0.10);
+    letter-spacing: 0.4em;
+    flex-shrink: 0;
+  }
+
+  /* ── 卦象角标 ── */
+  .corner-mark {
+    position: absolute;
+    font-size: 0.8125rem;
+    color: rgba(156,26,28,0.015);
+    line-height: 1;
+    pointer-events: none;
+    transition: color 0.35s ease;
+  }
+  .group:hover .corner-mark { color: rgba(156,26,28,0.035); }
+  .corner-mark--tl { top: 10px; left: 12px; }
+  .corner-mark--br { bottom: 10px; right: 12px; }
+
+  /* ── 入场动画 ── */
+  .anim-rise {
+    animation: rise 0.8s ease-out both;
+  }
+  .anim-delay-1 { animation-delay: 0.1s; }
+  .anim-delay-2 { animation-delay: 0.2s; }
+  .anim-delay-3 { animation-delay: 0.3s; }
+  .anim-delay-4 { animation-delay: 0.4s; }
+  .anim-delay-5 { animation-delay: 0.5s; }
+
+  /* ── 工具卡片（玄·道风格） ── */
+  .tool-card--new {
+    position: relative;
+    background: var(--color-paper-card);
+    padding: 3rem 1rem 2.25rem;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.45s ease;
+    box-shadow:
+      inset 0 0 0 1px rgba(44,26,14,0.015),
+      0 4px 20px rgba(44,26,14,0.04);
+  }
+  /* 符头顶线 */
+  .tool-card--new::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 15%; right: 15%;
+    height: 3px;
+    background: repeating-linear-gradient(90deg,
+      rgba(156,26,28,0.04) 0px, rgba(156,26,28,0.04) 6px,
+      transparent 6px, transparent 10px);
+    transition: all 0.45s ease;
+    pointer-events: none;
+  }
+  .tool-card--new:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 0 0 1px rgba(156,26,28,0.03),
+      0 8px 32px rgba(44,26,14,0.08),
+      0 0 0 2px rgba(156,26,28,0.03);
+  }
+  .tool-card--new:hover::before {
+    left: 6%; right: 6%;
+    background: repeating-linear-gradient(90deg,
+      rgba(156,26,28,0.08) 0px, rgba(156,26,28,0.08) 6px,
+      transparent 6px, transparent 10px);
+    height: 4px;
+  }
+  /* 工具卡片朱砂印 hover */
+  .tool-card--new:hover .seal-icon {
+    transform: rotate(-2deg) scale(1.08);
+    background: var(--color-cinnabar-deeper);
+  }
+  /* 工具卡片名称 hover */
+  .tool-card--new:hover .tool-card__name {
+    color: var(--color-cinnabar-deeper);
+  }
+  /* 工具卡片卦象 hover */
+  .tool-card--new:hover .tool-card__trigram {
+    color: rgba(156,26,28,0.035);
+  }
+
+  /* 工具卡片卦象 */
+  .tool-card__trigram {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 15px;
+    color: rgba(44,26,14,0.012);
+    pointer-events: none;
+    transition: color 0.45s ease;
+  }
+
+  /* ── 暖纸面板 ── */
+  .paper-warm {
+    background: var(--color-paper-card);
+  }
+
+  /* ── 输入框（暖笺底） ── */
+  .input-warm {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(232,220,198,0.4);
+    border: 1px solid rgba(44,26,14,0.025);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  .input-warm::placeholder { color: var(--color-ink-faint); }
+  .input-warm:focus {
+    border-color: rgba(156,26,28,0.07);
+    box-shadow: 0 0 0 3px rgba(156,26,28,0.015);
+  }
 }
 
 /* Keyframes must be OUTSIDE @layer for Tailwind PostCSS compat */
@@ -671,6 +1142,12 @@ html {
 @keyframes skeleton-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ── Rise Animation ── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Number Input Spinners ── */
