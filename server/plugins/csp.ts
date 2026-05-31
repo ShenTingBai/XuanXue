@@ -5,6 +5,7 @@ export default defineNitroPlugin((nitroApp) => {
     const headers = response.headers
     if (!headers) return
     const nonce = randomUUID()
+    event.context.nonce = nonce
     const csp = headers['Content-Security-Policy']
     if (csp) {
       headers['Content-Security-Policy'] = csp.replace(/'unsafe-inline'/g, `'nonce-${nonce}'`)

@@ -1,5 +1,4 @@
 import { dbRun } from '../../database/db'
-import { getProfileIdFromToken } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const idRaw = event.context.params!.id
@@ -11,9 +10,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
   }
 
-  const authHeader = getHeader(event, 'authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-  const profileIdFromToken = token ? getProfileIdFromToken(token) : null
+  const profileIdFromToken = (event.context as any).profileId as number | undefined
   if (!profileIdFromToken) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }

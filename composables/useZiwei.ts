@@ -133,10 +133,10 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
       heavenlyStem: p.heavenlyStem,
       isBodyPalace: p.isBodyPalace,
       majorStars: p.majorStars.map(s => ({
-        name: s.name, type: s.type, brightness: s.brightness, mutagen: s.mutagen,
+        name: s.name, type: s.type, brightness: s.brightness, mutagen: s.mutagen, isMajor: true,
       })),
       minorStars: p.minorStars.map(s => ({
-        name: s.name, type: s.type, mutagen: s.mutagen,
+        name: s.name, type: s.type, mutagen: s.mutagen, isMajor: false,
       })),
       adjectiveStars: p.adjectiveStars.map(s => ({
         name: s.name, type: s.type, mutagen: s.mutagen,
@@ -154,6 +154,7 @@ export interface ZiWeiStarData {
   type: string
   brightness?: string
   mutagen?: string
+  isMajor?: boolean
 }
 
 export interface ZiWeiPalaceData {
@@ -167,6 +168,10 @@ export interface ZiWeiPalaceData {
   adjectiveStars: ZiWeiStarData[]
   decadalRange: [number, number]
   ages: number[]
+  scope?: string
+  isOriginalPalace?: boolean
+  changsheng12?: string
+  originalIndex?: number
 }
 
 export interface ZiWeiAstrolabeData {
@@ -189,17 +194,23 @@ export interface ZiWeiAstrolabeData {
  */
 export function deserializeAstrolabe(raw: Record<string, unknown>): IFunctionalAstrolabe | null {
   if (!raw || !Array.isArray(raw.palaces)) return null
-  try {
-    const data = raw as unknown as ZiWeiAstrolabeData
-    const palaces = data.palaces.map(p => ({
-      ...p,
-      decadal: { range: p.decadalRange },
-    }))
-    return {
-      ...data,
-      palaces,
-    } as unknown as IFunctionalAstrolabe
-  } catch {
-    return null
+  const data = raw as unknown as ZiWeiAstrolabeData
+  const palaces = data.palaces.map(p => ({
+    ...p,
+    decadal: { range: p.decadalRange },
+  }))
+  // Explicit validation: type assertions never throw, so we must check manually.
+  for (const p of palaces) {
+    const dr = p.decadal?.range
+    if (!Array.isArray(dr) || dr.length !== 2 || typeof dr[0] !== 'number' || typeof dr[1] !== 'number') {
+      return null
+    }
+    if (!Array.isArray(p.ages) || !p.ages.every(a => typeof a === 'number')) {
+      return null
+    }
   }
+  return {
+    ...data,
+    palaces,
+  } as unknown as IFunctionalAstrolabe
 }

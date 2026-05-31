@@ -42,6 +42,15 @@
                 {{ palace.heavenlyStem }}{{ palace.earthlyBranch }}
               </span>
             </div>
+
+            <!-- Top focus trap sentinel: catches Shift+Tab from close button -->
+            <div
+              tabindex="0"
+              class="focus-trap-sentinel"
+              aria-hidden="true"
+              @focus="trapFocusBack"
+            />
+
             <button
               ref="closeButtonRef"
               class="sheet-close-btn flex-shrink-0 ml-2"

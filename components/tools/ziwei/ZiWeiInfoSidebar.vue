@@ -3,7 +3,7 @@
     <h4 class="font-display font-semibold text-ink-dark text-sm">命盘信息</h4>
     <div class="space-y-1.5 text-ink-light">
       <!-- Birth info -->
-      <div>
+      <div v-if="solarDate.year">
         <span class="block text-ink-dark/50 text-[10px]">公历</span>
         <span>{{ solarDate.year }}年{{ solarDate.month }}月{{ solarDate.day }}日</span>
       </div>
@@ -69,6 +69,7 @@ const props = defineProps<{
 }>()
 
 const solarDate = computed(() => {
+  if (!props.astrolabe.solarDate) return { year: '', month: '', day: '' }
   const parts = props.astrolabe.solarDate.split('-')
   return {
     year: parts[0] || '',
@@ -82,7 +83,8 @@ const lunarDateStr = computed(() => {
 })
 
 const genderLabel = computed(() => {
-  return props.astrolabe.gender === 'male' ? '男' : '女'
+  if (props.astrolabe.gender == null) return '—'
+  return props.astrolabe.gender === '男' ? '男' : '女'
 })
 
 const zodiacLabel = computed(() => {
@@ -101,7 +103,7 @@ const mingStars = computed(() => {
 const transformations = computed(() => {
   const result: Array<{ star: string; type: string; label: string }> = []
   for (const palace of props.astrolabe.palaces) {
-    for (const s of [...palace.majorStars, ...palace.minorStars]) {
+    for (const s of [...palace.majorStars, ...(palace.adjectiveStars ?? []), ...palace.minorStars]) {
       if (s.mutagen) {
         result.push({ star: s.name, type: s.mutagen, label: `化${s.mutagen}` })
       }

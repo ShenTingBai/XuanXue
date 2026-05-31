@@ -18,7 +18,7 @@ defineProps<{
 <template>
   <div
     class="palace-grid grid grid-cols-4 grid-rows-4 aspect-square max-w-[620px] mx-auto relative"
-    role="grid"
+    role="list"
     aria-label="紫微斗数命盘十二宫"
   >
     <!-- Outer decorative border -->
@@ -31,7 +31,7 @@ defineProps<{
       v-for="palace in palaces"
       :key="palace.index"
       class="bg-paper relative"
-      role="gridcell"
+      role="listitem"
       style="border: 1px solid color-mix(in srgb, var(--color-ink-medium) 10%, transparent);"
       :style="{
         gridRow: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.row,

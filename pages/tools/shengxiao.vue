@@ -107,7 +107,7 @@ async function saveDivinationResult(result: ShengXiaoResult, representativeYear:
         body: {
           type: 'shengxiao',
           input_data: inputData,
-          result_data: structuredClone(result),
+          result_data: JSON.parse(JSON.stringify(result)),
         },
       })
       savedDivinationId.value = saveRes.id

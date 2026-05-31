@@ -249,7 +249,7 @@ async function saveDivinationResult(
         body: {
           type: 'bazi',
           input_data: inputData,
-          result_data: structuredClone(baziResult),
+          result_data: JSON.parse(JSON.stringify(baziResult)),
         },
       })
       savedDivinationId.value = saveRes.id

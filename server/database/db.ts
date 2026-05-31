@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import initSqlJs, { type SqlJsStatic, type Database as SqlJsDatabase } from 'sql.js'
 import fs from 'fs'
 import path from 'path'
@@ -117,6 +118,22 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_SESSIONS_TABLE)
     // Migration: rename token→token_hash for SHA-256 session storage (existing DBs)
     try { db.run("ALTER TABLE sessions RENAME COLUMN token TO token_hash") } catch { /* column already token_hash or doesn't exist */ }
+
+    // Migration: hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
+    // After the rename, old sessions still have plaintext tokens; SHA-256 query would find no match.
+    try {
+      const rows = dbAll('SELECT id, token_hash FROM sessions') as { id: number; token_hash: string }[]
+      for (const row of rows) {
+        const token = row.token_hash
+        if (token && token.length === 48) {
+          const hashed = createHash('sha256').update(token).digest('hex')
+          dbRun('UPDATE sessions SET token_hash = ? WHERE id = ?', [hashed, row.id])
+        }
+      }
+    } catch (e) {
+      console.error('Migration failed (hash existing tokens):', e)
+    }
+
     db.run(CREATE_DIVINATION_TABLE)
     db.run(INDEX_SESSIONS_PROFILE)
     db.run(INDEX_SESSIONS_TOKEN_HASH)

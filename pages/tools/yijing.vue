@@ -337,10 +337,13 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
       },
     })
   } catch (e: unknown) {
-    // 401: stale session, suppress
-    if (e && typeof e === 'object' && 'statusCode' in e && (e as any).statusCode === 401) {
-      console.warn('[yijing] Save failed: session expired')
-      return
+    // 401/429: stale session or rate-limited, suppress
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 401 || code === 429) {
+        if (code === 401) console.warn('[yijing] Save failed: session expired')
+        return
+      }
     }
     saveError.value = '保存失败，历史记录可能不完整'
     showSaveErrorToast.value = true

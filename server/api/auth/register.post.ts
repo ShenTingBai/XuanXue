@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   // Apply NFC Unicode normalization and restrict character set
   nickname = nickname.normalize('NFC')
-  if (!/^[一-鿿\w-]{2,20}$/.test(nickname)) {
+  if (!/^[㐀-鿿\w-]{2,20}$/.test(nickname)) {
     throw createError({ statusCode: 400, statusMessage: '昵称仅支持中文、字母、数字、下划线和连字符（2-20字）' })
   }
 
