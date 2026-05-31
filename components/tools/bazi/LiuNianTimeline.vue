@@ -1,9 +1,8 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
     <div class="flex items-center gap-3 flex-wrap">
-      <div class="section-header section-header--tool mb-0">
+      <div class="section-header section-header--tool section-header--tool-light mb-0">
         <span class="bar" aria-hidden="true"></span>
-        <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">年</span>
         <h2>流年详批（&plusmn;{{ range }}年）</h2>
       </div>
       <span class="inline-flex items-center gap-1.5 text-xs font-sans text-ink-medium">

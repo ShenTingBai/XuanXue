@@ -1,8 +1,7 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.15s' }">
-    <div class="section-header section-header--tool">
+    <div class="section-header section-header--tool section-header--tool-light">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">煞</span>
       <h2>神煞</h2>
     </div>
 
