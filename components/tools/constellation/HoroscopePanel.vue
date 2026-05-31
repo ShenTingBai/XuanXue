@@ -1,8 +1,12 @@
 <template>
-  <div class="fade-in card-paper-solid rounded-xl p-8 mb-6" :style="{ '--delay': '0.15s' }">
+  <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.15s' }">
     <FortuneBars :items="fortuneItems" />
 
-    <InkDivider class="mt-6">综合运势</InkDivider>
+    <div class="section-header section-header--tool mt-6">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">运</span>
+      <h2>综合运势</h2>
+    </div>
 
     <div class="flex flex-col items-center py-4">
       <div class="flex items-start">
@@ -23,7 +27,6 @@
 import { computed } from 'vue'
 import type { ConstellationResult } from '~/composables/useConstellation'
 import FortuneBars from '~/components/tools/FortuneBars.vue'
-import InkDivider from '~/components/tools/InkDivider.vue'
 
 const props = defineProps<{
   horoscope: ConstellationResult['todayHoroscope']

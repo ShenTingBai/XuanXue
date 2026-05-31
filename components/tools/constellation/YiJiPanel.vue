@@ -1,6 +1,10 @@
 <template>
   <div class="fade-in mb-6" :style="{ '--delay': '0.25s' }">
-    <InkDivider>今日宜忌</InkDivider>
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">忌</span>
+      <h2>今日宜忌</h2>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
       <!-- Yi card -->
@@ -43,7 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import InkDivider from '~/components/tools/InkDivider.vue'
 
 defineProps<{
   yi: string[]
