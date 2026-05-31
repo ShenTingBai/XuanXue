@@ -17,9 +17,8 @@
 
     <!-- Primary hexagram -->
     <h2 class="sr-only">本卦</h2>
-    <div class="section-header section-header--tool">
+    <div class="section-header section-header--tool section-header--tool-light">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
       <h2>本卦</h2>
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">
@@ -40,9 +39,8 @@
 
     <!-- Derived hexagram (变卦) -->
     <template v-if="result.derivedHexagram && result.derivedLines">
-      <div class="section-header section-header--tool">
+      <div class="section-header section-header--tool section-header--tool-light">
         <span class="bar" aria-hidden="true"></span>
-        <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
         <h2>变卦</h2>
       </div>
       <div class="card-warm rounded-xl p-8 mb-6">
@@ -64,9 +62,8 @@
 
     <!-- Mutual hexagram (互卦) -->
     <template v-if="result.huGua && result.huGuaLines">
-      <div class="section-header section-header--tool">
+      <div class="section-header section-header--tool section-header--tool-light">
         <span class="bar" aria-hidden="true"></span>
-        <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
         <h2>互卦</h2>
       </div>
       <div class="card-warm rounded-xl p-8 mb-6">
@@ -87,9 +84,8 @@
     </template>
 
     <!-- Interpretation text -->
-    <div class="section-header section-header--tool">
+    <div class="section-header section-header--tool section-header--tool-light">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
       <h2>卦象解读</h2>
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">
@@ -109,9 +105,8 @@
     </div>
 
     <!-- Line detail table -->
-    <div class="section-header section-header--tool">
+    <div class="section-header section-header--tool section-header--tool-light">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
       <h2>六爻详解</h2>
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">
