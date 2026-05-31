@@ -77,7 +77,7 @@
 
       <!-- Toss button -->
       <button
-        class="btn-seal mb-3"
+        class="btn-cin mb-3"
         :disabled="currentToss >= 6 || isFlipping"
         :aria-busy="isFlipping ? 'true' : undefined"
         @click="handleTossClick"
@@ -165,7 +165,7 @@
 
         <!-- Submit -->
         <div class="text-center mt-6">
-          <button type="submit" class="btn-seal" @keydown.space.prevent="handleNumberSubmit">
+          <button type="submit" class="btn-cin" @keydown.space.prevent="handleNumberSubmit">
             <span>起卦</span>
           </button>
         </div>

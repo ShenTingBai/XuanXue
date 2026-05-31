@@ -6,15 +6,23 @@
   <div v-else class="fade-in" :style="{ '--delay': '0.25s' }">
     <!-- Score ring -->
     <h2 class="sr-only">卦象评分</h2>
-    <InkDivider>卦象评分</InkDivider>
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+      <h2>卦象评分</h2>
+    </div>
     <div class="flex justify-center mb-8">
       <ScoreRing :score="score" />
     </div>
 
     <!-- Primary hexagram -->
     <h2 class="sr-only">本卦</h2>
-    <InkDivider>本卦</InkDivider>
-    <div class="card-paper-solid rounded-xl p-8 mb-6">
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+      <h2>本卦</h2>
+    </div>
+    <div class="card-warm rounded-xl p-8 mb-6">
       <HexagramDisplay
         :hexagram="{
           name: result.hexagram.name,
@@ -32,9 +40,12 @@
 
     <!-- Derived hexagram (变卦) -->
     <template v-if="result.derivedHexagram && result.derivedLines">
-      <h2 class="sr-only">变卦</h2>
-      <InkDivider>变卦</InkDivider>
-      <div class="card-paper-solid rounded-xl p-8 mb-6">
+      <div class="section-header section-header--tool">
+        <span class="bar" aria-hidden="true"></span>
+        <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+        <h2>变卦</h2>
+      </div>
+      <div class="card-warm rounded-xl p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.derivedHexagram.name,
@@ -53,9 +64,12 @@
 
     <!-- Mutual hexagram (互卦) -->
     <template v-if="result.huGua && result.huGuaLines">
-      <h2 class="sr-only">互卦</h2>
-      <InkDivider>互卦</InkDivider>
-      <div class="card-paper-solid rounded-xl p-8 mb-6">
+      <div class="section-header section-header--tool">
+        <span class="bar" aria-hidden="true"></span>
+        <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+        <h2>互卦</h2>
+      </div>
+      <div class="card-warm rounded-xl p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.huGua.name,
@@ -73,9 +87,12 @@
     </template>
 
     <!-- Interpretation text -->
-    <h2 class="sr-only">卦象解读</h2>
-    <InkDivider>卦象解读</InkDivider>
-    <div class="card-paper-solid rounded-xl p-8 mb-6">
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+      <h2>卦象解读</h2>
+    </div>
+    <div class="card-warm rounded-xl p-8 mb-6">
       <div class="interpretation-text">
         <div
           v-for="(paragraph, idx) in interpretationParagraphs"
@@ -92,9 +109,12 @@
     </div>
 
     <!-- Line detail table -->
-    <h2 class="sr-only">六爻详解</h2>
-    <InkDivider>六爻详解</InkDivider>
-    <div class="card-paper-solid rounded-xl p-8 mb-6">
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+      <h2>六爻详解</h2>
+    </div>
+    <div class="card-warm rounded-xl p-8 mb-6">
       <p class="font-sans text-xs text-ink-light mb-4 leading-relaxed">
         下表列出每根爻的详细信息。<span class="text-ink-medium font-medium">五行</span>表示此爻的地支所属元素，<span class="text-ink-medium font-medium">六亲</span>是爻与日主的关系（如官鬼主事业、妻财主财运），<span class="text-ink-medium font-medium">六神</span>为当日值日之神（青龙主喜、朱雀主口舌等）。
       </p>
@@ -113,7 +133,6 @@
 import type { YijingResult } from '~/composables/useYijing'
 import HexagramDisplay from '~/components/tools/yijing/HexagramDisplay.vue'
 import ZhuangGuaTable from '~/components/tools/yijing/ZhuangGuaTable.vue'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
 
 const props = defineProps<{
