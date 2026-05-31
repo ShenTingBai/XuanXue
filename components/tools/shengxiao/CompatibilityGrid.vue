@@ -1,8 +1,7 @@
 <template>
   <div class="fade-in mb-6" :style="{ '--delay': '0.5s' }">
-    <div class="section-header section-header--tool">
+    <div class="section-header section-header--tool section-header--tool-light">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">配</span>
       <h2>生肖配对</h2>
     </div>
     <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">

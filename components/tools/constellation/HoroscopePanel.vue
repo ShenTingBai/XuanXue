@@ -2,9 +2,8 @@
   <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.15s' }">
     <FortuneBars :items="fortuneItems" />
 
-    <div class="section-header section-header--tool mt-6">
+    <div class="section-header section-header--tool section-header--tool-light mt-6">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">运</span>
       <h2>综合运势</h2>
     </div>
 

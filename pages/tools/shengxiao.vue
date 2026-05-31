@@ -313,9 +313,8 @@ async function restoreFromHistory(id: number) {
           <PersonalityCard :result="result" />
 
           <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
-            <div class="section-header section-header--tool">
+            <div class="section-header section-header--tool section-header--tool-light">
               <span class="bar" aria-hidden="true"></span>
-              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">年</span>
               <h2>{{ currentYear }}年流年运势</h2>
             </div>
             <div class="p-8">

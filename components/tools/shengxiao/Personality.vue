@@ -1,8 +1,7 @@
 <template>
   <div class="fade-in mb-6" :style="{ '--delay': '0.35s' }">
-    <div class="section-header section-header--tool">
+    <div class="section-header section-header--tool section-header--tool-light">
       <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">性</span>
       <h2>性格特征</h2>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
