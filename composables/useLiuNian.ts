@@ -1,5 +1,5 @@
-import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
-import { getTenGod, WUXING_STEM, WUXING_BRANCH, type BaZiResult } from './useBaZi'
+import { STEMS, BRANCHES, getStemIndex, WUXING_STEM, WUXING_BRANCH } from '~/constants/bazi'
+import { getTenGod, type BaZiResult } from './useBaZi'
 import { checkSanHeBranch, TIAN_YI_MAP, TAI_JI_MAP, WEN_CHANG_MAP, XUE_TANG_MAP, JIN_YU_MAP, FU_XING_MAP, LU_SHEN_MAP, YANG_REN_MAP, TIAN_DE_MAP, YUE_DE_MAP, type ShenSha } from './useShenSha'
 import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
 

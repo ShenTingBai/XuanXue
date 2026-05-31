@@ -31,7 +31,7 @@ function cleanup(): void {
  * @returns true if request is allowed, false if rate-limited
  */
 // Periodic cleanup of stale entries (every 5 minutes)
-const cleanupInterval = setInterval(cleanup, CLEANUP_INTERVAL)
+const cleanupInterval = setInterval(cleanup, CLEANUP_INTERVAL).unref()
 
 /** Destroy the periodic cleanup timer. Call during graceful shutdown. */
 export function destroyRateLimiter(): void {

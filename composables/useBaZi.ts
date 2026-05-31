@@ -1,7 +1,7 @@
 import { getMonthPillar, getSolarTerm } from './useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 
-import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
+import { STEMS, BRANCHES, getStemIndex, WUXING_STEM, WUXING_BRANCH } from '~/constants/bazi'
 
 // === Helper ===
 
@@ -10,16 +10,6 @@ function branchIndex(b: string): number {
 }
 
 // === Constants ===
-
-export const WUXING_STEM: Record<string, string> = {
-  '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
-  '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水',
-}
-
-export const WUXING_BRANCH: Record<string, string> = {
-  '子': '水', '丑': '土', '寅': '木', '卯': '木', '辰': '土', '巳': '火',
-  '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水',
-}
 
 const STEM_YIN_YANG: Record<string, '阳' | '阴'> = {
   '甲': '阳', '乙': '阴', '丙': '阳', '丁': '阴', '戊': '阳',
@@ -315,10 +305,10 @@ function computeDaYunStartAge(
   gender: '男' | '女' | null,
 ): number {
   if (!gender) {
-    // Fallback for missing gender: approximate as 阳年 birth
+    // Fallback for missing gender: treat as 阴女 → 阳年 逆排, 阴年 顺排
     const yangYear = isYangYear(yearStemIndex)
-    // Default to forward (顺排) for 阳年, backward for 阴年
-    return computeStartAge(birthYear, birthMonth, birthDay, yangYear)
+    // Must match computeDaYun logic where isMale=false: forward = !yangYear
+    return computeStartAge(birthYear, birthMonth, birthDay, !yangYear)
   }
 
   const yangYear = isYangYear(yearStemIndex)

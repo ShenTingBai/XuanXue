@@ -319,7 +319,7 @@ async function restoreFromHistory(id: number) {
           @update:current-view="currentView = $event"
         />
 
-        <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+        <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
           点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
         </p>
 

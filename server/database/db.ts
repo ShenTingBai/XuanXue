@@ -156,6 +156,7 @@ export async function initDb(): Promise<void> {
 
     db.run(CREATE_SECURITY_LOG_TABLE)
     db.run(INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED)
+    db.run("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")
 
     // Migration version tracking
     db.run(`CREATE TABLE IF NOT EXISTS _migrations (
@@ -220,7 +221,8 @@ export function dbRun(sql: string, params: any[] = []): { lastInsertRowid: numbe
   database.run(sql, params)
   scheduleSave()
 
-  const idResult = dbGet('SELECT last_insert_rowid() as id')
+  const isInsert = /^\s*INSERT\b/i.test(sql.trim())
+  const idResult = isInsert ? dbGet('SELECT last_insert_rowid() as id') : undefined
   return {
     lastInsertRowid: idResult?.id ?? 0,
     changes: database.getRowsModified(),

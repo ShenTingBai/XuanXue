@@ -11,8 +11,8 @@
       style="min-height: 360px;"
     >
       <div class="text-center">
-        <div class="text-[2rem] mb-2 font-display text-ink-light/25" aria-hidden="true">✦</div>
-        <p role="status" class="text-xs text-ink-light/50 tracking-[0.12em] font-sans">点击宫位查看详解</p>
+        <div class="text-[2rem] mb-2 font-display text-ink-light/80" aria-hidden="true">✦</div>
+        <p role="status" class="text-xs text-ink-light/80 tracking-[0.12em] font-sans">点击宫位查看详解</p>
       </div>
     </div>
 
@@ -67,7 +67,7 @@
       <div class="detail-section">
         <h4 class="detail-section-title">
           <span class="title-dot"></span>杂曜
-          <span class="text-[10px] text-ink-light/40 font-normal ml-1">（天星图不显）</span>
+          <span class="text-[10px] text-ink-light/80 font-normal ml-1">（天星图不显）</span>
         </h4>
         <div v-if="detailView.adjectiveStars.length > 0" class="detail-star-list">
           <div

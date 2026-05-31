@@ -117,9 +117,9 @@ const handleGoHome = () => {
             <div class="flex items-center gap-3">
               <span class="font-display text-base text-ink-dark tracking-wider">玄学</span>
               <span class="text-[0.6rem] text-ink-faint">·</span>
-              <span class="text-xs text-ink-light/60 font-sans">命理推演 · 知己知天</span>
+              <span class="text-xs text-ink-light/80 font-sans">命理推演 · 知己知天</span>
             </div>
-            <p class="text-xs text-ink-faint/40 font-sans">
+            <p class="text-xs text-ink-medium/80 font-sans">
               &copy; {{ new Date().getFullYear() }} 玄学 · 仅供娱乐参考
             </p>
           </div>

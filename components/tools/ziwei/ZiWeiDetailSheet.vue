@@ -38,7 +38,7 @@
               <h3 class="font-display text-lg tracking-[0.12em] text-ink-dark truncate">
                 {{ palace?.name ?? '' }}解读
               </h3>
-              <span v-if="palace" class="font-sans text-[11px] text-ink-light/50 tracking-[0.06em] flex-shrink-0 border border-ink-faint/15 rounded px-1.5 py-0.5">
+              <span v-if="palace" class="font-sans text-[11px] text-ink-light/80 tracking-[0.06em] flex-shrink-0 border border-ink-faint/15 rounded px-1.5 py-0.5">
                 {{ palace.heavenlyStem }}{{ palace.earthlyBranch }}
               </span>
             </div>
