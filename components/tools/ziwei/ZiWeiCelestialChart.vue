@@ -55,8 +55,9 @@ const tooltipRef = ref<HTMLDivElement>()
 // Helpers
 // ═══════════════════════════════════════════════════════════════
 function pol(angleDeg: number, r: number) {
-  // SVG y-down convention; angles consistent with constants/ziwei.ts BRANCH_TO_ANGLE
-  const rad = ((angleDeg - 90) * Math.PI) / 180
+  // angleDeg uses constants/ziwei.ts BRANCH_TO_ANGLE convention — already in SVG
+  // y-down angle space (午=255°, 午+15°=270° SVG → top). No additional offset.
+  const rad = (angleDeg * Math.PI) / 180
   return { x: CX + Math.cos(rad) * r, y: CY + Math.sin(rad) * r }
 }
 
