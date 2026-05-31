@@ -89,7 +89,12 @@ const dimensionScores = computed(() => {
   for (const [key, vals] of Object.entries(scores)) {
     result[key] = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
   }
-  if (!result.overall) result.overall = 50
+  // Guard: ensure all dimensions have a value even if a system returned nothing
+  result.overall ??= 50
+  result.career ??= 50
+  result.wealth ??= 50
+  result.love ??= 50
+  result.health ??= 50
   return result as { overall: number; career: number; wealth: number; love: number; health: number }
 })
 
@@ -159,10 +164,24 @@ const jiItems = computed(() => {
   return [...new Set(items)].slice(0, 5).join(' · ')
 })
 
-const dateLabel = computed(() => {
+const dateLabel = ref('')
+import { onMounted, onUnmounted } from 'vue'
+
+let dateTimer: ReturnType<typeof setInterval> | null = null
+
+function updateDateLabel() {
   const d = new Date()
   const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-  return `${d.getMonth() + 1}月${d.getDate()}日 · ${weekdays[d.getDay()]}`
+  dateLabel.value = `${d.getMonth() + 1}月${d.getDate()}日 · ${weekdays[d.getDay()]}`
+}
+
+onMounted(() => {
+  updateDateLabel()
+  dateTimer = setInterval(updateDateLabel, 60_000) // update every minute
+})
+
+onUnmounted(() => {
+  if (dateTimer !== null) clearInterval(dateTimer)
 })
 
 // ── Dimension templates ──
@@ -217,7 +236,7 @@ const DIM_TEXTS: Record<string, Record<DimLevel, string[]>> = {
 
 .oracle-slip {
   position: relative;
-  background: var(--color-paper, #E8DCC6);
+  background: var(--color-paper-card, #E8DCC6);
   border-radius: 0.75rem;
   padding: 1.75rem 2rem;
   width: 100%;
@@ -259,7 +278,7 @@ const DIM_TEXTS: Record<string, Record<DimLevel, string[]>> = {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-cinnabar, #C62828);
+  background: var(--color-cinnabar-deeper, #9C1A1C);
   color: var(--color-paper-lightest, #F5F0E8);
   font-family: var(--font-display);
   font-size: 0.625rem;
@@ -355,16 +374,17 @@ const DIM_TEXTS: Record<string, Record<DimLevel, string[]>> = {
 
 .oracle-tag--yi .tag-label,
 .oracle-tag--yi .tag-items {
-  color: #3D6B4B;
+  color: var(--color-jade);
 }
 
 .oracle-tag--ji .tag-label,
 .oracle-tag--ji .tag-items {
-  color: #C62828;
+  color: var(--color-cinnabar);
 }
 
 .fade-in {
   animation: fadeInUp 0.5s ease both;
+  animation-delay: var(--delay, 0s);
 }
 
 @keyframes fadeInUp {

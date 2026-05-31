@@ -611,8 +611,9 @@ html {
 
   /* ── Nav Link ── */
   .nav-link {
-    @apply relative inline-flex items-center px-2.5 py-2 rounded-lg text-sm transition-colors no-underline;
+    @apply relative inline-flex items-center gap-1 px-2.5 py-2 rounded-lg text-sm transition-colors no-underline;
     color: var(--color-ink-medium);
+    font-family: var(--font-sans);
   }
   .nav-link:hover {
     color: var(--color-cinnabar);
@@ -688,6 +689,9 @@ html {
     background: var(--color-cinnabar-deepest);
     transform: translateY(-2px);
     box-shadow: 0 8px 32px rgba(156,26,28,0.10);
+  }
+  .btn-cin:active {
+    transform: scale(0.96);
   }
   .btn-cin:disabled {
     opacity: 0.5;

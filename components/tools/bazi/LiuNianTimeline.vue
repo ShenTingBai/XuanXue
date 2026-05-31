@@ -1,7 +1,9 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
-    <div class="flex items-center gap-3 flex-wrap mb-3">
-      <span class="inline-flex items-center gap-1.5 text-xs font-sans text-ink-medium">
+    <div class="flex items-center gap-2.5 flex-wrap mb-3">
+      <span class="font-display text-base text-ink tracking-wide">流年详批</span>
+      <span class="font-sans text-xs text-ink-light">（±{{ range }}年）</span>
+      <span class="inline-flex items-center gap-1.5 text-xs font-sans text-ink-medium ml-auto">
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>75+ 顺遂
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(65) }" aria-hidden="true"></span>60-74 平稳
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(50) }" aria-hidden="true"></span>45-59 需注意

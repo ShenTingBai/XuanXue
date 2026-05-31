@@ -305,7 +305,7 @@ function onListboxFocus() {
 .modal-enter-active {
   transition: opacity 0.25s ease;
 }
-.modal-enter-active :deep(> .card-warm) {
+.modal-enter-active :deep(.card-warm) {
   transition:
     opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -314,7 +314,7 @@ function onListboxFocus() {
 .modal-leave-active {
   transition: opacity 0.2s ease;
 }
-.modal-leave-active :deep(> .card-warm) {
+.modal-leave-active :deep(.card-warm) {
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
@@ -324,8 +324,8 @@ function onListboxFocus() {
 .modal-leave-to {
   opacity: 0;
 }
-.modal-enter-from :deep(> .card-warm),
-.modal-leave-to :deep(> .card-warm) {
+.modal-enter-from :deep(.card-warm),
+.modal-leave-to :deep(.card-warm) {
   opacity: 0;
   transform: scale(0.96);
 }
