@@ -16,8 +16,9 @@
         />
 
         <!-- Loading / processing -->
-        <div v-if="processing" class="text-center py-8">
-          <p class="font-sans text-sm text-ink-light">解卦中...</p>
+        <div v-if="processing" class="space-y-6" aria-busy="true">
+          <span class="sr-only">正在加载...</span>
+          <SkeletonCard />
         </div>
 
         <div aria-live="polite" role="status" class="sr-only">
@@ -117,6 +118,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'

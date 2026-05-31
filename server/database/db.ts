@@ -197,7 +197,9 @@ export async function initDb(): Promise<void> {
 }
 
 export function getDb(): SqlJsDatabase {
-  if (!db) throw new Error('Database not initialized yet')
+  if (!db) {
+    throw new Error('System not ready — database unavailable')
+  }
   return db
 }
 

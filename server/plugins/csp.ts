@@ -1,14 +1,5 @@
-import { randomUUID } from 'node:crypto'
-
-export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('render:response', (response, { event }) => {
-    const headers = response.headers
-    if (!headers) return
-    const nonce = randomUUID()
-    event.context.nonce = nonce
-    const csp = headers['Content-Security-Policy']
-    if (csp) {
-      headers['Content-Security-Policy'] = csp.replace(/'unsafe-inline'/g, `'nonce-${nonce}'`)
-    }
-  })
+export default defineNitroPlugin(() => {
+  // CSP nonce injection is deferred — currently uses 'unsafe-inline'
+  // per CLAUDE.md. Re-enable nonce strategy when @nuxtjs/csp or
+  // proper Nitro hook injection is implemented.
 })

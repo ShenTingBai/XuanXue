@@ -5,6 +5,14 @@ defineProps<{
 
 const router = useRouter()
 
+function goBack() {
+  if (import.meta.client && window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
+
 const emit = defineEmits<{
   history: []
 }>()
@@ -13,7 +21,7 @@ const emit = defineEmits<{
 <template>
   <div class="flex items-center justify-between mb-6">
     <button
-      @click="router.back()"
+      @click="goBack"
       class="toolbar-btn"
       aria-label="返回上一页"
     >

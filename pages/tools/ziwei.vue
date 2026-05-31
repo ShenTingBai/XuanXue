@@ -116,8 +116,7 @@ function handleCalculate() {
     selectedIndex.value = getMingGongIndex(ziweiResult.palaces)
     selectedPalace.value = ziweiResult.palaces[selectedIndex.value] || null
     saveDivinationResult(ziweiResult)
-  } catch (err) {
-    console.error('Ziwei calculation failed:', err)
+  } catch {
     error.value = '排盘计算出错，请检查出生信息'
   }
 
