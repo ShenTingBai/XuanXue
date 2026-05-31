@@ -14,7 +14,7 @@
     <!-- Primary hexagram -->
     <h2 class="sr-only">本卦</h2>
     <InkDivider>本卦</InkDivider>
-    <div class="section-card">
+    <div class="card-paper-solid rounded-xl p-8 mb-6">
       <HexagramDisplay
         :hexagram="{
           name: result.hexagram.name,
@@ -34,7 +34,7 @@
     <template v-if="result.derivedHexagram && result.derivedLines">
       <h2 class="sr-only">变卦</h2>
       <InkDivider>变卦</InkDivider>
-      <div class="section-card">
+      <div class="card-paper-solid rounded-xl p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.derivedHexagram.name,
@@ -55,7 +55,7 @@
     <template v-if="result.huGua && result.huGuaLines">
       <h2 class="sr-only">互卦</h2>
       <InkDivider>互卦</InkDivider>
-      <div class="section-card">
+      <div class="card-paper-solid rounded-xl p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.huGua.name,
@@ -75,7 +75,7 @@
     <!-- Interpretation text -->
     <h2 class="sr-only">卦象解读</h2>
     <InkDivider>卦象解读</InkDivider>
-    <div class="section-card">
+    <div class="card-paper-solid rounded-xl p-8 mb-6">
       <div class="interpretation-text">
         <div
           v-for="(paragraph, idx) in interpretationParagraphs"
@@ -94,7 +94,7 @@
     <!-- Line detail table -->
     <h2 class="sr-only">六爻详解</h2>
     <InkDivider>六爻详解</InkDivider>
-    <div class="section-card">
+    <div class="card-paper-solid rounded-xl p-8 mb-6">
       <p class="font-sans text-xs text-ink-light mb-4 leading-relaxed">
         下表列出每根爻的详细信息。<span class="text-ink-medium font-medium">五行</span>表示此爻的地支所属元素，<span class="text-ink-medium font-medium">六亲</span>是爻与日主的关系（如官鬼主事业、妻财主财运），<span class="text-ink-medium font-medium">六神</span>为当日值日之神（青龙主喜、朱雀主口舌等）。
       </p>
@@ -129,21 +129,12 @@ const interpretationParagraphs = computed(() => {
 </script>
 
 <style scoped>
-.section-card {
-  background: rgba(251, 248, 244, 0.95);
-  border: 1px solid #E0D5C0;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
-}
-
 .interpretation-text {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.9375rem;
   line-height: 1.75;
   padding-left: 12px;
-  border-left: 3px solid rgba(198, 40, 40, 0.45);
+  border-left: 3px solid color-mix(in srgb, var(--color-cinnabar) 45%, transparent);
 }
 
 .interpretation-paragraph {

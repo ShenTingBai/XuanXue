@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { getZodiacIndex, ZODIACS } from '~/composables/useConstellation'
 import { getAnimal } from '~/constants/bazi'
+import type { DivinationType } from '~/types/api/divination'
 
 const props = defineProps<{
   show: boolean
-  type: 'bazi' | 'shengxiao' | 'constellation' | 'yijing' | 'ziwei'
+  type: DivinationType
 }>()
 
 const emit = defineEmits<{
@@ -18,6 +19,7 @@ const records = ref<Array<{ id: number; type: string; input_data: any; created_a
 const loading = ref(false)
 const listRef = ref<HTMLUListElement | null>(null)
 const closeButtonRef = ref<HTMLElement | null>(null)
+const activeOptionIdx = ref(0)
 
 watch(() => props.show, (val) => {
   if (val) {
@@ -32,13 +34,24 @@ function trapFocusBack() {
   closeButtonRef.value?.focus()
 }
 
+function trapFocusForward() {
+  if (listRef.value) {
+    const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('[role="option"]'))
+    if (items.length > 0) {
+      items[items.length - 1].focus()
+      return
+    }
+  }
+  closeButtonRef.value?.focus()
+}
+
 async function fetchHistory() {
   loading.value = true
   records.value = []
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const data = await $fetch<Array<{ id: number; type: string; input_data: any; created_at: string }>>(
+    const data = await $fetch<Array<import('~/types/api/divination').DivinationListItem>>(
       `/api/divinations?type=${props.type}`,
       { headers },
     )
@@ -113,14 +126,21 @@ function handleKeydown(e: KeyboardEvent) {
   if (!listRef.value) return
   const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('[role="option"]'))
   if (items.length === 0) return
-  const currentIdx = items.indexOf(document.activeElement as HTMLElement)
 
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault()
-    const nextIdx = e.key === 'ArrowDown'
-      ? (currentIdx < 0 ? 0 : (currentIdx + 1) % items.length)
-      : (currentIdx < 0 ? items.length - 1 : (currentIdx - 1 + items.length) % items.length)
-    items[nextIdx].focus()
+    activeOptionIdx.value = e.key === 'ArrowDown'
+      ? (activeOptionIdx.value + 1) % items.length
+      : (activeOptionIdx.value - 1 + items.length) % items.length
+    items[activeOptionIdx.value]?.focus()
+  }
+}
+
+function onListboxFocus() {
+  if (!listRef.value) return
+  const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('[role="option"]'))
+  if (items.length > 0 && items[activeOptionIdx.value]) {
+    items[activeOptionIdx.value].focus()
   }
 }
 </script>
@@ -148,6 +168,12 @@ function handleKeydown(e: KeyboardEvent) {
           @click.stop
           @keydown="handleKeydown"
         >
+          <!-- Top focus trap sentinel — catches Shift+Tab from close button -->
+          <div
+            tabindex="0"
+            class="focus-trap-sentinel"
+            @focus="trapFocusForward"
+          />
           <!-- ── Header ── -->
           <div class="px-8 pt-8 pb-4 flex-shrink-0">
             <!-- Top ink line -->
@@ -206,6 +232,8 @@ function handleKeydown(e: KeyboardEvent) {
               ref="listRef"
               role="listbox"
               aria-label="历史记录列表"
+              tabindex="0"
+              @focus="onListboxFocus"
             >
               <li
                 v-for="(rec, idx) in records"
@@ -213,7 +241,7 @@ function handleKeydown(e: KeyboardEvent) {
                 class="history-record group cursor-pointer"
                 :style="{ animationDelay: `${idx * 0.04}s` }"
                 role="option"
-                tabindex="0"
+                :tabindex="idx === activeOptionIdx ? 0 : -1"
                 @click="onClickRecord(rec.id)"
                 @keydown.enter="onClickRecord(rec.id)"
                 @keydown.space.prevent="onClickRecord(rec.id)"
@@ -248,7 +276,6 @@ function handleKeydown(e: KeyboardEvent) {
           <div
             tabindex="0"
             class="focus-trap-sentinel"
-            aria-hidden="true"
             @focus="trapFocusBack"
           />
         </div>

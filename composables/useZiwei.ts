@@ -133,10 +133,10 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
       heavenlyStem: p.heavenlyStem,
       isBodyPalace: p.isBodyPalace,
       majorStars: p.majorStars.map(s => ({
-        name: s.name, type: s.type, brightness: s.brightness, mutagen: s.mutagen,
+        name: s.name, type: s.type, brightness: s.brightness, mutagen: s.mutagen, isMajor: true,
       })),
       minorStars: p.minorStars.map(s => ({
-        name: s.name, type: s.type, mutagen: s.mutagen,
+        name: s.name, type: s.type, mutagen: s.mutagen, isMajor: false,
       })),
       adjectiveStars: p.adjectiveStars.map(s => ({
         name: s.name, type: s.type, mutagen: s.mutagen,
@@ -145,4 +145,72 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
       ages: p.ages,
     })),
   }
+}
+
+// ── 纯数据接口（匹配序列化形状，用于快照恢复） ──
+
+export interface ZiWeiStarData {
+  name: string
+  type: string
+  brightness?: string
+  mutagen?: string
+  isMajor?: boolean
+}
+
+export interface ZiWeiPalaceData {
+  index: number
+  name: string
+  earthlyBranch: string
+  heavenlyStem: string
+  isBodyPalace: boolean
+  majorStars: ZiWeiStarData[]
+  minorStars: ZiWeiStarData[]
+  adjectiveStars: ZiWeiStarData[]
+  decadalRange: [number, number]
+  ages: number[]
+  scope?: string
+  isOriginalPalace?: boolean
+  changsheng12?: string
+  originalIndex?: number
+}
+
+export interface ZiWeiAstrolabeData {
+  earthlyBranchOfSoulPalace: string
+  earthlyBranchOfBodyPalace: string
+  fiveElementsClass: string
+  soul: string
+  body: string
+  solarDate: string
+  lunarDate: string
+  chineseDate: string
+  gender: 'male' | 'female'
+  palaces: ZiWeiPalaceData[]
+}
+
+/**
+ * 从序列化的纯数据恢复 astrolabe（快照恢复）。
+ * 利用结构类型兼容性：组件只读属性，不调方法，强制转型安全。
+ * 关键：将拍平的 decadalRange 重新映射为 decadal.range。
+ */
+export function deserializeAstrolabe(raw: Record<string, unknown>): IFunctionalAstrolabe | null {
+  if (!raw || !Array.isArray(raw.palaces)) return null
+  const data = raw as unknown as ZiWeiAstrolabeData
+  const palaces = data.palaces.map(p => ({
+    ...p,
+    decadal: { range: p.decadalRange },
+  }))
+  // Explicit validation: type assertions never throw, so we must check manually.
+  for (const p of palaces) {
+    const dr = p.decadal?.range
+    if (!Array.isArray(dr) || dr.length !== 2 || typeof dr[0] !== 'number' || typeof dr[1] !== 'number') {
+      return null
+    }
+    if (!Array.isArray(p.ages) || !p.ages.every(a => typeof a === 'number')) {
+      return null
+    }
+  }
+  return {
+    ...data,
+    palaces,
+  } as unknown as IFunctionalAstrolabe
 }

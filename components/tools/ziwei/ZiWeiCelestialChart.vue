@@ -88,6 +88,7 @@ export interface CelestialStar {
   pctY: number
   isMajor: boolean
   palaceIdx: number
+  palaceName: string
   colorClass: StarColorClass
   mutagen: string | null
   labelOnLeft: boolean
@@ -132,6 +133,7 @@ const renderedStars = computed<CelestialStar[]>(() => {
         pctY: (pos.y / 600) * 100,
         isMajor: e.isMajor,
         palaceIdx: palace.index,
+        palaceName: palace.name,
         colorClass: getStarColorClass(e.name),
         mutagen: e.mutagen,
         labelOnLeft: pos.x < CX,
@@ -354,7 +356,7 @@ function focusLabel(idx: number) {
         :key="`ring-${i}`"
         :d="d"
         fill="none"
-        stroke="#C5B8A8"
+        class="svg-stroke-faint"
         stroke-width="0.8"
         opacity="0.35"
       />
@@ -363,7 +365,7 @@ function focusLabel(idx: number) {
       <path
         :d="innerDashedPath"
         fill="none"
-        stroke="#C5B8A8"
+        class="svg-stroke-faint"
         stroke-width="0.5"
         opacity="0.18"
         stroke-dasharray="2,5"
@@ -372,11 +374,11 @@ function focusLabel(idx: number) {
       <!-- 十字参考虚线 -->
       <line
         :x1="CX - 268" :y1="CY" :x2="CX + 268" :y2="CY"
-        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        class="svg-stroke-faint" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
       />
       <line
         :x1="CX" :y1="CY - 268" :x2="CX" :y2="CY + 268"
-        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        class="svg-stroke-faint" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
       />
 
       <!-- 12 条扇形分隔 -->
@@ -384,15 +386,14 @@ function focusLabel(idx: number) {
         v-for="d in dividers"
         :key="`div-${d.key}`"
         :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
-        stroke="#C62828" stroke-width="0.5" opacity="0.18"
+        class="svg-stroke-cinnabar" stroke-width="0.5" opacity="0.18"
       />
 
       <!-- 选中扇区高亮 -->
       <g v-if="highlight">
         <path
           :d="highlight.path"
-          fill="rgba(198,40,40,0.06)"
-          stroke="rgba(198,40,40,0.15)"
+          class="svg-fill-cinnabar-6 svg-stroke-cinnabar-15"
           stroke-width="0.5"
           filter="url(#sel-glow)"
         />
@@ -401,14 +402,14 @@ function focusLabel(idx: number) {
           :y1="arcEdgePoint(highlight.startAngle, highlight.innerR).y"
           :x2="arcEdgePoint(highlight.startAngle, highlight.outerR).x"
           :y2="arcEdgePoint(highlight.startAngle, highlight.outerR).y"
-          stroke="rgba(198,40,40,0.3)" stroke-width="1.2"
+          class="svg-stroke-cinnabar-30" stroke-width="1.2"
         />
         <line
           :x1="arcEdgePoint(highlight.endAngle, highlight.innerR).x"
           :y1="arcEdgePoint(highlight.endAngle, highlight.innerR).y"
           :x2="arcEdgePoint(highlight.endAngle, highlight.outerR).x"
           :y2="arcEdgePoint(highlight.endAngle, highlight.outerR).y"
-          stroke="rgba(198,40,40,0.3)" stroke-width="1.2"
+          class="svg-stroke-cinnabar-30" stroke-width="1.2"
         />
       </g>
     </svg>
@@ -455,7 +456,7 @@ function focusLabel(idx: number) {
           '--drift-delay': star.driftDelay + 's',
           '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
         }"
-        :aria-label="star.name + (star.mutagen ? ' 化' + star.mutagen : '')"
+        :aria-label="`${star.name}${star.mutagen ? ' 化' + star.mutagen : ''} — ${star.palaceName}`"
         @click="emit('select', star.palaceIdx)"
         @mouseenter="onStarEnter($event, star)"
         @mouseleave="onStarLeave"
@@ -528,12 +529,12 @@ function focusLabel(idx: number) {
   border-radius: 50%;
   background:
     radial-gradient(ellipse at 50% 48%,
-      rgba(232, 222, 208, 0.22) 0%,
-      rgba(238, 229, 216, 0.12) 38%,
-      rgba(238, 229, 216, 0.04) 62%,
+      color-mix(in srgb, var(--color-paper-darker) 22%, transparent) 0%,
+      color-mix(in srgb, var(--color-paper-medium) 12%, transparent) 38%,
+      color-mix(in srgb, var(--color-paper-medium) 4%, transparent) 62%,
       transparent 78%),
     radial-gradient(ellipse at 50% 70%,
-      rgba(198, 40, 40, 0.025) 0%,
+      color-mix(in srgb, var(--color-cinnabar) 2.5%, transparent) 0%,
       transparent 55%);
   pointer-events: none;
   z-index: -1;
@@ -547,6 +548,13 @@ function focusLabel(idx: number) {
   z-index: 0;
   pointer-events: none;
 }
+
+/* SVG color token classes for inline element colors */
+.svg-stroke-faint       { stroke: var(--color-ink-faint); }
+.svg-stroke-cinnabar    { stroke: var(--color-cinnabar); }
+.svg-fill-cinnabar-6    { fill: color-mix(in srgb, var(--color-cinnabar) 6%, transparent); }
+.svg-stroke-cinnabar-15 { stroke: color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
+.svg-stroke-cinnabar-30 { stroke: color-mix(in srgb, var(--color-cinnabar) 30%, transparent); }
 
 .labels-layer,
 .stars-layer {
@@ -586,8 +594,7 @@ function focusLabel(idx: number) {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.85rem;
   letter-spacing: 0.12em;
-  color: #8B7D6B;
-  opacity: 0.62;
+  color: var(--color-ink-medium);
   line-height: 1.1;
   transition:
     color 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
@@ -596,10 +603,9 @@ function focusLabel(idx: number) {
 }
 
 .pl-branch {
-  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.5rem;
-  color: #8B7D6B;
-  opacity: 0.28;
+  color: var(--color-ink-medium);
   letter-spacing: 0.08em;
   line-height: 1;
   font-weight: 500;
@@ -607,34 +613,29 @@ function focusLabel(idx: number) {
 }
 
 .palace-label:hover .pl-name {
-  color: #5D4E37;
-  opacity: 0.95;
-  text-shadow: 0 0 8px rgba(93, 78, 55, 0.08);
+  color: var(--color-ink);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-ink-muted) 8%, transparent);
 }
 
-.palace-label:hover .pl-branch { opacity: 0.5; }
+.palace-label:hover .pl-branch { color: var(--color-ink-medium); }
 
 .palace-label.pl-ming .pl-name {
-  color: #C62828;
-  opacity: 0.85;
-  text-shadow: 0 0 6px rgba(198, 40, 40, 0.12);
+  color: var(--color-cinnabar);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-cinnabar) 12%, transparent);
 }
 
 .palace-label.pl-sel .pl-name {
-  color: #C62828;
+  color: var(--color-cinnabar);
   opacity: 1;
   letter-spacing: 0.16em;
-  text-shadow: 0 0 10px rgba(198, 40, 40, 0.18);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-cinnabar) 18%, transparent);
 }
-.palace-label.pl-sel .pl-branch { opacity: 0.55; color: #C62828; }
+.palace-label.pl-sel .pl-branch { color: var(--color-cinnabar); }
 
 .palace-label:focus-visible {
-  outline: none;
-}
-.palace-label:focus-visible .pl-name {
-  text-decoration: underline 0.5px #C62828;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 0.5px;
+  outline: 2px solid var(--color-cinnabar);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -693,69 +694,69 @@ function focusLabel(idx: number) {
 .st-orb.cls-gold {
   background:
     radial-gradient(circle at 35% 30%, rgba(255, 235, 200, 0.55), transparent 55%),
-    #C62828;
+    var(--color-cinnabar);
   border: 1.5px solid #D4A84B;
   box-shadow:
-    0 0 6px rgba(93, 78, 55, 0.22),
+    0 0 6px color-mix(in srgb, var(--color-ink-muted) 22%, transparent),
     0 0 0 0.5px rgba(212, 168, 75, 0.4) inset;
 }
 .st-orb.cls-cinnabar {
   background:
     radial-gradient(circle at 35% 30%, rgba(255, 220, 215, 0.42), transparent 55%),
     #A02020;
-  border: 1px solid rgba(198, 40, 40, 0.35);
-  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 35%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-jade {
   background:
     radial-gradient(circle at 35% 30%, rgba(220, 240, 230, 0.42), transparent 55%),
-    #4A8C6F;
-  border: 1px solid rgba(74, 140, 111, 0.35);
-  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+    var(--color-jade-light);
+  border: 1px solid color-mix(in srgb, var(--color-jade-light) 35%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-ice {
   background:
     radial-gradient(circle at 35% 30%, rgba(225, 240, 250, 0.5), transparent 55%),
     #6BA8C8;
   border: 1px solid rgba(107, 168, 200, 0.35);
-  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-purple {
   background:
     radial-gradient(circle at 35% 30%, rgba(230, 225, 245, 0.45), transparent 55%),
     #7B6FA0;
   border: 1px solid rgba(123, 111, 160, 0.35);
-  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-gray {
   background:
     radial-gradient(circle at 35% 30%, rgba(220, 210, 195, 0.4), transparent 55%),
-    #5D4E37;
-  border: 1px solid rgba(93, 78, 55, 0.35);
-  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+    var(--color-ink-muted);
+  border: 1px solid color-mix(in srgb, var(--color-ink-muted) 35%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-white {
   background:
     radial-gradient(circle at 35% 30%, rgba(245, 240, 232, 0.55), transparent 55%),
     #8B7D6B;
   border: 1px solid rgba(139, 125, 107, 0.35);
-  box-shadow: 0 0 6px rgba(93, 78, 55, 0.15);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 15%, transparent);
 }
 
 .star-item:hover .st-orb {
   transform: scale(1.28);
   box-shadow:
-    0 0 12px rgba(198, 40, 40, 0.32),
-    0 0 22px rgba(198, 40, 40, 0.1),
-    0 0 0 0.5px rgba(198, 40, 40, 0.25) inset;
+    0 0 12px color-mix(in srgb, var(--color-cinnabar) 32%, transparent),
+    0 0 22px color-mix(in srgb, var(--color-cinnabar) 10%, transparent),
+    0 0 0 0.5px color-mix(in srgb, var(--color-cinnabar) 25%, transparent) inset;
 }
 
 /* Star label — 篆書小字 */
 .st-label {
-  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.06em;
-  color: #5D4E37;
+  color: var(--color-ink-muted);
   opacity: 0.58;
   line-height: 1;
   transition:
@@ -775,8 +776,8 @@ function focusLabel(idx: number) {
 .star-item:hover .st-label,
 .st-act .st-label {
   opacity: 1;
-  color: #C62828;
-  text-shadow: 0 0 6px rgba(198, 40, 40, 0.12);
+  color: var(--color-cinnabar);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-cinnabar) 12%, transparent);
 }
 
 /* Active selection ring — gentle ripple, evokes ink dropped on paper */
@@ -785,7 +786,7 @@ function focusLabel(idx: number) {
   position: absolute;
   inset: -5px;
   border-radius: 50%;
-  border: 1px solid rgba(198, 40, 40, 0.45);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 45%, transparent);
   pointer-events: none;
   animation: ring-pulse 2.2s cubic-bezier(0.16, 0.84, 0.44, 1) infinite;
 }
@@ -795,14 +796,14 @@ function focusLabel(idx: number) {
 }
 .star-item:focus-visible .st-orb {
   box-shadow:
-    0 0 0 2px rgba(198, 40, 40, 0.45),
-    0 0 10px rgba(198, 40, 40, 0.28);
+    0 0 0 2px color-mix(in srgb, var(--color-cinnabar) 45%, transparent),
+    0 0 10px color-mix(in srgb, var(--color-cinnabar) 28%, transparent);
 }
 
 /* Four-Hua chip — small impressed-seal feel */
 .st-mutagen {
   pointer-events: none;
-  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.5rem;
   font-weight: 500;
   padding: 1px 4px;
@@ -814,10 +815,10 @@ function focusLabel(idx: number) {
   box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
 }
 
-.st-mutagen.lu   { background: rgba(198, 40, 40, 0.16); color: #C62828; border: 0.5px solid rgba(198, 40, 40, 0.22); }
+.st-mutagen.lu   { background: color-mix(in srgb, var(--color-cinnabar) 16%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 22%, transparent); }
 .st-mutagen.quan { background: rgba(74, 140, 111, 0.16); color: #4A8C6F; border: 0.5px solid rgba(74, 140, 111, 0.22); }
 .st-mutagen.ke   { background: rgba(107, 168, 200, 0.16); color: #6BA8C8; border: 0.5px solid rgba(107, 168, 200, 0.22); }
-.st-mutagen.ji   { background: rgba(93, 78, 55, 0.13); color: #5D4E37; border: 0.5px solid rgba(93, 78, 55, 0.18); }
+.st-mutagen.ji   { background: color-mix(in srgb, var(--color-ink-muted) 13%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 18%, transparent); }
 
 /* ═══════════════════════════════════════════════════════════════
    Polaris (centre seal) — 紫微印
@@ -844,7 +845,7 @@ function focusLabel(idx: number) {
   height: 86px;
   border-radius: 50%;
   background: radial-gradient(circle,
-    rgba(198, 40, 40, 0.10) 0%,
+    color-mix(in srgb, var(--color-cinnabar) 10%, transparent) 0%,
     rgba(212, 168, 75, 0.05) 45%,
     transparent 72%);
   transform: translate(-50%, -50%);
@@ -859,12 +860,12 @@ function focusLabel(idx: number) {
   /* Lacquer-red disc with subtle off-centre highlight */
   background: radial-gradient(circle at 38% 32%,
     #DD4848 0%,
-    #C62828 48%,
-    #8A1B1B 100%);
+    var(--color-cinnabar) 48%,
+    var(--color-cinnabar-dark) 100%);
   border: 2px solid #D4A84B;
   box-shadow:
-    0 0 18px rgba(93, 78, 55, 0.25),
-    0 0 40px rgba(93, 78, 55, 0.10),
+    0 0 18px color-mix(in srgb, var(--color-ink-muted) 25%, transparent),
+    0 0 40px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
     inset 0 0 6px rgba(0, 0, 0, 0.18);
   display: flex;
   align-items: center;
@@ -889,9 +890,8 @@ function focusLabel(idx: number) {
   transform: translateX(-50%);
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.65rem;
-  color: #8B7D6B;
+  color: var(--color-ink-medium);
   letter-spacing: 0.12em;
-  opacity: 0.65;
   white-space: nowrap;
 }
 
@@ -902,21 +902,21 @@ function focusLabel(idx: number) {
   position: absolute;
   z-index: 20;
   pointer-events: none;
-  background: rgba(245, 240, 232, 0.97);
+  background: color-mix(in srgb, var(--color-paper) 97%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(198, 40, 40, 0.15);
-  border-left: 2.5px solid #C62828;
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+  border-left: 2.5px solid var(--color-cinnabar);
   border-radius: 4px 8px 8px 4px;
   padding: 0.5rem 0.75rem;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.68rem;
-  color: #5D4E37;
+  color: var(--color-ink-medium);
   max-width: 220px;
   min-width: 110px;
   box-shadow:
-    0 6px 18px rgba(93, 78, 55, 0.14),
-    0 1px 3px rgba(93, 78, 55, 0.08);
+    0 6px 18px color-mix(in srgb, var(--color-ink-muted) 14%, transparent),
+    0 1px 3px color-mix(in srgb, var(--color-ink-muted) 8%, transparent);
   opacity: 0;
   transform: translateY(2px);
   transition:
@@ -965,14 +965,14 @@ function focusLabel(idx: number) {
 @keyframes seal-breathe {
   0%, 100% {
     box-shadow:
-      0 0 18px rgba(93, 78, 55, 0.25),
-      0 0 40px rgba(93, 78, 55, 0.10),
+      0 0 18px color-mix(in srgb, var(--color-ink-muted) 25%, transparent),
+      0 0 40px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
       inset 0 0 6px rgba(0, 0, 0, 0.18);
   }
   50% {
     box-shadow:
-      0 0 26px rgba(93, 78, 55, 0.36),
-      0 0 54px rgba(93, 78, 55, 0.16),
+      0 0 26px color-mix(in srgb, var(--color-ink-muted) 36%, transparent),
+      0 0 54px color-mix(in srgb, var(--color-ink-muted) 16%, transparent),
       inset 0 0 8px rgba(0, 0, 0, 0.22);
   }
 }

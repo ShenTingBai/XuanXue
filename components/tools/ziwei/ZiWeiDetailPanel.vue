@@ -21,7 +21,7 @@
       <!-- Header -->
       <div class="detail-header">
         <div class="flex items-center gap-2.5">
-          <h3 class="font-display text-[1.6rem] tracking-[0.06em]" style="color: #1A0F0A;">{{ detailView.name }}</h3>
+          <h3 class="font-display text-[1.6rem] tracking-[0.06em]" style="color: var(--color-ink-darkest);">{{ detailView.name }}</h3>
           <span class="detail-branch-badge">{{ detailView.stem }}{{ detailView.branch }}</span>
         </div>
       </div>
@@ -171,7 +171,7 @@ function getMutagenClass(transformation: string): string {
 
 .detail-header {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(93, 78, 55, 0.07);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink-muted) 7%, transparent);
 }
 
 .detail-branch-badge {
@@ -180,13 +180,13 @@ function getMutagenClass(transformation: string): string {
   color: rgba(94, 80, 69, 0.6);
   letter-spacing: 0.08em;
   padding: 0.08rem 0.5rem;
-  border: 1px solid rgba(93, 78, 55, 0.1);
+  border: 1px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent);
   border-radius: 3px;
 }
 
 .detail-section {
   padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid rgba(93, 78, 55, 0.06);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink-muted) 6%, transparent);
 }
 .detail-section:last-child { border-bottom: none; }
 
@@ -196,7 +196,7 @@ function getMutagenClass(transformation: string): string {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.68rem;
-  color: #4A3828;
+  color: var(--color-ink);
   letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -208,7 +208,7 @@ function getMutagenClass(transformation: string): string {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #C62828;
+  background: var(--color-cinnabar);
   opacity: 0.5;
   flex-shrink: 0;
 }
@@ -225,7 +225,7 @@ function getMutagenClass(transformation: string): string {
   align-items: center;
   gap: 0.45rem;
   font-size: 0.85rem;
-  color: #5D4E37;
+  color: var(--color-ink-muted);
   animation: detail-in 0.3s ease-out both;
 }
 .detail-star-item:nth-child(1) { animation-delay: 0.03s; }
@@ -249,16 +249,16 @@ function getMutagenClass(transformation: string): string {
 .star-dot.major { width: 11px; height: 11px; }
 
 .star-dot.gold     { background: #C62828; border-color: rgba(212,168,75,0.5); }
-.star-dot.cinnabar { background: #B71C1C; }
-.star-dot.jade     { background: #3D6B4B; }
+.star-dot.cinnabar { background: var(--color-cinnabar-dark); }
+.star-dot.jade     { background: var(--color-jade); }
 .star-dot.ice      { background: #6BA8C8; }
 .star-dot.purple   { background: #7B6FA0; }
-.star-dot.gray     { background: #5D4E37; }
+.star-dot.gray     { background: var(--color-ink-muted); }
 .star-dot.white    { background: #8B7D6B; }
 
 .star-name {
   font-size: 0.85rem;
-  color: #5D4E37;
+  color: var(--color-ink-muted);
   font-family: 'Noto Sans SC', sans-serif;
 }
 
@@ -274,46 +274,49 @@ function getMutagenClass(transformation: string): string {
   padding: 0.06rem 0.4rem;
   border-radius: 2px;
   letter-spacing: 0.04em;
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--font-sans);
   white-space: nowrap;
 }
-.mutagen-chip.lu   { background: rgba(198,40,40,0.12); color: #C62828; border: 0.5px solid rgba(198,40,40,0.15); }
+.mutagen-chip.lu   { background: color-mix(in srgb, var(--color-cinnabar) 12%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
 .mutagen-chip.quan { background: rgba(74,140,111,0.12); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.15); }
 .mutagen-chip.ke   { background: rgba(107,168,200,0.12); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.15); }
-.mutagen-chip.ji   { background: rgba(93,78,55,0.07); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.1); }
+.mutagen-chip.ji   { background: color-mix(in srgb, var(--color-ink-muted) 7%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
 
 /* ── Text content ── */
 .detail-text {
   font-size: 0.82rem;
   line-height: 1.75;
-  color: #5D4E37;
+  color: var(--color-ink-muted);
 }
 
 .summary-line {
   margin-bottom: 0.5rem;
   padding-left: 0.5rem;
-  border-left: 2px solid rgba(198,40,40,0.25);
+  border-left: 2px solid color-mix(in srgb, var(--color-cinnabar) 25%, transparent);
 }
 
 .reading-line {
   margin-bottom: 0.3rem;
   font-size: 0.875rem;
   line-height: 1.75;
-  color: #6B5B4F;
+  color: var(--color-ink-medium);
 }
 
 .combination-note {
   margin-top: 0.5rem;
   font-size: 0.875rem;
   line-height: 1.75;
-  color: #C62828;
-  opacity: 0.85;
+  color: var(--color-cinnabar);
 }
 
 .detail-empty-text {
   font-size: 0.78rem;
-  color: #7A6A5C;
+  color: var(--color-ink-medium);
   opacity: 0.5;
   font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-star-item { animation: none; opacity: 1; }
 }
 </style>

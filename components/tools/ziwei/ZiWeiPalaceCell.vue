@@ -28,7 +28,7 @@ defineProps<{
     <div
       v-if="isSelected"
       class="absolute inset-0 z-0 pointer-events-none"
-      style="box-shadow: inset 0 0 18px rgba(198,40,40,0.15), 0 0 10px rgba(198,40,40,0.08); border: 1px solid #C62828;"
+      style="box-shadow: inset 0 0 18px color-mix(in srgb, var(--color-cinnabar) 15%, transparent), 0 0 10px color-mix(in srgb, var(--color-cinnabar) 8%, transparent); border: 1px solid var(--color-cinnabar);"
     />
 
     <!-- Top bar: branch + name -->
@@ -80,11 +80,11 @@ defineProps<{
 
 <style scoped>
 .palace-cell:hover {
-  background: rgba(107, 91, 79, 0.04);
+  background: color-mix(in srgb, var(--color-ink-medium) 4%, transparent);
 }
 
 .palace-cell:focus-visible {
-  outline: 2px solid #C62828;
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: -2px;
 }
 
@@ -93,14 +93,14 @@ defineProps<{
   padding: 0.03rem 0.28rem;
   border-radius: 2px;
   letter-spacing: 0.04em;
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--font-sans);
   line-height: 1.4;
 }
 
-.mutagen-chip.lu { background: rgba(198,40,40,0.1); color: #C62828; border: 0.5px solid rgba(198,40,40,0.15); }
+.mutagen-chip.lu { background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
 .mutagen-chip.quan { background: rgba(74,140,111,0.1); color: #3D7A5E; border: 0.5px solid rgba(74,140,111,0.15); }
 .mutagen-chip.ke { background: rgba(107,168,200,0.1); color: #5A94B4; border: 0.5px solid rgba(107,168,200,0.15); }
-.mutagen-chip.ji { background: rgba(93,78,55,0.08); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.1); }
+.mutagen-chip.ji { background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
 
 .cell-ming::before {
   content: '';
@@ -111,7 +111,7 @@ defineProps<{
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #C62828;
+  background: var(--color-cinnabar);
   opacity: 0.75;
   z-index: 2;
   pointer-events: none;

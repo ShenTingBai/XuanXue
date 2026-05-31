@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import initSqlJs, { type SqlJsStatic, type Database as SqlJsDatabase } from 'sql.js'
 import fs from 'fs'
 import path from 'path'
@@ -7,10 +8,10 @@ import {
   CREATE_DIVINATION_TABLE,
   CREATE_SECURITY_LOG_TABLE,
   INDEX_SESSIONS_PROFILE,
-  INDEX_SESSIONS_TOKEN,
+  INDEX_SESSIONS_TOKEN_HASH,
   INDEX_DIVINATION_PROFILE,
-  INDEX_SECURITY_LOG_PROFILE,
-  INDEX_SECURITY_LOG_TYPE,
+  INDEX_DIVINATION_PROFILE_TYPE_CREATED,
+  INDEX_SESSIONS_EXPIRES_AT,
   INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED,
 } from './schema'
 
@@ -109,15 +110,36 @@ export async function initDb(): Promise<void> {
     const existing = loadFile()
     db = new SQL.Database(existing || undefined)
 
-    db.run('PRAGMA journal_mode = MEMORY')
+    db.run('PRAGMA journal_mode = WAL')
+    db.run('PRAGMA synchronous = NORMAL')
     db.run('PRAGMA foreign_keys = ON')
 
     db.run(CREATE_PROFILES_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
+    // Migration: rename token→token_hash for SHA-256 session storage (existing DBs)
+    try { db.run("ALTER TABLE sessions RENAME COLUMN token TO token_hash") } catch { /* column already token_hash or doesn't exist */ }
+
+    // Migration: hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
+    // After the rename, old sessions still have plaintext tokens; SHA-256 query would find no match.
+    try {
+      const rows = dbAll('SELECT id, token_hash FROM sessions') as { id: number; token_hash: string }[]
+      for (const row of rows) {
+        const token = row.token_hash
+        if (token && token.length === 48) {
+          const hashed = createHash('sha256').update(token).digest('hex')
+          dbRun('UPDATE sessions SET token_hash = ? WHERE id = ?', [hashed, row.id])
+        }
+      }
+    } catch (e) {
+      console.error('Migration failed (hash existing tokens):', e)
+    }
+
     db.run(CREATE_DIVINATION_TABLE)
     db.run(INDEX_SESSIONS_PROFILE)
-    db.run(INDEX_SESSIONS_TOKEN)
+    db.run(INDEX_SESSIONS_TOKEN_HASH)
+    db.run(INDEX_SESSIONS_EXPIRES_AT)
     db.run(INDEX_DIVINATION_PROFILE)
+    db.run(INDEX_DIVINATION_PROFILE_TYPE_CREATED)
 
     // Phase 2 migrations
     // Migration: add expires_at column if it doesn't exist
@@ -140,9 +162,27 @@ export async function initDb(): Promise<void> {
     }
 
     db.run(CREATE_SECURITY_LOG_TABLE)
-    db.run(INDEX_SECURITY_LOG_PROFILE)
-    db.run(INDEX_SECURITY_LOG_TYPE)
     db.run(INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED)
+
+    // Migration version tracking
+    db.run(`CREATE TABLE IF NOT EXISTS _migrations (
+      version INTEGER PRIMARY KEY,
+      applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`)
+
+    const migrations: { version: number; sql: string }[] = [
+      // Future migrations go here — add new entries with incrementing version numbers
+    ]
+
+    const appliedMigrations = new Set(
+      dbAll('SELECT version FROM _migrations').map(r => r.version as number)
+    )
+    for (const m of migrations) {
+      if (!appliedMigrations.has(m.version)) {
+        db.run(m.sql)
+        db.run('INSERT INTO _migrations (version) VALUES (?)', [m.version])
+      }
+    }
 
     process.on('SIGINT', () => { flushSave(); process.exit(0) })
     process.on('SIGTERM', () => { flushSave(); process.exit(0) })

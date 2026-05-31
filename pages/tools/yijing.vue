@@ -28,14 +28,16 @@
         <!-- Reset confirmation dialog -->
         <Transition name="confirm-dialog">
           <div
+            ref="confirmDialogRef"
             v-if="showResetConfirm"
             class="fixed inset-0 z-50 flex items-center justify-center bg-ink-dark/20 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-label="确认重新起卦"
             @keydown.escape="cancelReset"
+            @keydown.tab="handleDialogTab"
           >
-            <div class="card-paper-solid rounded-xl p-6 sm:p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
+            <div class="card-paper-solid rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
               <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
               <p class="font-sans text-sm text-ink-medium mb-6">当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。</p>
               <div class="flex gap-3 justify-end">
@@ -58,14 +60,28 @@
 
         <!-- Results -->
         <div ref="resultSection" v-if="result && !processing" class="mt-8">
+          <!-- Top toolbar -->
+          <ToolToolbar />
+
           <YijingInterpretation :result="result" :score="score" />
 
           <!-- Auto-save placeholder -->
-          <div v-if="saveError" role="alert" class="mt-4 text-center">
-            <p class="font-sans text-xs text-ink-light">
-              {{ saveError }}
-            </p>
-          </div>
+          <Transition name="toast">
+            <div
+              v-if="showSaveErrorToast"
+              class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+              role="alert"
+            >
+              <span>{{ saveError }}</span>
+              <button
+                @click="showSaveErrorToast = false"
+                @keydown.enter="showSaveErrorToast = false"
+                @keydown.space.prevent="showSaveErrorToast = false"
+                class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                aria-label="关闭提示"
+              >&times;</button>
+            </div>
+          </Transition>
 
           <!-- Reset -->
           <div class="text-center mt-6 pb-8">
@@ -78,6 +94,8 @@
               重新占卜
             </button>
           </div>
+
+          <EntertainmentDisclaimer />
         </div>
         <ScrollTopButton
           v-if="showScrollTop"
@@ -100,6 +118,8 @@ import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 useHead({ title: '六爻占卜 - 玄学' })
 
 // State
@@ -110,9 +130,11 @@ const result = ref<YijingResult | null>(null)
 const score = ref(0)
 const processing = ref(false)
 const saveError = ref('')
+const showSaveErrorToast = ref(false)
 const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
 const resultSection = ref<HTMLElement | null>(null)
+const confirmDialogRef = ref<HTMLElement | null>(null)
 
 // Timer refs for setTimeout cleanup
 const coinTimer = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -222,6 +244,39 @@ function clearAllTimers() {
   }
 }
 
+// Reset confirmation dialog focus management
+watch(showResetConfirm, (val) => {
+  if (val) {
+    nextTick(() => {
+      confirmDialogRef.value?.querySelector<HTMLElement>('button')?.focus()
+    })
+  }
+})
+
+function handleDialogTab(e: KeyboardEvent) {
+  const dialog = confirmDialogRef.value
+  if (!dialog) return
+  const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+  ))
+  if (focusable.length === 0) return
+
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+
+  if (e.shiftKey) {
+    if (document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    }
+  } else {
+    if (document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
+
 // Request reset — show confirmation if mid-casting
 function requestReset() {
   if (currentToss.value > 0 && currentToss.value < 6) {
@@ -270,14 +325,13 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
-// Silent auto-save (fire-and-forget)
 async function tryAutoSave(values: number[], yijingResult: YijingResult) {
   try {
     const { currentProfile, getAuthHeaders } = useAuth()
 
     if (!currentProfile?.value?.id) return
 
-    await $fetch('/api/divinations', {
+    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
       headers: getAuthHeaders(),
       body: {
@@ -286,8 +340,17 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
         result_data: yijingResult,
       },
     })
-  } catch {
-    // Silent failure — user experience not blocked by save
+  } catch (e: unknown) {
+    // 401/429: stale session or rate-limited, suppress
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 401 || code === 429) {
+        if (code === 401) console.warn('[yijing] Save failed: session expired')
+        return
+      }
+    }
+    saveError.value = '保存失败，历史记录可能不完整'
+    showSaveErrorToast.value = true
   }
 }
 
@@ -318,5 +381,29 @@ watch(castingMode, () => {
 }
 .confirm-dialog-leave-to > :deep(.card-paper-solid) {
   transform: scale(0.95);
+}
+
+.toast-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-leave-active {
+  transition: opacity 0.2s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.toast-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: none;
+  }
+  .toast-enter-from {
+    transform: none;
+  }
 }
 </style>

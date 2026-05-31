@@ -1,6 +1,6 @@
 <!-- pages/tools/ziwei.vue -->
 <script setup lang="ts">
-import { calculateZiWei, getMingGongIndex, serializeAstrolabe } from '~/composables/useZiwei'
+import { calculateZiWei, getMingGongIndex, serializeAstrolabe, deserializeAstrolabe } from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
@@ -13,6 +13,10 @@ import ZiWeiDaXianTimeline from '~/components/tools/ziwei/ZiWeiDaXianTimeline.vu
 import ZiWeiDetailPanel from '~/components/tools/ziwei/ZiWeiDetailPanel.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
+import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
@@ -21,11 +25,27 @@ const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 
 const loading = ref(false)
 const error = ref('')
+const saveError = ref('')
+const showSaveErrorToast = ref(false)
 const astrolabe = ref<IFunctionalAstrolabe | null>(null)
 const selectedPalace = ref<IFunctionalPalace | null>(null)
 const selectedIndex = ref(0)
 const currentView = ref<'celestial' | 'grid'>('celestial')
 const showHistoryModal = ref(false)
+const showScrollTop = ref(false)
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
+}
 
 // Form state
 const birthDate = ref('')
@@ -51,6 +71,17 @@ onMounted(() => {
   if (currentProfile.value.gender) {
     gender.value = currentProfile.value.gender === '男' ? 'male' : 'female'
   }
+
+  // Auto-calculate if profile has complete birth info
+  if (birthDate.value && birthHour.value !== null && gender.value) {
+    nextTick(() => handleCalculate())
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 function handleCalculate() {
@@ -119,7 +150,7 @@ const sortedPeriods = computed(() => {
     .sort((a, b) => a.startAge - b.startAge)
 })
 
-function saveDivinationResult(astroData: IFunctionalAstrolabe) {
+async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   const headers = getAuthHeaders()
   if (!headers.Authorization) return
   // Build a rich label for the history list so entries are distinguishable
@@ -130,24 +161,39 @@ function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   const hourLabel = birthHour.value !== null ? `第${birthHour.value + 1}时` : ''
   const genderLabel = gender.value === 'male' ? '男' : '女'
   const historyLabel = `${birthDate.value} ${hourLabel} ${genderLabel} | ${mingLabel} | ${astroData.fiveElementsClass}`
-  $fetch('/api/divinations', {
-    method: 'POST',
-    headers,
-    body: {
-      type: 'ziwei',
-      input_data: {
-        birthYear: parseInt(birthDate.value.split('-')[0], 10),
-        birthMonth: parseInt(birthDate.value.split('-')[1], 10),
-        birthDay: parseInt(birthDate.value.split('-')[2], 10),
-        birthHour: birthHour.value,
-        gender: gender.value,
-        historyLabel,
+  try {
+    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
+      headers,
+      body: {
+        type: 'ziwei',
+        input_data: {
+          birthYear: parseInt(birthDate.value.split('-')[0], 10),
+          birthMonth: parseInt(birthDate.value.split('-')[1], 10),
+          birthDay: parseInt(birthDate.value.split('-')[2], 10),
+          birthHour: birthHour.value,
+          gender: gender.value,
+          historyLabel,
+        },
+        result_data: serializeAstrolabe(astroData),
       },
-      result_data: serializeAstrolabe(astroData),
-    },
-    // Suppress 401 from Nuxt console logs — session may be stale after server restart
-    onResponseError: () => {},
-  }).catch(() => {})
+    })
+  } catch (e: unknown) {
+    // 401/429: stale session or rate-limited, suppress
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 401 || code === 429) {
+        if (code === 401) console.warn('[ziwei] Save failed: session expired')
+        return
+      }
+    }
+    saveError.value = '保存失败，历史记录可能不完整'
+    showSaveErrorToast.value = true
+  }
+}
+
+function dismissSaveToast() {
+  showSaveErrorToast.value = false
 }
 
 function onHistoryRestore(id: number) {
@@ -159,19 +205,32 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )
-    if (record.result_data) {
-      if (record.input_data) {
-        const input = record.input_data as { birthYear: number; birthMonth: number; birthDay: number; birthHour: number | null; gender: 'male' | 'female' | null }
-        birthDate.value = `${input.birthYear}-${String(input.birthMonth).padStart(2, '0')}-${String(input.birthDay).padStart(2, '0')}`
-        birthHour.value = input.birthHour ?? null
-        gender.value = input.gender ?? null
-      }
-      handleCalculate()
+
+    // Restore form fields from input_data
+    if (record.input_data) {
+      const input = record.input_data as { birthYear: number; birthMonth: number; birthDay: number; birthHour: number | null; gender: 'male' | 'female' | null }
+      birthDate.value = `${input.birthYear}-${String(input.birthMonth).padStart(2, '0')}-${String(input.birthDay).padStart(2, '0')}`
+      birthHour.value = input.birthHour ?? null
+      gender.value = input.gender ?? null
     }
+
+    // Try snapshot restore from result_data
+    if (record.result_data) {
+      const deserialized = deserializeAstrolabe(record.result_data as Record<string, unknown>)
+      if (deserialized) {
+        astrolabe.value = deserialized
+        selectedIndex.value = getMingGongIndex(deserialized.palaces)
+        selectedPalace.value = deserialized.palaces[selectedIndex.value] || null
+        return
+      }
+    }
+
+    // Fallback: re-calculate from input_data
+    handleCalculate()
   } catch {
     error.value = '历史记录加载失败，请稍后重试'
   }
@@ -183,8 +242,9 @@ async function restoreFromHistory(id: number) {
     <h1 class="sr-only">紫微斗数</h1>
 
     <!-- Initial loading / auth guard -->
-    <div v-if="!ready" class="flex items-center justify-center py-20">
+    <div v-if="!ready" class="flex items-center justify-center py-20" role="status" aria-live="polite">
       <div class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin" />
+      <span class="sr-only">正在加载命盘...</span>
     </div>
 
     <!-- Not logged in -->
@@ -229,35 +289,75 @@ async function restoreFromHistory(id: number) {
     <template v-else-if="astrolabe">
       <div class="w-full max-w-[620px] mx-auto">
 
+        <!-- Top toolbar -->
+        <ToolToolbar
+          :show-history="true"
+          @history="showHistoryModal = true"
+        />
+
+        <!-- Save error toast -->
+        <Transition name="toast">
+          <div
+            v-if="showSaveErrorToast"
+            class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+            role="alert"
+          >
+            <span>{{ saveError }}</span>
+            <button
+              @click="dismissSaveToast"
+              @keydown.enter="dismissSaveToast"
+              @keydown.space.prevent="dismissSaveToast"
+              class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+              aria-label="关闭提示"
+            >&times;</button>
+          </div>
+        </Transition>
+
         <!-- Tab Switcher -->
         <ZiWeiTabSwitcher
           :current-view="currentView"
           @update:current-view="currentView = $event"
         />
 
+        <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+          点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
+        </p>
+
         <!-- View Transition -->
         <Transition name="view-fade" mode="out-in">
-          <ZiWeiCelestialChart
+          <div
             v-if="currentView === 'celestial'"
+            id="panel-celestial"
+            role="tabpanel"
+            :aria-labelledby="'tab-celestial'"
             :key="'celestial'"
-            :palaces="astrolabe.palaces"
-            :selected-index="selectedIndex"
-            :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-            :is-visible="currentView === 'celestial'"
-            @select="handleSelectPalace"
-          />
-          <ZiWeiPalaceGrid
+          >
+            <ZiWeiCelestialChart
+              :palaces="astrolabe.palaces"
+              :selected-index="selectedIndex"
+              :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+              :is-visible="currentView === 'celestial'"
+              @select="handleSelectPalace"
+            />
+          </div>
+          <div
             v-else
+            id="panel-grid"
+            role="tabpanel"
+            :aria-labelledby="'tab-grid'"
             :key="'grid'"
-            :palaces="astrolabe.palaces"
-            :selected-index="selectedIndex"
-            :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-            :five-elements-class="astrolabe.fiveElementsClass"
-            :soul="astrolabe.soul"
-            :body="astrolabe.body"
-            :ming-gong-branch="astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''"
-            :on-select-palace="handleSelectPalace"
-          />
+          >
+            <ZiWeiPalaceGrid
+              :palaces="astrolabe.palaces"
+              :selected-index="selectedIndex"
+              :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+              :five-elements-class="astrolabe.fiveElementsClass"
+              :soul="astrolabe.soul"
+              :body="astrolabe.body"
+              :ming-gong-branch="astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''"
+              :on-select-palace="handleSelectPalace"
+            />
+          </div>
         </Transition>
 
         <!-- DaXian Timeline -->
@@ -290,7 +390,15 @@ async function restoreFromHistory(id: number) {
           </button>
         </div>
 
+        <EntertainmentDisclaimer />
+
       </div>
+
+      <ScrollTopButton
+        v-if="showScrollTop"
+        @click="scrollToTop"
+        @keydown.enter="scrollToTop"
+      />
     </template>
 
     <!-- nav-right slot: palace detail panel -->
@@ -313,6 +421,12 @@ async function restoreFromHistory(id: number) {
     @close="showHistoryModal = false"
     @restore="onHistoryRestore"
   />
+
+  <ZiWeiDetailSheet
+    :show="selectedPalace !== null"
+    :palace="selectedPalace"
+    @close="selectedPalace = null"
+  />
 </template>
 
 <style scoped>
@@ -323,5 +437,29 @@ async function restoreFromHistory(id: number) {
 .view-fade-enter-from,
 .view-fade-leave-to {
   opacity: 0;
+}
+
+.toast-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-leave-active {
+  transition: opacity 0.2s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.toast-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: none;
+  }
+  .toast-enter-from {
+    transform: none;
+  }
 }
 </style>

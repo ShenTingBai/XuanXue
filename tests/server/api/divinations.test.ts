@@ -75,7 +75,6 @@ vi.mock('~/server/utils/profile', () => ({
 // ============================================================================
 
 import { dbGet, dbRun, dbAll } from '~/server/database/db'
-import { getProfileIdFromToken } from '~/server/utils/auth'
 import { checkRateLimit, getClientIp } from '~/server/utils/rateLimit'
 
 // ============================================================================
@@ -98,7 +97,6 @@ describe('Divinations API handlers', () => {
         input_data: { birthYear: 2000, birthMonth: 1, birthDay: 1 },
         result_data: { dayMaster: '甲' },
       })
-      vi.mocked(getProfileIdFromToken).mockReturnValue(1)
       vi.mocked(checkRateLimit).mockReturnValue(true)
       vi.mocked(dbRun).mockReturnValue({ lastInsertRowid: 42, changes: 1 })
       vi.mocked(dbGet).mockReturnValue({ created_at: '2025-01-01T00:00:00.000Z' })
@@ -107,25 +105,22 @@ describe('Divinations API handlers', () => {
     })
 
     it('creates a divination record and returns { id, created_at }', async () => {
-      const result = await handler({} as any)
+      const result = await handler({ context: { profileId: 1 } } as any)
       expect(result).toHaveProperty('id', 42)
       expect(result).toHaveProperty('created_at')
     })
 
     it('throws 401 when no auth header', async () => {
-      mockGetHeader.mockReturnValue(null)
-      vi.mocked(getProfileIdFromToken).mockReturnValue(null)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 401 })
+      await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
     })
 
     it('throws 401 when token is invalid', async () => {
-      vi.mocked(getProfileIdFromToken).mockReturnValue(null)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 401 })
+      await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
     })
 
     it('throws 429 when rate limit exceeded', async () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 429 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 429 })
     })
 
     it('throws 400 when type is missing', async () => {
@@ -133,7 +128,7 @@ describe('Divinations API handlers', () => {
         input_data: { birthYear: 2000 },
         result_data: { dayMaster: '甲' },
       })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 when type is invalid', async () => {
@@ -142,7 +137,7 @@ describe('Divinations API handlers', () => {
         input_data: { birthYear: 2000 },
         result_data: { dayMaster: '甲' },
       })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 when input_data is missing', async () => {
@@ -150,7 +145,7 @@ describe('Divinations API handlers', () => {
         type: 'bazi',
         result_data: { dayMaster: '甲' },
       })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 when result_data is missing', async () => {
@@ -158,7 +153,7 @@ describe('Divinations API handlers', () => {
         type: 'bazi',
         input_data: { birthYear: 2000 },
       })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 413 when result_data exceeds size limit', async () => {
@@ -167,7 +162,7 @@ describe('Divinations API handlers', () => {
         input_data: { x: 'small' },
         result_data: { data: 'x'.repeat(200_000) },
       })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 413 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 413 })
     })
 
     it('throws 413 when input_data exceeds size limit', async () => {
@@ -176,7 +171,7 @@ describe('Divinations API handlers', () => {
         input_data: { data: 'x'.repeat(200_000) },
         result_data: { x: 'small' },
       })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 413 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 413 })
     })
 
     it('accepts all valid type values', async () => {
@@ -189,7 +184,7 @@ describe('Divinations API handlers', () => {
         })
         vi.mocked(dbRun).mockReturnValue({ lastInsertRowid: 1, changes: 1 })
         vi.mocked(dbGet).mockReturnValue({ created_at: '2025-01-01T00:00:00.000Z' })
-        const result = await handler({} as any)
+        const result = await handler({ context: { profileId: 1 } } as any)
         expect(result.id).toBeGreaterThan(0)
       }
     })
@@ -206,7 +201,6 @@ describe('Divinations API handlers', () => {
       vi.clearAllMocks()
       mockGetHeader.mockReturnValue('Bearer valid-token')
       mockGetQuery.mockReturnValue({})
-      vi.mocked(getProfileIdFromToken).mockReturnValue(1)
       vi.mocked(checkRateLimit).mockReturnValue(true)
 
       handler = (await import('~/server/api/divinations/index.get')).default
@@ -217,7 +211,7 @@ describe('Divinations API handlers', () => {
         { id: 1, type: 'bazi', input_data: '{"birthYear":2000}', created_at: '2025-01-01T00:00:00.000Z' },
         { id: 2, type: 'yijing', input_data: '{"coins":[7,7,7,7,7,7]}', created_at: '2025-01-02T00:00:00.000Z' },
       ])
-      const result = await handler({} as any)
+      const result = await handler({ context: { profileId: 1 } } as any)
       expect(Array.isArray(result)).toBe(true)
       expect(result).toHaveLength(2)
       for (const record of result) {
@@ -230,14 +224,12 @@ describe('Divinations API handlers', () => {
     })
 
     it('throws 401 without auth header', async () => {
-      mockGetHeader.mockReturnValue(null)
-      vi.mocked(getProfileIdFromToken).mockReturnValue(null)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 401 })
+      await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
     })
 
     it('throws 429 when rate limited', async () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 429 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 429 })
     })
 
     it('filters by type when query param is provided', async () => {
@@ -245,19 +237,19 @@ describe('Divinations API handlers', () => {
       vi.mocked(dbAll).mockReturnValue([
         { id: 1, type: 'bazi', input_data: '{}', created_at: '2025-01-01T00:00:00.000Z' },
       ])
-      const result = await handler({} as any)
+      const result = await handler({ context: { profileId: 1 } } as any)
       expect(result).toHaveLength(1)
       expect(result[0].type).toBe('bazi')
     })
 
     it('throws 400 for invalid type filter', async () => {
       mockGetQuery.mockReturnValue({ type: 'invalid_type' })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('returns empty array when no records exist', async () => {
       vi.mocked(dbAll).mockReturnValue([])
-      const result = await handler({} as any)
+      const result = await handler({ context: { profileId: 1 } } as any)
       expect(result).toEqual([])
     })
   })
@@ -272,7 +264,6 @@ describe('Divinations API handlers', () => {
     beforeEach(async () => {
       vi.clearAllMocks()
       mockGetHeader.mockReturnValue('Bearer valid-token')
-      vi.mocked(getProfileIdFromToken).mockReturnValue(1)
       vi.mocked(checkRateLimit).mockReturnValue(true)
 
       const mod = await import('~/server/api/divinations/[id].get')
@@ -288,7 +279,7 @@ describe('Divinations API handlers', () => {
         result_data: '{"dayMaster":"甲"}',
         created_at: '2025-01-01T00:00:00.000Z',
       })
-      const result = await handler({ context: { params: { id: '42' } } } as any)
+      const result = await handler({ context: { params: { id: '42' }, profileId: 1 } } as any)
       expect(result.id).toBe(42)
       expect(result.type).toBe('bazi')
       expect(result.input_data).toEqual({ birthYear: 2000 })
@@ -296,31 +287,29 @@ describe('Divinations API handlers', () => {
     })
 
     it('throws 400 for non-numeric id', async () => {
-      await expect(handler({ context: { params: { id: 'abc' } } } as any))
+      await expect(handler({ context: { params: { id: 'abc' }, profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 for empty id', async () => {
-      await expect(handler({ context: { params: { id: '' } } } as any))
+      await expect(handler({ context: { params: { id: '' }, profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 401 without auth header', async () => {
-      mockGetHeader.mockReturnValue(null)
-      vi.mocked(getProfileIdFromToken).mockReturnValue(null)
       await expect(handler({ context: { params: { id: '42' } } } as any))
         .rejects.toMatchObject({ statusCode: 401 })
     })
 
     it('throws 429 when rate limited', async () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({ context: { params: { id: '42' } } } as any))
+      await expect(handler({ context: { params: { id: '42' }, profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 429 })
     })
 
     it('throws 404 when record does not exist', async () => {
       vi.mocked(dbGet).mockReturnValue(undefined)
-      await expect(handler({ context: { params: { id: '99999' } } } as any))
+      await expect(handler({ context: { params: { id: '99999' }, profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 404 })
     })
 
@@ -333,7 +322,7 @@ describe('Divinations API handlers', () => {
         result_data: '{}',
         created_at: '2025-01-01T00:00:00.000Z',
       })
-      await expect(handler({ context: { params: { id: '42' } } } as any))
+      await expect(handler({ context: { params: { id: '42' }, profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 403 })
     })
   })
@@ -383,22 +372,22 @@ describe('Auth API handlers', () => {
 
     it('throws 400 when nickname or pin is missing', async () => {
       mockReadBody.mockResolvedValue({})
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 when pin is empty', async () => {
       mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: '' })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 when pin is not 4 digits', async () => {
       mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: '12345' })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 429 when rate limited', async () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 429 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 429 })
     })
 
     it('throws 401 when profile not found', async () => {
@@ -451,12 +440,12 @@ describe('Auth API handlers', () => {
 
     it('throws 400 when nickname is empty', async () => {
       mockReadBody.mockResolvedValue({ nickname: '', pin: '1234' })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 when pin is not 4 digits', async () => {
       mockReadBody.mockResolvedValue({ nickname: 'newuser', pin: 'abc' })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 409 when nickname already exists', async () => {
@@ -469,12 +458,12 @@ describe('Auth API handlers', () => {
 
     it('throws 400 when nickname exceeds 20 characters', async () => {
       mockReadBody.mockResolvedValue({ nickname: 'a'.repeat(21), pin: '1234' })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 429 when rate limited', async () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 429 })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({ statusCode: 429 })
     })
   })
 })

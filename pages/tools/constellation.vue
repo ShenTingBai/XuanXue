@@ -13,6 +13,9 @@ import ConstellationNav from '~/components/tools/constellation/Nav.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
@@ -28,6 +31,21 @@ const saveError = ref('')
 const showSaveErrorToast = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
+const showScrollTop = ref(false)
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
+}
+
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -41,7 +59,12 @@ onMounted(() => {
     return
   }
 
+  window.addEventListener('scroll', handleScroll, { passive: true })
   computeResult()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 function computeResult() {
@@ -140,7 +163,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )
@@ -189,6 +212,8 @@ function dismissRestoreError() {
           </button>
         </template>
 
+        <h1 class="sr-only">星座分析</h1>
+
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">
           {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
@@ -216,6 +241,12 @@ function dismissRestoreError() {
         <!-- Result -->
         <template v-else-if="result">
           <div aria-live="polite" aria-atomic="true">
+            <!-- Top toolbar -->
+            <ToolToolbar
+              :show-history="true"
+              @history="showHistoryModal = true"
+            />
+
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -252,6 +283,10 @@ function dismissRestoreError() {
               </div>
             </Transition>
           <ConstellationHero :result="result" />
+
+          <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+            今日运势、宜忌速览及星座性格特征
+          </p>
 
           <!-- Action buttons: placed near Hero for quick access -->
           <div class="flex flex-wrap gap-3 justify-center mt-6 mb-6">
@@ -330,7 +365,15 @@ function dismissRestoreError() {
             @close="showHistoryModal = false"
             @restore="onHistoryRestore"
           />
+
+          <EntertainmentDisclaimer />
           </div>
+
+          <ScrollTopButton
+            v-if="showScrollTop"
+            @click="scrollToTop"
+            @keydown.enter="scrollToTop"
+          />
         </template>
       </ToolPageLayout>
 </template>

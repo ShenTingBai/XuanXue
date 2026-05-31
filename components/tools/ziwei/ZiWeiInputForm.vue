@@ -80,10 +80,12 @@ defineProps<{
       </fieldset>
 
       <!-- Calculate button -->
+      <p id="ziwei-form-hint" class="sr-only">请填写所有必填项（出生日期、时辰、性别）以启用排盘</p>
       <button
         @click="onCalculate"
         :disabled="loading || !birthDate || birthHour === null || !gender"
         class="btn-seal w-full justify-center mt-2"
+        aria-describedby="ziwei-form-hint"
       >
         <span>{{ loading ? '排盘中...' : '开始排盘' }}</span>
       </button>

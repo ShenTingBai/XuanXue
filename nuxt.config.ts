@@ -17,21 +17,22 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
+    '/tools/**': { ssr: false },
+    '/profile/**': { ssr: false },
     '/**': {
       headers: {
-        // FIXME: 'unsafe-inline' in script-src weakens XSS protection.
-        // Nuxt 3 injects inline scripts for hydration and does not natively
-        // support nonce-based CSP. Removing 'unsafe-inline' will break
-        // hydration without a nonce-based approach (see app.head.nonce in
-        // Nuxt docs). For production hardening, implement a nonce strategy
-        // via Nitro render hooks or a Nuxt module like @nuxtjs/csp, then
-        // drop 'unsafe-inline' from script-src.
+        // CSP nonce is injected via server/plugins/csp.ts, replacing 'unsafe-inline' at runtime.
         'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'",
         'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'DENY',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      },
+    },
+    '/fonts/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
       },
     },
   },

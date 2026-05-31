@@ -17,7 +17,10 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 useHead({ title: '生肖 - 玄学' })
 
@@ -31,6 +34,21 @@ const showSaveErrorToast = ref(false)
 const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
+const showScrollTop = ref(false)
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
+}
+
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -44,7 +62,12 @@ onMounted(() => {
     return
   }
 
+  window.addEventListener('scroll', handleScroll, { passive: true })
   computeResult()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 function computeResult() {
@@ -136,15 +159,16 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )
     if (record.result_data) {
       const data = record.result_data
       if (data && typeof data === 'object' && 'animal' in data && 'wuXing' in data && 'fortune' in data) {
-        result.value = data as ShengXiaoResult
-        selectedAnimal.value = getAnimalIndex(data.year)
+        const typedData = data as ShengXiaoResult
+        result.value = typedData
+        selectedAnimal.value = getAnimalIndex(typedData.year)
         restoreError.value = ''
         restoredFromHistory.value = true
         return
@@ -185,6 +209,8 @@ async function restoreFromHistory(id: number) {
           </div>
         </template>
 
+        <h1 class="sr-only">生肖排盘</h1>
+
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">
           {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
@@ -212,6 +238,12 @@ async function restoreFromHistory(id: number) {
         <!-- Result -->
         <template v-else-if="result">
           <div aria-live="polite" aria-atomic="true">
+            <!-- Top toolbar -->
+            <ToolToolbar
+              :show-history="true"
+              @history="showHistoryModal = true"
+            />
+
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -249,6 +281,11 @@ async function restoreFromHistory(id: number) {
             </Transition>
 
           <ShengXiaoHero :result="result" />
+
+          <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+            下方依次为五行属性、性格特征、幸运信息、流年运势和相性配对
+          </p>
+
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->
@@ -328,6 +365,14 @@ async function restoreFromHistory(id: number) {
           </div>
 
           </div>
+
+          <EntertainmentDisclaimer />
+
+          <ScrollTopButton
+            v-if="showScrollTop"
+            @click="scrollToTop"
+            @keydown.enter="scrollToTop"
+          />
         </template>
       </ToolPageLayout>
 

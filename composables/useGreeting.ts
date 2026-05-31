@@ -26,12 +26,11 @@ export function useGreeting() {
     const defaults = loadDefaults()
     _prefix = useState<string>('greeting:prefix', () => defaults.prefix)
     _subtitle = useState<string>('greeting:subtitle', () => defaults.subtitle)
-    // loadDefaults() already read localStorage — mark hydrated to skip the re-read below
-    if (import.meta.client) _hydrated = true
   }
 
-  // Hydrate from localStorage on first client-side call only
-  // Only runs when _prefix was already set (e.g. from SSR) and loadDefaults() was not called
+  // Hydrate from localStorage on first client-side call only.
+  // On Nuxt SSR hydration useState ignores the factory (returns serialized SSR value),
+  // so we must explicitly override with the saved greeting here.
   if (import.meta.client && !_hydrated) {
     _hydrated = true
     try {
