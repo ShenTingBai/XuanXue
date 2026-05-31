@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
-import InkDivider from '~/components/tools/InkDivider.vue'
 
 interface ProfileUpdateBody {
   gender: string | null
@@ -10,7 +9,7 @@ interface ProfileUpdateBody {
   birth_minute: number | null
 }
 
-useHead({ title: '编辑档案 - 玄学' })
+useHead({ title: '命簿 - 玄·道' })
 
 const { restoreSession, currentProfile, getAuthHeaders, updateProfile } = useAuth()
 const router = useRouter()
@@ -60,7 +59,7 @@ function beforeUnloadHandler(e: BeforeUnloadEvent) {
 
 onBeforeRouteLeave((_to, _from, next) => {
   if (isDirty.value) {
-    const leave = window.confirm('你有未保存的更改，确定要离开吗？')
+    const leave = window.confirm('命簿尚未保存，确定要离开吗？')
     if (!leave) {
       next(false)
       return
@@ -229,242 +228,273 @@ const saveProfile = async () => {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-    <!-- Back link -->
-    <button
-      @click="goBack"
-      @keydown.enter="goBack"
-      @keydown.space.prevent="goBack"
-      class="inline-flex items-center gap-1.5 text-sm text-ink-medium hover:text-cinnabar transition-colors mb-8"
-    >
-      <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-        <path d="M10 12l-4-4 4-4" />
-      </svg>
-      返回
-    </button>
+  <div class="min-h-screen relative ink-wash-bg">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16 relative z-10">
 
-    <!-- Onboarding hint -->
-    <div
-      v-if="isOnboarding"
-      class="mb-6 px-4 py-3 rounded-lg bg-cinnabar/5 border border-cinnabar/20"
-    >
-      <p class="font-sans text-sm text-cinnabar">
-        填写出生信息后即可开始命理推演
-      </p>
-    </div>
-
-    <!-- Title -->
-    <div class="mb-8">
-      <div class="flex items-center gap-3 mb-2">
-        <h1 class="font-display text-3xl text-ink-dark">编辑档案</h1>
-        <span class="seal-mark w-7 h-7 text-[9px]" aria-hidden="true">编</span>
-      </div>
-      <p class="text-sm text-ink-medium tracking-wider">完善个人信息，解锁更多命理推演</p>
-    </div>
-
-    <!-- Success toast -->
-    <Transition name="toast">
-      <div
-        v-if="success"
-        role="status"
-        class="mb-6 px-4 py-2.5 rounded-lg bg-jade/10 border border-jade/20 text-jade text-sm flex items-center gap-2"
+      <!-- ═══ Back link ═══ -->
+      <button
+        @click="goBack"
+        @keydown.enter="goBack"
+        @keydown.space.prevent="goBack"
+        class="btn-ink mb-10"
       >
-        <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M3 8l3 3 7-7" />
+        <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M10 12l-4-4 4-4" />
         </svg>
-        档案已更新
+        返回
+      </button>
+
+      <!-- ═══ Hero ═══ -->
+      <div class="flex items-start gap-5 mb-12 anim-rise">
+        <span class="seal-icon seal-icon--lg flex-shrink-0 mt-1" aria-hidden="true">簿</span>
+        <div>
+          <h1 class="font-display text-4xl sm:text-5xl text-ink-dark leading-tight mb-3">
+            命簿
+          </h1>
+          <p class="text-sm text-ink-medium tracking-wider leading-relaxed">
+            完善身世信息，以候天机推演
+          </p>
+        </div>
       </div>
-    </Transition>
 
-    <!-- Onboarding CTA -->
-    <NuxtLink
-      v-if="isOnboarding && success"
-      to="/tools/bazi"
-      class="btn-seal inline-flex mb-6"
-    >
-      <span>开始体验</span>
-    </NuxtLink>
+      <!-- ═══ Onboarding hint ═══ -->
+      <Transition name="toast">
+        <div
+          v-if="isOnboarding"
+          class="card-warm rounded-xl p-5 mb-8 flex items-start gap-4 anim-rise"
+        >
+          <span class="seal-icon text-[10px] w-7 h-7 flex-shrink-0" aria-hidden="true">启</span>
+          <p class="text-sm text-ink leading-relaxed">
+            填写出生信息后即可开始命理推演
+          </p>
+        </div>
+      </Transition>
 
-    <!-- Redirect back to tool -->
-    <NuxtLink
-      v-if="redirectPath && success && !isOnboarding"
-      :to="redirectPath"
-      class="btn-seal inline-flex mb-6"
-    >
-      <span>返回命理工具</span>
-    </NuxtLink>
+      <!-- ═══ Success toast ═══ -->
+      <Transition name="toast">
+        <div
+          v-if="success"
+          role="status"
+          class="card-warm rounded-xl p-4 mb-8 flex items-center gap-3 border border-jade/20"
+        >
+          <svg aria-hidden="true" class="w-5 h-5 text-jade flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 8l3 3 7-7" />
+          </svg>
+          <span class="text-sm text-jade">命簿已更新</span>
+        </div>
+      </Transition>
 
-    <!-- Error -->
-    <Transition name="toast">
-      <div
-        v-if="error"
-        class="mb-6 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm"
-        role="alert"
-      >
-        {{ error }}
+      <!-- ═══ Onboarding / redirect CTAs ═══ -->
+      <div v-if="success" class="mb-8 flex gap-4 anim-rise">
+        <NuxtLink
+          v-if="isOnboarding"
+          to="/tools/bazi"
+          class="btn-cin"
+        >
+          开始体验
+        </NuxtLink>
+        <NuxtLink
+          v-if="redirectPath && success && !isOnboarding"
+          :to="redirectPath"
+          class="btn-cin"
+        >
+          返回命理工具
+        </NuxtLink>
       </div>
-    </Transition>
 
-    <!-- Form -->
-    <div class="card-paper-solid rounded-xl p-8">
-      <form @submit.prevent="saveProfile" novalidate class="space-y-7">
+      <!-- ═══ Error alert ═══ -->
+      <Transition name="toast">
+        <div
+          v-if="error"
+          class="card-warm rounded-xl p-4 mb-8 flex items-center gap-3 border border-cinnabar/15"
+          role="alert"
+        >
+          <svg aria-hidden="true" class="w-5 h-5 text-cinnabar flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 5v3" /><path d="M8 10.5v.5" />
+          </svg>
+          <span class="text-sm text-cinnabar">{{ error }}</span>
+        </div>
+      </Transition>
 
-        <!-- Section: 基本信息 -->
-        <section>
-          <InkDivider class="mb-5">基本信息</InkDivider>
-          <div class="space-y-5">
-            <!-- Nickname (read-only) -->
-            <div>
-              <label for="profile-nickname" class="block text-xs text-ink-medium tracking-wider mb-1.5">昵称</label>
-              <input
-                id="profile-nickname"
-                :value="nickname"
-                type="text"
-                class="input-ink input-ink--readonly"
-                readonly
-              />
+      <!-- ═══ Form card ═══ -->
+      <div class="card-warm card-warm--elevated rounded-xl p-6 sm:p-8 anim-rise anim-delay-1">
+        <form @submit.prevent="saveProfile" novalidate class="space-y-10">
+
+          <!-- ──── Section: 基本信息 ──── -->
+          <section>
+            <div class="section-header section-header--tool-light">
+              <span class="bar" aria-hidden="true"></span>
+              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">籍</span>
+              <h2>基本信息</h2>
             </div>
 
-            <!-- Gender -->
-            <div>
-              <label class="block text-xs text-ink-medium tracking-wider mb-2">
-                性别<span class="text-ink-light text-[0.65rem] ml-1">(推荐)</span>
-              </label>
-              <div class="flex gap-4" role="radiogroup" aria-label="性别">
-                <label class="flex items-center gap-2 cursor-pointer group">
-                  <input v-model="gender" type="radio" name="gender" :value="''" class="sr-only" />
-                  <span class="w-4 h-4 rounded-full border-2 border-ink-faint flex items-center justify-center transition-colors duration-200 group-hover:border-cinnabar"><span v-if="!gender" class="w-2 h-2 rounded-full bg-ink-faint transition-colors duration-200"></span></span>
-                  <span class="text-sm text-ink-medium">未设置</span>
+            <div class="space-y-6">
+              <!-- Nickname (read-only) -->
+              <div>
+                <label for="profile-nickname" class="block text-xs text-ink-medium tracking-wider mb-2">
+                  号令
                 </label>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    v-model="gender"
-                    type="radio"
-                    name="gender"
-                    value="男"
-                    class="sr-only"
-                  />
-                  <span
-                    :class="[
-                      'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors',
-                      gender === '男' ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
-                    ]"
-                    aria-hidden="true"
-                  >
-                    <span v-if="gender === '男'" class="w-2 h-2 rounded-full bg-cinnabar" />
-                  </span>
-                  <span class="text-sm text-ink-medium">男</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    v-model="gender"
-                    type="radio"
-                    name="gender"
-                    value="女"
-                    class="sr-only"
-                  />
-                  <span
-                    :class="[
-                      'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors',
-                      gender === '女' ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
-                    ]"
-                    aria-hidden="true"
-                  >
-                    <span v-if="gender === '女'" class="w-2 h-2 rounded-full bg-cinnabar" />
-                  </span>
-                  <span class="text-sm text-ink-medium">女</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section: 出生信息 -->
-        <section>
-          <InkDivider class="mb-5">出生信息</InkDivider>
-          <div class="space-y-5">
-            <!-- Birth date -->
-            <div>
-              <label for="profile-birth-date" class="block text-xs text-ink-medium tracking-wider mb-1.5">
-                出生日期<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
-              </label>
-              <div class="flex flex-col sm:flex-row gap-3">
                 <input
-                  id="profile-birth-date"
-                  v-model="birthDate"
-                  type="date"
-                  min="1920-01-01"
-                  :max="maxDate"
-                  class="input-ink flex-1"
+                  id="profile-nickname"
+                  :value="nickname"
+                  type="text"
+                  class="input-warm"
+                  readonly
                 />
-                <label for="profile-birth-calendar" class="sr-only">历法</label>
-                <select
-                  id="profile-birth-calendar"
-                  v-model="birthCalendar"
-                  class="select-ink sm:w-24 text-center"
-                >
-                  <option :value="null">— 未知 —</option>
-                  <option value="solar">阳历</option>
-                  <option value="lunar">农历</option>
-                </select>
+                <p class="text-[0.65rem] text-ink-light tracking-wider mt-1.5">号令即昵称，注册后不可更改</p>
               </div>
-            </div>
 
-            <!-- Birth time -->
-            <div>
-              <label for="profile-birth-hour" class="block text-xs text-ink-medium tracking-wider mb-1.5">
-                出生时辰<span class="text-ink-light text-[0.65rem] ml-1">(推荐)</span>
-              </label>
-              <p class="text-xs text-ink-light mb-2">如果不确定时辰，请输入大致出生时间</p>
-              <div class="flex flex-col sm:flex-row gap-3">
-                <select
-                  id="profile-birth-hour"
-                  v-model="birthHour"
-                  class="select-ink flex-1"
-                >
-                  <option :value="null">— 未知 —</option>
-                  <option v-for="opt in hourOptions" :key="opt.value" :value="opt.value">
-                    {{ opt.label }}
-                  </option>
-                </select>
-                <div class="sm:w-28">
-                  <label for="profile-birth-minute" class="block text-xs text-ink-light tracking-wider mb-1">分钟（选填）</label>
-                  <input
-                    id="profile-birth-minute"
-                    v-model="birthMinuteStr"
-                    type="number"
-                    min="0"
-                    max="59"
-                    class="input-ink input-ink--no-spinner w-full text-center"
-                    placeholder="分"
-                  />
+              <!-- Gender -->
+              <div>
+                <label class="block text-xs text-ink-medium tracking-wider mb-3">
+                  性别 <span class="text-ink-light font-sans font-normal">（推荐）</span>
+                </label>
+                <div class="flex gap-5" role="radiogroup" aria-label="性别">
+                  <label class="flex items-center gap-2.5 cursor-pointer group">
+                    <input v-model="gender" type="radio" name="gender" :value="''" class="sr-only" />
+                    <span
+                      :class="[
+                        'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+                        !gender ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
+                      ]"
+                      aria-hidden="true"
+                    >
+                      <span v-if="!gender" class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200" />
+                    </span>
+                    <span :class="['text-sm transition-colors', !gender ? 'text-cinnabar' : 'text-ink-medium']">未设置</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer group">
+                    <input v-model="gender" type="radio" name="gender" value="男" class="sr-only" />
+                    <span
+                      :class="[
+                        'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+                        gender === '男' ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
+                      ]"
+                      aria-hidden="true"
+                    >
+                      <span v-if="gender === '男'" class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200" />
+                    </span>
+                    <span :class="['text-sm transition-colors', gender === '男' ? 'text-cinnabar' : 'text-ink-medium']">男</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer group">
+                    <input v-model="gender" type="radio" name="gender" value="女" class="sr-only" />
+                    <span
+                      :class="[
+                        'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+                        gender === '女' ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
+                      ]"
+                      aria-hidden="true"
+                    >
+                      <span v-if="gender === '女'" class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200" />
+                    </span>
+                    <span :class="['text-sm transition-colors', gender === '女' ? 'text-cinnabar' : 'text-ink-medium']">女</span>
+                  </label>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- Submit -->
-        <div class="flex items-center gap-4 pt-2">
-          <button
-            type="submit"
-            :disabled="saving"
-            class="btn-seal px-10"
-            :aria-busy="saving"
-          >
-            <span>{{ saving ? '保存中...' : '保存' }}</span>
-          </button>
-          <button
-            type="button"
-            @click="goBack"
-            @keydown.enter="goBack"
-            @keydown.space.prevent="goBack"
-            class="btn-ghost"
-          >
-            取消
-          </button>
-        </div>
-      </form>
+          <!-- ──── Decorative divider ──── -->
+          <div class="divider-seal">
+            <span class="divider-seal__line" aria-hidden="true"></span>
+            <span class="divider-seal__word" aria-hidden="true">天机</span>
+            <span class="divider-seal__line" aria-hidden="true"></span>
+          </div>
+
+          <!-- ──── Section: 出生信息 ──── -->
+          <section>
+            <div class="section-header section-header--tool-light">
+              <span class="bar" aria-hidden="true"></span>
+              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">辰</span>
+              <h2>出生信息</h2>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Birth date -->
+              <div>
+                <label for="profile-birth-date" class="block text-xs text-ink-medium tracking-wider mb-2">
+                  出生日期 <span class="text-cinnabar" aria-hidden="true">*</span>
+                </label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input
+                    id="profile-birth-date"
+                    v-model="birthDate"
+                    type="date"
+                    min="1920-01-01"
+                    :max="maxDate"
+                    class="input-warm flex-1"
+                  />
+                  <label for="profile-birth-calendar" class="sr-only">历法</label>
+                  <select
+                    id="profile-birth-calendar"
+                    v-model="birthCalendar"
+                    class="input-warm sm:w-24 text-center"
+                  >
+                    <option :value="null">— 未知 —</option>
+                    <option value="solar">阳历</option>
+                    <option value="lunar">农历</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Birth time -->
+              <div>
+                <label for="profile-birth-hour" class="block text-xs text-ink-medium tracking-wider mb-2">
+                  出生时辰 <span class="text-ink-light font-sans font-normal">（推荐）</span>
+                </label>
+                <p class="text-xs text-ink-light/70 mb-3 font-sans">若不确知时辰，请填大致出生时间</p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <select
+                    id="profile-birth-hour"
+                    v-model="birthHour"
+                    class="input-warm flex-1"
+                  >
+                    <option :value="null">— 未知 —</option>
+                    <option v-for="opt in hourOptions" :key="opt.value" :value="opt.value">
+                      {{ opt.label }}
+                    </option>
+                  </select>
+                  <div class="sm:w-28">
+                    <label for="profile-birth-minute" class="block text-[0.65rem] text-ink-light tracking-wider mb-1.5 font-sans">分钟（选填）</label>
+                    <input
+                      id="profile-birth-minute"
+                      v-model="birthMinuteStr"
+                      type="number"
+                      min="0"
+                      max="59"
+                      class="input-warm text-center"
+                      placeholder="分"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ──── Submit ──── -->
+          <div class="flex items-center gap-4 pt-2">
+            <button
+              type="submit"
+              :disabled="saving"
+              class="btn-cin"
+              :aria-busy="saving"
+            >
+              {{ saving ? '保存中…' : '保存命簿' }}
+            </button>
+            <button
+              type="button"
+              @click="goBack"
+              @keydown.enter="goBack"
+              @keydown.space.prevent="goBack"
+              class="btn-ink"
+            >
+              取消
+            </button>
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 </template>
