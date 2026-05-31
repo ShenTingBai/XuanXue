@@ -84,8 +84,9 @@
     <!-- Mobile: horizontal scroll cards -->
     <div class="sm:hidden">
       <div class="overflow-x-auto -mx-4 px-4 pb-3">
-        <div class="inline-flex gap-2" role="table" aria-label="四柱排盘">
+        <div class="inline-flex gap-2" role="list" aria-label="四柱排盘">
           <div v-for="(p, idx) in pillars" :key="'card-' + idx"
+            role="listitem"
             class="inline-flex flex-col w-[104px] rounded-lg overflow-hidden flex-shrink-0"
             :class="idx === 2 ? 'border-2 border-cinnabar bg-cinnabar/15' : 'border border-paper-dark'"
           >

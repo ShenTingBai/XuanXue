@@ -5,15 +5,12 @@
     tabindex="-1"
   >
     <!-- Clickable header bar -->
-    <div
-      class="flex items-center justify-between cursor-pointer select-none"
-      role="button"
+    <button
+      type="button"
+      class="flex items-center justify-between cursor-pointer select-none text-left w-full bg-transparent border-none"
       :aria-expanded="expanded"
       :aria-controls="`${sectionId}-content`"
       @click="emit('toggle', sectionId)"
-      @keydown.enter.prevent="emit('toggle', sectionId)"
-      @keydown.space.prevent="emit('toggle', sectionId)"
-      tabindex="0"
     >
       <div class="flex items-center gap-3 min-w-0">
         <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm flex-shrink-0" aria-hidden="true"></span>
@@ -29,7 +26,7 @@
       >
         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
       </svg>
-    </div>
+    </button>
 
     <hr class="border-paper-dark/50 my-4" aria-hidden="true">
 

@@ -1,4 +1,5 @@
 import { getHeader } from 'h3'
+import type { H3Event } from 'h3'
 
 interface RateLimitEntry {
   count: number
@@ -76,7 +77,7 @@ function getTrustedProxies(): Set<string> {
  * When behind a trusted proxy, the leftmost IP in X-Forwarded-For is
  * the original client (per RFC 7239).
  */
-export function getClientIp(event: any): string {
+export function getClientIp(event: H3Event): string {
   const remoteAddress: string = event.node?.req?.socket?.remoteAddress || 'unknown'
   const trustedProxies = getTrustedProxies()
 

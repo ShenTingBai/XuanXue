@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="mb-6 flex flex-wrap gap-1.5 justify-center"
+    class="mb-6 flex overflow-x-auto flex-nowrap whitespace-nowrap scrollbar-hide gap-1.5 justify-start sm:flex-wrap sm:justify-center"
     aria-label="结果区块导航"
   >
     <a
@@ -8,7 +8,7 @@
       :key="item.anchor"
       :href="`#${sectionMap[item.anchor]}`"
       :class="[
-        'px-3 py-2.5 text-xs rounded-full font-sans border transition-colors no-underline focus-visible:ring-2 focus-visible:ring-cinnabar focus-visible:ring-offset-2',
+        'px-3 py-2.5 text-xs rounded-full font-sans border transition-colors no-underline focus-visible:ring-2 focus-visible:ring-cinnabar focus-visible:ring-offset-2 flex-shrink-0',
         activeNavSection === item.anchor
           ? 'bg-cinnabar text-paper-lightest border-cinnabar'
           : 'border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30'

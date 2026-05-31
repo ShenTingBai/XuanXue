@@ -3,6 +3,9 @@
       <h1 class="sr-only">六爻占卜</h1>
 
       <div class="max-w-[48rem] mx-auto">
+        <!-- Toolbar: always visible for back navigation -->
+        <ToolToolbar :show-history="true" @history="showHistoryModal = true" />
+
         <!-- Casting panel -->
         <YijingCastingPanel
           :mode="castingMode"
@@ -61,9 +64,6 @@
 
         <!-- Results -->
         <div ref="resultSection" v-if="result && !processing" class="mt-8">
-          <!-- Top toolbar -->
-          <ToolToolbar />
-
           <YijingInterpretation :result="result" :score="score" />
 
           <!-- Auto-save placeholder -->
@@ -98,6 +98,13 @@
 
           <EntertainmentDisclaimer />
         </div>
+
+          <HistoryModal
+            :show="showHistoryModal"
+            type="yijing"
+            @close="showHistoryModal = false"
+            @restore="onHistoryRestore"
+          />
         <ScrollTopButton
           v-if="showScrollTop"
           class="right-8"
@@ -122,6 +129,8 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
+import HistoryModal from '~/components/tools/HistoryModal.vue'
+const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 useHead({ title: '六爻占卜 - 玄学' })
 
 // State
@@ -135,6 +144,7 @@ const saveError = ref('')
 const showSaveErrorToast = ref(false)
 const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
+const showHistoryModal = ref(false)
 const resultSection = ref<HTMLElement | null>(null)
 const confirmDialogRef = ref<HTMLElement | null>(null)
 
@@ -145,7 +155,6 @@ const numberTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const router = useRouter()
 
 onMounted(() => {
-  const { restoreSession, currentProfile } = useAuth()
   restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
@@ -309,6 +318,54 @@ function handleReset() {
   showResetConfirm.value = false
 }
 
+function onHistoryRestore(id: number) {
+  showHistoryModal.value = false
+  restoreFromHistory(id)
+}
+
+async function restoreFromHistory(id: number) {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
+      `/api/divinations/${id}`,
+      { headers },
+    )
+
+    // Restore from result_data
+    if (record.result_data) {
+      const data = record.result_data as any
+      if (data.hexagram && data.lines) {
+        result.value = data as YijingResult
+        score.value = data.score ?? 0
+      }
+    }
+
+    // Restore casting mode from input_data
+    if (record.input_data) {
+      const input = record.input_data as { yaoValues?: number[]; castingMode?: 'coin' | 'number'; hexagramName?: string }
+      if (input.castingMode) {
+        castingMode.value = input.castingMode
+      }
+      // Set coin results to simulate completed tosses
+      if (input.yaoValues && input.yaoValues.length === 6) {
+        coinResults.value = input.yaoValues.map(v => {
+          // Reconstruct individual coin tosses from line value
+          // 6=老阴(222), 7=少阳(322), 8=少阴(332), 9=老阳(333)
+          if (v === 6) return [2, 2, 2]
+          if (v === 7) return [3, 2, 2]
+          if (v === 8) return [3, 3, 2]
+          if (v === 9) return [3, 3, 3]
+          return [3, 2, 2]
+        })
+        currentToss.value = 6
+      }
+    }
+  } catch {
+    // silent fail — keep current result if history restore failed
+  }
+}
+
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
 }
@@ -338,7 +395,7 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
       headers: getAuthHeaders(),
       body: {
         type: 'yijing',
-        input_data: { yaoValues: values, castingMode: castingMode.value },
+        input_data: { yaoValues: values, castingMode: castingMode.value, hexagramName: yijingResult.hexagram.name },
         result_data: yijingResult,
       },
     })

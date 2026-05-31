@@ -8,7 +8,7 @@ export function hashPin(pin: string): string {
 }
 
 export function verifyPin(pin: string, stored: string): boolean {
-  const [salt, hash] = stored.split(':')
+  const [salt, hash]: string[] = stored.split(':')
   // If format is unrecognizable (not legacy plaintext and not scrypt hash), reject
   if (!salt || !hash || hash.length < 64) {
     return false

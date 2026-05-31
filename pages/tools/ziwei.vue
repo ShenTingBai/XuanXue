@@ -16,6 +16,7 @@ import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
 import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
@@ -269,9 +270,9 @@ async function restoreFromHistory(id: number) {
     </div>
 
     <!-- Loading -->
-    <div v-else-if="loading" class="flex flex-col items-center justify-center py-20" aria-busy="true">
-      <div class="w-8 h-8 mb-4 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin" />
-      <p class="font-display text-sm text-ink-light/60 tracking-[0.1em]">正在排盘...</p>
+    <div v-else-if="loading" class="space-y-6" aria-busy="true">
+      <span class="sr-only">正在排盘...</span>
+      <SkeletonCard />
     </div>
 
     <!-- Error -->
@@ -286,7 +287,7 @@ async function restoreFromHistory(id: number) {
 
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
-      <div class="w-full max-w-[620px] mx-auto">
+      <div class="w-full max-w-full sm:max-w-[48rem] mx-auto">
 
         <!-- Top toolbar -->
         <ToolToolbar

@@ -1,26 +1,37 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
-    <!-- Mode toggle -->
-    <div class="flex justify-end mb-4">
-      <button
-        class="btn-ghost text-sm"
-        :aria-label="mode === 'coin' ? '切换到数字起卦' : '切换到摇卦起卦'"
-        @click="toggleMode"
-        @keydown.enter="toggleMode"
-      >
-        <span v-if="mode === 'coin'">数字起卦 &rarr;</span>
-        <span v-else>&larr; 摇卦起卦</span>
-      </button>
+    <!-- Mode tab switcher -->
+    <div class="flex justify-center mb-6" role="tablist" aria-label="起卦方式">
+      <div class="inline-flex rounded-lg border border-ink-faint/25 bg-paper-dark/60 p-0.5">
+        <button
+          ref="coinTabRef"
+          role="tab"
+          :aria-selected="mode === 'coin'"
+          class="tab-btn"
+          :class="mode === 'coin' ? 'tab-active' : 'tab-inactive'"
+          @click="emit('update:mode', 'coin')"
+          @keydown.left.prevent="focusNumberTab"
+          @keydown.right.prevent="focusNumberTab"
+        >
+          摇卦
+        </button>
+        <button
+          ref="numberTabRef"
+          role="tab"
+          :aria-selected="mode === 'number'"
+          class="tab-btn"
+          :class="mode === 'number' ? 'tab-active' : 'tab-inactive'"
+          @click="emit('update:mode', 'number')"
+          @keydown.left.prevent="focusCoinTab"
+          @keydown.right.prevent="focusCoinTab"
+        >
+          数字起卦
+        </button>
+      </div>
     </div>
 
     <!-- Coin casting mode -->
     <div v-if="mode === 'coin'" class="casting-card rounded-xl p-6 sm:p-8 text-center">
-      <!-- Decorative top accent -->
-      <div class="flex items-center justify-center gap-3 mb-5" aria-hidden="true">
-        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
-        <span class="font-display text-2xl sm:text-3xl text-ink-dark tracking-widest">摇卦</span>
-        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
-      </div>
 
       <!-- Toss progress indicator -->
       <div class="flex justify-center gap-1.5 mb-6" aria-hidden="true">
@@ -91,72 +102,74 @@
 
     <!-- Number casting mode -->
     <div v-else class="casting-card rounded-xl p-6 sm:p-8">
-      <div class="flex items-center justify-center gap-3 mb-6" aria-hidden="true">
-        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
-        <span class="font-display text-2xl sm:text-3xl text-ink-dark tracking-widest">数字起卦</span>
-        <span class="block w-12 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
-      </div>
-
       <p class="font-sans text-sm text-ink-light mb-6 text-center leading-relaxed">
-        请输入三个数字。第一个为上卦数，第二个为下卦数，第三个为动爻数。
+        心有所想，随即以三个数字起卦。数字分定上卦、下卦与动爻。
       </p>
 
-      <form class="max-w-xs mx-auto space-y-4" novalidate @submit.prevent="handleNumberSubmit">
-        <div class="flex gap-3 items-end">
-          <div class="flex-1">
-            <label for="yijing-upper" class="block font-sans text-xs text-ink-light mb-1.5">上卦</label>
+      <form class="max-w-xs mx-auto" novalidate @submit.prevent="handleNumberSubmit">
+        <!-- Three number inputs with bagua symbols -->
+        <div class="space-y-5">
+          <!-- Upper trigram -->
+          <div>
+            <label for="yijing-upper" class="block font-sans text-xs text-ink-light/60 mb-1.5 tracking-wider text-center">上 卦 — 天数</label>
             <input
               id="yijing-upper"
               v-model="upperNum"
               type="number"
               min="1"
               max="8"
-              class="input-ink text-center"
-              placeholder="1-8"
+              class="input-ink text-center text-lg"
+              placeholder="1 – 8"
               required
               @blur="validateNumberInput('upper')"
             />
           </div>
-          <div class="flex-1">
-            <label for="yijing-lower" class="block font-sans text-xs text-ink-light mb-1.5">下卦</label>
+
+          <!-- Lower trigram -->
+          <div>
+            <label for="yijing-lower" class="block font-sans text-xs text-ink-light/60 mb-1.5 tracking-wider text-center">下 卦 — 地数</label>
             <input
               id="yijing-lower"
               v-model="lowerNum"
               type="number"
               min="1"
               max="8"
-              class="input-ink text-center"
-              placeholder="1-8"
+              class="input-ink text-center text-lg"
+              placeholder="1 – 8"
               required
               @blur="validateNumberInput('lower')"
             />
           </div>
-          <div class="flex-1">
-            <label for="yijing-moving" class="block font-sans text-xs text-ink-light mb-1.5">动爻</label>
+
+          <!-- Moving line -->
+          <div>
+            <label for="yijing-moving" class="block font-sans text-xs text-ink-light/60 mb-1.5 tracking-wider text-center">动 爻 — 变数</label>
             <input
               id="yijing-moving"
               v-model="movingNum"
               type="number"
               min="1"
               max="6"
-              class="input-ink text-center"
-              placeholder="1-6"
+              class="input-ink text-center text-lg"
+              placeholder="1 – 6"
               required
               @blur="validateNumberInput('moving')"
             />
           </div>
         </div>
 
-        <div class="text-center pt-2">
+        <!-- Validation error -->
+        <div v-if="validationError" role="alert" class="text-cinnabar text-sm mt-4 text-center font-sans">
+          {{ validationError }}
+        </div>
+
+        <!-- Submit -->
+        <div class="text-center mt-6">
           <button type="submit" class="btn-seal" @keydown.space.prevent="handleNumberSubmit">
             <span>起卦</span>
           </button>
         </div>
       </form>
-
-      <div v-if="validationError" role="alert" class="text-cinnabar text-sm mt-3 text-center">
-        {{ validationError }}
-      </div>
 
       <div class="text-center mt-4">
         <button
@@ -165,7 +178,7 @@
           @keydown.enter="$emit('reset')"
           @keydown.space.prevent="$emit('reset')"
         >
-          重新起卦
+          清空重填
         </button>
       </div>
     </div>
@@ -174,6 +187,12 @@
 
 <script setup lang="ts">
 import { onUnmounted } from 'vue'
+
+const coinTabRef = ref<HTMLElement | null>(null)
+const numberTabRef = ref<HTMLElement | null>(null)
+
+function focusCoinTab() { coinTabRef.value?.focus() }
+function focusNumberTab() { numberTabRef.value?.focus() }
 
 const props = defineProps<{
   mode: 'coin' | 'number'
@@ -210,10 +229,6 @@ watch(() => props.mode, () => {
 const isFlipping = ref(false)
 const tossTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
-function toggleMode() {
-  const newMode = props.mode === 'coin' ? 'number' : 'coin'
-  emit('update:mode', newMode)
-}
 
 function handleTossClick() {
   if (props.currentToss >= 6 || isFlipping.value) return
@@ -330,9 +345,40 @@ function handleNumberSubmit() {
   100% { transform: rotateY(720deg); }
 }
 
+.tab-btn {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tab-inactive {
+  color: var(--color-ink-medium);
+}
+.tab-inactive:hover {
+  color: var(--color-ink-medium);
+  background: color-mix(in srgb, var(--color-ink-medium) 4%, transparent);
+}
+
+.tab-active {
+  color: var(--color-ink-darkest);
+  background: var(--color-paper);
+  box-shadow:
+    0 1px 3px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-ink-muted) 6%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .coin-circle.coin-flipping {
     animation: none;
+  }
+  .tab-btn {
+    transition: none;
   }
 }
 

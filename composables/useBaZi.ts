@@ -3,6 +3,12 @@ import { Lunar } from 'lunar-javascript'
 
 import { STEMS, BRANCHES, getStemIndex } from '~/constants/bazi'
 
+// === Helper ===
+
+function branchIndex(b: string): number {
+  return BRANCHES.indexOf(b as typeof BRANCHES[number])
+}
+
 // === Constants ===
 
 export const WUXING_STEM: Record<string, string> = {
@@ -409,7 +415,7 @@ function computeDaYun(
   const forward = (yangYear && isMale) || (!yangYear && !isMale)
 
   const monthStemIndex = getStemIndex(monthPillar.stem)
-  const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillar.branch)
+  const monthBranchIndex = branchIndex(monthPillar.branch)
 
   const startAge = computeDaYunStartAge(birthYear, birthMonth, birthDay, yearStemIndex, gender)
 
@@ -491,7 +497,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   const monthPillarYear = beforeLiChun ? birthYear - 1 : birthYear
   const monthPillarResult = getMonthPillar(monthPillarYear, birthMonth, birthDay)
   const monthStemIndex = getStemIndex(monthPillarResult.stem)
-  const monthBranchIndex = (BRANCHES as readonly string[]).indexOf(monthPillarResult.branch)
+  const monthBranchIndex = branchIndex(monthPillarResult.branch)
 
   // --- Day Pillar ---
   const [dayStemIndex, dayBranchIndex] = getDayPillarIndices(birthYear, birthMonth, birthDay)

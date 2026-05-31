@@ -237,7 +237,7 @@ async function restoreFromHistory(id: number) {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div aria-live="polite" aria-atomic="true">
+          <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
             <!-- Top toolbar -->
             <ToolToolbar
               :show-history="true"
@@ -339,13 +339,6 @@ async function restoreFromHistory(id: number) {
           </div>
 
           <div class="flex flex-wrap gap-3 justify-center mt-8">
-            <button
-              @click="computeResult"
-              @keydown.space.prevent="computeResult"
-              class="btn-seal"
-            >
-              <span>重新排盘</span>
-            </button>
             <button
               @click="scrollToAnimalNav"
               @keydown.space.prevent="scrollToAnimalNav"

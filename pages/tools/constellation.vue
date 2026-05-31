@@ -240,7 +240,7 @@ function dismissRestoreError() {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div aria-live="polite" aria-atomic="true">
+          <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
             <!-- Top toolbar -->
             <ToolToolbar
               :show-history="true"
@@ -288,25 +288,6 @@ function dismissRestoreError() {
             今日运势、宜忌速览及星座性格特征
           </p>
 
-          <!-- Action buttons: placed near Hero for quick access -->
-          <div class="flex flex-wrap gap-3 justify-center mt-6 mb-6">
-            <button
-              @click="computeResult"
-              @keydown.space.prevent="computeResult"
-              class="btn-seal"
-            >
-              <span>刷新运势</span>
-            </button>
-            <button
-              @click="showHistoryModal = true"
-              @keydown.enter="showHistoryModal = true"
-              @keydown.space.prevent="showHistoryModal = true"
-              class="btn-seal"
-              aria-haspopup="dialog"
-            >
-              <span>浏览历史</span>
-            </button>
-          </div>
 
           <HoroscopePanel :horoscope="result.todayHoroscope" />
 
@@ -358,6 +339,18 @@ function dismissRestoreError() {
             </button>
           </div>
 
+          <!-- Action buttons -->
+          <div class="flex flex-wrap gap-3 justify-center my-8">
+            <button
+              @click="showHistoryModal = true"
+              @keydown.enter="showHistoryModal = true"
+              @keydown.space.prevent="showHistoryModal = true"
+              class="btn-seal"
+              aria-haspopup="dialog"
+            >
+              <span>浏览历史</span>
+            </button>
+          </div>
 
           <HistoryModal
             :show="showHistoryModal"

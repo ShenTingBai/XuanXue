@@ -15,7 +15,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="ziwei-form bg-paper/70 backdrop-blur-sm rounded-xl border border-ink-faint/20 p-6 mb-6 max-w-md mx-auto relative overflow-hidden">
+  <div class="ziwei-form card-paper-solid rounded-xl p-8 mb-6 max-w-md mx-auto relative overflow-hidden">
     <!-- Decorative top ornament -->
     <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(198,40,40,0.2) 20%, rgba(198,40,40,0.35) 50%, rgba(198,40,40,0.2) 80%, transparent);" />
 

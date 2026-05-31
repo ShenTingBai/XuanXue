@@ -444,14 +444,12 @@ function onSectionNavigate(sectionName: string) {
         <div v-else-if="error" class="text-center py-16">
           <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
           <div class="flex justify-center mt-6">
-            <button
-              @click="computeResult"
-              @keydown.enter="computeResult"
-              @keydown.space.prevent="computeResult"
-              class="btn-seal"
+            <NuxtLink
+              :to="`/profile/${currentProfile?.id}`"
+              class="btn-seal inline-flex"
             >
-              <span>重新排盘</span>
-            </button>
+              <span>前往编辑档案</span>
+            </NuxtLink>
           </div>
         </div>
 
@@ -640,6 +638,7 @@ function onSectionNavigate(sectionName: string) {
 
             <!-- Action buttons -->
             <div class="flex flex-wrap gap-3 justify-center mt-8">
+              <!-- Recalculates from profile data -- useful if user updated profile externally -->
               <button
                 @click="computeResult"
                 @keydown.space.prevent="computeResult"

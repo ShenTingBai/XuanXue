@@ -1,5 +1,5 @@
 <template>
-  <div role="region" aria-label="命盘摘要" class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-4 text-xs space-y-2">
+  <div role="region" aria-label="命盘摘要" class="card-paper-solid rounded-xl p-4 text-xs space-y-2">
     <h4 class="font-display font-semibold text-ink-dark text-sm">命盘信息</h4>
     <div class="space-y-1.5 text-ink-light">
       <!-- Birth info -->

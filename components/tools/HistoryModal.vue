@@ -65,12 +65,15 @@ async function fetchHistory() {
 
 function formatHistoryDate(dateStr: string): string {
   try {
-    // Parse ISO timestamp manually to avoid timezone ambiguity (CLAUDE.md convention)
-    const [datePart, timePart] = dateStr.split('T')
+    // SQLite 'datetime' returns space-separated ("2026-05-31 12:34:56") not ISO with 'T'
+    const [datePart, timePart] = dateStr.includes('T')
+      ? dateStr.split('T')
+      : dateStr.split(' ')
     if (!datePart) return dateStr
     const [y, m, d] = datePart.split('-').map(Number)
     const pad = (n: number) => String(n).padStart(2, '0')
     if (timePart) {
+      // timePart may be "12:34:56" or "12:34:56.000Z"; destructuring first two elements works for both
       const [hh, mm] = timePart.split(':').map(Number)
       return `${y}-${pad(m)}-${pad(d)} ${pad(hh)}:${pad(mm)}`
     }
@@ -105,6 +108,15 @@ function formatHistoryLabel(inputData: any): string {
     const hourLabel = birthHour !== undefined && birthHour !== null ? ` 第${birthHour + 1}时` : ''
     const genderLabel = gender ? ` ${gender === 'male' ? '男' : '女'}` : ''
     return `${label}${hourLabel}${genderLabel}`
+  }
+  if (props.type === 'yijing') {
+    const hexagramName = inputData.hexagramName
+    const castingMode = inputData.castingMode === 'number' ? '数字' : '摇卦'
+    if (hexagramName) {
+      return `${hexagramName}（${castingMode}）`
+    }
+    // Fallback: show just the casting mode
+    return `六爻占卜（${castingMode}）`
   }
   // constellation
   const { month, day } = inputData
@@ -204,6 +216,7 @@ function onListboxFocus() {
                 <span>闭</span>
               </button>
             </div>
+            <p class="font-sans text-[10px] text-ink-light/40 text-right mt-2 select-none">最近 5 条</p>
           </div>
 
           <!-- ── Content ── -->
@@ -338,7 +351,7 @@ function onListboxFocus() {
     background-color 0.25s ease;
 }
 .history-close-btn span {
-  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
+  font-family: var(--font-display);
   font-size: 1rem;
   line-height: 1;
 }
@@ -417,6 +430,12 @@ function onListboxFocus() {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-record {
+    animation: none;
   }
 }
 </style>

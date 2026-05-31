@@ -23,6 +23,8 @@ const showDropdown = ref(false)
 const showMobileNav = ref(false)
 const mobileNavRef = ref<HTMLElement | null>(null)
 const mobileNavCloseRef = ref<HTMLElement | null>(null)
+const hamburgerBtnRef = ref<HTMLElement | null>(null)
+const mobileDrawerPanelRef = ref<HTMLElement | null>(null)
 const route = useRoute()
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownInnerRef = ref<HTMLElement | null>(null)
@@ -53,8 +55,29 @@ watch(showMobileNav, (val) => {
     nextTick(() => {
       mobileNavCloseRef.value?.focus()
     })
+  } else {
+    nextTick(() => {
+      hamburgerBtnRef.value?.focus()
+    })
   }
 })
+
+function trapFocusForward() {
+  if (mobileDrawerPanelRef.value) {
+    const focusable = mobileDrawerPanelRef.value.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    if (focusable.length > 0) {
+      focusable[focusable.length - 1].focus()
+      return
+    }
+  }
+  mobileNavCloseRef.value?.focus()
+}
+
+function trapFocusBack() {
+  mobileNavCloseRef.value?.focus()
+}
 
 const handleMenuKeydown = (e: KeyboardEvent) => {
   const items = dropdownInnerRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]')
@@ -152,6 +175,7 @@ const closeDropdown = (e: FocusEvent) => {
 
             <!-- Mobile Hamburger Button -->
             <button
+              ref="hamburgerBtnRef"
               class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors hover:bg-paper-medium/50"
               @click="showMobileNav = true"
               aria-label="打开导航菜单"
@@ -245,8 +269,17 @@ const closeDropdown = (e: FocusEvent) => {
           <!-- Backdrop -->
           <div class="fixed inset-0 bg-ink-dark/50 backdrop-blur-sm" @click="showMobileNav = false" />
 
+          <!-- Top focus trap sentinel — catches Shift+Tab from close button -->
+          <div
+            tabindex="0"
+            class="focus-trap-sentinel"
+            @focus="trapFocusForward"
+          />
+
           <!-- Drawer Panel — scroll binding left border -->
-          <div class="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-paper shadow-2xl z-10 flex flex-col overflow-y-auto drawer-panel"
+          <div
+            ref="mobileDrawerPanelRef"
+            class="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-paper shadow-2xl z-10 flex flex-col overflow-y-auto drawer-panel"
                style="border-left: 3px solid #C62828;">
             <!-- Decorative header — ink-wash top band + seal -->
             <div class="relative px-5 pt-5 pb-3">
@@ -342,6 +375,13 @@ const closeDropdown = (e: FocusEvent) => {
                 </button>
               </div>
             </template>
+
+          <!-- Bottom focus trap sentinel — cycles Tab back to close button -->
+          <div
+            tabindex="0"
+            class="focus-trap-sentinel"
+            @focus="trapFocusBack"
+          />
           </div>
         </div>
       </Transition>

@@ -110,7 +110,7 @@ const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
 }
 
 .score-number {
-  font-family: 'Ma Shan Zheng', cursive;
+  font-family: var(--font-display);
   font-size: 2.25rem;
   line-height: 1;
   color: #2C1810;

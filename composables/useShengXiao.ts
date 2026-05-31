@@ -1,9 +1,9 @@
 // ── Lookup Tables ──────────────────────────────────────────────
 
-const ANIMALS = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'] as const
+import { ANIMALS, STEMS, BRANCHES, NAYIN_TABLE } from '~/constants/bazi'
+
+// EMOJIS is not exported from constants/bazi — kept locally
 const EMOJIS = ['🐭', '🐮', '🐯', '🐰', '🐲', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷'] as const
-const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const
-const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const
 
 const ANIMAL_WUXING: Record<string, string> = {
   '鼠': '水', '牛': '土', '虎': '木', '兔': '木',
@@ -16,8 +16,6 @@ const ANIMAL_DIRECTION: Record<string, string> = {
   '龙': '东南', '蛇': '东南', '马': '南', '羊': '西南',
   '猴': '西南', '鸡': '西', '狗': '西北', '猪': '西北',
 }
-
-import { NAYIN_TABLE } from '~/constants/bazi'
 
 // ── Compatibility Pair Tables ─────────────────────────────────
 

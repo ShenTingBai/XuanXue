@@ -88,7 +88,7 @@ html {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: var(--z-overlay);
+    z-index: -1;
     opacity: 0.12;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' /%3E%3C/svg%3E");
     background-repeat: repeat;
@@ -638,19 +638,6 @@ html {
   .wuxing-card--metal { border-color: #5E5E5E; }
   .wuxing-card--water { border-color: #2C5F7C; }
 
-  /* ── Toast Transition ── */
-  .toast-enter-active,
-  .toast-leave-active {
-    transition: all 0.3s ease;
-  }
-  .toast-enter-from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  .toast-leave-to {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
 }
 
 /* Keyframes must be OUTSIDE @layer for Tailwind PostCSS compat */

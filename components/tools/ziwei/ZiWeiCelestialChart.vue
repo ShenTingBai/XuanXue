@@ -60,11 +60,20 @@ function assignLabelRef(el: Element | ComponentPublicInstance | null, idx: numbe
 // ═══════════════════════════════════════════════════════════════
 // Helpers
 // ═══════════════════════════════════════════════════════════════
+// Cache for pol() results — bounded by finite angle/radius combinations
+const polCache = new Map<string, { x: number; y: number }>()
+
 function pol(angleDeg: number, r: number) {
   // angleDeg uses constants/ziwei.ts BRANCH_TO_ANGLE convention — already in SVG
   // y-down angle space (午=255°, 午+15°=270° SVG → top). No additional offset.
-  const rad = (angleDeg * Math.PI) / 180
-  return { x: CX + Math.cos(rad) * r, y: CY + Math.sin(rad) * r }
+  const key = `${angleDeg},${r}`
+  let result = polCache.get(key)
+  if (!result) {
+    const rad = (angleDeg * Math.PI) / 180
+    result = { x: CX + Math.cos(rad) * r, y: CY + Math.sin(rad) * r }
+    polCache.set(key, result)
+  }
+  return result
 }
 
 /** Deterministic [0,1) pseudo-random based on integer seed. */
@@ -79,7 +88,7 @@ function mutagenCss(m: string): string {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Star data — single computed, no watchers, no RAF
+// Chart geometry — merged computed for stars, orbits, dividers, highlight
 // ═══════════════════════════════════════════════════════════════
 export interface CelestialStar {
   id: string
@@ -99,8 +108,9 @@ export interface CelestialStar {
   driftDelay: number
 }
 
-const renderedStars = computed<CelestialStar[]>(() => {
-  const stars: CelestialStar[] = []
+const chartGeometry = computed(() => {
+  // 1. Stars
+  const renderedStars: CelestialStar[] = []
   let globalIdx = 0
 
   for (const palace of props.palaces) {
@@ -126,7 +136,7 @@ const renderedStars = computed<CelestialStar[]>(() => {
       const driftDuration = 60 + seedRand(seed + 2) * 60 // 60-120s
       const driftDelay = -seedRand(seed + 3) * driftDuration
 
-      stars.push({
+      renderedStars.push({
         id: `${palace.index}-${i}-${e.name}`,
         name: e.name,
         pctX: (pos.x / 600) * 100,
@@ -146,7 +156,43 @@ const renderedStars = computed<CelestialStar[]>(() => {
     })
   }
 
-  return stars
+  // 2. Orbit paths
+  const orbitPaths = RINGS.map((r) => wobblyCirclePath(r))
+
+  // 3. Sector dividers
+  const dividers = BRANCHES.map((br) => {
+    const angle = BRANCH_TO_ANGLE[br] ?? 0
+    const p1 = pol(angle, RINGS[0])
+    const p2 = pol(angle, RINGS[RINGS.length - 1] + 8)
+    return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, key: br }
+  })
+
+  // 4. Selection highlight
+  const idx = props.selectedIndex
+  const palace = props.palaces[idx]
+  const highlight = palace
+    ? (() => {
+        const startAngle = BRANCH_TO_ANGLE[palace.earthlyBranch] ?? 0
+        const endAngle = startAngle + PALACE_SECTOR_DEG
+        const innerR = RINGS[0] - 5
+        const outerR = RINGS[3] + 5
+        const si = pol(startAngle, innerR)
+        const so = pol(startAngle, outerR)
+        const ei = pol(endAngle, innerR)
+        const eo = pol(endAngle, outerR)
+        const path = [
+          `M ${si.x} ${si.y}`,
+          `L ${so.x} ${so.y}`,
+          `A ${outerR} ${outerR} 0 0 1 ${eo.x} ${eo.y}`,
+          `L ${ei.x} ${ei.y}`,
+          `A ${innerR} ${innerR} 0 0 0 ${si.x} ${si.y}`,
+          'Z',
+        ].join(' ')
+        return { path, innerR, outerR, startAngle, endAngle }
+      })()
+    : null
+
+  return { renderedStars, orbitPaths, dividers, highlight }
 })
 
 // ═══════════════════════════════════════════════════════════════
@@ -203,51 +249,7 @@ function wobblyCirclePath(r: number, wobble = 1.2): string {
   ].join(' ')
 }
 
-const orbitPaths = computed(() => RINGS.map((r) => wobblyCirclePath(r)))
-
 const innerDashedPath = computed(() => wobblyCirclePath(CENTER_VOID + 2, 0.6))
-
-// ═══════════════════════════════════════════════════════════════
-// SVG: sector dividers
-// ═══════════════════════════════════════════════════════════════
-const dividers = computed(() =>
-  BRANCHES.map((br) => {
-    const angle = BRANCH_TO_ANGLE[br] ?? 0
-    const p1 = pol(angle, RINGS[0])
-    const p2 = pol(angle, RINGS[RINGS.length - 1] + 8)
-    return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, key: br }
-  }),
-)
-
-// ═══════════════════════════════════════════════════════════════
-// SVG: 30° selection arc
-// ═══════════════════════════════════════════════════════════════
-const highlight = computed(() => {
-  const idx = props.selectedIndex
-  const palace = props.palaces[idx]
-  if (!palace) return null
-
-  const startAngle = BRANCH_TO_ANGLE[palace.earthlyBranch] ?? 0
-  const endAngle = startAngle + PALACE_SECTOR_DEG
-  const innerR = RINGS[0] - 5
-  const outerR = RINGS[3] + 5
-
-  const si = pol(startAngle, innerR)
-  const so = pol(startAngle, outerR)
-  const ei = pol(endAngle, innerR)
-  const eo = pol(endAngle, outerR)
-
-  const path = [
-    `M ${si.x} ${si.y}`,
-    `L ${so.x} ${so.y}`,
-    `A ${outerR} ${outerR} 0 0 1 ${eo.x} ${eo.y}`,
-    `L ${ei.x} ${ei.y}`,
-    `A ${innerR} ${innerR} 0 0 0 ${si.x} ${si.y}`,
-    'Z',
-  ].join(' ')
-
-  return { path, innerR, outerR, startAngle, endAngle }
-})
 
 function arcEdgePoint(angle: number, r: number) {
   return pol(angle, r)
@@ -352,7 +354,7 @@ function focusLabel(idx: number) {
 
       <!-- 5 条手绘轨道圈 -->
       <path
-        v-for="(d, i) in orbitPaths"
+        v-for="(d, i) in chartGeometry.orbitPaths"
         :key="`ring-${i}`"
         :d="d"
         fill="none"
@@ -383,32 +385,32 @@ function focusLabel(idx: number) {
 
       <!-- 12 条扇形分隔 -->
       <line
-        v-for="d in dividers"
+        v-for="d in chartGeometry.dividers"
         :key="`div-${d.key}`"
         :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
         class="svg-stroke-cinnabar" stroke-width="0.5" opacity="0.18"
       />
 
       <!-- 选中扇区高亮 -->
-      <g v-if="highlight">
+      <g v-if="chartGeometry.highlight">
         <path
-          :d="highlight.path"
+          :d="chartGeometry.highlight.path"
           class="svg-fill-cinnabar-6 svg-stroke-cinnabar-15"
           stroke-width="0.5"
           filter="url(#sel-glow)"
         />
         <line
-          :x1="arcEdgePoint(highlight.startAngle, highlight.innerR).x"
-          :y1="arcEdgePoint(highlight.startAngle, highlight.innerR).y"
-          :x2="arcEdgePoint(highlight.startAngle, highlight.outerR).x"
-          :y2="arcEdgePoint(highlight.startAngle, highlight.outerR).y"
+          :x1="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.innerR).x"
+          :y1="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.innerR).y"
+          :x2="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.outerR).x"
+          :y2="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.outerR).y"
           class="svg-stroke-cinnabar-30" stroke-width="1.2"
         />
         <line
-          :x1="arcEdgePoint(highlight.endAngle, highlight.innerR).x"
-          :y1="arcEdgePoint(highlight.endAngle, highlight.innerR).y"
-          :x2="arcEdgePoint(highlight.endAngle, highlight.outerR).x"
-          :y2="arcEdgePoint(highlight.endAngle, highlight.outerR).y"
+          :x1="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.innerR).x"
+          :y1="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.innerR).y"
+          :x2="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.outerR).x"
+          :y2="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.outerR).y"
           class="svg-stroke-cinnabar-30" stroke-width="1.2"
         />
       </g>
@@ -437,7 +439,7 @@ function focusLabel(idx: number) {
     <!-- ── 星曜层 ── -->
     <div class="stars-layer">
       <button
-        v-for="star in renderedStars"
+        v-for="star in chartGeometry.renderedStars"
         :key="star.id"
         type="button"
         tabindex="-1"
