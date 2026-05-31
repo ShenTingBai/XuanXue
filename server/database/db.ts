@@ -115,6 +115,8 @@ export async function initDb(): Promise<void> {
 
     db.run(CREATE_PROFILES_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
+    // Migration: rename token→token_hash for SHA-256 session storage (existing DBs)
+    try { db.run("ALTER TABLE sessions RENAME COLUMN token TO token_hash") } catch { /* column already token_hash or doesn't exist */ }
     db.run(CREATE_DIVINATION_TABLE)
     db.run(INDEX_SESSIONS_PROFILE)
     db.run(INDEX_SESSIONS_TOKEN_HASH)
@@ -153,8 +155,6 @@ export async function initDb(): Promise<void> {
 
     const migrations: { version: number; sql: string }[] = [
       // Future migrations go here — add new entries with incrementing version numbers
-      // Example:
-      // { version: 1, sql: "ALTER TABLE sessions ADD COLUMN expires_at TEXT" },
     ]
 
     const appliedMigrations = new Set(
