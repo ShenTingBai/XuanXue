@@ -12,6 +12,7 @@
 -->
 <script setup lang="ts">
 import { computed, ref, nextTick } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import { BRANCH_TO_ANGLE, getStarInterpretation, getStarColorClass } from '~/constants/ziwei'
 import type { StarColorClass } from '~/constants/ziwei'
@@ -50,6 +51,11 @@ const emit = defineEmits<{ select: [index: number] }>()
 // ═══════════════════════════════════════════════════════════════
 const chartContainer = ref<HTMLDivElement>()
 const tooltipRef = ref<HTMLDivElement>()
+const labelButtonRefs = ref<HTMLButtonElement[]>([])
+
+function assignLabelRef(el: Element | ComponentPublicInstance | null, idx: number) {
+  if (el) labelButtonRefs.value[idx] = el as HTMLButtonElement
+}
 
 // ═══════════════════════════════════════════════════════════════
 // Helpers
@@ -252,7 +258,7 @@ const tooltipVisible = ref(false)
 const tooltipText = ref('')
 const tooltipStyle = ref({ left: '0px', top: '0px' })
 
-function onStarEnter(e: MouseEvent, star: CelestialStar) {
+function onStarEnter(e: MouseEvent | FocusEvent, star: CelestialStar) {
   const container = chartContainer.value
   const tipEl = tooltipRef.value
   if (!container || !tipEl) return
@@ -299,11 +305,21 @@ function onLabelKeydown(e: KeyboardEvent, i: number) {
     emit('select', i)
   } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
     e.preventDefault()
-    emit('select', (i + 1) % 12)
+    const next = (i + 1) % 12
+    emit('select', next)
+    focusLabel(next)
   } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
     e.preventDefault()
-    emit('select', (i + 11) % 12)
+    const next = (i + 11) % 12
+    emit('select', next)
+    focusLabel(next)
   }
+}
+
+function focusLabel(idx: number) {
+  nextTick(() => {
+    labelButtonRefs.value[idx]?.focus()
+  })
 }
 </script>
 
@@ -402,11 +418,12 @@ function onLabelKeydown(e: KeyboardEvent, i: number) {
       <button
         v-for="label in palaceLabels"
         :key="`label-${label.idx}`"
+        :ref="(el) => assignLabelRef(el, label.idx)"
         type="button"
         class="palace-label"
         :class="{ 'pl-ming': label.isMing, 'pl-sel': label.idx === selectedIndex }"
         :style="{ left: label.pctX + '%', top: label.pctY + '%' }"
-        :tabindex="label.idx === mingGongIndex ? 0 : -1"
+        :tabindex="label.idx === selectedIndex ? 0 : -1"
         :aria-label="`${label.name} ${label.branch}宫`"
         @click="emit('select', label.idx)"
         @keydown="onLabelKeydown($event, label.idx)"
@@ -438,9 +455,12 @@ function onLabelKeydown(e: KeyboardEvent, i: number) {
           '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
         }"
         :aria-label="star.name + (star.mutagen ? ' 化' + star.mutagen : '')"
+        :aria-describedby="tooltipVisible && tooltipText.startsWith(star.name) ? 'ziwei-star-tooltip' : undefined"
         @click="emit('select', star.palaceIdx)"
         @mouseenter="onStarEnter($event, star)"
         @mouseleave="onStarLeave"
+        @focus="onStarEnter($event, star)"
+        @blur="onStarLeave"
       >
         <span class="st-orb" :class="`cls-${star.colorClass}`" />
         <span class="st-label">{{ star.name }}</span>
@@ -463,6 +483,7 @@ function onLabelKeydown(e: KeyboardEvent, i: number) {
     <!-- ── Tooltip ── -->
     <div
       ref="tooltipRef"
+      id="ziwei-star-tooltip"
       class="star-tooltip"
       :class="{ 'tp-vis': tooltipVisible }"
       :style="tooltipStyle"
