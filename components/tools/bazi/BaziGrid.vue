@@ -1,11 +1,5 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.05s' }">
-    <div class="section-header section-header--tool">
-      <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">命</span>
-      <h2>四柱排盘</h2>
-    </div>
-
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       年柱代表家族根基，月柱代表成长环境，日柱代表你自己和婚姻，时柱代表晚年与子女。
     </p>

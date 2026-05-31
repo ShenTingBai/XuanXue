@@ -1,10 +1,5 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.15s' }">
-    <div class="section-header section-header--tool section-header--tool-light">
-      <span class="bar" aria-hidden="true"></span>
-      <h2>神煞</h2>
-    </div>
-
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       神煞是命局中的特殊标记，吉神代表先天福分，凶煞提示需留意之处。
     </p>

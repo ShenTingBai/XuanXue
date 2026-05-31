@@ -1,10 +1,5 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.3s' }">
-    <div class="section-header section-header--tool section-header--tool-light">
-      <span class="bar" aria-hidden="true"></span>
-      <h2>日主分析</h2>
-    </div>
-
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       日主是你出生那天的天干，代表你的核心特质。"喜用神"是对你有利的能量，
       "忌神"是容易与你有冲突的能量，生活中可有意平衡。

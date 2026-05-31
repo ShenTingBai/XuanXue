@@ -1,10 +1,5 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.4s' }">
-    <div class="section-header section-header--tool section-header--tool-light">
-      <span class="bar" aria-hidden="true"></span>
-      <h2>大运</h2>
-    </div>
-
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       大运是你人生每十年一段的运势走向。高亮的卡片对应你当前的年龄段。
     </p>

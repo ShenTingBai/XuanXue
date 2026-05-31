@@ -1,10 +1,6 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.5s' }">
-    <div class="flex items-center gap-3 flex-wrap">
-      <div class="section-header section-header--tool section-header--tool-light mb-0">
-        <span class="bar" aria-hidden="true"></span>
-        <h2>流年详批（&plusmn;{{ range }}年）</h2>
-      </div>
+    <div class="flex items-center gap-3 flex-wrap mb-3">
       <span class="inline-flex items-center gap-1.5 text-xs font-sans text-ink-medium">
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(80) }" aria-hidden="true"></span>75+ 顺遂
         <span class="inline-block w-2 h-2 rounded-full" :style="{ background: scoreColor(65) }" aria-hidden="true"></span>60-74 平稳

@@ -1,10 +1,5 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.2s' }">
-    <div class="section-header section-header--tool section-header--tool-light">
-      <span class="bar" aria-hidden="true"></span>
-      <h2>五行旺衰</h2>
-    </div>
-
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       五行（金木水火土）在你八字中的分布。柱条越长，该能量越强，对你影响越大。
     </p>
