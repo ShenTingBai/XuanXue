@@ -146,3 +146,60 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
     })),
   }
 }
+
+// ── 纯数据接口（匹配序列化形状，用于快照恢复） ──
+
+export interface ZiWeiStarData {
+  name: string
+  type: string
+  brightness?: string
+  mutagen?: string
+}
+
+export interface ZiWeiPalaceData {
+  index: number
+  name: string
+  earthlyBranch: string
+  heavenlyStem: string
+  isBodyPalace: boolean
+  majorStars: ZiWeiStarData[]
+  minorStars: ZiWeiStarData[]
+  adjectiveStars: ZiWeiStarData[]
+  decadalRange: [number, number]
+  ages: number[]
+}
+
+export interface ZiWeiAstrolabeData {
+  earthlyBranchOfSoulPalace: string
+  earthlyBranchOfBodyPalace: string
+  fiveElementsClass: string
+  soul: string
+  body: string
+  solarDate: string
+  lunarDate: string
+  chineseDate: string
+  gender: 'male' | 'female'
+  palaces: ZiWeiPalaceData[]
+}
+
+/**
+ * 从序列化的纯数据恢复 astrolabe（快照恢复）。
+ * 利用结构类型兼容性：组件只读属性，不调方法，强制转型安全。
+ * 关键：将拍平的 decadalRange 重新映射为 decadal.range。
+ */
+export function deserializeAstrolabe(raw: Record<string, unknown>): IFunctionalAstrolabe | null {
+  if (!raw || !Array.isArray(raw.palaces)) return null
+  try {
+    const data = raw as unknown as ZiWeiAstrolabeData
+    const palaces = data.palaces.map(p => ({
+      ...p,
+      decadal: { range: p.decadalRange },
+    }))
+    return {
+      ...data,
+      palaces,
+    } as unknown as IFunctionalAstrolabe
+  } catch {
+    return null
+  }
+}

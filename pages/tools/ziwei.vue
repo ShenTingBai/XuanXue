@@ -1,6 +1,6 @@
 <!-- pages/tools/ziwei.vue -->
 <script setup lang="ts">
-import { calculateZiWei, getMingGongIndex, serializeAstrolabe } from '~/composables/useZiwei'
+import { calculateZiWei, getMingGongIndex, serializeAstrolabe, deserializeAstrolabe } from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
@@ -178,15 +178,28 @@ async function restoreFromHistory(id: number) {
       `/api/divinations/${id}`,
       { headers },
     )
-    if (record.result_data) {
-      if (record.input_data) {
-        const input = record.input_data as { birthYear: number; birthMonth: number; birthDay: number; birthHour: number | null; gender: 'male' | 'female' | null }
-        birthDate.value = `${input.birthYear}-${String(input.birthMonth).padStart(2, '0')}-${String(input.birthDay).padStart(2, '0')}`
-        birthHour.value = input.birthHour ?? null
-        gender.value = input.gender ?? null
-      }
-      handleCalculate()
+
+    // Restore form fields from input_data
+    if (record.input_data) {
+      const input = record.input_data as { birthYear: number; birthMonth: number; birthDay: number; birthHour: number | null; gender: 'male' | 'female' | null }
+      birthDate.value = `${input.birthYear}-${String(input.birthMonth).padStart(2, '0')}-${String(input.birthDay).padStart(2, '0')}`
+      birthHour.value = input.birthHour ?? null
+      gender.value = input.gender ?? null
     }
+
+    // Try snapshot restore from result_data
+    if (record.result_data) {
+      const deserialized = deserializeAstrolabe(record.result_data as Record<string, unknown>)
+      if (deserialized) {
+        astrolabe.value = deserialized
+        selectedIndex.value = getMingGongIndex(deserialized.palaces)
+        selectedPalace.value = deserialized.palaces[selectedIndex.value] || null
+        return
+      }
+    }
+
+    // Fallback: re-calculate from input_data
+    handleCalculate()
   } catch {
     error.value = '历史记录加载失败，请稍后重试'
   }
