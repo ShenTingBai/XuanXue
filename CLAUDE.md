@@ -113,6 +113,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 - CSP：`default-src 'self'`，`script-src 'unsafe-inline'`（Nuxt 3 hydration 所需）。生产环境强化需通过 Nitro render hooks 或 `@nuxtjs/csp` 实现 nonce 策略以移除 `unsafe-inline`。
 - HSTS（2 年 max-age + preload）、`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、`Referrer-Policy: strict-origin-when-cross-origin`、`Permissions-Policy: camera=(), microphone=(), geolocation=()`。
+- **公开上线前**必须阅读 `docs/pre-deployment-checklist.md`，处理令牌存储、PIN 策略和 CSP nonce 三项安全加固。
 
 ### Git 工作流
 
