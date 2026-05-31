@@ -1,17 +1,12 @@
-import { getProfileIdFromToken, deleteSession } from '../../utils/auth'
+import { deleteSession } from '../../utils/auth'
 import { getClientIp } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 
 export default defineEventHandler(async (event) => {
-  const authHeader = getHeader(event, 'authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const token = (event.context as any).token as string | undefined
+  const profileId = (event.context as any).profileId as number | undefined
 
-  if (!token) {
-    throw createError({ statusCode: 400, statusMessage: '缺少认证信息' })
-  }
-
-  const profileId = getProfileIdFromToken(token)
-  if (!profileId) {
+  if (!token || !profileId) {
     throw createError({ statusCode: 401, statusMessage: '无效的会话' })
   }
 

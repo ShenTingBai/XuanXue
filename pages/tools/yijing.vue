@@ -28,14 +28,16 @@
         <!-- Reset confirmation dialog -->
         <Transition name="confirm-dialog">
           <div
+            ref="confirmDialogRef"
             v-if="showResetConfirm"
             class="fixed inset-0 z-50 flex items-center justify-center bg-ink-dark/20 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-label="确认重新起卦"
             @keydown.escape="cancelReset"
+            @keydown.tab="handleDialogTab"
           >
-            <div class="card-paper-solid rounded-xl p-6 sm:p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
+            <div class="card-paper-solid rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
               <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
               <p class="font-sans text-sm text-ink-medium mb-6">当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。</p>
               <div class="flex gap-3 justify-end">
@@ -89,6 +91,8 @@
               重新占卜
             </button>
           </div>
+
+          <EntertainmentDisclaimer />
         </div>
         <ScrollTopButton
           v-if="showScrollTop"
@@ -111,6 +115,7 @@ import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 useHead({ title: '六爻占卜 - 玄学' })
 
 // State
@@ -125,6 +130,7 @@ const showSaveErrorToast = ref(false)
 const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
 const resultSection = ref<HTMLElement | null>(null)
+const confirmDialogRef = ref<HTMLElement | null>(null)
 
 // Timer refs for setTimeout cleanup
 const coinTimer = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -234,6 +240,39 @@ function clearAllTimers() {
   }
 }
 
+// Reset confirmation dialog focus management
+watch(showResetConfirm, (val) => {
+  if (val) {
+    nextTick(() => {
+      confirmDialogRef.value?.querySelector<HTMLElement>('button')?.focus()
+    })
+  }
+})
+
+function handleDialogTab(e: KeyboardEvent) {
+  const dialog = confirmDialogRef.value
+  if (!dialog) return
+  const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+  ))
+  if (focusable.length === 0) return
+
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+
+  if (e.shiftKey) {
+    if (document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    }
+  } else {
+    if (document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
+
 // Request reset — show confirmation if mid-casting
 function requestReset() {
   if (currentToss.value > 0 && currentToss.value < 6) {
@@ -288,7 +327,7 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
 
     if (!currentProfile?.value?.id) return
 
-    await $fetch('/api/divinations', {
+    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
       headers: getAuthHeaders(),
       body: {

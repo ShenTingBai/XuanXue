@@ -1,5 +1,4 @@
 import { dbGet } from '../../database/db'
-import { getProfileIdFromToken } from '../../utils/auth'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
 
@@ -11,9 +10,7 @@ export default defineEventHandler(async (event) => {
   }
   const id = parseInt(idParam, 10)
 
-  const authHeader = getHeader(event, 'authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-  const profileId = token ? getProfileIdFromToken(token) : null
+  const profileId = (event.context as any).profileId as number | undefined
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }

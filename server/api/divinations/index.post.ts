@@ -1,14 +1,11 @@
 import { dbGet, dbRun } from '../../database/db'
-import { getProfileIdFromToken } from '../../utils/auth'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { DIVINATION_TYPES } from '~/types/api/divination'
 
 const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
 
 export default defineEventHandler(async (event) => {
-  const authHeader = getHeader(event, 'authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-  const profileId = token ? getProfileIdFromToken(token) : null
+  const profileId = (event.context as any).profileId as number | undefined
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }

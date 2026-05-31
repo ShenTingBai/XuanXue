@@ -362,32 +362,35 @@ function computeStartAge(
     return ((isLeap ? 366 : 365) - birthDOY + nextDOY) / 3
   }
 
-  // Backward: look at terms from the PREVIOUS year's cycle
+  // Backward: find the closest 节 BEFORE birth date
+  const termDOYs: number[] = []
+  for (let i = 0; i < 12; i++) {
+    const term = getSolarTerm(birthYear, i)
+    let doy = 0
+    for (let m = 0; m < term.month - 1; m++) doy += monthDays[m]
+    doy += term.day
+    termDOYs.push(doy)
+  }
+
+  // Find the closest term before birth date in the birth year
+  const prevTerms = termDOYs.filter(d => d < birthDOY)
+  if (prevTerms.length > 0) {
+    return (birthDOY - Math.max(...prevTerms)) / 3
+  }
+
+  // Birth is before 小寒 (first term ~Jan 6) of the birth year
+  // The previous term is 大雪 (~Dec 7) of the previous year
   const prevYear = birthYear - 1
   const prevIsLeap = (prevYear % 4 === 0 && prevYear % 100 !== 0) || prevYear % 400 === 0
   const prevMonthDays = [31, prevIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  const prevDaXue = getSolarTerm(prevYear, 10)
+  let prevDaXueDOY = 0
+  for (let m = 0; m < prevDaXue.month - 1; m++) prevDaXueDOY += prevMonthDays[m]
+  prevDaXueDOY += prevDaXue.day
 
-  const prevTermDOYs: number[] = []
-  for (let i = 0; i < 12; i++) {
-    const term = getSolarTerm(prevYear, i)
-    let doy = 0
-    for (let m = 0; m < term.month - 1; m++) doy += prevMonthDays[m]
-    doy += term.day
-    if (i === 11) doy += prevIsLeap ? 366 : 365
-    prevTermDOYs.push(doy)
-  }
-
-  // The "next" term after birth in the previous year's extended cycle
-  const next = prevTermDOYs.filter(d => d > birthDOY)
-  if (next.length > 0) {
-    return (Math.min(...next) - birthDOY) / 3
-  }
-  // Before all terms in previous year too — use 立春 of previous year
-  const prevLiChun = getSolarTerm(prevYear, 0)
-  let prevLiChunDOY = 0
-  for (let m = 0; m < prevLiChun.month - 1; m++) prevLiChunDOY += prevMonthDays[m]
-  prevLiChunDOY += prevLiChun.day
-  return (birthDOY - prevLiChunDOY) / 3
+  // Days from 大雪 of previous year to birth date
+  const daysBetween = birthDOY + (prevIsLeap ? 366 : 365) - prevDaXueDOY
+  return daysBetween / 3
 }
 
 /** Compute da yun (great fortune) cycles */

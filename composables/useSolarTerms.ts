@@ -101,8 +101,8 @@ export function getMonthBranch(year: number, month: number, day: number): typeof
 
   // If before 立春, use the previous cycle (子月 or 丑月)
   if (month < liChun.month || (month === liChun.month && day < liChun.day)) {
-    const prevXiaoHan = getSolarTerm(year - 1, 11)
-    if (month < prevXiaoHan.month || (month === prevXiaoHan.month && day < prevXiaoHan.day)) {
+    const currXiaoHan = getSolarTerm(year, 11)
+    if (month < currXiaoHan.month || (month === currXiaoHan.month && day < currXiaoHan.day)) {
       return '子'
     } else {
       return '丑'

@@ -14,6 +14,6 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
     setupFiles: ['tests/helpers/vitest-setup.ts'],
-    passWithNoTests: true,
+    passWithNoTests: process.env.CI ? false : true,
   },
 })

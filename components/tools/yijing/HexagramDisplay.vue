@@ -181,8 +181,8 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   flex-direction: column-reverse;
   gap: 5px;
   padding: 14px 16px 14px 10px;
-  background: rgba(44, 24, 16, 0.035);
-  border: 1px solid rgba(44, 24, 16, 0.08);
+  background: color-mix(in srgb, var(--color-ink) 3.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
   border-radius: 10px;
 }
 
@@ -204,7 +204,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.55rem;
   line-height: 1;
-  color: #7A6A5C;
+  color: var(--color-ink-medium);
   letter-spacing: 0;
 }
 
@@ -219,7 +219,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   display: block;
   height: 6px;
   border-radius: 3px;
-  background: #1E1210;
+  background: var(--color-ink-dark);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -249,7 +249,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 .yao-judgment {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.7rem;
-  color: #6B5B4F;
+  color: var(--color-ink-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -262,33 +262,33 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #C62828;
+  background: var(--color-cinnabar);
   flex-shrink: 0;
   animation: pulseDot 2s ease-in-out infinite;
 }
 
 /* ── Changing line glow ── */
 .yao-line--changing .yao-bar {
-  background: #C62828;
+  background: var(--color-cinnabar);
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
 .yao-line--changing .yao-pos {
-  color: #C62828;
+  color: var(--color-cinnabar);
 }
 
 .yao-line--changing .yao-judgment {
-  color: #C62828;
+  color: var(--color-cinnabar);
 }
 
 /* Shi/Ying styling */
 .yao-line--shi .yao-pos {
-  color: #C62828;
+  color: var(--color-cinnabar);
   font-weight: 600;
 }
 
 .yao-line--ying .yao-pos {
-  color: #7A5E12;
+  color: var(--color-gold);
   font-weight: 600;
 }
 
@@ -301,9 +301,9 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.85rem;
   line-height: 1.7;
-  color: #2C1810;
+  color: var(--color-ink);
   padding-left: 12px;
-  border-left: 3px solid rgba(198, 40, 40, 0.45);
+  border-left: 3px solid color-mix(in srgb, var(--color-cinnabar) 45%, transparent);
 }
 
 /* ── Metadata ── */
@@ -320,16 +320,16 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  color: #7A6A5C;
+  color: var(--color-ink-medium);
 }
 
 .meta-label {
-  color: #6B5B4F;
+  color: var(--color-ink-medium);
   opacity: 0.6;
 }
 
 .meta-value {
-  color: #6B5B4F;
+  color: var(--color-ink-medium);
   font-weight: 500;
 }
 
@@ -345,13 +345,13 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .meta-divider {
-  color: #D4C5B0;
+  color: var(--color-ink-faint);
   margin: 0 6px;
   font-weight: 300;
 }
 
 .meta-item--changing .meta-value {
-  color: #C62828;
+  color: var(--color-cinnabar);
 }
 
 /* ── Responsive ── */
@@ -402,8 +402,8 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0px #C62828; }
-  50% { box-shadow: 0 0 8px #C62828; }
+  0%, 100% { box-shadow: 0 0 0px var(--color-cinnabar); }
+  50% { box-shadow: 0 0 8px var(--color-cinnabar); }
 }
 
 @keyframes pulseDot {

@@ -13,6 +13,7 @@ import ConstellationNav from '~/components/tools/constellation/Nav.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
@@ -189,6 +190,8 @@ function dismissRestoreError() {
           </button>
         </template>
 
+        <h1 class="sr-only">星座分析</h1>
+
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">
           {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
@@ -330,6 +333,8 @@ function dismissRestoreError() {
             @close="showHistoryModal = false"
             @restore="onHistoryRestore"
           />
+
+          <EntertainmentDisclaimer />
           </div>
         </template>
       </ToolPageLayout>

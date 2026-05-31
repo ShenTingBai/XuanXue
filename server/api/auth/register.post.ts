@@ -29,6 +29,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: '昵称长度不能超过20个字符' })
   }
 
+  // Apply NFC Unicode normalization and restrict character set
+  nickname = nickname.normalize('NFC')
+  if (!/^[一-鿿\w-]{2,20}$/.test(nickname)) {
+    throw createError({ statusCode: 400, statusMessage: '昵称仅支持中文、字母、数字、下划线和连字符（2-20字）' })
+  }
+
   const existing = dbGet('SELECT id FROM profiles WHERE nickname = ?', [nickname])
   if (existing) {
     throw createError({ statusCode: 409, statusMessage: '该昵称已被使用' })
@@ -53,7 +59,7 @@ export default defineEventHandler(async (event) => {
 
   const token = createSessionToken(result.lastInsertRowid)
 
-  logSecurityEvent('register', result.lastInsertRowid as number, clientIp, `New user ${nickname} registered`)
+  logSecurityEvent('register', result.lastInsertRowid as number, clientIp, 'New user registered')
 
   return { token, profile: toSafeProfile(profile!) }
 })

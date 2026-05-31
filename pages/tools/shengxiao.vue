@@ -18,6 +18,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 useHead({ title: '生肖 - 玄学' })
 
@@ -106,7 +107,7 @@ async function saveDivinationResult(result: ShengXiaoResult, representativeYear:
         body: {
           type: 'shengxiao',
           input_data: inputData,
-          result_data: JSON.parse(JSON.stringify(result)),
+          result_data: structuredClone(result),
         },
       })
       savedDivinationId.value = saveRes.id
@@ -185,6 +186,8 @@ async function restoreFromHistory(id: number) {
             </button>
           </div>
         </template>
+
+        <h1 class="sr-only">生肖排盘</h1>
 
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">
@@ -329,6 +332,8 @@ async function restoreFromHistory(id: number) {
           </div>
 
           </div>
+
+          <EntertainmentDisclaimer />
         </template>
       </ToolPageLayout>
 

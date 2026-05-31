@@ -66,18 +66,18 @@ function focusTab(idx: number): void {
 }
 
 .tab-inactive {
-  color: #6B5B4F;
+  color: var(--color-ink-medium);
 }
 .tab-inactive:hover {
-  color: #6B5B4F;
-  background: rgba(107, 91, 79, 0.04);
+  color: var(--color-ink-medium);
+  background: color-mix(in srgb, var(--color-ink-medium) 4%, transparent);
 }
 
 .tab-active {
-  color: #1A0F0A;
-  background: #F5F0E8;
+  color: var(--color-ink-darkest);
+  background: var(--color-paper);
   box-shadow:
-    0 1px 3px rgba(93, 78, 55, 0.1),
-    0 0 0 1px rgba(93, 78, 55, 0.06);
+    0 1px 3px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-ink-muted) 6%, transparent);
 }
 </style>

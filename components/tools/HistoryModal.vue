@@ -34,6 +34,17 @@ function trapFocusBack() {
   closeButtonRef.value?.focus()
 }
 
+function trapFocusForward() {
+  if (listRef.value) {
+    const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('[role="option"]'))
+    if (items.length > 0) {
+      items[items.length - 1].focus()
+      return
+    }
+  }
+  closeButtonRef.value?.focus()
+}
+
 async function fetchHistory() {
   loading.value = true
   records.value = []
@@ -157,6 +168,12 @@ function onListboxFocus() {
           @click.stop
           @keydown="handleKeydown"
         >
+          <!-- Top focus trap sentinel — catches Shift+Tab from close button -->
+          <div
+            tabindex="0"
+            class="focus-trap-sentinel"
+            @focus="trapFocusForward"
+          />
           <!-- ── Header ── -->
           <div class="px-8 pt-8 pb-4 flex-shrink-0">
             <!-- Top ink line -->
@@ -259,7 +276,6 @@ function onListboxFocus() {
           <div
             tabindex="0"
             class="focus-trap-sentinel"
-            aria-hidden="true"
             @focus="trapFocusBack"
           />
         </div>

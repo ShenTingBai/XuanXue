@@ -117,11 +117,11 @@ const transformations = computed(() => {
   padding: 1px 5px;
   border-radius: 2px;
   letter-spacing: 0.04em;
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--font-sans);
   white-space: nowrap;
 }
-.mutagen-tag.禄 { background: rgba(198,40,40,0.1); color: #C62828; border: 0.5px solid rgba(198,40,40,0.15); }
+.mutagen-tag.禄 { background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
 .mutagen-tag.权 { background: rgba(74,140,111,0.1); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.15); }
 .mutagen-tag.科 { background: rgba(107,168,200,0.1); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.15); }
-.mutagen-tag.忌 { background: rgba(93,78,55,0.07); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.1); }
+.mutagen-tag.忌 { background: color-mix(in srgb, var(--color-ink-muted) 7%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
 </style>

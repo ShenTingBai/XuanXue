@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
   const profile = dbGet('SELECT * FROM profiles WHERE nickname = ?', [nickname])
 
   if (!profile) {
-    logSecurityEvent('login_failed', null, clientIp, `Failed login attempt for ${nickname}`)
+    logSecurityEvent('login_failed', null, clientIp, 'Failed login attempt')
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
   )
 
   if (recentFailures && (recentFailures.count as number) >= 10) {
-    logSecurityEvent('login_failed', profile.id as number, clientIp, `Account locked for ${nickname}`)
+    logSecurityEvent('login_failed', profile.id as number, clientIp, 'Account locked')
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
   // Verify PIN using hashed comparison
   const pinValid = verifyPin(pin, storedPin)
   if (!pinValid) {
-    logSecurityEvent('login_failed', profile.id as number, clientIp, `Wrong PIN for ${nickname}`)
+    logSecurityEvent('login_failed', profile.id as number, clientIp, 'Wrong PIN')
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
   }
 
@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
 
   const token = createSessionToken(profile.id as number)
 
-  logSecurityEvent('login_success', profile.id as number, clientIp, `User ${nickname} logged in`)
+  logSecurityEvent('login_success', profile.id as number, clientIp, 'Login successful')
 
   return { token, profile: toSafeProfile(profile) }
 })

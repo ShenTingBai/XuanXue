@@ -23,7 +23,7 @@
           @click.stop
         >
           <!-- Scroll-rod top ornament -->
-          <div class="h-0.5 flex-shrink-0" style="background: linear-gradient(90deg, transparent, rgba(198,40,40,0.35) 20%, #C62828 50%, rgba(198,40,40,0.35) 80%, transparent);" />
+          <div class="h-0.5 flex-shrink-0" style="background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 20%, var(--color-cinnabar) 50%, color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 80%, transparent);" />
           <div class="h-px bg-ink-faint/10 flex-shrink-0" />
 
           <!-- Drag handle -->
@@ -167,8 +167,8 @@ function handleKeydown(e: KeyboardEvent) {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid rgba(107, 91, 79, 0.35);
-  color: rgba(107, 91, 79, 0.4);
+  border: 1.5px solid color-mix(in srgb, var(--color-ink-medium) 35%, transparent);
+  color: color-mix(in srgb, var(--color-ink-medium) 40%, transparent);
   background: transparent;
   cursor: pointer;
   transition:
@@ -182,12 +182,12 @@ function handleKeydown(e: KeyboardEvent) {
   line-height: 1;
 }
 .sheet-close-btn:hover {
-  color: #C62828;
-  border-color: rgba(198, 40, 40, 0.55);
-  background-color: rgba(198, 40, 40, 0.04);
+  color: var(--color-cinnabar);
+  border-color: color-mix(in srgb, var(--color-cinnabar) 55%, transparent);
+  background-color: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
 }
 .sheet-close-btn:focus-visible {
-  outline: 2px solid #C62828;
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
 }
 

@@ -14,6 +14,7 @@ import ZiWeiDetailPanel from '~/components/tools/ziwei/ZiWeiDetailPanel.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
 import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
@@ -134,7 +135,7 @@ async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   const genderLabel = gender.value === 'male' ? '男' : '女'
   const historyLabel = `${birthDate.value} ${hourLabel} ${genderLabel} | ${mingLabel} | ${astroData.fiveElementsClass}`
   try {
-    await $fetch('/api/divinations', {
+    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
       headers,
       body: {
@@ -211,8 +212,9 @@ async function restoreFromHistory(id: number) {
     <h1 class="sr-only">紫微斗数</h1>
 
     <!-- Initial loading / auth guard -->
-    <div v-if="!ready" class="flex items-center justify-center py-20">
+    <div v-if="!ready" class="flex items-center justify-center py-20" role="status" aria-live="polite">
       <div class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin" />
+      <span class="sr-only">正在加载命盘...</span>
     </div>
 
     <!-- Not logged in -->
@@ -347,6 +349,8 @@ async function restoreFromHistory(id: number) {
             <span>浏览历史</span>
           </button>
         </div>
+
+        <EntertainmentDisclaimer />
 
       </div>
     </template>

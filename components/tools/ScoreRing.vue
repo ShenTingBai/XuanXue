@@ -23,6 +23,7 @@
         :stroke-dashoffset="dashOffset"
         :stroke="computedStrokeColor"
         class="score-ring-fill"
+        :style="{ filter: `drop-shadow(0 0 3px ${computedStrokeColor}4D)` }"
       />
     </svg>
     <div class="score-ring-text" aria-hidden="true">
@@ -96,7 +97,6 @@ const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
 
 .score-ring-fill {
   transition: stroke-dashoffset 1s ease-out;
-  filter: drop-shadow(0 0 3px rgba(198, 40, 40, 0.3));
 }
 
 .score-ring-text {
@@ -120,6 +120,6 @@ const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
   margin-top: 2px;
-  color: #7A6A5C;
+  color: var(--color-ink-medium);
 }
 </style>
