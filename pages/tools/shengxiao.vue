@@ -12,7 +12,6 @@ import PersonalityCard from '~/components/tools/shengxiao/Personality.vue'
 import CompatibilityGrid from '~/components/tools/shengxiao/CompatibilityGrid.vue'
 import AnimalNav from '~/components/tools/shengxiao/AnimalNav.vue'
 import FortuneBars from '~/components/tools/FortuneBars.vue'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
@@ -222,7 +221,7 @@ async function restoreFromHistory(id: number) {
           <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算生肖排盘</p>
           <NuxtLink
             :to="`/profile/${currentProfile?.id}`"
-            class="btn-seal inline-flex"
+            class="btn-cin inline-flex"
           >
             <span>前往编辑档案</span>
           </NuxtLink>
@@ -289,8 +288,12 @@ async function restoreFromHistory(id: number) {
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->
-          <div class="fade-in card-paper-solid rounded-xl mt-6" :style="{ '--delay': '0.25s' }">
-            <InkDivider>幸运信息</InkDivider>
+          <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.25s' }">
+            <div class="section-header section-header--tool">
+              <span class="bar" aria-hidden="true"></span>
+              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">幸</span>
+              <h2>幸运信息</h2>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-8">
               <div>
                 <h4 class="font-sans text-ink-medium text-sm mb-2">幸运数字</h4>
@@ -309,8 +312,12 @@ async function restoreFromHistory(id: number) {
 
           <PersonalityCard :result="result" />
 
-          <div class="fade-in card-paper-solid rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
-            <InkDivider>{{ currentYear }}年流年运势</InkDivider>
+          <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
+            <div class="section-header section-header--tool">
+              <span class="bar" aria-hidden="true"></span>
+              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">年</span>
+              <h2>{{ currentYear }}年流年运势</h2>
+            </div>
             <div class="p-8">
               <FortuneBars
                 :items="[
@@ -332,7 +339,7 @@ async function restoreFromHistory(id: number) {
               @click="computeResult"
               @keydown.enter="computeResult"
               @keydown.space.prevent="computeResult"
-              class="btn-seal"
+              class="btn-cin"
             >
               <span>刷新结果</span>
             </button>
@@ -342,7 +349,7 @@ async function restoreFromHistory(id: number) {
             <button
               @click="scrollToAnimalNav"
               @keydown.space.prevent="scrollToAnimalNav"
-              class="btn-seal"
+              class="btn-cin"
             >
               <span>切换生肖</span>
             </button>
@@ -350,7 +357,7 @@ async function restoreFromHistory(id: number) {
               @click="showHistoryModal = true"
               @keydown.enter="showHistoryModal = true"
               @keydown.space.prevent="showHistoryModal = true"
-              class="btn-seal"
+              class="btn-cin"
               aria-haspopup="dialog"
             >
               <span>浏览历史</span>
