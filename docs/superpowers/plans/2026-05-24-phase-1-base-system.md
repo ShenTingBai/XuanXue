@@ -1,5 +1,7 @@
 # Phase 1: 基础系统 Implementation Plan
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the core Nuxt 3 project with SQLite, user login (nickname + PIN), and profile management.

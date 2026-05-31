@@ -1,5 +1,7 @@
 # 紫微斗数 · 天星图重设计 实施计划
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. **The implementation sub-agent MUST invoke the `frontend-design` skill before producing code** — see Task 0.
 
 **Goal:** 完全重写 `components/tools/ziwei/ZiWeiCelestialChart.vue`，使天星图视觉与

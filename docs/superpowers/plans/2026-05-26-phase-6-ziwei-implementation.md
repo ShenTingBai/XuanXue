@@ -1,5 +1,7 @@
 # Ziwei Doushu (紫微斗数) — Phase 6 Implementation Plan
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a complete Ziwei Doushu astrolabe tool with 3×4 palace grid, celestial star chart (天星图), tab switching between views, right-sidebar detail panel, and rule-template interpretations.

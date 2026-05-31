@@ -1,5 +1,7 @@
 # Phase 3 — 八字排盘工具设计文档
 
+> **状态：已完成** — 对应设计已实现
+>
 > **For agentic workers:** This spec covers UI design, calculation engine, and component architecture for the BaZi (Four Pillars) tool. Implementation follows via superpowers:writing-plans → superpowers:subagent-driven-development.
 
 **Goal:** 在 Phase 2 基础之上，实现专业八字排盘工具，完成四柱推演、十神定位、五行旺衰分析和大运排盘。

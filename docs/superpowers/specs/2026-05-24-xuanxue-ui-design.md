@@ -1,5 +1,10 @@
 # 玄学 Web 应用 — UI 设计文档
 
+> **⚠️ 已废弃** — 品牌已升级为"玄·道"，本设计文档已被以下两份文档取代：
+>
+> - [`2026-05-31-xuandao-design-system.md`](2026-05-31-xuandao-design-system.md)（设计系统规范）
+> - [`2026-05-24-xuanxue-interactive-web-design.md`](2026-05-24-xuanxue-interactive-web-design.md)（总设计文档）
+
 ## 概述
 
 玄学 Web 应用的 UI 设计，覆盖 Phase 1 基础系统的全部页面：登录/注册、首页工具网格、档案编辑。

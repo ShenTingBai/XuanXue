@@ -1,5 +1,7 @@
 # Phase 4 — BaZi Enhancement Implementation Plan
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **Goal:** Add ShenSha (神煞) system, LiuNian (流年) annual analysis, and divination result persistence to the existing BaZi page.
 >
 > **Branch:** `phase-4-bazi-enhancement` (created from `phase-3-bazi`)

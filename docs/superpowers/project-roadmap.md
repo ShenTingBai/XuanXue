@@ -49,6 +49,7 @@
 | — | 设计系统落地（玄·道品牌） | 🔄 进行中 | `feat/design-system-rollout` |
 | — | 工具页面视觉适配 | ⏳ 待办 | — |
 | — | 纸纹纹理确认 | ⏳ 待办 | — |
+| Phase 7+ | 功能扩展（太岁/合婚/姓名测试/星盘…） | 📋 规划中 | — |
 
 ## 设计系统落地范围
 
@@ -82,3 +83,4 @@
 | Phase 5 计划 | [`plans/2026-05-26-phase-5-yijing-divination.md`](plans/2026-05-26-phase-5-yijing-divination.md) |
 | Phase 6 计划 | [`plans/2026-05-26-phase-6-ziwei-implementation.md`](plans/2026-05-26-phase-6-ziwei-implementation.md) |
 | 紫微天星图重设计 | [`plans/2026-05-31-ziwei-celestial-redesign.md`](plans/2026-05-31-ziwei-celestial-redesign.md) |
+| Phase 7+ 路线图 | [`plans/2026-05-31-xuandao-phase-7-plus-roadmap.md`](plans/2026-05-31-xuandao-phase-7-plus-roadmap.md) |

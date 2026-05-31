@@ -1,5 +1,7 @@
 # Phase 5 — 六爻占卜 Implementation Plan
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a complete 六爻纳甲占卜 system with coin/number casting, 64-hexagram database, 纳甲装卦 (六亲/六神/世应), 变卦, rule-template interpretation, and auto-save.

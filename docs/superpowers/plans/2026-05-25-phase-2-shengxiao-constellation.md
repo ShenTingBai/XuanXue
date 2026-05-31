@@ -1,5 +1,7 @@
 # Phase 2: 生肖与星座工具 Implementation Plan
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build ShengXiao (zodiac) and Constellation tools with front-end calculation engines, security hardening, and architecture improvements on top of Phase 1.

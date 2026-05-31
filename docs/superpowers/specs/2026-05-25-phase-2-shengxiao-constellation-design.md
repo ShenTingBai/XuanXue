@@ -1,5 +1,7 @@
 # Phase 2 — 生肖与星座工具设计文档
 
+> **状态：已完成** — 对应设计已实现
+>
 > **For agentic workers:** This spec covers UI design, calculation engines, security hardening, and architecture cleanup for Phase 2. Implementation follows via superpowers:writing-plans → superpowers:subagent-driven-development.
 
 **Goal:** 在 Phase 1 基础系统之上，实现生肖排盘和星座运势两个工具页面，同时完成安全增强和架构改进。

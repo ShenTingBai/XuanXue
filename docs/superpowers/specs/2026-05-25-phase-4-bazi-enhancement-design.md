@@ -1,5 +1,7 @@
 # Phase 4 — 八字增强设计文档
 
+> **状态：已完成** — 对应设计已实现
+>
 > **For agentic workers:** This spec covers ShenSha (神煞) calculation, LiuNian (流年) detailed analysis, and divination result persistence. Implementation follows via superpowers:writing-plans → superpowers:subagent-driven-development.
 
 **Goal:** 在 Phase 3 八字排盘基础之上，增加权威全量神煞系统、前后各5年流年详批、以及测算记录自动保存。

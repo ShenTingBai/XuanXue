@@ -1,5 +1,7 @@
 # Phase 4 八字增强 -- UI 设计文档
 
+> **状态：已完成** — 对应设计已实现
+>
 > **Status:** Design specification for ShenShaPanel and LiuNianTimeline components.
 > **Design System:** 墨韵 Ink Resonance (extends existing, no new language).
 > **Branch:** `phase-4-bazi-enhancement`

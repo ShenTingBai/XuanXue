@@ -1,7 +1,7 @@
 ---
 title: 紫微斗数 · 天星图重设计
 date: 2026-05-31
-status: draft
+status: completed
 implementation_skill: frontend-design
 ---
 

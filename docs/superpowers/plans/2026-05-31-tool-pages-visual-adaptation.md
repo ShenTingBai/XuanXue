@@ -1,5 +1,7 @@
 # 工具页面视觉适配 — 实施计划
 
+> **状态：已完成** — 对应功能已合并至 `main`
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 为 5 个工具页面（生肖、星座、六爻、八字、紫微斗数）换上"墨韵 · Ink Resonance"视觉风格

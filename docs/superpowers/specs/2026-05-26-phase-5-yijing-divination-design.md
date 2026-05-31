@@ -1,5 +1,7 @@
 # Phase 5 — 六爻占卜设计文档
 
+> **状态：已完成** — 对应设计已实现
+>
 > **For agentic workers:** This spec covers Yijing (I-Ching / 六爻) divination with full 纳甲装卦 system. Implementation follows via superpowers:writing-plans → superpowers:subagent-driven-development. UI visual design delegated to superpowers:frontend-design.
 
 **Goal:** Build a complete 六爻纳甲占卜 system — number/coin casting, 64-hexagram database, 纳甲装卦 (六亲/六神/世应), 变卦, and rule-template interpretation.
