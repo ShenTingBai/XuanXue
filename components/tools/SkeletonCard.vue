@@ -1,5 +1,5 @@
 <template>
-  <div class="card-paper-solid rounded-xl p-8" aria-hidden="true">
+  <div class="card-warm rounded-xl p-8" aria-hidden="true">
     <div class="skeleton-block w-12 h-12 rounded-lg mb-4" />
     <div class="skeleton-block w-2/3 mb-3" />
     <div class="skeleton-block w-full mb-2" />
