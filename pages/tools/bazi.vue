@@ -278,7 +278,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )

@@ -136,15 +136,16 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; type: string; input_data: any; result_data: any; created_at: string }>(
+    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )
     if (record.result_data) {
       const data = record.result_data
       if (data && typeof data === 'object' && 'animal' in data && 'wuXing' in data && 'fortune' in data) {
-        result.value = data as ShengXiaoResult
-        selectedAnimal.value = getAnimalIndex(data.year)
+        const typedData = data as ShengXiaoResult
+        result.value = typedData
+        selectedAnimal.value = getAnimalIndex(typedData.year)
         restoreError.value = ''
         restoredFromHistory.value = true
         return

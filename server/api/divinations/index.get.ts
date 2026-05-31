@@ -2,8 +2,9 @@ import { dbAll } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
+import { DIVINATION_TYPES } from '~/types/api/divination'
 
-const VALID_TYPES = new Set(['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei'])
+const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
 
 export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
