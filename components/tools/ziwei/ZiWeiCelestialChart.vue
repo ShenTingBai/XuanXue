@@ -652,9 +652,9 @@ function focusLabel(idx: number) {
   /* star-enter: refined deceleration with a hint of overshoot.
      twinkle/drift run on top once the entrance settles. */
   animation:
-    star-enter 600ms cubic-bezier(0.34, 1.32, 0.64, 1) var(--enter-delay, 0ms) forwards,
     twinkle var(--twinkle-dur, 5s) ease-in-out var(--twinkle-delay, 0s) infinite,
-    drift var(--drift-dur, 90s) linear var(--drift-delay, 0s) infinite;
+    drift var(--drift-dur, 90s) linear var(--drift-delay, 0s) infinite,
+    star-enter 600ms cubic-bezier(0.34, 1.32, 0.64, 1) var(--enter-delay, 0ms) forwards;
 }
 
 .star-item:hover { z-index: 10; }
