@@ -280,6 +280,114 @@ const goToLogin = () => {
             </div>
           </div>
         </section>
+
+        <!-- ── 推演之道 ── Philosophy Section ── -->
+        <section
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 relative z-10"
+          aria-labelledby="philosophy-heading"
+        >
+          <div class="max-w-2xl mx-auto">
+            <!-- Vertical cinnabar accent line -->
+            <div class="fade-in flex gap-6 sm:gap-8" :style="{ '--delay': '0.5s' }">
+              <div class="hidden sm:block w-0.5 shrink-0 rounded-full"
+                   style="background: linear-gradient(180deg, rgba(198,40,40,0.3) 0%, rgba(198,40,40,0.08) 50%, transparent 100%);" />
+              <div>
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">道</span>
+                  <h2 id="philosophy-heading" class="font-display text-xl sm:text-2xl text-ink-dark tracking-wider">
+                    推演之道
+                  </h2>
+                </div>
+                <p class="font-sans text-sm sm:text-base text-ink-light/90 leading-[1.9] sm:leading-[2] tracking-wide">
+                  古人仰观天象以察人事流转，俯察地理以明阴阳消长。
+                  <br class="hidden sm:block" />
+                  五千年智慧沉淀为八字、紫微、六爻诸法，<wbr />非为宿命之论，实为知己之途。
+                </p>
+                <p class="font-sans text-sm sm:text-base text-ink-light/90 leading-[1.9] sm:leading-[2] tracking-wide mt-4">
+                  今以术数之理，融现代之器，<wbr />使传统命理之学，<br class="hidden sm:block" />
+                  可为日常之鉴。知己则明，知天则达。
+                </p>
+                <!-- Signature seal -->
+                <div class="flex items-center gap-3 mt-6">
+                  <span class="text-xs text-ink-light/60 font-sans tracking-[0.15em]">—— 玄学 · 命理推演</span>
+                  <span class="seal-mark w-6 h-6 text-[0.5rem]" aria-hidden="true">鉴</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── 如何使用 ── How It Works ── -->
+        <section
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-24 relative z-10"
+          aria-labelledby="howto-heading"
+        >
+          <!-- Section heading -->
+          <div class="fade-in flex items-center justify-center gap-3 mb-10 sm:mb-14" :style="{ '--delay': '0.55s' }">
+            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">用</span>
+            <h2 id="howto-heading" class="font-display text-2xl sm:text-3xl text-ink-dark tracking-wider">
+              开始推演
+            </h2>
+            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">法</span>
+          </div>
+
+          <!-- Three steps -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 max-w-3xl mx-auto">
+            <div v-for="(step, si) in [
+              { num: '一', title: '完善档案', desc: '填写出生信息，建立你的专属命理档案', accent: '#C62828' },
+              { num: '二', title: '选择命理', desc: '从八字、紫微、六爻等术数中选择你想探索的方向', accent: '#3D6B4B' },
+              { num: '三', title: '获取解读', desc: '系统推演生成详尽的命理解读与运势分析', accent: '#2C5F7C' },
+            ]" :key="step.num">
+              <div
+                class="fade-in flex flex-col items-center text-center px-4 py-8 sm:py-6"
+                :style="{ '--delay': `${0.6 + si * 0.1}s` }"
+              >
+                <!-- Step number -->
+                <span
+                  class="font-display text-4xl sm:text-5xl leading-none mb-4"
+                  :style="{ color: step.accent, opacity: 0.25 }"
+                  aria-hidden="true"
+                >
+                  {{ step.num }}
+                </span>
+                <!-- Step title -->
+                <h3 class="font-display text-lg text-ink-dark tracking-wider mb-2">
+                  {{ step.title }}
+                </h3>
+                <!-- Step description -->
+                <p class="font-sans text-sm text-ink-light/80 leading-relaxed max-w-[14rem]">
+                  {{ step.desc }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Final CTA -->
+          <div class="fade-in flex justify-center mt-10 sm:mt-12" :style="{ '--delay': '0.85s' }">
+            <button
+              class="btn-seal"
+              @click="goToLogin"
+            >
+              <span>开 始 推 演</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Footer ── -->
+        <footer class="relative z-10 border-t border-paper-dark/30" role="contentinfo">
+          <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <span class="font-display text-base text-ink-dark tracking-wider">玄学</span>
+                <span class="text-[0.6rem] text-ink-faint">·</span>
+                <span class="text-xs text-ink-light/60 font-sans">命理推演 · 知己知天</span>
+              </div>
+              <p class="text-xs text-ink-faint/40 font-sans">
+                &copy; {{ new Date().getFullYear() }} 玄学 · 仅供娱乐参考
+              </p>
+            </div>
+          </div>
+        </footer>
       </div>
     </template>
 

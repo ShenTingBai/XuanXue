@@ -173,7 +173,8 @@ const saveProfile = async () => {
       birth_hour: null,
       birth_minute: null,
     }
-    body.gender = gender.value ?? null
+    const normalizedGender = gender.value === '' ? null : gender.value
+    body.gender = normalizedGender
     body.birth_date = birthDate.value || null
     body.birth_calendar = birthCalendar.value
     body.birth_hour = birthHour.value ?? null

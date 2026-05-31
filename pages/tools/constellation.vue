@@ -15,6 +15,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
@@ -240,6 +241,12 @@ function dismissRestoreError() {
         <!-- Result -->
         <template v-else-if="result">
           <div aria-live="polite" aria-atomic="true">
+            <!-- Top toolbar -->
+            <ToolToolbar
+              :show-history="true"
+              @history="showHistoryModal = true"
+            />
+
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -276,6 +283,10 @@ function dismissRestoreError() {
               </div>
             </Transition>
           <ConstellationHero :result="result" />
+
+          <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+            今日运势、宜忌速览及星座性格特征
+          </p>
 
           <!-- Action buttons: placed near Hero for quick access -->
           <div class="flex flex-wrap gap-3 justify-center mt-6 mb-6">

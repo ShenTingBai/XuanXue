@@ -19,6 +19,7 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 useHead({ title: '生肖 - 玄学' })
@@ -237,6 +238,12 @@ async function restoreFromHistory(id: number) {
         <!-- Result -->
         <template v-else-if="result">
           <div aria-live="polite" aria-atomic="true">
+            <!-- Top toolbar -->
+            <ToolToolbar
+              :show-history="true"
+              @history="showHistoryModal = true"
+            />
+
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -274,6 +281,11 @@ async function restoreFromHistory(id: number) {
             </Transition>
 
           <ShengXiaoHero :result="result" />
+
+          <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+            下方依次为五行属性、性格特征、幸运信息、流年运势和相性配对
+          </p>
+
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->

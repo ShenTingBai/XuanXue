@@ -23,6 +23,7 @@ import SectionNav from '~/components/tools/bazi/SectionNav.vue'
 import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 
 useHead({ title: '八字排盘 - 玄学' })
 
@@ -452,6 +453,12 @@ function onSectionNavigate(sectionName: string) {
         <!-- Result -->
         <template v-else-if="result">
           <div ref="mainContainer" class="max-w-[48rem] mx-auto relative">
+            <!-- Top toolbar -->
+            <ToolToolbar
+              :show-history="true"
+              @history="showHistoryModal = true"
+            />
+
             <!-- Save error toast -->
             <Transition name="toast">
               <div
@@ -624,14 +631,6 @@ function onSectionNavigate(sectionName: string) {
             <!-- Restored from history notice -->
             <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-6">
               <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
-              <button
-                @click="computeResult"
-                @keydown.enter="computeResult"
-                @keydown.space.prevent="computeResult"
-                class="btn-seal"
-              >
-                <span>重新排盘</span>
-              </button>
             </div>
 
             <!-- Action buttons -->

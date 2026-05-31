@@ -60,6 +60,9 @@
 
         <!-- Results -->
         <div ref="resultSection" v-if="result && !processing" class="mt-8">
+          <!-- Top toolbar -->
+          <ToolToolbar />
+
           <YijingInterpretation :result="result" :score="score" />
 
           <!-- Auto-save placeholder -->
@@ -115,6 +118,7 @@ import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 useHead({ title: '六爻占卜 - 玄学' })
 

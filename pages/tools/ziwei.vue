@@ -16,6 +16,7 @@ import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
 import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
@@ -69,6 +70,11 @@ onMounted(() => {
   }
   if (currentProfile.value.gender) {
     gender.value = currentProfile.value.gender === '男' ? 'male' : 'female'
+  }
+
+  // Auto-calculate if profile has complete birth info
+  if (birthDate.value && birthHour.value !== null && gender.value) {
+    nextTick(() => handleCalculate())
   }
 
   window.addEventListener('scroll', handleScroll, { passive: true })
@@ -283,6 +289,12 @@ async function restoreFromHistory(id: number) {
     <template v-else-if="astrolabe">
       <div class="w-full max-w-[620px] mx-auto">
 
+        <!-- Top toolbar -->
+        <ToolToolbar
+          :show-history="true"
+          @history="showHistoryModal = true"
+        />
+
         <!-- Save error toast -->
         <Transition name="toast">
           <div
@@ -306,6 +318,10 @@ async function restoreFromHistory(id: number) {
           :current-view="currentView"
           @update:current-view="currentView = $event"
         />
+
+        <p class="text-xs text-ink-light/60 text-center mt-2 mb-1 tracking-wide">
+          点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
+        </p>
 
         <!-- View Transition -->
         <Transition name="view-fade" mode="out-in">
