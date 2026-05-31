@@ -43,15 +43,15 @@ defineProps<{
 
     <!-- Major stars -->
     <div class="relative z-[1] px-2 mb-1.5">
-      <div v-if="palace.majorStars.length > 0" class="font-display text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+      <div v-if="palace.majorStars.length > 0" class="font-sans text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {{ palace.majorStars.map(s => s.name).join(' ') }}
       </div>
-      <div v-else class="font-display text-[0.65rem] text-ink-light/50 italic tracking-[0.04em]">空宫</div>
+      <div v-else class="font-sans text-[0.65rem] text-ink-light/50 italic tracking-[0.04em]">空宫</div>
     </div>
 
     <!-- Minor stars -->
     <div v-if="palace.minorStars.length > 0" class="relative z-[1] px-2 pb-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
-      <span class="font-display text-[0.68rem] leading-snug tracking-[0.03em]" style="color: #6B5B4F;">
+      <span class="font-sans text-[0.68rem] leading-snug tracking-[0.03em] text-ink-medium">
         {{ palace.minorStars.map(s => s.name).join(' ') }}
       </span>
     </div>

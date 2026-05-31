@@ -17,12 +17,21 @@ const { getAuthHeaders } = useAuth()
 const records = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
 const loading = ref(false)
 const listRef = ref<HTMLUListElement | null>(null)
+const closeButtonRef = ref<HTMLElement | null>(null)
+const activeOptionIdx = ref(0)
 
 watch(() => props.show, (val) => {
   if (val) {
     fetchHistory()
+    nextTick(() => {
+      closeButtonRef.value?.focus()
+    })
   }
 })
+
+function trapFocusBack() {
+  closeButtonRef.value?.focus()
+}
 
 async function fetchHistory() {
   loading.value = true
@@ -34,7 +43,7 @@ async function fetchHistory() {
       `/api/divinations?type=${props.type}`,
       { headers },
     )
-    records.value = data.slice(0, 10)
+    records.value = data.slice(0, 5)
   } catch {
     records.value = []
   } finally {
@@ -74,11 +83,16 @@ function formatHistoryLabel(inputData: any): string {
     return `${year}年 生肖${getAnimal(year)}`
   }
   if (props.type === 'ziwei') {
-    const { birthDate, gender } = inputData
-    if (!birthDate) return ''
-    let label = `${birthDate}`
-    if (gender) label += ` ${gender === 'male' ? '男' : '女'}`
-    return label
+    // Precomputed rich label stored at save time
+    if (inputData.historyLabel) return inputData.historyLabel as string
+    // Fallback: construct from individual fields
+    const { birthYear, birthMonth, birthDay, birthHour, gender } = inputData
+    if (!birthYear || !birthMonth || !birthDay) return ''
+    const pad = (n: number | undefined) => n ? String(n).padStart(2, '0') : '??'
+    const label = `${birthYear}-${pad(birthMonth)}-${pad(birthDay)}`
+    const hourLabel = birthHour !== undefined && birthHour !== null ? ` 第${birthHour + 1}时` : ''
+    const genderLabel = gender ? ` ${gender === 'male' ? '男' : '女'}` : ''
+    return `${label}${hourLabel}${genderLabel}`
   }
   // constellation
   const { month, day } = inputData
@@ -100,14 +114,21 @@ function handleKeydown(e: KeyboardEvent) {
   if (!listRef.value) return
   const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('[role="option"]'))
   if (items.length === 0) return
-  const currentIdx = items.indexOf(document.activeElement as HTMLElement)
 
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault()
-    const nextIdx = e.key === 'ArrowDown'
-      ? (currentIdx < 0 ? 0 : (currentIdx + 1) % items.length)
-      : (currentIdx < 0 ? items.length - 1 : (currentIdx - 1 + items.length) % items.length)
-    items[nextIdx].focus()
+    activeOptionIdx.value = e.key === 'ArrowDown'
+      ? (activeOptionIdx.value + 1) % items.length
+      : (activeOptionIdx.value - 1 + items.length) % items.length
+    items[activeOptionIdx.value]?.focus()
+  }
+}
+
+function onListboxFocus() {
+  if (!listRef.value) return
+  const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('[role="option"]'))
+  if (items.length > 0 && items[activeOptionIdx.value]) {
+    items[activeOptionIdx.value].focus()
   }
 }
 </script>
@@ -128,6 +149,9 @@ function handleKeydown(e: KeyboardEvent) {
 
         <!-- Card: star almanac scroll -->
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="测算历史记录"
           class="relative card-paper-solid rounded-xl max-w-md w-full max-h-[80vh] flex flex-col overflow-hidden shadow-elevated p-8"
           @click.stop
           @keydown="handleKeydown"
@@ -152,6 +176,7 @@ function handleKeydown(e: KeyboardEvent) {
 
               <!-- Close: "闭" seal button -->
               <button
+                ref="closeButtonRef"
                 class="history-close-btn"
                 @click="emit('close')"
                 @keydown.enter="emit('close')"
@@ -189,6 +214,8 @@ function handleKeydown(e: KeyboardEvent) {
               ref="listRef"
               role="listbox"
               aria-label="历史记录列表"
+              tabindex="0"
+              @focus="onListboxFocus"
             >
               <li
                 v-for="(rec, idx) in records"
@@ -196,7 +223,7 @@ function handleKeydown(e: KeyboardEvent) {
                 class="history-record group cursor-pointer"
                 :style="{ animationDelay: `${idx * 0.04}s` }"
                 role="option"
-                tabindex="0"
+                :tabindex="idx === activeOptionIdx ? 0 : -1"
                 @click="onClickRecord(rec.id)"
                 @keydown.enter="onClickRecord(rec.id)"
                 @keydown.space.prevent="onClickRecord(rec.id)"
@@ -226,6 +253,14 @@ function handleKeydown(e: KeyboardEvent) {
             </ul>
 
           </div>
+
+          <!-- Focus trap sentinel — cycles Tab back to close button -->
+          <div
+            tabindex="0"
+            class="focus-trap-sentinel"
+            aria-hidden="true"
+            @focus="trapFocusBack"
+          />
         </div>
       </div>
     </Transition>

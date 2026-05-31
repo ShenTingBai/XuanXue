@@ -182,7 +182,8 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - 自动保存是静默的 fire-and-forget——保存失败不阻塞用户查看结果。
 - GET 列表排除 `result_data`（仅元数据以节省带宽），GET 详情包含 `result_data` 并校验归属（`profile_id` 不匹配返回 403）。
 - `input_data` 和 `result_data` 在 SQLite 中以 JSON 字符串存储；读取时通过 `safeJsonParse()` 反序列化。
-- BaZi 页面的历史下拉显示最近 20 条记录；点击恢复完整结果并重新计算神煞/流年。
+- HistoryModal（通用历史弹窗）展示最近 **5 条**记录，服务器返回 LIMIT 20，客户端 `slice(0, 5)`。
+- BaZi 页面历史下拉同样通过 HistoryModal 展示，点击恢复完整结果并重新计算神煞/流年。
 
 ### Nuxt 自动导入注意事项
 

@@ -37,7 +37,7 @@
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot major" :class="getStarColor(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
+            <span class="star-dot major" :class="getStarColorClass(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
             <span class="star-name">{{ star.name }}</span>
             <span v-if="star.brightness" class="star-brightness">{{ star.brightness }}</span>
           </div>
@@ -56,11 +56,30 @@
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot" :class="getStarColor(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
+            <span class="star-dot" :class="getStarColorClass(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
             <span class="star-name">{{ star.name }}</span>
           </div>
         </div>
         <p v-else class="detail-empty-text">本宫无辅星</p>
+      </div>
+
+      <!-- Adjective stars (shown only in detail panel, hidden from celestial chart) -->
+      <div class="detail-section">
+        <h4 class="detail-section-title">
+          <span class="title-dot"></span>杂曜
+          <span class="text-[10px] text-ink-light/40 font-normal ml-1">（天星图不显）</span>
+        </h4>
+        <div v-if="detailView.adjectiveStars.length > 0" class="detail-star-list">
+          <div
+            v-for="star in detailView.adjectiveStars"
+            :key="String(star.name)"
+            class="detail-star-item"
+          >
+            <span class="star-dot" :class="getStarColorClass(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
+            <span class="star-name">{{ star.name }}</span>
+          </div>
+        </div>
+        <p v-else class="detail-empty-text">本宫无杂曜</p>
       </div>
 
       <!-- Four transformations -->
@@ -114,6 +133,8 @@ import { computed } from 'vue'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import type { StarName } from 'iztro/lib/i18n/types/Star'
 import { getDetailedPalaceView } from '~/composables/useZiwei'
+import { getStarColorClass } from '~/constants/ziwei'
+import type { StarColorClass } from '~/constants/ziwei'
 
 const props = defineProps<{
   palace: IFunctionalPalace | null
@@ -124,33 +145,12 @@ const detailView = computed(() => {
   return getDetailedPalaceView(props.palace)
 })
 
-const STAR_COLOR_MAP: Record<string, string> = {
-  '紫微': 'gold', '天机': 'jade', '太阳': 'cinnabar', '武曲': 'gold',
-  '天同': 'jade', '廉贞': 'cinnabar', '天府': 'gold', '太阴': 'ice',
-  '贪狼': 'cinnabar', '巨门': 'gray', '天相': 'jade', '天梁': 'gold',
-  '七杀': 'cinnabar', '破军': 'gray',
-  '左辅': 'jade', '右弼': 'jade', '文昌': 'ice', '文曲': 'ice',
-  '禄存': 'gold', '天马': 'ice', '擎羊': 'gray', '陀罗': 'gray',
-  '火星': 'cinnabar', '铃星': 'gray', '天魁': 'gold', '天钺': 'gold',
-  '地空': 'gray', '地劫': 'gray', '天刑': 'gray', '天姚': 'cinnabar',
-  '解神': 'purple', '阴煞': 'gray', '天喜': 'cinnabar', '红鸾': 'cinnabar',
-  '龙池': 'ice', '凤阁': 'gold', '天官': 'gold', '天福': 'gold',
-  '天厨': 'gold', '天巫': 'jade', '月德': 'purple', '华盖': 'purple',
-  '天德': 'purple', '咸池': 'cinnabar', '三台': 'jade', '八座': 'gold',
-  '台辅': 'gold', '封诰': 'gold', '恩光': 'gold', '天贵': 'gold',
-  '天才': 'ice', '天寿': 'jade', '龙德': 'gold', '将星': 'gold', '攀鞍': 'gold',
-}
-
-const STAR_COLOR_LABEL_MAP: Record<string, string> = {
-  'gold': '主星', 'jade': '辅星', 'cinnabar': '煞星', 'ice': '文星', 'purple': '吉星', 'gray': '杂曜',
-}
-
-function getStarColor(name: StarName | string): string {
-  return STAR_COLOR_MAP[String(name)] ?? 'gray'
+const STAR_COLOR_LABEL_MAP: Record<StarColorClass, string> = {
+  'gold': '主星', 'jade': '辅星', 'cinnabar': '煞星', 'ice': '文星', 'purple': '吉星', 'gray': '杂曜', 'white': '杂曜',
 }
 
 function getStarColorLabel(name: StarName | string): string {
-  const color = getStarColor(name)
+  const color = getStarColorClass(name)
   return STAR_COLOR_LABEL_MAP[color] ?? '杂曜'
 }
 
@@ -307,7 +307,6 @@ function getMutagenClass(transformation: string): string {
   font-size: 0.875rem;
   line-height: 1.75;
   color: #C62828;
-  opacity: 0.85;
 }
 
 .detail-empty-text {
@@ -315,5 +314,9 @@ function getMutagenClass(transformation: string): string {
   color: #7A6A5C;
   opacity: 0.5;
   font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-star-item { animation: none; opacity: 1; }
 }
 </style>

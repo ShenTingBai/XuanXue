@@ -18,8 +18,8 @@ defineProps<{
 <template>
   <div
     class="palace-grid grid grid-cols-4 grid-rows-4 aspect-square max-w-[620px] mx-auto relative"
-    role="list"
-    aria-label="紫微斗数命盘 — 十二宫"
+    role="grid"
+    aria-label="紫微斗数命盘十二宫"
   >
     <!-- Outer decorative border -->
     <div
@@ -31,7 +31,7 @@ defineProps<{
       v-for="palace in palaces"
       :key="palace.index"
       class="bg-paper relative"
-      role="listitem"
+      role="gridcell"
       style="border: 1px solid rgba(107,91,79,0.1);"
       :style="{
         gridRow: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.row,
@@ -58,10 +58,11 @@ defineProps<{
         :key="i"
         class="flex flex-col items-center justify-center text-center"
         :class="[
+          'bg-paper-medium',
           i < 2 ? 'border-b' : '',
           i % 2 === 0 ? 'border-r' : '',
         ]"
-        style="background: #E8DED0; border-color: rgba(107,91,79,0.1);"
+        style="border-color: rgba(107,91,79,0.1);"
       >
         <div class="text-[0.68rem] tracking-[0.08em] text-ink-light/55 font-sans mb-0.5 font-medium">{{ item.label }}</div>
         <div class="text-[14px] font-display tracking-[0.08em] font-semibold" style="color: #4A3828;">{{ item.value }}</div>

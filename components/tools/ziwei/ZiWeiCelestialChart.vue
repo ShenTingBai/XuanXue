@@ -88,6 +88,7 @@ export interface CelestialStar {
   pctY: number
   isMajor: boolean
   palaceIdx: number
+  palaceName: string
   colorClass: StarColorClass
   mutagen: string | null
   labelOnLeft: boolean
@@ -132,6 +133,7 @@ const renderedStars = computed<CelestialStar[]>(() => {
         pctY: (pos.y / 600) * 100,
         isMajor: e.isMajor,
         palaceIdx: palace.index,
+        palaceName: palace.name,
         colorClass: getStarColorClass(e.name),
         mutagen: e.mutagen,
         labelOnLeft: pos.x < CX,
@@ -328,7 +330,7 @@ function focusLabel(idx: number) {
     ref="chartContainer"
     class="celestial-chart"
     :class="{ 'is-hidden': !isVisible }"
-    role="img"
+    role="region"
     aria-label="紫微斗数天星图 — 十二宫星曜分布"
   >
     <!-- ── SVG 底层：轨道 + 分隔 + 选中弧 ── -->
@@ -354,7 +356,7 @@ function focusLabel(idx: number) {
         :key="`ring-${i}`"
         :d="d"
         fill="none"
-        stroke="#C5B8A8"
+        stroke="#D4C5B0"
         stroke-width="0.8"
         opacity="0.35"
       />
@@ -363,7 +365,7 @@ function focusLabel(idx: number) {
       <path
         :d="innerDashedPath"
         fill="none"
-        stroke="#C5B8A8"
+        stroke="#D4C5B0"
         stroke-width="0.5"
         opacity="0.18"
         stroke-dasharray="2,5"
@@ -372,11 +374,11 @@ function focusLabel(idx: number) {
       <!-- 十字参考虚线 -->
       <line
         :x1="CX - 268" :y1="CY" :x2="CX + 268" :y2="CY"
-        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        stroke="#D4C5B0" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
       />
       <line
         :x1="CX" :y1="CY - 268" :x2="CX" :y2="CY + 268"
-        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        stroke="#D4C5B0" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
       />
 
       <!-- 12 条扇形分隔 -->
@@ -439,6 +441,7 @@ function focusLabel(idx: number) {
         v-for="star in renderedStars"
         :key="star.id"
         type="button"
+        tabindex="-1"
         class="star-item"
         :class="{
           'st-major': star.isMajor,
@@ -454,8 +457,7 @@ function focusLabel(idx: number) {
           '--drift-delay': star.driftDelay + 's',
           '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
         }"
-        :aria-label="star.name + (star.mutagen ? ' 化' + star.mutagen : '')"
-        :aria-describedby="tooltipVisible && tooltipText.startsWith(star.name) ? 'ziwei-star-tooltip' : undefined"
+        :aria-label="`${star.name}${star.mutagen ? ' 化' + star.mutagen : ''} — ${star.palaceName}`"
         @click="emit('select', star.palaceIdx)"
         @mouseenter="onStarEnter($event, star)"
         @mouseleave="onStarLeave"
@@ -490,6 +492,11 @@ function focusLabel(idx: number) {
       role="tooltip"
       :aria-hidden="!tooltipVisible"
     >
+      {{ tooltipText }}
+    </div>
+
+    <!-- ── Screen reader announcement (only read on focus, not visual) ── -->
+    <div aria-live="polite" aria-atomic="true" class="sr-only">
       {{ tooltipText }}
     </div>
   </div>
@@ -581,8 +588,7 @@ function focusLabel(idx: number) {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.85rem;
   letter-spacing: 0.12em;
-  color: #8B7D6B;
-  opacity: 0.62;
+  color: #6B5B4F;
   line-height: 1.1;
   transition:
     color 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
@@ -591,10 +597,9 @@ function focusLabel(idx: number) {
 }
 
 .pl-branch {
-  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.5rem;
-  color: #8B7D6B;
-  opacity: 0.28;
+  color: #7A6A5C;
   letter-spacing: 0.08em;
   line-height: 1;
   font-weight: 500;
@@ -602,16 +607,14 @@ function focusLabel(idx: number) {
 }
 
 .palace-label:hover .pl-name {
-  color: #5D4E37;
-  opacity: 0.95;
+  color: #4A3828;
   text-shadow: 0 0 8px rgba(93, 78, 55, 0.08);
 }
 
-.palace-label:hover .pl-branch { opacity: 0.5; }
+.palace-label:hover .pl-branch { color: #6B5B4F; }
 
 .palace-label.pl-ming .pl-name {
   color: #C62828;
-  opacity: 0.85;
   text-shadow: 0 0 6px rgba(198, 40, 40, 0.12);
 }
 
@@ -621,15 +624,12 @@ function focusLabel(idx: number) {
   letter-spacing: 0.16em;
   text-shadow: 0 0 10px rgba(198, 40, 40, 0.18);
 }
-.palace-label.pl-sel .pl-branch { opacity: 0.55; color: #C62828; }
+.palace-label.pl-sel .pl-branch { color: #C62828; }
 
 .palace-label:focus-visible {
-  outline: none;
-}
-.palace-label:focus-visible .pl-name {
-  text-decoration: underline 0.5px #C62828;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 0.5px;
+  outline: 2px solid #C62828;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -747,7 +747,7 @@ function focusLabel(idx: number) {
 
 /* Star label — 篆書小字 */
 .st-label {
-  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   color: #5D4E37;
@@ -797,7 +797,7 @@ function focusLabel(idx: number) {
 /* Four-Hua chip — small impressed-seal feel */
 .st-mutagen {
   pointer-events: none;
-  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.5rem;
   font-weight: 500;
   padding: 1px 4px;
@@ -884,9 +884,8 @@ function focusLabel(idx: number) {
   transform: translateX(-50%);
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.65rem;
-  color: #8B7D6B;
+  color: #7A6A5C;
   letter-spacing: 0.12em;
-  opacity: 0.65;
   white-space: nowrap;
 }
 
@@ -906,7 +905,7 @@ function focusLabel(idx: number) {
   padding: 0.5rem 0.75rem;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.68rem;
-  color: #5D4E37;
+  color: #6B5B4F;
   max-width: 220px;
   min-width: 110px;
   box-shadow:

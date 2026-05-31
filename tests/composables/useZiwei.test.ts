@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { astro } from 'iztro'
-import { calculateZiWei, getPalaceDetail, getMingGongIndex, type ZiWeiInput } from '~/composables/useZiwei'
+import { calculateZiWei, getPalaceDetail, getMingGongIndex, getShenGongIndex, collectTransformations, serializeAstrolabe, type ZiWeiInput } from '~/composables/useZiwei'
 
 describe('iztro smoke test', () => {
   it('generates astrolabe from solar date', () => {
@@ -88,5 +88,100 @@ describe('getPalaceDetail', () => {
       const detail = getPalaceDetail(palacesWithStars[0])
       expect(Array.isArray(detail.starReadings)).toBe(true)
     }
+  })
+})
+
+describe('getShenGongIndex', () => {
+  it('returns the index of the body palace', () => {
+    const astrolabe = calculateZiWei({
+      birthYear: 2000, birthMonth: 8, birthDay: 16,
+      birthHour: 2, gender: 'male',
+    })!
+    const index = getShenGongIndex(astrolabe.palaces)
+    expect(index).toBeGreaterThanOrEqual(0)
+    expect(index).toBeLessThan(12)
+    expect(astrolabe.palaces[index].isBodyPalace).toBe(true)
+  })
+})
+
+describe('collectTransformations', () => {
+  it('collects transformations from major, minor, and adjective stars', () => {
+    const astrolabe = calculateZiWei({
+      birthYear: 2000, birthMonth: 8, birthDay: 16,
+      birthHour: 2, gender: 'male',
+    })!
+    const trans = collectTransformations(astrolabe.palaces)
+    expect(Array.isArray(trans)).toBe(true)
+    for (const t of trans) {
+      expect(t).toHaveProperty('star')
+      expect(t).toHaveProperty('transformation')
+    }
+  })
+})
+
+describe('serializeAstrolabe', () => {
+  it('returns expected top-level fields', () => {
+    const astrolabe = calculateZiWei({
+      birthYear: 2000, birthMonth: 8, birthDay: 16,
+      birthHour: 2, gender: 'male',
+    })!
+    const serialized = serializeAstrolabe(astrolabe)
+    expect(serialized).toHaveProperty('earthlyBranchOfSoulPalace')
+    expect(serialized).toHaveProperty('earthlyBranchOfBodyPalace')
+    expect(serialized).toHaveProperty('fiveElementsClass')
+    expect(serialized).toHaveProperty('solarDate')
+    expect(serialized).toHaveProperty('lunarDate')
+    expect(serialized).toHaveProperty('chineseDate')
+    expect(serialized).toHaveProperty('gender')
+    expect(serialized).toHaveProperty('palaces')
+    expect(typeof serialized.gender).toBe('string')
+    expect(serialized.gender).toBeTruthy()
+  })
+})
+
+describe('getPalaceDetail combination notes', () => {
+  it('detects 紫微+天相 combination', () => {
+    const mockPalace = {
+      name: '命宫',
+      majorStars: [{ name: '紫微' }, { name: '天相' }],
+    } as any
+    const detail = getPalaceDetail(mockPalace)
+    expect(detail.combinationNote).toContain('紫微天相同宫')
+  })
+
+  it('detects 杀破狼 combination with 七杀', () => {
+    const mockPalace = {
+      name: '命宫',
+      majorStars: [{ name: '七杀' }],
+    } as any
+    const detail = getPalaceDetail(mockPalace)
+    expect(detail.combinationNote).toContain('杀破狼')
+  })
+
+  it('detects 杀破狼 combination with 破军', () => {
+    const mockPalace = {
+      name: '命宫',
+      majorStars: [{ name: '破军' }],
+    } as any
+    const detail = getPalaceDetail(mockPalace)
+    expect(detail.combinationNote).toContain('杀破狼')
+  })
+
+  it('detects 杀破狼 combination with 贪狼', () => {
+    const mockPalace = {
+      name: '命宫',
+      majorStars: [{ name: '贪狼' }],
+    } as any
+    const detail = getPalaceDetail(mockPalace)
+    expect(detail.combinationNote).toContain('杀破狼')
+  })
+
+  it('returns no combination note for unrelated stars', () => {
+    const mockPalace = {
+      name: '命宫',
+      majorStars: [{ name: '天机' }],
+    } as any
+    const detail = getPalaceDetail(mockPalace)
+    expect(detail.combinationNote).toBe('')
   })
 })
