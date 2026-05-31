@@ -68,26 +68,41 @@ const submit = async () => {
   <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
       <!-- Card -->
-      <div class="card-paper-solid rounded-xl p-8">
+      <div class="card-warm rounded-xl p-8 relative overflow-hidden">
+        <!-- Corner trigrams -->
+        <span class="corner-mark absolute top-3 left-3 text-[1.125rem]" aria-hidden="true">☰</span>
+        <span class="corner-mark absolute top-3 right-3 text-[1.125rem]" aria-hidden="true">☷</span>
+        <span class="corner-mark absolute bottom-3 left-3 text-[1.125rem]" aria-hidden="true">☵</span>
+        <span class="corner-mark absolute bottom-3 right-3 text-[1.125rem]" aria-hidden="true">☲</span>
+
+        <!-- Top talisman line -->
+        <div class="talisman-line mb-6" />
+
         <!-- Logo Area -->
         <div class="text-center mb-8">
-          <h1 class="sr-only">玄学 - 登录</h1>
-          <div class="inline-flex items-center gap-3 mb-3">
-            <span class="font-display text-4xl sm:text-5xl text-ink-dark">玄学</span>
-            <span class="seal-mark w-8 h-8 text-xs">印</span>
+          <h1 class="sr-only">玄·道 — 登录</h1>
+          <div class="inline-flex items-center justify-center mb-4">
+            <span class="seal-icon w-14 h-14 text-sm flex items-center justify-center" aria-hidden="true">玄</span>
           </div>
-          <p class="font-sans text-ink-medium text-[0.8125rem] tracking-[0.2em]">
-            {{ isLogin ? '命理推演 · 知己知天' : '结缘立卷 · 以窥天机' }}
+          <div class="section-header justify-center mb-2">
+            <span class="text-lg font-display text-ink-dark tracking-[0.15em]">{{ isLogin ? '已有命卷' : '结缘立卷' }}</span>
+          </div>
+          <p class="font-sans text-ink-medium text-[0.75rem] tracking-[0.25em]">
+            {{ isLogin ? '入卷推演 · 以窥天机' : '以道为凭 · 以问天机' }}
           </p>
         </div>
 
         <!-- Mode Tabs -->
         <div
-          class="flex mb-7 border-b border-paper-dark relative"
+          class="flex mb-7 rounded-lg bg-paper-medium/40 p-0.5 relative"
           role="tablist"
           aria-label="登录或注册"
           @keydown="handleTabKeydown"
         >
+          <span
+            class="absolute top-0.5 bottom-0.5 w-1/2 rounded-md bg-paper-lightest/90 shadow-sm transition-all duration-200 ease-out"
+            :class="isLogin ? 'left-0.5' : 'left-[calc(50%-0.125rem)]'"
+          />
           <button
             id="tab-login"
             role="tab"
@@ -95,12 +110,8 @@ const submit = async () => {
             :tabindex="isLogin ? 0 : -1"
             aria-controls="tabpanel-auth"
             @click="isLogin = true"
-            :class="[
-              'flex-1 pb-2.5 text-sm tracking-wider transition-colors',
-              isLogin
-                ? 'text-cinnabar font-medium'
-                : 'text-ink-medium hover:text-ink-dark'
-            ]"
+            class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
+            :class="isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
           >
             登录
           </button>
@@ -111,20 +122,11 @@ const submit = async () => {
             :tabindex="!isLogin ? 0 : -1"
             aria-controls="tabpanel-auth"
             @click="isLogin = false"
-            :class="[
-              'flex-1 pb-2.5 text-sm tracking-wider transition-colors',
-              !isLogin
-                ? 'text-cinnabar font-medium'
-                : 'text-ink-medium hover:text-ink-dark'
-            ]"
+            class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
+            :class="!isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
           >
             注册
           </button>
-          <!-- Sliding indicator -->
-          <span
-            class="absolute bottom-0 w-1/2 h-0.5 bg-cinnabar rounded-full transition-all duration-200 ease-out"
-            :class="isLogin ? 'translate-x-0' : 'translate-x-full'"
-          />
         </div>
 
         <!-- Error -->
@@ -143,15 +145,15 @@ const submit = async () => {
         <div id="tabpanel-auth" role="tabpanel" :aria-labelledby="isLogin ? 'tab-login' : 'tab-register'">
           <form @submit.prevent="submit" novalidate class="space-y-5">
             <div>
-              <label for="login-nickname" class="block text-xs text-ink-medium tracking-wider mb-1.5">
-                昵称<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
+              <label for="login-nickname" class="block text-xs text-ink-light tracking-[0.15em] mb-1.5">
+                {{ isLogin ? '号令' : '道号' }}<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
               </label>
               <input
                 id="login-nickname"
                 v-model="nickname"
                 type="text"
-                class="input-ink"
-                placeholder="输入你的昵称"
+                class="input-warm"
+                :placeholder="isLogin ? '输入你的道号' : '取一道号（昵称）'"
                 maxlength="20"
                 autocomplete="off"
                 required
@@ -162,16 +164,16 @@ const submit = async () => {
             </div>
 
             <div>
-              <label for="login-pin" class="block text-xs text-ink-medium tracking-wider mb-1.5">
-                PIN 码<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
+              <label for="login-pin" class="block text-xs text-ink-light tracking-[0.15em] mb-1.5">
+                密令<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
               </label>
               <div class="relative">
                 <input
                   id="login-pin"
                   v-model="pin"
                   :type="showPin ? 'text' : 'password'"
-                  class="input-ink pr-10"
-                  placeholder="4位数字密码"
+                  class="input-warm pr-10"
+                  placeholder="4位数字密令"
                   maxlength="4"
                   inputmode="numeric"
                   autocomplete="off"
@@ -183,7 +185,7 @@ const submit = async () => {
                 <button
                   type="button"
                   class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-2 text-xs text-ink-light hover:text-ink-medium transition-colors"
-                  :aria-label="showPin ? '隐藏 PIN 码' : '显示 PIN 码'"
+                  :aria-label="showPin ? '隐藏密令' : '显示密令'"
                   :aria-pressed="showPin"
                   @click="showPin = !showPin"
                 >
@@ -196,23 +198,26 @@ const submit = async () => {
             <button
               type="submit"
               :disabled="loading"
-              class="btn-seal w-full mt-2"
+              class="btn-cin w-full mt-2"
               :aria-busy="loading"
             >
-              <span>{{ loading ? '请稍候...' : (isLogin ? '登 录' : '创 建') }}</span>
+              <span>{{ loading ? '请稍候...' : (isLogin ? '入 卷' : '立 卷') }}</span>
             </button>
           </form>
         </div>
 
         <!-- Switch hint -->
-        <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium">
-          还没有档案？
-          <button @click="switchMode" class="btn-link">创建新档案</button>
+        <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-light/70 tracking-[0.1em]">
+          尚未立卷？
+          <button @click="switchMode" class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline">结缘注册</button>
         </div>
-        <div v-else class="mt-6 text-center text-xs text-ink-medium">
-          已有档案？
-          <button @click="switchMode" class="btn-link">去登录</button>
+        <div v-else class="mt-6 text-center text-xs text-ink-light/70 tracking-[0.1em]">
+          已有命卷？
+          <button @click="switchMode" class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline">入卷登录</button>
         </div>
+
+        <!-- Bottom talisman line -->
+        <div class="talisman-line mt-6" />
       </div>
     </div>
   </div>

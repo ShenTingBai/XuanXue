@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import InkDivider from '~/components/tools/InkDivider.vue'
-import DailyFortune from '~/components/home/DailyFortune.vue'
-
-useHead({ title: '玄学 - 命理推演 · 知己知天' })
+useHead({ title: '玄 · 道 — 玄天机 · 道命理' })
 
 const { restoreSession, currentProfile } = useAuth()
 const greeting = useGreeting()
@@ -17,38 +14,39 @@ interface Tool {
   route: string
   available: boolean
   accent?: string
+  trigram?: string
 }
 
 const tools: Tool[] = [
   {
     id: 'bazi', name: '八字', char: '命',
     description: '了解你的先天命格、性格特质和人生大运',
-    landingDescription: '观四柱八字，洞悉先天命格与人生起伏',
-    route: '/tools/bazi', available: true, accent: '#C62828',
+    landingDescription: '四柱推命 · 十神大运 · 流年神煞',
+    route: '/tools/bazi', available: true, accent: '#C62828', trigram: '☰',
   },
   {
     id: 'yijing', name: '六爻', char: '卦',
     description: '针对具体问题（事业、感情、决策）获得卦象指引',
-    landingDescription: '卜问一事一情，卦象指引抉择方向',
-    route: '/tools/yijing', available: true, accent: '#2C5F7C',
+    landingDescription: '摇卦起数 · 爻辞解读 · 变卦推断',
+    route: '/tools/yijing', available: true, accent: '#2C5F7C', trigram: '☵',
   },
   {
     id: 'shengxiao', name: '生肖', char: '肖',
     description: '查看你的生肖性格、幸运元素和年度运势',
-    landingDescription: '察生肖本性，知流年吉凶与幸运所向',
-    route: '/tools/shengxiao', available: true, accent: '#3D6B4B',
+    landingDescription: '生肖运势 · 五行属性 · 相性配对',
+    route: '/tools/shengxiao', available: true, accent: '#3D6B4B', trigram: '☷',
   },
   {
     id: 'constellation', name: '星座', char: '星',
     description: '查看你的星座特征、今日宜忌和配对分析',
-    landingDescription: '探星盘轨迹，明今日宜忌与缘分深浅',
-    route: '/tools/constellation', available: true, accent: '#7A5E12',
+    landingDescription: '星盘轨迹 · 今日宜忌 · 缘分深浅',
+    route: '/tools/constellation', available: true, accent: '#7A5E12', trigram: '☲',
   },
   {
     id: 'ziwei', name: '紫微斗数', char: '斗',
     description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
     landingDescription: '排十二宫垣，解星曜布局与穷通祸福',
-    route: '/tools/ziwei', available: true, accent: '#6B5B4F',
+    route: '/tools/ziwei', available: true, accent: '#6B5B4F', trigram: '☴',
   },
 ]
 
@@ -93,388 +91,367 @@ const goToLogin = () => {
     <!-- ════════════════════════════════════ -->
     <template v-if="sessionReady && !currentProfile">
       <div class="relative z-10">
-        <!-- ── Hero Section ── -->
+
+        <!-- ── Hero ── -->
         <section
           class="relative overflow-hidden"
           aria-labelledby="hero-heading"
         >
-          <!-- Watermark character -->
-          <span
-            class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-            aria-hidden="true"
-          >
-            <span class="font-display text-[14rem] sm:text-[20rem] lg:text-[26rem] leading-none opacity-[0.025] text-ink-dark">
-              玄
-            </span>
-          </span>
+          <div class="relative" style="background:
+            radial-gradient(ellipse 50% 40% at 70% 25%, rgba(156,26,28,0.02) 0%, transparent 60%),
+            radial-gradient(ellipse 35% 30% at 20% 75%, rgba(44,26,14,0.015) 0%, transparent 50%);">
+            <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
+              <div class="flex flex-col items-center text-center max-w-2xl mx-auto">
 
-          <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
-            <div class="flex flex-col items-center text-center max-w-xl mx-auto">
-              <!-- Seal mark -->
-              <div
-                class="fade-in mb-8"
-                :style="{ '--delay': '0.05s' }"
-              >
-                <span
-                  class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 border-2 border-cinnabar rounded-full font-display text-2xl sm:text-3xl text-cinnabar"
-                  style="transform: rotate(-3deg)"
-                  aria-hidden="true"
+                <!-- Stamp -->
+                <div
+                  class="anim-rise mb-8"
                 >
-                  玄
-                </span>
-              </div>
+                  <span
+                    class="seal-icon seal-icon--hero"
+                    aria-hidden="true"
+                  >玄</span>
+                </div>
 
-              <!-- Title -->
-              <h1
-                id="hero-heading"
-                class="fade-in font-display text-5xl sm:text-6xl lg:text-7xl text-ink-dark leading-tight tracking-wide mb-6"
-                :style="{ '--delay': '0.1s' }"
-              >
-                玄学
-              </h1>
-
-              <!-- Tagline -->
-              <p
-                class="fade-in font-sans text-sm sm:text-base text-ink-medium tracking-[0.25em] mb-8"
-                :style="{ '--delay': '0.15s' }"
-              >
-                命理推演 · 知己知天
-              </p>
-
-              <!-- Description -->
-              <p
-                class="fade-in font-sans text-sm sm:text-base text-ink-light/90 leading-relaxed max-w-md mb-10"
-                :style="{ '--delay': '0.2s' }"
-              >
-                融汇八字、六爻、紫微、生肖、星座诸法，<br class="hidden sm:block" />
-                以传统命理智慧，助你洞见自我、趋吉避凶。
-              </p>
-
-              <!-- CTA Button -->
-              <div
-                class="fade-in mb-8"
-                :style="{ '--delay': '0.25s' }"
-              >
-                <button
-                  class="btn-seal"
-                  @click="goToLogin"
+                <!-- Title -->
+                <h1
+                  id="hero-heading"
+                  class="anim-rise anim-delay-1 font-display"
+                  style="font-size: 68px; color: #1A0F0A; letter-spacing: 0.3em; line-height: 1.2; margin-bottom: 12px; text-shadow: 0 1px 2px rgba(26,15,10,0.06);"
                 >
-                  <span>开 始 推 演</span>
-                </button>
-              </div>
+                  玄<span class="title-dot"></span>道<span class="title-dot"></span><span class="text-cinnabar-deeper">知天命</span>
+                </h1>
 
-              <!-- Login hint -->
-              <p
-                class="fade-in font-sans text-xs text-ink-medium/70"
-                :style="{ '--delay': '0.3s' }"
-              >
-                已有档案？
-                <NuxtLink to="/login" class="btn-link">
-                  去登录
-                </NuxtLink>
-              </p>
+                <!-- Incantation -->
+                <div class="hero-incant anim-rise anim-delay-2">
+                  <span class="hero-incant__line">玄天机</span>
+                  <span class="hero-incant__divider"></span>
+                  <span class="hero-incant__line">道命理</span>
+                  <span class="hero-incant__divider"></span>
+                  <span class="hero-incant__line">玄道在手</span>
+                  <span class="hero-incant__divider"></span>
+                  <span class="hero-incant__line">天地万物</span>
+                  <span class="hero-incant__divider"></span>
+                  <span class="hero-incant__line">皆可问之</span>
+                </div>
+
+                <!-- CTA -->
+                <div class="anim-rise anim-delay-4 flex gap-4 mt-10">
+                  <button
+                    class="btn-cin"
+                    @click="goToLogin"
+                  >
+                    开始推演
+                  </button>
+                  <NuxtLink
+                    to="/login"
+                    class="btn-ink no-underline"
+                  >
+                    已有档案
+                  </NuxtLink>
+                </div>
+
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- ── Decorative Divider ── -->
-        <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 relative z-10" aria-hidden="true">
-          <!-- Ink branch -->
-          <div class="fade-in mb-4" :style="{ '--delay': '0.35s' }">
-            <div class="ink-branch">
-              <div class="ink-branch__main" />
-              <div class="ink-branch__twig ink-branch__twig--top" />
-              <div class="ink-branch__twig ink-branch__twig--bottom" />
-              <div class="ink-branch__twig ink-branch__twig--far" />
-              <div class="ink-branch__dot ink-branch__dot--near" />
-              <div class="ink-branch__dot ink-branch__dot--mid" />
-              <div class="ink-branch__dot ink-branch__dot--far" />
-            </div>
-          </div>
-
-          <!-- Section heading -->
-          <div
-            class="fade-in flex items-center justify-center gap-3 mb-10 sm:mb-14"
-            :style="{ '--delay': '0.38s' }"
-          >
-            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">术</span>
-            <h2 class="font-display text-2xl sm:text-3xl text-ink-dark tracking-wider">
-              推演之术
-            </h2>
-            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">法</span>
-          </div>
-        </div>
-
-        <!-- ── Tool Cards Grid ── -->
+        <!-- ── 术数工具 ── -->
         <section
-          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24 lg:pb-32 relative z-10"
-          aria-label="命理工具"
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16"
+          aria-label="术数工具"
         >
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            <!-- Available tools -->
-            <NuxtLink
-              v-for="(tool, index) in tools.filter(t => t.available)"
-              :key="tool.id"
-              :to="tool.route"
-              :aria-label="'探索' + tool.name"
-              :class="[
-                'tool-card rounded-xl p-6 sm:p-7 block no-underline',
-                'fade-in',
-                'tool-card--active'
-              ]"
-              :style="{ '--delay': `${0.4 + index * 0.1}s`, '--accent': tool.accent || '#C62828' }"
-            >
-              <div class="card-accent" aria-hidden="true" />
-              <div class="flex items-start gap-4">
-                <span class="card-icon card-icon--active">
-                  {{ tool.char }}
-                </span>
-                <div class="min-w-0 flex-1">
-                  <h3 class="font-display text-xl sm:text-2xl text-ink-dark leading-tight mb-1.5">
-                    {{ tool.name }}
-                  </h3>
-                  <p class="font-sans text-sm text-ink-medium/80 leading-relaxed">
-                    {{ tool.landingDescription }}
-                  </p>
-                </div>
+          <div class="section-header">
+            <span class="bar" aria-hidden="true"></span>
+            <h2>术 数 工 具</h2>
+          </div>
+
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <template v-for="(tool, index) in tools" :key="tool.id">
+              <!-- Available tools -->
+              <NuxtLink
+                v-if="tool.available"
+                :to="tool.route"
+                :aria-label="'探索' + tool.name"
+                class="tool-card--new block no-underline group"
+              >
+                <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+                <span class="seal-icon seal-icon--lg" style="margin-bottom:20px;">{{ tool.char }}</span>
+                <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;transition:color 0.3s;">{{ tool.name }}</div>
+                <p class="ui" style="font-size:10px;color:var(--color-ink-light);letter-spacing:0.12em;line-height:1.7;">
+                  {{ tool.landingDescription }}
+                </p>
+              </NuxtLink>
+
+              <!-- Locked tools -->
+              <div
+                v-else
+                :aria-label="tool.name + '（即将推出）'"
+                aria-disabled="true"
+                class="tool-card--new opacity-50 cursor-default"
+              >
+                <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+                <div class="seal-icon seal-icon--lg" style="margin-bottom:20px;background:var(--color-ink-light);box-shadow:none;">{{ tool.char }}</div>
+                <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;">{{ tool.name }}</div>
+                <p class="ui" style="font-size:10px;color:var(--color-ink-light);letter-spacing:0.12em;line-height:1.7;">
+                  {{ tool.landingDescription }}
+                </p>
               </div>
-              <div class="card-enter-hint" aria-hidden="true">
-                <span class="enter-arrow">&rarr;</span>
-              </div>
+            </template>
+          </div>
+
+          <!-- 更多工具提示 -->
+          <div class="text-center mt-6">
+            <NuxtLink to="/login" class="btn-ink no-underline inline-flex">
+              探索全部工具
             </NuxtLink>
+          </div>
+        </section>
 
-            <!-- Locked tool -->
-            <div
-              v-for="(tool, index) in tools.filter(t => !t.available)"
-              :key="tool.id"
-              :aria-label="tool.name + '（即将推出）'"
-              aria-disabled="true"
-              :class="[
-                'tool-card rounded-xl p-6 sm:p-7',
-                'fade-in',
-                'tool-card--locked'
-              ]"
-              :style="{ '--delay': `${0.4 + tools.filter(t => t.available).length * 0.1 + index * 0.1}s`, '--accent': tool.accent || '#C62828' }"
-            >
-              <div class="card-accent" aria-hidden="true" />
-              <div class="flex items-start gap-4">
-                <span class="card-icon card-icon--locked">
-                  {{ tool.char }}
+        <!-- ── 命盘预览 ── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div class="section-header">
+            <span class="bar" aria-hidden="true"></span>
+            <h2>命 盘 预 览</h2>
+          </div>
+
+          <div class="card-warm card-warm--elevated p-6 sm:p-10 lg:p-11">
+            <!-- 天地界栏 -->
+            <div class="rule-boundary rule-boundary--top" aria-hidden="true"></div>
+            <div class="rule-boundary rule-boundary--bottom" aria-hidden="true"></div>
+            <div class="fish-tail" aria-hidden="true"><span class="fish-tail__v"></span><span class="fish-tail__bar"></span></div>
+
+            <!-- Header -->
+            <div class="flex items-center gap-3 pb-4 mb-6" style="border-bottom:1px solid rgba(156,26,28,0.02);flex-wrap:wrap;">
+              <span class="seal-icon" aria-hidden="true">命</span>
+              <h3 class="font-display" style="font-size:20px;color:var(--color-ink);letter-spacing:0.3em;">八字命盘</h3>
+              <span class="ui" style="margin-left:auto;font-size:10px;color:var(--color-ink-light);letter-spacing:0.15em;">甲辰年 · 丙寅月 · 戊午日 · 壬子时</span>
+            </div>
+
+            <!-- 日主 -->
+            <div class="text-center mb-5">
+              <p class="ui" style="font-size:10px;color:var(--color-ink-light);letter-spacing:0.15em;margin-bottom:10px;">甲辰年 · 阳历 · 生肖龙 · 男</p>
+              <div class="master-block">
+                <span class="master-block__box">
+                  <span class="master-block__big">戊</span>
+                  <span class="master-block__sub">土</span>
                 </span>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <h3 class="font-display text-xl sm:text-2xl text-ink-dark leading-tight">
-                      {{ tool.name }}
-                    </h3>
-                    <span class="px-2 py-0.5 rounded text-[0.6rem] tracking-wider font-sans text-ink-muted border border-paper-dark bg-paper-medium/50">
-                      即将推出
-                    </span>
-                  </div>
-                  <p class="font-sans text-sm text-ink-medium/80 leading-relaxed">
-                    {{ tool.landingDescription }}
-                  </p>
+                <span class="ui" style="font-size:10px;padding:3px 10px;background:rgba(44,26,14,0.035);color:var(--color-ink-mid);letter-spacing:0.1em;">身弱</span>
+              </div>
+              <div class="ui" style="font-size:9px;color:var(--color-ink-light);letter-spacing:0.3em;margin-top:4px;">日 主</div>
+            </div>
+
+            <!-- 喜忌 -->
+            <div class="flex items-center justify-center gap-2 flex-wrap pb-2 mb-4">
+              <span class="ui" style="font-size:10px;color:var(--color-ink-mid);letter-spacing:0.2em;">喜</span>
+              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#C62828;">火</span>
+              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#3D6B4B;">木</span>
+              <span style="width:1px;height:14px;background:rgba(44,26,14,0.05);margin:0 4px;" aria-hidden="true"></span>
+              <span class="ui" style="font-size:10px;color:var(--color-ink-mid);letter-spacing:0.2em;">忌</span>
+              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#5E5E5E;">金</span>
+              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#2C5F7C;">水</span>
+              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#7A5E12;">土</span>
+            </div>
+
+            <!-- 八字表 -->
+            <div class="mb-6 overflow-x-auto">
+              <table class="grid-cinnabar">
+                <thead>
+                  <tr>
+                    <th>年 柱</th>
+                    <th>月 柱</th>
+                    <th class="is-day">日 柱<span class="mk">日主</span></th>
+                    <th>时 柱</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="color:#3D6B4B;">甲</td>
+                    <td style="color:#C62828;">丙</td>
+                    <td class="is-day" style="color:#7A5E12;">戊</td>
+                    <td style="color:#2C5F7C;">壬</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#7A5E12;font-size:20px;padding-top:0;">辰</td>
+                    <td style="color:#3D6B4B;font-size:20px;padding-top:0;">寅</td>
+                    <td class="is-day" style="color:#C62828;font-size:20px;padding-top:0;">午</td>
+                    <td style="color:#2C5F7C;font-size:20px;padding-top:0;">子</td>
+                  </tr>
+                  <tr>
+                    <td class="sub"><span class="badge-sm" style="background:rgba(198,40,40,0.07);color:#C62828;">偏官</span></td>
+                    <td class="sub"><span class="badge-sm" style="background:rgba(61,107,75,0.07);color:#3D6B4B;">偏印</span></td>
+                    <td class="sub is-day"><span class="badge-sm" style="background:rgba(44,26,14,0.07);color:var(--color-ink);">日主</span></td>
+                    <td class="sub"><span class="badge-sm" style="background:rgba(45,95,124,0.07);color:#2C5F7C;">食神</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="zang"><span style="color:#7A5E12;">戊</span> <span style="color:#2C5F7C;">癸</span> <span style="color:#3D6B4B;">乙</span></span></td>
+                    <td><span class="zang"><span style="color:#3D6B4B;">甲</span> <span style="color:#C62828;">丙</span> <span style="color:#7A5E12;">戊</span></span></td>
+                    <td class="is-day"><span class="zang"><span style="color:#C62828;">丁</span> <span style="color:#7A5E12;">己</span></span></td>
+                    <td><span class="zang"><span style="color:#2C5F7C;">癸</span></span></td>
+                  </tr>
+                  <tr>
+                    <td class="nayin">覆灯火</td>
+                    <td class="nayin">炉中火</td>
+                    <td class="nayin is-day">天上火</td>
+                    <td class="nayin">桑柘木</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 五行柱 -->
+            <div class="grid grid-cols-5 gap-3 py-5 mb-4" style="border-top:1px solid rgba(156,26,28,0.015);border-bottom:1px solid rgba(156,26,28,0.015);">
+              <div v-for="(item, i) in [
+                { label: '木', pct: 40, color: '#3D6B4B' },
+                { label: '火', pct: 60, color: '#C62828' },
+                { label: '土', pct: 80, color: '#7A5E12' },
+                { label: '金', pct: 20, color: '#5E5E5E' },
+                { label: '水', pct: 30, color: '#2C5F7C' },
+              ]" :key="i" class="text-center">
+                <div class="ui" style="font-size:10px;color:var(--color-ink-mid);margin-bottom:8px;letter-spacing:0.1em;">{{ item.label }}</div>
+                <div style="height:80px;background:rgba(44,26,14,0.015);position:relative;overflow:hidden;margin-bottom:6px;">
+                  <div class="absolute bottom-0 left-0 right-0" :style="{ height: item.pct + '%', background: item.color, opacity: 0.25 }"></div>
                 </div>
+                <div class="ui" style="font-size:9px;color:var(--color-ink-light);">{{ item.pct }}%</div>
               </div>
-              <div class="locked-stamp" aria-hidden="true">
-                <span>启</span>
-              </div>
+            </div>
+
+            <!-- 解读 -->
+            <div class="flex gap-3 items-start pt-1">
+              <span class="seal-icon" style="width:26px;height:26px;font-size:10px;transform:rotate(-5deg);margin-top:4px;" aria-hidden="true">解</span>
+              <p class="ui" style="font-size:14px;color:var(--color-ink-mid);line-height:2;letter-spacing:0.04em;">
+                "日主戊土生于寅月，木旺土虚，喜火生扶。早年财运亨通，中年宜守成。五行土旺缺金，宜补金气以平衡全局。"
+              </p>
             </div>
           </div>
         </section>
 
-        <!-- ── 推演之道 ── Philosophy Section ── -->
-        <section
-          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 relative z-10"
-          aria-labelledby="philosophy-heading"
-        >
-          <div class="max-w-2xl mx-auto">
-            <!-- Vertical cinnabar accent line -->
-            <div class="fade-in flex gap-6 sm:gap-8" :style="{ '--delay': '0.5s' }">
-              <div class="hidden sm:block w-0.5 shrink-0 rounded-full"
-                   style="background: linear-gradient(180deg, rgba(198,40,40,0.3) 0%, rgba(198,40,40,0.08) 50%, transparent 100%);" />
-              <div>
-                <div class="flex items-center gap-3 mb-4">
-                  <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">道</span>
-                  <h2 id="philosophy-heading" class="font-display text-xl sm:text-2xl text-ink-dark tracking-wider">
-                    推演之道
-                  </h2>
-                </div>
-                <p class="font-sans text-sm sm:text-base text-ink-light/90 leading-[1.9] sm:leading-[2] tracking-wide">
-                  古人仰观天象以察人事流转，俯察地理以明阴阳消长。
-                  <br class="hidden sm:block" />
-                  五千年智慧沉淀为八字、紫微、六爻诸法，<wbr />非为宿命之论，实为知己之途。
-                </p>
-                <p class="font-sans text-sm sm:text-base text-ink-light/90 leading-[1.9] sm:leading-[2] tracking-wide mt-4">
-                  今以术数之理，融现代之器，<wbr />使传统命理之学，<br class="hidden sm:block" />
-                  可为日常之鉴。知己则明，知天则达。
-                </p>
-                <!-- Signature seal -->
-                <div class="flex items-center gap-3 mt-6">
-                  <span class="text-xs text-ink-light/80 font-sans tracking-[0.15em]">—— 玄学 · 命理推演</span>
-                  <span class="seal-mark w-6 h-6 text-[0.5rem]" aria-hidden="true">鉴</span>
-                </div>
-              </div>
+        <!-- ── 今日运势 ── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div class="section-header">
+            <span class="bar" aria-hidden="true"></span>
+            <h2>今 日 运 势</h2>
+          </div>
+
+          <div class="card-warm p-6 sm:p-8 max-w-lg mx-auto">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="seal-icon" style="width:20px;height:20px;font-size:8px;transform:rotate(-4deg);" aria-hidden="true">日</span>
+              <span style="font-size:13px;color:var(--color-ink-mid);letter-spacing:0.25em;">今日运势</span>
+              <span class="ui" style="margin-left:auto;font-size:9px;color:var(--color-ink-faint);letter-spacing:0.1em;">五月三十 · 星期日</span>
+            </div>
+            <p class="ui" style="font-size:14px;color:var(--color-ink-mid);line-height:2;">今日宜静思，忌急躁。命主日干逢合，利于人际沟通，但需注意言辞分寸。申时过后运势渐佳，可把握机会推进重要事项。</p>
+            <div class="flex gap-6 mt-3 pt-3 flex-wrap" style="border-top:1px solid rgba(156,26,28,0.015);">
+              <span class="ui" style="font-size:10px;color:#3D6B4B;letter-spacing:0.12em;">宜：静思 · 沟通 · 规划</span>
+              <span class="ui" style="font-size:10px;color:var(--color-cinnabar-deeper);letter-spacing:0.12em;">忌：冲动 · 投资 · 远行</span>
             </div>
           </div>
         </section>
 
-        <!-- ── 如何使用 ── How It Works ── -->
-        <section
-          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-24 relative z-10"
-          aria-labelledby="howto-heading"
-        >
-          <!-- Section heading -->
-          <div class="fade-in flex items-center justify-center gap-3 mb-10 sm:mb-14" :style="{ '--delay': '0.55s' }">
-            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">用</span>
-            <h2 id="howto-heading" class="font-display text-2xl sm:text-3xl text-ink-dark tracking-wider">
-              开始推演
-            </h2>
-            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">法</span>
+        <!-- ── 命簿卡片 ── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div class="section-header">
+            <span class="bar" aria-hidden="true"></span>
+            <h2>命 簿 卡 片</h2>
           </div>
 
-          <!-- Three steps -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 max-w-3xl mx-auto">
-            <div v-for="(step, si) in [
-              { num: '一', title: '完善档案', desc: '填写出生信息，建立你的专属命理档案', accent: '#C62828' },
-              { num: '二', title: '选择命理', desc: '从八字、紫微、六爻等术数中选择你想探索的方向', accent: '#3D6B4B' },
-              { num: '三', title: '获取解读', desc: '系统推演生成详尽的命理解读与运势分析', accent: '#2C5F7C' },
-            ]" :key="step.num">
-              <div
-                class="fade-in flex flex-col items-center text-center px-4 py-8 sm:py-6"
-                :style="{ '--delay': `${0.6 + si * 0.1}s` }"
-              >
-                <!-- Step number -->
-                <span
-                  class="font-display text-4xl sm:text-5xl leading-none mb-4"
-                  :style="{ color: step.accent, opacity: 0.25 }"
-                  aria-hidden="true"
-                >
-                  {{ step.num }}
-                </span>
-                <!-- Step title -->
-                <h3 class="font-display text-lg text-ink-dark tracking-wider mb-2">
-                  {{ step.title }}
-                </h3>
-                <!-- Step description -->
-                <p class="font-sans text-sm text-ink-light/80 leading-relaxed max-w-[14rem]">
-                  {{ step.desc }}
-                </p>
-              </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="card-warm p-6 sm:p-8 group">
+              <span class="corner-mark corner-mark-tl" aria-hidden="true">☰</span>
+              <span class="corner-mark corner-mark-br" aria-hidden="true">☷</span>
+              <span class="seal-icon" style="width:32px;height:32px;font-size:13px;margin-bottom:16px;" aria-hidden="true">性</span>
+              <h4 style="font-size:20px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:3px;">性格特征</h4>
+              <p class="ui" style="font-size:11px;color:var(--color-ink-light);letter-spacing:0.15em;margin-bottom:12px;">戊土日主 · 厚重沉稳</p>
+              <p class="ui" style="font-size:13px;color:var(--color-ink-mid);line-height:2;letter-spacing:0.04em;">命主戊土日主，生于寅月，木旺土虚。性格沉稳厚重，有担当之心。然土虚则易思虑过度，宜培养决断之力。</p>
+            </div>
+            <div class="card-warm p-6 sm:p-8 group">
+              <span class="corner-mark corner-mark-tl" aria-hidden="true">☲</span>
+              <span class="corner-mark corner-mark-br" aria-hidden="true">☵</span>
+              <span class="seal-icon" style="width:32px;height:32px;font-size:13px;margin-bottom:16px;" aria-hidden="true">配</span>
+              <h4 style="font-size:20px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:3px;">相性配对</h4>
+              <p class="ui" style="font-size:11px;color:var(--color-ink-light);letter-spacing:0.15em;margin-bottom:12px;">生肖三合 · 六合贵人</p>
+              <p class="ui" style="font-size:13px;color:var(--color-ink-mid);line-height:2;letter-spacing:0.04em;">与属牛、属蛇者最为相合，三合之势助运增财。与属猪者相冲，宜避之。与属虎、属马者六合，可成事业良伴。</p>
             </div>
           </div>
+        </section>
 
-          <!-- Final CTA -->
-          <div class="fade-in flex justify-center mt-10 sm:mt-12" :style="{ '--delay': '0.85s' }">
-            <button
-              class="btn-seal"
-              @click="goToLogin"
-            >
-              <span>开 始 推 演</span>
-            </button>
+        <!-- ── 分割线 + CTA ── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16 sm:py-12 sm:pb-20">
+          <div class="divider-seal mb-10">
+            <span class="divider-seal__line" aria-hidden="true"></span>
+            <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">玄</span>
+            <span class="divider-seal__word">玄 · 道</span>
+            <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">道</span>
+            <span class="divider-seal__line" aria-hidden="true"></span>
+          </div>
+
+          <div class="flex justify-center gap-4 flex-wrap">
+            <button class="btn-cin" @click="goToLogin">开始推演</button>
+            <NuxtLink to="/login" class="btn-ink no-underline">浏览命盘</NuxtLink>
           </div>
         </section>
 
         <!-- ── Footer ── -->
-        <footer class="relative z-10 border-t border-paper-dark/30" role="contentinfo">
+        <footer class="border-t" style="border-color:rgba(44,26,14,0.03);" role="contentinfo">
           <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div class="flex items-center gap-3">
-                <span class="font-display text-base text-ink-dark tracking-wider">玄学</span>
-                <span class="text-[0.6rem] text-ink-faint">·</span>
-                <span class="text-xs text-ink-light/80 font-sans">命理推演 · 知己知天</span>
+                <span class="font-display" style="font-size:15px;color:var(--color-ink);letter-spacing:0.3em;">玄 · 道</span>
+                <span style="font-size:9px;color:var(--color-ink-faint);">·</span>
+                <span class="ui" style="font-size:11px;color:var(--color-ink-light);">玄天机 · 道命理</span>
               </div>
-              <p class="text-xs text-ink-medium/80 font-sans">
-                &copy; {{ new Date().getFullYear() }} 玄学 · 仅供娱乐参考
+              <p class="ui" style="font-size:11px;color:var(--color-ink-faint);">
+                &copy; {{ new Date().getFullYear() }} 玄 · 道 · 仅供娱乐参考
               </p>
             </div>
           </div>
         </footer>
+
       </div>
     </template>
 
     <!-- ════════════════════════════════════ -->
-    <!--  NAVIGATION — Authenticated        -->
+    <!--  AUTHENTICATED                      -->
     <!-- ════════════════════════════════════ -->
     <template v-if="sessionReady && currentProfile">
       <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10">
-        <!-- ── Greeting + Daily Fortune (side by side on lg) ── -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-10 mb-12 sm:mb-16">
-          <!-- Greeting — spans 3 cols -->
-          <div class="lg:col-span-3 fade-in" :style="{ '--delay': '0.02s' }">
-            <div class="flex flex-col items-start gap-3">
-              <div class="flex items-center gap-4">
-                <span class="hidden sm:block w-6 h-px bg-gradient-to-r from-cinnabar/40 to-transparent" aria-hidden="true" />
-                <h1 class="font-display text-4xl sm:text-5xl text-ink-dark leading-tight tracking-wide">
-                  {{ greeting.prefix }}，<span class="text-cinnabar">{{ currentProfile.nickname }}</span>
-                </h1>
-              </div>
-              <div class="flex items-center gap-3 ml-0 sm:ml-10">
-                <span class="seal-mark w-7 h-7 text-[9px]">玄</span>
-                <p class="font-sans text-sm sm:text-base text-ink-light tracking-wider leading-relaxed">
-                  {{ greeting.subtitle }}
-                </p>
-              </div>
+        <!-- Greeting -->
+        <div class="mb-12 sm:mb-16 anim-rise">
+          <div class="flex flex-col items-start gap-3">
+            <div class="flex items-center gap-4">
+              <span class="hidden sm:block w-6 h-px" style="background:linear-gradient(to right, rgba(156,26,28,0.4), transparent);" aria-hidden="true" />
+              <h1 class="font-display text-4xl sm:text-5xl" style="color:var(--color-ink);letter-spacing:0.05em;">
+                {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{ currentProfile.nickname }}</span>
+              </h1>
             </div>
-            <div class="mt-6 sm:mt-8 relative overflow-hidden" aria-hidden="true">
-              <div class="ink-branch">
-                <div class="ink-branch__main" />
-                <div class="ink-branch__twig ink-branch__twig--top" />
-                <div class="ink-branch__twig ink-branch__twig--bottom" />
-                <div class="ink-branch__twig ink-branch__twig--far" />
-                <div class="ink-branch__dot ink-branch__dot--near" />
-                <div class="ink-branch__dot ink-branch__dot--mid" />
-                <div class="ink-branch__dot ink-branch__dot--far" />
-              </div>
+            <div class="flex items-center gap-3 ml-0 sm:ml-10">
+              <span class="seal-icon" style="width:28px;height:28px;font-size:11px;" aria-hidden="true">玄</span>
+              <p class="ui" style="font-size:14px;color:var(--color-ink-light);letter-spacing:0.15em;">
+                {{ greeting.subtitle }}
+              </p>
             </div>
-          </div>
-
-          <!-- Daily Fortune — spans 2 cols, vertically centered -->
-          <div class="lg:col-span-2 flex items-center">
-            <DailyFortune :profile="currentProfile" />
           </div>
         </div>
 
-<!-- ── Ink Divider with Seal Mark ── -->
-        <div class="mb-8 sm:mb-12 fade-in" :style="{ '--delay': '0.15s' }" aria-hidden="true">
-          <div class="flex items-center justify-center gap-3 mb-2">
-            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">术</span>
-            <InkDivider>命理推演</InkDivider>
-            <span class="seal-mark w-6 h-6 text-[0.6rem]" aria-hidden="true">法</span>
-          </div>
+        <!-- Section header -->
+        <div class="section-header anim-rise anim-delay-1">
+          <span class="bar" aria-hidden="true"></span>
+          <h2>推 演 工 具</h2>
         </div>
 
-        <!-- ── Tool Grid ── -->
-        <h2 class="sr-only">命理工具</h2>
+        <!-- Tool grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           <NuxtLink
             v-for="(tool, index) in tools.filter(t => t.available)"
             :key="tool.id"
             :to="tool.route"
             :aria-label="'打开' + tool.name + '工具'"
-            :class="[
-              'tool-card rounded-xl p-6 sm:p-7 block no-underline',
-              'fade-in',
-              'tool-card--active'
-            ]"
-            :style="{ '--delay': `${(index + 1) * 0.12}s`, '--accent': tool.accent || '#C62828' }"
+            class="tool-card--new block no-underline group anim-rise"
+            :class="'anim-delay-' + (index + 1)"
           >
-            <div class="card-accent" aria-hidden="true" />
-            <div class="flex items-start gap-4">
-              <span class="card-icon card-icon--active">
-                {{ tool.char }}
-              </span>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 mb-1.5">
-                  <h3 class="font-display text-xl sm:text-2xl text-ink-dark leading-tight">{{ tool.name }}</h3>
-                </div>
-                <p class="font-sans text-sm text-ink-medium/80 leading-relaxed">
-                  {{ tool.description }}
-                </p>
-              </div>
-            </div>
-            <div class="card-enter-hint" aria-hidden="true">
-              <span class="enter-arrow">&rarr;</span>
-            </div>
+            <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+            <span class="seal-icon seal-icon--lg" style="margin-bottom:16px;">{{ tool.char }}</span>
+            <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:4px;">{{ tool.name }}</div>
+            <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">{{ tool.description }}</p>
           </NuxtLink>
 
           <div
@@ -482,33 +459,14 @@ const goToLogin = () => {
             :key="tool.id"
             :aria-label="tool.name + '（即将上线）'"
             aria-disabled="true"
-            :class="[
-              'tool-card rounded-xl p-6 sm:p-7',
-              'fade-in',
-              'tool-card--locked'
-            ]"
-            :style="{ '--delay': `${(tools.filter(t => t.available).length + index + 1) * 0.12}s`, '--accent': tool.accent || '#C62828' }"
+            class="tool-card--new opacity-50 cursor-default anim-rise"
+            :class="'anim-delay-' + (tools.filter(t => t.available).length + index + 1)"
           >
-            <div class="card-accent" aria-hidden="true" />
-            <div class="flex items-start gap-4">
-              <span class="card-icon card-icon--locked">
-                {{ tool.char }}
-              </span>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 mb-1.5">
-                  <h3 class="font-display text-xl sm:text-2xl text-ink-dark leading-tight">{{ tool.name }}</h3>
-                  <span class="px-2 py-0.5 rounded text-[0.6rem] tracking-wider font-sans text-ink-muted border border-paper-dark bg-paper-medium/50">
-                    即将上线
-                  </span>
-                </div>
-                <p class="font-sans text-sm text-ink-medium/80 leading-relaxed">
-                  {{ tool.description }}
-                </p>
-              </div>
-            </div>
-            <div class="locked-stamp" aria-hidden="true">
-              <span>启</span>
-            </div>
+            <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+            <span class="seal-icon seal-icon--lg" style="margin-bottom:16px;background:var(--color-ink-light);box-shadow:none;">{{ tool.char }}</span>
+            <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:4px;">{{ tool.name }}</div>
+            <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">{{ tool.description }}</p>
+            <span class="ui" style="position:absolute;top:12px;right:12px;padding:2px 8px;border-radius:999px;font-size:9px;border:1px solid rgba(44,26,14,0.08);color:var(--color-ink-light);">即将推出</span>
           </div>
         </div>
       </div>

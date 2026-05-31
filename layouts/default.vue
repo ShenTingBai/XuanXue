@@ -143,8 +143,8 @@ const closeDropdown = (e: FocusEvent) => {
           <div class="flex items-center justify-between h-14 sm:h-16">
             <!-- Logo -->
             <NuxtLink to="/" class="flex items-center gap-2 no-underline flex-shrink-0">
-              <span class="font-display text-2xl sm:text-3xl text-ink-dark">玄学</span>
-              <span class="seal-mark text-[10px] hidden sm:flex" aria-hidden="true">玄</span>
+              <span class="font-display text-2xl sm:text-3xl text-ink-dark">玄·道</span>
+              <span class="seal-icon text-[10px] hidden sm:flex" aria-hidden="true">玄</span>
             </NuxtLink>
 
             <!-- Tool Navigation (desktop) -->
@@ -158,7 +158,6 @@ const closeDropdown = (e: FocusEvent) => {
                   { 'nav-link--active': route.path === navItem.route },
                 ]"
               >
-                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.char }}</span>
                 <span>{{ navItem.name }}</span>
               </NuxtLink>
               <span
@@ -167,7 +166,6 @@ const closeDropdown = (e: FocusEvent) => {
                 class="nav-link nav-link--locked"
                 :aria-label="navItem.name + '（即将上线）'"
               >
-                <span class="seal-mark text-[0.625rem] w-5 h-5" aria-hidden="true">{{ navItem.char }}</span>
                 <span>{{ navItem.name }}</span>
                 <span class="text-[0.625rem] text-ink-light ml-0.5">*</span>
               </span>
@@ -321,7 +319,6 @@ const closeDropdown = (e: FocusEvent) => {
                 ]"
                 @click="showMobileNav = false"
               >
-                <span class="seal-mark text-[0.7rem] w-7 h-7 flex items-center justify-center shrink-0" aria-hidden="true">{{ navItem.char }}</span>
                 <span class="font-sans text-sm">{{ navItem.name }}</span>
                 <svg aria-hidden="true" class="w-3 h-3 ml-auto text-ink-medium/80 group-hover:text-cinnabar/40 transition-colors" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                   <path d="M4 2l4 4-4 4" />
@@ -335,9 +332,8 @@ const closeDropdown = (e: FocusEvent) => {
                   class="mobile-nav-item mobile-nav-item--locked"
                   :aria-label="navItem.name + '（即将上线）'"
                 >
-                  <span class="seal-mark text-[0.7rem] w-7 h-7 flex items-center justify-center opacity-40" aria-hidden="true">{{ navItem.char }}</span>
-                  <span class="font-sans text-sm text-ink-light/80">{{ navItem.name }}</span>
-                  <span class="text-[0.6rem] text-ink-medium/80 ml-auto">即将</span>
+                  <span class="font-sans text-sm text-ink-light/50">{{ navItem.name }}</span>
+                  <span class="text-[0.6rem] text-ink-faint/40 ml-auto">即将</span>
                 </span>
               </div>
             </nav>
