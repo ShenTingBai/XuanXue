@@ -308,7 +308,170 @@ function onLabelKeydown(e: KeyboardEvent, i: number) {
 </script>
 
 <template>
-  <div ref="chartContainer" />
+  <div
+    ref="chartContainer"
+    class="celestial-chart"
+    :class="{ 'is-hidden': !isVisible }"
+    role="img"
+    aria-label="紫微斗数天星图 — 十二宫星曜分布"
+  >
+    <!-- ── SVG 底层：轨道 + 分隔 + 选中弧 ── -->
+    <svg
+      class="orbit-svg"
+      viewBox="0 0 600 600"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter id="sel-glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- 5 条手绘轨道圈 -->
+      <path
+        v-for="(d, i) in orbitPaths"
+        :key="`ring-${i}`"
+        :d="d"
+        fill="none"
+        stroke="#C5B8A8"
+        stroke-width="0.8"
+        opacity="0.35"
+      />
+
+      <!-- 内圈虚线（紧贴印章） -->
+      <path
+        :d="innerDashedPath"
+        fill="none"
+        stroke="#C5B8A8"
+        stroke-width="0.5"
+        opacity="0.18"
+        stroke-dasharray="2,5"
+      />
+
+      <!-- 十字参考虚线 -->
+      <line
+        :x1="CX - 268" :y1="CY" :x2="CX + 268" :y2="CY"
+        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+      />
+      <line
+        :x1="CX" :y1="CY - 268" :x2="CX" :y2="CY + 268"
+        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+      />
+
+      <!-- 12 条扇形分隔 -->
+      <line
+        v-for="d in dividers"
+        :key="`div-${d.key}`"
+        :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
+        stroke="#C62828" stroke-width="0.5" opacity="0.18"
+      />
+
+      <!-- 选中扇区高亮 -->
+      <g v-if="highlight">
+        <path
+          :d="highlight.path"
+          fill="rgba(198,40,40,0.06)"
+          stroke="rgba(198,40,40,0.15)"
+          stroke-width="0.5"
+          filter="url(#sel-glow)"
+        />
+        <line
+          :x1="arcEdgePoint(highlight.startAngle, highlight.innerR).x"
+          :y1="arcEdgePoint(highlight.startAngle, highlight.innerR).y"
+          :x2="arcEdgePoint(highlight.startAngle, highlight.outerR).x"
+          :y2="arcEdgePoint(highlight.startAngle, highlight.outerR).y"
+          stroke="rgba(198,40,40,0.3)" stroke-width="1.2"
+        />
+        <line
+          :x1="arcEdgePoint(highlight.endAngle, highlight.innerR).x"
+          :y1="arcEdgePoint(highlight.endAngle, highlight.innerR).y"
+          :x2="arcEdgePoint(highlight.endAngle, highlight.outerR).x"
+          :y2="arcEdgePoint(highlight.endAngle, highlight.outerR).y"
+          stroke="rgba(198,40,40,0.3)" stroke-width="1.2"
+        />
+      </g>
+    </svg>
+
+    <!-- ── 宫位标签层 ── -->
+    <div class="labels-layer">
+      <button
+        v-for="label in palaceLabels"
+        :key="`label-${label.idx}`"
+        type="button"
+        class="palace-label"
+        :class="{ 'pl-ming': label.isMing, 'pl-sel': label.idx === selectedIndex }"
+        :style="{ left: label.pctX + '%', top: label.pctY + '%' }"
+        :tabindex="label.idx === mingGongIndex ? 0 : -1"
+        :aria-label="`${label.name} ${label.branch}宫`"
+        @click="emit('select', label.idx)"
+        @keydown="onLabelKeydown($event, label.idx)"
+      >
+        <span class="pl-name">{{ label.name }}</span>
+        <span class="pl-branch">{{ label.branch }}</span>
+      </button>
+    </div>
+
+    <!-- ── 星曜层 ── -->
+    <div class="stars-layer">
+      <button
+        v-for="star in renderedStars"
+        :key="star.id"
+        type="button"
+        class="star-item"
+        :class="{
+          'st-major': star.isMajor,
+          'st-act': star.palaceIdx === selectedIndex,
+          'st-label-left': star.labelOnLeft,
+        }"
+        :style="{
+          left: star.pctX + '%',
+          top: star.pctY + '%',
+          '--twinkle-dur': star.twinkleDuration + 's',
+          '--twinkle-delay': star.twinkleDelay + 's',
+          '--drift-dur': star.driftDuration + 's',
+          '--drift-delay': star.driftDelay + 's',
+          '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
+        }"
+        :aria-label="star.name + (star.mutagen ? ' 化' + star.mutagen : '')"
+        @click="emit('select', star.palaceIdx)"
+        @mouseenter="onStarEnter($event, star)"
+        @mouseleave="onStarLeave"
+      >
+        <span class="st-orb" :class="`cls-${star.colorClass}`" />
+        <span class="st-label">{{ star.name }}</span>
+        <span
+          v-if="star.mutagen"
+          class="st-mutagen"
+          :class="mutagenCss(star.mutagen)"
+        >化{{ star.mutagen }}</span>
+      </button>
+    </div>
+
+    <!-- ── 中央紫微印章 ── -->
+    <div class="polaris" aria-hidden="true">
+      <div class="polaris-seal">
+        <span class="polaris-char">紫</span>
+      </div>
+      <span class="polaris-label">紫微星</span>
+    </div>
+
+    <!-- ── Tooltip ── -->
+    <div
+      ref="tooltipRef"
+      class="star-tooltip"
+      :class="{ 'tp-vis': tooltipVisible }"
+      :style="tooltipStyle"
+      role="tooltip"
+      :aria-hidden="!tooltipVisible"
+    >
+      {{ tooltipText }}
+    </div>
+  </div>
 </template>
 
 <style scoped>
