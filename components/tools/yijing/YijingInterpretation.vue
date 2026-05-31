@@ -17,7 +17,7 @@
 
     <!-- Primary hexagram -->
     <h2 class="sr-only">本卦</h2>
-    <div class="section-header section-header--tool section-header--tool-light">
+    <div class="section-header section-header--tool">
       <span class="bar" aria-hidden="true"></span>
       <h2>本卦</h2>
     </div>
@@ -39,7 +39,7 @@
 
     <!-- Derived hexagram (变卦) -->
     <template v-if="result.derivedHexagram && result.derivedLines">
-      <div class="section-header section-header--tool section-header--tool-light">
+      <div class="section-header section-header--tool">
         <span class="bar" aria-hidden="true"></span>
         <h2>变卦</h2>
       </div>
@@ -62,7 +62,7 @@
 
     <!-- Mutual hexagram (互卦) -->
     <template v-if="result.huGua && result.huGuaLines">
-      <div class="section-header section-header--tool section-header--tool-light">
+      <div class="section-header section-header--tool">
         <span class="bar" aria-hidden="true"></span>
         <h2>互卦</h2>
       </div>
@@ -84,7 +84,7 @@
     </template>
 
     <!-- Interpretation text -->
-    <div class="section-header section-header--tool section-header--tool-light">
+    <div class="section-header section-header--tool">
       <span class="bar" aria-hidden="true"></span>
       <h2>卦象解读</h2>
     </div>
@@ -105,7 +105,7 @@
     </div>
 
     <!-- Line detail table -->
-    <div class="section-header section-header--tool section-header--tool-light">
+    <div class="section-header section-header--tool">
       <span class="bar" aria-hidden="true"></span>
       <h2>六爻详解</h2>
     </div>
