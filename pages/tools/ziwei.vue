@@ -15,6 +15,7 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
 import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
@@ -30,6 +31,20 @@ const selectedPalace = ref<IFunctionalPalace | null>(null)
 const selectedIndex = ref(0)
 const currentView = ref<'celestial' | 'grid'>('celestial')
 const showHistoryModal = ref(false)
+const showScrollTop = ref(false)
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
+}
 
 // Form state
 const birthDate = ref('')
@@ -55,6 +70,12 @@ onMounted(() => {
   if (currentProfile.value.gender) {
     gender.value = currentProfile.value.gender === '男' ? 'male' : 'female'
   }
+
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 function handleCalculate() {
@@ -356,6 +377,12 @@ async function restoreFromHistory(id: number) {
         <EntertainmentDisclaimer />
 
       </div>
+
+      <ScrollTopButton
+        v-if="showScrollTop"
+        @click="scrollToTop"
+        @keydown.enter="scrollToTop"
+      />
     </template>
 
     <!-- nav-right slot: palace detail panel -->

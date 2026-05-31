@@ -14,6 +14,7 @@ import InkDivider from '~/components/tools/InkDivider.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 
@@ -29,6 +30,21 @@ const saveError = ref('')
 const showSaveErrorToast = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
+const showScrollTop = ref(false)
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
+}
+
 onMounted(() => {
   restoreSession()
   if (!currentProfile.value) {
@@ -42,7 +58,12 @@ onMounted(() => {
     return
   }
 
+  window.addEventListener('scroll', handleScroll, { passive: true })
   computeResult()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 function computeResult() {
@@ -336,6 +357,12 @@ function dismissRestoreError() {
 
           <EntertainmentDisclaimer />
           </div>
+
+          <ScrollTopButton
+            v-if="showScrollTop"
+            @click="scrollToTop"
+            @keydown.enter="scrollToTop"
+          />
         </template>
       </ToolPageLayout>
 </template>
