@@ -85,7 +85,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ### 持久化
 
-- **Session**：`localStorage` 键 `xuanxue:session`，存储 `{ token, profile }`。
+- **Session**：`localStorage` 键 `xuanxue:session`，存储 `{ token, profile }`。（公开上线前需改为 httpOnly cookie——localStorage 在 XSS 下可被窃取。）
 - **Greeting**：`localStorage` 键 `xuanxue:greeting`，存储 `{ prefix, subtitle }`——自包含，不依赖 API。
 - `restoreSession()` 从 localStorage 读取；**必须**在 `layouts/default.vue` **和**每个页面的 `onMounted` 中都调用。
 - 保存 profile 后，调用 `updateProfile(response)`（而非 `restoreSession()`）来同步 `useState` 和 localStorage。
@@ -94,7 +94,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 1. 页面加载 → `restoreSession()` 读取 localStorage → `currentProfile` 填充。
 2. 无 session → 重定向到 `/login`。
-3. 登录/注册 → API 返回 `{ token, profile }` → 写入 localStorage + `useState`。
+3. 登录/注册 → API 返回 `{ token, profile }` → 写入 localStorage + `useState`。（PIN 当前为 4 位数字，公开上线前需扩展为 6+ 位字母数字。）
 4. 登出 → DELETE `/api/auth/logout`（尽力而为）→ 清除 localStorage + `useState`。
 
 ### UI 设计：墨韵 · Ink Resonance
@@ -111,7 +111,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 在 `nuxt.config.ts` → `routeRules` 中配置：
 
-- CSP：`default-src 'self'`，`script-src 'unsafe-inline'`（Nuxt 3 hydration 所需）。生产环境强化需通过 Nitro render hooks 或 `@nuxtjs/csp` 实现 nonce 策略以移除 `unsafe-inline`。
+- CSP：`default-src 'self'`，`script-src 'unsafe-inline'`（Nuxt 3 hydration 所需；公开上线前需实现 nonce 策略移除 `unsafe-inline`）。
 - HSTS（2 年 max-age + preload）、`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、`Referrer-Policy: strict-origin-when-cross-origin`、`Permissions-Policy: camera=(), microphone=(), geolocation=()`。
 
 ### Git 工作流
@@ -202,11 +202,3 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 - 在初始化中读取 `localStorage` 的组合式函数需要 `if (import.meta.client)` 守卫。Nuxt 在服务端运行组合式函数 setup 时 `localStorage` 不可用。
 - Layout 应监听 `route.path` 以在路由切换时关闭下拉菜单：`watch(() => route.path, () => { showDropdown.value = false })`。
-
-## 公开上线前必须处理
-
-以下为安全审计（2026-05-31）发现的问题，因影响现有用户或需架构调整，推迟到公开上线前解决：
-
-1. **令牌存储迁移**：localStorage → httpOnly cookie。涉及 `useAuth.ts` 和所有服务端 auth 流程。
-2. **PIN 策略扩展**：4 位数字 → 6+ 位字母数字。需迁移流程让已有用户重置。
-3. **CSP nonce 策略**：当前使用 `'unsafe-inline'`。上线前需通过 `@nuxtjs/csp` 或 Nitro render hooks 正确注入 nonce。
