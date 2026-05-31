@@ -1,12 +1,16 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.15s' }">
-    <InkDivider>神煞</InkDivider>
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">煞</span>
+      <h2>神煞</h2>
+    </div>
 
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       神煞是命局中的特殊标记，吉神代表先天福分，凶煞提示需留意之处。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-8 space-y-4">
+    <div class="card-warm rounded-xl p-8 space-y-4">
       <!-- Empty state: no shenshas at all -->
       <p v-if="groupedShenSha.auspicious.length === 0 && groupedShenSha.neutral.length === 0 && groupedShenSha.inauspicious.length === 0"
         class="font-sans text-sm text-ink-muted">
@@ -55,7 +59,6 @@
 
 <script setup lang="ts">
 import type { ShenSha } from '~/composables/useShenSha'
-import InkDivider from '~/components/tools/InkDivider.vue'
 import { shenShaBadgeStyle } from '~/constants/bazi'
 
 function buttonStyle(category: '吉' | '凶' | '中性'): Record<string, string> {

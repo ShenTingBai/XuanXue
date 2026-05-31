@@ -1,13 +1,17 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.3s' }">
-    <InkDivider>日主分析</InkDivider>
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">主</span>
+      <h2>日主分析</h2>
+    </div>
 
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       日主是你出生那天的天干，代表你的核心特质。"喜用神"是对你有利的能量，
       "忌神"是容易与你有冲突的能量，生活中可有意平衡。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-8">
+    <div class="card-warm rounded-xl p-8">
       <div class="flex items-center gap-4 mb-4">
         <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-cinnabar/5 border border-cinnabar/20 flex items-center justify-center">
           <span class="font-display text-2xl text-cinnabar">{{ dayMaster }}</span>
@@ -49,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-import InkDivider from '~/components/tools/InkDivider.vue'
 import { wuxingColor, strengthColorClass as strengthColorClassFn } from '~/constants/bazi'
 
 const props = defineProps<{

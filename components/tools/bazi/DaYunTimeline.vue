@@ -1,6 +1,10 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.4s' }">
-    <InkDivider>大运</InkDivider>
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">运</span>
+      <h2>大运</h2>
+    </div>
 
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       大运是你人生每十年一段的运势走向。高亮的卡片对应你当前的年龄段。
@@ -8,7 +12,7 @@
 
     <p v-if="cycles.length === 0" class="font-sans text-sm text-ink-muted">暂无大运数据</p>
 
-    <div v-else class="card-paper-solid rounded-xl p-8">
+    <div v-else class="card-warm rounded-xl p-8">
     <!-- Desktop: horizontal cards -->
     <div class="hidden sm:flex gap-3 overflow-x-auto pb-2">
       <div v-for="(cycle, idx) in cycles" :key="cycle.startAge"
@@ -50,7 +54,6 @@
 
 <script setup lang="ts">
 import type { DaYunCycle } from '~/composables/useBaZi'
-import InkDivider from '~/components/tools/InkDivider.vue'
 
 const props = defineProps<{
   cycles: DaYunCycle[]

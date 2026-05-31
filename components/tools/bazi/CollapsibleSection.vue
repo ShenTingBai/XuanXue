@@ -1,7 +1,7 @@
 <template>
   <div
     :id="sectionId"
-    class="card-paper-solid rounded-xl p-8 mb-6 scroll-mt-20"
+    class="card-warm rounded-xl p-8 mb-6 scroll-mt-20"
     tabindex="-1"
   >
     <!-- Clickable header bar -->
@@ -14,6 +14,7 @@
     >
       <div class="flex items-center gap-3 min-w-0">
         <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm flex-shrink-0" aria-hidden="true"></span>
+        <span v-if="sealChar" class="seal-icon text-[9px] w-7 h-7 flex-shrink-0" aria-hidden="true">{{ sealChar }}</span>
         <h2 class="font-display text-xl text-ink-dark truncate">{{ title }}</h2>
         <span class="text-xs text-ink-light flex-shrink-0">({{ subtitle }})</span>
       </div>
@@ -51,6 +52,7 @@ defineProps<{
   title: string
   subtitle: string
   expanded: boolean
+  sealChar?: string
 }>()
 
 const emit = defineEmits<{

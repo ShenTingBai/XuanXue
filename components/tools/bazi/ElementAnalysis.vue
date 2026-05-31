@@ -1,12 +1,16 @@
 <template>
   <div class="fade-in" :style="{ '--delay': '0.2s' }">
-    <InkDivider>五行旺衰</InkDivider>
+    <div class="section-header section-header--tool">
+      <span class="bar" aria-hidden="true"></span>
+      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">行</span>
+      <h2>五行旺衰</h2>
+    </div>
 
     <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
       五行（金木水火土）在你八字中的分布。柱条越长，该能量越强，对你影响越大。
     </p>
 
-    <div class="card-paper-solid rounded-xl p-8">
+    <div class="card-warm rounded-xl p-8">
     <div v-if="summary" class="font-sans text-base text-ink-medium mb-4">
       {{ summary }}
     </div>
@@ -38,7 +42,6 @@ const strengthMap: Record<string, string> = {
 </script>
 
 <script setup lang="ts">
-import InkDivider from '~/components/tools/InkDivider.vue'
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
 const props = defineProps<{
