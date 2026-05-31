@@ -116,11 +116,8 @@ export async function initDb(): Promise<void> {
 
     db.run(CREATE_PROFILES_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
-    // Migration: rename token→token_hash for SHA-256 session storage (existing DBs)
-    try { db.run("ALTER TABLE sessions RENAME COLUMN token TO token_hash") } catch (err) { console.error('[db] Migration failed:', err) }
 
-    // Migration: hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
-    // After the rename, old sessions still have plaintext tokens; SHA-256 query would find no match.
+    // Hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
     try {
       const rows = dbAll('SELECT id, token_hash FROM sessions') as { id: number; token_hash: string }[]
       for (const row of rows) {
@@ -140,10 +137,6 @@ export async function initDb(): Promise<void> {
     db.run(INDEX_SESSIONS_EXPIRES_AT)
     db.run(INDEX_DIVINATION_PROFILE)
     db.run(INDEX_DIVINATION_PROFILE_TYPE_CREATED)
-
-    // Phase 2 migrations
-    // Migration: add expires_at column if it doesn't exist
-    try { db.run("ALTER TABLE sessions ADD COLUMN expires_at TEXT") } catch (err) { console.error('[db] Migration failed:', err) }
 
     // Migration: remove pin CHECK(length(pin)=4) constraint for hashed PIN support
     try {
