@@ -30,7 +30,6 @@
 <script setup lang="ts">
 defineProps<{
   emoji: string
-  emojiLabel?: string
   title: string
   subtitle: string
 }>()

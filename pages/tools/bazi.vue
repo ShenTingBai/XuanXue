@@ -276,6 +276,11 @@ function onHistoryRestore(id: number) {
   restoreFromHistory(id)
 }
 
+function isBaZiResult(data: unknown): data is BaZiResult {
+  return typeof data === 'object' && data !== null
+    && 'dayMaster' in data && 'yearPillar' in data && 'daYun' in data
+}
+
 async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
@@ -286,8 +291,8 @@ async function restoreFromHistory(id: number) {
     )
     if (record.result_data) {
       const data = record.result_data
-      if (data && typeof data === 'object' && 'dayMaster' in data && 'yearPillar' in data && 'daYun' in data) {
-        const baziResult = data as BaZiResult
+      if (isBaZiResult(data)) {
+        const baziResult: BaZiResult = data
         result.value = baziResult
         cachedAge.value = getCurrentAge()
 

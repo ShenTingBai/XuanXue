@@ -169,12 +169,6 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 </script>
 
 <style scoped>
-.hexagram-container {
-  animation: fadeIn 0.5s ease-out forwards;
-  animation-delay: var(--delay, 0s);
-  opacity: 0;
-}
-
 /* ── Yao lines container ── */
 .yao-container {
   display: inline-flex;
@@ -393,13 +387,6 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   }
 }
 
-/* ── Animations ── */
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 0px var(--color-cinnabar); }
@@ -409,5 +396,13 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 @keyframes pulseDot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
+}
+</style>
+
+<style>
+.hexagram-container {
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
 }
 </style>

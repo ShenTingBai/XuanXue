@@ -112,24 +112,25 @@ function handleRovingKeydown(e: KeyboardEvent) {
 </script>
 
 <style scoped>
-/* Desktop: tooltip anchored above the badge */
+/* Mobile-first: fixed tooltip centered in viewport to avoid overflow on small screens */
 .tooltip-anchor {
-  position: absolute;
-  bottom: 100%;
+  position: fixed;
+  top: 30%;
   left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 0.375rem;
+  transform: translate(-50%, -50%);
+  margin-bottom: 0;
+  z-index: 100;
 }
 
-/* Mobile: fixed tooltip centered in viewport to avoid overflow */
-@media (max-width: 640px) {
+/* sm and up: tooltip anchored above the badge */
+@media (min-width: 640px) {
   .tooltip-anchor {
-    position: fixed;
-    top: 30%;
+    position: absolute;
+    bottom: 100%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    margin-bottom: 0;
-    z-index: 100;
+    transform: translateX(-50%);
+    margin-bottom: 0.375rem;
+    z-index: auto;
   }
 }
 </style>
