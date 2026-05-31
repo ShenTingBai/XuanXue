@@ -544,7 +544,6 @@ function onSectionNavigate(sectionName: string) {
               subtitle="命盘"
               :expanded="expandedSections['bazi-grid']"
               @toggle="toggleSection"
-              seal-char="命"
             >
               <BaziGrid :pillars="pillars" />
             </CollapsibleSection>
@@ -557,7 +556,6 @@ function onSectionNavigate(sectionName: string) {
               subtitle="吉凶"
               :expanded="expandedSections['shensha']"
               @toggle="toggleSection"
-              seal-char="煞"
             >
               <ShenShaPanel :shen-sha="shenShaList" />
             </CollapsibleSection>
@@ -569,7 +567,6 @@ function onSectionNavigate(sectionName: string) {
               subtitle="元神"
               :expanded="expandedSections['day-master']"
               @toggle="toggleSection"
-              seal-char="主"
             >
               <DayMasterCard
                 :day-master="result.dayMaster"
@@ -587,7 +584,6 @@ function onSectionNavigate(sectionName: string) {
               subtitle="强弱"
               :expanded="expandedSections['elements']"
               @toggle="toggleSection"
-              seal-char="行"
             >
               <ElementAnalysis
                 :element-counts="result.elementCounts"
@@ -606,7 +602,6 @@ function onSectionNavigate(sectionName: string) {
               subtitle="十年"
               :expanded="expandedSections['dayun']"
               @toggle="toggleSection"
-              seal-char="运"
             >
               <DaYunTimeline :cycles="result.daYun" :current-cycle-idx="currentDaYunIndex" />
             </CollapsibleSection>
@@ -618,7 +613,6 @@ function onSectionNavigate(sectionName: string) {
               subtitle="岁运"
               :expanded="expandedSections['liunian']"
               @toggle="toggleSection"
-              seal-char="年"
             >
               <LiuNianTimeline
                 v-if="liuNianYears.length > 0"

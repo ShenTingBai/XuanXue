@@ -749,6 +749,18 @@ html {
     }
   }
 
+  .section-header--tool-light h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--color-ink-medium);
+    letter-spacing: 0.2em;
+  }
+  @media (min-width: 640px) {
+    .section-header--tool-light h2 {
+      font-size: 1.125rem;
+    }
+  }
+
   /* ── 朱砂印章（通用） ── */
   .seal-icon {
     display: inline-flex;
