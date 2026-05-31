@@ -111,31 +111,6 @@ const transformations = computed(() => {
   }
   return result
 })
-
-const zodiacLabel = computed(() => {
-  const year = parseInt(solarDate.value.year, 10)
-  if (isNaN(year)) return '—'
-  return getAnimal(year)
-})
-
-const mingStars = computed(() => {
-  const branch = props.astrolabe.earthlyBranchOfSoulPalace
-  const palace = props.astrolabe.palaces.find(p => p.earthlyBranch === branch)
-  if (!palace) return ''
-  return palace.majorStars.map(s => s.name).join('、')
-})
-
-const transformations = computed(() => {
-  const result: Array<{ star: string; type: string; label: string }> = []
-  for (const palace of props.astrolabe.palaces) {
-    for (const s of [...palace.majorStars, ...palace.minorStars]) {
-      if (s.mutagen) {
-        result.push({ star: s.name, type: s.mutagen, label: `化${s.mutagen}` })
-      }
-    }
-  }
-  return result
-})
 </script>
 
 <style scoped>
