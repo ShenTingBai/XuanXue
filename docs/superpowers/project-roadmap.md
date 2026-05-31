@@ -59,11 +59,9 @@
 - [x] index.vue 重设计（英雄区 + 工具卡片 + 命盘预览 + 运势签 + 命簿卡片 + footer）
 - [x] login.vue 重设计（结缘立卷 + 四角卦象 + 号令/密令 + 入卷）
 - [x] layouts/default.vue 品牌名更新（玄学 → 玄·道）
-
-### 待办
-- [ ] 工具页面（bazi / shengxiao / constellation / yijing / ziwei）视觉适配
-- [ ] 纸纹纹理（body::after SVG feTurbulence）确认
-- [ ] 各工具页面的 section-header、seal-icon、card-warm 替换
+- [x] 工具页面视觉适配（bazi / shengxiao / constellation / yijing / ziwei）
+- [x] profile/[id].vue 命簿页面重设计
+- [x] 纸纹纹理（body::after SVG feTurbulence）确认
 
 ## 分支策略
 
