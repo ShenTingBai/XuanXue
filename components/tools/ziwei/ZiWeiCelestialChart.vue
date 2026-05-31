@@ -496,5 +496,528 @@ function focusLabel(idx: number) {
 </template>
 
 <style scoped>
-/* placeholder — Task 4 will replace */
+/* ═══════════════════════════════════════════════════════════════
+   Container & layers — 纸面 · 玄空
+   ═══════════════════════════════════════════════════════════════ */
+.celestial-chart {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  user-select: none;
+  overflow: visible;
+  /* Subtle isolation so absolute layers paint cleanly */
+  isolation: isolate;
+}
+
+.celestial-chart.is-hidden { display: none; }
+
+/* Soft paper-glow: warm ink wash bleeding from the centre outward.
+   Layered radial gradient gives a more atmospheric falloff than
+   a single stop, evoking light through xuan paper. */
+.celestial-chart::before {
+  content: '';
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 48%,
+      rgba(232, 222, 208, 0.22) 0%,
+      rgba(238, 229, 216, 0.12) 38%,
+      rgba(238, 229, 216, 0.04) 62%,
+      transparent 78%),
+    radial-gradient(ellipse at 50% 70%,
+      rgba(198, 40, 40, 0.025) 0%,
+      transparent 55%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.orbit-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.labels-layer,
+.stars-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.labels-layer { z-index: 1; }
+.stars-layer  { z-index: 2; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Palace labels — 贤净文字（无边框无背景）
+   ═══════════════════════════════════════════════════════════════ */
+.palace-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  background: transparent;
+  border: none;
+  white-space: nowrap;
+  /* Refined cubic-bezier — calligraphic deceleration, no rubber-band */
+  transition:
+    color 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    letter-spacing 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: label-drift 24s ease-in-out infinite;
+}
+
+.pl-name {
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: #8B7D6B;
+  opacity: 0.62;
+  line-height: 1.1;
+  transition:
+    color 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    text-shadow 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.pl-branch {
+  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-size: 0.5rem;
+  color: #8B7D6B;
+  opacity: 0.28;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  font-weight: 500;
+  transition: opacity 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.palace-label:hover .pl-name {
+  color: #5D4E37;
+  opacity: 0.95;
+  text-shadow: 0 0 8px rgba(93, 78, 55, 0.08);
+}
+
+.palace-label:hover .pl-branch { opacity: 0.5; }
+
+.palace-label.pl-ming .pl-name {
+  color: #C62828;
+  opacity: 0.85;
+  text-shadow: 0 0 6px rgba(198, 40, 40, 0.12);
+}
+
+.palace-label.pl-sel .pl-name {
+  color: #C62828;
+  opacity: 1;
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 10px rgba(198, 40, 40, 0.18);
+}
+.palace-label.pl-sel .pl-branch { opacity: 0.55; color: #C62828; }
+
+.palace-label:focus-visible {
+  outline: none;
+}
+.palace-label:focus-visible .pl-name {
+  text-decoration: underline 0.5px #C62828;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 0.5px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Stars — 星曜
+   ═══════════════════════════════════════════════════════════════ */
+.star-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  white-space: nowrap;
+  z-index: 2;
+  opacity: 0;
+  /* star-enter: refined deceleration with a hint of overshoot.
+     twinkle/drift run on top once the entrance settles. */
+  animation:
+    star-enter 600ms cubic-bezier(0.34, 1.32, 0.64, 1) var(--enter-delay, 0ms) forwards,
+    twinkle var(--twinkle-dur, 5s) ease-in-out var(--twinkle-delay, 0s) infinite,
+    drift var(--drift-dur, 90s) linear var(--drift-delay, 0s) infinite;
+}
+
+.star-item:hover { z-index: 10; }
+
+.st-label-left {
+  flex-direction: row-reverse;
+}
+
+/* Orb base — ink-droplet feel */
+.st-orb {
+  flex-shrink: 0;
+  border-radius: 50%;
+  position: relative;
+  transition:
+    transform 240ms cubic-bezier(0.34, 1.45, 0.64, 1),
+    box-shadow 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.star-item .st-orb {
+  width: 11px;
+  height: 11px;
+}
+
+.st-major .st-orb {
+  width: 14px;
+  height: 14px;
+}
+
+/* 7 colour classes — each orb carries a soft top-light highlight via
+   radial-gradient overlay, lending dimension without busy detailing. */
+.st-orb.cls-gold {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 235, 200, 0.55), transparent 55%),
+    #C62828;
+  border: 1.5px solid #D4A84B;
+  box-shadow:
+    0 0 6px rgba(93, 78, 55, 0.22),
+    0 0 0 0.5px rgba(212, 168, 75, 0.4) inset;
+}
+.st-orb.cls-cinnabar {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 220, 215, 0.42), transparent 55%),
+    #A02020;
+  border: 1px solid rgba(198, 40, 40, 0.35);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+}
+.st-orb.cls-jade {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(220, 240, 230, 0.42), transparent 55%),
+    #4A8C6F;
+  border: 1px solid rgba(74, 140, 111, 0.35);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+}
+.st-orb.cls-ice {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(225, 240, 250, 0.5), transparent 55%),
+    #6BA8C8;
+  border: 1px solid rgba(107, 168, 200, 0.35);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+}
+.st-orb.cls-purple {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(230, 225, 245, 0.45), transparent 55%),
+    #7B6FA0;
+  border: 1px solid rgba(123, 111, 160, 0.35);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+}
+.st-orb.cls-gray {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(220, 210, 195, 0.4), transparent 55%),
+    #5D4E37;
+  border: 1px solid rgba(93, 78, 55, 0.35);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
+}
+.st-orb.cls-white {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(245, 240, 232, 0.55), transparent 55%),
+    #8B7D6B;
+  border: 1px solid rgba(139, 125, 107, 0.35);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.15);
+}
+
+.star-item:hover .st-orb {
+  transform: scale(1.28);
+  box-shadow:
+    0 0 12px rgba(198, 40, 40, 0.32),
+    0 0 22px rgba(198, 40, 40, 0.1),
+    0 0 0 0.5px rgba(198, 40, 40, 0.25) inset;
+}
+
+/* Star label — 篆書小字 */
+.st-label {
+  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: #5D4E37;
+  opacity: 0.58;
+  line-height: 1;
+  transition:
+    opacity 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    text-shadow 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  pointer-events: none;
+}
+
+.st-major .st-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.74;
+  letter-spacing: 0.08em;
+}
+
+.star-item:hover .st-label,
+.st-act .st-label {
+  opacity: 1;
+  color: #C62828;
+  text-shadow: 0 0 6px rgba(198, 40, 40, 0.12);
+}
+
+/* Active selection ring — gentle ripple, evokes ink dropped on paper */
+.star-item.st-act .st-orb::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid rgba(198, 40, 40, 0.45);
+  pointer-events: none;
+  animation: ring-pulse 2.2s cubic-bezier(0.16, 0.84, 0.44, 1) infinite;
+}
+
+.star-item:focus-visible {
+  outline: none;
+}
+.star-item:focus-visible .st-orb {
+  box-shadow:
+    0 0 0 2px rgba(198, 40, 40, 0.45),
+    0 0 10px rgba(198, 40, 40, 0.28);
+}
+
+/* Four-Hua chip — small impressed-seal feel */
+.st-mutagen {
+  pointer-events: none;
+  font-family: 'Noto Serif SC', 'STSong', serif;
+  font-size: 0.5rem;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 2px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  /* 印章感：内嵌微阴影模拟盖印 */
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+
+.st-mutagen.lu   { background: rgba(198, 40, 40, 0.16); color: #C62828; border: 0.5px solid rgba(198, 40, 40, 0.22); }
+.st-mutagen.quan { background: rgba(74, 140, 111, 0.16); color: #4A8C6F; border: 0.5px solid rgba(74, 140, 111, 0.22); }
+.st-mutagen.ke   { background: rgba(107, 168, 200, 0.16); color: #6BA8C8; border: 0.5px solid rgba(107, 168, 200, 0.22); }
+.st-mutagen.ji   { background: rgba(93, 78, 55, 0.13); color: #5D4E37; border: 0.5px solid rgba(93, 78, 55, 0.18); }
+
+/* ═══════════════════════════════════════════════════════════════
+   Polaris (centre seal) — 紫微印
+   ═══════════════════════════════════════════════════════════════ */
+.polaris {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Aura behind the seal — slow exhale */
+.polaris::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(198, 40, 40, 0.10) 0%,
+    rgba(212, 168, 75, 0.05) 45%,
+    transparent 72%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: seal-glow 4.2s ease-in-out infinite;
+}
+
+.polaris-seal {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  /* Lacquer-red disc with subtle off-centre highlight */
+  background: radial-gradient(circle at 38% 32%,
+    #DD4848 0%,
+    #C62828 48%,
+    #8A1B1B 100%);
+  border: 2px solid #D4A84B;
+  box-shadow:
+    0 0 18px rgba(93, 78, 55, 0.25),
+    0 0 40px rgba(93, 78, 55, 0.10),
+    inset 0 0 6px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: seal-breathe 4.2s ease-in-out infinite;
+}
+
+.polaris-char {
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
+  font-size: 1.5rem;
+  color: #D4A84B;
+  text-shadow:
+    0 0 6px rgba(212, 168, 75, 0.35),
+    0 1px 0 rgba(0, 0, 0, 0.18);
+  line-height: 1;
+}
+
+.polaris-label {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
+  font-size: 0.65rem;
+  color: #8B7D6B;
+  letter-spacing: 0.12em;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Tooltip — 注解卡
+   ═══════════════════════════════════════════════════════════════ */
+.star-tooltip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  background: rgba(245, 240, 232, 0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(198, 40, 40, 0.15);
+  border-left: 2.5px solid #C62828;
+  border-radius: 4px 8px 8px 4px;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.68rem;
+  color: #5D4E37;
+  max-width: 220px;
+  min-width: 110px;
+  box-shadow:
+    0 6px 18px rgba(93, 78, 55, 0.14),
+    0 1px 3px rgba(93, 78, 55, 0.08);
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+}
+
+.star-tooltip.tp-vis {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Keyframes — MUST live OUTSIDE @layer per project convention
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes star-enter {
+  0%   { opacity: 0;    transform: translate(-50%, -50%) scale(0.55); }
+  60%  { opacity: 0.92; transform: translate(-50%, -50%) scale(1.06); }
+  100% { opacity: 1;    transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { filter: brightness(0.9)  saturate(0.96); }
+  50%      { filter: brightness(1.12) saturate(1.04); }
+}
+
+@keyframes drift {
+  0%   { transform: translate(-50%, -50%) rotate(0deg); }
+  50%  { transform: translate(-50%, -50%) rotate(0.6deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+@keyframes label-drift {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  50%      { transform: translate(-50%, -50%) rotate(0.2deg); }
+}
+
+@keyframes ring-pulse {
+  0%   { opacity: 0.55; transform: scale(0.88); }
+  60%  { opacity: 0.18; transform: scale(1.35); }
+  100% { opacity: 0;    transform: scale(1.65); }
+}
+
+@keyframes seal-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 18px rgba(93, 78, 55, 0.25),
+      0 0 40px rgba(93, 78, 55, 0.10),
+      inset 0 0 6px rgba(0, 0, 0, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 26px rgba(93, 78, 55, 0.36),
+      0 0 54px rgba(93, 78, 55, 0.16),
+      inset 0 0 8px rgba(0, 0, 0, 0.22);
+  }
+}
+
+@keyframes seal-glow {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.55; }
+  50%      { transform: translate(-50%, -50%) scale(1.14); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Reduced motion — respect user preference
+   ═══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .star-item,
+  .palace-label,
+  .polaris-seal,
+  .polaris::before {
+    animation: none !important;
+  }
+  .star-item {
+    opacity: 0.92;
+    transform: translate(-50%, -50%);
+  }
+  .star-item.st-act .st-orb::after {
+    animation: none;
+    opacity: 0.4;
+  }
+  .star-tooltip {
+    transition: opacity 120ms linear;
+    transform: none;
+  }
+  .star-tooltip.tp-vis { transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Responsive — 小屏调适
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .pl-name { font-size: 0.72rem; letter-spacing: 0.10em; }
+  .pl-branch { font-size: 0.45rem; }
+  .palace-label.pl-sel .pl-name { letter-spacing: 0.13em; }
+  .star-item .st-orb { width: 9px; height: 9px; }
+  .st-major .st-orb { width: 12px; height: 12px; }
+  .st-label { font-size: 0.52rem; }
+  .st-major .st-label { font-size: 0.6rem; }
+  .st-mutagen { font-size: 0.46rem; padding: 1px 3px; }
+  .polaris-seal { width: 44px; height: 44px; }
+  .polaris-char { font-size: 1.25rem; }
+  .polaris::before { width: 72px; height: 72px; }
+  .polaris-label { font-size: 0.6rem; bottom: -19px; }
+  .star-tooltip { font-size: 0.62rem; max-width: 180px; padding: 0.4rem 0.6rem; }
+}
 </style>
