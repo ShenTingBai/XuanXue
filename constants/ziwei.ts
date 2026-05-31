@@ -115,3 +115,32 @@ export function getPalaceInterpretation(palaceName: string): string {
 export function getStarInterpretation(starName: string): string {
   return STAR_INTERPRETATIONS[starName] ?? ''
 }
+
+/** 天星图星曜配色类（对应 .cls-* CSS 类） */
+export type StarColorClass = 'gold' | 'cinnabar' | 'jade' | 'ice' | 'purple' | 'gray' | 'white'
+
+/** 星名 → 配色类映射（demo 7 色五行 + 君臣体系）
+ *  未列出的星名默认 'white'。 */
+export const STAR_COLOR_MAP: Record<string, StarColorClass> = {
+  // 帝/府 — 金边朱砂
+  '紫微': 'gold', '天府': 'gold',
+  // 火/血 — 深朱砂
+  '太阳': 'cinnabar', '廉贞': 'cinnabar', '贪狼': 'cinnabar', '七杀': 'cinnabar',
+  // 木/智 — 翡翠
+  '天机': 'jade', '天梁': 'jade', '天同': 'jade',
+  // 水/月 — 冰青
+  '太阴': 'ice', '文昌': 'ice', '文曲': 'ice', '天魁': 'ice', '天钺': 'ice',
+  // 帝辅 — 紫
+  '武曲': 'purple', '天相': 'purple',
+  // 凶煞 — 墨灰
+  '破军': 'gray', '巨门': 'gray',
+  '擎羊': 'gray', '陀罗': 'gray', '火星': 'gray', '铃星': 'gray',
+  '地空': 'gray', '地劫': 'gray',
+  // 中性辅 — 浅灰白（亦为兜底）
+  '左辅': 'white', '右弼': 'white', '禄存': 'white', '天马': 'white',
+}
+
+/** 取星曜配色类，未知星名兜底 'white' */
+export function getStarColorClass(starName: string): StarColorClass {
+  return STAR_COLOR_MAP[starName] ?? 'white'
+}
