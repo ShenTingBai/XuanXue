@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import { calculateBaZi, type BaZiResult } from '~/composables/useBaZi'
+import { getMonthPillar } from '~/composables/useSolarTerms'
+import { Lunar } from 'lunar-javascript'
+import { STEMS, BRANCHES, getAnimal } from '~/constants/bazi'
+import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
+import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
+import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
+
+const SOLAR_TERM_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒']
+
 useHead({ title: '玄 · 道 — 玄天机 · 道命理' })
 
 const { restoreSession, currentProfile } = useAuth()
@@ -51,6 +61,51 @@ const tools: Tool[] = [
 ]
 
 const sessionReady = ref(false)
+
+// ── 命盘预览：固定示例数据（引擎驱动）──
+const sampleBazi = computed<BaZiResult | null>(() => {
+  if (!import.meta.client) return null
+  try {
+    return calculateBaZi({
+      birthYear: 1990, birthMonth: 5, birthDay: 15,
+      birthCalendar: 'solar', birthHour: 12, gender: '男',
+    })
+  } catch { return null }
+})
+
+// 四柱数组（过滤掉可能的 null，如缺时柱时）
+const baziPillars = computed(() => {
+  const r = sampleBazi.value
+  if (!r) return []
+  return [r.yearPillar, r.monthPillar, r.dayPillar, r.hourPillar].filter(Boolean) as import('~/composables/useBaZi').BaZiPillar[]
+})
+
+// ── 今日玄机：实时天文信息 ──
+const todayAstro = computed(() => {
+  if (!import.meta.client) return null
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = now.getMonth() + 1
+  const d = now.getDate()
+  const ys = ((y - 4) % 10 + 10) % 10
+  const yb = ((y - 4) % 12 + 12) % 12
+  const mp = getMonthPillar(y, m, d)
+  let termIdx = -1
+  for (let i = 0; i < 12; i++) {
+    const t = getSolarTerm(y, i)
+    if (t.month === m && d >= t.day - 2) termIdx = i
+  }
+  const lunar = Lunar.fromYmd(y, m, d)
+  return {
+    lunarMonth: (lunar as any).getMonthInChinese(),
+    lunarDay: (lunar as any).getDayInChinese(),
+    yearGanZhi: STEMS[ys] + BRANCHES[yb],
+    monthGanZhi: mp.stem + mp.branch,
+    solarTerm: termIdx >= 0 ? SOLAR_TERM_NAMES[termIdx] : null,
+    weekday: ['日', '一', '二', '三', '四', '五', '六'][now.getDay()],
+    dateStr: `${y}年${m}月${d}日`,
+  }
+})
 
 onMounted(() => {
   restoreSession()
@@ -156,6 +211,46 @@ const goToLogin = () => {
           </div>
         </section>
 
+        <!-- ── 今日玄机（灵符纸卡）── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="今日玄机">
+          <div class="section-header">
+            <span class="bar" aria-hidden="true"></span>
+            <h2>今 日 玄 机</h2>
+          </div>
+
+          <div class="max-w-md mx-auto">
+            <div class="talisman-card">
+              <span class="absolute top-3 left-3 text-[1rem] opacity-25" style="color:#C62828;" aria-hidden="true">☰</span>
+              <span class="absolute top-3 right-3 text-[1rem] opacity-25" style="color:#C62828;" aria-hidden="true">☷</span>
+
+              <template v-if="todayAstro">
+                <div class="talisman-seal">
+                  <span class="font-display text-sm text-white">玄</span>
+                </div>
+
+                <p class="talisman-lunar-date">{{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}</p>
+                <p class="talisman-gregorian">{{ todayAstro.dateStr }} · 星期{{ todayAstro.weekday }}</p>
+
+                <div class="flex items-center justify-center gap-4 mb-4">
+                  <span class="talisman-ganzhi">{{ todayAstro.yearGanZhi }}年</span>
+                  <span class="w-px h-3 bg-ink-dark/5" aria-hidden="true"></span>
+                  <span class="talisman-ganzhi">{{ todayAstro.monthGanZhi }}月</span>
+                </div>
+
+                <div v-if="todayAstro.solarTerm" class="talisman-term-badge">
+                  · {{ todayAstro.solarTerm }} ·
+                </div>
+
+                <div class="talisman-divider" aria-hidden="true"></div>
+
+                <NuxtLink to="/login" class="talisman-cta">
+                  登录查看个人运势 →
+                </NuxtLink>
+              </template>
+            </div>
+          </div>
+        </section>
+
         <!-- ── 术数工具 ── -->
         <section
           class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16"
@@ -208,169 +303,59 @@ const goToLogin = () => {
           </div>
         </section>
 
-        <!-- ── 命盘预览 ── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      
+        <!-- ── 命盘预览（复用项目组件）── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="命盘预览">
           <div class="section-header">
             <span class="bar" aria-hidden="true"></span>
             <h2>命 盘 预 览</h2>
           </div>
 
           <div class="card-warm card-warm--elevated p-6 sm:p-10 lg:p-11">
-            <!-- 天地界栏 -->
-            <div class="rule-boundary rule-boundary--top" aria-hidden="true"></div>
-            <div class="rule-boundary rule-boundary--bottom" aria-hidden="true"></div>
-            <div class="fish-tail" aria-hidden="true"><span class="fish-tail__v"></span><span class="fish-tail__bar"></span></div>
-
-            <!-- Header -->
-            <div class="flex items-center gap-3 pb-4 mb-6" style="border-bottom:1px solid rgba(156,26,28,0.02);flex-wrap:wrap;">
-              <span class="seal-icon" aria-hidden="true">命</span>
-              <h3 class="font-display" style="font-size:20px;color:var(--color-ink);letter-spacing:0.3em;">八字命盘</h3>
-              <span class="ui" style="margin-left:auto;font-size:10px;color:var(--color-ink-light);letter-spacing:0.15em;">甲辰年 · 丙寅月 · 戊午日 · 壬子时</span>
-            </div>
-
-            <!-- 日主 -->
-            <div class="text-center mb-5">
-              <p class="ui" style="font-size:10px;color:var(--color-ink-light);letter-spacing:0.15em;margin-bottom:10px;">甲辰年 · 阳历 · 生肖龙 · 男</p>
-              <div class="master-block">
-                <span class="master-block__box">
-                  <span class="master-block__big">戊</span>
-                  <span class="master-block__sub">土</span>
-                </span>
-                <span class="ui" style="font-size:10px;padding:3px 10px;background:rgba(44,26,14,0.035);color:var(--color-ink-mid);letter-spacing:0.1em;">身弱</span>
+            <template v-if="sampleBazi">
+              <!-- 标题 -->
+              <div class="flex items-center gap-3 pb-4 mb-6 border-b border-paper-dark/20 flex-wrap">
+                <span class="seal-icon" aria-hidden="true">命</span>
+                <h3 class="font-display text-lg sm:text-xl text-ink-dark tracking-[0.3em] leading-relaxed">示例命盘</h3>
+                <span class="text-[0.6rem] sm:text-[0.65rem] text-ink-light/60 ml-auto tracking-[0.15em]">1990年5月15日 · 午时 · 男</span>
               </div>
-              <div class="ui" style="font-size:9px;color:var(--color-ink-light);letter-spacing:0.3em;margin-top:4px;">日 主</div>
-            </div>
 
-            <!-- 喜忌 -->
-            <div class="flex items-center justify-center gap-2 flex-wrap pb-2 mb-4">
-              <span class="ui" style="font-size:10px;color:var(--color-ink-mid);letter-spacing:0.2em;">喜</span>
-              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#C62828;">火</span>
-              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#3D6B4B;">木</span>
-              <span style="width:1px;height:14px;background:rgba(44,26,14,0.05);margin:0 4px;" aria-hidden="true"></span>
-              <span class="ui" style="font-size:10px;color:var(--color-ink-mid);letter-spacing:0.2em;">忌</span>
-              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#5E5E5E;">金</span>
-              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#2C5F7C;">水</span>
-              <span class="ui" style="padding:2px 10px;font-size:13px;letter-spacing:0.1em;border-radius:2px;color:#7A5E12;">土</span>
-            </div>
-
-            <!-- 八字表 -->
-            <div class="mb-6 overflow-x-auto">
-              <table class="grid-cinnabar">
-                <thead>
-                  <tr>
-                    <th>年 柱</th>
-                    <th>月 柱</th>
-                    <th class="is-day">日 柱<span class="mk">日主</span></th>
-                    <th>时 柱</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style="color:#3D6B4B;">甲</td>
-                    <td style="color:#C62828;">丙</td>
-                    <td class="is-day" style="color:#7A5E12;">戊</td>
-                    <td style="color:#2C5F7C;">壬</td>
-                  </tr>
-                  <tr>
-                    <td style="color:#7A5E12;font-size:20px;padding-top:0;">辰</td>
-                    <td style="color:#3D6B4B;font-size:20px;padding-top:0;">寅</td>
-                    <td class="is-day" style="color:#C62828;font-size:20px;padding-top:0;">午</td>
-                    <td style="color:#2C5F7C;font-size:20px;padding-top:0;">子</td>
-                  </tr>
-                  <tr>
-                    <td class="sub"><span class="badge-sm" style="background:rgba(198,40,40,0.07);color:#C62828;">偏官</span></td>
-                    <td class="sub"><span class="badge-sm" style="background:rgba(61,107,75,0.07);color:#3D6B4B;">偏印</span></td>
-                    <td class="sub is-day"><span class="badge-sm" style="background:rgba(44,26,14,0.07);color:var(--color-ink);">日主</span></td>
-                    <td class="sub"><span class="badge-sm" style="background:rgba(45,95,124,0.07);color:#2C5F7C;">食神</span></td>
-                  </tr>
-                  <tr>
-                    <td><span class="zang"><span style="color:#7A5E12;">戊</span> <span style="color:#2C5F7C;">癸</span> <span style="color:#3D6B4B;">乙</span></span></td>
-                    <td><span class="zang"><span style="color:#3D6B4B;">甲</span> <span style="color:#C62828;">丙</span> <span style="color:#7A5E12;">戊</span></span></td>
-                    <td class="is-day"><span class="zang"><span style="color:#C62828;">丁</span> <span style="color:#7A5E12;">己</span></span></td>
-                    <td><span class="zang"><span style="color:#2C5F7C;">癸</span></span></td>
-                  </tr>
-                  <tr>
-                    <td class="nayin">覆灯火</td>
-                    <td class="nayin">炉中火</td>
-                    <td class="nayin is-day">天上火</td>
-                    <td class="nayin">桑柘木</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- 五行柱 -->
-            <div class="grid grid-cols-5 gap-3 py-5 mb-4" style="border-top:1px solid rgba(156,26,28,0.015);border-bottom:1px solid rgba(156,26,28,0.015);">
-              <div v-for="(item, i) in [
-                { label: '木', pct: 40, color: '#3D6B4B' },
-                { label: '火', pct: 60, color: '#C62828' },
-                { label: '土', pct: 80, color: '#7A5E12' },
-                { label: '金', pct: 20, color: '#5E5E5E' },
-                { label: '水', pct: 30, color: '#2C5F7C' },
-              ]" :key="i" class="text-center">
-                <div class="ui" style="font-size:10px;color:var(--color-ink-mid);margin-bottom:8px;letter-spacing:0.1em;">{{ item.label }}</div>
-                <div style="height:80px;background:rgba(44,26,14,0.015);position:relative;overflow:hidden;margin-bottom:6px;">
-                  <div class="absolute bottom-0 left-0 right-0" :style="{ height: item.pct + '%', background: item.color, opacity: 0.25 }"></div>
-                </div>
-                <div class="ui" style="font-size:9px;color:var(--color-ink-light);">{{ item.pct }}%</div>
+              <!-- 四柱表格（复用项目 BaziGrid） -->
+              <div class="mb-6">
+                <BaziGrid :pillars="baziPillars" />
               </div>
-            </div>
 
-            <!-- 解读 -->
-            <div class="flex gap-3 items-start pt-1">
-              <span class="seal-icon" style="width:26px;height:26px;font-size:10px;transform:rotate(-5deg);margin-top:4px;" aria-hidden="true">解</span>
-              <p class="ui" style="font-size:14px;color:var(--color-ink-mid);line-height:2;letter-spacing:0.04em;">
-                "日主戊土生于寅月，木旺土虚，喜火生扶。早年财运亨通，中年宜守成。五行土旺缺金，宜补金气以平衡全局。"
-              </p>
-            </div>
-          </div>
-        </section>
+              <!-- 日主印章 + 五行分析 -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <DayMasterSeal
+                  :birth-year="sampleBazi.birthYear"
+                  :birth-calendar="sampleBazi.birthCalendar"
+                  :animal-name="getAnimal(sampleBazi.birthYear)"
+                  :gender="sampleBazi.gender"
+                  :day-master="sampleBazi.dayMaster"
+                  :day-master-wuxing="sampleBazi.dayMasterWuxing"
+                  :day-master-strength="sampleBazi.dayMasterStrength"
+                  :favorable-elements="sampleBazi.favorableElements"
+                  :unfavorable-elements="sampleBazi.unfavorableElements"
+                />
+                <ElementAnalysis
+                  :element-counts="sampleBazi.elementCounts"
+                  :element-percentages="sampleBazi.elementPercentages"
+                  :day-master="sampleBazi.dayMaster"
+                  :day-master-wuxing="sampleBazi.dayMasterWuxing"
+                  :day-master-strength="sampleBazi.dayMasterStrength"
+                  :month-branch="sampleBazi.monthPillar?.branch || ''"
+                />
+              </div>
+            </template>
 
-        <!-- ── 今日运势 ── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div class="section-header">
-            <span class="bar" aria-hidden="true"></span>
-            <h2>今 日 运 势</h2>
-          </div>
+            <template v-else>
+              <div class="py-12 text-center">
+                <div class="skeleton-pulse h-64 w-full max-w-lg mx-auto rounded" />
+              </div>
+            </template>
 
-          <div class="card-warm p-6 sm:p-8 max-w-lg mx-auto">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="seal-icon" style="width:20px;height:20px;font-size:8px;transform:rotate(-4deg);" aria-hidden="true">日</span>
-              <span style="font-size:13px;color:var(--color-ink-mid);letter-spacing:0.25em;">今日运势</span>
-              <span class="ui" style="margin-left:auto;font-size:9px;color:var(--color-ink-faint);letter-spacing:0.1em;">五月三十 · 星期日</span>
-            </div>
-            <p class="ui" style="font-size:14px;color:var(--color-ink-mid);line-height:2;">今日宜静思，忌急躁。命主日干逢合，利于人际沟通，但需注意言辞分寸。申时过后运势渐佳，可把握机会推进重要事项。</p>
-            <div class="flex gap-6 mt-3 pt-3 flex-wrap" style="border-top:1px solid rgba(156,26,28,0.015);">
-              <span class="ui" style="font-size:10px;color:#3D6B4B;letter-spacing:0.12em;">宜：静思 · 沟通 · 规划</span>
-              <span class="ui" style="font-size:10px;color:var(--color-cinnabar-deeper);letter-spacing:0.12em;">忌：冲动 · 投资 · 远行</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- ── 命簿卡片 ── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div class="section-header">
-            <span class="bar" aria-hidden="true"></span>
-            <h2>命 簿 卡 片</h2>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div class="card-warm p-6 sm:p-8 group">
-              <span class="corner-mark corner-mark-tl" aria-hidden="true">☰</span>
-              <span class="corner-mark corner-mark-br" aria-hidden="true">☷</span>
-              <span class="seal-icon" style="width:32px;height:32px;font-size:13px;margin-bottom:16px;" aria-hidden="true">性</span>
-              <h4 style="font-size:20px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:3px;">性格特征</h4>
-              <p class="ui" style="font-size:11px;color:var(--color-ink-light);letter-spacing:0.15em;margin-bottom:12px;">戊土日主 · 厚重沉稳</p>
-              <p class="ui" style="font-size:13px;color:var(--color-ink-mid);line-height:2;letter-spacing:0.04em;">命主戊土日主，生于寅月，木旺土虚。性格沉稳厚重，有担当之心。然土虚则易思虑过度，宜培养决断之力。</p>
-            </div>
-            <div class="card-warm p-6 sm:p-8 group">
-              <span class="corner-mark corner-mark-tl" aria-hidden="true">☲</span>
-              <span class="corner-mark corner-mark-br" aria-hidden="true">☵</span>
-              <span class="seal-icon" style="width:32px;height:32px;font-size:13px;margin-bottom:16px;" aria-hidden="true">配</span>
-              <h4 style="font-size:20px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:3px;">相性配对</h4>
-              <p class="ui" style="font-size:11px;color:var(--color-ink-light);letter-spacing:0.15em;margin-bottom:12px;">生肖三合 · 六合贵人</p>
-              <p class="ui" style="font-size:13px;color:var(--color-ink-mid);line-height:2;letter-spacing:0.04em;">与属牛、属蛇者最为相合，三合之势助运增财。与属猪者相冲，宜避之。与属虎、属马者六合，可成事业良伴。</p>
-            </div>
+            <p class="text-[0.55rem] text-ink-faint/60 text-center mt-5 tracking-[0.1em]" v-if="sampleBazi">* 此为示例命盘，登录后可排自己的盘</p>
           </div>
         </section>
 
@@ -473,3 +458,89 @@ const goToLogin = () => {
     </template>
   </div>
 </template>
+
+<style scoped>
+
+/* ═══ 灵符纸卡 ═══ */
+
+.talisman-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  background: #FAF0E0;
+  border: 1px solid rgba(198, 40, 40, 0.08);
+}
+@media (min-width: 640px) {
+  .talisman-card { padding: 2rem; }
+}
+.talisman-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.375rem;
+  background: var(--color-cinnabar);
+  transform: rotate(-3deg);
+  margin-bottom: 1rem;
+}
+.talisman-lunar-date {
+  font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
+  font-size: 1.75rem;
+  color: var(--color-ink-dark);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.25rem;
+}
+@media (min-width: 640px) {
+  .talisman-lunar-date { font-size: 2rem; }
+}
+.talisman-gregorian {
+  font-size: 0.6rem;
+  color: var(--color-ink-faint);
+  letter-spacing: 0.15em;
+  margin-bottom: 1.25rem;
+}
+.talisman-ganzhi {
+  font-size: 0.7rem;
+  color: var(--color-ink-mid);
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+}
+.talisman-term-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  background: rgba(198, 40, 40, 0.06);
+  color: var(--color-cinnabar);
+  margin-bottom: 1.25rem;
+}
+.talisman-divider {
+  width: 6rem;
+  height: 1px;
+  margin: 1rem auto;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(44, 26, 14, 0.08) 0px,
+    rgba(44, 26, 14, 0.08) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+.talisman-cta {
+  display: inline-block;
+  font-size: 0.65rem;
+  color: var(--color-ink-light);
+  letter-spacing: 0.15em;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  opacity: 0.6;
+}
+.talisman-cta:hover {
+  color: var(--color-cinnabar);
+  opacity: 1;
+}
+</style>
