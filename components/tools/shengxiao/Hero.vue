@@ -35,6 +35,9 @@
             {{ result.taiSuiRelationships.currentYear }}年太岁：{{ result.taiSuiRelationships.negative }}
           </span>
         </div>
+        <p class="font-sans text-xs text-ink-light/80 mt-2 leading-relaxed max-w-md">
+          {{ taiSuiInterpretation(result.taiSuiRelationships.positive, result.taiSuiRelationships.negative) }}
+        </p>
       </div>
     </div>
   </div>
@@ -49,15 +52,15 @@ defineProps<{
 
 const AUSPICIOUS_RELATIONS = new Set(['三合', '六合'])
 
-function badgeClass(wuXing: string): string {
-  const map: Record<string, string> = {
-    '木': 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
-    '火': 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
-    '土': 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
-    '金': 'border-wuxing-metal/30 text-wuxing-metal bg-wuxing-metal/5',
-    '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
-  }
-  return map[wuXing] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
+const TAI_SUI_INTERPRETATIONS: Record<string, string> = {
+  '三合': '与太岁三合，贵人运旺，诸事顺遂，宜积极拓展、把握机遇。',
+  '六合': '与太岁六合，人缘佳、合作顺，易得助力，利人际与感情。',
+  '值太岁': '本命年值太岁，运势波动大，宜守不宜攻，凡事三思后行。',
+  '冲太岁': '与太岁相冲，易生大变（搬家、换工作、关系变动），谨言慎行。',
+  '刑太岁': '与太岁相刑，防口舌是非、合同纠纷，待人宜宽、处事宜稳。',
+  '害太岁': '与太岁相害，防小人暗算、误会中伤，重要事务亲自确认。',
+  '破太岁': '与太岁相破，有小破财、计划受阻之象，但影响较轻，细心可解。',
+  '平': '与太岁平和，无大起大落，按部就班即可。',
 }
 
 function taiSuiBadgeClass(relation: string): string {
@@ -74,5 +77,25 @@ function taiSuiIcon(relation: string): string {
   if (AUSPICIOUS_RELATIONS.has(relation)) return '✦'
   if (relation === '平') return '·'
   return '⚠'
+}
+
+function taiSuiInterpretation(positive: string, negative: string): string {
+  // If there's a negative relationship, show its interpretation (more impactful)
+  if (negative !== '平') {
+    return TAI_SUI_INTERPRETATIONS[negative] || ''
+  }
+  // Otherwise show the positive one
+  return TAI_SUI_INTERPRETATIONS[positive] || ''
+}
+
+function badgeClass(wuXing: string): string {
+  const map: Record<string, string> = {
+    '木': 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
+    '火': 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
+    '土': 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
+    '金': 'border-wuxing-metal/30 text-wuxing-metal bg-wuxing-metal/5',
+    '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
+  }
+  return map[wuXing] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
 }
 </script>
