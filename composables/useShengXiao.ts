@@ -260,6 +260,12 @@ export interface Lucky {
   direction: string
 }
 
+export interface TaiSuiRelationships {
+  currentYear: number
+  positive: string
+  negative: string
+}
+
 export interface ShengXiaoResult {
   year: number
   animal: string
@@ -276,6 +282,7 @@ export interface ShengXiaoResult {
   personalityPro: string[]
   personalityCon: string[]
   lucky: Lucky
+  taiSuiRelationships: TaiSuiRelationships
 }
 
 // ── Helper Functions ──────────────────────────────────────────
@@ -438,7 +445,8 @@ export function calculateShengXiao(
   // ── Fortune (TaiSui-based) ──
   const currentYear = currentDate ? currentDate.getFullYear() : birthYear
   const taiSuiIdx = getAnimalIndex(currentYear)
-  const { positiveWeight, negativeWeight } = getTaiSuiRelationships(animalIndex, taiSuiIdx)
+  const taiSuiRelationships = getTaiSuiRelationships(animalIndex, taiSuiIdx)
+  const { positiveWeight, negativeWeight } = taiSuiRelationships
 
   const careerScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 19 + animalIndex * 7 + 1)
   const wealthScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 23 + animalIndex * 11 + 2)
@@ -476,5 +484,10 @@ export function calculateShengXiao(
     personalityPro,
     personalityCon,
     lucky,
+    taiSuiRelationships: {
+      currentYear,
+      positive: taiSuiRelationships.positive,
+      negative: taiSuiRelationships.negative,
+    },
   }
 }

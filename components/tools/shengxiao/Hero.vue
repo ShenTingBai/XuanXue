@@ -20,6 +20,21 @@
             {{ result.earthlyBranch }} · {{ result.direction }}
           </span>
         </div>
+
+        <!-- TaiSui relationship -->
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-sans border"
+            :class="taiSuiBadgeClass(result.taiSuiRelationships.positive)">
+            <span aria-hidden="true">{{ taiSuiIcon(result.taiSuiRelationships.positive) }}</span>
+            {{ result.taiSuiRelationships.currentYear }}年太岁：{{ result.taiSuiRelationships.positive }}
+          </span>
+          <span v-if="result.taiSuiRelationships.negative !== '平'"
+            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-sans border"
+            :class="taiSuiBadgeClass(result.taiSuiRelationships.negative)">
+            <span aria-hidden="true">{{ taiSuiIcon(result.taiSuiRelationships.negative) }}</span>
+            {{ result.taiSuiRelationships.currentYear }}年太岁：{{ result.taiSuiRelationships.negative }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -32,6 +47,8 @@ defineProps<{
   result: ShengXiaoResult
 }>()
 
+const AUSPICIOUS_RELATIONS = new Set(['三合', '六合'])
+
 function badgeClass(wuXing: string): string {
   const map: Record<string, string> = {
     '木': 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
@@ -41,5 +58,21 @@ function badgeClass(wuXing: string): string {
     '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
   }
   return map[wuXing] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
+}
+
+function taiSuiBadgeClass(relation: string): string {
+  if (AUSPICIOUS_RELATIONS.has(relation)) {
+    return 'border-jade/30 text-jade bg-jade/5'
+  }
+  if (relation === '平') {
+    return 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
+  }
+  return 'border-cinnabar/30 text-cinnabar bg-cinnabar/5'
+}
+
+function taiSuiIcon(relation: string): string {
+  if (AUSPICIOUS_RELATIONS.has(relation)) return '✦'
+  if (relation === '平') return '·'
+  return '⚠'
 }
 </script>
