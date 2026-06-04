@@ -29,21 +29,6 @@
         </Transition>
       </div>
     </div>
-
-    <!-- Lucky info subsection -->
-    <div class="mt-5 pt-4 border-t border-ink-faint/15">
-      <h3 class="font-sans text-[0.72rem] text-ink-medium tracking-widest mb-3">幸运信息</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="text-center">
-          <div class="font-display text-base text-ink-dark mb-0.5">{{ result.luckyColor }}</div>
-          <div class="font-sans text-[0.72rem] text-ink-medium tracking-wider">幸运颜色</div>
-        </div>
-        <div class="text-center">
-          <div class="font-display text-base text-ink-dark mb-0.5">{{ result.luckyNumber }}</div>
-          <div class="font-sans text-[0.72rem] text-ink-medium tracking-wider">幸运数字</div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -114,7 +99,7 @@ function elementColorClass(): string {
 const items = computed(() => [
   { label: '元素', value: `${props.result.element}象`, color: elementColorClass() },
   { label: '守护星', value: props.result.rulingPlanet, color: 'earth' },
-  { label: '日期', value: props.result.dateRange, color: 'earth' },
-  { label: '符号', value: props.result.symbol, color: elementColorClass() },
+  { label: '幸运颜色', value: props.result.luckyColor, color: 'earth' },
+  { label: '幸运数字', value: String(props.result.luckyNumber), color: 'earth' },
 ])
 </script>
