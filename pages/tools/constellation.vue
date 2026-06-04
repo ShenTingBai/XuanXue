@@ -81,7 +81,12 @@ function computeResult() {
   restoredFromHistory.value = false
 
   try {
-    result.value = calculateConstellation(month, day, new Date(), year)
+    result.value = calculateConstellation(
+      month, day, new Date(), year,
+      month, day,
+      currentProfile.value?.birth_hour,
+      currentProfile.value?.birth_minute,
+    )
     selectedZodiac.value = getZodiacIndex(month, day)
     saveDivinationResult(result.value, month, day)
   } catch {
@@ -97,10 +102,13 @@ function selectZodiac(index: number) {
 
   const month = ZODIACS[index].startMonth
   const day = ZODIACS[index].startDay
-  // Use profile birth year for moon sign estimation when selecting other zodiacs
-  const birthYear = currentProfile.value?.birth_date
-    ? parseDate(currentProfile.value.birth_date)?.year
+  // Parse actual birth date for natal moon/rising sign (never re-derive from exploration date)
+  const parsedBirth = currentProfile.value?.birth_date
+    ? parseDate(currentProfile.value.birth_date)
     : undefined
+  const birthYear = parsedBirth?.year
+  const birthMonth = parsedBirth?.month
+  const birthDay = parsedBirth?.day
 
   savedDivinationId.value = null
   saveError.value = ''
@@ -108,7 +116,12 @@ function selectZodiac(index: number) {
   restoredFromHistory.value = false
 
   try {
-    result.value = calculateConstellation(month, day, new Date(), birthYear)
+    result.value = calculateConstellation(
+      month, day, new Date(), birthYear,
+      birthMonth, birthDay,
+      currentProfile.value?.birth_hour,
+      currentProfile.value?.birth_minute,
+    )
     saveDivinationResult(result.value, month, day)
   } catch {
     error.value = '计算星座出错，请稍后重试'
@@ -291,7 +304,55 @@ function dismissRestoreError() {
             </Transition>
           <ConstellationHero :result="result" />
 
-          <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
+          <!-- ═══ 三垣 · 星盘 ═══ -->
+          <div class="fade-in mt-8 mb-6" role="group" aria-labelledby="sanyuan-heading" :style="{ '--delay': '0.15s' }">
+            <div class="section-header">
+              <h2 id="sanyuan-heading">三垣 · 星盘</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <!-- ☀ 太阳 — 外在性格 -->
+              <div class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-jade/15">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xl flex-shrink-0" aria-hidden="true">☀</span>
+                  <span class="font-display text-base text-ink tracking-wide">太阳 · {{ result.name }}</span>
+                </div>
+                <span class="text-xs text-ink-light font-sans tracking-wider mb-2">外在性格 · 你展现给世界的样子</span>
+                <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.personality }}</p>
+              </div>
+
+              <!-- ☽ 月亮 — 内在情感 -->
+              <div v-if="result.moonSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-cinnabar/15">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xl flex-shrink-0" aria-hidden="true">☽</span>
+                  <span class="font-display text-base text-ink tracking-wide">月亮 · {{ result.moonSign.name }}</span>
+                </div>
+                <span class="text-xs text-ink-light font-sans tracking-wider mb-2">内在情感 · 你真实的情绪底色</span>
+                <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.moonSign.interpretation }}</p>
+              </div>
+              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-40 border-t-2 border-cinnabar/10">
+                <span class="text-xl mb-1" aria-hidden="true">☽</span>
+                <span class="font-display text-sm text-ink-light">月亮 · 需出生年份</span>
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">前往编辑档案</NuxtLink>
+              </div>
+
+              <!-- ↑ 上升 — 社交面具 -->
+              <div v-if="result.risingSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-gold/20">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xl flex-shrink-0" aria-hidden="true">↑</span>
+                  <span class="font-display text-base text-ink tracking-wide">上升 · {{ result.risingSign.name }}</span>
+                </div>
+                <span class="text-xs text-ink-light font-sans tracking-wider mb-2">社交面具 · 你给别人的第一印象</span>
+                <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.risingSign.interpretation }}</p>
+              </div>
+              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-40 border-t-2 border-gold/15">
+                <span class="text-xl mb-1" aria-hidden="true">↑</span>
+                <span class="font-display text-sm text-ink-light">上升 · 需出生时辰</span>
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">前往编辑档案</NuxtLink>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-ink-medium/90 text-center mt-2 mb-1 tracking-wide">
             今日运势、宜忌速览及星座性格特征
           </p>
 
@@ -299,18 +360,6 @@ function dismissRestoreError() {
           <HoroscopePanel :horoscope="result.todayHoroscope" />
 
           <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
-
-          <!-- Personality -->
-          <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.35s' }">
-            <div class="section-header">
-              <h2>性格特征</h2>
-            </div>
-            <div class="card-warm rounded-xl p-5">
-              <p class="font-sans text-sm text-ink-medium leading-relaxed">
-                {{ result.personality }}
-              </p>
-            </div>
-          </div>
 
           <!-- Compatibility -->
           <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.45s' }">

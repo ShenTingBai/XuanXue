@@ -28,9 +28,18 @@
           <span
             v-if="result.moonSign"
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-cinnabar/5 text-cinnabar border border-cinnabar/20"
-            :title="`出生时月亮位于${result.moonSign.name}`"
+            :title="result.moonSign.interpretation"
           >
-            {{ result.moonSign.symbol }} 月亮 · {{ result.moonSign.name }}
+            ☽ 月亮 · {{ result.moonSign.name }}
+            <span class="sr-only">：{{ result.moonSign.interpretation }}</span>
+          </span>
+          <span
+            v-if="result.risingSign"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-gold/5 text-gold border border-gold/20"
+            :title="result.risingSign.interpretation"
+          >
+            ↑ 上升 · {{ result.risingSign.name }}
+            <span class="sr-only">：{{ result.risingSign.interpretation }}</span>
           </span>
       </div>
     </div>
