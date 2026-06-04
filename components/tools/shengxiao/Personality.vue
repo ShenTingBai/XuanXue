@@ -3,6 +3,31 @@
     <div class="section-header">
       <h2>性格特征</h2>
     </div>
+
+    <!-- ══ 纳音性格维度（同年肖区分） ══ -->
+    <div v-if="nayinInfo" class="nayin-card mb-5">
+      <div class="nayin-inner">
+        <span class="nayin-seal" aria-hidden="true">音</span>
+        <div class="nayin-body">
+          <div class="nayin-headline">
+            <span class="nayin-label">{{ result.stemBranch }} · {{ result.animal }} · {{ nayinInfo.nayin }}</span>
+          </div>
+          <p class="nayin-core">
+            <span class="nayin-core__label">纳音断性</span>
+            <span class="nayin-core__text">「{{ nayinInfo.core }}」</span>
+          </p>
+          <p class="nayin-desc">{{ nayinInfo.description }}</p>
+          <div class="nayin-tags">
+            <span
+              v-for="kw in nayinInfo.keywords"
+              :key="kw"
+              class="nayin-tag"
+            >{{ kw }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
       <!-- Pros -->
       <div class="card-warm rounded-xl p-5">
@@ -42,8 +67,110 @@
 
 <script setup lang="ts">
 import type { ShengXiaoResult } from '~/composables/useShengXiao'
+import { getNayinPersonality } from '~/constants/stem-animal'
 
-defineProps<{
+const props = defineProps<{
   result: ShengXiaoResult
 }>()
+
+const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 </script>
+
+<style scoped>
+/* ══ 纳音性格维度 ══ */
+.nayin-card {
+  background: linear-gradient(135deg, #F7F0E4 0%, #F0E8D8 100%);
+  border-radius: 0.625rem;
+  border: 1px solid rgba(44, 26, 14, 0.03);
+  overflow: hidden;
+}
+
+.nayin-inner {
+  display: flex;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+}
+
+.nayin-seal {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-cinnabar, #C62828);
+  color: #FAF0E0;
+  font-family: var(--font-display, 'Ma Shan Zheng');
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  transform: rotate(-3deg);
+  border-radius: 2px;
+  margin-top: 0.125rem;
+}
+
+.nayin-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.nayin-headline {
+  margin-bottom: 0.375rem;
+}
+
+.nayin-label {
+  font-family: var(--font-display, 'Ma Shan Zheng');
+  font-size: 0.82rem;
+  color: var(--color-ink-dark, #2C1810);
+  letter-spacing: 0.18em;
+}
+
+.nayin-core {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.nayin-core__label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.6rem;
+  color: var(--color-ink-faint, #A89888);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+
+.nayin-core__text {
+  font-family: var(--font-display, 'Ma Shan Zheng');
+  font-size: 1.05rem;
+  color: var(--color-ink-dark, #2C1810);
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+
+.nayin-desc {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.7rem;
+  color: var(--color-ink-medium, #5A4A3A);
+  line-height: 1.65;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.5rem;
+}
+
+.nayin-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.nayin-tag {
+  display: inline-block;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.55rem;
+  color: var(--color-cinnabar, #C62828);
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(198, 40, 40, 0.04);
+  border: 1px solid rgba(198, 40, 40, 0.08);
+  letter-spacing: 0.06em;
+}
+</style>
