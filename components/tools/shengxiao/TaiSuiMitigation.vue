@@ -11,6 +11,12 @@
         <span class="mitigation-year-tag">{{ currentYear }}</span>
       </div>
 
+      <!-- ══ 太岁文化背景 ══ -->
+      <p class="mitigation-intro">
+        太岁为道教值年神，六十甲子各有神君轮值，掌一年吉凶祸福。各人生肖地支与当年太岁地支相推，
+        生克冲合各异——值、冲、刑、害、破为犯，三合、六合为和。犯太岁者宜谨慎行事以求趋吉避凶。
+      </p>
+
       <!-- ══ 值年太岁 + 本命太岁 ══ -->
       <div class="deity-section">
         <div class="deity-card deity-card--current">
@@ -223,6 +229,19 @@ const severityClass = computed(() => {
 }
 
 /* ══ Header ══ */
+.mitigation-intro {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.75rem;
+  color: var(--color-ink-medium);
+  line-height: 1.7;
+  letter-spacing: 0.03em;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 0.375rem;
+  border-left: 2px solid rgba(198, 40, 40, 0.15);
+}
+
 .mitigation-header {
   display: flex;
   align-items: center;
@@ -305,8 +324,8 @@ const severityClass = computed(() => {
 .deity-label {
   display: inline-block;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.55rem;
-  color: var(--color-ink-faint, #A89888);
+  font-size: 0.65rem;
+  color: var(--color-ink-light, #8A7A6A);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin-bottom: 0.375rem;
@@ -315,8 +334,8 @@ const severityClass = computed(() => {
 .deity-ganzhi {
   display: block;
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.75rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.78rem;
+  color: var(--color-ink-medium, #5A4A3A);
   letter-spacing: 0.2em;
   margin-bottom: 0.125rem;
 }
@@ -333,8 +352,8 @@ const severityClass = computed(() => {
 
 .deity-bio {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.72rem;
+  color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.6;
   letter-spacing: 0.03em;
 }
@@ -419,7 +438,7 @@ const severityClass = computed(() => {
 
 .relation-severity {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   letter-spacing: 0.1em;
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
@@ -524,7 +543,7 @@ const severityClass = computed(() => {
 
 .method-summary {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.5;
   letter-spacing: 0.03em;
@@ -533,8 +552,8 @@ const severityClass = computed(() => {
 
 .method-detail {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.62rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.7rem;
+  color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.6;
   letter-spacing: 0.02em;
 }
@@ -597,17 +616,10 @@ const severityClass = computed(() => {
 
 .advisory-item {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   line-height: 1.6;
   letter-spacing: 0.03em;
   padding: 0.15rem 0;
-}
-
-.advisory-item--taboo {
-  color: var(--color-ink-medium, #5A4A3A);
-}
-
-.advisory-item--tip {
   color: var(--color-ink-medium, #5A4A3A);
 }
 
@@ -649,11 +661,10 @@ const severityClass = computed(() => {
 
 .mantra-text {
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.82rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.85rem;
+  color: var(--color-ink-medium, #5A4A3A);
   letter-spacing: 0.15em;
   line-height: 1.8;
-  opacity: 0.7;
 }
 
 /* ══ Animation ══ */

@@ -79,6 +79,19 @@ function barWidth(score: number): string {
 function barColor(level: '旺' | '平' | '弱'): string {
   return levelColor(level)
 }
+
+/** Brief one-word annotation for each branch relationship type */
+function relationshipAnnotation(rel: string): string {
+  const map: Record<string, string> = {
+    '六合': '贵人',
+    '三合': '人缘',
+    '相冲': '变动',
+    '相刑': '是非',
+    '相害': '暗阻',
+    '相破': '破耗',
+  }
+  return map[rel] || ''
+}
 </script>
 
 <template>
@@ -159,8 +172,8 @@ function barColor(level: '旺' | '平' | '弱'): string {
           </div>
 
           <!-- Stem-branch and date range -->
-          <div class="text-xs text-ink-light mb-2">
-            <span class="font-medium text-ink-medium">{{ month.monthStem }}{{ month.monthBranch }}</span>
+          <div class="text-[0.8rem] text-ink-medium mb-2">
+            <span class="font-medium text-ink-dark">{{ month.monthStem }}{{ month.monthBranch }}</span>
             <span class="mx-1" aria-hidden="true">·</span>
             <span>{{ month.gregorianLabel }}</span>
           </div>
@@ -168,9 +181,12 @@ function barColor(level: '旺' | '平' | '弱'): string {
           <!-- Score bar -->
           <div class="mb-2">
             <div class="flex items-center justify-between mb-0.5">
-              <span class="text-xs text-ink-light">{{ month.relationship }}</span>
+              <span class="text-[0.8rem] text-ink-medium">
+                {{ month.relationship }}
+                <span v-if="relationshipAnnotation(month.relationship)" class="text-ink-light ml-1">·{{ relationshipAnnotation(month.relationship) }}</span>
+              </span>
               <span
-                class="text-xs font-medium"
+                class="text-sm font-semibold"
                 :style="{ color: barColor(month.level) }"
               >
                 {{ month.score }}
@@ -185,7 +201,7 @@ function barColor(level: '旺' | '平' | '弱'): string {
           </div>
 
           <!-- Tip -->
-          <p class="text-xs text-ink-medium leading-relaxed">
+          <p class="text-[0.8rem] text-ink-medium leading-relaxed">
             {{ month.tip }}
           </p>
         </div>

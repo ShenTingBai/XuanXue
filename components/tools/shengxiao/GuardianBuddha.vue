@@ -128,7 +128,7 @@ withDefaults(defineProps<{
 
 .guardian-name {
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--accent, #C62828);
   letter-spacing: 0.2em;
   font-weight: 400;
@@ -139,10 +139,10 @@ withDefaults(defineProps<{
 /* ── Meaning ── */
 .guardian-meaning {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
-  color: color-mix(in srgb, var(--accent, #C62828) 50%, #8A7A6A);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--accent, #C62828) 55%, #5A4A3A);
   letter-spacing: 0.15em;
-  line-height: 1.4;
+  line-height: 1.5;
   margin-bottom: 0.625rem;
   padding-left: 2.125rem;
 }
@@ -150,8 +150,8 @@ withDefaults(defineProps<{
 /* ── Description ── */
 .guardian-desc {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.72rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.8rem;
+  color: var(--color-ink-dark, #2C1810);
   line-height: 1.7;
   letter-spacing: 0.03em;
   padding-left: 2.125rem;
@@ -170,17 +170,17 @@ withDefaults(defineProps<{
 }
 
 .guardian-mantra__deco {
-  opacity: 0.12;
+  opacity: 0.18;
   color: var(--accent, #C62828);
-  font-size: 0.45rem;
+  font-size: 0.5rem;
 }
 
 .guardian-mantra__text {
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.72rem;
-  color: var(--color-ink-faint, #A89888);
+  font-size: 0.8rem;
+  color: var(--color-ink-medium, #5A4A3A);
   letter-spacing: 0.15em;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 /* ── Animation ── */

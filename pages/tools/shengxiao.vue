@@ -19,6 +19,7 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import FortuneBars from '~/components/tools/FortuneBars.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -153,6 +154,25 @@ const primaryRelation = computed<TaiSuiRelation>(() => {
 const guardianBuddha = computed(() => {
   if (!result.value || selectedAnimal.value === null) return null
   return getGuardianBuddha(selectedAnimal.value) || null
+})
+
+const taiSuiLabel = computed(() => {
+  if (!result.value) return ''
+  const { positive, negative } = result.value.taiSuiRelationships
+  if (negative !== '平') return `（${negative}，${positive !== '平' ? positive + '叠加' : ''}）`
+  if (positive !== '平') return `（${positive}）`
+  return '（平）'
+})
+
+const fortuneItems = computed(() => {
+  if (!result.value) return []
+  const f = result.value.fortune
+  return [
+    { label: '事业', score: f.career.score },
+    { label: '财运', score: f.wealth.score },
+    { label: '感情', score: f.love.score },
+    { label: '健康', score: f.health.score },
+  ]
 })
 
 function scrollToAnimalNav() {
@@ -343,31 +363,18 @@ async function restoreFromHistory(id: number) {
           <div ref="resultRef">
           <ShengXiaoHero :result="result" />
 
-          <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
-            下方依次为五行属性、性格特征、幸运信息、流年运势和相性配对
-          </p>
-
           <WuXingGrid :result="result" />
 
-          <!-- Lucky information -->
-          <div class="fade-in card-warm rounded-xl mt-6 p-8" :style="{ '--delay': '0.25s' }">
+          <!-- Four-dimension fortune bars -->
+          <div class="fade-in card-warm rounded-xl mt-6 p-8" :style="{ '--delay': '0.2s' }">
             <div class="section-header">
-              <h2>幸运信息</h2>
+              <h2>{{ result.animal }}年运势总览</h2>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运数字</h4>
-                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.numbers.join('、') }}</p>
-              </div>
-              <div>
-                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运颜色</h4>
-                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.colors.join('、') }}</p>
-              </div>
-              <div>
-                <h4 class="font-sans text-ink-medium text-sm mb-2">幸运方位</h4>
-                <p class="font-sans text-ink-dark text-lg">{{ result.lucky.direction }}</p>
-              </div>
-            </div>
+            <FortuneBars :items="fortuneItems" />
+            <!-- Scoring basis note -->
+            <p class="mt-4 pt-3 border-t border-ink-faint/15 font-sans text-[0.72rem] text-ink-medium leading-relaxed">
+              评分依据：本年太岁关系<span class="font-medium text-ink-dark">{{ taiSuiLabel }}</span>，结合命理维度调节。基准 65 分，吉凶关系 ±15~20 分，维度浮动 ±8 分，压缩至 0-100 区间。
+            </p>
           </div>
 
           <PersonalityCard :result="result" />
@@ -391,7 +398,10 @@ async function restoreFromHistory(id: number) {
           <CompatibilityGrid :items="result.compatibility" />
 
           <!-- 本命佛 -->
-          <div v-if="guardianBuddha" class="mt-6">
+          <div v-if="guardianBuddha" class="mt-8 mb-6">
+            <div class="section-header">
+              <h2>本命佛</h2>
+            </div>
             <GuardianBuddha :buddha="guardianBuddha" />
           </div>
           </div>
