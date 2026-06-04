@@ -153,6 +153,18 @@
 - active: 缩至 97%
 - focus-visible: 2px cinnabar outline
 
+#### `btn-ink` — 墨线按钮
+
+```
+<button class="btn-ink">探索全部工具</button>
+<NuxtLink to="/path" class="btn-ink no-underline">已有档案</NuxtLink>
+```
+
+- 透明底 + 1px 极淡墨色边框 `rgba(44,26,14,0.06)`
+- 闲置：`ink-medium` 文字，`px-14 py-3.5` 内边距
+- hover：文字变 `ink`，边框加深至 `rgba(44,26,14,0.15)`，上浮 2px
+- 适用：次要 CTA、页面内导航链接（作为 `<button>` 或 `<NuxtLink>`）
+
 #### `marginal-toggle` — 眉批折叠按钮
 
 ```
@@ -235,9 +247,37 @@
 - 底色 `paper-lightest`，有边框和 card 阴影
 - 适用：表单容器
 
+#### `card-warm--elevated` — 暖纸卡（悬浮态）
+
+在 `card-warm` 基础上叠加更明显的阴影，用于需要从页面中"抬起"的卡片：
+
+```
+<div class="card-warm card-warm--elevated p-8">...</div>
+```
+
+- 额外阴影：`0 4px 24px rgba(44,26,14,0.04)` + inset 边框
+- 适用：首页命盘预览、需要视觉突出的展示卡片
+
 #### `tool-card--new` — 工具选择卡
 
-模板见 `components/home/` 下现有机房组件。用于首页工具入口。
+首页工具入口卡片，仿古书扉页风格：
+
+```
+<NuxtLink :to="tool.route" class="tool-card--new">
+  <span class="tool-card__trigram" aria-hidden="true">☰</span>
+  <span class="seal-icon seal-icon--lg">命</span>
+  <div class="tool-card__name">八字</div>
+  <p>了解你的先天命格、性格特质和人生大运</p>
+</NuxtLink>
+```
+
+- `paper-card` 底色，`text-center`，`pt-12 pb-9 px-4`
+- 顶部装饰线：`::before` 伪元素，朱砂虚线（hover 时线伸长 + 颜色加深）
+- 卦象角标 `.tool-card__trigram`：绝对定位右下角，极淡 `rgba(44,26,14,0.012)`，hover 染朱砂
+- 印章 `.seal-icon`：hover 旋转 -2° + 放大 1.08x + 底色变 `cinnabar-deeper`
+- 卡片名 `.tool-card__name`：hover 变 `cinnabar-deeper`
+- hover：卡片上浮 4px，多层阴影（inset + 外阴影 + 朱砂光环）
+- 锁定态：`opacity-50 cursor-default`，印章变 `ink-light` 灰底
 
 #### `wuxing-card` — 五行属性卡
 
@@ -305,13 +345,19 @@
 
 ```html
 <div class="divider-seal">
-  <span class="divider-seal__line" />
+  <span class="divider-seal__line" aria-hidden="true" />
+  <span class="seal-icon" aria-hidden="true">玄</span>
   <span class="divider-seal__word">玄·道</span>
-  <span class="divider-seal__line" />
+  <span class="seal-icon" aria-hidden="true">道</span>
+  <span class="divider-seal__line" aria-hidden="true" />
 </div>
 ```
 
-适用：首页大区块分隔。
+- flex 布局，`gap-4.5`
+- `.divider-seal__line`：flex-1 墨线，朱砂虚线渐变（`repeating-linear-gradient`）
+- `.divider-seal__word`：`0.9375rem`，极淡墨色 `rgba(44,26,14,0.10)`，宽字距 `0.4em`
+- 可在文字两侧插入 `seal-icon` 印章装饰
+- 适用：首页大区块分隔、页面底部收束
 
 ### 4.5 反馈
 
@@ -483,6 +529,17 @@
 - **不**修改 `transform`（避免破坏 `position: fixed`）
 - **必须**设置 `--delay` 自定义属性（CSS 变量），实现逐层 stagger
 - 推荐 stagger 序列：`0.05s → 0.1s → 0.15s → 0.2s → 0.25s → 0.3s → 0.35s → 0.4s → 0.45s → 0.5s`
+
+#### `anim-rise` — 上浮入场
+
+```html
+<div class="anim-rise anim-delay-1">...</div>
+```
+
+- 从下方 12px 淡入上浮到原位，时长 0.8s `ease-out`
+- **`anim-delay-1` ~ `anim-delay-5`**：0.1s ~ 0.5s 的 stagger 延迟（全局类名，不可自定义）
+- 用于首页 Hero 区域的逐层亮相（Hero 印章 → 标题 → 咒语 → CTA）
+- **不**与 `fade-in` 混用——`anim-rise` 自带 transform，`fade-in` 故意不碰 transform
 
 ### 6.3 展开/收起
 
