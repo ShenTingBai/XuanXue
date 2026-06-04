@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   gender TEXT CHECK(gender IS NULL OR gender IN ('男', '女')),
   birth_place TEXT,
   birth_longitude REAL,
+  parent_profile_id INTEGER REFERENCES profiles(id) ON DELETE CASCADE,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 )
