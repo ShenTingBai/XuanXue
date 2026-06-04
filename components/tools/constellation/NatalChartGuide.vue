@@ -10,10 +10,11 @@
           @click="expanded = !expanded"
           @keydown.enter="expanded = !expanded"
           @keydown.space.prevent="expanded = !expanded"
-          class="btn-cin text-sm"
+          class="marginal-toggle"
         >
-          <span class="sr-only">{{ expanded ? '收起' : '展开' }}阅读指南</span>
-          <span aria-hidden="true">{{ expanded ? '收起 ▲' : '展开 ▼' }}</span>
+          <span class="marginal-toggle__rule" aria-hidden="true"></span>
+          <span>{{ expanded ? '收起' : '展开' }}</span>
+          <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
         </button>
       </div>
 
