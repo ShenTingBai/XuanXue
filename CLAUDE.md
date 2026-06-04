@@ -21,49 +21,93 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 ├── nuxt.config.ts                # 模块、CSP/HSTS 头、字体预加载
 ├── tailwind.config.ts            # 设计令牌：墨/纸/朱砂色板
 ├── vitest.config.ts              # Vitest 测试配置
-├── assets/                       # 静态资源（Nuxt assets 目录）
-├── docs/                         # 项目文档
-├── public/                       # 公共静态资源（fonts 等）
-├── constants/
+├── assets/css/main.css           # 全局 CSS（组件类、keyframes、纸纹）
+├── docs/                         # 项目文档 + 设计系统规范
+├── public/fonts/                 # 自托管 woff2 字体
+├── constants/                    # 17 个常量文件
 │   ├── bazi.ts                   # STEMS、BRANCHES、WUXING_COLORS（唯一数据源）
-│   └── yijing.ts                 # 易经六十四卦、八卦常量
+│   ├── yijing.ts / yijing-data.ts / yijing-hexagrams.ts  # 易经六十四卦
+│   ├── shengxiao.ts              # 生肖性格、婚配数据
+│   ├── constellation.ts          # 星座特征、守护星数据
+│   ├── ziwei.ts                  # 紫微斗数星曜、宫位数据
+│   ├── fortune-sticks.ts         # 每日灵签数据
+│   ├── guardian-buddha.ts        # 本命佛数据
+│   ├── stem-animal.ts            # 干支生肖映射
+│   ├── tai-sui.ts                # 太岁方位数据
+│   ├── hehun.ts                  # 合婚规则数据
+│   ├── name-test.ts              # 姓名测试三才五格数据
+│   ├── cezi.ts                   # 测字五行分类
+│   ├── stroke-dict.ts            # 汉字笔画字典
+│   ├── zeji.ts                   # 择吉规则数据
+│   └── planet-data.ts            # 行星符号/守护关系
 ├── types/
 │   └── lunar-javascript.d.ts     # lunar-javascript 库类型声明
 ├── utils/
-│   └── date.ts                   # 日期解析工具（parseDate 等）
-├── composables/                  # 计算引擎 + 共享状态
+│   ├── date.ts                   # 日期解析工具（parseDate 等）
+│   └── time.ts                   # 时辰计算工具
+├── composables/                  # 计算引擎 + 共享状态（18 个）
 │   ├── useAuth.ts                # 认证状态（基于 useState）
 │   ├── useSolarTerms.ts          # 节气日期、月柱、五虎遁
 │   ├── useBaZi.ts                # 四柱、十神、大运
-│   ├── useShenSha.ts             # 25+ 查找表，按维度组织
-│   ├── useLiuNian.ts             # 11 年跨度、评分、规则模板文本
+│   ├── useShenSha.ts             # 神煞查找表，按维度组织
+│   ├── useLiuNian.ts             # 流年：11 年跨度、评分、模板文本
 │   ├── useShengXiao.ts           # 生肖性格、五行、婚配
 │   ├── useConstellation.ts       # 星座星盘、星座解读
 │   ├── useGreeting.ts            # 问候语（localStorage 持久化）
-│   └── useYijing.ts              # 易经起卦、变卦、爻辞
-├── components/tools/
-│   ├── bazi/                     # BaziGrid、ElementAnalysis、DayMasterCard、DaYunTimeline 等
-│   ├── constellation/            # Nav、Hero、HoroscopePanel、YiJiPanel
-│   ├── shengxiao/                # AnimalNav、Hero、Personality、WuXingGrid、CompatibilityGrid
-│   ├── yijing/                   # HexagramDisplay、YijingCastingPanel、YijingInterpretation、ZhuangGuaTable
-│   ├── ToolPageLayout.vue        # 三栏布局：#nav / #mobile-nav / #nav-right
-│   ├── HistoryModal.vue          # 历史记录模态框
-│   ├── InkDivider.vue            # 墨韵分割线
-│   ├── PageHero.vue              # 页面标题区
-│   ├── FortuneBars.vue           # 运势柱状图
-│   ├── ScoreRing.vue             # 评分环形图
-│   ├── SkeletonCard.vue          # 骨架屏卡片
-│   ├── SkeletonBars.vue          # 骨架屏柱状图
-│   └── ScrollTopButton.vue       # 回到顶部按钮
-├── pages/                        # login、index、profile/[id]、tools/{bazi,shengxiao,constellation,yijing}
+│   ├── useYijing.ts              # 易经起卦、变卦、爻辞
+│   ├── useZiwei.ts               # 紫微斗数星盘（依赖 iztro 库）
+│   ├── useHeHun.ts               # 八字合婚匹配
+│   ├── useCezi.ts                # 汉字测字解读
+│   ├── useNameTest.ts            # 姓名三才五格测试
+│   ├── useZeJi.ts                # 择吉日推荐
+│   ├── useMonthlyFortune.ts      # 月运势计算
+│   ├── useNatalChart.ts          # 星座本命星盘（依赖 astronomy-engine）
+│   └── useExportImage.ts         # html-to-image 导出图片
+├── components/
+│   ├── home/                     # 首页专用组件（DailyFortuneStick）
+│   └── tools/
+│       ├── bazi/                 # BaziGrid、ElementAnalysis、DayMasterCard、DaYunTimeline 等
+│       ├── constellation/        # Nav、Hero、HoroscopePanel、YiJiPanel、NatalChart 等
+│       ├── shengxiao/            # AnimalNav、Hero、Personality、WuXingGrid、CompatibilityGrid 等
+│       ├── yijing/               # HexagramDisplay、YijingCastingPanel、YijingInterpretation 等
+│       ├── ziwei/                # ZiWeiCelestialChart、ZiWeiPalaceGrid、ZiWeiDaXianTimeline 等
+│       ├── hehun/                # HeHunScoreCard、HeHunDimensionCard
+│       ├── zeji/                 # ZejiCalendar、ZejiRecommend
+│       ├── ToolPageLayout.vue    # 三栏布局：#nav / #mobile-nav / #nav-right
+│       ├── ToolToolbar.vue       # 顶部工具栏（历史 + 导出）
+│       ├── HistoryModal.vue      # 历史记录模态框
+│       ├── ExportButton.vue      # 导出图片按钮
+│       ├── InkDivider.vue        # 墨韵分割线
+│       ├── PageHero.vue          # 页面标题区
+│       ├── FortuneBars.vue       # 运势柱状图
+│       ├── ScoreRing.vue         # 评分环形图
+│       ├── SkeletonCard.vue      # 骨架屏卡片
+│       ├── SkeletonBars.vue      # 骨架屏柱状图
+│       ├── ScrollTopButton.vue   # 回到顶部按钮
+│       ├── EntertainmentDisclaimer.vue  # 娱乐免责声明
+│       ├── AddProfileModal.vue   # 新增档案弹窗
+│       ├── AvatarCircle.vue      # 头像圈
+│       └── ProfileSwitcher.vue   # 档案切换器
+├── pages/                        # 12 个页面
+│   ├── index.vue                 # 首页（独立布局，非 ToolPageLayout）
+│   ├── login.vue                 # 登录/注册
+│   ├── profile/[id].vue          # 档案编辑
+│   └── tools/                    # 9 个工具页：bazi、shengxiao、constellation、
+│       │                         #   yijing、ziwei、cezi、hehun、name-test、zeji
 ├── server/
 │   ├── api/auth/                 # login.post、register.post、logout.delete
 │   ├── api/divinations/          # CRUD：index.post、index.get、[id].get
-│   ├── api/profiles/             # [id].get、[id].put
-│   ├── database/db.ts            # sql.js SQLite
-│   ├── plugins/database.ts       # Nitro 插件：数据库初始化
-│   └── utils/                    # auth（令牌提取）、rateLimit（内存限流）、json（安全解析）、profile、securityLog
-└── tests/                        # 仅组合式函数 — tests/composables/*.test.ts
+│   ├── api/profiles/             # index.get、index.post、[id].get、[id].put、[id].delete
+│   ├── database/
+│   │   ├── db.ts                 # sql.js SQLite 连接
+│   │   └── schema.ts             # 建表 DDL + 索引
+│   ├── middleware/auth.ts        # Bearer token 提取 → event.context.profileId
+│   ├── plugins/
+│   │   ├── database.ts           # Nitro 插件：数据库初始化
+│   │   └── csp.ts                # CSP nonce 注入插件
+│   ├── types/h3.d.ts             # H3 event context 扩展（profileId、token）
+│   └── utils/                    # auth、rateLimit、json、profile、securityLog
+└── tests/                        # composables/、server/、utils/、helpers/
 ```
 
 **类型与组合式函数放在一起**——没有独立的 `types/` 目录（仅 `types/lunar-javascript.d.ts` 类型声明存于此处）。共享接口（`Profile`、`BaZiResult`）从其所属的组合式函数中 `export`。
@@ -97,6 +141,23 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 3. 登录/注册 → API 返回 `{ token, profile }` → 写入 localStorage + `useState`。（PIN 当前为 4 位数字，公开上线前需扩展为 6+ 位字母数字。）
 4. 登出 → DELETE `/api/auth/logout`（尽力而为）→ 清除 localStorage + `useState`。
 
+### Server API
+
+- **Auth** (`server/api/auth/`): `login.post`、`register.post`、`logout.delete`
+- **Profiles** (`server/api/profiles/`): `index.get`（列表）、`index.post`（创建）、`[id].get`（详情）、`[id].put`（更新）、`[id].delete`（软删除，级联清理 sessions + divinations）
+- **Divinations** (`server/api/divinations/`): `index.post`（保存）、`index.get`（列表，按 type 过滤）、`[id].get`（详情，校验归属）
+- **Middleware** (`server/middleware/auth.ts`): 提取 `Authorization: Bearer <token>` → 查找 session → 注入 `event.context.profileId` 和 `event.context.token`。所有需要认证的 API 从此读取，不自行解析 token。
+- **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 profile + endpoint 键控，默认 10 req/min。
+
+### Session 安全
+
+- **令牌**：`randomBytes(24).toString('hex')` → HMAC-SHA256 哈希存储，**永不存明文**
+- **PIN**：scrypt + 16 字节随机盐，验证使用 `timingSafeEqual` 防时序攻击
+- **单会话强制**：创建新 token 前 `DELETE FROM sessions WHERE profile_id = ?`，同一 profile 只能有一个活跃 session
+- **7 天过期**：`expires_at` 列，查找时自动清理过期 session
+- **`SESSION_SECRET`** 环境变量**必须**设置（`server/utils/auth.ts` 启动时读取，缺失则 throw 崩溃）
+- **过期 session 清理**：`cleanupExpiredSessions()` 同时清理 90 天前的 security_log
+
 ### UI 设计：墨韵 · Ink Resonance
 
 **完整设计规范见 [`docs/design-system.md`](docs/design-system.md)**——任何 UI 改动（新增组件、修改全局 CSS、调整色板/字体）前必须先查阅，并在同一提交中同步更新文档。全局 CSS 类无文档记录视为未完成，不得合并。
@@ -113,7 +174,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 在 `nuxt.config.ts` → `routeRules` 中配置：
 
-- CSP：`default-src 'self'`，`script-src 'unsafe-inline'`（Nuxt 3 hydration 所需；公开上线前需实现 nonce 策略移除 `unsafe-inline`）。
+- CSP：`default-src 'self'`，`script-src 'unsafe-inline'`。`server/plugins/csp.ts` 在运行时将 `script-src` 的 `unsafe-inline` 替换为每请求随机 nonce（`randomBytes(16).toString('hex')`），并注入到所有 `<script>` 标签。`style-src` 保留 `unsafe-inline`——Vue hydration 期间注入的内联样式无法使用 nonce。
 - HSTS（2 年 max-age + preload）、`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、`Referrer-Policy: strict-origin-when-cross-origin`、`Permissions-Policy: camera=(), microphone=(), geolocation=()`。
 
 ### Git 工作流
@@ -180,12 +241,45 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 #### Divinations API
 
 - 三个端点：`POST /api/divinations`（保存）、`GET /api/divinations?type=bazi`（列表）、`GET /api/divinations/[id]`（详情）。
-- POST 校验：需要认证令牌、每 profile 每分钟限流 10 次、校验 type 必须在 `VALID_TYPES = new Set(['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei'])` 中。
+- POST 校验：需要认证令牌、每 profile 每分钟限流 10 次、校验 type 必须在 `DIVINATION_TYPES = ['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei', 'cezi', 'hehun', 'name-test', 'zeji']`（共 9 种）中。
 - 自动保存是静默的 fire-and-forget——保存失败不阻塞用户查看结果。
 - GET 列表排除 `result_data`（仅元数据以节省带宽），GET 详情包含 `result_data` 并校验归属（`profile_id` 不匹配返回 403）。
 - `input_data` 和 `result_data` 在 SQLite 中以 JSON 字符串存储；读取时通过 `safeJsonParse()` 反序列化。
 - HistoryModal（通用历史弹窗）展示最近 **5 条**记录，服务器返回 LIMIT 20，客户端 `slice(0, 5)`。
 - BaZi 页面历史下拉同样通过 HistoryModal 展示，点击恢复完整结果并重新计算神煞/流年。
+
+### 新工具约定（ZiWei、HeHun、CeZi、NameTest、ZeJi）
+
+以上工具均复用 `ToolPageLayout` + `ToolToolbar` + `HistoryModal` + `EntertainmentDisclaimer` 标准模板。
+
+#### ZiWei（紫微斗数）
+
+- **依赖 `iztro`** npm 包计算紫微斗数星盘——这是唯一的外部紫微计算库
+- `ZiWeiCelestialChart` 渲染 12 宫格星盘，`ZiWeiPalaceGrid` 展示宫位星曜详情，`ZiWeiDaXianTimeline` 展示大限流年时间线，`ZiWeiDetailPanel` + `ZiWeiDetailSheet` 展示星曜解读
+- `ZiWeiInputForm` 收集出生信息（含 longitude/latitude），`ZiWeiTabSwitcher` 切换星盘/大限/流年视图
+- `ZiWeiInfoSidebar` 作为 `#nav-right` 展示个人信息摘要
+
+#### HeHun（合婚）
+
+- 基于八字日柱天干五合 + 地支六合计算配对分数
+- `HeHunScoreCard` 展示总分（0-100），`HeHunDimensionCard` 展示各维度（五行、性格、运势等）
+- 依赖 `constants/hehun.ts` 中的合婚规则数据
+
+#### CeZi（测字）
+
+- 基于汉字笔画数 + 五行分类进行字义解读
+- 依赖 `constants/cezi.ts`（五行分类）和 `constants/stroke-dict.ts`（笔画字典）
+
+#### NameTest（姓名测试）
+
+- 使用三才五格法分析姓名笔画
+- 依赖 `constants/name-test.ts` 中的吉凶规则数据
+
+#### ZeJi（择吉）
+
+- 基于农历日期推荐吉日
+- `ZejiCalendar` 日历视图，`ZejiRecommend` 推荐列表
+- 依赖 `constants/zeji.ts` 中的择吉规则
 
 ### Nuxt 自动导入注意事项
 
@@ -198,7 +292,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - 三个侧栏均通过 `v-if="$slots.nav"` 等条件渲染——工具不需要某个插槽时不填即可。
 - 左侧栏（`#nav`）用于工具内导航（生肖/星座选择器、锚点链接）。**禁止**在此重复顶栏的跨工具导航链接。
 - 右侧栏（`#nav-right`）用于个人信息摘要（仅 BaZi）——sticky 定位 `top-20`，仅 xl+。
-- BaZi：无 `#nav`，仅 `#nav-right`（BaziInfoSidebar）。Shengxiao：`#nav`（AnimalNav）+ `#mobile-nav`。Constellation：`#nav`（ConstellationNav）+ `#mobile-nav`。
+- BaZi：无 `#nav`，仅 `#nav-right`（BaziInfoSidebar）。Shengxiao：`#nav`（AnimalNav）+ `#mobile-nav`。Constellation：`#nav`（ConstellationNav）+ `#mobile-nav`。ZiWei：无 `#nav`，仅 `#nav-right`（ZiWeiInfoSidebar）。HeHun/CeZi/NameTest/ZeJi：无侧栏，仅主内容区。
 
 ### SSR 与客户端守卫
 
