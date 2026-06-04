@@ -12,6 +12,8 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import type { HeHunGrade } from '~/constants/hehun'
 import BaziSmallDisplay from '~/components/tools/bazi/BaziSmallDisplay.vue'
@@ -33,6 +35,14 @@ const bCalendar = ref<'solar' | 'lunar'>('solar')
 const bNickname = ref('')
 
 const showScrollTop = ref(false)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '八字合婚.png')
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -162,7 +172,17 @@ const computedGrade = computed<HeHunGrade | null>(() => {
     <!-- Main content -->
     <template v-else>
       <div class="max-w-[48rem] mx-auto">
-        <ToolToolbar />
+        <ToolToolbar>
+          <template #extra>
+            <ExportButton
+              v-if="result"
+              :target-ref="resultRef"
+              filename="八字合婚.png"
+              :is-exporting="isExporting"
+              @export="handleExport"
+            />
+          </template>
+        </ToolToolbar>
 
         <!-- ══ 输入区 ══ -->
         <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
@@ -287,6 +307,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 
         <!-- ══ Result ══ -->
         <template v-if="result">
+          <div ref="resultRef">
           <!-- Score -->
           <div class="mt-8">
             <HeHunScoreCard
@@ -350,6 +371,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
                 <BaziSmallDisplay :result="result.baziB" />
               </div>
             </div>
+          </div>
           </div>
         </template>
 

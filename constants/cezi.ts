@@ -1,0 +1,347 @@
+// ── 测字占卜 · 字形拆解与数理五行 ──────────────────────────
+//
+// 数据来源：传统测字学、81数理吉凶、字形结构分类、偏旁五行
+
+// ════════════════════════════════════════
+// 字形结构分类
+// ════════════════════════════════════════
+
+export const STRUCTURE_TYPES: Record<string, { name: string; desc: string }> = {
+  single:    { name: '独体', desc: '独立自主，个性鲜明，不假外求' },
+  leftRight: { name: '左右', desc: '阴阳相济，善于合作，内外兼顾' },
+  topBottom: { name: '上下', desc: '承上启下，根基稳固，志存高远' },
+  enclosure: { name: '包围', desc: '外刚内柔，胸有城府，善守善藏' },
+  compound:  { name: '品字', desc: '三才鼎立，格局开阔，众星捧月' },
+}
+
+// ════════════════════════════════════════
+// 偏旁部首 → 五行
+// ════════════════════════════════════════
+
+export const RADICAL_ELEMENT: Record<string, string> = {
+  // 木
+  '木': '木', '林': '木', '森': '木', '禾': '木',
+  // 火
+  '火': '火', '灬': '火', '日': '火', '赤': '火',
+  // 土
+  '土': '土', '石': '土', '山': '土', '田': '土', '玉': '土', '王': '土',
+  // 金
+  '金': '金', '钅': '金', '釒': '金', '刀': '金', '刂': '金', '戈': '金', '酉': '金', '辛': '金',
+  // 水
+  '水': '水', '氵': '水', '氺': '水', '雨': '水', '冫': '水', '鱼': '水', '黑': '水',
+}
+
+/** Map of ~180 common characters → radical element, for detection by full character.
+ *  This covers characters where the radical is embedded and hard to isolate programmatically. */
+export const CHAR_ELEMENT_MAP: Record<string, string> = {
+  // 木系
+  '树': '木', '枝': '木', '根': '木', '梅': '木', '桂': '木', '桃': '木', '柳': '木', '松': '木',
+  '柏': '木', '杨': '木', '枫': '木', '梧': '木', '桐': '木', '樱': '木', '榆': '木', '桦': '木',
+  '楠': '木', '梓': '木', '棋': '木', '板': '木', '椅': '木', '梁': '木', '棠': '木', '梨': '木',
+  '植': '木', '荣': '木', '花': '木', '草': '木', '茗': '木', '芳': '木', '莲': '木', '菊': '木',
+  '兰': '木', '竹': '木', '禾': '木', '秋': '木', '季': '木',
+  // 火系
+  '炎': '火', '焰': '火', '灯': '火', '烛': '火', '烟': '火', '烧': '火', '然': '火', '照': '火',
+  '辉': '火', '煌': '火', '烨': '火', '煜': '火', '焕': '火', '炜': '火', '灿': '火', '炫': '火',
+  '暖': '火', '耀': '火', '晴': '火', '晨': '火', '旭': '火', '晖': '火', '晓': '火', '曦': '火',
+  '日': '火', '阳': '火', '光': '火',
+  // 土系
+  '地': '土', '城': '土', '坤': '土', '坚': '土', '堂': '土', '境': '土', '壁': '土', '墨': '土',
+  '尘': '土', '基': '土', '场': '土', '塔': '土', '均': '土', '坊': '土', '堪': '土', '垣': '土',
+  '岩': '土', '峰': '土', '岭': '土', '岳': '土', '岚': '土', '崇': '土', '嵩': '土', '巍': '土',
+  '玉': '土', '珍': '土', '珠': '土', '珊': '土', '琼': '土', '瑶': '土', '瑞': '土', '瑜': '土',
+  '琪': '土', '琳': '土', '琅': '土', '璇': '土', '瑾': '土', '璋': '土',
+  // 金系
+  '铁': '金', '铜': '金', '银': '金', '钢': '金', '铭': '金', '锋': '金', '锐': '金', '剑': '金',
+  '钧': '金', '钟': '金', '钗': '金', '钰': '金', '铮': '金', '锦': '金', '键': '金', '锡': '金',
+  '镰': '金', '镜': '金', '鑫': '金', '钱': '金', '铃': '金', '针': '金', '铠': '金',
+  '戈': '金', '刀': '金', '刃': '金',
+  // 水系
+  '海': '水', '江': '水', '河': '水', '湖': '水', '溪': '水', '泉': '水', '渊': '水', '波': '水',
+  '浪': '水', '潮': '水', '滔': '水', '涛': '水', '洋': '水', '浩': '水', '清': '水',
+  '泽': '水', '润': '水', '淳': '水', '涵': '水', '淑': '水', '潇': '水', '澈': '水', '漫': '水',
+  '泓': '水', '沛': '水', '沁': '水', '沐': '水', '洛': '水', '洪': '水', '流': '水',
+  '渔': '水', '雨': '水', '雪': '水', '云': '水', '雷': '水', '霞': '水', '霜': '水',
+  '露': '水', '冰': '水', '霖': '水', '霏': '水', '雯': '水', '雾': '水', '虹': '水', '鱼': '水',
+}
+
+// ════════════════════════════════════════
+// 81 数理吉凶（测字专用，复用 name-test 也可但同时保持独立数据集）
+// ════════════════════════════════════════
+
+export interface NumberFortune {
+  category: string
+  desc: string
+}
+
+const NUMBER_FORTUNE_MAP: Record<number, NumberFortune> = {
+  1: { category: '大吉', desc: '太极之数，万象更新，万物起始，开天辟地之象。万物资始，四时成岁。' },
+  2: { category: '凶', desc: '两仪之数，混沌未分，阴阳失调，进退维谷。宜守不宜攻，静待时机。' },
+  3: { category: '大吉', desc: '三才之数，天地人三才具备，大事大业，繁荣昌盛。' },
+  4: { category: '凶', desc: '四象之数，四象未定，根基不稳，需防灾厄。宜修身养性，厚积薄发。' },
+  5: { category: '大吉', desc: '五行之数，五行俱全，循环相生。福祉无穷，安和祥瑞。' },
+  6: { category: '吉', desc: '六爻之数，安稳余庆，吉人天相，祥瑞柔和。天德地祥俱备。' },
+  7: { category: '吉', desc: '七政之数，刚毅果断，精力充沛。勇往直前，必获成功。' },
+  8: { category: '吉', desc: '八卦之数，智谋超群，财利丰盈。善用智慧，可成大业。' },
+  9: { category: '凶', desc: '大成之数，暗藏凶险。盛极必衰，盈满则亏。宜守中庸之道。' },
+  10: { category: '凶', desc: '终结之数，雪暗飘零。空费心力，回顾茫然。万事需从头来过。' },
+  11: { category: '大吉', desc: '旱苗逢雨，万物更新。调顺发达，安详尊荣。天地相合，以成百物。' },
+  12: { category: '凶', desc: '掘井无泉，无理之数。薄弱无力，谋事难成。宜借外力，不宜独行。' },
+  13: { category: '大吉', desc: '春日牡丹，智谋超群。才华横溢，四方财聚，名闻天下。' },
+  14: { category: '凶', desc: '破败之数，泪流如雨。孤寂烦闷，事不如意。忍辱负重，方可破局。' },
+  15: { category: '大吉', desc: '福寿双全，涵养雅量。德高望重，自成大家。一生顺遂，福泽深厚。' },
+  16: { category: '大吉', desc: '厚重之数，载物载德。安富尊荣，地位显赫。贵人提携，财官双美。' },
+  17: { category: '吉', desc: '刚强之数，权威显达。突破万难，可成大业。但需注意柔克之道。' },
+  18: { category: '吉', desc: '有志竟成，智勇双全。排除万难，终获成功。内外和顺，名利双收。' },
+  19: { category: '凶', desc: '风云蔽月，短暂明月。辛苦叠来，虽有智谋，万事挫折。宜收敛锋芒。' },
+  20: { category: '凶', desc: '非业破运，灾难不安。百事难成，需防小人。静心守志，等待转运。' },
+  21: { category: '大吉', desc: '明月中天，光风霁月。万物确立，官运亨通，大业有成。首领之格。' },
+  22: { category: '凶', desc: '秋草逢霜，怀才不遇。忧愁怨苦，事不如意。守时待机，必有转机。' },
+  23: { category: '大吉', desc: '壮丽之数，旭日东升。气势磅礴，名显四方。至吉之数，万事亨通。' },
+  24: { category: '大吉', desc: '掘藏得金，家门余庆。金钱丰盈，白手起家。财源广进，福泽绵长。' },
+  25: { category: '吉', desc: '英俊之数，资性英敏。刚毅果断，可成伟业。但需注意性情调和。' },
+  26: { category: '凶', desc: '变怪之数，英雄豪杰。波澜重叠，变化无常。大起大落，需有定力。' },
+  27: { category: '凶', desc: '增长之数，欲望无止。自我强烈，多受诽谤。宜自省内观，戒骄戒躁。' },
+  28: { category: '凶', desc: '阔水浮萍，遭难之数。豪杰气概，四海漂泊。聚散无常，随缘而安。' },
+  29: { category: '吉', desc: '青云直上，智谋兼备。才略奏功，大业成就。财力丰足，名望并至。' },
+  30: { category: '凶', desc: '浮沉不定，吉凶难分。好运不长，沉浮相伴。宜脚踏实地，戒急用忍。' },
+  31: { category: '大吉', desc: '智勇兼备，可成大业。名扬四海，福泽深厚。得此数者，领袖之才。' },
+  32: { category: '吉', desc: '侥幸之数，幸运多望。贵人得助，财帛丰裕。但不可恃宠而骄。' },
+  33: { category: '大吉', desc: '升天之家，家门隆昌。威望隆重，祥瑞之数。才德兼备，名垂青史。' },
+  34: { category: '凶', desc: '破家之数，见识短小。辛苦遭逢，灾祸不绝。宜守不宜攻，以退为进。' },
+  35: { category: '吉', desc: '温和之数，礼让温和。智达通畅，文昌技艺。淑质英才，自成格局。' },
+  36: { category: '凶', desc: '波澜重叠，沉浮万状。侠肝义胆，舍己为人。需防仗义反被误。' },
+  37: { category: '大吉', desc: '猛虎出林，权威显达。热诚忠信，宜着雅量。得人敬仰，终身荣富。' },
+  38: { category: '半吉', desc: '磨铁成针，意志薄弱。刻意经营，才识不凡。先难后易，终有所成。' },
+  39: { category: '大吉', desc: '富贵荣华，财帛丰盈。德泽四方，福寿绵长。云开见月，万事亨通。' },
+  40: { category: '凶', desc: '退安之数，智谋胆力。冒险投机，沉浮不定。退守得吉，妄动招灾。' },
+  41: { category: '大吉', desc: '德望高大，纯阳独秀。和顺畅达，得众人望。富贵至极之数。' },
+  42: { category: '凶', desc: '寒蝉在柳，博识多能。精通世情，然命运多舛。需借他人之力以成事。' },
+  43: { category: '凶', desc: '散财破产，外祥内苦。虚有其表，根基不固。宜重实质，去虚饰。' },
+  44: { category: '凶', desc: '须眉难展，暗中奋斗。遭难不遇，乱世困顿。宜藏器于身，待时而动。' },
+  45: { category: '吉', desc: '顺风之船，新生泰运。智谋经纬，一帆风顺。新生之象，万事可期。' },
+  46: { category: '凶', desc: '乱丝无头，坎坷不平。艰难重重，缺乏条理。宜先理清思绪再行。' },
+  47: { category: '大吉', desc: '点石成金，花开之象。万事如意，祯祥吉庆。天赋之福，贵人相助。' },
+  48: { category: '吉', desc: '德望之数，才谋出众。可享清福，名利双全。鹤立鸡群，卓尔不凡。' },
+  49: { category: '凶', desc: '吉凶难分，利害混集。须防大厄。得此数者，宜中庸调和。' },
+  50: { category: '凶', desc: '船行险滩，一成一败。吉凶参半，万事难周全。先得后失，谨慎为要。' },
+  51: { category: '半吉', desc: '盛衰交加，波澜重叠。浮沉不定，而见繁华。宜居安思危。' },
+  52: { category: '大吉', desc: '达眼之数，卓识达眼。先见之明，名利双收。目光远大，可成大器。' },
+  53: { category: '凶', desc: '忧愁困苦，外观昌隆。内隐祸患，忧苦难言。须防表象蒙蔽。' },
+  54: { category: '凶', desc: '石上栽花，难得成活。辛苦无成，事倍功半。宜另择坦途。' },
+  55: { category: '半吉', desc: '善恶之数，善善恶恶。吉凶参半，须防投机取巧之患。' },
+  56: { category: '凶', desc: '浪里行舟，历尽艰辛。失败多端，晚景方可。需有坚强意志。' },
+  57: { category: '吉', desc: '日照春松，寒雪青松。夜莺啼春，福禄并至。寒门贵子之象。' },
+  58: { category: '半吉', desc: '晚行遇月，先苦后甘。宽宏扬名，终获成功。晚运通达之兆。' },
+  59: { category: '凶', desc: '寒蝉悲风，意志衰退。缺乏持久，耐心尽失。需重新立志。' },
+  60: { category: '凶', desc: '无谋之数，漂泊不定。晦暗摇动，方向迷失。宜寻良师益友。' },
+  61: { category: '大吉', desc: '牡丹芙蓉，名利双收。定得幸福，花开富贵。荣华发达之数。' },
+  62: { category: '凶', desc: '衰败之数，内外不和。志望难达，灾祸频生。须修德以御患。' },
+  63: { category: '大吉', desc: '富贵荣华，身心安泰。雨露惠泽，万物滋生。得此数者，福德俱全。' },
+  64: { category: '凶', desc: '非命之数，骨肉分离。孤独悲愁，徒劳无功。宜广结善缘以化解。' },
+  65: { category: '大吉', desc: '荣华之数，天长地久。家运隆昌，健康长寿。富贵圆满之大吉数。' },
+  66: { category: '凶', desc: '不和之数，进退维谷。万事难成，内外交困。宜退隐内省。' },
+  67: { category: '大吉', desc: '通达之数，事事通达。功成名就，财禄丰盈。得天时之利数。' },
+  68: { category: '吉', desc: '发明之数，智谋通达。志望达成，发明创新。精思善虑，万事可成。' },
+  69: { category: '凶', desc: '非业之数，精神不安。缺乏实权，劳而无功。宜守安居乐业。' },
+  70: { category: '凶', desc: '弃世之数，命运多舛。险恶亡身，宜龟缩避世。需极大毅力以扭转。' },
+  71: { category: '半吉', desc: '吉凶参半，缺乏耐久。劳而无功，沉浮相伴。守正则可得半吉。' },
+  72: { category: '凶', desc: '劳苦之数，阴云蔽月。志望难达，荣华不实。宜以勤补拙。' },
+  73: { category: '半吉', desc: '无勇之数，盛衰交加。徒有高志，难成大事。需外力扶持方可。' },
+  74: { category: '凶', desc: '残菊经霜，秋叶凋零。事不如意，老来多病。宜注意养生之道。' },
+  75: { category: '半吉', desc: '退守之数，退守保吉。妄动招灾，宜守静待时。以柔克刚之道。' },
+  76: { category: '凶', desc: '倾覆之数，破产之象。内外不合，骨肉离散。宜谨慎行事，不可冒进。' },
+  77: { category: '半吉', desc: '半吉之数，家庭有悦。半凶半吉，需防灾厄。守成可得安稳。' },
+  78: { category: '半吉', desc: '晚境凄凉，祸福参半。智能可用，然晚运欠佳。宜早作打算。' },
+  79: { category: '凶', desc: '云遮半月，暗藏凶险。需防小人，宜正直行事。光明终将破云而出。' },
+  80: { category: '凶', desc: '遁迹之数，辛苦不绝。一生无成，宜隐退避世。但隐中亦有真意。' },
+  81: { category: '大吉', desc: '万物回春，还本归元。最吉之数，圆满通达。始即是终，终即是始。' },
+}
+
+/** Get number fortune for stroke count. Uses exact match, then last-digit heuristic for unknown numbers. */
+export function getNumberFortune(num: number): NumberFortune {
+  // Normalize to 1-81 range
+  const normalized = num > 81 ? ((num - 1) % 81 + 1) : Math.max(1, num)
+
+  // Exact match
+  if (NUMBER_FORTUNE_MAP[normalized]) {
+    return NUMBER_FORTUNE_MAP[normalized]
+  }
+
+  // Fallback: use last digit heuristic
+  const lastDigit = normalized % 10
+  let category: string
+  let descBase: string
+
+  if (lastDigit === 1 || lastDigit === 2) {
+    category = '半吉'
+    descBase = '此数近于阴阳调和之始，有新生之象，然根基未固。'
+  } else if (lastDigit === 3 || lastDigit === 4) {
+    category = '半吉'
+    descBase = '此数近于生发成长之机，然中藏变数，宜谨慎行事。'
+  } else if (lastDigit === 5 || lastDigit === 6) {
+    category = '吉'
+    descBase = '此数得五行中和之气，运势平稳，步步为营可成。'
+  } else if (lastDigit === 7 || lastDigit === 8) {
+    category = '吉'
+    descBase = '此数近于刚健之运，意志坚强可破难关，终见光明。'
+  } else {
+    category = '凶'
+    descBase = '此数处于变动之极，暗藏风险，宜以柔克刚，静待时机。'
+  }
+
+  return { category, desc: `${descBase}（数理${normalized}，以尾数推之，仅供参考）` }
+}
+
+// ════════════════════════════════════════
+// 五行解读
+// ════════════════════════════════════════
+
+export interface ElementInterpretation {
+  traits: string
+  career: string
+  love: string
+}
+
+export const ELEMENT_INTERPRETATIONS: Record<string, ElementInterpretation> = {
+  '木': {
+    traits: '木主仁，其性直，其情和。木性之人，心怀慈悲，温和质朴，有向上生长之志。如春日之树，生机勃勃，善创善育。',
+    career: '宜从事教育、医疗、文化、艺术、生态环保等有生长发展之行业。木性舒展，不喜拘束，宜自主创业或自由職業。',
+    love: '木性之人感情真挚长久，如树木之根深。宜寻水、土属性之伴侣，水生木而使之旺，木克土而能扎根。与金属性之人须多沟通。',
+  },
+  '火': {
+    traits: '火主礼，其性急，其情恭。火性之人，热情奔放，光明磊落，有领导风范。如夏日之阳，温暖四方。',
+    career: '宜从事演艺、传媒、餐饮、能源、科技等需要激情创意之行业。火性向上，宜在团队中担任引领角色。',
+    love: '火性之人感情热烈奔放，敢爱敢恨。宜寻木、土属性之伴侣，木生火更旺，火生土而归于安稳。与水性之人须注意调和。',
+  },
+  '土': {
+    traits: '土主信，其性重，其情厚。土性之人，诚实敦厚，言行一致，有包容之心。如大地承载万物，可靠可信。',
+    career: '宜从事地产、建筑、金融、管理、咨询等需要稳重耐心之行业。土性居中，善协调众人，宜任管理之职。',
+    love: '土性之人感情沉稳厚重，虽不善言辞，但忠诚可靠。宜寻火、金属性之伴侣，火生土增温情，土生金而各有收获。与木属性之人须多包容。',
+  },
+  '金': {
+    traits: '金主义，其性刚，其情烈。金性之人，刚毅果断，重义轻财，有决断之才。如秋日之金，清澈锋锐。',
+    career: '宜从事法律、金融、军事、机械、医疗等需要果断决策之行业。金性好义，宜做裁判、仲裁、决策类角色。',
+    love: '金性之人感情深沉刚烈，不轻易动情，一旦动情则忠贞不渝。宜寻土、水属性之伴侣，土生金而稳固，金生水而柔和。与火属性之人须互相尊重。',
+  },
+  '水': {
+    traits: '水主智，其性聪，其情善。水性之人，聪明灵活，善于变通，有洞察之明。如冬日之水，深不可测。',
+    career: '宜从事科研、学术、文学、传媒、贸易等需要智慧交流之行业。水性流动，宜从事多变灵活之工作。',
+    love: '水性之人感情细腻深沉，善解人意，但亦多愁善感。宜寻金、木属性之伴侣，金生水而情深，水生木而生机勃发。与火属性之人须多体谅。',
+  },
+}
+
+// ════════════════════════════════════════
+// 字形结构 → 占卜短语
+// ════════════════════════════════════════
+
+export const STRUCTURE_FORTUNE: Record<string, string> = {
+  single: '独体字，形简而意深。不假外求，自成一格。此字预示着您当前的境遇宜独立自主，凭己之力开创局面。不依赖于人，方能显其本色。',
+  leftRight: '左右结构，阴阳相济。左为辅，右为主，内外兼修。此字提示您当前需注重合作与平衡，取人之长补己之短，合力可成大业。',
+  topBottom: '上下结构，根基在上，志向在下。承上启下，继往开来。此字预示着您处于承接与开创的节点，上有依托，下有目标，稳步前行即可。',
+  enclosure: '包围结构，外刚内柔。外有屏障以护其内，内有乾坤以待其时。此字提示您当前宜守不宜攻，藏器于身，待时而动，必有破茧之日。',
+  compound: '品字结构，三才鼎立。众星捧月，格局开阔。此字预示着您人气旺盛，众望所归。当前得道多助，适合团队协作，共同开创。',
+}
+
+// ════════════════════════════════════════
+// 常见字 → 结构类型（约 200 个字）
+// ════════════════════════════════════════
+
+export const CHAR_STRUCTURE_MAP: Map<string, string> = new Map([
+  // 独体字
+  ['一', 'single'], ['人', 'single'], ['大', 'single'], ['天', 'single'],
+  ['日', 'single'], ['月', 'single'], ['水', 'single'], ['火', 'single'],
+  ['木', 'single'], ['金', 'single'], ['土', 'single'], ['山', 'single'],
+  ['石', 'single'], ['田', 'single'], ['目', 'single'], ['口', 'single'],
+  ['手', 'single'], ['足', 'single'], ['心', 'single'], ['力', 'single'],
+  ['刀', 'single'], ['王', 'single'], ['玉', 'single'], ['牛', 'single'],
+  ['马', 'single'], ['鸟', 'single'], ['鱼', 'single'], ['龙', 'single'],
+  ['虫', 'single'], ['云', 'single'], ['雨', 'single'], ['风', 'single'],
+  ['电', 'single'], ['舟', 'single'], ['车', 'single'], ['门', 'single'],
+  ['子', 'single'], ['女', 'single'], ['中', 'single'], ['东', 'single'],
+  ['西', 'single'], ['南', 'single'], ['北', 'single'], ['上', 'single'],
+  ['下', 'single'], ['左', 'single'], ['右', 'single'], ['来', 'single'],
+  ['去', 'single'], ['生', 'single'], ['死', 'single'], ['白', 'single'],
+  ['黑', 'single'], ['红', 'single'], ['黄', 'single'], ['长', 'single'],
+  ['小', 'single'], ['正', 'single'],
+
+  // 左右结构
+  ['明', 'leftRight'], ['林', 'leftRight'], ['相', 'leftRight'],
+  ['信', 'leftRight'], ['从', 'leftRight'], ['比', 'leftRight'],
+  ['朋', 'leftRight'], ['江', 'leftRight'], ['河', 'leftRight'],
+  ['海', 'leftRight'], ['湖', 'leftRight'], ['清', 'leftRight'],
+  ['波', 'leftRight'], ['浪', 'leftRight'], ['涛', 'leftRight'],
+  ['洋', 'leftRight'], ['流', 'leftRight'], ['沐', 'leftRight'],
+  ['汉', 'leftRight'], ['得', 'leftRight'], ['行', 'leftRight'],
+  ['德', 'leftRight'], ['律', 'leftRight'], ['徐', 'leftRight'],
+  ['须', 'leftRight'], ['特', 'leftRight'], ['物', 'leftRight'],
+  ['牡', 'leftRight'], ['根', 'leftRight'], ['柳', 'leftRight'],
+  ['桃', 'leftRight'], ['梅', 'leftRight'], ['松', 'leftRight'],
+  ['柏', 'leftRight'], ['枝', 'leftRight'], ['材', 'leftRight'],
+  ['树', 'leftRight'], ['杨', 'leftRight'], ['枫', 'leftRight'],
+  ['桦', 'leftRight'], ['樱', 'leftRight'], ['红', 'leftRight'],
+  ['经', 'leftRight'], ['织', 'leftRight'], ['组', 'leftRight'],
+  ['细', 'leftRight'], ['终', 'leftRight'], ['给', 'leftRight'],
+  ['绿', 'leftRight'], ['线', 'leftRight'], ['练', 'leftRight'],
+  ['纲', 'leftRight'], ['纳', 'leftRight'], ['纹', 'leftRight'],
+  ['纷', 'leftRight'], ['纯', 'leftRight'], ['纸', 'leftRight'],
+  ['述', 'leftRight'], ['设', 'leftRight'],
+  ['记', 'leftRight'], ['让', 'leftRight'], ['议', 'leftRight'],
+  ['讨', 'leftRight'], ['训', 'leftRight'], ['许', 'leftRight'],
+  ['说', 'leftRight'], ['诗', 'leftRight'], ['试', 'leftRight'],
+  ['话', 'leftRight'], ['讲', 'leftRight'], ['读', 'leftRight'],
+  ['语', 'leftRight'], ['课', 'leftRight'], ['谢', 'leftRight'],
+  ['识', 'leftRight'], ['视', 'leftRight'], ['观', 'leftRight'],
+  ['规', 'leftRight'], ['现', 'leftRight'], ['砚', 'leftRight'],
+  ['祖', 'leftRight'], ['神', 'leftRight'], ['福', 'leftRight'],
+  ['祥', 'leftRight'], ['禄', 'leftRight'], ['祺', 'leftRight'],
+  ['被', 'leftRight'], ['初', 'leftRight'], ['补', 'leftRight'],
+  ['袖', 'leftRight'], ['裤', 'leftRight'], ['裙', 'leftRight'],
+  ['衫', 'leftRight'], ['新', 'leftRight'],
+
+  // 上下结构
+  ['安', 'topBottom'], ['宁', 'topBottom'], ['定', 'topBottom'],
+  ['守', 'topBottom'], ['家', 'topBottom'], ['室', 'topBottom'],
+  ['宜', 'topBottom'], ['宗', 'topBottom'], ['官', 'topBottom'],
+  ['皇', 'topBottom'], ['帝', 'topBottom'], ['景', 'topBottom'],
+  ['星', 'topBottom'], ['辰', 'topBottom'], ['昆', 'topBottom'],
+  ['晨', 'topBottom'], ['昊', 'topBottom'], ['是', 'topBottom'],
+  ['昌', 'topBottom'], ['易', 'topBottom'], ['春', 'topBottom'],
+  ['晋', 'topBottom'], ['普', 'topBottom'], ['智', 'topBottom'],
+  ['最', 'topBottom'], ['曾', 'topBottom'], ['会', 'topBottom'],
+  ['楚', 'topBottom'], ['业', 'topBottom'], ['荣', 'topBottom'],
+  ['花', 'topBottom'], ['草', 'topBottom'], ['英', 'topBottom'],
+  ['芳', 'topBottom'], ['芬', 'topBottom'], ['若', 'topBottom'],
+  ['万', 'topBottom'], ['芋', 'topBottom'], ['华', 'topBottom'],
+  ['梦', 'topBottom'], ['艺', 'topBottom'], ['苇', 'topBottom'],
+  ['苏', 'topBottom'], ['范', 'topBottom'], ['劳', 'topBottom'],
+  ['芝', 'topBottom'], ['芹', 'topBottom'], ['芯', 'topBottom'],
+  ['苍', 'topBottom'], ['苑', 'topBottom'],
+  ['茂', 'topBottom'], ['苞', 'topBottom'],
+  ['苓', 'topBottom'],
+
+  // 包围结构
+  ['国', 'enclosure'], ['围', 'enclosure'], ['园', 'enclosure'],
+  ['圈', 'enclosure'], ['圆', 'enclosure'],
+  ['团', 'enclosure'], ['图', 'enclosure'], ['困', 'enclosure'],
+  ['囚', 'enclosure'], ['回', 'enclosure'], ['因', 'enclosure'],
+  ['闲', 'enclosure'], ['闭', 'enclosure'], ['问', 'enclosure'],
+  ['间', 'enclosure'], ['闯', 'enclosure'], ['阅', 'enclosure'],
+  ['阁', 'enclosure'], ['阔', 'enclosure'], ['闪', 'enclosure'],
+  ['同', 'enclosure'], ['周', 'enclosure'], ['网', 'enclosure'],
+  ['凰', 'enclosure'], ['风', 'enclosure'], ['凤', 'enclosure'],
+  ['匡', 'enclosure'], ['巨', 'enclosure'], ['区', 'enclosure'],
+  ['医', 'enclosure'], ['可', 'enclosure'], ['司', 'enclosure'],
+  ['包', 'enclosure'], ['气', 'enclosure'], ['广', 'enclosure'],
+  ['厂', 'enclosure'], ['疒', 'enclosure'], ['尸', 'enclosure'],
+  ['户', 'enclosure'], ['虍', 'enclosure'],
+  ['局', 'enclosure'], ['房', 'enclosure'], ['肩', 'enclosure'],
+  ['层', 'enclosure'], ['屋', 'enclosure'], ['展', 'enclosure'],
+  ['屏', 'enclosure'], ['属', 'enclosure'], ['屈', 'enclosure'],
+
+  // 品字结构
+  ['晶', 'compound'], ['森', 'compound'], ['淼', 'compound'],
+  ['鑫', 'compound'], ['焱', 'compound'], ['垚', 'compound'],
+  ['磊', 'compound'], ['众', 'compound'], ['品', 'compound'],
+  ['轰', 'compound'], ['矗', 'compound'], ['辩', 'compound'],
+])

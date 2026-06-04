@@ -78,6 +78,26 @@ export default defineEventHandler(async (event) => {
     values.push(body.gender ?? null)
   }
 
+  if (body.birth_place !== undefined) {
+    if (body.birth_place !== null) {
+      if (typeof body.birth_place !== 'string' || body.birth_place.length > 50) {
+        throw createError({ statusCode: 400, statusMessage: '出生地长度不能超过50个字符' })
+      }
+    }
+    updates.push('birth_place = ?')
+    values.push(body.birth_place ?? null)
+  }
+
+  if (body.birth_longitude !== undefined) {
+    if (body.birth_longitude !== null) {
+      if (typeof body.birth_longitude !== 'number' || body.birth_longitude < -180 || body.birth_longitude > 180) {
+        throw createError({ statusCode: 400, statusMessage: '经度范围为 -180 至 180' })
+      }
+    }
+    updates.push('birth_longitude = ?')
+    values.push(body.birth_longitude ?? null)
+  }
+
   if (updates.length === 0) {
     throw createError({ statusCode: 400, statusMessage: '没有需要更新的字段' })
   }

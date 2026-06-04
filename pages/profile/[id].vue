@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
+import AvatarCircle from '~/components/tools/AvatarCircle.vue'
 
 interface ProfileUpdateBody {
   gender: string | null
@@ -7,6 +8,8 @@ interface ProfileUpdateBody {
   birth_calendar: 'solar' | 'lunar' | null
   birth_hour: number | null
   birth_minute: number | null
+  birth_place: string | null
+  birth_longitude: number | null
 }
 
 useHead({ title: '命簿 - 玄·道' })
@@ -21,6 +24,8 @@ const birthDate = ref('')
 const birthCalendar = ref<'solar' | 'lunar' | null>(null)
 const birthHour = ref<number | null>(null)
 const birthMinuteStr = ref('')
+const birthPlace = ref('')
+const birthLongitudeStr = ref('')
 const saving = ref(false)
 const success = ref(false)
 const error = ref('')
@@ -37,6 +42,8 @@ const initialValues = ref({
   birthCalendar: null as 'solar' | 'lunar' | null,
   birthHour: null as number | null,
   birthMinuteStr: '',
+  birthPlace: '',
+  birthLongitudeStr: '',
 })
 
 const isDirty = computed(() => {
@@ -45,7 +52,9 @@ const isDirty = computed(() => {
     birthDate.value !== initialValues.value.birthDate ||
     birthCalendar.value !== initialValues.value.birthCalendar ||
     birthHour.value !== initialValues.value.birthHour ||
-    birthMinuteStr.value !== initialValues.value.birthMinuteStr
+    birthMinuteStr.value !== initialValues.value.birthMinuteStr ||
+    birthPlace.value !== initialValues.value.birthPlace ||
+    birthLongitudeStr.value !== initialValues.value.birthLongitudeStr
   )
 })
 
@@ -110,6 +119,9 @@ onMounted(() => {
   birthHour.value = p.birth_hour ?? null
   const bm = p.birth_minute
   birthMinuteStr.value = bm != null && !isNaN(bm) ? String(bm) : ''
+	birthPlace.value = p.birth_place ?? ''
+	const bl = p.birth_longitude
+	birthLongitudeStr.value = bl != null && !isNaN(bl) ? String(bl) : ''
 
   // Store initial values for dirty detection
   initialValues.value = {
@@ -118,6 +130,8 @@ onMounted(() => {
     birthCalendar: birthCalendar.value,
     birthHour: birthHour.value,
     birthMinuteStr: birthMinuteStr.value,
+    birthPlace: birthPlace.value,
+    birthLongitudeStr: birthLongitudeStr.value,
   }
 
   window.addEventListener('beforeunload', beforeUnloadHandler)
@@ -171,6 +185,8 @@ const saveProfile = async () => {
       birth_calendar: null,
       birth_hour: null,
       birth_minute: null,
+      birth_place: null,
+      birth_longitude: null,
     }
     const normalizedGender = gender.value === '' ? null : gender.value
     body.gender = normalizedGender
@@ -189,6 +205,19 @@ const saveProfile = async () => {
     } else {
       body.birth_minute = null
     }
+    body.birth_place = birthPlace.value || null
+    if (birthLongitudeStr.value !== '') {
+      const lon = Number(birthLongitudeStr.value)
+      if (!isNaN(lon) && lon >= -180 && lon <= 180) {
+        body.birth_longitude = lon
+      } else {
+        error.value = '经度范围应在 -180 至 180 之间'
+        saving.value = false
+        return
+      }
+    } else {
+      body.birth_longitude = null
+    }
 
     const updated = await $fetch<Profile>(`/api/profiles/${currentProfile.value.id}`, {
       method: 'PUT',
@@ -206,6 +235,9 @@ const saveProfile = async () => {
     birthHour.value = updated.birth_hour ?? null
     const min = updated.birth_minute
     birthMinuteStr.value = min != null && !isNaN(min) ? String(min) : ''
+    birthPlace.value = updated.birth_place ?? ''
+    const lon = updated.birth_longitude
+    birthLongitudeStr.value = lon != null && !isNaN(lon) ? String(lon) : ''
 
     // Reset dirty state after save
     initialValues.value = {
@@ -214,6 +246,8 @@ const saveProfile = async () => {
       birthCalendar: birthCalendar.value,
       birthHour: birthHour.value,
       birthMinuteStr: birthMinuteStr.value,
+      birthPlace: birthPlace.value,
+      birthLongitudeStr: birthLongitudeStr.value,
     }
 
     success.value = true
@@ -357,6 +391,15 @@ const saveProfile = async () => {
           </div>
 
           <div class="space-y-8">
+            <!-- ── Avatar ── -->
+            <div class="flex items-center gap-5">
+              <AvatarCircle :nickname="nickname" size="lg" />
+              <div>
+                <p class="font-display text-xl text-ink-dark tracking-[0.15em]">{{ nickname }}</p>
+                <p class="text-[0.65rem] text-ink-light tracking-[0.1em] mt-1">命主</p>
+              </div>
+            </div>
+
             <!-- ── Nickname (read-only) ── -->
             <div class="field-group">
               <label for="profile-nickname" class="field-label">
@@ -513,6 +556,42 @@ const saveProfile = async () => {
                   />
                 </div>
               </div>
+            </div>
+
+            <!-- ── Birth place ── -->
+            <div class="field-group">
+              <label for="profile-birth-place" class="field-label">
+                <span class="label-seal" aria-hidden="true">地</span>
+                <span class="label-text">出生地 <span class="text-ink-faint font-sans font-normal">（选填）</span></span>
+              </label>
+              <input
+                id="profile-birth-place"
+                v-model="birthPlace"
+                type="text"
+                maxlength="50"
+                class="input-warm"
+                placeholder="如：北京、上海、成都"
+              />
+              <p class="field-hint">用于真太阳时校正，影响命盘精度</p>
+            </div>
+
+            <!-- ── Birth longitude ── -->
+            <div class="field-group">
+              <label for="profile-birth-longitude" class="field-label">
+                <span class="label-seal" aria-hidden="true">经</span>
+                <span class="label-text">出生经度 <span class="text-ink-faint font-sans font-normal">（选填）</span></span>
+              </label>
+              <input
+                id="profile-birth-longitude"
+                v-model="birthLongitudeStr"
+                type="number"
+                min="-180"
+                max="180"
+                step="0.1"
+                class="input-warm"
+                placeholder="如：116.4（北京）"
+              />
+              <p class="field-hint">经度范围 -180 至 180，东经为正</p>
             </div>
           </div>
         </section>

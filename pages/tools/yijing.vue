@@ -4,7 +4,17 @@
 
       <div class="max-w-[48rem] mx-auto">
         <!-- Toolbar: always visible for back navigation -->
-        <ToolToolbar :show-history="true" @history="showHistoryModal = true" />
+        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+          <template #extra>
+            <ExportButton
+              v-if="result && !processing"
+              :target-ref="exportRef"
+              filename="六爻卦象.png"
+              :is-exporting="isExporting"
+              @export="handleExport"
+            />
+          </template>
+        </ToolToolbar>
 
         <!-- Casting panel -->
         <YijingCastingPanel
@@ -76,7 +86,9 @@
 
         <!-- Results -->
         <div ref="resultSection" v-if="result && !processing" class="mt-8">
+          <div ref="exportRef">
           <YijingInterpretation :result="result" :score="score" />
+          </div>
 
           <!-- Auto-save is fire-and-forget, failures are silent -->
 
@@ -123,6 +135,8 @@ import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -140,7 +154,15 @@ const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
 const showHistoryModal = ref(false)
 const resultSection = ref<HTMLElement | null>(null)
+const exportRef = ref<HTMLElement | null>(null)
 const confirmDialogRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
+
+function handleExport() {
+  if (exportRef.value) {
+    exportToImage(exportRef.value, '六爻卦象.png')
+  }
+}
 
 // Timer refs for setTimeout cleanup
 const coinTimer = ref<ReturnType<typeof setTimeout> | null>(null)

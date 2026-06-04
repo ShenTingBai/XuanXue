@@ -19,3 +19,31 @@ export function parseDate(str: string): { year: number; month: number; day: numb
   if (!isValidDate(year, month, day)) return null
   return { year, month, day }
 }
+
+/**
+ * Format a date string as a relative time description in Chinese.
+ *
+ * @param dateStr - ISO date string (e.g., "2026-06-04T10:30:00Z")
+ * @returns Relative time description: "刚刚", "X分钟前", "X小时前", "昨天", "X天前", "X周前", or the date itself
+ */
+export function formatRelativeTime(dateStr: string): string {
+  const now = Date.now()
+  const target = new Date(dateStr).getTime()
+  if (isNaN(target)) return dateStr
+
+  const diffMs = now - target
+  const diffMinutes = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMinutes < 1) return '刚刚'
+  if (diffMinutes < 60) return `${diffMinutes}分钟前`
+  if (diffHours < 24) return `${diffHours}小时前`
+  if (diffDays === 1) return '昨天'
+  if (diffDays < 7) return `${diffDays}天前`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}周前`
+
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return dateStr
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+}

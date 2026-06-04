@@ -15,40 +15,29 @@ const navTools: NavTool[] = [
   { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
   { id: 'hehun', name: '合婚', char: '合', route: '/tools/hehun', available: true },
   { id: 'name-test', name: '姓名', char: '名', route: '/tools/name-test', available: true },
+  { id: 'cezi', name: '测字', char: '测', route: '/tools/cezi', available: true },
+  { id: 'zeji', name: '择日', char: '择', route: '/tools/zeji', available: true },
 ]
 </script>
 
 <script setup lang="ts">
+import AvatarCircle from '~/components/tools/AvatarCircle.vue'
+import ProfileSwitcher from '~/components/tools/ProfileSwitcher.vue'
+
 const { currentProfile, restoreSession, logout } = useAuth()
 const router = useRouter()
-const showDropdown = ref(false)
 const showMobileNav = ref(false)
 const mobileNavRef = ref<HTMLElement | null>(null)
 const mobileNavCloseRef = ref<HTMLElement | null>(null)
 const hamburgerBtnRef = ref<HTMLElement | null>(null)
 const mobileDrawerPanelRef = ref<HTMLElement | null>(null)
 const route = useRoute()
-const dropdownRef = ref<HTMLElement | null>(null)
-const dropdownInnerRef = ref<HTMLElement | null>(null)
-const toggleRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   restoreSession()
-  document.addEventListener('click', handleClickOutside)
 })
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-const handleClickOutside = (e: MouseEvent) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
-    showDropdown.value = false
-  }
-}
 
 watch(() => route.path, () => {
-  showDropdown.value = false
   showMobileNav.value = false
 })
 
@@ -81,37 +70,10 @@ function trapFocusBack() {
   mobileNavCloseRef.value?.focus()
 }
 
-const handleMenuKeydown = (e: KeyboardEvent) => {
-  const items = dropdownInnerRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]')
-  if (!items || items.length === 0) return
-  const currentIdx = Array.from(items).findIndex(item => item === document.activeElement)
-  let nextIdx: number
-  switch (e.key) {
-    case 'ArrowDown': nextIdx = (currentIdx + 1) % items.length; break
-    case 'ArrowUp': nextIdx = (currentIdx - 1 + items.length) % items.length; break
-    case 'Home': nextIdx = 0; break
-    case 'End': nextIdx = items.length - 1; break
-    case 'Tab':
-      e.preventDefault()
-      showDropdown.value = false
-      return
-    default: return
-  }
-  e.preventDefault()
-  items.forEach((item, i) => item.setAttribute('tabindex', i === nextIdx ? '0' : '-1'))
-  items[nextIdx].focus()
-}
-
-const handleMenuEscape = () => {
-  showDropdown.value = false
-  toggleRef.value?.focus()
-}
-
 const loggingOut = ref(false)
 
 const handleLogout = async () => {
   if (loggingOut.value) return
-  showDropdown.value = false
   showMobileNav.value = false
   loggingOut.value = true
   try {
@@ -119,15 +81,6 @@ const handleLogout = async () => {
     router.push('/login')
   } finally {
     loggingOut.value = false
-  }
-}
-
-const closeDropdown = (e: FocusEvent) => {
-  const el = dropdownRef.value
-  if (!el) return
-  if (!el.contains(e.relatedTarget as Node)) {
-    showDropdown.value = false
-    // Do NOT force focus back — handleClickOutside and handleMenuEscape cover the other cases
   }
 }
 </script>
@@ -190,38 +143,12 @@ const closeDropdown = (e: FocusEvent) => {
             </button>
 
             <!-- Profile Section (desktop only — mobile is in the drawer) -->
-            <div v-if="currentProfile" ref="dropdownRef" class="hidden md:block relative flex-shrink-0" @focusout="closeDropdown">
-              <button
-                ref="toggleRef"
-                @click="showDropdown = !showDropdown"
-                class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:bg-paper-medium/50"
-                aria-haspopup="menu"
-                :aria-expanded="showDropdown"
-                :aria-label="'打开 ' + currentProfile.nickname + ' 的菜单'"
-              >
-                <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
-                <svg aria-hidden="true"
-                  :class="['w-3.5 h-3.5 text-ink-light transition-transform', showDropdown && 'rotate-180']"
-                  viewBox="0 0 12 8"
-                  fill="none"
-                >
-                  <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </button>
-
-              <!-- Dropdown -->
-              <Transition name="dropdown">
-                <div
-                  v-if="showDropdown"
-                  ref="dropdownInnerRef"
-                  role="menu"
-                  @keydown.escape="handleMenuEscape"
-                  @keydown="handleMenuKeydown"
-                  class="dropdown-panel absolute right-0 top-full mt-2 w-44 rounded-lg overflow-hidden z-50"
-                >
+            <div v-if="currentProfile" class="hidden md:block flex-shrink-0">
+              <ProfileSwitcher>
+                <template #dropdown-extra>
+                  <div class="h-px bg-paper-dark mx-3" role="separator" />
                   <NuxtLink
                     :to="`/profile/${currentProfile.id}`"
-                    @click="showDropdown = false"
                     role="menuitem"
                     tabindex="0"
                     class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
@@ -247,8 +174,8 @@ const closeDropdown = (e: FocusEvent) => {
                     </svg>
                     {{ loggingOut ? '退出中...' : '退出' }}
                   </button>
-                </div>
-              </Transition>
+                </template>
+              </ProfileSwitcher>
             </div>
           </div>
         </div>
@@ -347,6 +274,10 @@ const closeDropdown = (e: FocusEvent) => {
             <template v-if="currentProfile">
               <div class="mx-5 h-px" style="background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%);" />
               <div class="flex flex-col px-3 py-3 gap-1">
+                <div class="flex items-center gap-3 px-3 py-2">
+                  <AvatarCircle :nickname="currentProfile.nickname" size="sm" />
+                  <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
+                </div>
                 <NuxtLink
                   :to="`/profile/${currentProfile.id}`"
                   @click="showMobileNav = false"
@@ -357,7 +288,6 @@ const closeDropdown = (e: FocusEvent) => {
                     <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                   </svg>
                   <span class="font-sans text-sm text-ink-medium">编辑档案</span>
-                  <span class="font-sans text-xs text-ink-light/80 ml-auto truncate max-w-[100px]">{{ currentProfile.nickname }}</span>
                 </NuxtLink>
                 <button
                   @click="handleLogout"

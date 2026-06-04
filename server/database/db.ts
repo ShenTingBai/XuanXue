@@ -165,7 +165,15 @@ export async function initDb(): Promise<void> {
     )`)
 
     const migrations: { version: number; sql: string }[] = [
-      // Future migrations go here — add new entries with incrementing version numbers
+      {
+        version: 3,
+        sql: `ALTER TABLE profiles ADD COLUMN birth_place TEXT;
+              ALTER TABLE profiles ADD COLUMN birth_longitude REAL;`,
+      },
+      {
+        version: 4,
+        sql: `ALTER TABLE profiles ADD COLUMN parent_profile_id INTEGER REFERENCES profiles(id) ON DELETE CASCADE;`,
+      },
     ]
 
     const appliedMigrations = new Set(

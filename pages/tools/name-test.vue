@@ -9,6 +9,8 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
 
@@ -22,6 +24,14 @@ const surname = ref('')
 const givenName = ref('')
 
 const showScrollTop = ref(false)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '姓名分析.png')
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -98,7 +108,17 @@ const scoreItems = computed(() => {
     </div>
 
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar />
+      <ToolToolbar>
+        <template #extra>
+          <ExportButton
+            v-if="result"
+            :target-ref="resultRef"
+            filename="姓名分析.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </template>
+      </ToolToolbar>
 
       <!-- ══ 输入区 ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
@@ -156,6 +176,7 @@ const scoreItems = computed(() => {
 
       <!-- ══ Result ══ -->
       <template v-if="result">
+        <div ref="resultRef">
         <!-- 总分横幅 -->
         <div class="fade-in mt-8 score-banner" :style="{ '--delay': '0.15s' }">
           <div class="score-banner__left">
@@ -282,6 +303,7 @@ const scoreItems = computed(() => {
             <span class="detail-line__label">{{ detail.label }}</span>
             <span class="detail-line__text">{{ detail.text }}</span>
           </div>
+        </div>
         </div>
 
         <EntertainmentDisclaimer />

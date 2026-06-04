@@ -1,4 +1,4 @@
-import { dbRun } from '../../database/db'
+import { dbGet, dbRun } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   const idRaw = event.context.params!.id
@@ -14,7 +14,16 @@ export default defineEventHandler(async (event) => {
   if (!profileIdFromToken) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }
-  if (profileIdFromToken !== id) {
+
+  // Allow deletion if: owns the profile, OR is the parent of the sub-profile
+  const targetProfile = dbGet('SELECT id, parent_profile_id FROM profiles WHERE id = ?', [id])
+  if (!targetProfile) {
+    throw createError({ statusCode: 404, statusMessage: '档案不存在' })
+  }
+
+  const isOwner = profileIdFromToken === id
+  const isParent = (targetProfile.parent_profile_id as number | undefined) === profileIdFromToken
+  if (!isOwner && !isParent) {
     throw createError({ statusCode: 403, statusMessage: '无权删除此档案' })
   }
 

@@ -8,6 +8,13 @@ export interface Profile {
   birth_calendar?: 'solar' | 'lunar' | null
   birth_hour?: number | null
   birth_minute?: number | null
+  birth_place?: string | null
+  birth_longitude?: number | null
+  parent_profile_id?: number | null
+}
+
+export interface ProfileWithFlag extends Profile {
+  isMain: boolean
 }
 
 interface StoredSession {
@@ -17,6 +24,7 @@ interface StoredSession {
 
 export const useAuth = () => {
   const currentProfile = useState<Profile | null>('auth:profile', () => null)
+  const subProfiles = useState<ProfileWithFlag[]>('auth:subProfiles', () => [])
   const SESSION_KEY = 'xuanxue:session'
 
   function getStoredSession(): StoredSession | null {
@@ -91,7 +99,35 @@ export const useAuth = () => {
     }
     localStorage.removeItem(SESSION_KEY)
     currentProfile.value = null
+    subProfiles.value = []
   }
 
-  return { currentProfile, getAuthHeaders, restoreSession, login, register, logout, updateProfile }
+  /** Load sub-profiles from the API */
+  async function loadSubProfiles() {
+    if (!import.meta.client) return
+    const session = getStoredSession()
+    if (!session?.token) return
+    try {
+      const res = await $fetch<{ main: ProfileWithFlag; subs: ProfileWithFlag[] }>('/api/profiles', {
+        headers: { Authorization: `Bearer ${session.token}` },
+      })
+      currentProfile.value = res.main
+      subProfiles.value = [res.main, ...res.subs]
+      // Sync localStorage with the fresh main profile
+      setStoredSession(session.token, res.main)
+    } catch {
+      // Best-effort — if sub-profiles can't be loaded, keep current state
+    }
+  }
+
+  /** Switch to a different profile (main or sub) */
+  function switchProfile(profile: Profile) {
+    const session = getStoredSession()
+    if (session) {
+      setStoredSession(session.token, profile)
+    }
+    currentProfile.value = profile
+  }
+
+  return { currentProfile, subProfiles, getAuthHeaders, restoreSession, login, register, logout, updateProfile, loadSubProfiles, switchProfile }
 }

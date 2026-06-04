@@ -33,6 +33,8 @@ const emit = defineEmits<{
 
     <span class="hidden sm:block h-4 w-px bg-ink-faint/20" aria-hidden="true" />
 
+    <slot name="extra" />
+
     <button
       v-if="showHistory"
       @click="emit('history')"

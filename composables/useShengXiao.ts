@@ -21,16 +21,16 @@ const ANIMAL_DIRECTION: Record<string, string> = {
 // ── Compatibility Pair Tables ─────────────────────────────────
 
 /** 三合 groups: each group of 3 animals that harmonize */
-const SANHE_GROUPS: number[][] = [[0, 4, 8], [1, 5, 9], [2, 6, 10], [3, 7, 11]]
+export const SANHE_GROUPS: number[][] = [[0, 4, 8], [1, 5, 9], [2, 6, 10], [3, 7, 11]]
 
 /** 六合 pairs: each pair of 2 animals that harmonize */
-const LIUHE_PAIRS: number[][] = [[0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7]]
+export const LIUHE_PAIRS: number[][] = [[0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7]]
 
 /** 相冲 pairs: clashing animals */
-const CHONG_PAIRS: number[][] = [[0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11]]
+export const CHONG_PAIRS: number[][] = [[0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11]]
 
 /** 相害 pairs: harming animals */
-const HAI_PAIRS: number[][] = [[0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10]]
+export const HAI_PAIRS: number[][] = [[0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10]]
 
 // ── TaiSui Relationship Tables ─────────────────────────────────
 // These define all standard Earthly Branch relationships used to
@@ -43,11 +43,11 @@ function isZhiTaiSui(myIdx: number, taiSuiIdx: number): boolean {
 }
 
 /** 刑太岁: punishment branches (三刑 + 自刑) */
-const XING_PAIRS: number[][] = [[0, 3], [2, 5], [5, 8], [2, 8], [1, 10], [10, 7], [1, 7]]
-const SELF_XING: number[] = [4, 6, 9, 11]  // 辰/午/酉/亥 self-punishment
+export const XING_PAIRS: number[][] = [[0, 3], [2, 5], [5, 8], [2, 8], [1, 10], [10, 7], [1, 7]]
+export const SELF_XING: number[] = [4, 6, 9, 11]  // 辰/午/酉/亥 self-punishment
 
 /** 破太岁: break/destruction branches (六破) */
-const PO_PAIRS: number[][] = [[0, 9], [2, 11], [4, 1], [6, 3], [8, 5], [10, 7]]
+export const PO_PAIRS: number[][] = [[0, 9], [2, 11], [4, 1], [6, 3], [8, 5], [10, 7]]
 
 // ── Relationship scoring weights ──────────────────────────────
 

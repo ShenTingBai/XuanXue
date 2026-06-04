@@ -18,6 +18,8 @@ import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 
 useHead({ title: '紫微斗数 - 玄学' })
 
@@ -32,8 +34,16 @@ const selectedIndex = ref(0)
 const currentView = ref<'celestial' | 'grid'>('celestial')
 const showHistoryModal = ref(false)
 const showScrollTop = ref(false)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '紫微斗数.png')
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -305,7 +315,17 @@ function dismissRestoreError() {
         <ToolToolbar
           :show-history="true"
           @history="showHistoryModal = true"
-        />
+        >
+          <template #extra>
+            <ExportButton
+              v-if="astrolabe"
+              :target-ref="resultRef"
+              filename="紫微斗数.png"
+              :is-exporting="isExporting"
+              @export="handleExport"
+            />
+          </template>
+        </ToolToolbar>
 
         <!-- Save error is handled silently (fire-and-forget) -->
 
@@ -327,6 +347,7 @@ function dismissRestoreError() {
             >&times;</button>
           </div>
         </Transition>
+        <div ref="resultRef">
         <ZiWeiTabSwitcher
           :current-view="currentView"
           @update:current-view="currentView = $event"
@@ -381,6 +402,7 @@ function dismissRestoreError() {
             :current-age="currentAge"
             @select="handleSelectPalace"
           />
+        </div>
         </div>
 
         <!-- Restored from history notice -->
