@@ -1,3 +1,5 @@
+import { CONSTELLATION_PAIRING_EXPLANATIONS } from '~/constants/constellation'
+
 // ── Types ─────────────────────────────────────────────────────
 
 export interface ConstellationResult {
@@ -23,6 +25,7 @@ export interface ConstellationResult {
     symbol: string
     level: 'great' | 'good' | 'bad'
     label: string
+    explanation?: string
   }>
   /** 月亮星座（出生时月亮所在星座），仅在提供出生年份时计算 */
   moonSign?: {
@@ -476,6 +479,7 @@ function computeConstellationCompat(zodiacIndex: number): ConstellationResult['c
     symbol: string
     level: 'great' | 'good' | 'bad'
     label: string
+    explanation?: string
   }> = []
 
   for (let i = 0; i < ZODIACS.length; i++) {
@@ -502,6 +506,7 @@ function computeConstellationCompat(zodiacIndex: number): ConstellationResult['c
       symbol: ZODIACS[i].symbol,
       level,
       label,
+      explanation: CONSTELLATION_PAIRING_EXPLANATIONS[level],
     })
   }
 

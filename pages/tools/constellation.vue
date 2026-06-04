@@ -33,6 +33,11 @@ const saveError = ref('')
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
+const expandedCompatIdx = ref<number | null>(null)
+
+function toggleCompat(idx: number) {
+  expandedCompatIdx.value = expandedCompatIdx.value === idx ? null : idx
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -388,11 +393,15 @@ function dismissRestoreError() {
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div
-                v-for="item in result.compatibility"
+                v-for="(item, idx) in result.compatibility"
                 :key="item.name"
-                class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
-                :class="compatibilityBorderClass(item.level)"
-                :title="item.label"
+                class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300"
+                :class="[compatibilityBorderClass(item.level), expandedCompatIdx === idx ? '' : 'cursor-pointer hover:-translate-y-0.5']"
+                @click="toggleCompat(idx)"
+                @keydown.enter="toggleCompat(idx)"
+                tabindex="0"
+                role="button"
+                :aria-expanded="expandedCompatIdx === idx"
               >
                 <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.symbol }}</div>
                 <div class="font-display text-base text-ink-dark">{{ item.name }}</div>
@@ -402,6 +411,21 @@ function dismissRestoreError() {
                 >
                   {{ item.label }}
                 </span>
+
+                <!-- Accordion explanation -->
+                <Transition name="expand">
+                  <div
+                    v-if="expandedCompatIdx === idx && item.explanation"
+                    class="mt-2 pt-2 border-t border-paper-dark/30"
+                  >
+                    <p
+                      class="text-left font-sans text-[0.6rem] text-ink-light leading-relaxed pl-2 border-l-2"
+                      :class="item.level === 'great' ? 'border-wuxing-wood/40' : item.level === 'bad' ? 'border-cinnabar/30' : 'border-ink-faint/40'"
+                    >
+                      {{ item.explanation }}
+                    </p>
+                  </div>
+                </Transition>
               </div>
             </div>
           </div>
@@ -450,3 +474,21 @@ function dismissRestoreError() {
         </template>
       </ToolPageLayout>
 </template>
+
+<style scoped>
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 5rem;
+  opacity: 1;
+}
+</style>
