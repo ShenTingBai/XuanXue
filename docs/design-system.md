@@ -290,6 +290,37 @@
 - `--air` 用于西方四元素中的「风象」，使用 `jade-light` 边框色以区别于五行「木」
 - 适用：属性 grids（五行、元素、守护星等 2×2 或 4 列网格）
 
+#### 属性卡脚注模式
+
+`wuxing-card` 网格下方的脚注说明，用于补充四张卡片无法承载的上下文：
+
+```html
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+  <div class="wuxing-card wuxing-card--fire">...</div>
+  <!-- ... -->
+</div>
+<p class="mt-3 font-sans text-xs text-ink-medium leading-relaxed">
+  说明文本，关键词用 <span class="text-cinnabar font-medium">朱砂加粗</span> 突出。
+</p>
+```
+
+- 使用场景：星座元素说明、生肖纳音说明——原本是卡片内可点击展开，改为静态脚注以保持四卡一致
+- 卡片**禁止**只让其中一张可交互——要么全可展开，要么全静态
+
+#### 西方四元素徽章
+
+星座页面使用的四元素色彩体系，独立于五行（wuxing-*）：
+
+| 元素 | Tailwind | 说明 |
+|------|----------|------|
+| 火 | `border-cinnabar/30 text-cinnabar bg-cinnabar/5` | 炽热本能 |
+| 土 | `border-gold/30 text-gold bg-gold/5` | 稳固包容 |
+| 风 | `border-jade/30 text-jade bg-jade/5` | 灵动流通 |
+| 水 | `border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5` | 深邃情感 |
+
+- 使用 Ink Resonance 现有令牌，**不**引入新色值
+- 与五行（木火土金水）使用不同的 Tailwind 类名，避免概念混淆
+
 ### 4.3 表单
 
 #### `input-ink` — 墨线输入框
@@ -575,6 +606,27 @@
 - **`anim-delay-1` ~ `anim-delay-5`**：0.1s ~ 0.5s 的 stagger 延迟（全局类名，不可自定义）
 - 用于首页 Hero 区域的逐层亮相（Hero 印章 → 标题 → 咒语 → CTA）
 - **不**与 `fade-in` 混用——`anim-rise` 自带 transform，`fade-in` 故意不碰 transform
+
+#### `content-fade` — 内容切换过渡
+
+用于页面内内容替换（如切换星座/生肖）时的淡入淡出：
+
+```html
+<Transition name="content-fade" mode="out-in">
+  <div :key="selectedIndex">...</div>
+</Transition>
+```
+
+```css
+.content-fade-enter-active,
+.content-fade-leave-active { transition: opacity 0.25s ease; }
+.content-fade-enter-from,
+.content-fade-leave-to { opacity: 0; }
+```
+
+- `mode="out-in"`：旧内容先离场，新内容后入场——避免布局跳动
+- `:key` 绑定到切换的索引值——key 变化才触发过渡
+- CSS 放在页面/组件的 `<style scoped>` 中
 
 ### 6.3 展开/收起
 
