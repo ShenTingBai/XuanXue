@@ -309,14 +309,39 @@ export function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: 
 }
 
 /**
+ * Get seasonal climate adjustment element based on month branch.
+ * 调候用神 — balances seasonal extremes.
+ *
+ * 春(寅卯辰, idx 2-4) 木旺 → 需金制 → 调候金
+ * 夏(巳午未, idx 5-7) 火炎 → 需水降 → 调候水
+ * 秋(申酉戌, idx 8-10) 金锐 → 需火炼 → 调候火
+ * 冬(亥子丑, idx 0,1,11) 水寒 → 需火暖 → 调候火
+ */
+export function getSeasonalAdjustment(monthBranchIndex: number): string {
+  // 春 寅卯辰
+  if (monthBranchIndex >= 2 && monthBranchIndex <= 4) return '金'
+  // 夏 巳午未
+  if (monthBranchIndex >= 5 && monthBranchIndex <= 7) return '水'
+  // 秋 申酉戌
+  if (monthBranchIndex >= 8 && monthBranchIndex <= 10) return '火'
+  // 冬 亥子丑
+  return '火'
+}
+
+/**
  * Determine favorable and unfavorable elements based on day master strength.
  *
  * Theory:
  * - 身强/偏强: 喜克泄耗 = 官杀(克我) + 食伤(我生) + 财(我克)
  * - 身弱/偏弱: 喜扶帮 = 印(生我) + 比劫(同我)
  * - 中和: simplified balance, could require further 调候 analysis
+ *
+ * When monthBranchIndex is provided, seasonal climate adjustment (调候) is
+ * prepended to the favorable list. 调候 takes priority over standard strength
+ * analysis — even if the seasonal element would normally be unfavorable,
+ * it is still added as favorable.
  */
-export function getFavorableElements(dayMasterWuxing: string, strength: string): [string[], string[]] {
+export function getFavorableElements(dayMasterWuxing: string, strength: string, monthBranchIndex?: number): [string[], string[]] {
   // 我生 (食伤/EXPRESSION): DM generates this element
   const generating: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
   // 我克 (财/WEALTH): DM controls this element
@@ -326,22 +351,32 @@ export function getFavorableElements(dayMasterWuxing: string, strength: string):
   // 生我 (印/RESOURCE): this element generates DM
   const generatedBy: Record<string, string> = { '木': '水', '火': '木', '土': '火', '金': '土', '水': '金' }
 
+  let favorable: string[]
+  let unfavorable: string[]
+
   if (strength === '强' || strength === '偏强') {
     // 身强喜克泄耗: 官杀(克我) + 食伤(我生) + 财(我克) are favorable
-    return [
-      [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]],
-      [dayMasterWuxing, generatedBy[dayMasterWuxing]],
-    ]
+    favorable = [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]]
+    unfavorable = [dayMasterWuxing, generatedBy[dayMasterWuxing]]
   } else if (strength === '弱' || strength === '偏弱') {
     // 身弱喜扶帮: 印(生我) + 比劫(同我) are favorable
-    return [
-      [generatedBy[dayMasterWuxing], dayMasterWuxing],
-      [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]],
-    ]
+    favorable = [generatedBy[dayMasterWuxing], dayMasterWuxing]
+    unfavorable = [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]]
   } else {
     // 中和 → full analysis needed; simple balance for now
-    return [[controlled[dayMasterWuxing], generating[dayMasterWuxing]], [controlling[dayMasterWuxing], dayMasterWuxing]]
+    favorable = [controlled[dayMasterWuxing], generating[dayMasterWuxing]]
+    unfavorable = [controlling[dayMasterWuxing], dayMasterWuxing]
   }
+
+  // Seasonal climate adjustment (调候) — prepend if provided and not already present
+  if (monthBranchIndex !== undefined) {
+    const seasonal = getSeasonalAdjustment(monthBranchIndex)
+    if (!favorable.includes(seasonal)) {
+      favorable = [seasonal, ...favorable]
+    }
+  }
+
+  return [favorable, unfavorable]
 }
 
 /** Compute element counts from all pillars */
@@ -592,7 +627,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   const dayMaster = STEMS[dayStemIndex]
   const dayMasterWuxing = WUXING_STEM[dayMaster]
   const dayMasterStrength = getWeightedDayMasterStrength(dayMasterWuxing, pillars)
-  const [favorableElements, unfavorableElements] = getFavorableElements(dayMasterWuxing, dayMasterStrength)
+  const [favorableElements, unfavorableElements] = getFavorableElements(dayMasterWuxing, dayMasterStrength, monthBranchIndex)
 
   // Da Yun
   const rawDaYun = computeDaYun(monthPillar, yearStemIndex, gender, birthYear, birthMonth, birthDay)
