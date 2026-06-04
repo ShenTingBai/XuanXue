@@ -5,13 +5,13 @@
     </p>
 
     <div class="card-warm rounded-xl p-8 space-y-4">
-      <!-- Empty state: no shenshas at all -->
+      <!-- Empty state -->
       <p v-if="groupedShenSha.auspicious.length === 0 && groupedShenSha.neutral.length === 0 && groupedShenSha.inauspicious.length === 0"
         class="font-sans text-sm text-ink-muted">
         该命局无特殊神煞标记
       </p>
 
-      <!-- Category groups: 吉神 / 中性 / 凶煞 -->
+      <!-- Category groups -->
       <template v-for="group in shenShaGroups" :key="group.id">
         <div v-if="group.items.length > 0"
           role="group" :aria-labelledby="group.id"
@@ -21,33 +21,41 @@
           <li
             v-for="(ss, ssIdx) in group.items"
             :key="ss.name + ss.pillar + ss.position"
-            class="relative group"
           >
             <button
-              class="inline-flex items-center px-3 py-3 rounded text-sm font-sans transition-colors border-none bg-transparent cursor-pointer"
-              :style="buttonStyle(group.category)"
+              class="shensha-btn inline-flex items-center px-3 py-3 rounded text-sm font-sans cursor-pointer whitespace-nowrap"
+              :style="buttonCustomProps(group.category)"
               :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
               :tabindex="ssIdx === 0 ? 0 : -1"
-              @click="toggleShen(ss.name + ss.pillar + ss.position)"
+              :data-shensha-key="ss.name + ss.pillar + ss.position"
+              @mouseenter="onTooltipEnter($event, ss)"
+              @mouseleave="onTooltipLeave"
+              @focus="onTooltipEnter($event, ss)"
+              @blur="onTooltipLeave"
+              @click="toggleShen(ss)"
             >
               {{ ss.name }}
             </button>
-            <!-- Tooltip -->
-            <span
-              class="tooltip-anchor px-2.5 py-1.5 rounded-lg text-xs font-sans transition-opacity pointer-events-none z-50 bg-ink-darkest text-paper-medium border border-ink-medium shadow-lg min-w-[10rem] max-w-[min(90vw,20rem)]"
-              :class="[
-                'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
-                expandedShen === (ss.name + ss.pillar + ss.position) ? 'opacity-100' : '',
-              ]"
-            >
-              {{ ss.description }}
-              <span class="block mt-0.5 opacity-75 text-[0.75rem]">{{ ss.source }} · {{ ss.pillar }}{{ ss.position }}</span>
-            </span>
           </li>
         </ul>
           </div>
         </template>
       </div>
+
+    <!-- Single teleported tooltip — immune to ancestor containing blocks -->
+    <Teleport to="body">
+      <div
+        v-if="activeTooltip"
+        class="tooltip-fixed rounded-lg text-xs font-sans z-[9999] bg-ink-darkest text-paper-medium border border-ink-medium shadow-lg"
+        :class="{ 'opacity-100': !!activeTooltip, 'opacity-0': !activeTooltip }"
+        :style="tooltipPos"
+      >
+        <div class="px-2.5 py-1.5">
+          <p class="leading-relaxed tooltip-desc">{{ activeTooltip.shensha.description }}</p>
+          <p class="mt-2 opacity-75 text-[0.75rem]">{{ activeTooltip.shensha.source }} · {{ activeTooltip.shensha.pillar }}{{ activeTooltip.shensha.position }}</p>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -55,9 +63,18 @@
 import type { ShenSha } from '~/composables/useShenSha'
 import { shenShaBadgeStyle } from '~/constants/bazi'
 
-function buttonStyle(category: '吉' | '凶' | '中性'): Record<string, string> {
-  const style = shenShaBadgeStyle(category)
-  return { background: style.bg, color: style.text, border: `1px solid ${style.border}` }
+function buttonCustomProps(category: '吉' | '凶' | '中性'): Record<string, string> {
+  const s = shenShaBadgeStyle(category)
+  // Darker hover background — add ~6% more opacity
+  const hoverAlpha = category === '吉' ? '0.14' : category === '凶' ? '0.14' : '0.12'
+  const shadowColor = category === '吉' ? 'rgba(61,107,75,0.15)' : category === '凶' ? 'rgba(198,40,40,0.12)' : 'rgba(107,91,79,0.10)'
+  return {
+    '--badge-bg': s.bg,
+    '--badge-text': s.text,
+    '--badge-border': s.border,
+    '--badge-bg-hover': s.bg.replace(/0\.08\)$/, hoverAlpha + ')'),
+    '--badge-shadow': shadowColor,
+  }
 }
 
 const props = defineProps<{
@@ -81,14 +98,113 @@ const shenShaGroups = computed(() => [
   { id: 'shensha-xiong', label: '凶煞', ariaLabel: '凶煞清单', items: groupedShenSha.value.inauspicious, category: '凶' as const },
 ])
 
-const expandedShen = ref('')
-function toggleShen(key: string) {
-  expandedShen.value = expandedShen.value === key ? '' : key
+// ── Tooltip state (teleported to <body>) ──
+
+interface TooltipState {
+  shensha: ShenSha
+  key: string
 }
+
+const activeTooltip = ref<TooltipState | null>(null)
+const expandedKey = ref<string | null>(null)
+
+function toggleShen(ss: ShenSha) {
+  const key = ss.name + ss.pillar + ss.position
+  expandedKey.value = expandedKey.value === key ? null : key
+  if (expandedKey.value) {
+    // Re-show tooltip for the expanded item (position already computed)
+    activeTooltip.value = { shensha: ss, key }
+  } else {
+    activeTooltip.value = null
+  }
+}
+
+// ── JS-driven tooltip positioning ──
+
+const MOBILE_BP = 640
+const GAP = 8
+const VIEW_PADDING = 8
+
+function isDesktop(): boolean {
+  return window.innerWidth >= MOBILE_BP
+}
+
+/** Approximate tooltip pixel height — used for viewport clamping before layout. */
+const TOOLTIP_EST_HEIGHT = 72
+
+const tooltipPos = ref<Record<string, string>>({})
+
+function computePosition(key: string, rect: DOMRect) {
+  const desktop = isDesktop()
+
+  let top: number
+  let left: number
+  let transform = 'none'
+
+  if (desktop) {
+    // Position ABOVE the button, horizontally centered
+    top = rect.top - GAP
+    left = rect.left + rect.width / 2
+    transform = 'translate(-50%, -100%)'
+
+    // If too close to top edge, flip below
+    if (top - TOOLTIP_EST_HEIGHT < VIEW_PADDING) {
+      top = rect.bottom + GAP
+      transform = 'translate(-50%, 0)'
+    }
+  } else {
+    // Mobile: BELOW the button, left-aligned
+    top = rect.bottom + GAP
+    left = rect.left
+
+    // If too close to bottom edge, flip above
+    if (top + TOOLTIP_EST_HEIGHT > window.innerHeight - VIEW_PADDING) {
+      top = rect.top - GAP
+      transform = 'translate(0, -100%)'
+    }
+
+    // Clamp horizontal edges — use a conservative min estimate since
+    // tooltip width is now content-driven (no hard min-width).
+    const maxLeft = window.innerWidth - 120 - VIEW_PADDING
+    if (left > maxLeft) left = maxLeft
+    left = Math.max(VIEW_PADDING, left)
+  }
+
+  tooltipPos.value = {
+    top: top + 'px',
+    left: left + 'px',
+    transform,
+    maxWidth: desktop ? '20rem' : 'calc(100vw - 16px)',
+  }
+}
+
+let hideTimer: ReturnType<typeof setTimeout> | null = null
+
+function onTooltipEnter(event: MouseEvent | FocusEvent, ss: ShenSha) {
+  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
+
+  const key = ss.name + ss.pillar + ss.position
+  const btn = event.currentTarget as HTMLElement
+  const rect = btn.getBoundingClientRect()
+
+  computePosition(key, rect)
+  activeTooltip.value = { shensha: ss, key }
+}
+
+function onTooltipLeave() {
+  hideTimer = setTimeout(() => {
+    // Only hide if not click-expanded
+    if (!expandedKey.value) {
+      activeTooltip.value = null
+    }
+  }, 80)
+}
+
+// ── Roving tabindex keyboard nav ──
 
 function handleRovingKeydown(e: KeyboardEvent) {
   const ul = e.currentTarget as HTMLElement
-  const buttons = ul.querySelectorAll<HTMLElement>('button')
+  const buttons = ul.querySelectorAll<HTMLElement>('button.shensha-btn')
   if (buttons.length === 0) return
 
   const currentIdx = Array.from(buttons).findIndex(b => b === document.activeElement)
@@ -102,32 +218,63 @@ function handleRovingKeydown(e: KeyboardEvent) {
     default: return
   }
   e.preventDefault()
-  // Dynamically switch tabindex: set current button to 0, all others to -1
   buttons.forEach((b, i) => { b.tabIndex = i === nextIdx ? 0 : -1 })
   buttons[nextIdx].focus()
+  // Trigger tooltip for keyboard-focused button
+  const dataKey = buttons[nextIdx].getAttribute('data-shensha-key')
+  if (dataKey) {
+    // Look up ShenSha from all groups
+    for (const g of shenShaGroups.value) {
+      const found = g.items.find(s => (s.name + s.pillar + s.position) === dataKey)
+      if (found) {
+        onTooltipEnter({ currentTarget: buttons[nextIdx] } as unknown as MouseEvent, found)
+        break
+      }
+    }
+  }
 }
+
+onUnmounted(() => {
+  if (hideTimer) clearTimeout(hideTimer)
+})
 </script>
 
 <style scoped>
-/* Mobile-first: fixed tooltip centered in viewport to avoid overflow on small screens */
-.tooltip-anchor {
-  position: fixed;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin-bottom: 0;
-  z-index: 100;
+/* ── ShenSha button with CSS-custom-property hover ── */
+.shensha-btn {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--badge-border);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* sm and up: tooltip anchored above the badge */
-@media (min-width: 640px) {
-  .tooltip-anchor {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 0.375rem;
-    z-index: auto;
-  }
+.shensha-btn:hover,
+.shensha-btn:focus-visible {
+  background: var(--badge-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--badge-shadow);
+}
+
+.shensha-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Teleported tooltip (immune to containing blocks) ── */
+.tooltip-fixed {
+  position: fixed;
+  white-space: normal;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  width: auto;
+}
+
+.tooltip-fixed p {
+  margin: 0;
+}
+
+/* Prevent ugly mid-phrase breaks for CJK descriptions */
+.tooltip-desc {
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 </style>

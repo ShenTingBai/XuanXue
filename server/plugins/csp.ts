@@ -8,12 +8,14 @@ export default defineNitroPlugin((nitroApp) => {
     // Replace 'unsafe-inline' in script-src with per-request nonce.
     // style-src 'unsafe-inline' is kept as-is because Vue injects inline styles
     // via Vite during hydration, and they cannot use nonces.
+    // Using a specific regex to target script-src only — not the first occurrence,
+    // which would break if CSP directives are reordered.
     const csp = response.headers?.['Content-Security-Policy']
     if (csp) {
       setResponseHeader(
         event,
         'Content-Security-Policy',
-        csp.replace("'unsafe-inline'", `'nonce-${nonce}'`)
+        csp.replace(/script-src\s+'self'\s+'unsafe-inline'/, `script-src 'self' 'nonce-${nonce}'`)
       )
     }
 

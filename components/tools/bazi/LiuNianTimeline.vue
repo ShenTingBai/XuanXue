@@ -34,9 +34,9 @@
             <span class="font-display text-2xl text-cinnabar font-medium">{{ year.year }}</span>
             <span class="font-display text-xl text-ink-dark">{{ year.stem }}{{ year.branch }}年</span>
             <span class="font-sans text-base text-cinnabar font-medium">{{ year.tenGod }}</span>
-            <!-- Score ring -->
+            <!-- Score ring — red for the current year (正念/本年) -->
             <div class="ml-auto flex items-center gap-1.5">
-              <ScoreRing :score="year.score" :size="40" label="" />
+              <ScoreRing :score="year.score" :size="40" label="" stroke-color="var(--color-cinnabar)" text-color="var(--color-cinnabar)" />
             </div>
           </div>
 

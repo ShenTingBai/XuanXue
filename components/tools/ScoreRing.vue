@@ -27,7 +27,7 @@
       />
     </svg>
     <div class="score-ring-text" aria-hidden="true">
-      <span class="score-number" :style="{ fontSize: scoreFontSize }">{{ displayScore }}</span>
+      <span class="score-number" :style="{ fontSize: scoreFontSize, color: textColor || undefined }">{{ displayScore }}</span>
       <span v-if="label" class="score-label" :style="{ fontSize: labelFontSize }">{{ label }}</span>
     </div>
   </div>
@@ -41,6 +41,7 @@ const props = withDefaults(defineProps<{
   size?: number
   label?: string
   strokeColor?: string
+  textColor?: string
 }>(), {
   size: 120,
 })

@@ -59,7 +59,7 @@
           <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar/80' : 'text-ink-medium'">
             {{ currentYearLiuNian.isFavorable ? '喜用' : currentYearLiuNian.isUnfavorable ? '忌神' : '中性' }}
           </span>
-          <span class="ml-auto font-sans text-xs text-ink-medium">运势评分 {{ currentYearLiuNian.score }}/100</span>
+          <span class="ml-auto font-sans text-xs text-cinnabar font-medium">运势评分 {{ currentYearLiuNian.score }}/100</span>
         </div>
         <p class="text-sm">{{ currentYearLiuNian.summary }}</p>
         <div v-if="currentYearLiuNian.earthRelations.length > 0" class="mt-1.5">

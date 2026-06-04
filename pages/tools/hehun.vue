@@ -41,6 +41,7 @@ const showHistoryModal = ref(false)
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref<string | null>(null)
 const restoreError = ref<string | null>(null)
+const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 function handleExport() {
   if (resultRef.value) {
@@ -76,6 +77,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
 // ── Person A (from profile) ──
@@ -176,11 +178,13 @@ async function onHistoryRestore(id: number) {
       restoreError.value = ''
     } else {
       restoreError.value = '历史记录数据无效'
-      setTimeout(() => { restoreError.value = '' }, 6000)
+      if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+      restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
     }
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
-    setTimeout(() => { restoreError.value = '' }, 6000)
+    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
   }
 }
 
