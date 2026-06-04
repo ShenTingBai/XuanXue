@@ -1,4 +1,5 @@
 import { CONSTELLATION_PAIRING_EXPLANATIONS } from '~/constants/constellation'
+import { getTrueSolarHour } from '~/utils/time'
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -567,17 +568,29 @@ export function getRisingSign(
   birthDay: number,
   birthHour: number | null | undefined,
   birthMinute: number | null | undefined,
+  longitude?: number | null,
 ): { name: string; symbol: string; interpretation: string } | null {
   if (birthHour === null || birthHour === undefined) return null
   if (birthYear < 1900 || birthYear > 2100) return null
   if (birthMonth < 1 || birthMonth > 12 || birthDay < 1 || birthDay > 31) return null
 
   // Use the midpoint of the 时辰 (2-hour period) if minute is not provided
-  const hour = birthHour
+  let hour = birthHour
   const minute = birthMinute ?? 30
 
-  // Convert local time (assumed UTC+8) to UTC for sidereal time calculation
-  const utcDate = new Date(Date.UTC(birthYear, birthMonth - 1, birthDay, hour - 8, minute, 0))
+  // Apply true solar time correction if longitude is provided
+  if (longitude != null) {
+    hour = getTrueSolarHour(birthHour, longitude)
+  }
+
+  // Convert local time (assumed UTC+8) to UTC for sidereal time calculation.
+  // Combine hour (possibly fractional from true solar correction) and minute:
+  // true solar decimal hour → UTC = trueSolarHour - 8, then split into hour/minute.
+  const trueSolarDecimal = hour + minute / 60
+  const utcDecimal = trueSolarDecimal - 8
+  const utcHour = Math.floor(utcDecimal)
+  const utcMinute = Math.round((utcDecimal - utcHour) * 60)
+  const utcDate = new Date(Date.UTC(birthYear, birthMonth - 1, birthDay, utcHour, utcMinute, 0))
 
   // Days since J2000.0 epoch (2000-01-01 12:00 UTC)
   const epoch = Date.UTC(2000, 0, 1, 12, 0, 0)
@@ -640,6 +653,7 @@ export function calculateConstellation(
   birthDay?: number,
   birthHour?: number | null,
   birthMinute?: number | null,
+  birthLongitude?: number | null,
 ): ConstellationResult {
   if (month < 1 || month > 12) {
     throw new RangeError(`Invalid month: ${month}. Month must be between 1 and 12.`)
@@ -662,7 +676,7 @@ export function calculateConstellation(
 
   // ── 上升星座 ──
   const risingSign = birthYear !== undefined
-    ? getRisingSign(birthYear, natalMonth, natalDay, birthHour ?? null, birthMinute ?? null)
+    ? getRisingSign(birthYear, natalMonth, natalDay, birthHour ?? null, birthMinute ?? null, birthLongitude ?? null)
     : null
 
   return {

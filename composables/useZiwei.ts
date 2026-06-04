@@ -4,6 +4,7 @@ import { getPalaceInterpretation, getStarInterpretation, getCombinationKey, COMB
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import type FunctionalStar from 'iztro/lib/star/FunctionalStar'
+import { getTrueSolarHour } from '~/utils/time'
 
 // 重新导出 iztro 原生类型供组件使用
 export type { IFunctionalPalace, IFunctionalAstrolabe }
@@ -15,6 +16,7 @@ export interface ZiWeiInput {
   birthDay: number
   birthHour: number | null   // iztro timeIndex 0-12
   gender: 'male' | 'female' | null
+  birthLongitude?: number | null
 }
 
 /**
@@ -22,12 +24,19 @@ export interface ZiWeiInput {
  * 直接返回 iztro 的 FunctionalAstrolabe，不包装。
  */
 export function calculateZiWei(input: ZiWeiInput): IFunctionalAstrolabe | null {
-  const { birthYear, birthMonth, birthDay, birthHour, gender } = input
+  const { birthYear, birthMonth, birthDay, birthHour, gender, birthLongitude } = input
   if (birthHour === null || birthHour === undefined || !gender) return null
+
+  // Apply true solar time correction if birth longitude is available
+  const solarHour = birthLongitude != null
+    ? getTrueSolarHour(birthHour, birthLongitude)
+    : birthHour
+  // Normalize to 0-24 range and round to nearest integer for iztro timeIndex
+  const normalized = Math.round(((solarHour % 24) + 24) % 24)
 
   try {
     const dateStr = `${birthYear}-${birthMonth}-${birthDay}`
-    return astro.bySolar(dateStr, birthHour, gender, true, 'zh-CN')
+    return astro.bySolar(dateStr, normalized, gender, true, 'zh-CN')
   } catch {
     return null
   }

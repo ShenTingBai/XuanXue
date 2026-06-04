@@ -8,6 +8,8 @@ export interface Profile {
   birth_calendar?: 'solar' | 'lunar' | null
   birth_hour?: number | null
   birth_minute?: number | null
+  birth_place?: string | null
+  birth_longitude?: number | null
 }
 
 interface StoredSession {

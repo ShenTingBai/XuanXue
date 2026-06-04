@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   birth_hour INTEGER CHECK(birth_hour IS NULL OR (birth_hour >= 0 AND birth_hour <= 23)),
   birth_minute INTEGER CHECK(birth_minute IS NULL OR (birth_minute >= 0 AND birth_minute <= 59)),
   gender TEXT CHECK(gender IS NULL OR gender IN ('男', '女')),
+  birth_place TEXT,
+  birth_longitude REAL,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 )

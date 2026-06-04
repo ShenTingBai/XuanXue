@@ -2,6 +2,7 @@ import { getMonthPillar, getSolarTerm } from './useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 
 import { STEMS, BRANCHES, getStemIndex, WUXING_STEM, WUXING_BRANCH, getNayinWuxing } from '~/constants/bazi'
+import { getTrueSolarHour } from '~/utils/time'
 
 // === Helper ===
 
@@ -629,13 +630,14 @@ export interface BaZiInput {
   birthCalendar: 'solar' | 'lunar'
   birthHour: number | null
   gender: '男' | '女' | null
+  birthLongitude?: number | null
 }
 
 /**
  * Calculate BaZi (Four Pillars) from birth information.
  */
 export function calculateBaZi(input: BaZiInput): BaZiResult {
-  let { birthYear, birthMonth, birthDay, birthCalendar, birthHour, gender } = input
+  let { birthYear, birthMonth, birthDay, birthCalendar, birthHour, gender, birthLongitude } = input
 
   // --- Lunar to Solar Conversion ---
   if (birthCalendar === 'lunar') {
@@ -674,9 +676,15 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   const [dayStemIndex, dayBranchIndex] = getDayPillarIndices(birthYear, birthMonth, birthDay)
 
   // --- Hour Pillar ---
+  // Apply true solar time correction if birth longitude is available
+  const solarHour = birthHour !== null && birthLongitude != null
+    ? getTrueSolarHour(birthHour, birthLongitude)
+    : birthHour
   let hourPillar: BaZiPillar | null = null
-  if (birthHour !== null) {
-    const hourBranchIdx = getHourBranchIndex(birthHour)
+  if (solarHour !== null) {
+    // Normalize to 0-23 range
+    const normalizedHour = ((solarHour % 24) + 24) % 24
+    const hourBranchIdx = getHourBranchIndex(normalizedHour)
     const hourStemStart = getHourStemStart(dayStemIndex)
     const hourStemIdx = (hourStemStart + hourBranchIdx) % 10
     hourPillar = buildPillar(hourStemIdx, hourBranchIdx, dayStemIndex)
