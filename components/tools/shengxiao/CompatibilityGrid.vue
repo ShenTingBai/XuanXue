@@ -18,7 +18,7 @@
         <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.emoji }}</div>
         <div class="font-display text-base text-ink-dark">{{ item.animal }}</div>
         <span
-          class="inline-block mt-1 px-2 py-0.5 rounded text-[0.625rem] font-sans tracking-wider"
+          class="inline-block mt-1.5 px-2 py-0.5 rounded text-[0.72rem] font-sans tracking-wider"
           :class="levelClass(item.level)"
         >
           {{ item.relation }}
@@ -31,7 +31,7 @@
             class="mt-2 pt-2 border-t border-paper-dark/30"
           >
             <p
-              class="text-left font-sans text-[0.6rem] text-ink-light leading-relaxed pl-2 border-l-2"
+              class="text-left font-sans text-[0.72rem] text-ink-medium leading-relaxed pl-2 border-l-2"
               :class="item.level === 'great' ? 'border-wuxing-wood/40' : 'border-cinnabar/30'"
             >
               {{ item.explanation }}
