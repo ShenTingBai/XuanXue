@@ -1,6 +1,7 @@
 // ── Lookup Tables ──────────────────────────────────────────────
 
 import { ANIMALS, STEMS, BRANCHES, NAYIN_TABLE } from '~/constants/bazi'
+import { getShengXiaoExplanation } from '~/constants/shengxiao'
 
 // EMOJIS is not exported from constants/bazi — kept locally
 const EMOJIS = ['🐭', '🐮', '🐯', '🐰', '🐲', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷'] as const
@@ -252,6 +253,7 @@ export interface Compatibility {
   emoji: string
   relation: '三合' | '六合' | '中吉' | '相冲' | '相害'
   level: 'great' | 'good' | 'bad'
+  explanation: string
 }
 
 export interface Lucky {
@@ -334,6 +336,7 @@ function getCompatibility(animalIndex: number): Compatibility[] {
             emoji: EMOJIS[idx],
             relation: '三合',
             level: 'great',
+            explanation: getShengXiaoExplanation('三合'),
           })
         }
       }
@@ -352,6 +355,7 @@ function getCompatibility(animalIndex: number): Compatibility[] {
           emoji: EMOJIS[partner],
           relation: '六合',
           level: 'great',
+          explanation: getShengXiaoExplanation('六合'),
         })
       }
       break
@@ -369,6 +373,7 @@ function getCompatibility(animalIndex: number): Compatibility[] {
           emoji: EMOJIS[partner],
           relation: '相冲',
           level: 'bad',
+          explanation: getShengXiaoExplanation('相冲'),
         })
       }
       break
@@ -386,6 +391,7 @@ function getCompatibility(animalIndex: number): Compatibility[] {
           emoji: EMOJIS[partner],
           relation: '相害',
           level: 'bad',
+          explanation: getShengXiaoExplanation('相害'),
         })
       }
       break
@@ -402,6 +408,7 @@ function getCompatibility(animalIndex: number): Compatibility[] {
           emoji: EMOJIS[i],
           relation: '中吉',
           level: 'good',
+          explanation: getShengXiaoExplanation('中吉'),
         })
         if (result.length >= 6) break
       }
