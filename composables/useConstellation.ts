@@ -590,12 +590,14 @@ export function getRisingSign(
   // Assumed latitude (~35°N, roughly central China)
   const lat = 35 * Math.PI / 180
 
-  // Ascendant formula:
-  // tan(ASC) = -cos(LST) / (sin(LST) * cos(ε) + tan(φ) * sin(ε))
+  // Ascendant formula (Meeus, Astronomical Algorithms):
+  // tan(ASC) = -cos(LST) / (sin(LST) · cos(ε) + tan(φ) · sin(ε))
+  // Implemented as atan2(+cos, -denom) per standard quadrant convention
+  // to derive the eastern horizon point (ascendant), not the descendant.
   const lstRad = LST * Math.PI / 180
   const ascRad = Math.atan2(
-    -Math.cos(lstRad),
-    Math.sin(lstRad) * Math.cos(eps) + Math.tan(lat) * Math.sin(eps),
+    Math.cos(lstRad),
+    -(Math.sin(lstRad) * Math.cos(eps) + Math.tan(lat) * Math.sin(eps)),
   )
   const ascDeg = ((ascRad * 180 / Math.PI) + 360) % 360
 

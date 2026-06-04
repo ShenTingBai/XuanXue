@@ -25,6 +25,8 @@ const loading = ref(true)
 const missingBirthInfo = ref(false)
 const error = ref('')
 const selectedZodiac = ref(0)
+/** The user's actual birth zodiac index — immutable by exploration */
+const userZodiacIndex = ref(0)
 const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const saveError = ref('')
@@ -87,7 +89,8 @@ function computeResult() {
       currentProfile.value?.birth_hour,
       currentProfile.value?.birth_minute,
     )
-    selectedZodiac.value = getZodiacIndex(month, day)
+    userZodiacIndex.value = getZodiacIndex(month, day)
+    selectedZodiac.value = userZodiacIndex.value
     saveDivinationResult(result.value, month, day)
   } catch {
     error.value = '计算星座出错，请稍后重试'
@@ -311,7 +314,7 @@ function dismissRestoreError() {
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <!-- ☀ 太阳 — 外在性格 -->
-              <div class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-jade/15">
+              <div class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-jade/15 fade-in" :style="{ '--delay': '0.2s' }">
                 <div class="flex items-center gap-2 mb-1.5">
                   <span class="text-xl flex-shrink-0" aria-hidden="true">☀</span>
                   <span class="font-display text-base text-ink tracking-wide">太阳 · {{ result.name }}</span>
@@ -320,40 +323,57 @@ function dismissRestoreError() {
                 <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.personality }}</p>
               </div>
 
-              <!-- ☽ 月亮 — 内在情感 -->
-              <div v-if="result.moonSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-cinnabar/15">
+              <!-- ☽ 月亮 — 内在情感（有数据） -->
+              <div v-if="result.moonSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-cinnabar/15 fade-in" :style="{ '--delay': '0.25s' }">
                 <div class="flex items-center gap-2 mb-1.5">
                   <span class="text-xl flex-shrink-0" aria-hidden="true">☽</span>
                   <span class="font-display text-base text-ink tracking-wide">月亮 · {{ result.moonSign.name }}</span>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6rem] font-sans tracking-wider border border-cinnabar/15 text-cinnabar/55 bg-cinnabar/3 ml-auto">本命盘</span>
                 </div>
                 <span class="text-xs text-ink-light font-sans tracking-wider mb-2">内在情感 · 你真实的情绪底色</span>
                 <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.moonSign.interpretation }}</p>
+                <p class="text-[0.6rem] text-ink-light/50 font-sans mt-1.5 leading-relaxed border-t border-ink-faint/20 pt-1.5">
+                  ⓘ 基于月球平黄经（±5°精度），边界日期可能偏移
+                </p>
               </div>
-              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-40 border-t-2 border-cinnabar/10">
+              <!-- ☽ 月亮（缺数据） -->
+              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 border-cinnabar/10 fade-in" :style="{ '--delay': '0.25s' }">
                 <span class="text-xl mb-1" aria-hidden="true">☽</span>
-                <span class="font-display text-sm text-ink-light">月亮 · 需出生年份</span>
-                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">前往编辑档案</NuxtLink>
+                <span class="font-display text-sm text-ink-light">月亮 · 缺出生年份</span>
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">编辑档案 → 填写出生年份及日期</NuxtLink>
               </div>
 
-              <!-- ↑ 上升 — 社交面具 -->
-              <div v-if="result.risingSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-gold/20">
+              <!-- ↑ 上升 — 社交面具（有数据） -->
+              <div v-if="result.risingSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-gold/20 fade-in" :style="{ '--delay': '0.3s' }">
                 <div class="flex items-center gap-2 mb-1.5">
                   <span class="text-xl flex-shrink-0" aria-hidden="true">↑</span>
                   <span class="font-display text-base text-ink tracking-wide">上升 · {{ result.risingSign.name }}</span>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6rem] font-sans tracking-wider border border-gold/15 text-gold/55 bg-gold/3 ml-auto">本命盘</span>
                 </div>
                 <span class="text-xs text-ink-light font-sans tracking-wider mb-2">社交面具 · 你给别人的第一印象</span>
                 <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.risingSign.interpretation }}</p>
+                <p class="text-[0.6rem] text-ink-light/50 font-sans mt-1.5 leading-relaxed border-t border-ink-faint/20 pt-1.5">
+                  ⓘ 假定中国时区（UTC+8/北纬35°），结果近似
+                </p>
               </div>
-              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-40 border-t-2 border-gold/15">
+              <!-- ↑ 上升（缺数据） -->
+              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 border-gold/15 fade-in" :style="{ '--delay': '0.3s' }">
                 <span class="text-xl mb-1" aria-hidden="true">↑</span>
-                <span class="font-display text-sm text-ink-light">上升 · 需出生时辰</span>
-                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">前往编辑档案</NuxtLink>
+                <span class="font-display text-sm text-ink-light">上升 · 缺出生时辰</span>
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">编辑档案 → 填写出生时辰（子丑寅卯…）</NuxtLink>
               </div>
+            </div>
+
+            <!-- 探索模式脚注 -->
+            <div v-if="selectedZodiac !== userZodiacIndex" class="text-center mt-3">
+              <p class="text-[0.6rem] text-ink-light/45 font-sans tracking-wider">
+                ── 月亮与上升基于您的出生数据，不随探索星座改变 ──
+              </p>
             </div>
           </div>
 
           <p class="text-xs text-ink-medium/90 text-center mt-2 mb-1 tracking-wide">
-            今日运势、宜忌速览及星座性格特征
+            今日运势、宜忌速览及星盘解读
           </p>
 
 
