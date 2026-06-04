@@ -81,7 +81,7 @@ const submit = async () => {
   <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
       <!-- Card -->
-      <div class="card-warm rounded-xl p-8 relative overflow-hidden">
+      <div class="card-warm rounded-xl p-8 relative overflow-hidden login-card">
         <!-- Corner trigrams -->
         <span class="corner-mark absolute top-3 left-3 text-[1.125rem]" aria-hidden="true">☰</span>
         <span class="corner-mark absolute top-3 right-3 text-[1.125rem]" aria-hidden="true">☷</span>
@@ -95,9 +95,9 @@ const submit = async () => {
         <div class="text-center mb-8">
           <h1 class="sr-only">玄·道 — 登录</h1>
           <div class="inline-flex items-center justify-center mb-4">
-            <span class="seal-icon w-14 h-14 text-sm flex items-center justify-center" aria-hidden="true">玄</span>
+            <span class="seal-icon w-16 h-16 text-base flex items-center justify-center" aria-hidden="true">玄</span>
           </div>
-          <h2 class="text-lg font-display text-ink-dark tracking-[0.15em] mb-2">{{ isLogin ? '已有命卷' : '结缘立卷' }}</h2>
+          <h2 class="text-xl font-display text-ink-dark tracking-[0.15em] mb-2">{{ isLogin ? '已有命卷' : '结缘立卷' }}</h2>
           <p class="font-sans text-ink-medium text-xs tracking-[0.25em]">
             {{ isLogin ? '入卷推演 · 以窥天机' : '以道为凭 · 以问天机' }}
           </p>
@@ -247,6 +247,7 @@ const submit = async () => {
 </template>
 
 <style scoped>
+/* ── Notification fade ── */
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.3s ease;
@@ -255,5 +256,64 @@ const submit = async () => {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+/* ── Card depth: scroll resting on desk ── */
+.login-card {
+  box-shadow:
+    0 2px 8px rgba(44, 26, 14, 0.06),
+    0 8px 32px rgba(44, 26, 14, 0.08),
+    0 1px 0 rgba(44, 26, 14, 0.04) inset;
+  animation: card-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-card .talisman-line {
+  animation: rule-extend 0.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Staggered entrance ── */
+.login-card .seal-icon {
+  animation: seal-stamp 0.5s 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rule-extend {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes seal-stamp {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card,
+  .login-card .talisman-line,
+  .login-card .seal-icon {
+    animation: none;
+  }
 }
 </style>
