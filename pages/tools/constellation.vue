@@ -24,6 +24,7 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import { calculateNatalChart, serializeNatalChart } from '~/composables/useNatalChart'
 import NatalChart from '~/components/tools/constellation/NatalChart.vue'
+import NatalChartGuide from '~/components/tools/constellation/NatalChartGuide.vue'
 import type { NatalChartData } from '~/composables/useNatalChart'
 
 useHead({ title: '星座 — 玄·道' })
@@ -385,6 +386,12 @@ function dismissRestoreError() {
                 <span v-else>📋 复制星盘文本</span>
               </button>
             </div>
+
+            <NatalChartGuide
+              v-if="result"
+              :data="natalChartData"
+              :result="result"
+            />
           </div>
 
           <!-- 缺少出生年份时的提示 -->
