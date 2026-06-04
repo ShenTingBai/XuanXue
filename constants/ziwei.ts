@@ -233,7 +233,7 @@ export const COMBINATION_INTERPRETATIONS: Record<string, string> = {
   '天梁-太阴': '天梁太阴同宫，慈爱温婉，有长者风范且心思细腻。',
 }
 
-/** Generate a sorted hyphen-joined key for combination lookup */
+/** Generate a hyphen-joined key for combination lookup (preserves original order) */
 export function getCombinationKey(starNames: string[]): string {
-  return [...starNames].sort().join('-')
+  return starNames.join('-')
 }

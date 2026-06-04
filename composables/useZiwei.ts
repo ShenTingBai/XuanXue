@@ -72,11 +72,9 @@ export function getPalaceDetail(palace: IFunctionalPalace): {
   const comboKey = getCombinationKey(starNames)
   let combinationNote = COMBINATION_INTERPRETATIONS[comboKey] || ''
 
-  // Fallback for 杀破狼 (three-star combination)
-  if (!combinationNote && starNames.length >= 3) {
-    if (['七杀', '破军', '贪狼'].every(s => starNames.includes(s))) {
-      combinationNote = '杀破狼格局，变动中求发展，一生多变动，亦多机遇。'
-    }
+  // Fallback for 杀破狼 — single star presence (any of the three triggers it)
+  if (!combinationNote && ['七杀', '破军', '贪狼'].some(s => starNames.includes(s))) {
+    combinationNote = '杀破狼格局，变动中求发展，一生多变动，亦多机遇。'
   }
 
   return { palaceSummary, starReadings, combinationNote }
