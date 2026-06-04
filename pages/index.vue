@@ -59,6 +59,12 @@ const tools: Tool[] = [
     landingDescription: '排十二宫垣，解星曜布局与穷通祸福',
     route: '/tools/ziwei', available: true, accent: '#6B5B4F', trigram: '☴',
   },
+  {
+    id: 'hehun', name: '合婚', char: '合',
+    description: '双方八字合婚匹配分析，了解姻缘深浅',
+    landingDescription: '年柱日柱 · 五行互补 · 十神配偶',
+    route: '/tools/hehun', available: true, accent: '#C62828', trigram: '⚢',
+  },
 ]
 
 const sessionReady = ref(false)
