@@ -116,3 +116,30 @@ export function shenShaBadgeStyle(category: '吉' | '中性' | '凶'): { bg: str
   if (category === '凶') return { bg: hexToRgba('#C62828', 0.08), text: '#C62828', border: hexToRgba('#C62828', 0.25) }
   return { bg: hexToRgba('#6B5B4F', 0.08), text: '#6B5B4F', border: hexToRgba('#6B5B4F', 0.25) }
 }
+
+// === Nayin Wuxing (纳音五行) — 60 甲子 mapping from 三命通会 ===
+
+/** Mapping of 60 甲子 stem+branch pair to its nayin wuxing (木/火/土/金/水). */
+export const NAYIN_WUXING_MAP: Record<string, string> = {
+  // 甲子旬
+  '甲子': '金', '乙丑': '金', '丙寅': '火', '丁卯': '火', '戊辰': '木', '己巳': '木',
+  '庚午': '土', '辛未': '土', '壬申': '金', '癸酉': '金', '甲戌': '火', '乙亥': '火',
+  // 丙子旬
+  '丙子': '水', '丁丑': '水', '戊寅': '土', '己卯': '土', '庚辰': '金', '辛巳': '金',
+  '壬午': '木', '癸未': '木', '甲申': '水', '乙酉': '水', '丙戌': '土', '丁亥': '土',
+  // 戊子旬
+  '戊子': '火', '己丑': '火', '庚寅': '木', '辛卯': '木', '壬辰': '水', '癸巳': '水',
+  '甲午': '金', '乙未': '金', '丙申': '火', '丁酉': '火', '戊戌': '木', '己亥': '木',
+  // 庚子旬
+  '庚子': '土', '辛丑': '土', '壬寅': '金', '癸卯': '金', '甲辰': '火', '乙巳': '火',
+  '丙午': '水', '丁未': '水', '戊申': '土', '己酉': '土', '庚戌': '金', '辛亥': '金',
+  // 壬子旬
+  '壬子': '木', '癸丑': '木', '甲寅': '水', '乙卯': '水', '丙辰': '土', '丁巳': '土',
+  '戊午': '火', '己未': '火', '庚申': '木', '辛酉': '木', '壬戌': '水', '癸亥': '水',
+}
+
+/** Get the nayin wuxing for a given heavenly stem + earthly branch pair.
+ *  Returns empty string if the pair is not a valid sexagenary combination. */
+export function getNayinWuxing(stem: string, branch: string): string {
+  return NAYIN_WUXING_MAP[stem + branch] || ''
+}
