@@ -4,20 +4,31 @@ import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
 export default defineEventHandler(async (event) => {
-  const idRaw = event.context.params!.id
-  if (!/^\d+$/.test(idRaw)) {
+  // Body size limit: prevent oversized payloads
+  const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
+  if (contentLength > 4096) {
+    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
+  }
+
+  const idRaw = getRouterParam(event, 'id')
+  if (!idRaw || !/^\d+$/.test(idRaw)) {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
   }
   const id = parseInt(idRaw)
-  if (isNaN(id)) {
-    throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
-  }
 
   const profileIdFromToken = (event.context as any).profileId as number | undefined
   if (!profileIdFromToken) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }
-  if (profileIdFromToken !== id) {
+
+  // Allow update if owns the profile, OR is the parent of the sub-profile
+  const targetProfile = dbGet('SELECT parent_profile_id FROM profiles WHERE id = ?', [id])
+  if (!targetProfile) {
+    throw createError({ statusCode: 404, statusMessage: '档案不存在' })
+  }
+  const isOwner = profileIdFromToken === id
+  const isParent = (targetProfile.parent_profile_id as number | undefined) === profileIdFromToken
+  if (!isOwner && !isParent) {
     throw createError({ statusCode: 403, statusMessage: '无权修改此档案' })
   }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import type { ZejiDayResult } from '~/composables/useZeJi'
 import { TWELVE_STAR_LEVEL } from '~/constants/zeji'
 
@@ -110,8 +111,8 @@ function getDayLevel(dateStr: string): string | null {
 function getDayScoreColor(dateStr: string): string | null {
   const day = dayMap.value.get(dateStr)
   if (!day) return null
-  if (day.score >= 70) return '#3D6B4B'
-  if (day.score < 40) return '#C62828'
+  if (day.score >= 70) return WUXING_COLORS['木']
+  if (day.score < 40) return WUXING_COLORS['火']
   return null
 }
 
@@ -246,13 +247,13 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
                 <span
                   v-if="getDayLevel(cell.dateStr) === '吉'"
                   class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-                  style="background-color: #3D6B4B;"
+                  :style="{ backgroundColor: WUXING_COLORS['木'] }"
                   aria-hidden="true"
                 />
                 <span
                   v-if="getDayLevel(cell.dateStr) === '凶'"
                   class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-                  style="background-color: #C62828;"
+                  :style="{ backgroundColor: WUXING_COLORS['火'] }"
                   aria-hidden="true"
                 />
               </button>
@@ -273,15 +274,15 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
     <!-- Legend -->
     <div class="flex items-center gap-4 mt-4 pt-3 border-t border-paper-dark/20">
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full" style="background-color: #3D6B4B;" aria-hidden="true" />
+        <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: WUXING_COLORS['木'] }" aria-hidden="true" />
         <span class="text-[0.55rem] text-ink-light/70">吉</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full" style="background-color: #C62828;" aria-hidden="true" />
+        <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: WUXING_COLORS['火'] }" aria-hidden="true" />
         <span class="text-[0.55rem] text-ink-light/70">凶</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full" style="background-color: #7A5E12; opacity: 0.5;" aria-hidden="true" />
+        <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: WUXING_COLORS['土'], opacity: 0.5 }" aria-hidden="true" />
         <span class="text-[0.55rem] text-ink-light/70">平</span>
       </div>
       <div class="flex items-center gap-1.5 ml-auto">

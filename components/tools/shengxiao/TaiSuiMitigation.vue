@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import {
   getBirthTaiSui,
   getYearTaiSui,
@@ -399,21 +400,21 @@ const severityClass = computed(() => {
 }
 
 .relation-badge--severe {
-  background: rgba(198, 40, 40, 0.08);
-  color: #C62828;
-  border: 1px solid rgba(198, 40, 40, 0.15);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["火"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 15%, transparent);
 }
 
 .relation-badge--moderate {
-  background: rgba(198, 40, 40, 0.05);
-  color: rgba(198, 40, 40, 0.65);
-  border: 1px solid rgba(198, 40, 40, 0.1);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 5%, transparent);
+  color: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 65%, transparent);
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 10%, transparent);
 }
 
 .relation-badge--mild {
-  background: rgba(61, 107, 75, 0.06);
-  color: #3D6B4B;
-  border: 1px solid rgba(61, 107, 75, 0.12);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 6%, transparent);
+  color: v-bind('WUXING_COLORS["木"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 12%, transparent);
 }
 
 .relation-severity {
@@ -426,18 +427,18 @@ const severityClass = computed(() => {
 }
 
 .relation-severity--severe {
-  color: #C62828;
-  border: 1px solid rgba(198, 40, 40, 0.12);
+  color: v-bind('WUXING_COLORS["火"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 12%, transparent);
 }
 
 .relation-severity--moderate {
-  color: rgba(198, 40, 40, 0.6);
-  border: 1px solid rgba(198, 40, 40, 0.08);
+  color: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 60%, transparent);
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 8%, transparent);
 }
 
 .relation-severity--mild {
-  color: #3D6B4B;
-  border: 1px solid rgba(61, 107, 75, 0.1);
+  color: v-bind('WUXING_COLORS["木"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 10%, transparent);
 }
 
 .relation-effect {
@@ -584,7 +585,7 @@ const severityClass = computed(() => {
 }
 
 .advisory-heading--tip {
-  color: #3D6B4B;
+  color: v-bind('WUXING_COLORS["木"]');
   opacity: 0.7;
 }
 

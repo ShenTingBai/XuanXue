@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import { ANIMALS } from '~/constants/bazi'
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
 import { calculateMonthlyFortune, type MonthlyFortuneResult } from '~/composables/useMonthlyFortune'
 import { parseDate } from '~/utils/date'
@@ -28,7 +29,7 @@ import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
 import type { TaiSuiRelation } from '~/constants/tai-sui'
 import { getGuardianBuddha } from '~/constants/guardian-buddha'
 
-useHead({ title: '生肖 - 玄学' })
+useHead({ title: '生肖 — 玄·道' })
 
 const result = ref<ShengXiaoResult | null>(null)
 const monthlyFortune = ref<MonthlyFortuneResult | null>(null)
@@ -118,10 +119,9 @@ function selectAnimal(index: number) {
   loading.value = true
   error.value = ''
 
-  const currentYear = new Date().getFullYear()
-  const currentAnimalIdx = getAnimalIndex(currentYear)
+  const currentAnimalIdx = getAnimalIndex(currentYear.value)
   const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
-  const representativeYear = currentYear - diff
+  const representativeYear = currentYear.value - diff
   const calendar = currentProfile.value?.birth_calendar || 'solar'
 
   savedDivinationId.value = null
@@ -132,7 +132,7 @@ function selectAnimal(index: number) {
   result.value = calculateShengXiao(representativeYear, new Date())
   monthlyFortune.value = calculateMonthlyFortune(
     representativeYear,
-    currentYear,
+    currentYear.value,
     result.value.earthlyBranch,
     result.value.wuXing,
   )
@@ -201,7 +201,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )
@@ -242,7 +242,7 @@ async function restoreFromHistory(id: number) {
         <template #mobile-nav>
           <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2">
             <button
-              v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
+              v-for="(animal, idx) in ANIMALS"
               :key="idx"
               @click="selectAnimal(idx)"
               @keydown.space.prevent="selectAnimal(idx)"

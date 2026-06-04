@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements, getWeightedDayMasterStrength, getSeasonalAdjustment, getPillarInterpretation } from '../../composables/useBaZi'
+import { calculateBaZi, getTenGod, getFavorableElements, getWeightedDayMasterStrength, getSeasonalAdjustment, getPillarInterpretation } from '../../composables/useBaZi'
 import type { BaZiPillar } from '../../composables/useBaZi'
 import { STEMS } from '../../constants/bazi'
 
@@ -406,63 +406,6 @@ describe('getTenGod — full 10×10 matrix', () => {
 // ============================================================================
 // T2: Day Master Strength Correctness
 // ============================================================================
-
-describe('getDayMasterStrength — textbook cases', () => {
-  // Branch indices: 子=0, 丑=1, 寅=2, 卯=3, 辰=4, 巳=5, 午=6, 未=7, 申=8, 酉=9, 戌=10, 亥=11
-
-  it('甲木 in 寅月(2) → 强 (wood peaks in spring)', () => {
-    expect(getDayMasterStrength('木', 2)).toBe('强')
-  })
-
-  it('甲木 in 申月(8) → 弱 (wood is trapped in autumn metal)', () => {
-    expect(getDayMasterStrength('木', 8)).toBe('弱')
-  })
-
-  it('丙火 in 午月(6) → 强 (fire peaks in summer)', () => {
-    expect(getDayMasterStrength('火', 6)).toBe('强')
-  })
-
-  it('丙火 in 子月(0) → 偏弱 (fire weakens in winter water)', () => {
-    expect(getDayMasterStrength('火', 0)).toBe('偏弱')
-  })
-
-  it('庚金 in 申月(8) → 强 (metal peaks in autumn)', () => {
-    expect(getDayMasterStrength('金', 8)).toBe('强')
-  })
-
-  it('庚金 in 午月(6) → 偏弱 (metal weakens in summer fire)', () => {
-    expect(getDayMasterStrength('金', 6)).toBe('偏弱')
-  })
-
-  it('壬水 in 子月(0) → 强 (water peaks in winter)', () => {
-    expect(getDayMasterStrength('水', 0)).toBe('强')
-  })
-
-  it('壬水 in 未月(7) → 偏弱 (water weakens in summer earth)', () => {
-    expect(getDayMasterStrength('水', 7)).toBe('偏弱')
-  })
-
-  it('戊土 in 辰月(4) → 强 (earth prospers in late spring)', () => {
-    expect(getDayMasterStrength('土', 4)).toBe('强')
-  })
-
-  it('戊土 in 寅月(2) → 偏弱 (earth weakens in spring wood)', () => {
-    expect(getDayMasterStrength('土', 2)).toBe('偏弱')
-  })
-
-  it('returns a valid strength value for all (element, month) combinations', () => {
-    const validStrengths = ['强', '偏强', '中和', '偏弱', '弱']
-    const elements = ['木', '火', '土', '金', '水']
-    for (const el of elements) {
-      for (let branchIdx = 0; branchIdx < 12; branchIdx++) {
-        const strength = getDayMasterStrength(el, branchIdx)
-        expect(validStrengths).toContain(strength)
-      }
-    }
-  })
-})
-
-// ============================================================================
 // T3: Favorable Elements Correctness
 // ============================================================================
 
@@ -579,6 +522,114 @@ describe('getSeasonalAdjustment', () => {
   })
   it('亥月(11) → 火', () => {
     expect(getSeasonalAdjustment(11)).toBe('火')
+  })
+})
+
+// ============================================================================
+// L18: Inline snapshot tests for key text outputs
+// ============================================================================
+
+describe('snapshot tests', () => {
+  it('1998-05-25 BaZi result matches snapshot', () => {
+    const result = calculateBaZi({
+      birthYear: 1998, birthMonth: 5, birthDay: 25,
+      birthCalendar: 'solar' as const, birthHour: 14, gender: '男' as const,
+    })
+    expect(result.yearPillar.stem).toMatchInlineSnapshot(`"戊"`)
+    expect(result.yearPillar.branch).toMatchInlineSnapshot(`"寅"`)
+    expect(result.dayMaster).toMatchInlineSnapshot(`"壬"`)
+    expect(result.dayMasterWuxing).toMatchInlineSnapshot(`"水"`)
+    expect(result.dayPillar.stemTenGod).toMatchInlineSnapshot(`"日主"`)
+    expect(result.dayMasterStrength).toMatchInlineSnapshot(`"弱"`)
+    expect(result.favorableElements.sort()).toMatchInlineSnapshot(`
+      [
+        "水",
+        "金",
+      ]
+    `)
+    expect(result.unfavorableElements.sort()).toMatchInlineSnapshot(`
+      [
+        "土",
+        "木",
+        "火",
+      ]
+    `)
+  })
+
+  it('2000-01-01 millennium BaZi result matches snapshot', () => {
+    const result = calculateBaZi({
+      birthYear: 2000, birthMonth: 1, birthDay: 1,
+      birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+    })
+    expect(result.yearPillar.stem).toMatchInlineSnapshot(`"己"`)
+    expect(result.yearPillar.branch).toMatchInlineSnapshot(`"卯"`)
+    expect(result.monthPillar.stem).toMatchInlineSnapshot(`"丙"`)
+    expect(result.monthPillar.branch).toMatchInlineSnapshot(`"子"`)
+    expect(result.dayPillar.stem).toMatchInlineSnapshot(`"戊"`)
+    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"申"`)
+    expect(result.hourPillar!.stem).toMatchInlineSnapshot(`"戊"`)
+    expect(result.hourPillar!.branch).toMatchInlineSnapshot(`"午"`)
+    expect(result.dayMaster).toMatchInlineSnapshot(`"戊"`)
+    expect(result.dayMasterStrength).toMatchInlineSnapshot(`"偏强"`)
+  })
+
+  it('1964-07-14 BaZi result matches snapshot', () => {
+    const result = calculateBaZi({
+      birthYear: 1964, birthMonth: 7, birthDay: 14,
+      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+    })
+    expect(result.yearPillar.stem).toMatchInlineSnapshot(`"甲"`)
+    expect(result.yearPillar.branch).toMatchInlineSnapshot(`"辰"`)
+    expect(result.dayMaster).toMatchInlineSnapshot(`"甲"`)
+    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"寅"`)
+    expect(result.dayPillar.stemTenGod).toMatchInlineSnapshot(`"日主"`)
+    expect(result.monthPillar.stem).toMatchInlineSnapshot(`"辛"`)
+    expect(result.monthPillar.branch).toMatchInlineSnapshot(`"未"`)
+    expect(result.elementPercentages['木']).toBeGreaterThan(25)
+    expect(result.daYun[0].stemBranch).toMatchInlineSnapshot(`"壬申"`)
+  })
+
+  it('2004-02-05 (after 立春) BaZi result matches snapshot', () => {
+    const result = calculateBaZi({
+      birthYear: 2004, birthMonth: 2, birthDay: 5,
+      birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+    })
+    expect(result.yearPillar.stem).toMatchInlineSnapshot(`"甲"`)
+    expect(result.yearPillar.branch).toMatchInlineSnapshot(`"申"`)
+    expect(result.dayMaster).toMatchInlineSnapshot(`"甲"`)
+    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"辰"`)
+    expect(result.dayMasterStrength).toMatchInlineSnapshot(`"强"`)
+  })
+
+  it('year pillar ten gods match expected values for 2000-01-01', () => {
+    const result = calculateBaZi({
+      birthYear: 2000, birthMonth: 1, birthDay: 1,
+      birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+    })
+    // 己卯年, 日主=戊, 年干己 → 劫财
+    expect(result.yearPillar.stemTenGod).toMatchInlineSnapshot(`"劫财"`)
+    // 丙子月, 丙 → 偏印
+    expect(result.monthPillar.stemTenGod).toMatchInlineSnapshot(`"偏印"`)
+    // 戊午日, 日主 → 日主
+    expect(result.dayPillar.stemTenGod).toMatchInlineSnapshot(`"日主"`)
+    // 戊午时, 戊 → 比肩
+    expect(result.hourPillar!.stemTenGod).toMatchInlineSnapshot(`"比肩"`)
+  })
+
+  it('element counts and percentages are consistent', () => {
+    const result = calculateBaZi({
+      birthYear: 1998, birthMonth: 5, birthDay: 25,
+      birthCalendar: 'solar' as const, birthHour: 14, gender: '男' as const,
+    })
+    expect(result.elementCounts).toMatchInlineSnapshot(`
+      {
+        "土": 9,
+        "木": 3,
+        "水": 3,
+        "火": 7,
+        "金": 2,
+      }
+    `)
   })
 })
 

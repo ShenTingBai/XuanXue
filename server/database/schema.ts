@@ -2,7 +2,7 @@ export const CREATE_PROFILES_TABLE = `
 CREATE TABLE IF NOT EXISTS profiles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nickname TEXT NOT NULL UNIQUE,
-  pin TEXT NOT NULL,
+  pin TEXT,
   birth_date TEXT,
   birth_calendar TEXT CHECK(birth_calendar IS NULL OR birth_calendar IN ('solar', 'lunar')),
   birth_hour INTEGER CHECK(birth_hour IS NULL OR (birth_hour >= 0 AND birth_hour <= 23)),
@@ -30,7 +30,7 @@ export const CREATE_DIVINATION_TABLE = `
 CREATE TABLE IF NOT EXISTS divination_results (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   profile_id INTEGER NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  type TEXT NOT NULL CHECK(type IN ('shengxiao','constellation','bazi','yijing','ziwei')),
+  type TEXT NOT NULL CHECK(type IN ('shengxiao','constellation','bazi','yijing','ziwei','cezi','hehun','name-test','zeji')),
   input_data TEXT NOT NULL,
   result_data TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))

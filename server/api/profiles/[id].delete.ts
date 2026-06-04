@@ -1,14 +1,12 @@
 import { dbGet, dbRun } from '../../database/db'
+import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
-  const idRaw = event.context.params!.id
-  if (!/^\d+$/.test(idRaw)) {
+  const idRaw = getRouterParam(event, 'id')
+  if (!idRaw || !/^\d+$/.test(idRaw)) {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
   }
   const id = parseInt(idRaw)
-  if (isNaN(id)) {
-    throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
-  }
 
   const profileIdFromToken = (event.context as any).profileId as number | undefined
   if (!profileIdFromToken) {
@@ -25,6 +23,12 @@ export default defineEventHandler(async (event) => {
   const isParent = (targetProfile.parent_profile_id as number | undefined) === profileIdFromToken
   if (!isOwner && !isParent) {
     throw createError({ statusCode: 403, statusMessage: '无权删除此档案' })
+  }
+
+  // Rate limiting: 5 delete attempts per minute per profile
+  const clientIp = getClientIp(event)
+  if (!checkRateLimit(`profile-delete:${id}`, 5, 60000)) {
+    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
   // Cascade delete: remove associated records before deleting the profile

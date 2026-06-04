@@ -226,34 +226,75 @@ describe('calculateMonthlyFortune', () => {
   })
 
   // ── Five-element interaction scoring ──
-  it('monotonically scores 生 higher than 克 for the same element pair', () => {
-    // Fire (火) generates Earth (土): month=火 generates user=土 → +6
-    // Water (水) restrains Fire (火): month=水 restrains user=火 → -6
-    //
-    // Test: Ox (丑, 土) user — 巳月 (火) should have +6 (fire generates earth)
-    //       Horse (午, 火) user — 子月 (水) should have -6 (water restrains fire)
-    // These expectations depend on which special relationships exist for those pairs.
-    // We test a case where no special branch relationship exists.
+  it('monotonically scores 生 higher than 克 for the same element pairs', () => {
+    // We need animals with neutral (无特殊关系) months to isolate element scoring.
+    // Snake (巳, 火): 巳特殊关系: 申(合刑破), 寅(刑害破), 亥(冲).
+    // Find months where Snake has NO special branch relationship, then check
+    // that 生 (month generates user) scores higher than 克 (month restrains user).
 
-    // Ox user (1997, 丑, 土). Check if 巳月 has no special relationship.
-    const ox = calculateMonthlyFortune(1997, 2026, '丑', '土')
-    // 丑-巳 pair is in SANHE_GROUPS? Let's check: group [1,5,9] is 丑,巳,酉. Yes, it's 三合!
-    // So this won't work as a pure element test. Let me use a different approach.
+    const snake = calculateMonthlyFortune(2001, 2026, '巳', '火')
+    const neutralSnake = snake.months.filter(m => m.relationship === '无特殊关系')
 
-    // Actually, let's just verify that the scoring produces consistent results
-    // rather than trying to isolate pure element interactions.
-    // The relationship scoring is well-covered by the relationship tests above.
-    // This test verifies that element interactions affect the score at all.
-    const rat = calculateMonthlyFortune(1996, 2026, '子', '水')
-    const neutralMonths = rat.months.filter(m => m.relationship === '无特殊关系')
-    const scores = neutralMonths.map(m => m.score)
-    // All neutral months should have different scores (element interaction matters)
-    // ...unless the element is the same, then they'd have same score
-    expect(scores.length).toBeGreaterThan(0)
-    // Verify scores are in valid range
-    for (const s of scores) {
-      expect(s).toBeGreaterThanOrEqual(0)
-      expect(s).toBeLessThanOrEqual(100)
+    // From the scoring logic:
+    //   monthElement generates userElement (+6): 木生火(月令生扶)
+    //   monthElement restrains userElement (-6): 水克火(压力较大)
+    //   userElement generates monthElement (-3): 火生土(付出较多)
+    //   userElement restrains monthElement (+3): 火克金(主导局面)
+    //   Same element (+4): 得令当旺
+
+    for (const month of neutralSnake) {
+      const monthElement = month.monthBranch === '寅' || month.monthBranch === '卯' ? '木' :
+        month.monthBranch === '巳' || month.monthBranch === '午' ? '火' :
+        month.monthBranch === '申' || month.monthBranch === '酉' ? '金' :
+        month.monthBranch === '亥' || month.monthBranch === '子' ? '水' : '土'
+
+      // 生 (木生火): month generates user → score base +6
+      if (monthElement === '木') {
+        expect(month.score).toBeGreaterThan(55) // 55 base + 6 → 61
+      }
+      // 克 (水克火): month restrains user → score base -6
+      if (monthElement === '水') {
+        expect(month.score).toBeLessThan(55) // 55 base - 6 → 49
+      }
+    }
+
+    // Verify: 木月 score > 水月 score for snake (火) user
+    const woodMonth = neutralSnake.find(m => m.monthBranch === '寅' || m.monthBranch === '卯')
+    const waterMonth = neutralSnake.find(m => m.monthBranch === '亥' || m.monthBranch === '子')
+    if (woodMonth && waterMonth) {
+      expect(woodMonth.score).toBeGreaterThan(waterMonth.score)
+    }
+
+    // Also test Horse (午, 火): similar but with different neutral months
+    const horse = calculateMonthlyFortune(2002, 2026, '午', '火')
+    const neutralHorse = horse.months.filter(m => m.relationship === '无特殊关系')
+    const woodHorse = neutralHorse.find(m => m.monthBranch === '寅' || m.monthBranch === '卯')
+    const waterHorse = neutralHorse.find(m => m.monthBranch === '亥' || m.monthBranch === '子')
+    if (woodHorse && waterHorse) {
+      expect(woodHorse.score).toBeGreaterThan(waterHorse.score)
+    }
+  })
+
+  it('生 scores are consistently higher than 克 across different animal elements', () => {
+    // Use Pig (亥, 水) user:
+    //   month=金(申酉) → 金生水 → +6 (月令生扶)
+    //   month=土(辰戌丑未) → 土克水 → -6 (压力较大)
+    const pig = calculateMonthlyFortune(2007, 2026, '亥', '水')
+    const neutralPig = pig.months.filter(m => m.relationship === '无特殊关系')
+    for (const month of neutralPig) {
+      const monthElement = month.monthBranch === '寅' || month.monthBranch === '卯' ? '木' :
+        month.monthBranch === '巳' || month.monthBranch === '午' ? '火' :
+        month.monthBranch === '申' || month.monthBranch === '酉' ? '金' :
+        month.monthBranch === '亥' || month.monthBranch === '子' ? '水' : '土'
+
+      if (monthElement === '金') {
+        expect(month.tip).toBe('月令生扶，精力充沛，顺势而为')
+        expect(month.score).toBeGreaterThan(55)
+      }
+      if (monthElement === '土') {
+        expect(month.tip).toBe('压力较大，保持耐心，稳扎稳打')
+        expect(month.score).toBeLessThan(55)
+      }
     }
   })
 })

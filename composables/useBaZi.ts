@@ -256,9 +256,16 @@ function buildPillar(
 }
 
 /**
+ * Days from the Zeller formula epoch to 1900-01-01.
+ * 1900-01-01 is a 甲子日 (stem=0, branch=0) in the sexagenary cycle.
+ * Derived from: days = 365*1899 + floor(1899/4) - floor(1899/100) + floor(1899/400)
+ *   + floor((153*13-457)/5) + 1 = 693902
+ */
+const DAYS_FROM_EPOCH_TO_1900_01_01 = 693902
+
+/**
  * Calculate day pillar stem and branch indices.
  * Uses Zeller-like formula with reference date 1900-01-01 = 甲子日 (stem=0, branch=0).
- * Constant 693902 = days(1900,1,1) in the Zeller system.
  */
 function getDayPillarIndices(year: number, month: number, day: number): [number, number] {
   let y = month <= 2 ? year - 1 : year
@@ -270,7 +277,7 @@ function getDayPillarIndices(year: number, month: number, day: number): [number,
     + Math.floor(y / 400)
     + Math.floor((153 * m - 457) / 5)
     + day
-    - 693902
+    - DAYS_FROM_EPOCH_TO_1900_01_01
 
   const stemIndex = ((days % 10) + 10) % 10
   const branchIndex = ((days % 12) + 12) % 12
@@ -361,7 +368,7 @@ export function getWeightedDayMasterStrength(
 }
 
 /** Determine day master strength based on month order */
-export function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number): '强' | '偏强' | '中和' | '偏弱' | '弱' {
+function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number): '强' | '偏强' | '中和' | '偏弱' | '弱' {
   const monthStrength: Record<string, number[]> = {
     //   子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥
     '木': [0, -1, 2, 2, -1, -1, -1, 0, -2, -2, 0, 1],

@@ -28,15 +28,13 @@
   </div>
 </template>
 
-<script lang="ts">
-// Module-level constants to avoid re-allocation on each render
+<script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
+// Module-level constant — not reactive, no re-allocation on each render
 const strengthMap: Record<string, string> = {
   '强': '力量很强', '偏强': '力量偏强', '中和': '力量平衡', '偏弱': '力量偏弱', '弱': '力量较弱',
 }
-</script>
-
-<script setup lang="ts">
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
 const props = defineProps<{
   elementCounts: Record<string, number>

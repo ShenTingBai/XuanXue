@@ -140,7 +140,7 @@ import { useExportImage } from '~/composables/useExportImage'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
-useHead({ title: '六爻占卜 - 玄学' })
+useHead({ title: '六爻占卜 — 玄·道' })
 
 // State
 const castingMode = ref<'coin' | 'number'>('coin')
@@ -343,7 +343,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )

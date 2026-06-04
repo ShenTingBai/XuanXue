@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { evaluateDates, type ZejiResult, type ZejiDayResult } from '~/composables/useZeJi'
 import { EVENT_TYPES } from '~/constants/zeji'
 
@@ -7,7 +8,7 @@ import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.
 import ZejiCalendar from '~/components/tools/zeji/ZejiCalendar.vue'
 import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
 
-useHead({ title: '择吉日 - 玄学' })
+useHead({ title: '择吉日 — 玄·道' })
 
 const { restoreSession } = useAuth()
 
@@ -388,8 +389,8 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
   font-size: 0.55rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
-  background: rgba(61, 107, 75, 0.06);
-  color: #3D6B4B;
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 6%, transparent);
+  color: v-bind('WUXING_COLORS["木"]');
   letter-spacing: 0.04em;
 }
 
@@ -400,8 +401,8 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
   font-size: 0.55rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
-  background: rgba(198, 40, 40, 0.05);
-  color: #C62828;
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 5%, transparent);
+  color: v-bind('WUXING_COLORS["火"]');
   letter-spacing: 0.04em;
 }
 

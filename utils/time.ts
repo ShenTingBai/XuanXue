@@ -20,7 +20,7 @@
  * @param longitude - The birth location longitude in decimal degrees (-180 to 180)
  * @returns The true solar hour as a float (e.g., 11.7)
  */
-export function getTrueSolarHour(clockHour: number, longitude: number): number {
+export function getTrueSolarHour(clockHour: number, longitude: number = 120): number {
   const adjustmentMinutes = (longitude - 120) * 4
   const trueSolarMinutes = clockHour * 60 + adjustmentMinutes
   return trueSolarMinutes / 60

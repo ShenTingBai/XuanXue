@@ -166,13 +166,16 @@ const PALACE_LOOKUP = buildPalaceLookup()
 // Public Functions
 // ============================
 
+/** Injectable random function for deterministic testing. Defaults to Math.random. */
+export let randomFn = () => Math.random()
+
 /** Cast by tossing 3 coins 6 times. Returns [line1_value, ..., line6_value]. */
 export function castByCoin(): number[] {
   const values: number[] = []
   for (let i = 0; i < 6; i++) {
     let total = 0
     for (let j = 0; j < 3; j++) {
-      total += Math.random() < 0.5 ? 2 : 3
+      total += randomFn() < 0.5 ? 2 : 3
     }
     values.push(total)
   }

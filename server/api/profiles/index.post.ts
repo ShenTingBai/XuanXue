@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
   const result = dbRun(
     `INSERT INTO profiles (nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, birth_place, birth_longitude, parent_profile_id)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [nickname, '', birthDate, birthCalendar, birthHour, birthMinute, gender, birthPlace, birthLongitude, profileId]
+    [nickname, null, birthDate, birthCalendar, birthHour, birthMinute, gender, birthPlace, birthLongitude, profileId]
   )
 
   const subProfile = dbGet('SELECT * FROM profiles WHERE id = ?', [result.lastInsertRowid])

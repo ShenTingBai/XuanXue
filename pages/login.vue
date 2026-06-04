@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: '登录 - 玄学' })
+useHead({ title: '登录 — 玄·道' })
 
 const { login, register, restoreSession, currentProfile } = useAuth()
 const router = useRouter()

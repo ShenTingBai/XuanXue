@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getZodiacIndex, ZODIACS } from '~/composables/useConstellation'
 import { getAnimal } from '~/constants/bazi'
-import type { DivinationType } from '~/types/api/divination'
+import type { DivinationType } from '~/server/api/divinations/shared'
 
 const props = defineProps<{
   show: boolean
@@ -53,7 +53,7 @@ async function fetchHistory() {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const data = await $fetch<Array<import('~/types/api/divination').DivinationListItem>>(
+    const data = await $fetch<Array<import('~/server/api/divinations/shared').DivinationListItem>>(
       `/api/divinations?type=${props.type}`,
       { headers },
     )

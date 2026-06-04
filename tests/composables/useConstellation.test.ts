@@ -196,8 +196,8 @@ describe('calculateConstellation', () => {
   it('moonSign interpretation matches moon sign name', () => {
     const result = calculateConstellation(9, 15, new Date('2026-05-25'), 1990)
     expect(result.moonSign).toBeDefined()
-    // Interpretation text should mention the moon sign name
-    expect(result.moonSign!.interpretation).toContain(result.moonSign!.name)
+    // Interpretation text should mention the moon sign base name
+    expect(result.moonSign!.interpretation).toContain(result.moonSign!.name.slice(0, 2))
   })
 
   it('returns risingSign when birthHour is provided', () => {

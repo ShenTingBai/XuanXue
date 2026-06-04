@@ -5,6 +5,12 @@ import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 
 export default defineEventHandler(async (event) => {
+  // Body size limit: prevent oversized payloads
+  const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
+  if (contentLength > 1024) {
+    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
+  }
+
   const body = await readBody(event)
   let { nickname, pin } = body || {}
   nickname = nickname?.trim() ?? ''
@@ -49,17 +55,21 @@ export default defineEventHandler(async (event) => {
 
   const storedPin = profile.pin as string
 
-  // Verify PIN using hashed comparison
-  const pinValid = verifyPin(pin, storedPin)
-  if (!pinValid) {
-    logSecurityEvent('login_failed', profile.id as number, clientIp, 'Wrong PIN')
-    throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
-  }
-
-  // Legacy migration: if PIN stored in plain text, upgrade to hash
+  // Legacy migration: check plaintext PIN before verifyPin() — which rejects non-salt:hash format
   if (isLegacyPin(storedPin)) {
+    if (pin !== storedPin) {
+      logSecurityEvent('login_failed', profile.id as number, clientIp, 'Wrong PIN')
+      throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
+    }
     const hashed = hashPin(pin)
     dbRun('UPDATE profiles SET pin = ? WHERE id = ?', [hashed, profile.id])
+  } else {
+    // Verify PIN using hashed comparison
+    const pinValid = verifyPin(pin, storedPin)
+    if (!pinValid) {
+      logSecurityEvent('login_failed', profile.id as number, clientIp, 'Wrong PIN')
+      throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
+    }
   }
 
   const token = createSessionToken(profile.id as number)

@@ -117,18 +117,31 @@ export async function initDb(): Promise<void> {
     db.run(CREATE_PROFILES_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
 
-    // Hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
-    try {
-      const rows = dbAll('SELECT id, token_hash FROM sessions') as { id: number; token_hash: string }[]
-      for (const row of rows) {
-        const token = row.token_hash
-        if (token && token.length === 48) {
-          const hashed = createHash('sha256').update(token).digest('hex')
-          dbRun('UPDATE sessions SET token_hash = ? WHERE id = ?', [hashed, row.id])
+    // Migration version tracking — create early to gate all migrations
+    db.run(`CREATE TABLE IF NOT EXISTS _migrations (
+      version INTEGER PRIMARY KEY,
+      applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`)
+
+    const appliedMigrations = new Set(
+      dbAll('SELECT version FROM _migrations').map(r => r.version as number)
+    )
+
+    // Migration v1: Hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
+    if (!appliedMigrations.has(1)) {
+      try {
+        const rows = dbAll('SELECT id, token_hash FROM sessions') as { id: number; token_hash: string }[]
+        for (const row of rows) {
+          const token = row.token_hash
+          if (token && token.length === 48) {
+            const hashed = createHash('sha256').update(token).digest('hex')
+            dbRun('UPDATE sessions SET token_hash = ? WHERE id = ?', [hashed, row.id])
+          }
         }
+        dbRun('INSERT INTO _migrations (version) VALUES (1)')
+      } catch (e) {
+        console.error('Migration v1 failed (hash existing tokens):', e)
       }
-    } catch (e) {
-      console.error('Migration failed (hash existing tokens):', e)
     }
 
     db.run(CREATE_DIVINATION_TABLE)
@@ -138,31 +151,28 @@ export async function initDb(): Promise<void> {
     db.run(INDEX_DIVINATION_PROFILE)
     db.run(INDEX_DIVINATION_PROFILE_TYPE_CREATED)
 
-    // Migration: remove pin CHECK(length(pin)=4) constraint for hashed PIN support
-    try {
-      const tableInfo = dbGet("SELECT sql FROM sqlite_master WHERE type='table' AND name='profiles'")
-      if (tableInfo && (tableInfo.sql as string).includes('CHECK(length(pin) = 4)')) {
-        db.run("BEGIN")
-        db.run('ALTER TABLE profiles RENAME TO profiles_old')
-        db.run(CREATE_PROFILES_TABLE)
-        db.run(`INSERT INTO profiles (id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at) SELECT id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at FROM profiles_old`)
-        db.run('DROP TABLE profiles_old')
-        db.run("COMMIT")
+    // Migration v2: remove pin CHECK(length(pin)=4) constraint for hashed PIN support
+    if (!appliedMigrations.has(2)) {
+      try {
+        const tableInfo = dbGet("SELECT sql FROM sqlite_master WHERE type='table' AND name='profiles'")
+        if (tableInfo && (tableInfo.sql as string).includes('CHECK(length(pin) = 4)')) {
+          db.run("BEGIN")
+          db.run('ALTER TABLE profiles RENAME TO profiles_old')
+          db.run(CREATE_PROFILES_TABLE)
+          db.run(`INSERT INTO profiles (id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at) SELECT id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at FROM profiles_old`)
+          db.run('DROP TABLE profiles_old')
+          db.run("COMMIT")
+        }
+        dbRun('INSERT INTO _migrations (version) VALUES (2)')
+      } catch (e) {
+        try { db.run("ROLLBACK") } catch {}
+        console.error('Migration v2 failed (profiles CHECK constraint):', e)
       }
-    } catch (e) {
-      try { db.run("ROLLBACK") } catch {}
-      console.error('Migration failed (profiles CHECK constraint):', e)
     }
 
     db.run(CREATE_SECURITY_LOG_TABLE)
     db.run(INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED)
     db.run("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")
-
-    // Migration version tracking
-    db.run(`CREATE TABLE IF NOT EXISTS _migrations (
-      version INTEGER PRIMARY KEY,
-      applied_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )`)
 
     const migrations: { version: number; sql: string }[] = [
       {
@@ -176,9 +186,6 @@ export async function initDb(): Promise<void> {
       },
     ]
 
-    const appliedMigrations = new Set(
-      dbAll('SELECT version FROM _migrations').map(r => r.version as number)
-    )
     for (const m of migrations) {
       if (!appliedMigrations.has(m.version)) {
         db.run(m.sql)

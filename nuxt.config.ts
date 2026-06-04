@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
-      title: '玄学 - 命理互动平台',
+      title: '玄·道 - 命理互动平台',
       htmlAttrs: { lang: 'zh-CN' },
       link: [
         { rel: 'preload', href: '/fonts/ma-shan-zheng-v17-chinese-simplified-regular.woff2', as: 'font', type: 'font/woff2', crossorigin: 'anonymous' },

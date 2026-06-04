@@ -23,7 +23,7 @@ import { calculateNatalChart, serializeNatalChart } from '~/composables/useNatal
 import NatalChart from '~/components/tools/constellation/NatalChart.vue'
 import type { NatalChartData } from '~/composables/useNatalChart'
 
-useHead({ title: '星座 - 玄学' })
+useHead({ title: '星座 — 玄·道' })
 
 const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)
@@ -232,7 +232,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )

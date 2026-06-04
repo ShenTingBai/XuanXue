@@ -15,7 +15,7 @@ import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 
-useHead({ title: '测字 - 玄·道' })
+useHead({ title: '测字 — 玄·道' })
 
 const result = ref<CeziResult | null>(null)
 const loading = ref(false)
@@ -427,9 +427,9 @@ const interpretationParagraphs = computed(() => {
 }
 
 .fortune-badge--xiong {
-  background: rgba(94, 94, 94, 0.08);
-  color: #5E5E5E;
-  border: 1px solid rgba(94, 94, 94, 0.15);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["金"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["金"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["金"]') 15%, transparent);
 }
 
 /* ════════════════════════════════════════ */

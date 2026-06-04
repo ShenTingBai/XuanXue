@@ -1,7 +1,7 @@
 import { dbAll } from '../../database/db'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
-import { DIVINATION_TYPES } from '~/types/api/divination'
+import { DIVINATION_TYPES } from './shared'
 
 const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
 

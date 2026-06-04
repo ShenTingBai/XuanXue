@@ -7,6 +7,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockGetHeader = vi.hoisted(() => vi.fn())
 const mockReadBody = vi.hoisted(() => vi.fn())
 const mockGetQuery = vi.hoisted(() => vi.fn())
+const mockGetRouterParam = vi.hoisted(() => vi.fn())
 const mockCreateErrorFn = vi.hoisted(() => vi.fn((args: any) => {
   throw Object.assign(new Error(args.statusMessage), { statusCode: args.statusCode })
 }))
@@ -18,6 +19,7 @@ vi.hoisted(() => {
   vi.stubGlobal('readBody', mockReadBody)
   vi.stubGlobal('getQuery', mockGetQuery)
   vi.stubGlobal('createError', mockCreateErrorFn)
+  vi.stubGlobal('getRouterParam', mockGetRouterParam)
 })
 
 // ============================================================================
@@ -264,6 +266,7 @@ describe('Divinations API handlers', () => {
     beforeEach(async () => {
       vi.clearAllMocks()
       mockGetHeader.mockReturnValue('Bearer valid-token')
+      mockGetRouterParam.mockReturnValue('42')
       vi.mocked(checkRateLimit).mockReturnValue(true)
 
       const mod = await import('~/server/api/divinations/[id].get')
@@ -279,7 +282,7 @@ describe('Divinations API handlers', () => {
         result_data: '{"dayMaster":"甲"}',
         created_at: '2025-01-01T00:00:00.000Z',
       })
-      const result = await handler({ context: { params: { id: '42' }, profileId: 1 } } as any)
+      const result = await handler({ context: { profileId: 1 } } as any)
       expect(result.id).toBe(42)
       expect(result.type).toBe('bazi')
       expect(result.input_data).toEqual({ birthYear: 2000 })
@@ -287,29 +290,31 @@ describe('Divinations API handlers', () => {
     })
 
     it('throws 400 for non-numeric id', async () => {
-      await expect(handler({ context: { params: { id: 'abc' }, profileId: 1 } } as any))
+      mockGetRouterParam.mockReturnValue('abc')
+      await expect(handler({ context: { profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 400 for empty id', async () => {
-      await expect(handler({ context: { params: { id: '' }, profileId: 1 } } as any))
+      mockGetRouterParam.mockReturnValue('')
+      await expect(handler({ context: { profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 400 })
     })
 
     it('throws 401 without auth header', async () => {
-      await expect(handler({ context: { params: { id: '42' } } } as any))
+      await expect(handler({ context: {} } as any))
         .rejects.toMatchObject({ statusCode: 401 })
     })
 
     it('throws 429 when rate limited', async () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({ context: { params: { id: '42' }, profileId: 1 } } as any))
+      await expect(handler({ context: { profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 429 })
     })
 
     it('throws 404 when record does not exist', async () => {
       vi.mocked(dbGet).mockReturnValue(undefined)
-      await expect(handler({ context: { params: { id: '99999' }, profileId: 1 } } as any))
+      await expect(handler({ context: { profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 404 })
     })
 
@@ -322,7 +327,7 @@ describe('Divinations API handlers', () => {
         result_data: '{}',
         created_at: '2025-01-01T00:00:00.000Z',
       })
-      await expect(handler({ context: { params: { id: '42' }, profileId: 1 } } as any))
+      await expect(handler({ context: { profileId: 1 } } as any))
         .rejects.toMatchObject({ statusCode: 403 })
     })
   })

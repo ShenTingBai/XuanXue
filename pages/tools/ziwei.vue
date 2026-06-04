@@ -21,7 +21,7 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 
-useHead({ title: '紫微斗数 - 玄学' })
+useHead({ title: '紫微斗数 — 玄·道' })
 
 const router = useRouter()
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -209,7 +209,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )

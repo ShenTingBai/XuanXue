@@ -62,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { getDailyFortune } from '~/constants/fortune-sticks'
 import type { FortuneStick } from '~/constants/fortune-sticks'
 
@@ -210,27 +211,27 @@ const stick: FortuneStick = getDailyFortune()
 }
 
 .slip-fortune--上吉 {
-  background: rgba(61, 107, 75, 0.1);
-  color: #3D6B4B;
-  border: 1px solid rgba(61, 107, 75, 0.15);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 10%, transparent);
+  color: v-bind('WUXING_COLORS["木"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 15%, transparent);
 }
 
 .slip-fortune--中吉 {
-  background: rgba(122, 94, 18, 0.08);
-  color: #7A5E12;
-  border: 1px solid rgba(122, 94, 18, 0.13);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["土"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["土"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["土"]') 13%, transparent);
 }
 
 .slip-fortune--下吉 {
-  background: rgba(198, 40, 40, 0.05);
-  color: rgba(198, 40, 40, 0.55);
-  border: 1px solid rgba(198, 40, 40, 0.1);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 5%, transparent);
+  color: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 55%, transparent);
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 10%, transparent);
 }
 
 .slip-fortune--下下 {
-  background: rgba(198, 40, 40, 0.08);
-  color: #C62828;
-  border: 1px solid rgba(198, 40, 40, 0.16);
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["火"]');
+  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 16%, transparent);
 }
 
 .slip-number {

@@ -34,6 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+
 const props = withDefaults(defineProps<{
   score?: number
   size?: number
@@ -45,12 +47,12 @@ const props = withDefaults(defineProps<{
 
 const computedStrokeColor = computed(() => {
   if (props.strokeColor) return props.strokeColor
-  if (props.score == null) return '#C62828'
+  if (props.score == null) return WUXING_COLORS['火']
   const s = Math.max(0, Math.min(100, Number(props.score)))
-  if (s >= 75) return '#3D6B4B'
-  if (s >= 60) return '#7A5E12'
-  if (s >= 45) return '#6B5B4F'
-  return '#C62828'
+  if (s >= 75) return WUXING_COLORS['木']
+  if (s >= 60) return WUXING_COLORS['土']
+  if (s >= 45) return WUXING_FALLBACK_COLOR
+  return WUXING_COLORS['火']
 })
 
 const safeScore = computed(() => {

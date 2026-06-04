@@ -5,6 +5,12 @@ import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 
 export default defineEventHandler(async (event) => {
+  // Body size limit: prevent oversized payloads
+  const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
+  if (contentLength > 1024) {
+    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
+  }
+
   const body = await readBody(event)
   let { nickname, pin } = body || {}
   nickname = nickname?.trim() ?? ''

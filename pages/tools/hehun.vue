@@ -14,11 +14,10 @@ import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import type { HeHunGrade } from '~/constants/hehun'
 import BaziSmallDisplay from '~/components/tools/bazi/BaziSmallDisplay.vue'
 
-useHead({ title: '八字合婚 - 玄学' })
+useHead({ title: '八字合婚 — 玄·道' })
 
 const result = ref<HeHunResult | null>(null)
 const loading = ref(false)

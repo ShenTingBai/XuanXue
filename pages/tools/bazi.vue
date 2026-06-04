@@ -9,6 +9,7 @@ import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterCard from '~/components/tools/bazi/DayMasterCard.vue'
 import DaYunTimeline from '~/components/tools/bazi/DaYunTimeline.vue'
+import BaziInfoSidebar from '~/components/tools/bazi/BaziInfoSidebar.vue'
 import ShenShaPanel from '~/components/tools/bazi/ShenShaPanel.vue'
 import LiuNianTimeline from '~/components/tools/bazi/LiuNianTimeline.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
@@ -26,7 +27,7 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 
-useHead({ title: '八字排盘 - 玄学' })
+useHead({ title: '八字排盘 — 玄·道' })
 
 const router = useRouter()
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -288,7 +289,7 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<import('~/types/api/divination').DivinationDetailResponse>(
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       { headers },
     )
@@ -424,6 +425,22 @@ function onSectionNavigate(sectionName: string) {
 
 <template>
   <ToolPageLayout>
+        <!-- Sidebar: quick reference for basic info on desktop -->
+        <template #nav-right>
+          <BaziInfoSidebar
+            v-if="result"
+            :birth-year="result.birthYear"
+            :birth-calendar="result.birthCalendar"
+            :animal="animalName"
+            :gender="result.gender"
+            :day-master="result.dayMaster"
+            :day-master-wuxing="result.dayMasterWuxing"
+            :day-master-strength="result.dayMasterStrength"
+            :favorable-elements="result.favorableElements"
+            :unfavorable-elements="result.unfavorableElements"
+          />
+        </template>
+
         <h1 class="sr-only">八字排盘</h1>
         <!-- Screen reader status -->
         <div role="status" class="sr-only" aria-live="polite">

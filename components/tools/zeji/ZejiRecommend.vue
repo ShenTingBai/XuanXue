@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import type { ZejiDayResult } from '~/composables/useZeJi'
 import { TWELVE_STAR_COLOR } from '~/constants/zeji'
 
@@ -12,10 +13,10 @@ const props = defineProps<{
 const RANK_SYMBOLS = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫', '⑬', '⑭', '⑮']
 
 function scoreColor(score: number): string {
-  if (score >= 80) return '#3D6B4B'
-  if (score >= 60) return '#7A5E12'
-  if (score >= 40) return '#5E5E5E'
-  return '#C62828'
+  if (score >= 80) return WUXING_COLORS['木']
+  if (score >= 60) return WUXING_COLORS['土']
+  if (score >= 40) return WUXING_COLORS['金']
+  return WUXING_COLORS['火']
 }
 
 function scoreLabel(score: number): string {
@@ -93,8 +94,8 @@ function scoreLabel(score: number): string {
           <span
             class="px-1.5 py-0.5 rounded text-[0.55rem] font-medium"
             :style="{
-              background: (TWELVE_STAR_COLOR[day.twelveStarLevel] || '#7A5E12') + '12',
-              color: TWELVE_STAR_COLOR[day.twelveStarLevel] || '#7A5E12',
+              background: (TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土']) + '12',
+              color: TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土'],
             }"
           >{{ day.twelveStar }}</span>
 
@@ -106,8 +107,8 @@ function scoreLabel(score: number): string {
             v-if="day.tianShenType"
             class="px-1.5 py-0.5 rounded text-[0.55rem]"
             :style="{
-              background: day.tianShenType === '黄道' ? 'rgba(61,107,75,0.1)' : 'rgba(198,40,40,0.08)',
-              color: day.tianShenType === '黄道' ? '#3D6B4B' : '#C62828',
+              background: day.tianShenType === '黄道' ? 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 10%, transparent)' : 'color-mix(in srgb, ' + WUXING_COLORS['火'] + ' 8%, transparent)',
+              color: day.tianShenType === '黄道' ? WUXING_COLORS['木'] : WUXING_COLORS['火'],
             }"
           >{{ day.tianShenType }}·{{ day.tianShen }}</span>
         </div>
@@ -132,7 +133,7 @@ function scoreLabel(score: number): string {
             v-for="yi in day.matchedYi"
             :key="yi"
             class="text-[0.5rem] px-1.5 py-0.5 rounded-sm"
-            style="background: rgba(61, 107, 75, 0.06); color: #3D6B4B;"
+            :style="{ background: 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 6%, transparent)', color: WUXING_COLORS['木'] }"
           >宜{{ yi }}</span>
         </div>
       </div>

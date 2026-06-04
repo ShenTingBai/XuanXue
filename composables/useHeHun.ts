@@ -267,7 +267,7 @@ function analyzeElementComplement(
 
   if (complementAB.length > 0 && complementBA.length > 0) {
     score += 10
-    details.push(`喜用神双向互补：A需${complementAB.join('、')}，B需${complementBA.join('、')}，彼��互济。`)
+    details.push(`喜用神双向互补：A需${complementAB.join('、')}，B需${complementBA.join('、')}，彼此互济。`)
   } else if (complementAB.length > 0) {
     score += 5
     details.push(`A之喜用神（${complementAB.join('、')}）恰为B所克，B可补A之不足。`)
@@ -378,24 +378,22 @@ function analyzeTenGod(
   const details: string[] = []
   let score = 0
 
-  // 配偶星规则：男看正财（日干所克之阴阳异），女看正官（克日干之阴阳异）
+  // 配偶星规则：
+  //   男命：我克者为财，日主阳→偏财（同阴阳），日主阴→正财（异阴阳）
+  //   女命：克我者为官杀，日主阳→七杀（同阴阳），日主阴→正官（异阴阳）
   const getSpouseStar = (gender: '男' | '女', bazi: BaZiResult): string[] => {
+    const dayStem = bazi.dayPillar.stem
+    const dayStemIdx = '甲乙丙丁戊己庚辛壬癸'.indexOf(dayStem)
+    if (dayStemIdx === -1) return []
+    const stemYinYang = ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴']
+    const yy = stemYinYang[dayStemIdx]
+
     if (gender === '男') {
-      // 正财：日干所克，阴阳异
-      const dayStem = bazi.dayPillar.stem
-      const dayStemIdx = '甲乙丙丁戊己庚辛壬癸'.indexOf(dayStem)
-      if (dayStemIdx === -1) return []
-      const stemWuxing = ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水']
-      const stemYinYang = ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴']
-      const wx = stemWuxing[dayStemIdx]
-      const yy = stemYinYang[dayStemIdx]
-      const controlledWx = WUXING_CONFLICT[wx] // 木克土→财
-      if (!controlledWx) return []
-      // 正财：阴阳异
-      return ['正财']
+      // 偏财（同阴阳）、正财（异阴阳）
+      return yy === '阳' ? ['偏财'] : ['正财']
     } else {
-      // 正官：克日干，阴阳异
-      return ['正官']
+      // 七杀（同阴阳）、正官（异阴阳）
+      return yy === '阳' ? ['七杀'] : ['正官']
     }
   }
 

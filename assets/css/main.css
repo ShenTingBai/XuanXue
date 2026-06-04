@@ -886,46 +886,6 @@ html {
     opacity: 0.12;
   }
 
-  /* ── 线装册页：天地界栏 ── */
-  .rule-boundary {
-    position: absolute;
-    left: 44px;
-    right: 44px;
-    height: 1px;
-    background: repeating-linear-gradient(
-      90deg,
-      rgba(156,26,28,0.035) 0px, rgba(156,26,28,0.035) 6px,
-      transparent 6px, transparent 12px
-    );
-    pointer-events: none;
-  }
-  .rule-boundary--top { top: 22px; }
-  .rule-boundary--bottom { bottom: 22px; }
-
-  /* ── 鱼尾 ── */
-  .fish-tail {
-    position: absolute;
-    top: 26px;
-    right: 48px;
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    user-select: none;
-    pointer-events: none;
-  }
-  .fish-tail__v {
-    width: 0;
-    height: 0;
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-top: 9px solid rgba(156,26,28,0.02);
-  }
-  .fish-tail__bar {
-    width: 22px;
-    height: 1px;
-    background: rgba(156,26,28,0.02);
-  }
-
   /* ── 朱砂双线网格（八字表） ── */
   .grid-cinnabar {
     width: 100%;

@@ -32,6 +32,7 @@ export function formatRelativeTime(dateStr: string): string {
   if (isNaN(target)) return dateStr
 
   const diffMs = now - target
+  if (diffMs < 0) return '刚刚'
   const diffMinutes = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)

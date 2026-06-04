@@ -53,8 +53,4 @@ const props = defineProps<{
   cycles: DaYunCycle[]
   currentCycleIdx?: number
 }>()
-
-const currentCycleIdx = computed(() => {
-  return props.currentCycleIdx ?? -1
-})
 </script>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { calculateNameTest, type NameTestResult } from '~/composables/useNameTest'
 
 const { currentProfile, restoreSession } = useAuth()
@@ -14,7 +15,7 @@ import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
 
-useHead({ title: '姓名测试 - 玄学' })
+useHead({ title: '姓名测试 — 玄·道' })
 
 const result = ref<NameTestResult | null>(null)
 const loading = ref(false)
@@ -435,11 +436,26 @@ const scoreItems = computed(() => {
   font-size: 0.5rem;
   font-weight: 500;
 }
-.wx-木 { background: rgba(61, 107, 75, 0.08); color: #3D6B4B; }
-.wx-火 { background: rgba(198, 40, 40, 0.08); color: #C62828; }
-.wx-土 { background: rgba(122, 94, 18, 0.08); color: #7A5E12; }
-.wx-金 { background: rgba(94, 94, 94, 0.08); color: #5E5E5E; }
-.wx-水 { background: rgba(44, 95, 124, 0.08); color: #2C5F7C; }
+.wx-木 {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["木"]');
+}
+.wx-火 {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["火"]');
+}
+.wx-土 {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["土"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["土"]');
+}
+.wx-金 {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["金"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["金"]');
+}
+.wx-水 {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["水"]') 8%, transparent);
+  color: v-bind('WUXING_COLORS["水"]');
+}
 
 /* ── Detail lines ── */
 .detail-line {

@@ -3,9 +3,9 @@ import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
 
 export default defineEventHandler(async (event) => {
-  const idParam = event.context.params!.id
+  const idParam = getRouterParam(event, 'id')
   // Validate that the id parameter consists only of digits before parseInt
-  if (!/^\d+$/.test(idParam)) {
+  if (!idParam || !/^\d+$/.test(idParam)) {
     throw createError({ statusCode: 400, statusMessage: '无效的测算记录ID' })
   }
   const id = parseInt(idParam, 10)

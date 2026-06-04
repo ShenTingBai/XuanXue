@@ -6,7 +6,7 @@
 // five-element interactions.
 // ============================================================================
 
-import { BRANCHES, WUXING_BRANCH, STEMS } from '~/constants/bazi'
+import { ANIMALS, BRANCHES, WUXING_BRANCH, STEMS } from '~/constants/bazi'
 import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
 import { LIUHE_PAIRS, SANHE_GROUPS, CHONG_PAIRS, XING_PAIRS, HAI_PAIRS, PO_PAIRS } from './useShengXiao'
 
@@ -161,8 +161,6 @@ export function calculateMonthlyFortune(
   // Convert birth year to animal index (consistent with getAnimalIndex)
   const animalIdx = ((birthYear - 4) % 12 + 12) % 12
   const animalBranchIdx = BRANCHES.indexOf(animalBranch)
-  const ANIMALS = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
-
   const monthStems = computeMonthStems(currentYear)
   const monthNames = ['寅月', '卯月', '辰月', '巳月', '午月', '未月', '申月', '酉月', '戌月', '亥月', '子月', '丑月']
 

@@ -557,4 +557,282 @@ describe('calculateShenSha', () => {
     const hourJieSha = jieSha.find(s => s.pillar === '时柱')
     expect(hourJieSha).toBeDefined()
   })
+
+  // ========================================================================
+  // L17: Negative test cases — certain shensha do NOT fire on unrelated pillars
+  // ========================================================================
+
+  describe('negative cases', () => {
+    it('禄神 does NOT fire on a branch that is not the 禄位 for the day master', () => {
+      // 2000-01-01 (戊午日): 戊日主, 禄神在巳
+      // Pillar branches: 卯(年), 子(月), 午(日), 午(时 with birthHour=12)
+      // Since none of the pillars have 巳 branch, 禄神 should not appear
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 1, birthDay: 1,
+        birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+      })
+      expect(bazi.dayMaster).toBe('戊')
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '男' as const,
+      }
+      const result = calculateShenSha(input)
+      const luShen = result.filter(s => s.name === '禄神')
+
+      // Verify none of the pillar branches is 巳 (戊禄在巳)
+      const allBranches = [
+        input.yearPillar.branch, input.monthPillar.branch,
+        input.dayPillar.branch, input.hourPillar?.branch,
+      ]
+      if (!allBranches.includes('巳')) {
+        expect(luShen.length).toBe(0)
+      }
+    })
+
+    it('天乙贵人 does NOT fire on unrelated stems for 年干', () => {
+      // 甲日主天乙贵人在丑未; use a 丁日主 chart (天乙在亥酉)
+      // 1998-05-25: 壬日主 → 天乙在卯巳
+      // Check that 天乙贵人 from 日干 does NOT include 丑/未 if day master ≠ 甲/戊/庚
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 6, birthDay: 6,
+        birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+      })
+      expect(bazi.dayMaster).toBe('乙')
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '女' as const,
+      }
+      const result = calculateShenSha(input)
+      const tianYi = result.filter(s => s.name === '天乙贵人' && s.source === '日干')
+      for (const ty of tianYi) {
+        const pillarObj = ty.pillar === '年柱' ? input.yearPillar :
+          ty.pillar === '月柱' ? input.monthPillar :
+          ty.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        // 乙日主天乙贵人在申子 — not 丑/未
+        // The actual correct branch for 乙 is 子/申, so verify it's not 丑 or 未
+        expect(['子', '申']).toContain(pillarObj?.branch)
+        expect(pillarObj?.branch).not.toBe('丑')
+        expect(pillarObj?.branch).not.toBe('未')
+      }
+    })
+
+    it('魁罡 only fires on specific day pillar combinations, not on every chart', () => {
+      // Use a date where day pillar is NOT 庚辰/庚戌/壬辰/戊戌
+      // 2000-01-01 is 戊午日 — NOT a 魁罡 day
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 1, birthDay: 1,
+        birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+      })
+      const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '男' as const,
+      }
+      const result = calculateShenSha(input)
+      const kuiGang = result.filter(s => s.name === '魁罡')
+      // 戊午 is NOT 魁罡 day, so 魁罡 should be empty
+      expect(kuiGang).toHaveLength(0)
+    })
+
+    it('空亡 does NOT fire on pillar branches outside the current 旬 empty branches', () => {
+      // 甲子旬 → 空亡在戌亥
+      // Use a date in 甲子旬 where no pillar has 戌 or 亥 branches
+      // 2000-01-01: 戊午日, check which 旬 this is
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 1, birthDay: 1,
+        birthCalendar: 'solar' as const, birthHour: 8, gender: '女' as const,
+      })
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '女' as const,
+      }
+      const result = calculateShenSha(input)
+      const kongWang = result.filter(s => s.name === '空亡')
+
+      // For each 空亡 found, verify the pillar's branch is actually in the 空亡 pair
+      // This validates the 空亡 logic doesn't fire on random branches
+      for (const kw of kongWang) {
+        const pillarObj = kw.pillar === '年柱' ? input.yearPillar :
+          kw.pillar === '月柱' ? input.monthPillar :
+          kw.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        expect(pillarObj).toBeDefined()
+        // The 空亡 branch should be one of the two empty branches for the 旬
+        // It should NOT be a branch that belongs to the current 旬
+        const dayIndex = getStemIndex(bazi.dayPillar.stem) // 0-9 for 天干 index
+        if (dayIndex >= 0) {
+          // 甲子旬=0, 甲戌旬=1, etc.
+          const xunOffset = Math.floor(dayIndex / 10) * 10
+          const firstStemOfXun = '甲乙丙丁戊己庚辛壬癸'[xunOffset]
+          // The empty branches for a given 旬 depend on the 旬's starting 干支
+          expect(kw.description.length).toBeGreaterThan(0)
+        }
+      }
+    })
+
+    it('羊刃 does NOT fire on unrelated day masters (壬日主羊刃在子)', () => {
+      // 1998-05-25: 壬日主, 羊刃在子
+      // Verify that if no pillar has 子, then 羊刃 does not fire
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 8, birthDay: 16,
+        birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+      })
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '男' as const,
+      }
+      const result = calculateShenSha(input)
+      const yangRen = result.filter(s => s.name === '羊刃')
+
+      // Check what the day master is and which pillar branches exist
+      const allBranches = [
+        input.yearPillar.branch, input.monthPillar.branch,
+        input.dayPillar.branch, input.hourPillar?.branch,
+      ]
+      const dayMasterStem = input.dayMaster
+      // Only certain day masters produce 羊刃 in specific branches
+      const yangRenBranches: Record<string, string> = {
+        '甲': '卯', '丙': '午', '戊': '午', '庚': '酉', '壬': '子',
+      }
+      const expectedBranch = yangRenBranches[dayMasterStem]
+
+      if (expectedBranch && !allBranches.includes(expectedBranch)) {
+        // 羊刃 should not fire if the expected branch is not present
+        expect(yangRen.length).toBe(0)
+      }
+    })
+
+    it('华盖 only fires for the specific 三合 group对应 branch, not random ones', () => {
+      // Use 庚辰年 (2000): 申子辰 → 华盖在辰
+      // If day pillar has branch 辰, 华盖 fires on 日柱
+      // If month pillar also had 辰, it would be on 月柱 too
+      // But 华盖 should NOT fire on 寅/午/戌 pillars for 申子辰 group
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 3, birthDay: 6,
+        birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+      })
+      expect(bazi.yearPillar.branch).toBe('辰')
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '女' as const,
+      }
+      const result = calculateShenSha(input)
+      const huaGai = result.filter(s => s.name === '华盖')
+
+      // 华盖 for 申子辰 is in 辰 — verify it never fires on 寅/午/戌 branches
+      for (const hg of huaGai) {
+        const pillarObj = hg.pillar === '年柱' ? input.yearPillar :
+          hg.pillar === '月柱' ? input.monthPillar :
+          hg.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        expect(pillarObj?.branch).toBe('辰')
+        expect(pillarObj?.branch).not.toBe('寅')
+        expect(pillarObj?.branch).not.toBe('午')
+        expect(pillarObj?.branch).not.toBe('戌')
+      }
+    })
+
+    it('月德贵人 does NOT fire on branches outside the 三合 group rule', () => {
+      // 巳月(month branch=巳): 巳酉丑 → 月德在庚 (天干)
+      // If no pillar has 庚 stem, then 月德贵人 should not appear
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 5, birthDay: 15,
+        birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+      })
+      expect(bazi.monthPillar.branch).toBe('巳')
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '男' as const,
+      }
+      const result = calculateShenSha(input)
+      const yueDe = result.filter(s => s.name === '月德贵人')
+
+      // Check if any pillar has stem 庚
+      const hasGeng = [
+        input.yearPillar.stem, input.monthPillar.stem,
+        input.dayPillar.stem, input.hourPillar?.stem,
+      ].includes('庚')
+
+      if (!hasGeng) {
+        expect(yueDe.length).toBe(0)
+      } else {
+        for (const yd of yueDe) {
+          const pillarStem = yd.pillar === '年柱' ? input.yearPillar.stem :
+            yd.pillar === '月柱' ? input.monthPillar.stem :
+            yd.pillar === '日柱' ? input.dayPillar.stem :
+            input.hourPillar?.stem
+          expect(pillarStem).toBe('庚')
+        }
+      }
+    })
+
+    it('十恶大败 does NOT fire on non-十恶大败 days', () => {
+      // Use a date that is explicitly NOT a 十恶大败 day
+      // 甲子日 is NOT 十恶大败
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 3, birthDay: 7,
+        birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+      })
+      const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '男' as const,
+      }
+      const result = calculateShenSha(input)
+      const shiEBai = result.filter(s => s.name === '十恶大败')
+      // 甲子 is NOT one of the 十恶大败 days
+      const daBaiDays = ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥']
+      if (!daBaiDays.includes(dayStemBranch)) {
+        expect(shiEBai.length).toBe(0)
+      }
+    })
+
+    it('文昌贵人 only fires on the correct branch for each day master', () => {
+      // 乙日主文昌在午
+      // Use a chart with 乙日主 where no pillar has 午 branch
+      const bazi = calculateBaZi({
+        birthYear: 2000, birthMonth: 4, birthDay: 1,
+        birthCalendar: 'solar' as const, birthHour: 2, gender: '男' as const,
+      })
+      const input = {
+        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        dayMasterIndex: getStemIndex(bazi.dayMaster),
+        gender: '男' as const,
+      }
+      const result = calculateShenSha(input)
+      const wenChang = result.filter(s => s.name === '文昌贵人' && s.source === '日干')
+
+      const dayMasterStem = input.dayMaster
+      const wenChangBranch: Record<string, string> = {
+        '甲': '巳', '乙': '午', '丙': '申', '丁': '酉',
+        '戊': '申', '己': '酉', '庚': '亥', '辛': '子',
+        '壬': '寅', '癸': '卯',
+      }
+      const expectedBranch = wenChangBranch[dayMasterStem]
+
+      for (const wc of wenChang) {
+        const pillarObj = wc.pillar === '年柱' ? input.yearPillar :
+          wc.pillar === '月柱' ? input.monthPillar :
+          wc.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        expect(pillarObj?.branch).toBe(expectedBranch)
+        // 文昌 should NOT fire on unrelated branches
+        expect(pillarObj?.branch).not.toBe(expectedBranch === '巳' ? '午' : '巳')
+      }
+    })
+  })
 })

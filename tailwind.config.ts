@@ -13,13 +13,13 @@ export default {
     extend: {
       colors: {
         ink: {
-          darkest: '#1A0F0A',
-          dark: '#1E1210',
-          DEFAULT: '#2C1810',
+          faint: '#D4C5B0',
           light: '#6B5B4F',
           medium: '#5E5045',
           muted: '#4D4037',
-          faint: '#D4C5B0',
+          DEFAULT: '#2C1810',
+          dark: '#1E1210',
+          darkest: '#1A0F0A',
         },
         paper: {
           lightest: '#FBF8F4',

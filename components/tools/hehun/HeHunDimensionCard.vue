@@ -32,7 +32,7 @@
         <span class="dim-item__relation">{{ item.relation }}</span>
         <span
           class="dim-item__score"
-          :style="{ color: item.score >= 0 ? '#3D6B4B' : '#C62828' }"
+          :style="{ color: item.score >= 0 ? WUXING_COLORS['木'] : WUXING_COLORS['火'] }"
         >
           {{ item.score >= 0 ? '+' : '' }}{{ item.score }}
         </span>
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import type { HeHunDimension } from '~/composables/useHeHun'
 
 const props = defineProps<{
@@ -58,17 +59,17 @@ const props = defineProps<{
 const scoreColor = computed(() => {
   const d = props.dim
   const ratio = d.maxScore > 0 ? d.score / d.maxScore : 0
-  if (ratio >= 0.6) return '#3D6B4B'
-  if (ratio <= 0.3) return '#C62828'
-  return '#7A5E12'
+  if (ratio >= 0.6) return WUXING_COLORS['木']
+  if (ratio <= 0.3) return WUXING_COLORS['火']
+  return WUXING_COLORS['土']
 })
 
 const levelBg = computed(() => {
   const d = props.dim
   const ratio = d.maxScore > 0 ? d.score / d.maxScore : 0
-  if (ratio >= 0.6) return 'rgba(61, 107, 75, 0.08)'
-  if (ratio <= 0.3) return 'rgba(198, 40, 40, 0.08)'
-  return 'rgba(122, 94, 18, 0.08)'
+  if (ratio >= 0.6) return `color-mix(in srgb, ${WUXING_COLORS['木']} 8%, transparent)`
+  if (ratio <= 0.3) return `color-mix(in srgb, ${WUXING_COLORS['火']} 8%, transparent)`
+  return `color-mix(in srgb, ${WUXING_COLORS['土']} 8%, transparent)`
 })
 
 const barValue = computed(() => {
@@ -135,13 +136,13 @@ const barPercent = computed(() => {
 }
 
 .dim-level.吉 {
-  color: #3D6B4B;
+  color: v-bind('WUXING_COLORS["木"]');
 }
 .dim-level.凶 {
-  color: #C62828;
+  color: v-bind('WUXING_COLORS["火"]');
 }
 .dim-level.中 {
-  color: #7A5E12;
+  color: v-bind('WUXING_COLORS["土"]');
 }
 
 /* ── Progress bar ── */
