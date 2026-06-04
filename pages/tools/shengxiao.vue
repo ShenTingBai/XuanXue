@@ -266,7 +266,7 @@ async function restoreFromHistory(id: number) {
           />
         </template>
         <template #mobile-nav>
-          <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2">
+          <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2 scroll-hint-x">
             <button
               v-for="(animal, idx) in ANIMALS"
               :key="idx"

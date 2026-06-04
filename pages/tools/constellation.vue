@@ -264,7 +264,7 @@ function scrollToConstellationNav() {
           />
         </template>
         <template #mobile-nav>
-          <div data-constellation-nav class="flex gap-1 overflow-x-auto pb-2">
+          <div data-constellation-nav class="flex gap-2 overflow-x-auto pb-2 scroll-hint-x">
             <button
               v-for="(name, idx) in zodiacShortNames"
               :key="idx"

@@ -467,6 +467,40 @@
 - 激活态**必须**同时使用 `:aria-current="'page'"`
 - 可用作 `<button>`（登出等操作）或 `<NuxtLink>`（页面跳转）
 
+#### 侧边栏激活态 — 朱笔圈点
+
+工具页侧边栏（AnimalNav、ConstellationNav）的激活态采用中式"朱笔圈点"样式：
+
+- 左侧 2px 朱砂竖线 `border-l-2 border-l-cinnabar`
+- 浅朱砂底色 `bg-cinnabar/6`
+- 文字染朱砂 `text-cinnabar font-medium`
+- **必须**搭配 `:aria-current="'true'"`
+
+```html
+<button
+  :class="[
+    'border-l-2 rounded-r-lg',
+    isActive
+      ? 'border-l-cinnabar bg-cinnabar/6 text-cinnabar font-medium'
+      : 'border-l-transparent text-ink-medium hover:bg-paper-medium/50',
+  ]"
+  :aria-current="isActive ? 'true' : undefined"
+>
+  ...
+</button>
+```
+
+#### `scroll-hint-x` — 横向滚动提示
+
+```html
+<div class="flex gap-2 overflow-x-auto scroll-hint-x">...</div>
+```
+
+- 使用 CSS `mask-image` 在右边缘生成 24px 渐变淡出
+- 告知用户"还有更多内容可滚动"
+- 定义在 `assets/css/main.css`
+- 适用：移动端工具导航（`#mobile-nav`）、横向滚动列表
+
 ---
 
 ## 5. 布局系统
