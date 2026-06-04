@@ -7,13 +7,26 @@ import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ZejiCalendar from '~/components/tools/zeji/ZejiCalendar.vue'
 import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
+import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import HistoryModal from '~/components/tools/HistoryModal.vue'
 
 useHead({ title: '择吉日 — 玄·道' })
 
-const { restoreSession } = useAuth()
+const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const router = useRouter()
+
+const showHistoryModal = ref(false)
+const savedDivinationId = ref<number | null>(null)
+const saveError = ref<string | null>(null)
+const restoreError = ref<string | null>(null)
 
 onMounted(() => {
   restoreSession()
+  if (!currentProfile.value) {
+    router.push('/login')
+    return
+  }
+  saveDivinationResult(result.value)
 })
 
 // Event type selection
@@ -93,6 +106,7 @@ const recommendedForMonth = computed<ZejiDayResult[]>(() => {
 function selectEvent(eventKey: string) {
   selectedEvent.value = eventKey
   selectedDate.value = null // Reset selection on event change
+  saveDivinationResult(result.value)
 }
 
 function handleSelectDate(dateStr: string) {
@@ -109,6 +123,55 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
     if (index > 0) selectedMonthIndex.value = index - 1
   }
 }
+
+async function saveDivinationResult(res: ZejiResult) {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const inputData = { eventType: selectedEvent.value, eventName: res.eventName }
+    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
+      headers,
+      body: {
+        type: 'zeji',
+        input_data: inputData,
+        result_data: JSON.parse(JSON.stringify(res)),
+      },
+    })
+    savedDivinationId.value = saveRes.id
+    saveError.value = ''
+  } catch (e: unknown) {
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 429) return
+      if (code === 401) return
+    }
+    console.error('保存择吉日记录失败:', e)
+  }
+}
+
+async function onHistoryRestore(id: number) {
+  showHistoryModal.value = false
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, { headers })
+    if (record.result_data && typeof record.result_data === 'object' && record.result_data.eventType) {
+      selectedEvent.value = record.result_data.eventType
+      restoreError.value = ''
+    } else {
+      restoreError.value = '历史记录数据无效'
+      setTimeout(() => { restoreError.value = '' }, 6000)
+    }
+  } catch {
+    restoreError.value = '历史记录加载失败，请稍后重试'
+    setTimeout(() => { restoreError.value = '' }, 6000)
+  }
+}
+
+function dismissRestoreError() {
+  restoreError.value = ''
+}
 </script>
 
 <template>
@@ -116,6 +179,10 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
     <h1 class="sr-only">择吉日</h1>
 
     <div class="max-w-[56rem] mx-auto">
+      <ToolToolbar
+        :show-history="true"
+        @history="showHistoryModal = true"
+      />
 
       <!-- ══ Event Type Selector ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
@@ -304,13 +371,40 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
       <EntertainmentDisclaimer />
 
     </div>
+
+    <!-- Restore error toast -->
+    <Transition name="toast">
+      <div
+        v-if="restoreError"
+        class="toast-notification"
+        role="alert"
+      >
+        <span class="toast-notification__mark" aria-hidden="true">!</span>
+        <span class="toast-notification__text">{{ restoreError }}</span>
+        <button
+          @click="dismissRestoreError"
+          @keydown.enter="dismissRestoreError"
+          @keydown.space.prevent="dismissRestoreError"
+          class="toast-notification__close"
+          aria-label="关闭提示"
+        >&times;</button>
+      </div>
+    </Transition>
+
+    <HistoryModal
+      v-if="showHistoryModal"
+      :show="showHistoryModal"
+      type="zeji"
+      @close="showHistoryModal = false"
+      @restore="onHistoryRestore"
+    />
   </ToolPageLayout>
 </template>
 
 <style scoped>
 /* ── Event selector buttons ── */
 .event-btn {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   color: var(--color-ink-medium, #5A4A3A);
   background: var(--color-paper-lightest, #FBF8F4);
   border-color: rgba(44, 26, 14, 0.06);
@@ -369,14 +463,14 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
 }
 
 .detail-kv__key {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.55rem;
   color: var(--color-ink-light, #8A7A6A);
   letter-spacing: 0.06em;
 }
 
 .detail-kv__val {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   color: var(--color-ink, #2C1810);
   letter-spacing: 0.04em;
@@ -385,7 +479,7 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
 /* ── 宜 tags ── */
 .tag-yi {
   display: inline-block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.55rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
@@ -397,7 +491,7 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
 /* ── 忌 tags ── */
 .tag-ji {
   display: inline-block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.55rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;

@@ -2,7 +2,7 @@
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { calculateNameTest, type NameTestResult } from '~/composables/useNameTest'
 
-const { currentProfile, restoreSession } = useAuth()
+const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
@@ -27,6 +27,10 @@ const givenName = ref('')
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
 const { exportToImage, isExporting } = useExportImage()
+const showHistoryModal = ref(false)
+const savedDivinationId = ref<number | null>(null)
+const saveError = ref<string | null>(null)
+const restoreError = ref<string | null>(null)
 
 function handleExport() {
   if (resultRef.value) {
@@ -81,12 +85,62 @@ async function computeNameTest() {
       return
     }
     result.value = res
+    saveDivinationResult(res)
   } catch (e) {
     console.error('姓名测试失败:', e)
     error.value = '计算失败，请检查输入'
   } finally {
     loading.value = false
   }
+}
+
+async function saveDivinationResult(res: NameTestResult) {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const inputData = { surname: surname.value, givenName: givenName.value }
+    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
+      headers,
+      body: {
+        type: 'name-test',
+        input_data: inputData,
+        result_data: JSON.parse(JSON.stringify(res)),
+      },
+    })
+    savedDivinationId.value = saveRes.id
+    saveError.value = ''
+  } catch (e: unknown) {
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 429) return
+      if (code === 401) return
+    }
+    console.error('保存姓名测试记录失败:', e)
+  }
+}
+
+async function onHistoryRestore(id: number) {
+  showHistoryModal.value = false
+  try {
+    const headers = getAuthHeaders()
+    if (!headers.Authorization) return
+    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, { headers })
+    if (record.result_data && typeof record.result_data === 'object' && record.result_data.fullName) {
+      result.value = record.result_data as NameTestResult
+      restoreError.value = ''
+    } else {
+      restoreError.value = '历史记录数据无效'
+      setTimeout(() => { restoreError.value = '' }, 6000)
+    }
+  } catch {
+    restoreError.value = '历史记录加载失败，请稍后重试'
+    setTimeout(() => { restoreError.value = '' }, 6000)
+  }
+}
+
+function dismissRestoreError() {
+  restoreError.value = ''
 }
 
 const scoreItems = computed(() => {
@@ -109,7 +163,10 @@ const scoreItems = computed(() => {
     </div>
 
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar>
+      <ToolToolbar
+        :show-history="true"
+        @history="showHistoryModal = true"
+      >
         <template #extra>
           <ExportButton
             v-if="result"
@@ -310,6 +367,33 @@ const scoreItems = computed(() => {
         <EntertainmentDisclaimer />
       </template>
     </div>
+
+    <!-- Restore error toast -->
+    <Transition name="toast">
+      <div
+        v-if="restoreError"
+        class="toast-notification"
+        role="alert"
+      >
+        <span class="toast-notification__mark" aria-hidden="true">!</span>
+        <span class="toast-notification__text">{{ restoreError }}</span>
+        <button
+          @click="dismissRestoreError"
+          @keydown.enter="dismissRestoreError"
+          @keydown.space.prevent="dismissRestoreError"
+          class="toast-notification__close"
+          aria-label="关闭提示"
+        >&times;</button>
+      </div>
+    </Transition>
+
+    <HistoryModal
+      v-if="showHistoryModal"
+      :show="showHistoryModal"
+      type="name-test"
+      @close="showHistoryModal = false"
+      @restore="onHistoryRestore"
+    />
 
     <ScrollTopButton
       v-if="showScrollTop"

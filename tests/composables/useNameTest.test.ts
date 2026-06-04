@@ -38,25 +38,25 @@ describe('calculateNameTest', () => {
     expect(result!.grids.tian.fortune).toBe('吉')
     expect(result!.grids.tian.wuxing).toBe('金')
 
-    // 人格: 7+14=21
-    expect(result!.grids.ren.strokes).toBe(21)
-    expect(result!.grids.ren.name).toBe('明月中天')
-    expect(result!.grids.ren.fortune).toBe('吉')
-    expect(result!.grids.ren.wuxing).toBe('木')
+    // 人格: 7+7=14
+    expect(result!.grids.ren.strokes).toBe(14)
+    expect(result!.grids.ren.name).toBe('破败之数')
+    expect(result!.grids.ren.fortune).toBe('凶')
+    expect(result!.grids.ren.wuxing).toBe('火')
 
-    // 地格: 14+1=15
-    expect(result!.grids.di.strokes).toBe(15)
-    expect(result!.grids.di.name).toBe('福寿双全')
+    // 地格: 7+1=8
+    expect(result!.grids.di.strokes).toBe(8)
+    expect(result!.grids.di.name).toBe('八卦之数')
     expect(result!.grids.di.fortune).toBe('吉')
-    expect(result!.grids.di.wuxing).toBe('土')
+    expect(result!.grids.di.wuxing).toBe('金')
 
-    // 总格: 7+14=21
-    expect(result!.grids.total.strokes).toBe(21)
-    expect(result!.grids.total.name).toBe('明月中天')
-    expect(result!.grids.total.fortune).toBe('吉')
-    expect(result!.grids.total.wuxing).toBe('木')
+    // 总格: 7+7=14
+    expect(result!.grids.total.strokes).toBe(14)
+    expect(result!.grids.total.name).toBe('破败之数')
+    expect(result!.grids.total.fortune).toBe('凶')
+    expect(result!.grids.total.wuxing).toBe('火')
 
-    // 外格: 21-21+1=1
+    // 外格: 14-14+1=1
     expect(result!.grids.wai.strokes).toBe(1)
     expect(result!.grids.wai.name).toBe('太极之数')
     expect(result!.grids.wai.fortune).toBe('吉')
@@ -64,12 +64,12 @@ describe('calculateNameTest', () => {
   })
 
   // Double-character surname needs both characters in stroke dict.
-  // 诸葛 uses 诸(not in dict), so returns null.
+  // 倁 (U+5001) is not in the stroke dictionary, so returns null.
   // We test that double-char surname logic works internally by using a
   // single-char surname + double-char given name (李世民 test below).
   it('returns null when double-char surname has unknown character', () => {
-    // 诸 is not in the stroke dictionary
-    const result = calculateNameTest('诸葛', '亮')
+    // 倁 is not in the stroke dictionary
+    const result = calculateNameTest('倁葛', '亮')
     expect(result).toBeNull()
   })
 
@@ -103,9 +103,9 @@ describe('calculateNameTest', () => {
     const result = calculateNameTest('李', '纲')
     expect(result).not.toBeNull()
     expect(result!.sanCai.tian).toBe('金')
-    expect(result!.sanCai.ren).toBe('木')
-    expect(result!.sanCai.di).toBe('土')
-    // 金→木→土: 金生木(吉), 木生土(凶/半吉) → 半吉 or 吉
+    expect(result!.sanCai.ren).toBe('火')
+    expect(result!.sanCai.di).toBe('金')
+    // 金→火→金: 火反生金(半吉), 金反生火(半吉) → 半吉
     expect(['吉', '半吉', '凶']).toContain(result!.sanCai.fortune)
   })
 
@@ -220,18 +220,18 @@ describe('calculateNameTest', () => {
   // ── Surname with single character, given name with 2 chars ──
 
   it('calculates correctly for 林语桐', () => {
-    // 林=8, 语=14, 桐=10
+    // 林=8, 语=9, 桐=10
     const result = calculateNameTest('林', '语桐')
     expect(result).not.toBeNull()
     // 天格: 8+1=9
     expect(result!.grids.tian.strokes).toBe(9)
-    // 人格: 8+14=22
-    expect(result!.grids.ren.strokes).toBe(22)
-    // 地格: 14+10=24
-    expect(result!.grids.di.strokes).toBe(24)
-    // 总格: 8+14+10=32
-    expect(result!.grids.total.strokes).toBe(32)
-    // 外格: 32-22+1=11
+    // 人格: 8+9=17
+    expect(result!.grids.ren.strokes).toBe(17)
+    // 地格: 9+10=19
+    expect(result!.grids.di.strokes).toBe(19)
+    // 总格: 8+9+10=27
+    expect(result!.grids.total.strokes).toBe(27)
+    // 外格: 27-17+1=11
     expect(result!.grids.wai.strokes).toBe(11)
   })
 })

@@ -20,7 +20,8 @@ export default defineNuxtPlugin(() => {
 
           // Skip auth endpoints — login/register 401 is normal business logic
           const url = typeof request === 'string' ? request : (request instanceof URL ? request.href : request.url)
-          if (url.includes('/api/auth/login') || url.includes('/api/auth/register') || url.includes('/api/auth/logout')) {
+          const path = new URL(url, 'http://localhost').pathname
+          if (path === '/api/auth/login' || path === '/api/auth/register' || path === '/api/auth/logout') {
             return
           }
 
