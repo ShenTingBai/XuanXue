@@ -16,6 +16,7 @@ const navTools: NavTool[] = [
   { id: 'hehun', name: '合婚', char: '合', route: '/tools/hehun', available: true },
   { id: 'name-test', name: '姓名', char: '名', route: '/tools/name-test', available: true },
   { id: 'cezi', name: '测字', char: '测', route: '/tools/cezi', available: true },
+  { id: 'zeji', name: '择日', char: '择', route: '/tools/zeji', available: true },
 ]
 </script>
 

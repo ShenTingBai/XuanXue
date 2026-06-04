@@ -78,6 +78,12 @@ const tools: Tool[] = [
     landingDescription: '字形拆解 · 笔画五行 · 吉凶断语',
     route: '/tools/cezi', available: true, accent: '#5E5E5E', trigram: '☰',
   },
+  {
+    id: 'zeji', name: '择日', char: '择',
+    description: '黄历择吉，结合建除十二星与二十八宿，为重要事项挑选良辰吉日',
+    landingDescription: '建除十二星 · 二十八宿 · 黄黑道日',
+    route: '/tools/zeji', available: true, accent: '#C62828', trigram: '☲',
+  },
 ]
 
 const sessionReady = ref(false)
@@ -104,6 +110,7 @@ const toolTypeMap: Record<string, { icon: string; route: string }> = {
   hehun: { icon: '合', route: '/tools/hehun' },
   'name-test': { icon: '名', route: '/tools/name-test' },
   cezi: { icon: '测', route: '/tools/cezi' },
+  zeji: { icon: '择', route: '/tools/zeji' },
 }
 
 async function fetchRecentActivity() {
