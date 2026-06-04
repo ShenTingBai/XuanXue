@@ -1,176 +1,194 @@
 <template>
   <div class="fade-in mt-6 mb-6" :style="{ '--delay': '0.35s' }">
-    <!-- Collapsed toggle -->
-    <button
-      v-if="!expanded"
-      @click="expanded = true"
-      @keydown.enter="expanded = true"
-      class="w-full card-warm rounded-xl px-5 py-3 text-left flex items-center gap-3 text-sm text-ink-medium hover:text-cinnabar transition-colors"
-      :aria-expanded="false"
-    >
-      <span aria-hidden="true" class="text-base">📖</span>
-      <span>如何阅读本命星盘</span>
-      <span class="text-ink-light ml-auto" aria-hidden="true">▸</span>
-    </button>
-
-    <!-- Expanded guide -->
-    <div v-else class="card-warm rounded-xl p-6 sm:p-8">
-      <div class="flex items-center justify-between mb-5">
-        <h3 class="font-display text-lg text-ink-dark flex items-center gap-2">
-          <span aria-hidden="true">📖</span> 星盘阅读指南
-        </h3>
+    <div class="card-warm rounded-xl p-6 sm:p-8">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display text-xl text-ink-dark">📖 星盘阅读指南</h2>
         <button
-          @click="expanded = false"
-          @keydown.enter="expanded = false"
-          class="text-xs text-ink-light hover:text-cinnabar transition-colors"
-          aria-label="收起阅读指南"
-        >收起 ▲</button>
+          :aria-expanded="expanded"
+          aria-controls="chart-guide-content"
+          @click="expanded = !expanded"
+          @keydown.enter="expanded = !expanded"
+          @keydown.space.prevent="expanded = !expanded"
+          class="btn-cin text-sm"
+        >
+          <span class="sr-only">{{ expanded ? '收起' : '展开' }}阅读指南</span>
+          <span aria-hidden="true">{{ expanded ? '收起 ▲' : '展开 ▼' }}</span>
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- ═══ Left: Symbol Legend ═══ -->
-        <div>
-          <h4 class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b border-ink-faint/20">符号图例</h4>
+      <!-- Content (expandable) -->
+      <Transition name="guide-expand">
+        <div v-if="expanded" id="chart-guide-content">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- ═══ Left: Symbol Legend ═══ -->
+            <div>
+              <h4 class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b border-ink-faint/20">符号图例</h4>
 
-          <!-- Planets -->
-          <div class="mb-4">
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">行星符号</p>
-            <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
-              <div v-for="p in planetLegend" :key="p.id" class="flex items-center gap-2">
-                <span class="text-sm w-6 text-center flex-shrink-0" aria-hidden="true">{{ p.glyph }}</span>
-                <span class="font-sans text-xs text-ink-medium">{{ p.name }}</span>
-                <span class="font-sans text-[0.65rem] text-ink-light ml-auto">{{ p.ringLabel }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Aspect lines -->
-          <div class="mb-4">
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">相位线</p>
-            <div class="space-y-1.5">
-              <div v-for="a in aspectLegend" :key="a.type" class="flex items-center gap-2">
-                <span class="w-8 h-0.5 rounded flex-shrink-0" :class="a.lineClass" aria-hidden="true" />
-                <span class="font-sans text-xs text-ink-medium">{{ a.symbol }} {{ a.label }}</span>
-                <span class="font-sans text-[0.65rem] text-ink-light ml-auto">{{ a.colorLabel }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Rings -->
-          <div class="mb-4">
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">三圈轨道</p>
-            <div class="space-y-1">
-              <p class="font-sans text-xs text-ink-medium">内圈 → 个人行星（日、月）— 性格内核</p>
-              <p class="font-sans text-xs text-ink-medium">中圈 → 社会行星（水、金、火）— 日常互动</p>
-              <p class="font-sans text-xs text-ink-medium">外圈 → 世代行星（木、土）— 时代背景</p>
-            </div>
-          </div>
-
-          <!-- Houses -->
-          <div>
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">12 宫位 · 代表的人生领域</p>
-            <div class="grid grid-cols-3 gap-x-2 gap-y-1">
-              <p v-for="h in houseNames" :key="h.num" class="font-sans text-[0.72rem] text-ink-medium leading-relaxed">
-                <span class="text-cinnabar font-medium">{{ h.num }}</span> {{ h.label }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ═══ Right: Your Chart Summary ═══ -->
-        <div>
-          <h4 class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b border-ink-faint/20">你的星盘速览</h4>
-
-          <!-- Big Three -->
-          <div class="mb-4">
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">三巨头</p>
-            <div class="space-y-2">
-              <div class="flex items-center gap-2">
-                <span class="text-sm" aria-hidden="true">☀</span>
-                <span class="font-sans text-sm text-ink-dark">太阳 · {{ result.name }}</span>
-                <span class="font-sans text-xs text-ink-medium ml-auto">外在性格</span>
-              </div>
-              <div v-if="result.moonSign" class="flex items-center gap-2">
-                <span class="text-sm" aria-hidden="true">☽</span>
-                <span class="font-sans text-sm text-ink-dark">月亮 · {{ result.moonSign.name }}</span>
-                <span class="font-sans text-xs text-ink-medium ml-auto">内在情感</span>
-              </div>
-              <div v-if="result.risingSign" class="flex items-center gap-2">
-                <span class="text-sm" aria-hidden="true">↑</span>
-                <span class="font-sans text-sm text-ink-dark">上升 · {{ result.risingSign.name }}</span>
-                <span class="font-sans text-xs text-ink-medium ml-auto">社交面具</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Element distribution -->
-          <div v-if="elementBreakdown.length > 0" class="mb-4">
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">元素分布（7颗行星）</p>
-            <div class="space-y-1.5">
-              <div v-for="eb in elementBreakdown" :key="eb.element" class="flex items-center gap-2">
-                <span class="font-sans text-xs text-ink-medium w-8">{{ eb.element }}象</span>
-                <div class="flex-1 h-1.5 bg-ink-dark/6 rounded-full overflow-hidden">
-                  <div
-                    class="h-full rounded-full transition-all duration-500"
-                    :style="{ width: eb.pct + '%', backgroundColor: eb.color }"
-                  />
+              <!-- Planets -->
+              <div class="mb-4">
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">行星符号</p>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  <div v-for="p in planetLegend" :key="p.id" class="flex items-center gap-2">
+                    <span class="text-sm w-6 text-center flex-shrink-0" aria-hidden="true">{{ p.glyph }}</span>
+                    <span class="font-sans text-xs text-ink-medium">{{ p.name }}</span>
+                    <span class="font-sans text-[0.65rem] text-ink-light ml-auto">{{ p.ringLabel }}</span>
+                  </div>
                 </div>
-                <span class="font-sans text-xs text-ink-medium w-12 text-right">{{ eb.count }}颗</span>
+              </div>
+
+              <!-- Aspect lines -->
+              <div class="mb-4">
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">相位线</p>
+                <div class="space-y-1.5">
+                  <div v-for="a in aspectLegend" :key="a.type" class="flex items-center gap-2">
+                    <span
+                      class="w-8 flex-shrink-0"
+                      :class="a.dashed ? 'border-t-2 border-dashed' : 'border-t-2'"
+                      :style="{ borderColor: a.color, opacity: 0.5 }"
+                      aria-hidden="true"
+                    />
+                    <span class="font-sans text-xs text-ink-medium">{{ a.symbol }} {{ a.label }}</span>
+                    <span class="font-sans text-[0.65rem] text-ink-light ml-auto">{{ a.meaning }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rings -->
+              <div class="mb-4">
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">三圈轨道</p>
+                <div class="space-y-1">
+                  <p class="font-sans text-xs text-ink-medium">内圈 → 个人行星（日、月）— 性格内核</p>
+                  <p class="font-sans text-xs text-ink-medium">中圈 → 社会行星（水、金、火）— 日常互动</p>
+                  <p class="font-sans text-xs text-ink-medium">外圈 → 世代行星（木、土）— 时代背景</p>
+                </div>
+              </div>
+
+              <!-- Houses -->
+              <div>
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">12 宫位 · 代表的人生领域</p>
+                <div class="grid grid-cols-3 gap-x-2 gap-y-1">
+                  <p v-for="h in houseNames" :key="h.num" class="font-sans text-[0.72rem] text-ink-medium leading-relaxed">
+                    <span class="text-cinnabar font-medium">{{ h.num }}</span> {{ h.label }}
+                  </p>
+                </div>
               </div>
             </div>
-            <p class="font-sans text-[0.72rem] text-ink-medium mt-2 leading-relaxed">
-              {{ elementConclusion }}
-            </p>
-          </div>
 
-          <!-- House focus -->
-          <div v-if="houseFocus.length > 0" class="mb-4">
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">宫位焦点</p>
-            <div class="flex flex-wrap gap-1.5">
-              <span
-                v-for="hf in houseFocus"
-                :key="hf.house"
-                class="inline-flex items-center px-2 py-1 rounded text-xs font-sans"
-                :class="hf.dominant ? 'bg-cinnabar/10 text-cinnabar border border-cinnabar/20' : 'bg-ink-faint/10 text-ink-medium border border-ink-faint/15'"
-              >
-                第{{ hf.house }}宫 · {{ hf.count }}颗
-              </span>
-            </div>
-          </div>
+            <!-- ═══ Right: Your Chart Summary ═══ -->
+            <div>
+              <h4 class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b border-ink-faint/20">你的星盘速览</h4>
 
-          <!-- Stellium alert -->
-          <div v-if="stelliums.length > 0" class="mb-4 p-3 rounded-lg bg-cinnabar/5 border border-cinnabar/15">
-            <p class="font-sans text-xs text-ink-dark font-medium mb-1">⚠ 群星汇聚</p>
-            <p class="font-sans text-[0.72rem] text-ink-medium leading-relaxed">
-              <template v-for="(s, i) in stelliums" :key="s.label">
-                {{ s.label }}<span v-if="i < stelliums.length - 1">；</span>
-              </template>
-              ——此领域能量高度集中，是你人生的核心舞台。
-            </p>
-          </div>
-
-          <!-- Aspect summary -->
-          <div>
-            <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">相位类型</p>
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-jade-light/40 border border-jade-light/60" aria-hidden="true" />
-                <span class="font-sans text-xs text-ink-medium">和谐 {{ aspectCounts.harmonious }}</span>
+              <!-- Big Three -->
+              <div class="mb-4">
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">三巨头</p>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm" aria-hidden="true">☀</span>
+                    <span class="font-sans text-sm text-ink-dark">太阳 · {{ result.name }}</span>
+                    <span class="font-sans text-xs text-ink-medium ml-auto">外在性格</span>
+                  </div>
+                  <div v-if="result.moonSign" class="flex items-center gap-2">
+                    <span class="text-sm" aria-hidden="true">☽</span>
+                    <span class="font-sans text-sm text-ink-dark">月亮 · {{ result.moonSign.name }}</span>
+                    <span class="font-sans text-xs text-ink-medium ml-auto">内在情感</span>
+                  </div>
+                  <div v-if="result.risingSign" class="flex items-center gap-2">
+                    <span class="text-sm" aria-hidden="true">↑</span>
+                    <span class="font-sans text-sm text-ink-dark">上升 · {{ result.risingSign.name }}</span>
+                    <span class="font-sans text-xs text-ink-medium ml-auto">社交面具</span>
+                  </div>
+                </div>
               </div>
-              <div class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-cinnabar/30 border border-cinnabar/40" aria-hidden="true" />
-                <span class="font-sans text-xs text-ink-medium">紧张 {{ aspectCounts.challenging }}</span>
+
+              <!-- Element distribution -->
+              <div v-if="elementBreakdown.length > 0" class="mb-4">
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">元素分布（7颗行星）</p>
+                <div class="space-y-1.5">
+                  <div v-for="eb in elementBreakdown" :key="eb.element" class="flex items-center gap-2">
+                    <span class="font-sans text-xs text-ink-medium w-8">{{ eb.element }}象</span>
+                    <div class="flex-1 h-1.5 bg-ink-dark/6 rounded-full overflow-hidden">
+                      <div
+                        class="h-full rounded-full transition-all duration-500"
+                        :style="{ width: eb.pct + '%', backgroundColor: eb.color }"
+                      />
+                    </div>
+                    <span class="font-sans text-xs text-ink-medium w-12 text-right">{{ eb.count }}颗</span>
+                  </div>
+                </div>
+                <p class="font-sans text-[0.72rem] text-ink-medium mt-2 leading-relaxed">
+                  {{ elementConclusion }}
+                </p>
+              </div>
+
+              <!-- House focus -->
+              <div v-if="houseFocus.length > 0" class="mb-4">
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">宫位焦点</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <span
+                    v-for="hf in houseFocus"
+                    :key="hf.house"
+                    class="inline-flex items-center px-2 py-1 rounded text-xs font-sans"
+                    :class="hf.dominant ? 'bg-cinnabar/10 text-cinnabar border border-cinnabar/20' : 'bg-ink-faint/10 text-ink-medium border border-ink-faint/15'"
+                  >
+                    第{{ hf.house }}宫 · {{ hf.count }}颗
+                  </span>
+                </div>
+              </div>
+
+              <!-- Stellium alert -->
+              <div v-if="stelliums.length > 0" class="mb-4 p-3 rounded-lg bg-cinnabar/5 border border-cinnabar/15">
+                <p class="font-sans text-xs text-ink-dark font-medium mb-1">⚠ 群星汇聚</p>
+                <p class="font-sans text-[0.72rem] text-ink-medium leading-relaxed">
+                  <template v-for="(s, i) in stelliums" :key="s.label">
+                    {{ s.label }}<span v-if="i < stelliums.length - 1">；</span>
+                  </template>
+                  ——此领域能量高度集中，是你人生的核心舞台。
+                </p>
+              </div>
+
+              <!-- Aspect summary -->
+              <div>
+                <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">相位类型</p>
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-jade-light/40 border border-jade-light/60" aria-hidden="true" />
+                    <span class="font-sans text-xs text-ink-medium">和谐 {{ aspectCounts.harmonious }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-cinnabar/30 border border-cinnabar/40" aria-hidden="true" />
+                    <span class="font-sans text-xs text-ink-medium">紧张 {{ aspectCounts.challenging }}</span>
+                  </div>
+                </div>
+                <p class="font-sans text-[0.72rem] text-ink-medium mt-2 leading-relaxed">
+                  {{ aspectConclusion }}
+                </p>
               </div>
             </div>
-            <p class="font-sans text-[0.72rem] text-ink-medium mt-2 leading-relaxed">
-              {{ aspectConclusion }}
-            </p>
           </div>
         </div>
-      </div>
+      </Transition>
     </div>
   </div>
 </template>
+
+<style scoped>
+.guide-expand-enter-active,
+.guide-expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.guide-expand-enter-from,
+.guide-expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.guide-expand-enter-to,
+.guide-expand-leave-from {
+  max-height: 2000px;
+  opacity: 1;
+}
+</style>
 
 <script setup lang="ts">
 import type { NatalChartData } from '~/composables/useNatalChart'
@@ -205,11 +223,11 @@ const planetLegend = computed(() =>
 // ── Aspect legend ─────────────────────────────────────────────────
 
 const aspectLegend = [
-  { type: 'conjunction', symbol: '☌', label: '合相 · 融合强化', colorLabel: '蓝色（和谐）', lineClass: 'bg-jade-light/60' },
-  { type: 'trine', symbol: '△', label: '三合 · 顺畅助力', colorLabel: '蓝色（和谐）', lineClass: 'bg-jade-light/60' },
-  { type: 'sextile', symbol: '⚹', label: '六合 · 潜在机遇', colorLabel: '虚线（和谐）', lineClass: 'bg-jade-light/40 !bg-dashed' },
-  { type: 'square', symbol: '□', label: '刑相 · 内在张力', colorLabel: '红色（紧张）', lineClass: 'bg-cinnabar/50' },
-  { type: 'opposition', symbol: '☍', label: '对冲 · 两极拉扯', colorLabel: '红色（紧张）', lineClass: 'bg-cinnabar/50' },
+  { type: 'conjunction', symbol: '☌', label: '合相 · 融合强化', meaning: '蓝色（和谐）', color: 'var(--color-jade-light)', dashed: false },
+  { type: 'trine',      symbol: '△', label: '三合 · 顺畅助力', meaning: '蓝色（和谐）', color: 'var(--color-jade-light)', dashed: false },
+  { type: 'sextile',    symbol: '⚹', label: '六合 · 潜在机遇', meaning: '虚线（和谐）', color: 'var(--color-jade-light)', dashed: true  },
+  { type: 'square',     symbol: '□', label: '刑相 · 内在张力', meaning: '红色（紧张）', color: 'var(--color-cinnabar)',  dashed: false },
+  { type: 'opposition', symbol: '☍', label: '对冲 · 两极拉扯', meaning: '红色（紧张）', color: 'var(--color-cinnabar)',  dashed: false },
 ]
 
 // ── House labels ──────────────────────────────────────────────────
@@ -286,7 +304,6 @@ const houseFocus = computed(() => {
 const stelliums = computed(() => {
   const results: Array<{ label: string }> = []
 
-  // Sign stellium: 3+ planets in same zodiac sign
   const signCounts: Record<number, number> = {}
   for (const p of props.data.planets) {
     signCounts[p.signIndex] = (signCounts[p.signIndex] || 0) + 1
@@ -297,7 +314,6 @@ const stelliums = computed(() => {
     }
   }
 
-  // House stellium: 3+ planets in same house
   if (props.data.hasHouses) {
     const houseCounts: Record<number, number> = {}
     for (const p of props.data.planets) {
