@@ -9,37 +9,14 @@
         <p class="font-sans text-sm sm:text-base text-ink-medium mt-1">
           {{ result.dateRange }}
         </p>
-        <div class="flex flex-wrap gap-2 mt-3">
-          <span
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans border"
-            :class="elementBadgeClass(result.element)"
-          >
-            {{ elementLabel(result.element) }}
-          </span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30">
-            守护星 · {{ result.rulingPlanet }}
-          </span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30">
-            幸运色 · {{ result.luckyColor }}
-          </span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30">
-            幸运数字 · {{ result.luckyNumber }}
-          </span>
-          <span
-            v-if="result.moonSign"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-cinnabar/5 text-cinnabar border border-cinnabar/20"
-          >
-            ☽ 月亮 · {{ result.moonSign.name }}
-          </span>
-          <span
-            v-if="result.risingSign"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-gold/5 text-gold border border-gold/20"
-          >
-            ↑ 上升 · {{ result.risingSign.name }}
-          </span>
+        <span
+          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans border mt-3"
+          :class="elementBadgeClass(result.element)"
+        >
+          {{ elementLabel(result.element) }}
+        </span>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
