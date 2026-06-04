@@ -132,7 +132,7 @@ function focusNode(idx: number): void {
 
 <style scoped>
 .timeline-node:focus-visible {
-  outline: 2px solid #C62828;
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
   border-radius: 4px;
 }

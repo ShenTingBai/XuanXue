@@ -242,6 +242,7 @@ async function restoreFromHistory(id: number) {
         result.value = data as ConstellationResult
       } else {
         restoreError.value = '历史记录数据无效'
+        setTimeout(() => { restoreError.value = '' }, 6000)
         return
       }
     }
@@ -249,6 +250,7 @@ async function restoreFromHistory(id: number) {
     restoredFromHistory.value = true
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
+    setTimeout(() => { restoreError.value = '' }, 6000)
   }
 }
 

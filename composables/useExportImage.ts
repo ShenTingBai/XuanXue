@@ -23,6 +23,7 @@ export function useExportImage() {
       return true
     } catch (e) {
       exportError.value = e instanceof Error ? e.message : '导出失败'
+      console.warn('[useExportImage] Export failed:', exportError.value)
       return false
     } finally {
       isExporting.value = false

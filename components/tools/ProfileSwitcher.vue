@@ -33,8 +33,8 @@ async function handleSwitch(profile: ProfileWithFlag) {
   showDropdown.value = false
   if (profile.id === currentProfile.value?.id) return
   switchProfile(profile)
-  // Reload the current page to reflect the new active profile
-  router.go(0)
+  // Navigate to home — page data re-initializes with new profile
+  router.push('/')
 }
 
 async function handleDelete(profile: ProfileWithFlag) {

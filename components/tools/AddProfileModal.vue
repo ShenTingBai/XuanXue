@@ -262,7 +262,7 @@ async function handleSubmit() {
   background: var(--color-cinnabar);
 }
 .sr-only:focus-visible + span {
-  outline: 2px solid #C62828;
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
 }
 
