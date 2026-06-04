@@ -17,6 +17,9 @@ import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
+import { calculateNatalChart } from '~/composables/useNatalChart'
+import NatalChart from '~/components/tools/constellation/NatalChart.vue'
+import type { NatalChartData } from '~/composables/useNatalChart'
 
 useHead({ title: '星座 - 玄学' })
 
@@ -30,6 +33,7 @@ const userZodiacIndex = ref(0)
 const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const saveError = ref('')
+	const natalChartData = ref<NatalChartData | null>(null)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
@@ -84,6 +88,20 @@ function computeResult() {
 
   savedDivinationId.value = null
   saveError.value = ''
+
+  // 计算本命星盘（仅在首次加载时，使用真实出生数据）
+  if (!natalChartData.value && currentProfile.value?.birth_date) {
+    const parsedBirth = parseDate(currentProfile.value.birth_date)
+    if (parsedBirth) {
+      natalChartData.value = calculateNatalChart(
+        parsedBirth.year,
+        parsedBirth.month,
+        parsedBirth.day,
+        currentProfile.value?.birth_hour ?? null,
+        currentProfile.value?.birth_minute ?? null,
+      )
+    }
+  }
   restoreError.value = ''
   restoredFromHistory.value = false
 
@@ -377,6 +395,35 @@ function dismissRestoreError() {
             </div>
           </div>
 
+
+          <!-- ═══ 本命星盘 ═══ -->
+          <div v-if="natalChartData" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
+            <div class="section-header">
+              <h2>本命星盘</h2>
+            </div>
+            <div class="card-warm rounded-xl p-4 sm:p-6 flex justify-center">
+              <NatalChart :data="natalChartData" />
+            </div>
+            <p class="text-center mt-3">
+              <span class="text-[0.6rem] text-ink-light/50 font-sans tracking-wider">
+                ── 基于出生日期计算，Astrolog 标准布局（Asc 左侧 9 点钟方向）──
+              </span>
+            </p>
+          </div>
+
+          <!-- 缺少出生年份时的提示 -->
+          <div v-else-if="!natalChartData && !loading && !error" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
+            <div class="section-header">
+              <h2>本命星盘</h2>
+            </div>
+            <div class="card-warm rounded-xl p-8 text-center opacity-65">
+              <p class="font-sans text-sm text-ink-medium mb-3">需要出生年份以计算行星位置</p>
+              <NuxtLink
+                :to="`/profile/${currentProfile?.id}`"
+                class="text-xs text-cinnabar font-sans underline underline-offset-2"
+              >编辑档案 → 填写完整出生日期</NuxtLink>
+            </div>
+          </div>
           <p class="text-xs text-ink-medium/90 text-center mt-2 mb-1 tracking-wide">
             今日运势、宜忌速览及星盘解读
           </p>
