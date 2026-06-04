@@ -4,6 +4,8 @@
       v-for="(animal, idx) in animals"
       :key="idx"
       @click="$emit('select', idx)"
+      @keydown.enter="$emit('select', idx)"
+      @keydown.space.prevent="$emit('select', idx)"
       :class="[
         'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left',
         idx === currentIndex
@@ -19,6 +21,8 @@
 </template>
 
 <script setup lang="ts">
+import { ANIMALS, BRANCHES } from '~/constants/bazi'
+
 defineProps<{
   currentIndex: number
 }>()
@@ -27,18 +31,11 @@ defineEmits<{
   select: [index: number]
 }>()
 
-const animals = [
-  { name: '鼠', emoji: '🐭', branch: '子' },
-  { name: '牛', emoji: '🐮', branch: '丑' },
-  { name: '虎', emoji: '🐯', branch: '寅' },
-  { name: '兔', emoji: '🐰', branch: '卯' },
-  { name: '龙', emoji: '🐲', branch: '辰' },
-  { name: '蛇', emoji: '🐍', branch: '巳' },
-  { name: '马', emoji: '🐴', branch: '午' },
-  { name: '羊', emoji: '🐑', branch: '未' },
-  { name: '猴', emoji: '🐵', branch: '申' },
-  { name: '鸡', emoji: '🐔', branch: '酉' },
-  { name: '狗', emoji: '🐶', branch: '戌' },
-  { name: '猪', emoji: '🐷', branch: '亥' },
-]
+const ANIMAL_EMOJIS = ['🐭', '🐮', '🐯', '🐰', '🐲', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷']
+
+const animals = ANIMALS.map((name, i) => ({
+  name,
+  emoji: ANIMAL_EMOJIS[i],
+  branch: BRANCHES[i],
+}))
 </script>

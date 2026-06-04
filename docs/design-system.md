@@ -373,6 +373,54 @@
 | `InkDivider` | `components/tools/InkDivider.vue` | 墨韵分割线 |
 | `PageHero` | `components/tools/PageHero.vue` | 页面标题区 |
 
+### 4.8 导航
+
+#### `nav-link` — 桌面导航链接
+
+```html
+<nav aria-label="命理工具导航">
+  <NuxtLink
+    v-for="item in tools"
+    :to="item.route"
+    :class="['nav-link', { 'nav-link--active': isActive }]"
+    :aria-current="isActive ? 'page' : undefined"
+  >
+    <span>{{ item.name }}</span>
+  </NuxtLink>
+</nav>
+```
+
+- 定义在 `assets/css/main.css`，`@apply` Tailwind 类
+- 闲置：`ink-medium` 文字，透明底，`rounded-lg`，`px-2.5 py-2`
+- hover：文字变 `cinnabar`，浅朱砂底 `rgba(198,40,40,0.05)`
+- active：缩至 97%
+- **`nav-link--active`**：文字 `cinnabar`，底 `rgba(198,40,40,0.08)`
+- **`nav-link--locked`**：50% 透明度，`pointer-events: none`，`cursor: default`
+- 激活态**必须**同时使用 `:aria-current="'page'"`，不能仅靠 CSS 类
+
+#### `mobile-nav-item` — 移动端抽屉导航项
+
+```html
+<NuxtLink
+  :to="item.route"
+  :class="['mobile-nav-item', { 'mobile-nav-item--active': isActive }]"
+  :aria-current="isActive ? 'page' : undefined"
+  @click="closeDrawer"
+>
+  <span>{{ item.name }}</span>
+  <svg><!-- 箭头图标 --></svg>
+</NuxtLink>
+```
+
+- 定义在 `layouts/default.vue` `<style scoped>` 中
+- 闲置：`ink-medium` 文字，`rounded-lg`，`px-3.5 py-2.5`，flex 布局
+- hover：`cinnabar` 文字 + 浅朱砂底 `rgba(198,40,40,0.04)`
+- active：缩至 98%
+- **`mobile-nav-item--active`**：文字 `cinnabar`，底 `rgba(198,40,40,0.06)`，`font-weight: 500`
+- **`mobile-nav-item--locked`**：60% 透明度，`cursor: default`，hover 不触发效果
+- 激活态**必须**同时使用 `:aria-current="'page'"`
+- 可用作 `<button>`（登出等操作）或 `<NuxtLink>`（页面跳转）
+
 ---
 
 ## 5. 布局系统
