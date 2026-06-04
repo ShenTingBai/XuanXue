@@ -8,7 +8,7 @@
       @keydown.enter="$emit('select', idx)"
       @keydown.space.prevent="$emit('select', idx)"
       :class="[
-        'flex items-center gap-2.5 px-4 py-3 rounded-r-lg text-sm transition-colors w-full text-left border-l-2',
+        'flex items-center gap-3 px-5 py-3.5 rounded-r-lg text-base transition-colors w-full text-left border-l-2',
         idx === currentIndex
           ? 'border-l-cinnabar bg-cinnabar/6 text-cinnabar font-medium'
           : 'border-l-transparent text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
@@ -42,9 +42,9 @@ defineEmits<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 0.8125rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.9375rem;
   color: var(--color-ink-medium);
   transition: color 0.2s ease;
 }

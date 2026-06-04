@@ -8,7 +8,7 @@
       @keydown.enter="$emit('select', idx)"
       @keydown.space.prevent="$emit('select', idx)"
       :class="[
-        'flex items-center gap-2.5 px-4 py-3 rounded-r-lg text-sm transition-colors w-full text-left border-l-2',
+        'flex items-center gap-3 px-5 py-3.5 rounded-r-lg text-base transition-colors w-full text-left border-l-2',
         idx === currentIndex
           ? 'border-l-cinnabar bg-cinnabar/6 text-cinnabar font-medium'
           : 'border-l-transparent text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
@@ -47,14 +47,14 @@ const animals = ANIMALS.map((name, i) => ({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 2px;
   border: 1px solid rgba(44, 26, 14, 0.12);
   background: rgba(44, 26, 14, 0.02);
   color: var(--color-ink-medium);
   font-family: var(--font-display);
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   transition: all 0.2s ease;
 }
 
