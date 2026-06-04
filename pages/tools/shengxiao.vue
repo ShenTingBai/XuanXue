@@ -288,13 +288,13 @@ async function restoreFromHistory(id: number) {
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->
-          <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.25s' }">
+          <div class="fade-in card-warm rounded-xl mt-6 p-8 pb-0" :style="{ '--delay': '0.25s' }">
             <div class="section-header section-header--tool">
               <span class="bar" aria-hidden="true"></span>
               <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">幸</span>
               <h2>幸运信息</h2>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <h4 class="font-sans text-ink-medium text-sm mb-2">幸运数字</h4>
                 <p class="font-sans text-ink-dark text-lg">{{ result.lucky.numbers.join('、') }}</p>
@@ -312,21 +312,19 @@ async function restoreFromHistory(id: number) {
 
           <PersonalityCard :result="result" />
 
-          <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
+          <div class="fade-in card-warm rounded-xl mt-6 p-8 pb-0" :style="{ '--delay': '0.35s' }">
             <div class="section-header section-header--tool section-header--tool-light">
               <span class="bar" aria-hidden="true"></span>
               <h2>{{ currentYear }}年流年运势</h2>
             </div>
-            <div class="p-8">
-              <FortuneBars
-                :items="[
-                  { label: '事业', score: result.fortune.career.score },
-                  { label: '财运', score: result.fortune.wealth.score },
-                  { label: '感情', score: result.fortune.love.score },
-                  { label: '健康', score: result.fortune.health.score },
-                ]"
-              />
-            </div>
+            <FortuneBars
+              :items="[
+                { label: '事业', score: result.fortune.career.score },
+                { label: '财运', score: result.fortune.wealth.score },
+                { label: '感情', score: result.fortune.love.score },
+                { label: '健康', score: result.fortune.health.score },
+              ]"
+            />
           </div>
 
           <CompatibilityGrid :items="result.compatibility" />

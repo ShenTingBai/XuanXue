@@ -21,23 +21,40 @@
           </span>
         </div>
 
-        <!-- TaiSui relationship -->
-        <div class="flex flex-wrap gap-2 mt-4">
-          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-sans border"
-            :class="taiSuiBadgeClass(result.taiSuiRelationships.positive)">
-            <span aria-hidden="true">{{ taiSuiIcon(result.taiSuiRelationships.positive) }}</span>
-            {{ result.taiSuiRelationships.currentYear }}年太岁：{{ result.taiSuiRelationships.positive }}
-          </span>
-          <span v-if="result.taiSuiRelationships.negative !== '平'"
-            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-sans border"
-            :class="taiSuiBadgeClass(result.taiSuiRelationships.negative)">
-            <span aria-hidden="true">{{ taiSuiIcon(result.taiSuiRelationships.negative) }}</span>
-            {{ result.taiSuiRelationships.currentYear }}年太岁：{{ result.taiSuiRelationships.negative }}
-          </span>
+        <!-- TaiSui annotation — almanac-style seal + commentary -->
+        <div class="mt-5 pt-4 border-t border-ink-faint/15">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <!-- Seal stamp -->
+            <div
+              class="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-sm flex items-center justify-center font-display text-[10px] sm:text-xs leading-none tracking-[0.15em] select-none"
+              :class="taiSuiSealClass(relations.primary)"
+            >
+              太岁
+            </div>
+            <!-- Annotation body -->
+            <div class="min-w-0 pt-0.5">
+              <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span
+                  class="font-display text-lg sm:text-xl leading-none"
+                  :class="taiSuiRelationClass(relations.primary)"
+                >
+                  {{ relations.primary }}
+                </span>
+                <span class="font-sans text-[11px] text-ink-light/60 tracking-wider">
+                  {{ relations.currentYear }}年 · 太岁批注
+                </span>
+              </div>
+              <p class="font-sans text-xs sm:text-sm text-ink-medium/90 mt-1.5 leading-relaxed">
+                {{ taiSuiInterpretation(relations.primary) }}
+              </p>
+              <!-- Secondary positive note when negative dominates -->
+              <p v-if="relations.secondary"
+                class="font-sans text-[11px] text-jade/70 mt-1.5 leading-relaxed italic">
+                另得{{ relations.secondary }}之助
+              </p>
+            </div>
+          </div>
         </div>
-        <p class="font-sans text-xs text-ink-light/80 mt-2 leading-relaxed max-w-md">
-          {{ taiSuiInterpretation(result.taiSuiRelationships.positive, result.taiSuiRelationships.negative) }}
-        </p>
       </div>
     </div>
   </div>
@@ -46,46 +63,49 @@
 <script setup lang="ts">
 import type { ShengXiaoResult } from '~/composables/useShengXiao'
 
-defineProps<{
+const props = defineProps<{
   result: ShengXiaoResult
 }>()
 
 const AUSPICIOUS_RELATIONS = new Set(['三合', '六合'])
 
 const TAI_SUI_INTERPRETATIONS: Record<string, string> = {
-  '三合': '与太岁三合，贵人运旺，诸事顺遂，宜积极拓展、把握机遇。',
-  '六合': '与太岁六合，人缘佳、合作顺，易得助力，利人际与感情。',
-  '值太岁': '本命年值太岁，运势波动大，宜守不宜攻，凡事三思后行。',
-  '冲太岁': '与太岁相冲，易生大变（搬家、换工作、关系变动），谨言慎行。',
-  '刑太岁': '与太岁相刑，防口舌是非、合同纠纷，待人宜宽、处事宜稳。',
-  '害太岁': '与太岁相害，防小人暗算、误会中伤，重要事务亲自确认。',
-  '破太岁': '与太岁相破，有小破财、计划受阻之象，但影响较轻，细心可解。',
-  '平': '与太岁平和，无大起大落，按部就班即可。',
+  '三合': '与太岁三合，贵人运旺，诸事顺遂。宜积极拓展、把握机遇，可望有大成。',
+  '六合': '与太岁六合，人缘佳、合作顺。易得贵人提携，利人际与感情，百事亨通。',
+  '值太岁': '本命年值太岁，所谓"太岁当头坐，无喜必有祸"。运势波动较大，宜守不宜攻，凡事三思后行。',
+  '冲太岁': '与太岁相冲，易生大变——迁居、换职、关系动荡。谨言慎行，方可平稳过渡。',
+  '刑太岁': '与太岁相刑，防口舌是非、合同纠纷。待人宜宽、处事宜稳，莫争一时之气。',
+  '害太岁': '与太岁相害，防小人暗算、误会中伤。重要事务亲自确认，勿轻信他人。',
+  '破太岁': '与太岁相破，有小破财、计划受阻之象。影响较轻，细心谨慎即可化解。',
+  '平': '与太岁平和，无大起大落。按部就班，静水流深，亦是福气。',
 }
 
-function taiSuiBadgeClass(relation: string): string {
+/** Derive primary (more impactful) and secondary TaiSui relation labels */
+const relations = computed(() => {
+  const { positive, negative } = props.result.taiSuiRelationships
+  const primary = negative !== '平' ? negative : positive
+  const secondary = negative !== '平' && positive !== '平' ? positive : null
+  return { primary, secondary, currentYear: props.result.taiSuiRelationships.currentYear }
+})
+
+function taiSuiSealClass(relation: string): string {
   if (AUSPICIOUS_RELATIONS.has(relation)) {
-    return 'border-jade/30 text-jade bg-jade/5'
+    return 'border-2 border-jade/40 text-jade bg-jade/[0.06]'
   }
   if (relation === '平') {
-    return 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
+    return 'border-2 border-ink-faint/25 text-ink-light bg-ink-faint/8'
   }
-  return 'border-cinnabar/30 text-cinnabar bg-cinnabar/5'
+  return 'border-2 border-cinnabar/40 text-cinnabar bg-cinnabar/[0.06]'
 }
 
-function taiSuiIcon(relation: string): string {
-  if (AUSPICIOUS_RELATIONS.has(relation)) return '✦'
-  if (relation === '平') return '·'
-  return '⚠'
+function taiSuiRelationClass(relation: string): string {
+  if (AUSPICIOUS_RELATIONS.has(relation)) return 'text-jade'
+  if (relation === '平') return 'text-ink-light'
+  return 'text-cinnabar'
 }
 
-function taiSuiInterpretation(positive: string, negative: string): string {
-  // If there's a negative relationship, show its interpretation (more impactful)
-  if (negative !== '平') {
-    return TAI_SUI_INTERPRETATIONS[negative] || ''
-  }
-  // Otherwise show the positive one
-  return TAI_SUI_INTERPRETATIONS[positive] || ''
+function taiSuiInterpretation(relation: string): string {
+  return TAI_SUI_INTERPRETATIONS[relation] || ''
 }
 
 function badgeClass(wuXing: string): string {
