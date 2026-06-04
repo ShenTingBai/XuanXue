@@ -37,7 +37,9 @@ const showHistoryModal = ref(false)
 const saveError = ref('')
 	const natalChartData = ref<NatalChartData | null>(null)
 const chartTextCopied = ref(false)
+const chartTextTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const restoreError = ref('')
+const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
@@ -53,7 +55,8 @@ async function copyChartText() {
   const text = serializeNatalChart(natalChartData.value)
   await navigator.clipboard.writeText(text)
   chartTextCopied.value = true
-  setTimeout(() => { chartTextCopied.value = false }, 2000)
+  if (chartTextTimer.value) clearTimeout(chartTextTimer.value)
+  chartTextTimer.value = setTimeout(() => { chartTextCopied.value = false }, 2000)
 }
 
 function handleExport() {
@@ -94,6 +97,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+  if (chartTextTimer.value) clearTimeout(chartTextTimer.value)
 })
 
 function computeResult() {
@@ -242,7 +247,8 @@ async function restoreFromHistory(id: number) {
         result.value = data as ConstellationResult
       } else {
         restoreError.value = '历史记录数据无效'
-        setTimeout(() => { restoreError.value = '' }, 6000)
+        if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+        restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
         return
       }
     }
@@ -250,7 +256,8 @@ async function restoreFromHistory(id: number) {
     restoredFromHistory.value = true
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
-    setTimeout(() => { restoreError.value = '' }, 6000)
+    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
   }
 }
 

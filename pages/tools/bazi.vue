@@ -43,6 +43,7 @@ const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
 const showHistoryModal = ref(false)
 const restoreError = ref('')
+const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const restoredFromHistory = ref(false)
 const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
@@ -93,8 +94,11 @@ function updateScrollTopOffset() {
 }
 
 let sectionObserver: IntersectionObserver | null = null
+let observeTimer: ReturnType<typeof setTimeout> | null = null
 
 onUnmounted(() => {
+  if (observeTimer) clearTimeout(observeTimer)
+  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
   if (sectionObserver) sectionObserver.disconnect()
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', updateScrollTopOffset)
@@ -139,7 +143,7 @@ onMounted(() => {
       { threshold: [0.3, 0.5, 0.7] },
     )
     // Observe all sections after a short delay to let DOM render
-    setTimeout(() => {
+    observeTimer = setTimeout(() => {
       for (const id of Object.values(sectionMap)) {
         const el = document.getElementById(id)
         if (el) sectionObserver!.observe(el)
@@ -327,10 +331,12 @@ async function restoreFromHistory(id: number) {
       }
     }
     restoreError.value = '历史记录数据无效'
-    setTimeout(() => { restoreError.value = '' }, 6000)
+    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
-    setTimeout(() => { restoreError.value = '' }, 6000)
+    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
+    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
   }
 }
 

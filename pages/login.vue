@@ -12,6 +12,7 @@ const expiredNote = ref('')
 const loading = ref(false)
 const isLogin = ref(true)
 const showPin = ref(false)
+const expiredTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 onMounted(() => {
   restoreSession()
@@ -22,8 +23,12 @@ onMounted(() => {
   if (route.query.expired === '1') {
     expiredNote.value = '登录已过期，请重新登录'
     // Clean URL after a moment so refresh doesn't show it again
-    setTimeout(() => router.replace('/login'), 100)
+    expiredTimer.value = setTimeout(() => router.replace('/login'), 100)
   }
+})
+
+onUnmounted(() => {
+  if (expiredTimer.value) clearTimeout(expiredTimer.value)
 })
 
 const switchMode = () => {

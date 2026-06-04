@@ -41,7 +41,7 @@ const isDisabled = computed(() => props.isExporting || !props.targetRef)
       <span>导出中...</span>
     </span>
     <span v-else-if="showSuccess">✓ 已保存</span>
-    <span v-else>
+    <span v-else class="flex items-center gap-1">
       <svg class="export-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M3 11v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

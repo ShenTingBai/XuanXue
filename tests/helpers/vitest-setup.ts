@@ -1,1 +1,3 @@
-// Vitest global setup — currently empty, placeholder for future test helpers
+import 'dotenv/config'
+
+// Vitest global setup — loads .env for server-side tests

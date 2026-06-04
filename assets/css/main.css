@@ -1088,19 +1088,21 @@ html {
 }
 
 /* ── Fade In Animation ── */
+/* NOTE: keyframe must NOT animate `transform` — a non-none computed `transform`
+   creates a CSS containing block that breaks every `position: fixed` descendant
+   (tooltips, dropdowns, etc.).  `will-change: opacity` alone is safe. */
 @keyframes fadeIn {
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @layer utilities {
   .fade-in {
-    opacity: 0; transform: translateY(12px);
+    opacity: 0;
     animation: fadeIn var(--transition-slow) forwards;
     animation-delay: var(--delay, 0s);
-    will-change: opacity, transform;
+    will-change: opacity;
   }
 }
 
