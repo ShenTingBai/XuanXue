@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "astronomy-engine": "^2.1.19",
     "iztro": "^2.5.8",
     "lunar-javascript": "^1.7.7",
     "sql.js": "^1.11.0"
