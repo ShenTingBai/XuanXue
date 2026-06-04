@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements, getWeightedDayMasterStrength, getSeasonalAdjustment } from '../../composables/useBaZi'
+import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements, getWeightedDayMasterStrength, getSeasonalAdjustment, getPillarInterpretation } from '../../composables/useBaZi'
 import type { BaZiPillar } from '../../composables/useBaZi'
 import { STEMS } from '../../constants/bazi'
 
@@ -321,6 +321,33 @@ describe('calculateBaZi', () => {
     expect(firstCycle.stemTenGod).not.toBe('日主')
     const validTenGods = ['比肩', '劫财', '食神', '伤官', '偏财', '正财', '偏官', '正官', '偏印', '正印']
     expect(validTenGods).toContain(firstCycle.stemTenGod)
+  })
+})
+
+// ============================================================================
+// T0: Pillar Interpretations
+// ============================================================================
+
+describe('getPillarInterpretation', () => {
+  it('年柱七杀 → returns interpretation', () => {
+    const text = getPillarInterpretation('庚', '七杀', '年柱', '火', '金')
+    expect(text).toContain('祖上根基')
+    expect(text.length).toBeGreaterThan(5)
+  })
+
+  it('月柱正印 → returns interpretation', () => {
+    const text = getPillarInterpretation('癸', '正印', '月柱', '水', '火')
+    expect(text).toContain('正印')
+  })
+
+  it('日柱 → uses special format', () => {
+    const text = getPillarInterpretation('甲', '日主', '日柱', '木', '木')
+    expect(text).toContain('自身造化')
+  })
+
+  it('时柱食神 → returns interpretation', () => {
+    const text = getPillarInterpretation('戊', '食神', '时柱', '金', '火')
+    expect(text).toContain('食神泄秀')
   })
 })
 

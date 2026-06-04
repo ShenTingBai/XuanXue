@@ -32,6 +32,7 @@ export interface BaZiPillar {
   hiddenStems: HiddenStem[]
   stemWuxing: string
   branchWuxing: string
+  interpretation?: string
 }
 
 export interface DaYunCycle {
@@ -135,6 +136,75 @@ export function getTenGod(dayMasterIndex: number, targetStem: string): string {
   const targetIndex = getStemIndex(targetStem)
   if (targetIndex < 0) return '—'
   return TEN_GOD_MATRIX[dayMasterIndex][targetIndex]
+}
+
+// === Pillar Interpretation Lookup Tables ===
+
+/** 天干特性 */
+const STEM_TRAITS: Record<string, string> = {
+  '甲': '甲木参天',
+  '乙': '乙木柔韧',
+  '丙': '丙火猛烈',
+  '丁': '丁火柔中',
+  '戊': '戊土厚重',
+  '己': '己土肥沃',
+  '庚': '庚金刚锐',
+  '辛': '辛金秀气',
+  '壬': '壬水汪洋',
+  '癸': '癸水至阴',
+}
+
+/** 十神心性 */
+const TEN_GOD_TRAITS: Record<string, string> = {
+  '正官': '正官护身',
+  '七杀': '七杀攻身',
+  '正印': '正印护持',
+  '偏印': '偏印生身',
+  '比肩': '比肩助力',
+  '劫财': '劫财相扶',
+  '食神': '食神泄秀',
+  '伤官': '伤官吐秀',
+  '正财': '正财稳进',
+  '偏财': '偏财横发',
+}
+
+/** 柱位语境 */
+const PILLAR_CONTEXT: Record<string, string> = {
+  '年柱': '祖上根基',
+  '月柱': '父母荫庇',
+  '日柱': '自身造化',
+  '时柱': '晚年归宿',
+}
+
+/**
+ * Generate a one-line pillar interpretation using rule templates.
+ * Combines stem character + ten god nature + pillar position context.
+ */
+export function getPillarInterpretation(
+  stem: string,
+  tenGod: string,
+  pillarName: string,
+  branchWuxing: string,
+  dayMasterWuxing: string,
+): string {
+  // 日柱 gets special treatment
+  if (pillarName === '日柱') {
+    return `${STEM_TRAITS[stem] || stem + '干'}，${PILLAR_CONTEXT['日柱']}。`
+  }
+
+  const stemPart = STEM_TRAITS[stem] || `${stem}干`
+  const tenGodPart = TEN_GOD_TRAITS[tenGod] || ''
+
+  // Check for root (通根) — if branch has same wuxing as stem
+  const hasRoot = branchWuxing === dayMasterWuxing || branchWuxing === WUXING_STEM[stem]
+
+  // Build the sentence
+  const parts: string[] = [stemPart]
+  if (tenGodPart) parts.push(tenGodPart)
+  if (hasRoot) parts.push('通根有力')
+  parts.push(PILLAR_CONTEXT[pillarName])
+
+  return parts.join('，') + '。'
 }
 
 /** Determine if a year's stem is 阳 (yang) */
@@ -631,6 +701,15 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   // Day master
   const dayMaster = STEMS[dayStemIndex]
   const dayMasterWuxing = WUXING_STEM[dayMaster]
+
+  // Pillar interpretations
+  yearPillar.interpretation = getPillarInterpretation(yearPillar.stem, yearPillar.stemTenGod, '年柱', yearPillar.branchWuxing, dayMasterWuxing)
+  monthPillar.interpretation = getPillarInterpretation(monthPillar.stem, monthPillar.stemTenGod, '月柱', monthPillar.branchWuxing, dayMasterWuxing)
+  dayPillar.interpretation = getPillarInterpretation(dayPillar.stem, dayPillar.stemTenGod, '日柱', dayPillar.branchWuxing, dayMasterWuxing)
+  if (hourPillar) {
+    hourPillar.interpretation = getPillarInterpretation(hourPillar.stem, hourPillar.stemTenGod, '时柱', hourPillar.branchWuxing, dayMasterWuxing)
+  }
+
   const dayMasterStrength = getWeightedDayMasterStrength(dayMasterWuxing, pillars)
   const [favorableElements, unfavorableElements] = getFavorableElements(dayMasterWuxing, dayMasterStrength, monthBranchIndex)
 
