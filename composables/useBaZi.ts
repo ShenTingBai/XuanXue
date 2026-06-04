@@ -230,7 +230,7 @@ function getHourStemStart(dayStemIndex: number): number {
  * Scoring per factor:
  *   Same wuxing as day master → +1
  *   Generates day master (生我) → +0.5
- *   Controls day master (克我) → -0.5
+ *   Controls day master (克我) → -1.5
  *
  * Wuxing cycle: 木→火→土→金→水→木 (indices 0-4).
  * Standard relationships:
