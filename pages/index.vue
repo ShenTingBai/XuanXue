@@ -6,6 +6,7 @@ import { STEMS, BRANCHES, getAnimal } from '~/constants/bazi'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
+import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 
 const SOLAR_TERM_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒']
 
@@ -399,21 +400,66 @@ const goToLogin = () => {
     <!-- ════════════════════════════════════ -->
     <template v-if="sessionReady && currentProfile">
       <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10">
-        <!-- Greeting -->
-        <div class="mb-12 sm:mb-16 anim-rise">
-          <div class="flex flex-col items-start gap-3">
-            <div class="flex items-center gap-4">
-              <span class="hidden sm:block w-6 h-px" style="background:linear-gradient(to right, rgba(156,26,28,0.4), transparent);" aria-hidden="true" />
-              <h1 class="font-display text-4xl sm:text-5xl" style="color:var(--color-ink);letter-spacing:0.05em;">
-                {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{ currentProfile.nickname }}</span>
-              </h1>
+        <!-- ═══ Left/Right 50/50: Greeting + 今日玄机 ✦ 今日命签 ═══ -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16">
+          <!-- ── Left column: Greeting (top) + Today's Mystery (bottom), equal height ── -->
+          <div class="flex flex-col gap-4 sm:gap-6">
+            <!-- Top half: Greeting -->
+            <div class="flex-1 min-h-0 anim-rise">
+              <div class="flex flex-col items-start justify-center h-full gap-2 sm:gap-3">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <span
+                    class="hidden sm:block w-6 h-px flex-shrink-0"
+                    style="background:linear-gradient(to right, rgba(156,26,28,0.4), transparent);"
+                    aria-hidden="true"
+                  />
+                  <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl" style="color:var(--color-ink);letter-spacing:0.05em;">
+                    {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{ currentProfile.nickname }}</span>
+                  </h1>
+                  <!-- 岁次 seal -->
+                  <span
+                    class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[0.5rem] tracking-[0.15em] text-ink-faint/60 border border-ink-faint/10 font-sans"
+                    style="transform:rotate(-1deg);"
+                  >{{ todayAstro?.yearGanZhi || '' }}</span>
+                </div>
+                <div class="flex items-center gap-3 ml-0 sm:ml-10">
+                  <span
+                    class="seal-icon"
+                    style="width:26px;height:26px;font-size:10px;border-radius:3px;"
+                    aria-hidden="true"
+                  >玄</span>
+                  <p class="ui" style="font-size:13px;color:var(--color-ink-light);letter-spacing:0.15em;">
+                    {{ greeting.subtitle }}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div class="flex items-center gap-3 ml-0 sm:ml-10">
-              <span class="seal-icon" style="width:28px;height:28px;font-size:11px;" aria-hidden="true">玄</span>
-              <p class="ui" style="font-size:14px;color:var(--color-ink-light);letter-spacing:0.15em;">
-                {{ greeting.subtitle }}
-              </p>
+
+            <!-- Bottom half: 今日玄机 -->
+            <div class="flex-1 min-h-0 anim-rise" style="--delay:0.1s">
+              <div class="talisman-card h-full flex flex-col items-center justify-center text-center" aria-label="今日黄历">
+                <span class="absolute top-3 left-3 text-[1rem] opacity-15" style="color:#C62828;" aria-hidden="true">☰</span>
+                <span class="absolute top-3 right-3 text-[1rem] opacity-15" style="color:#C62828;" aria-hidden="true">☷</span>
+                <template v-if="todayAstro">
+                  <span class="talisman-seal--sm mb-2" aria-hidden="true">玄</span>
+                  <p class="talisman-lunar-date">{{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}</p>
+                  <p class="talisman-gregorian">{{ todayAstro.dateStr }} · 星期{{ todayAstro.weekday }}</p>
+                  <div class="flex items-center justify-center gap-3 mb-1.5">
+                    <span class="talisman-ganzhi">{{ todayAstro.yearGanZhi }}年</span>
+                    <span class="w-px h-2 bg-ink-faint/20" aria-hidden="true"></span>
+                    <span class="talisman-ganzhi">{{ todayAstro.monthGanZhi }}月</span>
+                  </div>
+                  <div v-if="todayAstro.solarTerm" class="talisman-term-badge">
+                    · {{ todayAstro.solarTerm }} ·
+                  </div>
+                </template>
+              </div>
             </div>
+          </div>
+
+          <!-- ── Right column: Fortune stick, full height ── -->
+          <div class="anim-rise" style="--delay:0.2s">
+            <DailyFortuneStick tall class="w-full h-full" />
           </div>
         </div>
 
@@ -485,6 +531,20 @@ const goToLogin = () => {
   background: var(--color-cinnabar);
   transform: rotate(-3deg);
   margin-bottom: 1rem;
+}
+.talisman-seal--sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 2px;
+  background: var(--color-cinnabar);
+  transform: rotate(-3deg);
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  color: var(--color-paper-lightest);
 }
 .talisman-lunar-date {
   font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
