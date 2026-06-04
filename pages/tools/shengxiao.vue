@@ -20,6 +20,8 @@ import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
+import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
+import type { TaiSuiRelation } from '~/constants/tai-sui'
 
 useHead({ title: '生肖 - 玄学' })
 
@@ -113,6 +115,12 @@ function selectAnimal(index: number) {
 }
 
 const currentYear = computed(() => new Date().getFullYear())
+
+const primaryRelation = computed<TaiSuiRelation>(() => {
+  if (!result.value) return '平'
+  const { negative, positive } = result.value.taiSuiRelationships
+  return (negative !== '平' ? negative : positive) as TaiSuiRelation
+})
 
 function scrollToAnimalNav() {
   const el = document.querySelector('[data-animal-nav]')
@@ -323,6 +331,16 @@ async function restoreFromHistory(id: number) {
               ]"
             />
           </div>
+
+          <!-- 化太岁 -->
+          <TaiSuiMitigation
+            v-if="result"
+            :birth-year="result.year"
+            :current-year="currentYear"
+            :relation="primaryRelation"
+            :positive="result.taiSuiRelationships.positive"
+            :negative="result.taiSuiRelationships.negative"
+          />
 
           <CompatibilityGrid :items="result.compatibility" />
 
