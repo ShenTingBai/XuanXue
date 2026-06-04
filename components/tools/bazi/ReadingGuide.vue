@@ -1,8 +1,6 @@
 <template>
   <div id="reading-guide" class="mb-8 p-8 rounded-xl card-warm border border-cinnabar/15 scroll-mt-20" tabindex="-1">
-    <div class="section-header section-header--tool">
-      <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">命</span>
+    <div class="section-header">
       <h2>命理速览</h2>
     </div>
     <p class="font-sans text-xs text-ink-light mb-5">本结果为算法推演，仅供参考，不能替代专业命理师分析。</p>

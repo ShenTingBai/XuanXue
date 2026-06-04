@@ -38,7 +38,6 @@ const shenShaList = ref<ShenSha[]>([])
 const liuNianYears = ref<LiuNianYear[]>([])
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
-const showSaveErrorToast = ref(false)
 const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
@@ -175,10 +174,11 @@ function computeResult() {
   liuNianYears.value = []
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
+  restoredFromHistory.value = false
+  restoreError.value = ''
 
   const parsed = parseDate(currentProfile.value.birth_date)
-  if (!parsed) { loading.value = false; return }
+  if (!parsed) { error.value = '出生日期格式无效，请修改个人信息'; loading.value = false; return }
   const { year, month, day } = parsed
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
@@ -256,14 +256,14 @@ async function saveDivinationResult(
       saveError.value = ''
     }
   } catch (e: unknown) {
-    saveError.value = e instanceof Error ? e.message : '保存失败'
-    savedDivinationId.value = null
-    showSaveErrorToast.value = true
+    // 429 handled globally by auth-interceptor; 401 redirects there too
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 429) return // auto-save is best-effort; rate limit is expected
+      if (code === 401) return // global interceptor handles logout + redirect
+    }
+    console.error('保存历史记录失败:', e)
   }
-}
-
-function dismissSaveErrorToast() {
-  showSaveErrorToast.value = false
 }
 
 function dismissRestoreError() {
@@ -461,37 +461,23 @@ function onSectionNavigate(sectionName: string) {
               @history="showHistoryModal = true"
             />
 
-            <!-- Save error toast -->
-            <Transition name="toast">
-              <div
-                v-if="showSaveErrorToast"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
-                role="alert"
-              >
-                <span>{{ saveError }}</span>
-                <button
-                  @click="dismissSaveErrorToast"
-                  @keydown.enter="dismissSaveErrorToast"
-                  @keydown.space.prevent="dismissSaveErrorToast"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
-                  aria-label="关闭提示"
-                >&times;</button>
-              </div>
-            </Transition>
+            <!-- Save error toast — auto-save is fire-and-forget, failures are silent -->
+
 
             <!-- Restore error toast -->
             <Transition name="toast">
               <div
                 v-if="restoreError"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                class="toast-notification"
                 role="alert"
               >
-                <span>{{ restoreError }}</span>
+                <span class="toast-notification__mark" aria-hidden="true">!</span>
+                <span class="toast-notification__text">{{ restoreError }}</span>
                 <button
                   @click="dismissRestoreError"
                   @keydown.enter="dismissRestoreError"
                   @keydown.space.prevent="dismissRestoreError"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="toast-notification__close"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>

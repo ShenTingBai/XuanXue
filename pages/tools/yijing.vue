@@ -24,6 +24,16 @@
           <SkeletonCard />
         </div>
 
+        <!-- Error -->
+        <div v-else-if="error" class="text-center py-16">
+          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+          <div class="flex justify-center mt-6">
+            <button @click="handleReset" class="btn-cin">
+              <span>重新起卦</span>
+            </button>
+          </div>
+        </div>
+
         <div aria-live="polite" role="status" class="sr-only">
           <span v-if="processing">解卦中，请稍候</span>
           <span v-else-if="result">卦象已就绪</span>
@@ -60,9 +70,7 @@
           </div>
         </Transition>
 
-        <div v-if="result && !processing" class="section-header section-header--tool">
-          <span class="bar" aria-hidden="true"></span>
-          <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+        <div v-if="result && !processing" class="section-header">
           <h2>占卜结果</h2>
         </div>
 
@@ -70,23 +78,7 @@
         <div ref="resultSection" v-if="result && !processing" class="mt-8">
           <YijingInterpretation :result="result" :score="score" />
 
-          <!-- Auto-save placeholder -->
-          <Transition name="toast">
-            <div
-              v-if="showSaveErrorToast"
-              class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
-              role="alert"
-            >
-              <span>{{ saveError }}</span>
-              <button
-                @click="showSaveErrorToast = false"
-                @keydown.enter="showSaveErrorToast = false"
-                @keydown.space.prevent="showSaveErrorToast = false"
-                class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
-                aria-label="关闭提示"
-              >&times;</button>
-            </div>
-          </Transition>
+          <!-- Auto-save is fire-and-forget, failures are silent -->
 
           <!-- Reset -->
           <div class="text-center mt-6 pb-8">
@@ -143,8 +135,7 @@ const currentToss = ref(0)
 const result = ref<YijingResult | null>(null)
 const score = ref(0)
 const processing = ref(false)
-const saveError = ref('')
-const showSaveErrorToast = ref(false)
+const error = ref('')
 const showScrollTop = ref(false)
 const showResetConfirm = ref(false)
 const showHistoryModal = ref(false)
@@ -205,7 +196,7 @@ function handleCoinAutoResult() {
       // Silent auto-save placeholder
       tryAutoSave(values, yijingResult)
     } catch (err) {
-      saveError.value = '解卦出错，请重新尝试。'
+      error.value = '解卦出错，请重新尝试。'
     } finally {
       processing.value = false
       nextTick(() => {
@@ -236,7 +227,7 @@ function handleCastNumber(data: { first: number; second: number; third: number }
 
       tryAutoSave(values, yijingResult)
     } catch (err) {
-      saveError.value = '解卦出错，请检查输入后重新尝试。'
+      error.value = '解卦出错，请检查输入后重新尝试。'
     } finally {
       processing.value = false
       nextTick(() => {
@@ -317,7 +308,7 @@ function handleReset() {
   result.value = null
   score.value = 0
   processing.value = false
-  saveError.value = ''
+  error.value = ''
   showResetConfirm.value = false
 }
 
@@ -403,16 +394,13 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
       },
     })
   } catch (e: unknown) {
-    // 401/429: stale session or rate-limited, suppress
+    // 401/429: global interceptor handles 401 logout + redirect
     if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as any).statusCode
-      if (code === 401 || code === 429) {
-        if (code === 401) console.warn('[yijing] Save failed: session expired')
-        return
-      }
+      if (code === 401) return
+      if (code === 429) return // auto-save is best-effort; rate limit is expected
     }
-    saveError.value = '保存失败，历史记录可能不完整'
-    showSaveErrorToast.value = true
+    console.error('保存历史记录失败:', e)
   }
 }
 

@@ -25,9 +25,21 @@
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30">
             幸运数字 · {{ result.luckyNumber }}
           </span>
-        </div>
+          <span
+            v-if="result.moonSign"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-cinnabar/5 text-cinnabar border border-cinnabar/20"
+          >
+            ☽ 月亮 · {{ result.moonSign.name }}
+          </span>
+          <span
+            v-if="result.risingSign"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-gold/5 text-gold border border-gold/20"
+          >
+            ↑ 上升 · {{ result.risingSign.name }}
+          </span>
       </div>
     </div>
+  </div>
   </div>
 </template>
 

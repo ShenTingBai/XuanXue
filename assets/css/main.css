@@ -721,46 +721,49 @@ html {
     transform: translateY(-2px);
   }
 
-  /* ── 分区标题（朱砂短横 + 文字） ── */
+  /* ── 分区标题（朱丝栏书眉） ── */
   .section-header {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    margin-bottom: 1.75rem;
+    position: relative;
+    padding-top: 10px;
+    margin-bottom: 1.5rem;
   }
-  .section-header .bar {
-    width: 24px;
-    height: 2px;
-    background: rgba(156,26,28,0.12);
-    flex-shrink: 0;
+  /* 朱丝栏上线 */
+  .section-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(156,26,28,0.08);
+    pointer-events: none;
   }
   .section-header h2 {
-    color: var(--color-ink-medium);
-    font-size: 0.6875rem;
-    letter-spacing: 0.5em;
-    font-weight: 400;
-  }
-  .section-header--tool h2 {
+    position: relative;
+    display: inline-block;
     font-family: var(--font-display);
     font-size: 1.125rem;
     color: var(--color-ink);
-    letter-spacing: 0.2em;
+    letter-spacing: 0.3em;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.35;
+  }
+  /* 朱砂批注点 */
+  .section-header h2::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -7px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(156,26,28,0.12);
+    pointer-events: none;
   }
   @media (min-width: 640px) {
-    .section-header--tool h2 {
+    .section-header h2 {
       font-size: 1.25rem;
-    }
-  }
-
-  .section-header--tool-light h2 {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    color: var(--color-ink-medium);
-    letter-spacing: 0.2em;
-  }
-  @media (min-width: 640px) {
-    .section-header--tool-light h2 {
-      font-size: 1.125rem;
     }
   }
 
@@ -1220,15 +1223,78 @@ a:focus-visible {
   transform: scaleY(1);
 }
 
-/* ── Toast Transition ── */
+/* ── Fixed Toast Notification ── */
+.toast-notification {
+  position: fixed;
+  top: 1.5rem;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 60;
+  width: calc(100% - 2rem);
+  max-width: 36rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--color-paper-lightest);
+  border: 1px solid rgba(156,26,28,0.15);
+  border-left: 4px solid var(--color-cinnabar);
+  box-shadow: 0 8px 32px rgba(44,24,16,0.12);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.toast-notification__mark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-cinnabar);
+  color: var(--color-paper-lightest);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  line-height: 1;
+}
+.toast-notification__text {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  line-height: 1.45;
+}
+.toast-notification__close {
+  flex-shrink: 0;
+  padding: 0.375rem;
+  color: var(--color-ink-light);
+  font-size: 1.125rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.toast-notification__close:hover {
+  color: var(--color-cinnabar);
+}
+
+/* ── Toast Transition (fixed) ── */
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.35s ease;
 }
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-12px);
+}
+.toast-enter-to,
+.toast-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── Reduced Motion ── */

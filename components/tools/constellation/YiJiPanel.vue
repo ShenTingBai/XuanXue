@@ -1,7 +1,6 @@
 <template>
-  <div class="fade-in mb-6" :style="{ '--delay': '0.25s' }">
-    <div class="section-header section-header--tool section-header--tool-light">
-      <span class="bar" aria-hidden="true"></span>
+  <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.25s' }">
+    <div class="section-header">
       <h2>今日宜忌</h2>
     </div>
 

@@ -3,10 +3,12 @@ useHead({ title: '登录 - 玄学' })
 
 const { login, register, restoreSession, currentProfile } = useAuth()
 const router = useRouter()
+const route = useRoute()
 
 const nickname = ref('')
 const pin = ref('')
 const error = ref('')
+const expiredNote = ref('')
 const loading = ref(false)
 const isLogin = ref(true)
 const showPin = ref(false)
@@ -15,6 +17,12 @@ onMounted(() => {
   restoreSession()
   if (currentProfile.value) {
     router.push('/')
+    return
+  }
+  if (route.query.expired === '1') {
+    expiredNote.value = '登录已过期，请重新登录'
+    // Clean URL after a moment so refresh doesn't show it again
+    setTimeout(() => router.replace('/login'), 100)
   }
 })
 
@@ -57,7 +65,7 @@ const submit = async () => {
       router.push(`/profile/${currentProfile.value?.id}?onboarding=true`)
     }
   } catch (e: any) {
-    error.value = e?.data?.statusMessage || e?.message || '操作失败'
+    error.value = e?.data?.statusMessage || '登录失败，请检查网络连接后重试'
   } finally {
     loading.value = false
   }
@@ -129,7 +137,19 @@ const submit = async () => {
           </button>
         </div>
 
-        <!-- Error -->
+        <!-- Session expired notification -->
+        <Transition name="fade">
+          <div
+            v-if="expiredNote"
+            class="mb-6 px-4 py-3 rounded-lg bg-gold/8 border border-gold/20 text-ink-dark text-sm flex items-center gap-2.5"
+            role="alert"
+          >
+            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold/25 flex items-center justify-center text-gold text-[10px] font-bold">!</span>
+            <span>{{ expiredNote }}</span>
+          </div>
+        </Transition>
+
+        <!-- Form error -->
         <Transition name="fade">
           <div
             v-if="error"

@@ -178,4 +178,56 @@ describe('calculateConstellation', () => {
       expect(lastGreat).toBeLessThan(firstGood)
     }
   })
+
+  it('returns moonSign when birthYear is provided', () => {
+    const result = calculateConstellation(7, 1, new Date('2026-05-25'), 1990)
+    expect(result.moonSign).toBeDefined()
+    expect(result.moonSign!.name).toBeTruthy()
+    expect(result.moonSign!.symbol).toBeTruthy()
+    expect(result.moonSign!.interpretation).toBeTruthy()
+    expect(result.moonSign!.interpretation.length).toBeGreaterThan(10)
+  })
+
+  it('moonSign is undefined when birthYear is omitted', () => {
+    const result = calculateConstellation(7, 1, new Date('2026-05-25'))
+    expect(result.moonSign).toBeUndefined()
+  })
+
+  it('moonSign interpretation matches moon sign name', () => {
+    const result = calculateConstellation(9, 15, new Date('2026-05-25'), 1990)
+    expect(result.moonSign).toBeDefined()
+    // Interpretation text should mention the moon sign name
+    expect(result.moonSign!.interpretation).toContain(result.moonSign!.name)
+  })
+
+  it('returns risingSign when birthHour is provided', () => {
+    // birth date is July 1 → pass same month/day for natal calculations
+    const result = calculateConstellation(7, 1, new Date('2026-05-25'), 1990, 7, 1, 7, 30)
+    expect(result.risingSign).toBeDefined()
+    expect(result.risingSign!.name).toBeTruthy()
+    expect(result.risingSign!.symbol).toBeTruthy()
+    expect(result.risingSign!.interpretation).toBeTruthy()
+    expect(result.risingSign!.interpretation.length).toBeGreaterThan(5)
+  })
+
+  it('risingSign is undefined when birthHour is null', () => {
+    const result = calculateConstellation(7, 1, new Date('2026-05-25'), 1990, 7, 1, null, null)
+    expect(result.risingSign).toBeUndefined()
+  })
+
+  it('risingSign uses minute=30 midpoint when no minute provided', () => {
+    const withMinute = calculateConstellation(7, 1, new Date('2026-05-25'), 1990, 7, 1, 7, 30)
+    const withoutMinute = calculateConstellation(7, 1, new Date('2026-05-25'), 1990, 7, 1, 7)
+    expect(withMinute.risingSign).toBeDefined()
+    expect(withoutMinute.risingSign).toBeDefined()
+    // Both should give the same result since minute=30 is the default midpoint
+    expect(withMinute.risingSign!.name).toBe(withoutMinute.risingSign!.name)
+  })
+
+  it('returns deterministic rising sign for same inputs', () => {
+    const a = calculateConstellation(5, 15, new Date('2026-05-25'), 1990, 5, 15, 13, 45)
+    const b = calculateConstellation(5, 15, new Date('2026-05-25'), 1990, 5, 15, 13, 45)
+    expect(a.risingSign!.name).toBe(b.risingSign!.name)
+    expect(a.risingSign!.interpretation).toBe(b.risingSign!.interpretation)
+  })
 })

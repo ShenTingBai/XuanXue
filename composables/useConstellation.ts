@@ -24,6 +24,20 @@ export interface ConstellationResult {
     level: 'great' | 'good' | 'bad'
     label: string
   }>
+  /** 月亮星座（出生时月亮所在星座），仅在提供出生年份时计算 */
+  moonSign?: {
+    name: string
+    symbol: string
+    /** 月亮星座的解读文本——描述内在情感特质 */
+    interpretation: string
+  }
+  /** 上升星座（出生时东方地平线升起的星座），仅在提供出生时辰时计算 */
+  risingSign?: {
+    name: string
+    symbol: string
+    /** 上升星座的解读文本——描述外在社交形象 */
+    interpretation: string
+  }
 }
 
 // ── Zodiac Data ──────────────────────────────────────────────
@@ -176,6 +190,40 @@ export const ZODIACS: ZodiacEntry[] = [
     personality: '浪漫梦幻，富有想象力和艺术天赋，温柔善良，具有强烈的共情能力。',
   },
 ]
+
+// ── Moon Sign Interpretations ──────────────────────────────
+
+const MOON_INTERPRETATIONS: Record<string, string> = {
+  '白羊座': '月亮在白羊座时，情绪如烈火般炽烈直接。喜怒形于色，不耐等待，内心住着一个永远长不大的孩子——想要就要立刻得到，生气就当场爆发。这种赤子之心让你格外真实，但也容易因冲动而后悔。',
+  '金牛座': '月亮在金牛座，内心渴望稳定与安全感。情绪需要缓慢释放，突如其来的变化让你不安。感官享受——美食、音乐、触感——是你最好的情绪充电方式。一旦被触怒，你会展现出令人惊讶的固执。',
+  '双子座': '月亮在双子座，情绪如风般多变。内心充满好奇，无聊是最大的情绪杀手。不开心的事聊一聊就过去了，总是在不同想法之间跳跃。你需要精神上的新鲜感来维持情绪平衡。',
+  '巨蟹座': '月亮在巨蟹座，这是月亮入庙之位。情绪如潮汐般深邃敏感，共情力极强，家庭观念深重。家是你的安全港湾，回忆是你情绪的锚点。易被他人情绪感染，需学会在情感上设立边界。',
+  '狮子座': '月亮在狮子座，内心骄傲而热烈。你需要被关注、被赞美、被看见。情绪表达如同舞台剧——高兴时光芒万丈，受伤时也带着戏剧性的优雅。自尊心是你最敏感的情绪开关。',
+  '处女座': '月亮在处女座，情绪被理性层层过滤。你习惯在内心默默分析一切，连情绪都要归类整理。通过做具体的事情来消化情绪，对自己和他人皆有要求。这份挑剔背后是深深的责任感。',
+  '天秤座': '月亮在天秤座，内心追求和谐与美感。厌恶冲突与粗鲁，情绪表达优雅而克制。做决定是你最煎熬的事——因为你在意每个人的感受。需要学会接受不完美但足够好的选择。',
+  '天蝎座': '月亮在天蝎座，这是月亮落陷之位。情感如深海般浓烈复杂，爱憎分明，绝不肤浅。直觉惊人，能敏锐察觉他人隐藏的动机。情绪记忆极为深刻，最惧被信任之人背叛。',
+  '射手座': '月亮在射手座，内心向往辽阔的自由。乐观是你的防御机制——用对未来的期待化解当下的不愉快。你讨厌被情绪束缚，不开心了就想出去走走。需要空间来维持情绪健康。',
+  '摩羯座': '月亮在摩羯座，这是月亮失势之位。情绪表达对你来说是件困难的事，习惯将情感深埋心底，用理性与成就武装自己。真正的坚韧不是永不倒下，而是懂得在脆弱时求助。',
+  '水瓶座': '月亮在水瓶座，情绪以疏离和理性著称。内心有种超然的冷静，即使在情绪波动中也能抽身观察自己。需要精神共鸣远胜情感依赖，自由对你来说比什么都重要。',
+  '双鱼座': '月亮在双鱼座，情绪的海洋没有边界。共情能力惊人，内心世界浪漫而梦幻，艺术与想象是你最好的情绪出口。需学会保护自身能量场——不是每个人的痛苦你都需要去承担。',
+}
+
+// ── Rising Sign Interpretations ────────────────────────────
+
+const RISING_INTERPRETATIONS: Record<string, string> = {
+  '白羊座': '你给人的第一印象是积极直接、充满活力。行事风风火火，带着一种天真无畏的气场，让人觉得你很有冲劲和行动力。',
+  '金牛座': '你给人的第一印象是稳重可靠、踏实从容。气质沉稳温和，让人感到安心和信赖，有时也显得固执己见、不轻易改变。',
+  '双子座': '你给人的第一印象是机智健谈、反应灵敏。善于交际，话题丰富多变，让人觉得你聪明有趣，偶尔显得不够深入。',
+  '巨蟹座': '你给人的第一印象是温和友善、容易亲近。气质柔和有礼，让人不自觉地想向你倾诉，有着天然的亲和力与包容感。',
+  '狮子座': '你给人的第一印象是自信大方、气场强大。举止间带着几分王者风范，让人不自觉地被你的存在吸引和感染。',
+  '处女座': '你给人的第一印象是严谨得体、细致周到。做事有条不紊，谈吐逻辑清晰，让人觉得你可靠专业，也带着一丝距离感。',
+  '天秤座': '你给人的第一印象是优雅迷人、彬彬有礼。言谈举止得体大方，审美品味出众，和你相处让人感到舒适愉悦。',
+  '天蝎座': '你给人的第一印象是深沉神秘、难以捉摸。眼神和气质中透着一种内敛的力量，让人对你既好奇又不敢轻易靠近。',
+  '射手座': '你给人的第一印象是开朗乐观、热情直率。笑容和言谈充满感染力，让人觉得你是一个有趣又真诚的伙伴。',
+  '摩羯座': '你给人的第一印象是沉稳干练、成熟可靠。气质端正，行事稳重，举手投足间透着一种值得信赖的分量感。',
+  '水瓶座': '你给人的第一印象是独特前卫、不拘一格。言谈举止透着与众不同的气质，让人觉得你是个有想法、有意思的人。',
+  '双鱼座': '你给人的第一印象是温柔浪漫、富有艺术气质。眼神中带着梦幻的色彩，让人觉得你善良敏感，容易激起保护欲。',
+}
 
 // ── Yi/Ji Items ──────────────────────────────────────────────
 
@@ -471,20 +519,122 @@ function formatDateRange(z: ZodiacEntry): string {
   return `${z.startMonth}月${z.startDay}日 — ${z.endMonth}月${z.endDay}日`
 }
 
+/**
+ * Calculate the natal moon sign — the zodiac constellation the Moon was in
+ * at the moment of birth. Uses simplified mean lunar longitude.
+ *
+ * @param year - Birth year
+ * @param month - Birth month (1-12)
+ * @param day - Birth day (1-31)
+ * @returns The moon's zodiac sign name and symbol, or undefined if year is missing
+ */
+export function getMoonSign(year: number | undefined, month: number, day: number): { name: string; symbol: string } | undefined {
+  if (year === undefined || year === null) return undefined
+  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined
+  const birthDate = new Date(year, month - 1, day, 12, 0, 0)
+  const days = daysSinceJ2000(birthDate)
+  const moonLon = lunarLongitude(days)
+  const signIndex = getSignFromLongitude(moonLon)
+  return {
+    name: ZODIACS[signIndex].name,
+    symbol: ZODIACS[signIndex].symbol,
+  }
+}
+
+/**
+ * Calculate the rising sign (ascendant) — the zodiac sign rising on the eastern
+ * horizon at the moment of birth. Uses a simplified astronomical formula.
+ *
+ * Without birth location, assumes UTC+8 (longitude 120°E) and latitude 35°N
+ * (roughly central China). Results are approximate and may shift by one sign
+ * near sign boundaries or for extreme latitudes.
+ *
+ * @param birthYear - Birth year
+ * @param birthMonth - Birth month (1-12)
+ * @param birthDay - Birth day (1-31)
+ * @param birthHour - Birth hour (时辰 starting hour, or null if unknown)
+ * @param birthMinute - Birth minute (optional, defaults to midpoint of 时辰)
+ * @returns Rising sign with name, symbol, and interpretation, or null if no birth hour
+ */
+export function getRisingSign(
+  birthYear: number,
+  birthMonth: number,
+  birthDay: number,
+  birthHour: number | null | undefined,
+  birthMinute: number | null | undefined,
+): { name: string; symbol: string; interpretation: string } | null {
+  if (birthHour === null || birthHour === undefined) return null
+  if (birthYear < 1900 || birthYear > 2100) return null
+  if (birthMonth < 1 || birthMonth > 12 || birthDay < 1 || birthDay > 31) return null
+
+  // Use the midpoint of the 时辰 (2-hour period) if minute is not provided
+  const hour = birthHour
+  const minute = birthMinute ?? 30
+
+  // Convert local time (assumed UTC+8) to UTC for sidereal time calculation
+  const utcDate = new Date(Date.UTC(birthYear, birthMonth - 1, birthDay, hour - 8, minute, 0))
+
+  // Days since J2000.0 epoch (2000-01-01 12:00 UTC)
+  const epoch = Date.UTC(2000, 0, 1, 12, 0, 0)
+  const d = (utcDate.getTime() - epoch) / 86400000
+
+  // Greenwich Mean Sidereal Time (degrees)
+  const gmst = ((280.46061837 + 360.98564736629 * d) % 360 + 360) % 360
+
+  // Local Sidereal Time for assumed longitude (UTC+8 central meridian = 120°E)
+  const LST = ((gmst + 120) % 360 + 360) % 360
+
+  // Obliquity of the ecliptic (approx)
+  const eps = 23.4393 * Math.PI / 180
+
+  // Assumed latitude (~35°N, roughly central China)
+  const lat = 35 * Math.PI / 180
+
+  // Ascendant formula (Meeus, Astronomical Algorithms):
+  // tan(ASC) = -cos(LST) / (sin(LST) · cos(ε) + tan(φ) · sin(ε))
+  // Implemented as atan2(+cos, -denom) per standard quadrant convention
+  // to derive the eastern horizon point (ascendant), not the descendant.
+  const lstRad = LST * Math.PI / 180
+  const ascRad = Math.atan2(
+    Math.cos(lstRad),
+    -(Math.sin(lstRad) * Math.cos(eps) + Math.tan(lat) * Math.sin(eps)),
+  )
+  const ascDeg = ((ascRad * 180 / Math.PI) + 360) % 360
+
+  const signIndex = Math.floor(ascDeg / 30) % 12
+  const sign = ZODIACS[signIndex]
+
+  return {
+    name: sign.name,
+    symbol: sign.symbol,
+    interpretation: RISING_INTERPRETATIONS[sign.name] || '',
+  }
+}
+
 // ── Main Function ────────────────────────────────────────────
 
 /**
  * Calculate constellation information for a given birth month/day.
  *
- * @param month - Birth month (1-12)
- * @param day - Birth day (1-31)
+ * @param month - Birth month (1-12) for sun sign display
+ * @param day - Birth day (1-31) for sun sign display
  * @param currentDate - Optional date for horoscope calculation. Defaults to today.
+ * @param birthYear - Optional birth year for natal moon/rising sign calculation.
+ * @param birthMonth - Optional actual birth month for natal calculations (defaults to `month`)
+ * @param birthDay - Optional actual birth day for natal calculations (defaults to `day`)
+ * @param birthHour - Optional birth hour (时辰 starting hour) for rising sign.
+ * @param birthMinute - Optional birth minute for rising sign precision.
  * @returns Complete constellation result with horoscope, compatibility, Yi/Ji, etc.
  */
 export function calculateConstellation(
   month: number,
   day: number,
   currentDate?: Date,
+  birthYear?: number,
+  birthMonth?: number,
+  birthDay?: number,
+  birthHour?: number | null,
+  birthMinute?: number | null,
 ): ConstellationResult {
   if (month < 1 || month > 12) {
     throw new RangeError(`Invalid month: ${month}. Month must be between 1 and 12.`)
@@ -500,6 +650,16 @@ export function calculateConstellation(
   const { todayYi, todayJi } = pickYiJi(horoscope.overall)
   const compatibility = computeConstellationCompat(index)
 
+  // ── 月亮星座（始终用真实出生日期计算） ──
+  const natalMonth = birthMonth ?? month
+  const natalDay = birthDay ?? day
+  const moonSign = getMoonSign(birthYear, natalMonth, natalDay)
+
+  // ── 上升星座 ──
+  const risingSign = birthYear !== undefined
+    ? getRisingSign(birthYear, natalMonth, natalDay, birthHour ?? null, birthMinute ?? null)
+    : null
+
   return {
     name: zodiac.name,
     symbol: zodiac.symbol,
@@ -513,5 +673,9 @@ export function calculateConstellation(
     todayYi,
     todayJi,
     compatibility,
+    moonSign: moonSign
+      ? { ...moonSign, interpretation: MOON_INTERPRETATIONS[moonSign.name] || '' }
+      : undefined,
+    risingSign: risingSign ?? undefined,
   }
 }

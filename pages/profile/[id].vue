@@ -220,7 +220,7 @@ const saveProfile = async () => {
     if (successTimeout) clearTimeout(successTimeout)
     successTimeout = setTimeout(() => { success.value = false }, 2500)
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : '保存失败'
+    error.value = (e as any)?.data?.statusMessage || '保存失败，请稍后再试'
   } finally {
     saving.value = false
   }
@@ -276,7 +276,7 @@ const saveProfile = async () => {
       </div>
 
       <!-- ═══ Onboarding hint ═══ -->
-      <Transition name="toast">
+      <Transition name="fade">
         <div
           v-if="isOnboarding"
           class="card-warm rounded-xl p-5 mb-10 flex items-start gap-4 anim-rise"
@@ -289,7 +289,7 @@ const saveProfile = async () => {
       </Transition>
 
       <!-- ═══ Success toast ═══ -->
-      <Transition name="toast">
+      <Transition name="fade">
         <div
           v-if="success"
           role="status"
@@ -321,7 +321,7 @@ const saveProfile = async () => {
       </div>
 
       <!-- ═══ Error alert ═══ -->
-      <Transition name="toast">
+      <Transition name="fade">
         <div
           v-if="error"
           class="card-warm rounded-xl p-4 mb-8 flex items-center gap-3 border border-cinnabar/15"

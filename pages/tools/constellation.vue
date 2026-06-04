@@ -23,11 +23,13 @@ useHead({ title: '星座 - 玄学' })
 const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
+const error = ref('')
 const selectedZodiac = ref(0)
+/** The user's actual birth zodiac index — immutable by exploration */
+const userZodiacIndex = ref(0)
 const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const saveError = ref('')
-const showSaveErrorToast = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
@@ -69,38 +71,64 @@ onUnmounted(() => {
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
   loading.value = true
+  error.value = ''
 
   const parsed = parseDate(currentProfile.value.birth_date)
-  if (!parsed) { loading.value = false; return }
-  const { month, day } = parsed
+  if (!parsed) { error.value = '出生日期格式无效，请修改个人信息'; loading.value = false; return }
+  const { year, month, day } = parsed
 
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
   restoreError.value = ''
   restoredFromHistory.value = false
 
-  result.value = calculateConstellation(month, day, new Date())
-  selectedZodiac.value = getZodiacIndex(month, day)
-  saveDivinationResult(result.value, month, day)
+  try {
+    result.value = calculateConstellation(
+      month, day, new Date(), year,
+      month, day,
+      currentProfile.value?.birth_hour,
+      currentProfile.value?.birth_minute,
+    )
+    userZodiacIndex.value = getZodiacIndex(month, day)
+    selectedZodiac.value = userZodiacIndex.value
+    saveDivinationResult(result.value, month, day)
+  } catch {
+    error.value = '计算星座出错，请稍后重试'
+  }
   loading.value = false
 }
 
 function selectZodiac(index: number) {
   selectedZodiac.value = index
   loading.value = true
+  error.value = ''
 
   const month = ZODIACS[index].startMonth
   const day = ZODIACS[index].startDay
+  // Parse actual birth date for natal moon/rising sign (never re-derive from exploration date)
+  const parsedBirth = currentProfile.value?.birth_date
+    ? parseDate(currentProfile.value.birth_date)
+    : undefined
+  const birthYear = parsedBirth?.year
+  const birthMonth = parsedBirth?.month
+  const birthDay = parsedBirth?.day
 
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
   restoreError.value = ''
   restoredFromHistory.value = false
 
-  result.value = calculateConstellation(month, day, new Date())
-  saveDivinationResult(result.value, month, day)
+  try {
+    result.value = calculateConstellation(
+      month, day, new Date(), birthYear,
+      birthMonth, birthDay,
+      currentProfile.value?.birth_hour,
+      currentProfile.value?.birth_minute,
+    )
+    saveDivinationResult(result.value, month, day)
+  } catch {
+    error.value = '计算星座出错，请稍后重试'
+  }
   loading.value = false
 }
 
@@ -142,14 +170,14 @@ async function saveDivinationResult(result: ConstellationResult, month: number, 
       saveError.value = ''
     }
   } catch (e: unknown) {
-    saveError.value = e instanceof Error ? e.message : '保存失败'
-    savedDivinationId.value = null
-    showSaveErrorToast.value = true
+    // 429 handled globally by auth-interceptor; 401 redirects there too
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 429) return // auto-save is best-effort; rate limit is expected
+      if (code === 401) return // global interceptor handles logout + redirect
+    }
+    console.error('保存历史记录失败:', e)
   }
-}
-
-function dismissSaveErrorToast() {
-  showSaveErrorToast.value = false
 }
 
 
@@ -237,6 +265,19 @@ function dismissRestoreError() {
           <SkeletonBars />
         </div>
 
+        <!-- Error -->
+        <div v-else-if="error" class="text-center py-16">
+          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+          <div class="flex justify-center mt-6">
+            <NuxtLink
+              :to="`/profile/${currentProfile?.id}`"
+              class="btn-cin inline-flex"
+            >
+              <span>前往编辑档案</span>
+            </NuxtLink>
+          </div>
+        </div>
+
         <!-- Result -->
         <template v-else-if="result">
           <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
@@ -246,45 +287,93 @@ function dismissRestoreError() {
               @history="showHistoryModal = true"
             />
 
-            <!-- Save error toast -->
-            <Transition name="toast">
-              <div
-                v-if="showSaveErrorToast"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
-                role="alert"
-              >
-                <span>{{ saveError }}</span>
-                <button
-                  @click="dismissSaveErrorToast"
-                  @keydown.enter="dismissSaveErrorToast"
-                  @keydown.space.prevent="dismissSaveErrorToast"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
-                  aria-label="关闭提示"
-                >&times;</button>
-              </div>
-            </Transition>
-
             <!-- Restore error toast -->
             <Transition name="toast">
               <div
                 v-if="restoreError"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                class="toast-notification"
                 role="alert"
               >
-                <span>{{ restoreError }}</span>
+                <span class="toast-notification__mark" aria-hidden="true">!</span>
+                <span class="toast-notification__text">{{ restoreError }}</span>
                 <button
                   @click="dismissRestoreError"
                   @keydown.enter="dismissRestoreError"
                   @keydown.space.prevent="dismissRestoreError"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="toast-notification__close"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>
             </Transition>
           <ConstellationHero :result="result" />
 
-          <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
-            今日运势、宜忌速览及星座性格特征
+          <!-- ═══ 三垣 · 星盘 ═══ -->
+          <div class="fade-in mt-8 mb-6" role="group" aria-labelledby="sanyuan-heading" :style="{ '--delay': '0.15s' }">
+            <div class="section-header">
+              <h2 id="sanyuan-heading">三垣 · 星盘</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <!-- ☀ 太阳 — 外在性格 -->
+              <div class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-jade/15 fade-in" :style="{ '--delay': '0.2s' }">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xl flex-shrink-0" aria-hidden="true">☀</span>
+                  <span class="font-display text-base text-ink tracking-wide">太阳 · {{ result.name }}</span>
+                </div>
+                <span class="text-xs text-ink-light font-sans tracking-wider mb-2">外在性格 · 你展现给世界的样子</span>
+                <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.personality }}</p>
+              </div>
+
+              <!-- ☽ 月亮 — 内在情感（有数据） -->
+              <div v-if="result.moonSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-cinnabar/15 fade-in" :style="{ '--delay': '0.25s' }">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xl flex-shrink-0" aria-hidden="true">☽</span>
+                  <span class="font-display text-base text-ink tracking-wide">月亮 · {{ result.moonSign.name }}</span>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6rem] font-sans tracking-wider border border-cinnabar/15 text-cinnabar/55 bg-cinnabar/3 ml-auto">本命盘</span>
+                </div>
+                <span class="text-xs text-ink-light font-sans tracking-wider mb-2">内在情感 · 你真实的情绪底色</span>
+                <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.moonSign.interpretation }}</p>
+                <p class="text-[0.6rem] text-ink-light/50 font-sans mt-1.5 leading-relaxed border-t border-ink-faint/20 pt-1.5">
+                  ⓘ 基于月球平黄经（±5°精度），边界日期可能偏移
+                </p>
+              </div>
+              <!-- ☽ 月亮（缺数据） -->
+              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 border-cinnabar/10 fade-in" :style="{ '--delay': '0.25s' }">
+                <span class="text-xl mb-1" aria-hidden="true">☽</span>
+                <span class="font-display text-sm text-ink-light">月亮 · 缺出生年份</span>
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">编辑档案 → 填写出生年份及日期</NuxtLink>
+              </div>
+
+              <!-- ↑ 上升 — 社交面具（有数据） -->
+              <div v-if="result.risingSign" class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-gold/20 fade-in" :style="{ '--delay': '0.3s' }">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xl flex-shrink-0" aria-hidden="true">↑</span>
+                  <span class="font-display text-base text-ink tracking-wide">上升 · {{ result.risingSign.name }}</span>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6rem] font-sans tracking-wider border border-gold/15 text-gold/55 bg-gold/3 ml-auto">本命盘</span>
+                </div>
+                <span class="text-xs text-ink-light font-sans tracking-wider mb-2">社交面具 · 你给别人的第一印象</span>
+                <p class="text-xs sm:text-sm text-ink-medium font-sans leading-relaxed flex-1">{{ result.risingSign.interpretation }}</p>
+                <p class="text-[0.6rem] text-ink-light/50 font-sans mt-1.5 leading-relaxed border-t border-ink-faint/20 pt-1.5">
+                  ⓘ 假定中国时区（UTC+8/北纬35°），结果近似
+                </p>
+              </div>
+              <!-- ↑ 上升（缺数据） -->
+              <div v-else class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 border-gold/15 fade-in" :style="{ '--delay': '0.3s' }">
+                <span class="text-xl mb-1" aria-hidden="true">↑</span>
+                <span class="font-display text-sm text-ink-light">上升 · 缺出生时辰</span>
+                <NuxtLink :to="`/profile/${currentProfile?.id}`" class="text-xs text-cinnabar font-sans underline underline-offset-2 mt-2">编辑档案 → 填写出生时辰（子丑寅卯…）</NuxtLink>
+              </div>
+            </div>
+
+            <!-- 探索模式脚注 -->
+            <div v-if="selectedZodiac !== userZodiacIndex" class="text-center mt-3">
+              <p class="text-[0.6rem] text-ink-light/45 font-sans tracking-wider">
+                ── 月亮与上升基于您的出生数据，不随探索星座改变 ──
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-ink-medium/90 text-center mt-2 mb-1 tracking-wide">
+            今日运势、宜忌速览及星盘解读
           </p>
 
 
@@ -292,25 +381,9 @@ function dismissRestoreError() {
 
           <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
 
-          <!-- Personality -->
-          <div class="fade-in mb-6" :style="{ '--delay': '0.35s' }">
-            <div class="section-header section-header--tool">
-              <span class="bar" aria-hidden="true"></span>
-              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">性</span>
-              <h2>性格特征</h2>
-            </div>
-            <div class="card-warm rounded-xl p-5">
-              <p class="font-sans text-sm text-ink-medium leading-relaxed">
-                {{ result.personality }}
-              </p>
-            </div>
-          </div>
-
           <!-- Compatibility -->
-          <div class="fade-in mb-6" :style="{ '--delay': '0.45s' }">
-            <div class="section-header section-header--tool">
-              <span class="bar" aria-hidden="true"></span>
-              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">配</span>
+          <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.45s' }">
+            <div class="section-header">
               <h2>速配星座</h2>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">

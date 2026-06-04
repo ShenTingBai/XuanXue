@@ -26,10 +26,10 @@ useHead({ title: '生肖 - 玄学' })
 const result = ref<ShengXiaoResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
+const error = ref('')
 const selectedAnimal = ref<number | null>(null)
 const savedDivinationId = ref<number | null>(null)
 const saveError = ref('')
-const showSaveErrorToast = ref(false)
 const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
@@ -73,14 +73,16 @@ function computeResult() {
   if (!currentProfile.value?.birth_date) return
 
   loading.value = true
+  error.value = ''
   const parsed = parseDate(currentProfile.value.birth_date)
-  if (!parsed) { loading.value = false; return }
+  if (!parsed) { error.value = '出生日期格式无效，请修改个人信息'; loading.value = false; return }
   const year = parsed.year
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
+  restoredFromHistory.value = false
+  restoreError.value = ''
 
   result.value = calculateShengXiao(year, new Date())
   selectedAnimal.value = getAnimalIndex(year)
@@ -92,6 +94,7 @@ function selectAnimal(index: number) {
   if (!currentProfile.value?.birth_date) return
   selectedAnimal.value = index
   loading.value = true
+  error.value = ''
 
   const currentYear = new Date().getFullYear()
   const currentAnimalIdx = getAnimalIndex(currentYear)
@@ -101,7 +104,8 @@ function selectAnimal(index: number) {
 
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
+  restoredFromHistory.value = false
+  restoreError.value = ''
 
   result.value = calculateShengXiao(representativeYear, new Date())
   saveDivinationResult(result.value, representativeYear, calendar)
@@ -135,14 +139,14 @@ async function saveDivinationResult(result: ShengXiaoResult, representativeYear:
       saveError.value = ''
     }
   } catch (e: unknown) {
-    saveError.value = e instanceof Error ? e.message : '保存失败'
-    savedDivinationId.value = null
-    showSaveErrorToast.value = true
+    // 429 handled globally by auth-interceptor; 401 redirects there too
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 429) return // auto-save is best-effort; rate limit is expected
+      if (code === 401) return // global interceptor handles logout + redirect
+    }
+    console.error('保存历史记录失败:', e)
   }
-}
-
-function dismissSaveErrorToast() {
-  showSaveErrorToast.value = false
 }
 
 function dismissRestoreError() {
@@ -234,6 +238,19 @@ async function restoreFromHistory(id: number) {
           <SkeletonBars />
         </div>
 
+        <!-- Error -->
+        <div v-else-if="error" class="text-center py-16">
+          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+          <div class="flex justify-center mt-6">
+            <NuxtLink
+              :to="`/profile/${currentProfile?.id}`"
+              class="btn-cin inline-flex"
+            >
+              <span>前往编辑档案</span>
+            </NuxtLink>
+          </div>
+        </div>
+
         <!-- Result -->
         <template v-else-if="result">
           <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
@@ -243,37 +260,20 @@ async function restoreFromHistory(id: number) {
               @history="showHistoryModal = true"
             />
 
-            <!-- Save error toast -->
-            <Transition name="toast">
-              <div
-                v-if="showSaveErrorToast"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
-                role="alert"
-              >
-                <span>{{ saveError }}</span>
-                <button
-                  @click="dismissSaveErrorToast"
-                  @keydown.enter="dismissSaveErrorToast"
-                  @keydown.space.prevent="dismissSaveErrorToast"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
-                  aria-label="关闭提示"
-                >&times;</button>
-              </div>
-            </Transition>
-
             <!-- Restore error toast -->
             <Transition name="toast">
               <div
                 v-if="restoreError"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                class="toast-notification"
                 role="alert"
               >
-                <span>{{ restoreError }}</span>
+                <span class="toast-notification__mark" aria-hidden="true">!</span>
+                <span class="toast-notification__text">{{ restoreError }}</span>
                 <button
                   @click="dismissRestoreError"
                   @keydown.enter="dismissRestoreError"
                   @keydown.space.prevent="dismissRestoreError"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="toast-notification__close"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>
@@ -288,13 +288,11 @@ async function restoreFromHistory(id: number) {
           <WuXingGrid :result="result" />
 
           <!-- Lucky information -->
-          <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.25s' }">
-            <div class="section-header section-header--tool">
-              <span class="bar" aria-hidden="true"></span>
-              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">幸</span>
+          <div class="fade-in card-warm rounded-xl mt-6 p-8" :style="{ '--delay': '0.25s' }">
+            <div class="section-header">
               <h2>幸运信息</h2>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <h4 class="font-sans text-ink-medium text-sm mb-2">幸运数字</h4>
                 <p class="font-sans text-ink-dark text-lg">{{ result.lucky.numbers.join('、') }}</p>
@@ -312,21 +310,18 @@ async function restoreFromHistory(id: number) {
 
           <PersonalityCard :result="result" />
 
-          <div class="fade-in card-warm rounded-xl mt-6" :style="{ '--delay': '0.35s' }">
-            <div class="section-header section-header--tool section-header--tool-light">
-              <span class="bar" aria-hidden="true"></span>
+          <div class="fade-in card-warm rounded-xl mt-6 p-8" :style="{ '--delay': '0.35s' }">
+            <div class="section-header">
               <h2>{{ currentYear }}年流年运势</h2>
             </div>
-            <div class="p-8">
-              <FortuneBars
-                :items="[
-                  { label: '事业', score: result.fortune.career.score },
-                  { label: '财运', score: result.fortune.wealth.score },
-                  { label: '感情', score: result.fortune.love.score },
-                  { label: '健康', score: result.fortune.health.score },
-                ]"
-              />
-            </div>
+            <FortuneBars
+              :items="[
+                { label: '事业', score: result.fortune.career.score },
+                { label: '财运', score: result.fortune.wealth.score },
+                { label: '感情', score: result.fortune.love.score },
+                { label: '健康', score: result.fortune.health.score },
+              ]"
+            />
           </div>
 
           <CompatibilityGrid :items="result.compatibility" />
