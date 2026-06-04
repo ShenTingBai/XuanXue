@@ -101,6 +101,8 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 **完整设计规范见 [`docs/design-system.md`](docs/design-system.md)**——新增 UI 前必须先查阅。
 
+**硬约束**：修改 `assets/css/main.css`（新增/修改全局 CSS 类）或 `tailwind.config.ts`（修改色板/字体/阴影）时，**必须在同一提交中同步更新 `docs/design-system.md`** 的对应条目。全局 CSS 类无文档记录视为未完成，不得合并。
+
 传统中式书房美学：
 
 - **色板**：墨（7 阶）、纸（6 阶）、朱砂（#C62828 主色）、金、玉。
