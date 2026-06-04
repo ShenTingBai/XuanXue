@@ -65,6 +65,12 @@ const tools: Tool[] = [
     landingDescription: '年柱日柱 · 五行互补 · 十神配偶',
     route: '/tools/hehun', available: true, accent: '#C62828', trigram: '⚢',
   },
+  {
+    id: 'name-test', name: '姓名', char: '名',
+    description: '五格剖象姓名分析，了解名字的吉凶数理',
+    landingDescription: '五格剖象 · 三才五行 · 数理吉凶',
+    route: '/tools/name-test', available: true, accent: '#2C5F7C', trigram: '⚣',
+  },
 ]
 
 const sessionReady = ref(false)

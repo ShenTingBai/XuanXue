@@ -14,6 +14,7 @@ const navTools: NavTool[] = [
   { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
   { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
   { id: 'hehun', name: '合婚', char: '合', route: '/tools/hehun', available: true },
+  { id: 'name-test', name: '姓名', char: '名', route: '/tools/name-test', available: true },
 ]
 </script>
 
