@@ -1,7 +1,7 @@
 import { getMonthPillar, getSolarTerm } from './useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 
-import { STEMS, BRANCHES, getStemIndex, WUXING_STEM, WUXING_BRANCH } from '~/constants/bazi'
+import { STEMS, BRANCHES, getStemIndex, WUXING_STEM, WUXING_BRANCH, getNayinWuxing } from '~/constants/bazi'
 
 // === Helper ===
 
@@ -388,6 +388,11 @@ function computeElementCounts(pillars: BaZiPillar[]): Record<string, number> {
     if (counts[p.branchWuxing] !== undefined) counts[p.branchWuxing]++
     for (const hs of p.hiddenStems) {
       if (counts[hs.wuxing] !== undefined) counts[hs.wuxing]++
+    }
+    // Include nayin wuxing in element count
+    if (p.stem && p.branch) {
+      const nayin = getNayinWuxing(p.stem, p.branch)
+      if (counts[nayin] !== undefined) counts[nayin]++
     }
   }
   return counts
