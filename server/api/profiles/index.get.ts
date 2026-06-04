@@ -2,7 +2,7 @@ import { dbAll, dbGet } from '../../database/db'
 import { toSafeProfile } from '../../utils/profile'
 
 export default defineEventHandler(async (event) => {
-  const profileId = (event.context as any).profileId as number | undefined
+  const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }

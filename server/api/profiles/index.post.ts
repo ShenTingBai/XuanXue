@@ -4,7 +4,7 @@ import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
 export default defineEventHandler(async (event) => {
-  const profileId = (event.context as any).profileId as number | undefined
+  const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }

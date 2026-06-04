@@ -523,7 +523,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 }
 
 .sidebar-dob {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   color: var(--color-ink-light, #8A7A6A);
   line-height: 1.6;
@@ -542,7 +542,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
   justify-content: center;
   min-width: 3rem;
   padding: 0.3rem 0.75rem;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   color: var(--color-ink-medium, #5A4A3A);
   border: 1px solid rgba(44, 26, 14, 0.08);
@@ -565,7 +565,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 /* ── Input overrides ── */
 .input-label {
   display: block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: var(--color-ink-medium, #5A4A3A);
   letter-spacing: 0.06em;

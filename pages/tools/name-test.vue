@@ -438,7 +438,7 @@ const scoreItems = computed(() => {
 }
 
 .score-banner__name {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: var(--color-ink-medium, #5A4A3A);
   letter-spacing: 0.15em;
@@ -459,7 +459,7 @@ const scoreItems = computed(() => {
 }
 
 .score-banner__summary {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.55;
@@ -479,7 +479,7 @@ const scoreItems = computed(() => {
   align-items: center;
   gap: 0.375rem;
   padding: 0.45rem 1.25rem;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   border-bottom: 1px solid rgba(44, 26, 14, 0.02);
   color: var(--color-ink-medium, #5A4A3A);
@@ -553,7 +553,7 @@ const scoreItems = computed(() => {
 
 .detail-line__label {
   flex-shrink: 0;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   font-weight: 600;
   color: var(--color-ink-dark, #2C1810);
@@ -562,7 +562,7 @@ const scoreItems = computed(() => {
 }
 
 .detail-line__text {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.6;
@@ -571,7 +571,7 @@ const scoreItems = computed(() => {
 
 .nayin-tag {
   display: inline-block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.5rem;
   color: var(--color-cinnabar, #C62828);
   padding: 0.05rem 0.45rem;
@@ -584,7 +584,7 @@ const scoreItems = computed(() => {
 /* ── Input label ── */
 .input-label {
   display: block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: var(--color-ink-medium, #5A4A3A);
   letter-spacing: 0.06em;
