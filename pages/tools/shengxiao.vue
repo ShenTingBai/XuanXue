@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
+import { calculateMonthlyFortune, type MonthlyFortuneResult } from '~/composables/useMonthlyFortune'
 import { parseDate } from '~/utils/date'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -11,7 +12,7 @@ import WuXingGrid from '~/components/tools/shengxiao/WuXingGrid.vue'
 import PersonalityCard from '~/components/tools/shengxiao/Personality.vue'
 import CompatibilityGrid from '~/components/tools/shengxiao/CompatibilityGrid.vue'
 import AnimalNav from '~/components/tools/shengxiao/AnimalNav.vue'
-import FortuneBars from '~/components/tools/FortuneBars.vue'
+import MonthlyFortune from '~/components/tools/shengxiao/MonthlyFortune.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
@@ -28,6 +29,7 @@ import { getGuardianBuddha } from '~/constants/guardian-buddha'
 useHead({ title: '生肖 - 玄学' })
 
 const result = ref<ShengXiaoResult | null>(null)
+const monthlyFortune = ref<MonthlyFortuneResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
 const error = ref('')
@@ -90,6 +92,12 @@ function computeResult() {
 
   result.value = calculateShengXiao(year, new Date())
   selectedAnimal.value = getAnimalIndex(year)
+  monthlyFortune.value = calculateMonthlyFortune(
+    year,
+    currentYear.value,
+    result.value.earthlyBranch,
+    result.value.wuXing,
+  )
   saveDivinationResult(result.value, year, calendar)
   loading.value = false
 }
@@ -112,6 +120,12 @@ function selectAnimal(index: number) {
   restoreError.value = ''
 
   result.value = calculateShengXiao(representativeYear, new Date())
+  monthlyFortune.value = calculateMonthlyFortune(
+    representativeYear,
+    currentYear,
+    result.value.earthlyBranch,
+    result.value.wuXing,
+  )
   saveDivinationResult(result.value, representativeYear, calendar)
   loading.value = false
 }
@@ -187,6 +201,12 @@ async function restoreFromHistory(id: number) {
         const typedData = data as ShengXiaoResult
         result.value = typedData
         selectedAnimal.value = getAnimalIndex(typedData.year)
+        monthlyFortune.value = calculateMonthlyFortune(
+          typedData.year,
+          currentYear.value,
+          typedData.earthlyBranch,
+          typedData.wuXing,
+        )
         restoreError.value = ''
         restoredFromHistory.value = true
         return
@@ -325,19 +345,11 @@ async function restoreFromHistory(id: number) {
 
           <PersonalityCard :result="result" />
 
-          <div class="fade-in card-warm rounded-xl mt-6 p-8" :style="{ '--delay': '0.35s' }">
-            <div class="section-header">
-              <h2>{{ currentYear }}年流年运势</h2>
-            </div>
-            <FortuneBars
-              :items="[
-                { label: '事业', score: result.fortune.career.score },
-                { label: '财运', score: result.fortune.wealth.score },
-                { label: '感情', score: result.fortune.love.score },
-                { label: '健康', score: result.fortune.health.score },
-              ]"
-            />
-          </div>
+          <MonthlyFortune
+            v-if="monthlyFortune"
+            :result="monthlyFortune"
+            :current-year="currentYear"
+          />
 
           <!-- 化太岁 -->
           <TaiSuiMitigation
