@@ -40,9 +40,9 @@ function elementLabel(element: string): string {
 
 function elementBadgeClass(element: string): string {
   const map: Record<string, string> = {
-    '火': 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
-    '土': 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
-    '风': 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
+    '火': 'border-cinnabar/30 text-cinnabar bg-cinnabar/5',
+    '土': 'border-gold/30 text-gold bg-gold/5',
+    '风': 'border-jade/30 text-jade bg-jade/5',
     '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
   }
   return map[element] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'

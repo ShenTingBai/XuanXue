@@ -322,7 +322,8 @@ function scrollToConstellationNav() {
 
         <!-- Result -->
         <template v-else-if="result">
-          <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
+          <Transition name="content-fade" mode="out-in">
+          <div :key="selectedZodiac" class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
             <!-- Top toolbar -->
             <ToolToolbar
               :show-history="true"
@@ -414,10 +415,7 @@ function scrollToConstellationNav() {
               >编辑档案 → 填写完整出生日期</NuxtLink>
             </div>
           </div>
-          <p class="text-xs text-ink-medium text-center mt-2 mb-1 tracking-wide">
-            本命星盘及今日运势
-          </p>
-
+          <div class="divider-ink mt-8 mb-6" role="separator" />
 
           <HoroscopePanel :horoscope="result.todayHoroscope" />
 
@@ -468,6 +466,7 @@ function scrollToConstellationNav() {
 
           <EntertainmentDisclaimer />
           </div>
+          </Transition>
 
           <ScrollTopButton
             v-if="showScrollTop"
@@ -477,3 +476,14 @@ function scrollToConstellationNav() {
         </template>
       </ToolPageLayout>
 </template>
+
+<style scoped>
+.content-fade-enter-active,
+.content-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.content-fade-enter-from,
+.content-fade-leave-to {
+  opacity: 0;
+}
+</style>

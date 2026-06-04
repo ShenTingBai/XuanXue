@@ -686,6 +686,7 @@ html {
     transform: translateY(-2px);
   }
   .wuxing-card--wood  { border-color: var(--color-jade); }
+  .wuxing-card--air   { border-color: var(--color-jade-light); }
   .wuxing-card--fire  { border-color: var(--color-cinnabar); }
   .wuxing-card--earth { border-color: var(--color-gold); }
   .wuxing-card--metal { border-color: #5E5E5E; }

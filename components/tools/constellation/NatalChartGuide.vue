@@ -33,7 +33,7 @@
                   <div v-for="p in planetLegend" :key="p.id" class="flex items-center gap-2">
                     <span class="text-sm w-6 text-center flex-shrink-0" aria-hidden="true">{{ p.glyph }}</span>
                     <span class="font-sans text-xs text-ink-medium">{{ p.name }}</span>
-                    <span class="font-sans text-[0.65rem] text-ink-light ml-auto">{{ p.ringLabel }}</span>
+                    <span class="font-sans text-xs text-ink-light ml-auto">{{ p.ringLabel }}</span>
                   </div>
                 </div>
               </div>
@@ -50,7 +50,7 @@
                       aria-hidden="true"
                     />
                     <span class="font-sans text-xs text-ink-medium">{{ a.symbol }} {{ a.label }}</span>
-                    <span class="font-sans text-[0.65rem] text-ink-light ml-auto">{{ a.meaning }}</span>
+                    <span class="font-sans text-xs text-ink-light ml-auto">{{ a.meaning }}</span>
                   </div>
                 </div>
               </div>
@@ -69,7 +69,7 @@
               <div>
                 <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">12 宫位 · 代表的人生领域</p>
                 <div class="grid grid-cols-3 gap-x-2 gap-y-1">
-                  <p v-for="h in houseNames" :key="h.num" class="font-sans text-[0.72rem] text-ink-medium leading-relaxed">
+                  <p v-for="h in houseNames" :key="h.num" class="font-sans text-xs text-ink-medium leading-relaxed">
                     <span class="text-cinnabar font-medium">{{ h.num }}</span> {{ h.label }}
                   </p>
                 </div>
@@ -117,7 +117,7 @@
                     <span class="font-sans text-xs text-ink-medium w-12 text-right">{{ eb.count }}颗</span>
                   </div>
                 </div>
-                <p class="font-sans text-[0.72rem] text-ink-medium mt-2 leading-relaxed">
+                <p class="font-sans text-xs text-ink-medium mt-2 leading-relaxed">
                   {{ elementConclusion }}
                 </p>
               </div>
@@ -140,7 +140,7 @@
               <!-- Stellium alert -->
               <div v-if="stelliums.length > 0" class="mb-4 p-3 rounded-lg bg-cinnabar/5 border border-cinnabar/15">
                 <p class="font-sans text-xs text-ink-dark font-medium mb-1">⚠ 群星汇聚</p>
-                <p class="font-sans text-[0.72rem] text-ink-medium leading-relaxed">
+                <p class="font-sans text-xs text-ink-medium leading-relaxed">
                   <template v-for="(s, i) in stelliums" :key="s.label">
                     {{ s.label }}<span v-if="i < stelliums.length - 1">；</span>
                   </template>
@@ -161,7 +161,7 @@
                     <span class="font-sans text-xs text-ink-medium">紧张 {{ aspectCounts.challenging }}</span>
                   </div>
                 </div>
-                <p class="font-sans text-[0.72rem] text-ink-medium mt-2 leading-relaxed">
+                <p class="font-sans text-xs text-ink-medium mt-2 leading-relaxed">
                   {{ aspectConclusion }}
                 </p>
               </div>

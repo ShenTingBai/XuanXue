@@ -97,10 +97,8 @@ const submit = async () => {
           <div class="inline-flex items-center justify-center mb-4">
             <span class="seal-icon w-14 h-14 text-sm flex items-center justify-center" aria-hidden="true">玄</span>
           </div>
-          <div class="section-header justify-center mb-2">
-            <span class="text-lg font-display text-ink-dark tracking-[0.15em]">{{ isLogin ? '已有命卷' : '结缘立卷' }}</span>
-          </div>
-          <p class="font-sans text-ink-medium text-[0.75rem] tracking-[0.25em]">
+          <h2 class="text-lg font-display text-ink-dark tracking-[0.15em] mb-2">{{ isLogin ? '已有命卷' : '结缘立卷' }}</h2>
+          <p class="font-sans text-ink-medium text-xs tracking-[0.25em]">
             {{ isLogin ? '入卷推演 · 以窥天机' : '以道为凭 · 以问天机' }}
           </p>
         </div>
@@ -149,7 +147,7 @@ const submit = async () => {
             class="mb-6 px-4 py-3 rounded-lg bg-gold/8 border border-gold/20 text-ink-dark text-sm flex items-center gap-2.5"
             role="alert"
           >
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold/25 flex items-center justify-center text-gold text-[10px] font-bold">!</span>
+            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold/25 flex items-center justify-center text-gold text-xs font-bold">!</span>
             <span>{{ expiredNote }}</span>
           </div>
         </Transition>
@@ -232,11 +230,11 @@ const submit = async () => {
         </div>
 
         <!-- Switch hint -->
-        <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-light/70 tracking-[0.1em]">
+        <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
           尚未立卷？
           <button @click="switchMode" class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline">结缘注册</button>
         </div>
-        <div v-else class="mt-6 text-center text-xs text-ink-light/70 tracking-[0.1em]">
+        <div v-else class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
           已有命卷？
           <button @click="switchMode" class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline">入卷登录</button>
         </div>
