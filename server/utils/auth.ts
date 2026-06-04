@@ -1,10 +1,13 @@
 import { randomBytes, scryptSync, timingSafeEqual, createHash, createHmac } from 'node:crypto'
 import { dbRun, dbGet } from '../database/db'
 
-const SESSION_SECRET = process.env.SESSION_SECRET
-if (!SESSION_SECRET) {
-  throw new Error('SESSION_SECRET environment variable must be set to a strong random value')
-}
+const SESSION_SECRET: string = (() => {
+  const secret = process.env.SESSION_SECRET
+  if (!secret) {
+    throw new Error('SESSION_SECRET environment variable must be set to a strong random value')
+  }
+  return secret
+})()
 
 export function hashPin(pin: string): string {
   const salt = randomBytes(16).toString('hex')
