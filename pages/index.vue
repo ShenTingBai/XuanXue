@@ -7,6 +7,7 @@ import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
+import { formatRelativeTime } from '~/utils/date'
 
 const SOLAR_TERM_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒']
 
@@ -81,6 +82,58 @@ const tools: Tool[] = [
 
 const sessionReady = ref(false)
 
+// ── Recent Activity ──
+interface RecentItem {
+  id: number
+  type: string
+  created_at: string
+  relativeTime: string
+  icon: string
+  route: string
+}
+
+const recentActivity = ref<RecentItem[]>([])
+const recentLoading = ref(false)
+
+const toolTypeMap: Record<string, { icon: string; route: string }> = {
+  bazi: { icon: '命', route: '/tools/bazi' },
+  shengxiao: { icon: '肖', route: '/tools/shengxiao' },
+  constellation: { icon: '星', route: '/tools/constellation' },
+  yijing: { icon: '卦', route: '/tools/yijing' },
+  ziwei: { icon: '斗', route: '/tools/ziwei' },
+  hehun: { icon: '合', route: '/tools/hehun' },
+  'name-test': { icon: '名', route: '/tools/name-test' },
+  cezi: { icon: '测', route: '/tools/cezi' },
+}
+
+async function fetchRecentActivity() {
+  if (!import.meta.client) return
+  const { getAuthHeaders } = useAuth()
+  const headers = getAuthHeaders()
+  if (!headers.Authorization) return
+  recentLoading.value = true
+  try {
+    const data = await $fetch<{ id: number; type: string; created_at: string }[]>('/api/divinations', {
+      headers,
+    })
+    recentActivity.value = data.slice(0, 5).map((item) => {
+      const mapped = toolTypeMap[item.type]
+      return {
+        id: item.id,
+        type: item.type,
+        created_at: item.created_at,
+        relativeTime: formatRelativeTime(item.created_at),
+        icon: mapped?.icon || '玄',
+        route: mapped?.route || '/',
+      }
+    })
+  } catch {
+    // Best-effort — don't show the section if fetch fails
+  } finally {
+    recentLoading.value = false
+  }
+}
+
 // ── 命盘预览：固定示例数据（引擎驱动）──
 const sampleBazi = computed<BaZiResult | null>(() => {
   if (!import.meta.client) return null
@@ -129,6 +182,9 @@ const todayAstro = computed(() => {
 onMounted(() => {
   restoreSession()
   sessionReady.value = true
+  if (currentProfile.value) {
+    fetchRecentActivity()
+  }
 })
 
 const goToLogin = () => {
@@ -518,6 +574,54 @@ const goToLogin = () => {
             <span class="ui" style="position:absolute;top:12px;right:12px;padding:2px 8px;border-radius:999px;font-size:9px;border:1px solid rgba(44,26,14,0.08);color:var(--color-ink-light);">即将推出</span>
           </div>
         </div>
+
+        <!-- ═══ 最近使用 ═══ -->
+        <section
+          v-if="recentActivity.length > 0 || recentLoading"
+          class="anim-rise"
+          aria-label="最近使用"
+        >
+          <div class="section-header">
+            <span class="bar" aria-hidden="true"></span>
+            <h2>最近使用</h2>
+          </div>
+
+          <!-- Loading state -->
+          <div v-if="recentLoading" class="flex gap-3 overflow-x-auto pb-2">
+            <div v-for="n in 5" :key="n" class="flex-shrink-0 w-20 skeleton-pulse h-20 rounded-lg" />
+          </div>
+
+          <!-- Recent items -->
+          <div v-else class="flex gap-3 overflow-x-auto pb-2">
+            <NuxtLink
+              v-for="item in recentActivity"
+              :key="item.id"
+              :to="item.route"
+              class="flex-shrink-0 card-warm rounded-lg p-3 w-20 flex flex-col items-center gap-1.5 no-underline hover:border-cinnabar/20 transition-all group"
+              :aria-label="'最近：' + item.type"
+            >
+              <span
+                class="seal-icon text-xs w-8 h-8 group-hover:bg-cinnabar transition-colors"
+                style="border-radius:0.25rem;"
+                aria-hidden="true"
+              >{{ item.icon }}</span>
+              <span class="text-[0.6rem] text-ink-light/70 tracking-[0.08em] leading-tight text-center">
+                {{ item.relativeTime }}
+              </span>
+            </NuxtLink>
+          </div>
+        </section>
+
+        <!-- Empty state -->
+        <div
+          v-if="!recentLoading && recentActivity.length === 0"
+          class="text-center py-8"
+        >
+          <p class="text-[0.75rem] text-ink-light/60 tracking-[0.1em]">
+            暂无记录，开始探索玄学工具吧
+          </p>
+        </div>
+
       </div>
     </template>
   </div>
