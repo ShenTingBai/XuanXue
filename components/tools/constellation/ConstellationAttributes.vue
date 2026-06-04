@@ -5,67 +5,18 @@
         v-for="item in items"
         :key="item.label"
         class="wuxing-card"
-        :class="[`wuxing-card--${item.color}`, item.label === '元素' ? 'cursor-pointer' : '']"
-        @click="item.label === '元素' ? toggleElementExpanded() : undefined"
-        @keydown.enter="item.label === '元素' ? toggleElementExpanded() : undefined"
-        @keydown.space.prevent="item.label === '元素' ? toggleElementExpanded() : undefined"
-        :tabindex="item.label === '元素' ? 0 : undefined"
-        :role="item.label === '元素' ? 'button' : undefined"
-        :aria-expanded="item.label === '元素' ? elementExpanded : undefined"
+        :class="[`wuxing-card--${item.color}`]"
       >
-        <div class="flex items-center gap-1.5">
-          <div class="font-display text-lg sm:text-xl text-ink-dark mb-0.5">{{ item.value }}</div>
-          <span v-if="item.label === '元素'" class="text-[0.65rem] text-ink-light mb-0.5" aria-hidden="true">{{ elementExpanded ? '▾' : '▸' }}</span>
-        </div>
-        <div class="font-sans text-xs text-ink-light tracking-wider">{{ item.label }}</div>
-
-        <!-- Element explanation (expandable) -->
-        <Transition name="attr-expand">
-          <div v-if="item.label === '元素' && elementExpanded" class="attr-explanation mt-2 pt-2 border-t border-ink-faint/10">
-            <p class="attr-explanation__text">
-              西方四元素与五行不同：<span class="attr-explanation__highlight">{{ result.element }}象星座</span>{{ elementDescription }}。
-            </p>
-          </div>
-        </Transition>
+        <div class="font-display text-lg sm:text-xl text-ink-dark mb-0.5">{{ item.value }}</div>
+        <div class="font-sans text-xs text-ink-medium tracking-wider">{{ item.label }}</div>
       </div>
     </div>
+    <!-- Element description footnote -->
+    <p class="mt-3 font-sans text-xs text-ink-medium leading-relaxed">
+      西方四元素与五行不同：<span class="text-cinnabar font-medium">{{ result.element }}象星座</span>{{ elementDescription }}。
+    </p>
   </div>
 </template>
-
-<style scoped>
-.attr-explanation {
-  overflow: hidden;
-}
-
-.attr-explanation__text {
-  font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.72rem;
-  color: var(--color-ink-medium);
-  line-height: 1.65;
-  letter-spacing: 0.03em;
-}
-
-.attr-explanation__highlight {
-  color: var(--color-cinnabar);
-  font-weight: 500;
-}
-
-.attr-expand-enter-active,
-.attr-expand-leave-active {
-  transition: all 0.25s ease;
-  overflow: hidden;
-}
-.attr-expand-enter-from,
-.attr-expand-leave-to {
-  opacity: 0;
-  max-height: 0;
-}
-.attr-expand-enter-to,
-.attr-expand-leave-from {
-  opacity: 1;
-  max-height: 6rem;
-}
-</style>
 
 <script setup lang="ts">
 import type { ConstellationResult } from '~/composables/useConstellation'
@@ -73,12 +24,6 @@ import type { ConstellationResult } from '~/composables/useConstellation'
 const props = defineProps<{
   result: ConstellationResult
 }>()
-
-const elementExpanded = ref(false)
-
-function toggleElementExpanded() {
-  elementExpanded.value = !elementExpanded.value
-}
 
 const ELEMENT_DESCRIPTIONS: Record<string, string> = {
   '火': '热情主动、行动力强，如同火焰般充满能量与感染力',
@@ -89,16 +34,26 @@ const ELEMENT_DESCRIPTIONS: Record<string, string> = {
 
 const elementDescription = computed(() => ELEMENT_DESCRIPTIONS[props.result.element] || '')
 
+/**
+ * Western four-element color palette.
+ * Distinct from the Chinese five-element (wuxing-*) system.
+ * Uses Ink Resonance tokens with clear semantic intent:
+ *   Fire → cinnabar warmth,  Earth → gold tone,
+ *   Air → jade lightness,    Water → blue depth.
+ */
 function elementColorClass(): string {
   const map: Record<string, string> = {
-    '火': 'fire', '土': 'earth', '风': 'wood', '水': 'water',
+    '火': 'fire',
+    '土': 'earth',
+    '风': 'air',
+    '水': 'water',
   }
   return map[props.result.element] || 'earth'
 }
 
 const items = computed(() => [
   { label: '元素', value: `${props.result.element}象`, color: elementColorClass() },
-  { label: '守护星', value: props.result.rulingPlanet, color: 'earth' },
+  { label: '守护星', value: props.result.rulingPlanet, color: 'metal' },
   { label: '幸运颜色', value: props.result.luckyColor, color: 'earth' },
   { label: '幸运数字', value: String(props.result.luckyNumber), color: 'earth' },
 ])

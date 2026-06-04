@@ -643,7 +643,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   position: absolute;
   transform: translate(-50%, -50%);
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   font-weight: 500;
   color: var(--color-ink-light);
   opacity: 0.45;
@@ -684,7 +684,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .planet-name {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-muted);
   opacity: 0.7;
   letter-spacing: 0.04em;
@@ -701,7 +701,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .planet-retrograde {
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   color: var(--color-cinnabar);
   opacity: 0.8;
   font-weight: 500;
@@ -794,14 +794,14 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .natal-tooltip__location {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-medium);
   margin-bottom: 4px;
 }
 
 .natal-tooltip__warning {
   display: inline-block;
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   color: var(--color-cinnabar);
   opacity: 0.7;
   margin-left: 4px;
@@ -809,7 +809,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .natal-tooltip__interp {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-medium);
   margin-bottom: 4px;
   padding-bottom: 4px;
@@ -818,14 +818,14 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .natal-tooltip__aspects {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-light);
   margin-bottom: 2px;
 }
 
 .natal-tooltip__retrograde {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   color: var(--color-cinnabar);
   font-weight: 500;
 }
@@ -860,14 +860,14 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
   .sign-symbol { font-size: 0.85rem; }
-  .house-number { font-size: 0.52rem; }
+  .house-number { font-size: 0.625rem; }
   .planet-glyph { font-size: 0.75rem; }
-  .planet-name { font-size: 0.52rem; }
-  .planet-retrograde { font-size: 0.48rem; }
+  .planet-name { font-size: 0.625rem; }
+  .planet-retrograde { font-size: 0.625rem; }
   .center-seal__disc { width: 36px; height: 36px; }
   .center-seal__char { font-size: 1rem; }
-  .natal-tooltip { font-size: 0.6rem; max-width: 200px; padding: 0.45rem 0.6rem; }
-  .natal-tooltip__title { font-size: 0.7rem; }
-  .natal-tooltip__interp { font-size: 0.58rem; }
+  .natal-tooltip { font-size: 0.6875rem; max-width: 200px; padding: 0.45rem 0.6rem; }
+  .natal-tooltip__title { font-size: 0.75rem; }
+  .natal-tooltip__interp { font-size: 0.6875rem; }
 }
 </style>
