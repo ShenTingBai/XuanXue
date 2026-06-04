@@ -1,6 +1,6 @@
 // composables/useZiwei.ts
 import { astro } from 'iztro'
-import { getPalaceInterpretation, getStarInterpretation } from '~/constants/ziwei'
+import { getPalaceInterpretation, getStarInterpretation, getCombinationKey, COMBINATION_INTERPRETATIONS } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import type FunctionalStar from 'iztro/lib/star/FunctionalStar'
@@ -67,13 +67,16 @@ export function getPalaceDetail(palace: IFunctionalPalace): {
   const starReadings = palace.majorStars.map(s => getStarInterpretation(s.name as string)).filter(Boolean)
 
   const starNames: string[] = palace.majorStars.map(s => s.name as string)
-  let combinationNote = ''
-  if (starNames.includes('紫微') && starNames.includes('天相')) {
-    combinationNote = '紫微天相同宫，辅弼之星入命，格局高贵。'
-  } else if (['七杀', '破军', '贪狼'].some(s => starNames.includes(s))) {
-    combinationNote = '杀破狼格局，变动中求发展，一生多变动，亦多机遇。'
-  } else if (starNames.includes('廉贞') && starNames.includes('贪狼')) {
-    combinationNote = '廉贞贪狼同宫，桃花泛水，才艺出众。'
+
+  // Look up combination from the new map
+  const comboKey = getCombinationKey(starNames)
+  let combinationNote = COMBINATION_INTERPRETATIONS[comboKey] || ''
+
+  // Fallback for 杀破狼 (three-star combination)
+  if (!combinationNote && starNames.length >= 3) {
+    if (['七杀', '破军', '贪狼'].every(s => starNames.includes(s))) {
+      combinationNote = '杀破狼格局，变动中求发展，一生多变动，亦多机遇。'
+    }
   }
 
   return { palaceSummary, starReadings, combinationNote }
@@ -89,12 +92,46 @@ export function getDetailedPalaceView(palace: IFunctionalPalace): {
   adjectiveStars: FunctionalStar[]
   transformations: { star: string; transformation: string }[]
   interpretation: ReturnType<typeof getPalaceDetail>
+  fullInterpretation: string
   decadalRange: [number, number]
   ages: number[]
 } {
   const trans: { star: string; transformation: string }[] = []
   for (const s of [...palace.majorStars, ...palace.minorStars, ...palace.adjectiveStars]) {
     if (s.mutagen) trans.push({ star: s.name, transformation: s.mutagen })
+  }
+
+  // Build combined full interpretation text
+  const detail = getPalaceDetail(palace)
+
+  // Start with palace summary
+  let fullText = detail.palaceSummary
+
+  // Add star readings
+  if (detail.starReadings.length > 0) {
+    fullText += ' ' + detail.starReadings.join(' ')
+  }
+
+  // Add minor star mentions
+  const minorNames = palace.minorStars.map(s => s.name as string).filter(Boolean)
+  if (minorNames.length > 0) {
+    fullText += ' 辅以' + minorNames.slice(0, 3).join('、') + '。'
+  }
+
+  // Add adjective star mentions
+  const adjNames = palace.adjectiveStars.map(s => s.name as string).filter(Boolean)
+  if (adjNames.length > 0) {
+    fullText += ' ' + adjNames.slice(0, 2).join('、') + '同度。'
+  }
+
+  // Add combination note
+  if (detail.combinationNote) {
+    fullText += ' ' + detail.combinationNote
+  }
+
+  // Handle empty palace
+  if (palace.majorStars.length === 0) {
+    fullText += ' 空宫，需结合三方四正综合判断。'
   }
 
   return {
@@ -105,7 +142,8 @@ export function getDetailedPalaceView(palace: IFunctionalPalace): {
     minorStars: palace.minorStars,
     adjectiveStars: palace.adjectiveStars,
     transformations: trans,
-    interpretation: getPalaceDetail(palace),
+    interpretation: detail,
+    fullInterpretation: fullText,
     decadalRange: palace.decadal?.range ?? [0, 0],
     ages: palace.ages,
   }
