@@ -23,6 +23,8 @@ import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 
 useHead({ title: '八字排盘 - 玄学' })
 
@@ -45,6 +47,8 @@ const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
 const scrollTopOffset = ref('1rem')
 const mainContainer = ref<HTMLElement | null>(null)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
 const cachedAge = ref(0)
 const activeNavSection = ref('排盘')
 
@@ -327,6 +331,12 @@ async function restoreFromHistory(id: number) {
   }
 }
 
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '八字命盘.png')
+  }
+}
+
 function scrollToTop() {
   const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
   if (!prefersReducedMotion) {
@@ -459,7 +469,17 @@ function onSectionNavigate(sectionName: string) {
             <ToolToolbar
               :show-history="true"
               @history="showHistoryModal = true"
-            />
+            >
+              <template #extra>
+                <ExportButton
+                  v-if="result"
+                  :target-ref="resultRef"
+                  filename="八字命盘.png"
+                  :is-exporting="isExporting"
+                  @export="handleExport"
+                />
+              </template>
+            </ToolToolbar>
 
             <!-- Save error toast — auto-save is fire-and-forget, failures are silent -->
 
@@ -483,6 +503,8 @@ function onSectionNavigate(sectionName: string) {
               </div>
             </Transition>
 
+            <!-- Export target: result content -->
+            <div ref="resultRef">
             <!-- 命主签 — Day Master Identity Seal -->
             <DayMasterSeal
               :birth-year="result.birthYear"
@@ -607,6 +629,7 @@ function onSectionNavigate(sectionName: string) {
                 :range="5"
               />
             </CollapsibleSection>
+            </div>
 
             <!-- Back to top: floating button, visible after scrolling past 300px -->
             <ScrollTopButton

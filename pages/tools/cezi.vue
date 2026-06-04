@@ -11,6 +11,8 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 
 useHead({ title: '测字 - 玄·道' })
@@ -20,10 +22,18 @@ const loading = ref(false)
 const error = ref('')
 const inputChar = ref('')
 const showScrollTop = ref(false)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
 const saveError = ref('')
 const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const restoreError = ref('')
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '测字占卜.png')
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -175,7 +185,17 @@ const interpretationParagraphs = computed(() => {
       <ToolToolbar
         :show-history="true"
         @history="showHistoryModal = true"
-      />
+      >
+        <template #extra>
+          <ExportButton
+            v-if="result"
+            :target-ref="resultRef"
+            filename="测字占卜.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </template>
+      </ToolToolbar>
 
       <!-- ══ Input Area ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
@@ -223,7 +243,7 @@ const interpretationParagraphs = computed(() => {
       <!-- ══ Result ══ -->
       <template v-if="result">
         <!-- Divination Slip Card -->
-        <div class="fade-in mt-8 cezi-slip" :style="{ '--delay': '0.15s' }">
+        <div ref="resultRef" class="fade-in mt-8 cezi-slip" :style="{ '--delay': '0.15s' }">
           <!-- Top decorative band -->
           <div class="cezi-slip__header">
             <span class="cezi-slip__trigram" aria-hidden="true">☰</span>

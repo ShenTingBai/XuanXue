@@ -15,6 +15,8 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import { calculateNatalChart, serializeNatalChart } from '~/composables/useNatalChart'
@@ -38,6 +40,8 @@ const chartTextCopied = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
 const expandedCompatIdx = ref<number | null>(null)
 
 function toggleCompat(idx: number) {
@@ -50,6 +54,12 @@ async function copyChartText() {
   await navigator.clipboard.writeText(text)
   chartTextCopied.value = true
   setTimeout(() => { chartTextCopied.value = false }, 2000)
+}
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '星座星盘.png')
+  }
 }
 
 function handleScroll() {
@@ -317,7 +327,17 @@ function dismissRestoreError() {
             <ToolToolbar
               :show-history="true"
               @history="showHistoryModal = true"
-            />
+            >
+              <template #extra>
+                <ExportButton
+                  v-if="result"
+                  :target-ref="resultRef"
+                  filename="星座星盘.png"
+                  :is-exporting="isExporting"
+                  @export="handleExport"
+                />
+              </template>
+            </ToolToolbar>
 
             <!-- Restore error toast -->
             <Transition name="toast">
@@ -337,6 +357,7 @@ function dismissRestoreError() {
                 >&times;</button>
               </div>
             </Transition>
+          <div ref="resultRef">
           <ConstellationHero :result="result" />
 
           <!-- ═══ 三垣 · 星盘 ═══ -->
@@ -495,6 +516,7 @@ function dismissRestoreError() {
                 </Transition>
               </div>
             </div>
+          </div>
           </div>
 
           <!-- Restored from history -->

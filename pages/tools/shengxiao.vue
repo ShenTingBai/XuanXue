@@ -20,6 +20,8 @@ import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
 import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
@@ -40,6 +42,14 @@ const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
+const resultRef = ref<HTMLElement | null>(null)
+const { exportToImage, isExporting } = useExportImage()
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '生肖运势.png')
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -293,7 +303,17 @@ async function restoreFromHistory(id: number) {
             <ToolToolbar
               :show-history="true"
               @history="showHistoryModal = true"
-            />
+            >
+              <template #extra>
+                <ExportButton
+                  v-if="result"
+                  :target-ref="resultRef"
+                  filename="生肖运势.png"
+                  :is-exporting="isExporting"
+                  @export="handleExport"
+                />
+              </template>
+            </ToolToolbar>
 
             <!-- Restore error toast -->
             <Transition name="toast">
@@ -314,6 +334,7 @@ async function restoreFromHistory(id: number) {
               </div>
             </Transition>
 
+          <div ref="resultRef">
           <ShengXiaoHero :result="result" />
 
           <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
@@ -366,6 +387,7 @@ async function restoreFromHistory(id: number) {
           <!-- 本命佛 -->
           <div v-if="guardianBuddha" class="mt-6">
             <GuardianBuddha :buddha="guardianBuddha" />
+          </div>
           </div>
 
           <!-- Restored from history notice -->
