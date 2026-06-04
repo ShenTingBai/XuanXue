@@ -218,6 +218,77 @@ function getHourStemStart(dayStemIndex: number): number {
   return (dayStemIndex * 2) % 10
 }
 
+/**
+ * Weighted day master strength scoring all 4 pillars + hidden stems.
+ *
+ * Factor weights:
+ *   month branch ×2.0, day branch ×1.5,
+ *   year stem, day stem, hour stem ×1.0,
+ *   year branch, hour branch ×1.0,
+ *   each hidden stem ×0.5
+ *
+ * Scoring per factor:
+ *   Same wuxing as day master → +1
+ *   Generates day master (生我) → +0.5
+ *   Controls day master (克我) → -0.5
+ *
+ * Wuxing cycle: 木→火→土→金→水→木 (indices 0-4).
+ * Standard relationships:
+ *   (fIdx + 1) % 5 === myIdx → f generates me
+ *   (fIdx + 2) % 5 === myIdx → f controls me
+ */
+export function getWeightedDayMasterStrength(
+  dayMasterWuxing: string,
+  pillars: BaZiPillar[],
+): '强' | '偏强' | '中和' | '偏弱' | '弱' {
+  const CYCLE = ['木', '火', '土', '金', '水']
+  const myIdx = CYCLE.indexOf(dayMasterWuxing)
+  if (myIdx < 0) return '中和'
+
+  function factorScore(wuxing: string): number {
+    const fIdx = CYCLE.indexOf(wuxing)
+    if (fIdx < 0) return 0
+    if (fIdx === myIdx) return 1              // same wuxing
+    if ((fIdx + 1) % 5 === myIdx) return 0.5  // generates me (生我)
+    if ((fIdx + 2) % 5 === myIdx) return -1.5 // controls me (克我)
+    return 0
+  }
+
+  // Pillar order: [年柱, 月柱, 日柱, 时柱]
+  const weights: { idx: number; field: 'stem' | 'branch'; weight: number }[] = [
+    { idx: 0, field: 'stem', weight: 1.0 },   // year stem
+    { idx: 0, field: 'branch', weight: 1.0 },  // year branch
+    { idx: 1, field: 'branch', weight: 2.0 },  // month branch
+    { idx: 2, field: 'stem', weight: 1.0 },    // day stem
+    { idx: 2, field: 'branch', weight: 1.5 },  // day branch
+    { idx: 3, field: 'stem', weight: 1.0 },    // hour stem
+    { idx: 3, field: 'branch', weight: 1.0 },  // hour branch
+  ]
+
+  let total = 0
+
+  for (const { idx, field, weight } of weights) {
+    const pillar = pillars[idx]
+    if (!pillar) continue
+    const wuxing = field === 'stem' ? pillar.stemWuxing : pillar.branchWuxing
+    total += factorScore(wuxing) * weight
+  }
+
+  // Hidden stems from all pillars
+  for (const pillar of pillars) {
+    if (!pillar) continue
+    for (const hs of pillar.hiddenStems) {
+      total += factorScore(hs.wuxing) * 0.5
+    }
+  }
+
+  if (total >= 3) return '强'
+  if (total >= 1) return '偏强'
+  if (total >= -1) return '中和'
+  if (total >= -3) return '偏弱'
+  return '弱'
+}
+
 /** Determine day master strength based on month order */
 export function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number): '强' | '偏强' | '中和' | '偏弱' | '弱' {
   const monthStrength: Record<string, number[]> = {
@@ -520,7 +591,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   // Day master
   const dayMaster = STEMS[dayStemIndex]
   const dayMasterWuxing = WUXING_STEM[dayMaster]
-  const dayMasterStrength = getDayMasterStrength(dayMasterWuxing, monthBranchIndex)
+  const dayMasterStrength = getWeightedDayMasterStrength(dayMasterWuxing, pillars)
   const [favorableElements, unfavorableElements] = getFavorableElements(dayMasterWuxing, dayMasterStrength)
 
   // Da Yun

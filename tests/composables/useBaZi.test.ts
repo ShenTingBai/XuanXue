@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements } from '../../composables/useBaZi'
+import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements, getWeightedDayMasterStrength } from '../../composables/useBaZi'
+import type { BaZiPillar } from '../../composables/useBaZi'
 import { STEMS } from '../../constants/bazi'
 
 describe('calculateBaZi', () => {
@@ -484,5 +485,41 @@ describe('getFavorableElements — correctness', () => {
     const weak = getFavorableElements('水', '弱')
     const slightlyWeak = getFavorableElements('水', '偏弱')
     expect(weak).toEqual(slightlyWeak)
+  })
+})
+
+// ============================================================================
+// T4: Weighted Day Master Strength (Task A2)
+// ============================================================================
+
+describe('getWeightedDayMasterStrength', () => {
+  it('甲木日主 寅月 年时皆木 → 强', () => {
+    const pillars = [
+      { stem: '甲', branch: '寅', stemWuxing: '木', branchWuxing: '木', stemTenGod: '比肩', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '食神', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '比肩', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
+      { stem: '甲', branch: '子', stemWuxing: '木', branchWuxing: '水', stemTenGod: '比肩', hiddenStems: [{ stem: '癸', wuxing: '水' }] },
+    ] as unknown as BaZiPillar[]
+    expect(getWeightedDayMasterStrength('木', pillars)).toBe('强')
+  })
+
+  it('庚金日主 午月 火旺克金 → 弱', () => {
+    const pillars = [
+      { stem: '丙', branch: '午', stemWuxing: '火', branchWuxing: '火', stemTenGod: '七杀', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
+      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '偏财', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
+      { stem: '庚', branch: '申', stemWuxing: '金', branchWuxing: '金', stemTenGod: '日主', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '七杀', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
+    ] as unknown as BaZiPillar[]
+    expect(getWeightedDayMasterStrength('金', pillars)).toBe('弱')
+  })
+
+  it('丙火日主 寅月 木火相助 → 偏强', () => {
+    const pillars = [
+      { stem: '甲', branch: '辰', stemWuxing: '木', branchWuxing: '土', stemTenGod: '偏印', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '乙', wuxing: '木' }, { stem: '癸', wuxing: '水' }] },
+      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '日主', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '比肩', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
+      { stem: '戊', branch: '申', stemWuxing: '土', branchWuxing: '金', stemTenGod: '食神', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
+    ] as unknown as BaZiPillar[]
+    expect(getWeightedDayMasterStrength('火', pillars)).toBe('偏强')
   })
 })
