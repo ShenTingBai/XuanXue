@@ -5,11 +5,15 @@
     </div>
     <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
       <div
-        v-for="item in items"
+        v-for="(item, idx) in items"
         :key="item.animal"
-        class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
-        :class="borderClass(item.level)"
-        :title="item.relation"
+        class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300 hover:-translate-y-0.5"
+        :class="[borderClass(item.level), expandedIdx === idx ? 'cursor-default' : 'cursor-pointer']"
+        @click="toggleExpand(idx)"
+        @keydown.enter="toggleExpand(idx)"
+        tabindex="0"
+        role="button"
+        :aria-expanded="expandedIdx === idx"
       >
         <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.emoji }}</div>
         <div class="font-display text-base text-ink-dark">{{ item.animal }}</div>
@@ -19,6 +23,21 @@
         >
           {{ item.relation }}
         </span>
+
+        <!-- Accordion explanation -->
+        <Transition name="expand">
+          <div
+            v-if="expandedIdx === idx && item.explanation"
+            class="mt-2 pt-2 border-t border-paper-dark/30"
+          >
+            <p
+              class="text-left font-sans text-[0.6rem] text-ink-light leading-relaxed pl-2 border-l-2"
+              :class="item.level === 'great' ? 'border-wuxing-wood/40' : 'border-cinnabar/30'"
+            >
+              {{ item.explanation }}
+            </p>
+          </div>
+        </Transition>
       </div>
     </div>
   </div>
@@ -30,6 +49,12 @@ import type { Compatibility } from '~/composables/useShengXiao'
 defineProps<{
   items: Compatibility[]
 }>()
+
+const expandedIdx = ref<number | null>(null)
+
+function toggleExpand(idx: number) {
+  expandedIdx.value = expandedIdx.value === idx ? null : idx
+}
 
 function borderClass(level: string): string {
   return level === 'great'
@@ -47,3 +72,21 @@ function levelClass(level: string): string {
       : 'bg-cinnabar/5 text-cinnabar/80'
 }
 </script>
+
+<style scoped>
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 5rem;
+  opacity: 1;
+}
+</style>

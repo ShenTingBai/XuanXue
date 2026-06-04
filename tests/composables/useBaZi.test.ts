@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements } from '../../composables/useBaZi'
+import { calculateBaZi, getTenGod, getDayMasterStrength, getFavorableElements, getWeightedDayMasterStrength, getSeasonalAdjustment, getPillarInterpretation } from '../../composables/useBaZi'
+import type { BaZiPillar } from '../../composables/useBaZi'
 import { STEMS } from '../../constants/bazi'
 
 describe('calculateBaZi', () => {
@@ -324,6 +325,33 @@ describe('calculateBaZi', () => {
 })
 
 // ============================================================================
+// T0: Pillar Interpretations
+// ============================================================================
+
+describe('getPillarInterpretation', () => {
+  it('年柱七杀 → returns interpretation', () => {
+    const text = getPillarInterpretation('庚', '七杀', '年柱', '火', '金')
+    expect(text).toContain('祖上根基')
+    expect(text.length).toBeGreaterThan(5)
+  })
+
+  it('月柱正印 → returns interpretation', () => {
+    const text = getPillarInterpretation('癸', '正印', '月柱', '水', '火')
+    expect(text).toContain('正印')
+  })
+
+  it('日柱 → uses special format', () => {
+    const text = getPillarInterpretation('甲', '日主', '日柱', '木', '木')
+    expect(text).toContain('自身造化')
+  })
+
+  it('时柱食神 → returns interpretation', () => {
+    const text = getPillarInterpretation('戊', '食神', '时柱', '金', '火')
+    expect(text).toContain('食神泄秀')
+  })
+})
+
+// ============================================================================
 // T1: Full Ten God Matrix Verification
 // ============================================================================
 
@@ -484,5 +512,114 @@ describe('getFavorableElements — correctness', () => {
     const weak = getFavorableElements('水', '弱')
     const slightlyWeak = getFavorableElements('水', '偏弱')
     expect(weak).toEqual(slightlyWeak)
+  })
+})
+
+// ============================================================================
+// T4: Weighted Day Master Strength (Task A2)
+// ============================================================================
+
+describe('getWeightedDayMasterStrength', () => {
+  it('甲木日主 寅月 年时皆木 → 强', () => {
+    const pillars = [
+      { stem: '甲', branch: '寅', stemWuxing: '木', branchWuxing: '木', stemTenGod: '比肩', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '食神', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '比肩', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
+      { stem: '甲', branch: '子', stemWuxing: '木', branchWuxing: '水', stemTenGod: '比肩', hiddenStems: [{ stem: '癸', wuxing: '水' }] },
+    ] as unknown as BaZiPillar[]
+    expect(getWeightedDayMasterStrength('木', pillars)).toBe('强')
+  })
+
+  it('庚金日主 午月 火旺克金 → 弱', () => {
+    const pillars = [
+      { stem: '丙', branch: '午', stemWuxing: '火', branchWuxing: '火', stemTenGod: '七杀', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
+      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '偏财', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
+      { stem: '庚', branch: '申', stemWuxing: '金', branchWuxing: '金', stemTenGod: '日主', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '七杀', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
+    ] as unknown as BaZiPillar[]
+    expect(getWeightedDayMasterStrength('金', pillars)).toBe('弱')
+  })
+
+  it('丙火日主 寅月 木火相助 → 偏强', () => {
+    const pillars = [
+      { stem: '甲', branch: '辰', stemWuxing: '木', branchWuxing: '土', stemTenGod: '偏印', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '乙', wuxing: '木' }, { stem: '癸', wuxing: '水' }] },
+      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '日主', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
+      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '比肩', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
+      { stem: '戊', branch: '申', stemWuxing: '土', branchWuxing: '金', stemTenGod: '食神', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
+    ] as unknown as BaZiPillar[]
+    expect(getWeightedDayMasterStrength('火', pillars)).toBe('偏强')
+  })
+})
+
+// ============================================================================
+// T5: Seasonal Climate Adjustment (调候) — Task A3
+// ============================================================================
+
+describe('getSeasonalAdjustment', () => {
+  it('寅月(2) → 金', () => {
+    expect(getSeasonalAdjustment(2)).toBe('金')
+  })
+  it('午月(6) → 水', () => {
+    expect(getSeasonalAdjustment(6)).toBe('水')
+  })
+  it('酉月(9) → 火', () => {
+    expect(getSeasonalAdjustment(9)).toBe('火')
+  })
+  it('子月(0) → 火', () => {
+    expect(getSeasonalAdjustment(0)).toBe('火')
+  })
+  it('丑月(1) → 火', () => {
+    expect(getSeasonalAdjustment(1)).toBe('火')
+  })
+  it('卯月(3) → 金', () => {
+    expect(getSeasonalAdjustment(3)).toBe('金')
+  })
+  it('巳月(5) → 水', () => {
+    expect(getSeasonalAdjustment(5)).toBe('水')
+  })
+  it('亥月(11) → 火', () => {
+    expect(getSeasonalAdjustment(11)).toBe('火')
+  })
+})
+
+describe('getFavorableElements with seasonal adjustment', () => {
+  it('庚金身强 申月(8) — 调候火 prepended to favorable', () => {
+    const [fav, unfav] = getFavorableElements('金', '强', 8)
+    // 身强 prefers 火/水/木; 申月(秋) 调候火
+    // 火 is already in standard favorable list, so no duplication
+    expect([...fav].sort()).toEqual(['木', '水', '火'])
+    expect([...unfav].sort()).toEqual(['土', '金'])
+  })
+
+  it('癸水身弱 午月(6) — 调候水 prepended', () => {
+    const [fav, unfav] = getFavorableElements('水', '弱', 6)
+    // 身弱 prefers 金/水; 午月(夏) 调候水
+    // 水 is already in standard favorable list → no duplication
+    expect([...fav].sort()).toEqual(['水', '金'])
+    expect([...unfav].sort()).toEqual(['土', '木', '火'])
+  })
+
+  it('甲木身强 午月(6) — 调候水 prepended (not in standard favorable)', () => {
+    const [fav, unfav] = getFavorableElements('木', '强', 6)
+    // 身强 prefers 金/火/土; 午月(夏) 调候水
+    // 水 is NOT in standard favorable → prepended
+    expect(fav[0]).toBe('水')
+    expect(fav).toContain('金')
+    expect(fav).toContain('火')
+    expect(fav).toContain('土')
+  })
+
+  it('丙火身弱 子月(0) — 调候火 prepended', () => {
+    const [fav, unfav] = getFavorableElements('火', '弱', 0)
+    // 身弱 prefers 木/火; 子月(冬) 调候火
+    // 火 is already in standard favorable list → no duplication
+    expect([...fav].sort()).toEqual(['木', '火'])
+    expect([...unfav].sort()).toEqual(['土', '水', '金'])
+  })
+
+  it('backward compatible: 2-arg call still works', () => {
+    const [fav, unfav] = getFavorableElements('金', '强')
+    expect([...fav].sort()).toEqual(['木', '水', '火'])
+    expect([...unfav].sort()).toEqual(['土', '金'])
   })
 })

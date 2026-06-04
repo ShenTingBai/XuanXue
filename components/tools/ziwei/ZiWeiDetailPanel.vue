@@ -115,6 +115,15 @@
         </div>
       </div>
 
+      <!-- Full interpretation (combined synthesis) -->
+      <div class="detail-section">
+        <h4 class="detail-section-title">
+          <span class="title-dot"></span>综合解读
+          <span class="text-[10px] text-ink-light/80 font-normal ml-1">（全文）</span>
+        </h4>
+        <p class="full-interpretation-text">{{ detailView.fullInterpretation }}</p>
+      </div>
+
       <!-- Decadal range -->
       <div v-if="detailView.decadalRange && detailView.decadalRange[0] > 0" class="detail-section">
         <h4 class="detail-section-title">
@@ -307,6 +316,16 @@ function getMutagenClass(transformation: string): string {
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--color-cinnabar);
+}
+
+.full-interpretation-text {
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--color-ink-medium);
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in srgb, var(--color-ink-faint) 4%, transparent);
+  border-radius: 4px;
+  border-left: 2px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
 }
 
 .detail-empty-text {
