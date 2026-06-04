@@ -28,7 +28,12 @@ export function parseDate(str: string): { year: number; month: number; day: numb
  */
 export function formatRelativeTime(dateStr: string): string {
   const now = Date.now()
-  const target = new Date(dateStr).getTime()
+  // SQLite datetime('now') returns UTC in "YYYY-MM-DD HH:MM:SS" format
+  // without timezone marker. JavaScript Date.parse treats this as local
+  // time, causing an offset equal to the timezone (e.g. 8h in UTC+8).
+  // Append 'Z' to force UTC interpretation.
+  const normalized = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + 'Z'
+  const target = new Date(normalized).getTime()
   if (isNaN(target)) return dateStr
 
   const diffMs = now - target
