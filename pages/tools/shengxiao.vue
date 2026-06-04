@@ -21,7 +21,9 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
+import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
 import type { TaiSuiRelation } from '~/constants/tai-sui'
+import { getGuardianBuddha } from '~/constants/guardian-buddha'
 
 useHead({ title: '生肖 - 玄学' })
 
@@ -120,6 +122,11 @@ const primaryRelation = computed<TaiSuiRelation>(() => {
   if (!result.value) return '平'
   const { negative, positive } = result.value.taiSuiRelationships
   return (negative !== '平' ? negative : positive) as TaiSuiRelation
+})
+
+const guardianBuddha = computed(() => {
+  if (!result.value || selectedAnimal.value === null) return null
+  return getGuardianBuddha(selectedAnimal.value) || null
 })
 
 function scrollToAnimalNav() {
@@ -343,6 +350,11 @@ async function restoreFromHistory(id: number) {
           />
 
           <CompatibilityGrid :items="result.compatibility" />
+
+          <!-- 本命佛 -->
+          <div v-if="guardianBuddha" class="mt-6">
+            <GuardianBuddha :buddha="guardianBuddha" />
+          </div>
 
           <!-- Restored from history notice -->
           <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
