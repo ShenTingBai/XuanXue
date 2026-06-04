@@ -1,27 +1,19 @@
 <template>
   <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.15s' }">
+    <div class="section-header">
+      <h2>今日运势</h2>
+    </div>
+
     <FortuneBars :items="fortuneItems" />
 
-    <div class="section-header mt-6">
-      <h2>综合运势</h2>
-    </div>
-
-    <div class="flex flex-col items-center py-4">
-      <div class="flex items-start">
-        <span
-          class="text-5xl sm:text-6xl font-display leading-none text-cinnabar"
-        >
-          {{ horoscope.overall }}
-        </span>
-        <span class="font-sans text-base text-ink-light mt-1 ml-1">/ 100</span>
-      </div>
-      <p class="font-sans text-sm text-ink-medium mt-2">{{ scoreLabel(horoscope.overall) }}</p>
-    </div>
+    <!-- Scoring basis note -->
+    <p class="mt-4 pt-3 border-t border-ink-faint/15 font-sans text-[0.72rem] text-ink-medium leading-relaxed">
+      评分依据：日相（太阳过宫方位）提供季节基调，月相（月球黄经位置）驱动每日波动，元素共振调节情感与行动倾向。基准 50 分，相位 ±20 分，元素 ±6 分，压缩至 0-100 区间。
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { ConstellationResult } from '~/composables/useConstellation'
 import FortuneBars from '~/components/tools/FortuneBars.vue'
 
@@ -36,12 +28,4 @@ const fortuneItems = computed(() => [
   { label: '财运', score: props.horoscope.wealth },
   { label: '健康', score: props.horoscope.health },
 ])
-
-function scoreLabel(score: number): string {
-  if (score >= 80) return '运势极佳，万事顺遂'
-  if (score >= 60) return '运势不错，把握良机'
-  if (score >= 40) return '运势平稳，稳中求进'
-  if (score >= 20) return '运势欠佳，多加谨慎'
-  return '运势低迷，静待时机'
-}
 </script>

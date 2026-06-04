@@ -99,6 +99,8 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ### UI 设计：墨韵 · Ink Resonance
 
+**完整设计规范见 [`docs/design-system.md`](docs/design-system.md)**——任何 UI 改动（新增组件、修改全局 CSS、调整色板/字体）前必须先查阅，并在同一提交中同步更新文档。全局 CSS 类无文档记录视为未完成，不得合并。
+
 传统中式书房美学：
 
 - **色板**：墨（7 阶）、纸（6 阶）、朱砂（#C62828 主色）、金、玉。

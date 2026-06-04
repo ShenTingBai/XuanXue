@@ -236,6 +236,51 @@ html {
     border-radius: 4px;
   }
 
+  /* ── 眉批折叠按钮（Marginal Toggle）──
+     轻量展开/收起控件，仿古书页边批注风格。
+     细墨线为引，悬停时朱砂点染。 */
+  .marginal-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-ink-light);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    user-select: none;
+    transition: color 0.2s ease;
+  }
+  .marginal-toggle__rule {
+    width: 1px;
+    height: 0.875rem;
+    background: var(--color-ink-faint);
+    transition: background 0.2s ease, height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .marginal-toggle:hover {
+    color: var(--color-cinnabar);
+  }
+  .marginal-toggle:hover .marginal-toggle__rule {
+    background: var(--color-cinnabar);
+    height: 1.125rem;
+  }
+  .marginal-toggle:focus-visible {
+    outline: 2px solid var(--color-cinnabar);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+  .marginal-toggle__arrow {
+    display: inline-block;
+    font-size: 0.55rem;
+    transition: transform 0.3s ease;
+  }
+  .marginal-toggle[aria-expanded="true"] .marginal-toggle__arrow {
+    transform: rotate(180deg);
+  }
+
   /* ── Text Link ── */
   .btn-link {
     @apply text-cinnabar hover:underline transition-colors;

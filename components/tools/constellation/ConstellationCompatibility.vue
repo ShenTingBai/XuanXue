@@ -1,0 +1,92 @@
+<template>
+  <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.45s' }">
+    <div class="section-header">
+      <h2>速配星座</h2>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div
+        v-for="(item, idx) in items"
+        :key="item.name"
+        class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300"
+        :class="[borderClass(item.level), expandedIdx === idx ? '' : 'cursor-pointer hover:-translate-y-0.5']"
+        @click="toggleExpand(idx)"
+        @keydown.enter="toggleExpand(idx)"
+        tabindex="0"
+        role="button"
+        :aria-expanded="expandedIdx === idx"
+      >
+        <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.symbol }}</div>
+        <div class="font-display text-base text-ink-dark">{{ item.name }}</div>
+        <span
+          class="inline-block mt-1.5 px-2 py-0.5 rounded text-[0.72rem] font-sans tracking-wider"
+          :class="badgeClass(item.level)"
+        >
+          {{ item.label }}
+        </span>
+
+        <!-- Accordion explanation -->
+        <Transition name="expand">
+          <div
+            v-if="expandedIdx === idx && item.explanation"
+            class="mt-2 pt-2 border-t border-paper-dark/30"
+          >
+            <p
+              class="text-left font-sans text-[0.72rem] text-ink-medium leading-relaxed pl-2 border-l-2"
+              :class="item.level === 'great' ? 'border-wuxing-wood/40' : item.level === 'bad' ? 'border-cinnabar/30' : 'border-ink-faint/40'"
+            >
+              {{ item.explanation }}
+            </p>
+          </div>
+        </Transition>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { ConstellationResult } from '~/composables/useConstellation'
+
+defineProps<{
+  items: ConstellationResult['compatibility']
+}>()
+
+const expandedIdx = ref<number | null>(null)
+
+function toggleExpand(idx: number) {
+  expandedIdx.value = expandedIdx.value === idx ? null : idx
+}
+
+function borderClass(level: string): string {
+  return level === 'great'
+    ? 'hover:border-jade'
+    : level === 'good'
+      ? 'hover:border-gold'
+      : 'hover:border-cinnabar/30'
+}
+
+function badgeClass(level: string): string {
+  return level === 'great'
+    ? 'bg-wuxing-wood/10 text-wuxing-wood'
+    : level === 'good'
+      ? 'bg-gold/10 text-gold'
+      : 'bg-cinnabar/5 text-cinnabar/80'
+}
+</script>
+
+<style scoped>
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 5rem;
+  opacity: 1;
+}
+</style>

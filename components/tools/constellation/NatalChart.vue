@@ -409,7 +409,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         :x1="al.x1" :y1="al.y1" :x2="al.x2" :y2="al.y2"
         class="aspect-line"
         :class="al.harmonious ? 'aspect-line--harmonious' : 'aspect-line--challenging'"
-        :stroke-dasharray="al.aspect.type === 'sextile' ? '3,3' : undefined"
+        :stroke-dasharray="al.aspect.type === 'sextile' ? '5,3' : undefined"
       />
 
       <!-- Planet orbs (SVG circles behind DOM labels) -->
@@ -579,8 +579,8 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .aspect-line {
-  stroke-width: 1;
-  opacity: 0.2;
+  stroke-width: 1.5;
+  opacity: 0.35;
   transition: opacity 200ms ease, stroke-width 200ms ease;
 }
 
@@ -590,6 +590,11 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .aspect-line--challenging {
   stroke: var(--color-cinnabar);
+}
+
+/* On hover, all aspect lines become more visible */
+.natal-chart:hover .aspect-line {
+  opacity: 0.5;
 }
 
 .planet-orb {

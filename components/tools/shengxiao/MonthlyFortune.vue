@@ -107,10 +107,11 @@ function relationshipAnnotation(rel: string): string {
         @click="toggleExpanded"
         @keydown.enter="toggleExpanded"
         @keydown.space.prevent="toggleExpanded"
-        class="btn-cin text-sm"
+        class="marginal-toggle"
       >
-        <span class="sr-only">{{ expanded ? '收起' : '展开' }}逐月运势</span>
-        <span aria-hidden="true">{{ expanded ? '收起 ▲' : '展开 ▼' }}</span>
+        <span class="marginal-toggle__rule" aria-hidden="true"></span>
+        <span>{{ expanded ? '收起' : '展开' }}</span>
+        <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
       </button>
     </div>
 
