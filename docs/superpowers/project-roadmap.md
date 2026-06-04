@@ -46,10 +46,12 @@
 | Phase 5 | 六爻占卜 | ✅ 完成 | `main` |
 | Phase 6 | 紫微斗数 | ✅ 完成 | `main` |
 | — | 紫微天星图重设计 | ✅ 完成 | `main` |
-| — | 设计系统落地（玄·道品牌） | 🔄 进行中 | `feat/design-system-rollout` |
-| — | 工具页面视觉适配 | ⏳ 待办 | — |
-| — | 纸纹纹理确认 | ⏳ 待办 | — |
-| Phase 7+ | 功能扩展（太岁/合婚/姓名测试/星盘…） | 📋 规划中 | — |
+| — | 设计系统落地（玄·道品牌） | ✅ 完成 | `main` |
+| — | 工具页面视觉适配 | ✅ 完成 | `main` |
+| — | 纸纹纹理确认 | ✅ 完成 | `main` |
+| — | Batch 4A（八字增强 + 紫微补齐 + 配对解释） | ✅ 完成 | `main` |
+| — | Batch 4B（星座星盘） | ✅ 完成 | `main` |
+| Phase 7+ | 第 1/2/3/5 批待执行 | 📋 规划中 | — |
 
 ## 设计系统落地范围
 
@@ -81,4 +83,7 @@
 | Phase 5 计划 | [`plans/2026-05-26-phase-5-yijing-divination.md`](plans/2026-05-26-phase-5-yijing-divination.md) |
 | Phase 6 计划 | [`plans/2026-05-26-phase-6-ziwei-implementation.md`](plans/2026-05-26-phase-6-ziwei-implementation.md) |
 | 紫微天星图重设计 | [`plans/2026-05-31-ziwei-celestial-redesign.md`](plans/2026-05-31-ziwei-celestial-redesign.md) |
+| Batch 4A 计划 | [`plans/2026-06-04-batch-4a-bazi-ziwei-pairing.md`](plans/2026-06-04-batch-4a-bazi-ziwei-pairing.md) |
+| Batch 4B 设计 | [`specs/2026-06-04-batch-4b-constellation-natal-chart-design.md`](specs/2026-06-04-batch-4b-constellation-natal-chart-design.md) |
+| Batch 4B 计划 | [`plans/2026-06-04-batch-4b-constellation-natal-chart.md`](plans/2026-06-04-batch-4b-constellation-natal-chart.md) |
 | Phase 7+ 路线图 | [`plans/2026-05-31-xuandao-phase-7-plus-roadmap.md`](plans/2026-05-31-xuandao-phase-7-plus-roadmap.md) |
