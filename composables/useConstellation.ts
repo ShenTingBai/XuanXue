@@ -24,6 +24,11 @@ export interface ConstellationResult {
     level: 'great' | 'good' | 'bad'
     label: string
   }>
+  /** 月亮星座（出生时月亮所在星座），仅在提供出生年份时计算 */
+  moonSign?: {
+    name: string
+    symbol: string
+  }
 }
 
 // ── Zodiac Data ──────────────────────────────────────────────
@@ -471,6 +476,28 @@ function formatDateRange(z: ZodiacEntry): string {
   return `${z.startMonth}月${z.startDay}日 — ${z.endMonth}月${z.endDay}日`
 }
 
+/**
+ * Calculate the natal moon sign — the zodiac constellation the Moon was in
+ * at the moment of birth. Uses simplified mean lunar longitude.
+ *
+ * @param year - Birth year
+ * @param month - Birth month (1-12)
+ * @param day - Birth day (1-31)
+ * @returns The moon's zodiac sign name and symbol, or undefined if year is missing
+ */
+export function getMoonSign(year: number | undefined, month: number, day: number): { name: string; symbol: string } | undefined {
+  if (year === undefined || year === null) return undefined
+  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined
+  const birthDate = new Date(year, month - 1, day, 12, 0, 0)
+  const days = daysSinceJ2000(birthDate)
+  const moonLon = lunarLongitude(days)
+  const signIndex = getSignFromLongitude(moonLon)
+  return {
+    name: ZODIACS[signIndex].name,
+    symbol: ZODIACS[signIndex].symbol,
+  }
+}
+
 // ── Main Function ────────────────────────────────────────────
 
 /**
@@ -479,12 +506,14 @@ function formatDateRange(z: ZodiacEntry): string {
  * @param month - Birth month (1-12)
  * @param day - Birth day (1-31)
  * @param currentDate - Optional date for horoscope calculation. Defaults to today.
+ * @param birthYear - Optional birth year for natal moon sign calculation.
  * @returns Complete constellation result with horoscope, compatibility, Yi/Ji, etc.
  */
 export function calculateConstellation(
   month: number,
   day: number,
   currentDate?: Date,
+  birthYear?: number,
 ): ConstellationResult {
   if (month < 1 || month > 12) {
     throw new RangeError(`Invalid month: ${month}. Month must be between 1 and 12.`)
@@ -499,6 +528,7 @@ export function calculateConstellation(
   const horoscope = computeHoroscope(index, date)
   const { todayYi, todayJi } = pickYiJi(horoscope.overall)
   const compatibility = computeConstellationCompat(index)
+  const moonSign = getMoonSign(birthYear, month, day)
 
   return {
     name: zodiac.name,
@@ -513,5 +543,6 @@ export function calculateConstellation(
     todayYi,
     todayJi,
     compatibility,
+    moonSign,
   }
 }

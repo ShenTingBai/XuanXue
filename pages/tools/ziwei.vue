@@ -26,14 +26,14 @@ const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 
 const loading = ref(false)
 const error = ref('')
-const saveError = ref('')
-const showSaveErrorToast = ref(false)
 const astrolabe = ref<IFunctionalAstrolabe | null>(null)
 const selectedPalace = ref<IFunctionalPalace | null>(null)
 const selectedIndex = ref(0)
 const currentView = ref<'celestial' | 'grid'>('celestial')
 const showHistoryModal = ref(false)
 const showScrollTop = ref(false)
+const restoreError = ref('')
+const restoredFromHistory = ref(false)
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -97,6 +97,7 @@ function handleCalculate() {
 
   loading.value = true
   error.value = ''
+  restoredFromHistory.value = false
 
   try {
     const ziweiResult = calculateZiWei({
@@ -183,19 +184,10 @@ async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
     if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as any).statusCode
       if (code === 401) return
-      if (code === 429) {
-        saveError.value = '操作太频繁了，歇一会儿再试试吧'
-        showSaveErrorToast.value = true
-        return
-      }
+      if (code === 429) return // auto-save is best-effort; rate limit is expected
     }
-    saveError.value = '保存失败，历史记录可能不完整'
-    showSaveErrorToast.value = true
+    console.error('保存历史记录失败:', e)
   }
-}
-
-function dismissSaveToast() {
-  showSaveErrorToast.value = false
 }
 
 function onHistoryRestore(id: number) {
@@ -220,6 +212,10 @@ async function restoreFromHistory(id: number) {
       gender.value = input.gender ?? null
     }
 
+    // Reset error state on successful restore
+    restoreError.value = ''
+    restoredFromHistory.value = true
+
     // Try snapshot restore from result_data
     if (record.result_data) {
       const deserialized = deserializeAstrolabe(record.result_data as Record<string, unknown>)
@@ -234,8 +230,12 @@ async function restoreFromHistory(id: number) {
     // Fallback: re-calculate from input_data
     handleCalculate()
   } catch {
-    error.value = '历史记录加载失败，请稍后重试'
+    restoreError.value = '历史记录加载失败，请稍后重试'
   }
+}
+
+function dismissRestoreError() {
+  restoreError.value = ''
 }
 </script>
 
@@ -255,6 +255,16 @@ async function restoreFromHistory(id: number) {
       <NuxtLink to="/login" class="btn-cin inline-flex">
         <span>前往登录</span>
       </NuxtLink>
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="text-center py-16">
+      <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
+      <div class="flex justify-center mt-6">
+        <button @click="handleCalculate" class="btn-cin">
+          <span>重新排盘</span>
+        </button>
+      </div>
     </div>
 
     <!-- Input form (shown before first calculation) -->
@@ -297,26 +307,26 @@ async function restoreFromHistory(id: number) {
           @history="showHistoryModal = true"
         />
 
-        <!-- Save error toast -->
+        <!-- Save error is handled silently (fire-and-forget) -->
+
+        <!-- Restore error toast -->
         <Transition name="toast">
           <div
-            v-if="showSaveErrorToast"
+            v-if="restoreError"
             class="toast-notification"
             role="alert"
           >
             <span class="toast-notification__mark" aria-hidden="true">!</span>
-            <span class="toast-notification__text">{{ saveError }}</span>
+            <span class="toast-notification__text">{{ restoreError }}</span>
             <button
-              @click="dismissSaveToast"
-              @keydown.enter="dismissSaveToast"
-              @keydown.space.prevent="dismissSaveToast"
+              @click="dismissRestoreError"
+              @keydown.enter="dismissRestoreError"
+              @keydown.space.prevent="dismissRestoreError"
               class="toast-notification__close"
               aria-label="关闭提示"
             >&times;</button>
           </div>
         </Transition>
-
-        <!-- Tab Switcher -->
         <ZiWeiTabSwitcher
           :current-view="currentView"
           @update:current-view="currentView = $event"
@@ -371,6 +381,11 @@ async function restoreFromHistory(id: number) {
             :current-age="currentAge"
             @select="handleSelectPalace"
           />
+        </div>
+
+        <!-- Restored from history notice -->
+        <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
+          <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
         </div>
 
         <!-- Action buttons -->

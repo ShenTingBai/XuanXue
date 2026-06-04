@@ -65,7 +65,7 @@ const submit = async () => {
       router.push(`/profile/${currentProfile.value?.id}?onboarding=true`)
     }
   } catch (e: any) {
-    error.value = e?.data?.statusMessage || e?.message || '操作失败'
+    error.value = e?.data?.statusMessage || '登录失败，请检查网络连接后重试'
   } finally {
     loading.value = false
   }

@@ -23,11 +23,11 @@ useHead({ title: '星座 - 玄学' })
 const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)
 const missingBirthInfo = ref(false)
+const error = ref('')
 const selectedZodiac = ref(0)
 const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const saveError = ref('')
-const showSaveErrorToast = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
@@ -69,38 +69,50 @@ onUnmounted(() => {
 function computeResult() {
   if (!currentProfile.value?.birth_date) return
   loading.value = true
+  error.value = ''
 
   const parsed = parseDate(currentProfile.value.birth_date)
-  if (!parsed) { loading.value = false; return }
-  const { month, day } = parsed
+  if (!parsed) { error.value = '出生日期格式无效，请修改个人信息'; loading.value = false; return }
+  const { year, month, day } = parsed
 
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
   restoreError.value = ''
   restoredFromHistory.value = false
 
-  result.value = calculateConstellation(month, day, new Date())
-  selectedZodiac.value = getZodiacIndex(month, day)
-  saveDivinationResult(result.value, month, day)
+  try {
+    result.value = calculateConstellation(month, day, new Date(), year)
+    selectedZodiac.value = getZodiacIndex(month, day)
+    saveDivinationResult(result.value, month, day)
+  } catch {
+    error.value = '计算星座出错，请稍后重试'
+  }
   loading.value = false
 }
 
 function selectZodiac(index: number) {
   selectedZodiac.value = index
   loading.value = true
+  error.value = ''
 
   const month = ZODIACS[index].startMonth
   const day = ZODIACS[index].startDay
+  // Use profile birth year for moon sign estimation when selecting other zodiacs
+  const birthYear = currentProfile.value?.birth_date
+    ? parseDate(currentProfile.value.birth_date)?.year
+    : undefined
 
   savedDivinationId.value = null
   saveError.value = ''
-  showSaveErrorToast.value = false
   restoreError.value = ''
   restoredFromHistory.value = false
 
-  result.value = calculateConstellation(month, day, new Date())
-  saveDivinationResult(result.value, month, day)
+  try {
+    result.value = calculateConstellation(month, day, new Date(), birthYear)
+    saveDivinationResult(result.value, month, day)
+  } catch {
+    error.value = '计算星座出错，请稍后重试'
+  }
   loading.value = false
 }
 
@@ -145,20 +157,11 @@ async function saveDivinationResult(result: ConstellationResult, month: number, 
     // 429 handled globally by auth-interceptor; 401 redirects there too
     if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as any).statusCode
-      if (code === 429) {
-        saveError.value = '操作太频繁了，歇一会儿再试试吧'
-        showSaveErrorToast.value = true
-        return
-      }
+      if (code === 429) return // auto-save is best-effort; rate limit is expected
       if (code === 401) return // global interceptor handles logout + redirect
     }
-    saveError.value = '保存失败，请稍后再试'
-    showSaveErrorToast.value = true
+    console.error('保存历史记录失败:', e)
   }
-}
-
-function dismissSaveErrorToast() {
-  showSaveErrorToast.value = false
 }
 
 
@@ -246,6 +249,19 @@ function dismissRestoreError() {
           <SkeletonBars />
         </div>
 
+        <!-- Error -->
+        <div v-else-if="error" class="text-center py-16">
+          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+          <div class="flex justify-center mt-6">
+            <NuxtLink
+              :to="`/profile/${currentProfile?.id}`"
+              class="btn-cin inline-flex"
+            >
+              <span>前往编辑档案</span>
+            </NuxtLink>
+          </div>
+        </div>
+
         <!-- Result -->
         <template v-else-if="result">
           <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
@@ -254,25 +270,6 @@ function dismissRestoreError() {
               :show-history="true"
               @history="showHistoryModal = true"
             />
-
-            <!-- Save error toast -->
-            <Transition name="toast">
-              <div
-                v-if="showSaveErrorToast"
-                class="toast-notification"
-                role="alert"
-              >
-                <span class="toast-notification__mark" aria-hidden="true">!</span>
-                <span class="toast-notification__text">{{ saveError }}</span>
-                <button
-                  @click="dismissSaveErrorToast"
-                  @keydown.enter="dismissSaveErrorToast"
-                  @keydown.space.prevent="dismissSaveErrorToast"
-                  class="toast-notification__close"
-                  aria-label="关闭提示"
-                >&times;</button>
-              </div>
-            </Transition>
 
             <!-- Restore error toast -->
             <Transition name="toast">
