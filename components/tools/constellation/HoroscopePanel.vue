@@ -2,16 +2,14 @@
   <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.15s' }">
     <FortuneBars :items="fortuneItems" />
 
-    <div class="section-header section-header--tool section-header--tool-light mt-6">
-      <span class="bar" aria-hidden="true"></span>
+    <div class="section-header mt-6">
       <h2>综合运势</h2>
     </div>
 
     <div class="flex flex-col items-center py-4">
       <div class="flex items-start">
         <span
-          class="text-5xl sm:text-6xl font-display leading-none"
-          :class="scoreColorClass(horoscope.overall)"
+          class="text-5xl sm:text-6xl font-display leading-none text-cinnabar"
         >
           {{ horoscope.overall }}
         </span>
@@ -38,13 +36,6 @@ const fortuneItems = computed(() => [
   { label: '财运', score: props.horoscope.wealth },
   { label: '健康', score: props.horoscope.health },
 ])
-
-function scoreColorClass(score: number): string {
-  if (score >= 75) return 'text-wuxing-wood'
-  if (score >= 60) return 'text-gold'
-  if (score >= 45) return 'text-ink-medium'
-  return 'text-cinnabar'
-}
 
 function scoreLabel(score: number): string {
   if (score >= 80) return '运势极佳，万事顺遂'

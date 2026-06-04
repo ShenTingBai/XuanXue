@@ -6,9 +6,7 @@
   <div v-else class="fade-in" :style="{ '--delay': '0.25s' }">
     <!-- Score ring -->
     <h2 class="sr-only">卦象评分</h2>
-    <div class="section-header section-header--tool">
-      <span class="bar" aria-hidden="true"></span>
-      <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+    <div class="section-header">
       <h2>卦象评分</h2>
     </div>
     <div class="flex justify-center mb-8">
@@ -17,8 +15,7 @@
 
     <!-- Primary hexagram -->
     <h2 class="sr-only">本卦</h2>
-    <div class="section-header section-header--tool">
-      <span class="bar" aria-hidden="true"></span>
+    <div class="section-header">
       <h2>本卦</h2>
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">
@@ -39,8 +36,7 @@
 
     <!-- Derived hexagram (变卦) -->
     <template v-if="result.derivedHexagram && result.derivedLines">
-      <div class="section-header section-header--tool">
-        <span class="bar" aria-hidden="true"></span>
+      <div class="section-header">
         <h2>变卦</h2>
       </div>
       <div class="card-warm rounded-xl p-8 mb-6">
@@ -62,8 +58,7 @@
 
     <!-- Mutual hexagram (互卦) -->
     <template v-if="result.huGua && result.huGuaLines">
-      <div class="section-header section-header--tool">
-        <span class="bar" aria-hidden="true"></span>
+      <div class="section-header">
         <h2>互卦</h2>
       </div>
       <div class="card-warm rounded-xl p-8 mb-6">
@@ -84,8 +79,7 @@
     </template>
 
     <!-- Interpretation text -->
-    <div class="section-header section-header--tool">
-      <span class="bar" aria-hidden="true"></span>
+    <div class="section-header">
       <h2>卦象解读</h2>
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">
@@ -105,8 +99,7 @@
     </div>
 
     <!-- Line detail table -->
-    <div class="section-header section-header--tool">
-      <span class="bar" aria-hidden="true"></span>
+    <div class="section-header">
       <h2>六爻详解</h2>
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">

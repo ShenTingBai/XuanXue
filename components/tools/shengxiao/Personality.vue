@@ -1,7 +1,6 @@
 <template>
-  <div class="fade-in mb-6" :style="{ '--delay': '0.35s' }">
-    <div class="section-header section-header--tool section-header--tool-light">
-      <span class="bar" aria-hidden="true"></span>
+  <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.35s' }">
+    <div class="section-header">
       <h2>性格特征</h2>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">

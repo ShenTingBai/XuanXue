@@ -142,8 +142,17 @@ async function saveDivinationResult(result: ConstellationResult, month: number, 
       saveError.value = ''
     }
   } catch (e: unknown) {
-    saveError.value = e instanceof Error ? e.message : '保存失败'
-    savedDivinationId.value = null
+    // 429 handled globally by auth-interceptor; 401 redirects there too
+    if (e && typeof e === 'object' && 'statusCode' in e) {
+      const code = (e as any).statusCode
+      if (code === 429) {
+        saveError.value = '操作太频繁了，歇一会儿再试试吧'
+        showSaveErrorToast.value = true
+        return
+      }
+      if (code === 401) return // global interceptor handles logout + redirect
+    }
+    saveError.value = '保存失败，请稍后再试'
     showSaveErrorToast.value = true
   }
 }
@@ -250,15 +259,16 @@ function dismissRestoreError() {
             <Transition name="toast">
               <div
                 v-if="showSaveErrorToast"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                class="toast-notification"
                 role="alert"
               >
-                <span>{{ saveError }}</span>
+                <span class="toast-notification__mark" aria-hidden="true">!</span>
+                <span class="toast-notification__text">{{ saveError }}</span>
                 <button
                   @click="dismissSaveErrorToast"
                   @keydown.enter="dismissSaveErrorToast"
                   @keydown.space.prevent="dismissSaveErrorToast"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="toast-notification__close"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>
@@ -268,15 +278,16 @@ function dismissRestoreError() {
             <Transition name="toast">
               <div
                 v-if="restoreError"
-                class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+                class="toast-notification"
                 role="alert"
               >
-                <span>{{ restoreError }}</span>
+                <span class="toast-notification__mark" aria-hidden="true">!</span>
+                <span class="toast-notification__text">{{ restoreError }}</span>
                 <button
                   @click="dismissRestoreError"
                   @keydown.enter="dismissRestoreError"
                   @keydown.space.prevent="dismissRestoreError"
-                  class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                  class="toast-notification__close"
                   aria-label="关闭提示"
                 >&times;</button>
               </div>
@@ -293,10 +304,8 @@ function dismissRestoreError() {
           <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
 
           <!-- Personality -->
-          <div class="fade-in mb-6" :style="{ '--delay': '0.35s' }">
-            <div class="section-header section-header--tool">
-              <span class="bar" aria-hidden="true"></span>
-              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">性</span>
+          <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.35s' }">
+            <div class="section-header">
               <h2>性格特征</h2>
             </div>
             <div class="card-warm rounded-xl p-5">
@@ -307,10 +316,8 @@ function dismissRestoreError() {
           </div>
 
           <!-- Compatibility -->
-          <div class="fade-in mb-6" :style="{ '--delay': '0.45s' }">
-            <div class="section-header section-header--tool">
-              <span class="bar" aria-hidden="true"></span>
-              <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">配</span>
+          <div class="fade-in mt-8 mb-6" :style="{ '--delay': '0.45s' }">
+            <div class="section-header">
               <h2>速配星座</h2>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">

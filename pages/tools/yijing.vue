@@ -60,9 +60,7 @@
           </div>
         </Transition>
 
-        <div v-if="result && !processing" class="section-header section-header--tool">
-          <span class="bar" aria-hidden="true"></span>
-          <span class="seal-icon text-[9px] w-7 h-7" aria-hidden="true">卦</span>
+        <div v-if="result && !processing" class="section-header">
           <h2>占卜结果</h2>
         </div>
 
@@ -74,15 +72,16 @@
           <Transition name="toast">
             <div
               v-if="showSaveErrorToast"
-              class="mb-4 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm flex items-center justify-between"
+              class="toast-notification"
               role="alert"
             >
-              <span>{{ saveError }}</span>
+              <span class="toast-notification__mark" aria-hidden="true">!</span>
+              <span class="toast-notification__text">{{ saveError }}</span>
               <button
                 @click="showSaveErrorToast = false"
                 @keydown.enter="showSaveErrorToast = false"
                 @keydown.space.prevent="showSaveErrorToast = false"
-                class="ml-3 px-2 py-2 text-cinnabar/60 hover:text-cinnabar transition-colors text-lg leading-none"
+                class="toast-notification__close"
                 aria-label="关闭提示"
               >&times;</button>
             </div>
@@ -403,11 +402,13 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
       },
     })
   } catch (e: unknown) {
-    // 401/429: stale session or rate-limited, suppress
+    // 401/429: global interceptor handles 401 logout + redirect
     if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as any).statusCode
-      if (code === 401 || code === 429) {
-        if (code === 401) console.warn('[yijing] Save failed: session expired')
+      if (code === 401) return
+      if (code === 429) {
+        saveError.value = '操作太频繁了，歇一会儿再试试吧'
+        showSaveErrorToast.value = true
         return
       }
     }
