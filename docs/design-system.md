@@ -153,6 +153,28 @@
 - active: 缩至 97%
 - focus-visible: 2px cinnabar outline
 
+#### `marginal-toggle` — 眉批折叠按钮
+
+```
+<button
+  :aria-expanded="expanded"
+  aria-controls="content-id"
+  @click="expanded = !expanded"
+  class="marginal-toggle"
+>
+  <span class="marginal-toggle__rule" aria-hidden="true"></span>
+  <span>{{ expanded ? '收起' : '展开' }}</span>
+  <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
+</button>
+```
+
+- 细墨线 + 小字，仿古书页边批注风格
+- 闲置：ink-light 文字 + ink-faint 细线，低调不打扰
+- hover：文字和细线同时染朱砂，线从 0.875rem 伸长至 1.125rem
+- 展开后：箭头 ▼ 纯 CSS 旋转 180° 变为 ▲（由 `[aria-expanded="true"]` 选择器驱动）
+- focus-visible: 2px cinnabar outline
+- **适用**：所有可折叠区域的展开/收起切换。**禁止**用 `btn-cin` 做折叠切换。
+
 #### 折叠/展开标准模式
 
 所有可折叠区域**必须**使用此模式：
@@ -167,10 +189,11 @@
       @click="expanded = !expanded"
       @keydown.enter="expanded = !expanded"
       @keydown.space.prevent="expanded = !expanded"
-      class="btn-cin text-sm"
+      class="marginal-toggle"
     >
-      <span class="sr-only">{{ expanded ? '收起' : '展开' }}区块标题</span>
-      <span aria-hidden="true">{{ expanded ? '收起 ▲' : '展开 ▼' }}</span>
+      <span class="marginal-toggle__rule" aria-hidden="true"></span>
+      <span>{{ expanded ? '收起' : '展开' }}</span>
+      <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
     </button>
   </div>
   <Transition name="expand">
