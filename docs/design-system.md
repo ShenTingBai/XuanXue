@@ -628,6 +628,63 @@
 - `:key` 绑定到切换的索引值——key 变化才触发过渡
 - CSS 放在页面/组件的 `<style scoped>` 中
 
+#### `card-enter` + `seal-stamp` — 登录/注册页入场
+
+登录页使用的三段式入场动画，模拟「展开卷轴 → 加盖印章」的仪式感：
+
+```
+┌─ card-enter ────┐  卡片整体淡入上浮
+│  rule-extend ──┐│  上下边框墨线横向展开
+│  seal-stamp ──┐││  玄字印章缩放弹入（spring easing）
+│               │││
+├────────────────┤││
+│  登录表单内容   │││
+│               │││
+└────────────────┘││
+ ─────────────────┘│
+  ─────────────────┘
+```
+
+```css
+/* Card: fade + rise */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Border rule: horizontal unroll */
+@keyframes rule-extend {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+
+/* Seal: stamp impression (spring) */
+@keyframes seal-stamp {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+```
+
+- 总时长 0.7s，逐层 stagger：card (0s) → rule (0.2s) → seal (0.35s)
+- seal 使用 `cubic-bezier(0.34, 1.56, 0.64, 1)` 模拟盖章回弹
+- 必须适配 `prefers-reduced-motion`
+
+#### 登录卡片深度
+
+登录页卡片使用三层阴影模拟「卷轴置于案上」的物理厚度：
+
+```css
+.login-card {
+  box-shadow:
+    0 2px 8px rgba(44, 26, 14, 0.06),    /* 贴近桌面的紧密阴影 */
+    0 8px 32px rgba(44, 26, 14, 0.08),    /* 卷轴下方扩散阴影 */
+    0 1px 0 rgba(44, 26, 14, 0.04) inset;  /* 顶部微弱的纸边反光 */
+}
+```
+
+- 三层叠加：紧贴 → 扩散 → 纸边反光，模拟物理卷轴的重量感
+- 与标准 `card-warm`（单层 `0 4px 20px`）的区别：卡片隐喻"纸片"，登录卡隐喻"卷轴"，厚度不同
+
 ### 6.3 展开/收起
 
 见 [4.1 折叠/展开标准模式](#折叠展开标准模式) 中的 Transition CSS。
