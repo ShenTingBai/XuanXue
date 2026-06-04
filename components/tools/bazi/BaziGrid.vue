@@ -75,6 +75,20 @@
               {{ getNaYin(p.stem, p.branch) }}
             </td>
           </tr>
+          <!-- Interpretation row -->
+          <tr>
+            <td v-for="(p, idx) in pillars" :key="'interp-' + idx"
+              class="py-1.5 px-2 text-left align-top"
+              :class="[idx < 3 ? 'border-r-2 border-cinnabar/20' : '', idx === 2 ? 'bg-cinnabar/15' : '']"
+            >
+              <p
+                v-if="p.interpretation"
+                class="border-l-2 border-cinnabar/25 pl-2 py-1 font-sans text-[0.6rem] text-ink-light leading-relaxed"
+              >
+                {{ p.interpretation }}
+              </p>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -125,6 +139,12 @@
             <div class="px-1 pb-1 text-center text-xs text-ink-muted font-sans">
               {{ getNaYin(p.stem, p.branch) }}
             </div>
+            <!-- Interpretation -->
+            <div v-if="p.interpretation" class="px-1 pb-1">
+              <p class="border-l-2 border-cinnabar/25 pl-1.5 font-sans text-[0.55rem] text-ink-light leading-tight">
+                {{ p.interpretation }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -137,6 +157,7 @@
       <div>十神 — 六亲关系与人际互动模式</div>
       <div>藏干 — 地支中暗藏的天干能量</div>
       <div>纳音 — 五行音律，命格气质类型</div>
+      <div>批注 — 四柱解读参考</div>
       <!-- Ten god color legend -->
       <div class="col-span-2 sm:col-span-3 grid grid-cols-5 gap-x-2 gap-y-0.5 text-xs mt-1 pt-1.5 border-t border-paper-dark/30">
         <span class="text-wuxing-wood">印—学识</span>
