@@ -112,6 +112,7 @@ const handleLogout = async () => {
                   'nav-link',
                   { 'nav-link--active': route.path === navItem.route },
                 ]"
+                :aria-current="route.path === navItem.route ? 'page' : undefined"
               >
                 <span>{{ navItem.name }}</span>
               </NuxtLink>
@@ -122,7 +123,7 @@ const handleLogout = async () => {
                 :aria-label="navItem.name + '（即将上线）'"
               >
                 <span>{{ navItem.name }}</span>
-                <span class="text-[0.625rem] text-ink-light ml-0.5">*</span>
+                <span class="text-[0.6875rem] text-ink-medium ml-0.5">*</span>
               </span>
             </nav>
 
@@ -237,7 +238,7 @@ const handleLogout = async () => {
 
             <!-- Tool Navigation -->
             <nav class="flex flex-col px-3 gap-1" aria-label="命理工具导航">
-              <p class="px-3 pt-1 pb-1 text-[0.65rem] font-sans text-ink-light/80 tracking-[0.12em] uppercase">工具</p>
+              <p class="px-3 pt-1 pb-1 text-xs font-sans text-ink-medium tracking-[0.12em] uppercase">工具</p>
               <NuxtLink
                 v-for="navItem in navTools.filter(t => t.available)"
                 :key="navItem.id"
@@ -246,6 +247,7 @@ const handleLogout = async () => {
                   'mobile-nav-item group',
                   { 'mobile-nav-item--active': route.path === navItem.route },
                 ]"
+                :aria-current="route.path === navItem.route ? 'page' : undefined"
                 @click="showMobileNav = false"
               >
                 <span class="font-sans text-sm">{{ navItem.name }}</span>
@@ -254,7 +256,7 @@ const handleLogout = async () => {
                 </svg>
               </NuxtLink>
               <div v-if="navTools.filter(t => !t.available).length > 0" class="mt-2">
-                <p class="px-3 pt-2 pb-1 text-[0.65rem] font-sans text-ink-light/80 tracking-[0.12em] uppercase">即将上线</p>
+                <p class="px-3 pt-2 pb-1 text-xs font-sans text-ink-medium tracking-[0.12em] uppercase">即将上线</p>
                 <span
                   v-for="navItem in navTools.filter(t => !t.available)"
                   :key="navItem.id"
@@ -262,7 +264,7 @@ const handleLogout = async () => {
                   :aria-label="navItem.name + '（即将上线）'"
                 >
                   <span class="font-sans text-sm text-ink-light/50">{{ navItem.name }}</span>
-                  <span class="text-[0.6rem] text-ink-faint/40 ml-auto">即将</span>
+                  <span class="text-[0.6875rem] text-ink-medium ml-auto">即将</span>
                 </span>
               </div>
             </nav>

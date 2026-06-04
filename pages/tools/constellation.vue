@@ -248,6 +248,11 @@ async function restoreFromHistory(id: number) {
 function dismissRestoreError() {
   restoreError.value = ''
 }
+
+function scrollToConstellationNav() {
+  const el = document.querySelector('[data-constellation-nav]')
+  el?.scrollIntoView({ behavior: 'smooth' })
+}
 </script>
 
 <template>
@@ -259,19 +264,21 @@ function dismissRestoreError() {
           />
         </template>
         <template #mobile-nav>
-          <button
-            v-for="(name, idx) in zodiacShortNames"
-            :key="idx"
-            @click="selectZodiac(idx)"
-            @keydown.space.prevent="selectZodiac(idx)"
-            :aria-current="idx === selectedZodiac ? 'true' : undefined"
-            :class="[
-              'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
-              idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
-            ]"
-          >
-            {{ name }}
-          </button>
+          <div data-constellation-nav class="flex gap-1 overflow-x-auto pb-2">
+            <button
+              v-for="(name, idx) in zodiacShortNames"
+              :key="idx"
+              @click="selectZodiac(idx)"
+              @keydown.space.prevent="selectZodiac(idx)"
+              :aria-current="idx === selectedZodiac ? 'true' : undefined"
+              :class="[
+                'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
+                idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
+              ]"
+            >
+              {{ name }}
+            </button>
+          </div>
         </template>
 
         <h1 class="sr-only">星座分析</h1>
@@ -434,6 +441,13 @@ function dismissRestoreError() {
 
           <!-- Action buttons -->
           <div class="flex flex-wrap gap-3 justify-center my-8">
+            <button
+              @click="scrollToConstellationNav"
+              @keydown.space.prevent="scrollToConstellationNav"
+              class="btn-cin"
+            >
+              <span>切换星座</span>
+            </button>
             <button
               @click="showHistoryModal = true"
               @keydown.enter="showHistoryModal = true"
