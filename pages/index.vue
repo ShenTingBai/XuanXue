@@ -71,6 +71,12 @@ const tools: Tool[] = [
     landingDescription: '五格剖象 · 三才五行 · 数理吉凶',
     route: '/tools/name-test', available: true, accent: '#2C5F7C', trigram: '⚣',
   },
+  {
+    id: 'cezi', name: '测字', char: '测',
+    description: '一字一世界，拆解字形探玄机，笔画之间见乾坤',
+    landingDescription: '字形拆解 · 笔画五行 · 吉凶断语',
+    route: '/tools/cezi', available: true, accent: '#5E5E5E', trigram: '☰',
+  },
 ]
 
 const sessionReady = ref(false)
