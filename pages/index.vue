@@ -253,8 +253,7 @@ const goToLogin = () => {
                 <!-- Title -->
                 <h1
                   id="hero-heading"
-                  class="anim-rise anim-delay-1 font-display"
-                  style="font-size: 68px; color: #1A0F0A; letter-spacing: 0.3em; line-height: 1.2; margin-bottom: 12px; text-shadow: 0 1px 2px rgba(26,15,10,0.06);"
+                  class="anim-rise anim-delay-1 font-display hero-title"
                 >
                   玄<span class="title-dot"></span>道<span class="title-dot"></span><span class="text-cinnabar-deeper">知天命</span>
                 </h1>
@@ -334,7 +333,7 @@ const goToLogin = () => {
 
         <!-- ── 术数工具 ── -->
         <section
-          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16"
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16"
           aria-label="术数工具"
         >
           <div class="section-header">
@@ -353,8 +352,8 @@ const goToLogin = () => {
                 <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
                 <span class="seal-icon seal-icon--lg" style="margin-bottom:20px;">{{ tool.char }}</span>
                 <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;transition:color 0.3s;">{{ tool.name }}</div>
-                <p class="ui" style="font-size:10px;color:var(--color-ink-light);letter-spacing:0.12em;line-height:1.7;">
-                  {{ tool.landingDescription }}
+                <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">
+                  {{ tool.description }}
                 </p>
               </NuxtLink>
 
@@ -368,8 +367,8 @@ const goToLogin = () => {
                 <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
                 <div class="seal-icon seal-icon--lg" style="margin-bottom:20px;background:var(--color-ink-light);box-shadow:none;">{{ tool.char }}</div>
                 <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;">{{ tool.name }}</div>
-                <p class="ui" style="font-size:10px;color:var(--color-ink-light);letter-spacing:0.12em;line-height:1.7;">
-                  {{ tool.landingDescription }}
+                <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">
+                  {{ tool.description }}
                 </p>
               </div>
             </template>
@@ -396,7 +395,7 @@ const goToLogin = () => {
               <div class="flex items-center gap-3 pb-4 mb-6 border-b border-paper-dark/20 flex-wrap">
                 <span class="seal-icon" aria-hidden="true">命</span>
                 <h3 class="font-display text-lg sm:text-xl text-ink-dark tracking-[0.3em] leading-relaxed">示例命盘</h3>
-                <span class="text-[0.6rem] sm:text-[0.65rem] text-ink-light/60 ml-auto tracking-[0.15em]">1990年5月15日 · 午时 · 男</span>
+                <span class="text-xs text-ink-medium/60 ml-auto tracking-[0.15em]">1990年5月15日 · 午时 · 男</span>
               </div>
 
               <!-- 四柱表格（复用项目 BaziGrid） -->
@@ -434,12 +433,12 @@ const goToLogin = () => {
               </div>
             </template>
 
-            <p class="text-[0.55rem] text-ink-faint/60 text-center mt-5 tracking-[0.1em]" v-if="sampleBazi">* 此为示例命盘，登录后可排自己的盘</p>
+            <p class="text-[0.6875rem] text-ink-medium/60 text-center mt-5 tracking-[0.1em]" v-if="sampleBazi">* 此为示例命盘，登录后可排自己的盘</p>
           </div>
         </section>
 
         <!-- ── 分割线 + CTA ── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16 sm:py-12 sm:pb-20">
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div class="divider-seal mb-10">
             <span class="divider-seal__line" aria-hidden="true"></span>
             <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">玄</span>
@@ -453,22 +452,6 @@ const goToLogin = () => {
             <NuxtLink to="/login" class="btn-ink no-underline">浏览命盘</NuxtLink>
           </div>
         </section>
-
-        <!-- ── Footer ── -->
-        <footer class="border-t" style="border-color:rgba(44,26,14,0.03);" role="contentinfo">
-          <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <span class="font-display" style="font-size:15px;color:var(--color-ink);letter-spacing:0.3em;">玄·道</span>
-                <span style="font-size:9px;color:var(--color-ink-faint);">·</span>
-                <span class="ui" style="font-size:11px;color:var(--color-ink-light);">玄天机 · 道命理</span>
-              </div>
-              <p class="ui" style="font-size:11px;color:var(--color-ink-faint);">
-                &copy; {{ new Date().getFullYear() }} 玄·道 · 仅供娱乐参考
-              </p>
-            </div>
-          </div>
-        </footer>
 
       </div>
     </template>
@@ -496,7 +479,7 @@ const goToLogin = () => {
                   </h1>
                   <!-- 岁次 seal -->
                   <span
-                    class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[0.5rem] tracking-[0.15em] text-ink-faint/60 border border-ink-faint/10 font-sans"
+                    class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[0.6875rem] tracking-[0.15em] text-ink-medium/60 border border-ink-faint/20 font-sans"
                     style="transform:rotate(-1deg);"
                   >{{ todayAstro?.yearGanZhi || '' }}</span>
                 </div>
@@ -607,7 +590,7 @@ const goToLogin = () => {
                 style="border-radius:0.25rem;"
                 aria-hidden="true"
               >{{ item.icon }}</span>
-              <span class="text-[0.6rem] text-ink-light/70 tracking-[0.08em] leading-tight text-center">
+              <span class="text-[0.6875rem] text-ink-medium/70 tracking-[0.08em] leading-tight text-center">
                 {{ item.relativeTime }}
               </span>
             </NuxtLink>
@@ -626,10 +609,36 @@ const goToLogin = () => {
 
       </div>
     </template>
+
+    <!-- ── Footer (shared by both views) ── -->
+    <footer v-if="sessionReady" class="border-t border-ink-faint/10" role="contentinfo">
+      <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="font-display text-base text-ink tracking-[0.3em]">玄·道</span>
+            <span class="text-[0.6875rem] text-ink-light">·</span>
+            <span class="font-sans text-xs text-ink-light">玄天机 · 道命理</span>
+          </div>
+          <p class="font-sans text-xs text-ink-light">
+            &copy; {{ new Date().getFullYear() }} 玄·道 · 仅供娱乐参考
+          </p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <style scoped>
+
+/* ═══ Hero Title ═══ */
+.hero-title {
+  font-size: 4.25rem;
+  color: var(--color-ink-darkest);
+  letter-spacing: 0.3em;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 1px 2px rgba(26, 15, 10, 0.06);
+}
 
 /* ═══ 灵符纸卡 ═══ */
 
@@ -681,22 +690,21 @@ const goToLogin = () => {
   .talisman-lunar-date { font-size: 2rem; }
 }
 .talisman-gregorian {
-  font-size: 0.6rem;
-  color: var(--color-ink-faint);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   letter-spacing: 0.15em;
   margin-bottom: 1.25rem;
 }
 .talisman-ganzhi {
-  font-size: 0.7rem;
-  color: var(--color-ink-mid);
+  font-size: 0.75rem;
+  color: var(--color-ink-medium);
   letter-spacing: 0.15em;
-  opacity: 0.8;
 }
 .talisman-term-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.15em;
   background: rgba(198, 40, 40, 0.06);
   color: var(--color-cinnabar);
@@ -716,12 +724,12 @@ const goToLogin = () => {
 }
 .talisman-cta {
   display: inline-block;
-  font-size: 0.65rem;
-  color: var(--color-ink-light);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   letter-spacing: 0.15em;
   text-decoration: none;
   transition: color 0.2s ease;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 .talisman-cta:hover {
   color: var(--color-cinnabar);
