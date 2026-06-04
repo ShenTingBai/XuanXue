@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
+import AvatarCircle from '~/components/tools/AvatarCircle.vue'
 
 interface ProfileUpdateBody {
   gender: string | null
@@ -390,6 +391,15 @@ const saveProfile = async () => {
           </div>
 
           <div class="space-y-8">
+            <!-- ── Avatar ── -->
+            <div class="flex items-center gap-5">
+              <AvatarCircle :nickname="nickname" size="lg" />
+              <div>
+                <p class="font-display text-xl text-ink-dark tracking-[0.15em]">{{ nickname }}</p>
+                <p class="text-[0.65rem] text-ink-light tracking-[0.1em] mt-1">命主</p>
+              </div>
+            </div>
+
             <!-- ── Nickname (read-only) ── -->
             <div class="field-group">
               <label for="profile-nickname" class="field-label">

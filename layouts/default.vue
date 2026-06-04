@@ -20,6 +20,8 @@ const navTools: NavTool[] = [
 </script>
 
 <script setup lang="ts">
+import AvatarCircle from '~/components/tools/AvatarCircle.vue'
+
 const { currentProfile, restoreSession, logout } = useAuth()
 const router = useRouter()
 const showDropdown = ref(false)
@@ -200,6 +202,7 @@ const closeDropdown = (e: FocusEvent) => {
                 :aria-expanded="showDropdown"
                 :aria-label="'打开 ' + currentProfile.nickname + ' 的菜单'"
               >
+                <AvatarCircle :nickname="currentProfile.nickname" size="sm" />
                 <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
                 <svg aria-hidden="true"
                   :class="['w-3.5 h-3.5 text-ink-light transition-transform', showDropdown && 'rotate-180']"
@@ -348,6 +351,10 @@ const closeDropdown = (e: FocusEvent) => {
             <template v-if="currentProfile">
               <div class="mx-5 h-px" style="background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%);" />
               <div class="flex flex-col px-3 py-3 gap-1">
+                <div class="flex items-center gap-3 px-3 py-2">
+                  <AvatarCircle :nickname="currentProfile.nickname" size="sm" />
+                  <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
+                </div>
                 <NuxtLink
                   :to="`/profile/${currentProfile.id}`"
                   @click="showMobileNav = false"
@@ -358,7 +365,6 @@ const closeDropdown = (e: FocusEvent) => {
                     <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                   </svg>
                   <span class="font-sans text-sm text-ink-medium">编辑档案</span>
-                  <span class="font-sans text-xs text-ink-light/80 ml-auto truncate max-w-[100px]">{{ currentProfile.nickname }}</span>
                 </NuxtLink>
                 <button
                   @click="handleLogout"
