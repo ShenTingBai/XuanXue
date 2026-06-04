@@ -57,7 +57,7 @@ const emit = defineEmits<{
   padding: 0.375rem 0.625rem;
   border-radius: 0.375rem;
   font-size: 0.8125rem;
-  font-family: "Noto Sans SC", sans-serif;
+  font-family: var(--font-sans);
   color: var(--color-ink-medium);
   transition: all 0.2s ease;
 }

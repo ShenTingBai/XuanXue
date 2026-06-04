@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   }
   const id = parseInt(idParam, 10)
 
-  const profileId = (event.context as any).profileId as number | undefined
+  const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }

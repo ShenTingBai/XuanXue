@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
   }
 
-  const profileIdFromToken = (event.context as any).profileId as number | undefined
+  const profileIdFromToken = event.context.profileId
   if (!profileIdFromToken) throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   if (profileIdFromToken !== id) throw createError({ statusCode: 403, statusMessage: '无权访问此档案' })
 

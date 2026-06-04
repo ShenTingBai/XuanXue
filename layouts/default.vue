@@ -207,7 +207,7 @@ const handleLogout = async () => {
           <div
             ref="mobileDrawerPanelRef"
             class="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-paper shadow-2xl z-10 flex flex-col overflow-y-auto drawer-panel"
-               style="border-left: 3px solid #C62828;">
+               style="border-left: 3px solid var(--color-cinnabar);">
             <!-- Decorative header — ink-wash top band + seal -->
             <div class="relative px-5 pt-5 pb-3">
               <!-- Ink wash accent bar -->

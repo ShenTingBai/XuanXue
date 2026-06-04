@@ -223,8 +223,10 @@ async function restoreFromHistory(id: number) {
       }
     }
     restoreError.value = '历史记录数据无效'
+    setTimeout(() => { restoreError.value = '' }, 6000)
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
+    setTimeout(() => { restoreError.value = '' }, 6000)
   }
 }
 

@@ -367,24 +367,6 @@ export function getWeightedDayMasterStrength(
   return '弱'
 }
 
-/** Determine day master strength based on month order */
-function getDayMasterStrength(dayMasterWuxing: string, monthBranchIndex: number): '强' | '偏强' | '中和' | '偏弱' | '弱' {
-  const monthStrength: Record<string, number[]> = {
-    //   子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥
-    '木': [0, -1, 2, 2, -1, -1, -1, 0, -2, -2, 0, 1],
-    '火': [-1, 0, 1, 1, 0, 2, 2, 1, -1, -1, 0, -1],
-    '土': [0, 1, -1, -1, 2, 1, 1, 2, 0, 0, 2, -1],
-    '金': [0, 1, -2, -2, 1, -1, -1, 1, 2, 2, 1, 0],
-    '水': [2, 0, -1, -1, 0, -1, -2, -1, 1, 1, 0, 2],
-  }
-
-  const strength = monthStrength[dayMasterWuxing]?.[monthBranchIndex] ?? 0
-  if (strength >= 2) return '强'
-  if (strength === 1) return '偏强'
-  if (strength === 0) return '中和'
-  if (strength === -1) return '偏弱'
-  return '弱'
-}
 
 /**
  * Get seasonal climate adjustment element based on month branch.

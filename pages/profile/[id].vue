@@ -12,7 +12,7 @@ interface ProfileUpdateBody {
   birth_longitude: number | null
 }
 
-useHead({ title: '命簿 - 玄·道' })
+useHead({ title: '命簿 — 玄·道' })
 
 const { restoreSession, currentProfile, getAuthHeaders, updateProfile } = useAuth()
 const router = useRouter()
@@ -384,7 +384,6 @@ const saveProfile = async () => {
 
           <!-- Section header -->
           <div class="section-header-custom">
-            <span class="bar" aria-hidden="true"></span>
             <span class="inline-flex seal-icon text-xs w-8 h-8" aria-hidden="true">籍</span>
             <h2>基本信息</h2>
             <span class="line" aria-hidden="true"></span>
@@ -490,7 +489,6 @@ const saveProfile = async () => {
 
           <!-- Section header -->
           <div class="section-header-custom">
-            <span class="bar" aria-hidden="true"></span>
             <span class="inline-flex seal-icon text-xs w-8 h-8" aria-hidden="true">辰</span>
             <h2>出生信息</h2>
             <span class="line" aria-hidden="true"></span>
@@ -630,7 +628,7 @@ const saveProfile = async () => {
 
 /* ── Radio focus-visible ring ── */
 .sr-only:focus-visible + span {
-  outline: 2px solid #C62828;
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
 }
 
@@ -727,10 +725,10 @@ const saveProfile = async () => {
   pointer-events: none;
   opacity: 0.12;
 }
-.doc-corner--tl { top: 10px; left: 10px; border-top: 1px solid #9C1A1C; border-left: 1px solid #9C1A1C; }
-.doc-corner--tr { top: 10px; right: 10px; border-top: 1px solid #9C1A1C; border-right: 1px solid #9C1A1C; }
-.doc-corner--bl { bottom: 10px; left: 10px; border-bottom: 1px solid #9C1A1C; border-left: 1px solid #9C1A1C; }
-.doc-corner--br { bottom: 10px; right: 10px; border-bottom: 1px solid #9C1A1C; border-right: 1px solid #9C1A1C; }
+.doc-corner--tl { top: 10px; left: 10px; border-top: 1px solid var(--color-cinnabar-deeper); border-left: 1px solid var(--color-cinnabar-deeper); }
+.doc-corner--tr { top: 10px; right: 10px; border-top: 1px solid var(--color-cinnabar-deeper); border-right: 1px solid var(--color-cinnabar-deeper); }
+.doc-corner--bl { bottom: 10px; left: 10px; border-bottom: 1px solid var(--color-cinnabar-deeper); border-left: 1px solid var(--color-cinnabar-deeper); }
+.doc-corner--br { bottom: 10px; right: 10px; border-bottom: 1px solid var(--color-cinnabar-deeper); border-right: 1px solid var(--color-cinnabar-deeper); }
 
 /* ── Custom Section Header ── */
 .section-header-custom {

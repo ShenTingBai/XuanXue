@@ -11,7 +11,7 @@ import { formatRelativeTime } from '~/utils/date'
 
 const SOLAR_TERM_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒']
 
-useHead({ title: '玄 · 道 — 玄天机 · 道命理' })
+useHead({ title: '玄·道 — 玄天机 · 道命理' })
 
 const { restoreSession, currentProfile } = useAuth()
 const greeting = useGreeting()
@@ -296,7 +296,6 @@ const goToLogin = () => {
         <!-- ── 今日玄机（灵符纸卡）── -->
         <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="今日玄机">
           <div class="section-header">
-            <span class="bar" aria-hidden="true"></span>
             <h2>今 日 玄 机</h2>
           </div>
 
@@ -339,7 +338,6 @@ const goToLogin = () => {
           aria-label="术数工具"
         >
           <div class="section-header">
-            <span class="bar" aria-hidden="true"></span>
             <h2>术 数 工 具</h2>
           </div>
 
@@ -389,7 +387,6 @@ const goToLogin = () => {
         <!-- ── 命盘预览（复用项目组件）── -->
         <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="命盘预览">
           <div class="section-header">
-            <span class="bar" aria-hidden="true"></span>
             <h2>命 盘 预 览</h2>
           </div>
 
@@ -446,7 +443,7 @@ const goToLogin = () => {
           <div class="divider-seal mb-10">
             <span class="divider-seal__line" aria-hidden="true"></span>
             <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">玄</span>
-            <span class="divider-seal__word">玄 · 道</span>
+            <span class="divider-seal__word">玄·道</span>
             <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">道</span>
             <span class="divider-seal__line" aria-hidden="true"></span>
           </div>
@@ -462,12 +459,12 @@ const goToLogin = () => {
           <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div class="flex items-center gap-3">
-                <span class="font-display" style="font-size:15px;color:var(--color-ink);letter-spacing:0.3em;">玄 · 道</span>
+                <span class="font-display" style="font-size:15px;color:var(--color-ink);letter-spacing:0.3em;">玄·道</span>
                 <span style="font-size:9px;color:var(--color-ink-faint);">·</span>
                 <span class="ui" style="font-size:11px;color:var(--color-ink-light);">玄天机 · 道命理</span>
               </div>
               <p class="ui" style="font-size:11px;color:var(--color-ink-faint);">
-                &copy; {{ new Date().getFullYear() }} 玄 · 道 · 仅供娱乐参考
+                &copy; {{ new Date().getFullYear() }} 玄·道 · 仅供娱乐参考
               </p>
             </div>
           </div>
@@ -546,7 +543,6 @@ const goToLogin = () => {
 
         <!-- Section header -->
         <div class="section-header anim-rise anim-delay-1">
-          <span class="bar" aria-hidden="true"></span>
           <h2>推 演 工 具</h2>
         </div>
 
@@ -589,7 +585,6 @@ const goToLogin = () => {
           aria-label="最近使用"
         >
           <div class="section-header">
-            <span class="bar" aria-hidden="true"></span>
             <h2>最近使用</h2>
           </div>
 

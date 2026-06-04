@@ -121,6 +121,19 @@ function formatHistoryLabel(inputData: any): string {
     // Fallback: show just the casting mode
     return `六爻占卜（${castingMode}）`
   }
+  if (props.type === 'name-test') {
+    const { surname, givenName } = inputData
+    if (!surname && !givenName) return ''
+    return `${surname || ''}${givenName || ''}`
+  }
+  if (props.type === 'hehun') {
+    const nickname = inputData.personB_nickname
+    return nickname ? `合婚 · ${nickname}` : '合婚'
+  }
+  if (props.type === 'zeji') {
+    const eventName = inputData.eventName
+    return eventName ? `择吉 · ${eventName}` : '择吉'
+  }
   // constellation
   const { month, day } = inputData
   if (!month || !day) return ''
@@ -367,12 +380,12 @@ function onListboxFocus() {
   line-height: 1;
 }
 .history-close-btn:hover {
-  color: #C62828;
+  color: var(--color-cinnabar);
   border-color: rgba(198, 40, 40, 0.55);
   background-color: rgba(198, 40, 40, 0.04);
 }
 .history-close-btn:focus-visible {
-  outline: 2px solid #C62828;
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
 }
 
@@ -394,7 +407,7 @@ function onListboxFocus() {
 }
 .history-record:focus-visible {
   background-color: rgba(224, 213, 192, 0.2);
-  box-shadow: inset 0 0 0 2px #C62828;
+  box-shadow: inset 0 0 0 2px var(--color-cinnabar);
   border-radius: 0.25rem;
 }
 
@@ -408,7 +421,7 @@ function onListboxFocus() {
 }
 .history-record:hover .history-record-bar,
 .history-record:focus-visible .history-record-bar {
-  background: #C62828;
+  background: var(--color-cinnabar);
 }
 
 /* Right-pointing arrow */

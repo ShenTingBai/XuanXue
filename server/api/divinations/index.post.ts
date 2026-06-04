@@ -5,7 +5,7 @@ import { DIVINATION_TYPES } from './shared'
 const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
 
 export default defineEventHandler(async (event) => {
-  const profileId = (event.context as any).profileId as number | undefined
+  const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
   }
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!VALID_TYPES.has(type)) {
-    throw createError({ statusCode: 400, statusMessage: '无效的测算类型，支持: shengxiao, constellation, bazi, yijing, ziwei' })
+    throw createError({ statusCode: 400, statusMessage: `无效的测算类型，支持: ${DIVINATION_TYPES.join(', ')}` })
   }
 
   if (!input_data) {

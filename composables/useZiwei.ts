@@ -28,15 +28,22 @@ export function calculateZiWei(input: ZiWeiInput): IFunctionalAstrolabe | null {
   if (birthHour === null || birthHour === undefined || !gender) return null
 
   // Apply true solar time correction if birth longitude is available
-  const solarHour = birthLongitude != null
-    ? getTrueSolarHour(birthHour, birthLongitude)
-    : birthHour
-  // Normalize to 0-24 range and round to nearest integer for iztro timeIndex
-  const normalized = Math.round(((solarHour % 24) + 24) % 24)
+  // birthHour is iztro timeIndex (0-12), getTrueSolarHour expects clock hour (0-23)
+  // Convert timeIndex to clock-hour midpoint before correction, then convert back
+  let timeIndex = birthHour
+  if (birthLongitude != null) {
+    // timeIndex 0 (早子, 0:00-1:00) → midpoint 0.5
+    // timeIndex 12 (晚子, 23:00-24:00) → midpoint 23.5
+    // timeIndex 1-11 (丑∼亥) → midpoint = timeIndex * 2 (2, 4, ..., 22)
+    const clockMidpoint = birthHour === 0 ? 0.5 : birthHour === 12 ? 23.5 : birthHour * 2
+    const solarHour = getTrueSolarHour(clockMidpoint, birthLongitude)
+    const normalized = ((solarHour % 24) + 24) % 24
+    timeIndex = Math.floor((normalized + 1) / 2)
+  }
 
   try {
     const dateStr = `${birthYear}-${birthMonth}-${birthDay}`
-    return astro.bySolar(dateStr, normalized, gender, true, 'zh-CN')
+    return astro.bySolar(dateStr, timeIndex, gender, true, 'zh-CN')
   } catch {
     return null
   }
@@ -47,7 +54,10 @@ export function getMingGongIndex(palaces: IFunctionalPalace[]): number {
   return palaces.findIndex(p => p.name === '命宫')
 }
 
-/** 查找身宫在 palaces 中的索引 */
+/**
+ * @deprecated Not used in production, kept for test compatibility
+ * 查找身宫在 palaces 中的索引
+ */
 export function getShenGongIndex(palaces: IFunctionalPalace[]): number {
   return palaces.findIndex(p => p.isBodyPalace)
 }
