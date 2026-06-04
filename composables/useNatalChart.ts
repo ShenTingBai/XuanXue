@@ -1,9 +1,8 @@
 // composables/useNatalChart.ts
 import { GeoVector, Ecliptic, Body } from 'astronomy-engine'
 import { ZODIACS, getRisingSign } from '~/composables/useConstellation'
-import { PLANET_ORDER, PLANET_META } from '~/constants/planet-data'
+import { PLANET_ORDER, PLANET_META, ASPECT_TYPES, ASPECT_INTERPRETATIONS, PLANET_SIGN_INTERPRETATIONS } from '~/constants/planet-data'
 import type { PlanetMeta } from '~/constants/planet-data'
-import { ASPECT_TYPES } from '~/constants/planet-data'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -206,4 +205,120 @@ export function calculateNatalChart(
     mcLongitude,
     hasHouses,
   }
+}
+
+// ── Text Serialization ────────────────────────────────────────────
+
+/** 将星盘数据序列化为可读的中文文本，适合粘贴给 AI 解读 */
+export function serializeNatalChart(data: NatalChartData): string {
+  const lines: string[] = []
+
+  lines.push('══════════════════════════════════════')
+  lines.push('本命星盘数据')
+  lines.push('══════════════════════════════════════')
+  lines.push('')
+
+  // Header info
+  if (data.hasHouses && data.ascSignIndex !== null) {
+    const ascSign = ZODIACS[data.ascSignIndex]
+    lines.push(`上升星座：${ascSign.name} ${ascSign.symbol}`)
+    lines.push(`天顶（MC）：${ZODIACS[(data.ascSignIndex + 9) % 12].name}`)
+    lines.push('宫位系统：Whole Sign House（整宫制）')
+  } else {
+    lines.push('上升星座：无（缺出生时间）')
+  }
+  lines.push('')
+
+  // Planets
+  lines.push('── 行星落座 ──')
+  lines.push('')
+  for (const p of data.planets) {
+    const parts: string[] = []
+    parts.push(`${p.glyph} ${p.name}`)
+    parts.push(`落入 ${p.signName} ${p.signSymbol}`)
+
+    if (p.houseIndex !== null) {
+      parts.push(`第${p.houseIndex}宫`)
+    }
+
+    parts.push(`| 黄经 ${p.longitude.toFixed(1)}°`)
+
+    if (p.retrograde) {
+      parts.push('| ℞ 逆行')
+    }
+    if (p.boundaryWarning) {
+      parts.push('| ⚠ 靠近星座交界')
+    }
+
+    lines.push(parts.join('  '))
+
+    // Add planet-in-sign interpretation
+    const interp = PLANET_SIGN_INTERPRETATIONS[p.id as keyof typeof PLANET_SIGN_INTERPRETATIONS]?.[p.signName]
+    if (interp) {
+      lines.push(`  ↳ ${interp}`)
+    }
+    lines.push('')
+  }
+
+  // Aspects
+  if (data.aspects.length > 0) {
+    lines.push('── 相位关系 ──')
+    lines.push('')
+    for (const a of data.aspects) {
+      const p1Meta = PLANET_META[a.p1]
+      const p2Meta = PLANET_META[a.p2]
+      const symbols: Record<string, string> = {
+        conjunction: '☌', sextile: '⚹', square: '□', trine: '△', opposition: '☍',
+      }
+      const typeNames: Record<string, string> = {
+        conjunction: '合相', sextile: '六合', square: '刑相', trine: '三合', opposition: '对冲',
+      }
+      const symbol = symbols[a.type] ?? ''
+      const typeName = typeNames[a.type] ?? a.type
+      const interp = ASPECT_INTERPRETATIONS[a.type] ?? ''
+
+      lines.push(`${symbol} ${p1Meta?.name ?? a.p1} — ${p2Meta?.name ?? a.p2}  ${typeName}（${a.angle}°）`)
+      lines.push(`  ↳ ${interp}`)
+      lines.push('')
+    }
+  } else {
+    lines.push('── 相位关系 ──')
+    lines.push('无紧密相位')
+    lines.push('')
+  }
+
+  // Planet distribution summary
+  if (data.hasHouses) {
+    lines.push('── 宫位分布 ──')
+    lines.push('')
+    const houseMap = new Map<number, string[]>()
+    for (const p of data.planets) {
+      if (p.houseIndex !== null) {
+        const list = houseMap.get(p.houseIndex) || []
+        list.push(`${p.glyph}${p.name}`)
+        houseMap.set(p.houseIndex, list)
+      }
+    }
+    const houseNames: Record<number, string> = {
+      1: '命宫·自我', 2: '财帛·价值', 3: '兄弟·沟通',
+      4: '田宅·家庭', 5: '子女·恋爱', 6: '奴仆·工作',
+      7: '夫妻·合作', 8: '疾厄·偏财', 9: '迁移·远行',
+      10: '官禄·事业', 11: '福德·交友', 12: '玄秘·潜意识',
+    }
+    for (let h = 1; h <= 12; h++) {
+      const planets = houseMap.get(h)
+      const hName = houseNames[h] ?? `第${h}宫`
+      if (planets && planets.length > 0) {
+        lines.push(`第${h}宫（${hName}）：${planets.join('、')}`)
+      } else {
+        lines.push(`第${h}宫（${hName}）：空`)
+      }
+    }
+    lines.push('')
+  }
+
+  lines.push('══════════════════════════════════════')
+  lines.push('请基于以上星盘数据，帮我解读性格、情感、事业等方面的特质。')
+
+  return lines.join('\n')
 }

@@ -17,7 +17,7 @@ import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
-import { calculateNatalChart } from '~/composables/useNatalChart'
+import { calculateNatalChart, serializeNatalChart } from '~/composables/useNatalChart'
 import NatalChart from '~/components/tools/constellation/NatalChart.vue'
 import type { NatalChartData } from '~/composables/useNatalChart'
 
@@ -34,6 +34,7 @@ const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const saveError = ref('')
 	const natalChartData = ref<NatalChartData | null>(null)
+const chartTextCopied = ref(false)
 const restoreError = ref('')
 const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
@@ -41,6 +42,14 @@ const expandedCompatIdx = ref<number | null>(null)
 
 function toggleCompat(idx: number) {
   expandedCompatIdx.value = expandedCompatIdx.value === idx ? null : idx
+}
+
+async function copyChartText() {
+  if (!natalChartData.value) return
+  const text = serializeNatalChart(natalChartData.value)
+  await navigator.clipboard.writeText(text)
+  chartTextCopied.value = true
+  setTimeout(() => { chartTextCopied.value = false }, 2000)
 }
 
 function handleScroll() {
@@ -409,6 +418,17 @@ function dismissRestoreError() {
                 ── 基于出生日期计算，Astrolog 标准布局（Asc 左侧 9 点钟方向）──
               </span>
             </p>
+            <div class="flex justify-center mt-2">
+              <button
+                @click="copyChartText"
+                @keydown.enter="copyChartText"
+                class="text-xs text-ink-light border border-ink-faint/20 rounded px-3 py-1.5 hover:border-cinnabar/30 hover:text-cinnabar transition-colors"
+                :aria-label="chartTextCopied ? '已复制' : '复制星盘文本，可粘贴给 AI 解读'"
+              >
+                <span v-if="chartTextCopied">✓ 已复制</span>
+                <span v-else>📋 复制星盘文本</span>
+              </button>
+            </div>
           </div>
 
           <!-- 缺少出生年份时的提示 -->
