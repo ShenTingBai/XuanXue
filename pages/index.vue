@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { calculateBaZi, type BaZiResult } from '~/composables/useBaZi'
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { Lunar } from 'lunar-javascript'
-import { STEMS, BRANCHES, getAnimal } from '~/constants/bazi'
-import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
-import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
-import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
+import { STEMS, BRANCHES } from '~/constants/bazi'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
 
@@ -22,7 +18,6 @@ interface Tool {
   name: string
   char: string
   description: string
-  landingDescription: string
   route: string
   available: boolean
   accent?: string
@@ -33,55 +28,46 @@ const tools: Tool[] = [
   {
     id: 'bazi', name: '八字', char: '命',
     description: '了解你的先天命格、性格特质和人生大运',
-    landingDescription: '四柱推命 · 十神大运 · 流年神煞',
     route: '/tools/bazi', available: true, accent: '#C62828', trigram: '☰',
   },
   {
     id: 'yijing', name: '六爻', char: '卦',
     description: '针对具体问题（事业、感情、决策）获得卦象指引',
-    landingDescription: '摇卦起数 · 爻辞解读 · 变卦推断',
     route: '/tools/yijing', available: true, accent: '#2C5F7C', trigram: '☵',
   },
   {
     id: 'shengxiao', name: '生肖', char: '肖',
     description: '查看你的生肖性格、幸运元素和年度运势',
-    landingDescription: '生肖运势 · 五行属性 · 相性配对',
     route: '/tools/shengxiao', available: true, accent: '#3D6B4B', trigram: '☷',
   },
   {
     id: 'constellation', name: '星座', char: '星',
     description: '查看你的星座特征、今日宜忌和配对分析',
-    landingDescription: '星盘轨迹 · 今日宜忌 · 缘分深浅',
     route: '/tools/constellation', available: true, accent: '#7A5E12', trigram: '☲',
   },
   {
     id: 'ziwei', name: '紫微斗数', char: '斗',
     description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
-    landingDescription: '排十二宫垣，解星曜布局与穷通祸福',
     route: '/tools/ziwei', available: true, accent: '#6B5B4F', trigram: '☴',
   },
   {
     id: 'hehun', name: '合婚', char: '合',
     description: '双方八字合婚匹配分析，了解姻缘深浅',
-    landingDescription: '年柱日柱 · 五行互补 · 十神配偶',
     route: '/tools/hehun', available: true, accent: '#C62828', trigram: '⚢',
   },
   {
     id: 'name-test', name: '姓名', char: '名',
     description: '五格剖象姓名分析，了解名字的吉凶数理',
-    landingDescription: '五格剖象 · 三才五行 · 数理吉凶',
     route: '/tools/name-test', available: true, accent: '#2C5F7C', trigram: '⚣',
   },
   {
     id: 'cezi', name: '测字', char: '测',
     description: '一字一世界，拆解字形探玄机，笔画之间见乾坤',
-    landingDescription: '字形拆解 · 笔画五行 · 吉凶断语',
     route: '/tools/cezi', available: true, accent: '#5E5E5E', trigram: '☰',
   },
   {
     id: 'zeji', name: '择日', char: '择',
     description: '黄历择吉，结合建除十二星与二十八宿，为重要事项挑选良辰吉日',
-    landingDescription: '建除十二星 · 二十八宿 · 黄黑道日',
     route: '/tools/zeji', available: true, accent: '#C62828', trigram: '☲',
   },
 ]
@@ -141,24 +127,6 @@ async function fetchRecentActivity() {
   }
 }
 
-// ── 命盘预览：固定示例数据（引擎驱动）──
-const sampleBazi = computed<BaZiResult | null>(() => {
-  if (!import.meta.client) return null
-  try {
-    return calculateBaZi({
-      birthYear: 1990, birthMonth: 5, birthDay: 15,
-      birthCalendar: 'solar', birthHour: 12, gender: '男',
-    })
-  } catch { return null }
-})
-
-// 四柱数组（过滤掉可能的 null，如缺时柱时）
-const baziPillars = computed(() => {
-  const r = sampleBazi.value
-  if (!r) return []
-  return [r.yearPillar, r.monthPillar, r.dayPillar, r.hourPillar].filter(Boolean) as import('~/composables/useBaZi').BaZiPillar[]
-})
-
 // ── 今日玄机：实时天文信息 ──
 const todayAstro = computed(() => {
   if (!import.meta.client) return null
@@ -190,6 +158,14 @@ onMounted(() => {
   restoreSession()
   sessionReady.value = true
   if (currentProfile.value) {
+    fetchRecentActivity()
+  }
+})
+
+// Refresh recent activity each time user navigates back to home
+const route = useRoute()
+watch(() => route.path, (path) => {
+  if (path === '/' && currentProfile.value) {
     fetchRecentActivity()
   }
 })
@@ -260,15 +236,9 @@ const goToLogin = () => {
 
                 <!-- Incantation -->
                 <div class="hero-incant anim-rise anim-delay-2">
-                  <span class="hero-incant__line">玄天机</span>
+                  <span class="hero-incant__line">{{ tools.filter(t => t.available).slice(0, 5).map(t => t.name).join(' · ') }}</span>
                   <span class="hero-incant__divider"></span>
-                  <span class="hero-incant__line">道命理</span>
-                  <span class="hero-incant__divider"></span>
-                  <span class="hero-incant__line">玄道在手</span>
-                  <span class="hero-incant__divider"></span>
-                  <span class="hero-incant__line">天地万物</span>
-                  <span class="hero-incant__divider"></span>
-                  <span class="hero-incant__line">皆可问之</span>
+                  <span class="hero-incant__line">中式命理，一应俱全</span>
                 </div>
 
                 <!-- CTA -->
@@ -292,41 +262,33 @@ const goToLogin = () => {
           </div>
         </section>
 
-        <!-- ── 今日玄机（灵符纸卡）── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="今日玄机">
+        <!-- ── 何为命理 ── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="何为命理">
           <div class="section-header">
-            <h2>今 日 玄 机</h2>
+            <h2>何 为 命 理</h2>
           </div>
 
-          <div class="max-w-md mx-auto">
-            <div class="talisman-card">
-              <span class="absolute top-3 left-3 text-[1rem] opacity-25" style="color:#C62828;" aria-hidden="true">☰</span>
-              <span class="absolute top-3 right-3 text-[1rem] opacity-25" style="color:#C62828;" aria-hidden="true">☷</span>
-
-              <template v-if="todayAstro">
-                <div class="talisman-seal">
-                  <span class="font-display text-sm text-white">玄</span>
-                </div>
-
-                <p class="talisman-lunar-date">{{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}</p>
-                <p class="talisman-gregorian">{{ todayAstro.dateStr }} · 星期{{ todayAstro.weekday }}</p>
-
-                <div class="flex items-center justify-center gap-4 mb-4">
-                  <span class="talisman-ganzhi">{{ todayAstro.yearGanZhi }}年</span>
-                  <span class="w-px h-3 bg-ink-dark/5" aria-hidden="true"></span>
-                  <span class="talisman-ganzhi">{{ todayAstro.monthGanZhi }}月</span>
-                </div>
-
-                <div v-if="todayAstro.solarTerm" class="talisman-term-badge">
-                  · {{ todayAstro.solarTerm }} ·
-                </div>
-
-                <div class="talisman-divider" aria-hidden="true"></div>
-
-                <NuxtLink to="/login" class="talisman-cta">
-                  登录查看个人运势 →
-                </NuxtLink>
-              </template>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay:0.05s">
+              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">古</span>
+              <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">古法传承</h3>
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
+                基于《三命通会》《渊海子平》《易经》等经典古籍，延续千年命理推算体系。
+              </p>
+            </div>
+            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay:0.15s">
+              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">全</span>
+              <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">一应俱全</h3>
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
+                四柱八字、紫微斗数、六爻占卜、生肖星座、姓名测字——命理之术，尽汇于此。
+              </p>
+            </div>
+            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay:0.25s">
+              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">简</span>
+              <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">即问即答</h3>
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
+                输入出生年月日时，即刻生成专属命盘。无需等待，一查便知。
+              </p>
             </div>
           </div>
         </section>
@@ -341,99 +303,77 @@ const goToLogin = () => {
           </div>
 
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            <template v-for="(tool, index) in tools" :key="tool.id">
-              <!-- Available tools -->
-              <NuxtLink
-                v-if="tool.available"
-                :to="tool.route"
-                :aria-label="'探索' + tool.name"
-                class="tool-card--new block no-underline group"
-              >
-                <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-                <span class="seal-icon seal-icon--lg" style="margin-bottom:20px;">{{ tool.char }}</span>
-                <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;transition:color 0.3s;">{{ tool.name }}</div>
-                <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">
-                  {{ tool.description }}
-                </p>
-              </NuxtLink>
-
-              <!-- Locked tools -->
-              <div
-                v-else
-                :aria-label="tool.name + '（即将推出）'"
-                aria-disabled="true"
-                class="tool-card--new opacity-50 cursor-default"
-              >
-                <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-                <div class="seal-icon seal-icon--lg" style="margin-bottom:20px;background:var(--color-ink-light);box-shadow:none;">{{ tool.char }}</div>
-                <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;">{{ tool.name }}</div>
-                <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">
-                  {{ tool.description }}
-                </p>
-              </div>
-            </template>
+            <div
+              v-for="tool in tools"
+              :key="tool.id"
+              :class="[
+                'tool-card--new',
+                tool.available ? '' : 'opacity-50 cursor-default',
+              ]"
+              :aria-label="tool.available ? tool.name : tool.name + '（即将推出）'"
+              :aria-disabled="tool.available ? undefined : 'true'"
+            >
+              <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+              <span
+                class="seal-icon seal-icon--lg"
+                :style="tool.available ? { marginBottom: '20px' } : { marginBottom: '20px', background: 'var(--color-ink-light)', boxShadow: 'none' }"
+              >{{ tool.char }}</span>
+              <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;">{{ tool.name }}</div>
+              <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
+                {{ tool.description }}
+              </p>
+            </div>
           </div>
 
-          <!-- 更多工具提示 -->
-          <div class="text-center mt-6">
-            <NuxtLink to="/login" class="btn-ink no-underline inline-flex">
-              探索全部工具
+          <div class="text-center mt-8">
+            <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
+              <span>登录探索全部工具</span>
             </NuxtLink>
           </div>
         </section>
 
-      
-        <!-- ── 命盘预览（复用项目组件）── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="命盘预览">
+        <!-- ── 三步入门 ── -->
+        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="如何开始">
           <div class="section-header">
-            <h2>命 盘 预 览</h2>
+            <h2>如 何 开 始</h2>
           </div>
 
-          <div class="card-warm card-warm--elevated p-6 sm:p-10 lg:p-11">
-            <template v-if="sampleBazi">
-              <!-- 标题 -->
-              <div class="flex items-center gap-3 pb-4 mb-6 border-b border-paper-dark/20 flex-wrap">
-                <span class="seal-icon" aria-hidden="true">命</span>
-                <h3 class="font-display text-lg sm:text-xl text-ink-dark tracking-[0.3em] leading-relaxed">示例命盘</h3>
-                <span class="text-xs text-ink-medium/60 ml-auto tracking-[0.15em]">1990年5月15日 · 午时 · 男</span>
-              </div>
+          <div class="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-8 sm:gap-16 mt-6">
+            <div class="flex flex-col items-center text-center max-w-[12rem] anim-rise" style="--delay:0.05s">
+              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true" style="font-family:var(--font-display)">壹</span>
+              <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">填写出生</h3>
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
+                输入你的出生年月日时，只需一次。
+              </p>
+            </div>
 
-              <!-- 四柱表格（复用项目 BaziGrid） -->
-              <div class="mb-6">
-                <BaziGrid :pillars="baziPillars" />
-              </div>
+            <div class="hidden sm:flex items-center pt-10" aria-hidden="true">
+              <svg class="w-6 h-6 text-ink-faint/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </div>
 
-              <!-- 日主印章 + 五行分析 -->
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <DayMasterSeal
-                  :birth-year="sampleBazi.birthYear"
-                  :birth-calendar="sampleBazi.birthCalendar"
-                  :animal-name="getAnimal(sampleBazi.birthYear)"
-                  :gender="sampleBazi.gender"
-                  :day-master="sampleBazi.dayMaster"
-                  :day-master-wuxing="sampleBazi.dayMasterWuxing"
-                  :day-master-strength="sampleBazi.dayMasterStrength"
-                  :favorable-elements="sampleBazi.favorableElements"
-                  :unfavorable-elements="sampleBazi.unfavorableElements"
-                />
-                <ElementAnalysis
-                  :element-counts="sampleBazi.elementCounts"
-                  :element-percentages="sampleBazi.elementPercentages"
-                  :day-master="sampleBazi.dayMaster"
-                  :day-master-wuxing="sampleBazi.dayMasterWuxing"
-                  :day-master-strength="sampleBazi.dayMasterStrength"
-                  :month-branch="sampleBazi.monthPillar?.branch || ''"
-                />
-              </div>
-            </template>
+            <div class="flex flex-col items-center text-center max-w-[12rem] anim-rise" style="--delay:0.15s">
+              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true" style="font-family:var(--font-display)">贰</span>
+              <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">即刻排盘</h3>
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
+                系统自动推算四柱八字、紫微命盘、星盘轨迹。
+              </p>
+            </div>
 
-            <template v-else>
-              <div class="py-12 text-center">
-                <div class="skeleton-pulse h-64 w-full max-w-lg mx-auto rounded" />
-              </div>
-            </template>
+            <div class="hidden sm:flex items-center pt-10" aria-hidden="true">
+              <svg class="w-6 h-6 text-ink-faint/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </div>
 
-            <p class="text-[0.6875rem] text-ink-medium/60 text-center mt-5 tracking-[0.1em]" v-if="sampleBazi">* 此为示例命盘，登录后可排自己的盘</p>
+            <div class="flex flex-col items-center text-center max-w-[12rem] anim-rise" style="--delay:0.25s">
+              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true" style="font-family:var(--font-display)">叁</span>
+              <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">解读天命</h3>
+              <p class="font-sans text-sm text-ink-medium leading-relaxed">
+                查看运势分析、神煞流年、五行喜忌，洞察人生玄机。
+              </p>
+            </div>
           </div>
         </section>
 
@@ -654,17 +594,6 @@ const goToLogin = () => {
 @media (min-width: 640px) {
   .talisman-card { padding: 2rem; }
 }
-.talisman-seal {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.375rem;
-  background: var(--color-cinnabar);
-  transform: rotate(-3deg);
-  margin-bottom: 1rem;
-}
 .talisman-seal--sm {
   display: inline-flex;
   align-items: center;
@@ -709,30 +638,5 @@ const goToLogin = () => {
   background: rgba(198, 40, 40, 0.06);
   color: var(--color-cinnabar);
   margin-bottom: 1.25rem;
-}
-.talisman-divider {
-  width: 6rem;
-  height: 1px;
-  margin: 1rem auto;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(44, 26, 14, 0.08) 0px,
-    rgba(44, 26, 14, 0.08) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-}
-.talisman-cta {
-  display: inline-block;
-  font-size: 0.6875rem;
-  color: var(--color-ink-medium);
-  letter-spacing: 0.15em;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  opacity: 0.7;
-}
-.talisman-cta:hover {
-  color: var(--color-cinnabar);
-  opacity: 1;
 }
 </style>
