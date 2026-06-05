@@ -12,7 +12,8 @@ export default defineEventHandler(async event => {
   }
 
   const body = await readBody(event)
-  let { nickname, pin } = body || {}
+  let { nickname } = body || {}
+  const { pin } = body || {}
   nickname = nickname?.trim() ?? ''
 
   if (!nickname || !pin) {

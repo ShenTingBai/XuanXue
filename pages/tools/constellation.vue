@@ -247,6 +247,7 @@ async function saveDivinationResult(result: ConstellationResult, month: number, 
       if (code === 429) return // auto-save is best-effort; rate limit is expected
       if (code === 401) return // global interceptor handles logout + redirect
     }
+    // eslint-disable-next-line no-console
     console.error('保存历史记录失败:', e)
   }
 }

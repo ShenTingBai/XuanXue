@@ -26,6 +26,7 @@ export function logSecurityEvent(
     ])
   } catch (err) {
     // Security logging is best-effort — don't throw
+    // eslint-disable-next-line no-console
     console.error('Security log write failed:', err)
   }
 }

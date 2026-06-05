@@ -650,7 +650,8 @@ export interface BaZiInput {
  * Calculate BaZi (Four Pillars) from birth information.
  */
 export function calculateBaZi(input: BaZiInput): BaZiResult {
-  let { birthYear, birthMonth, birthDay, birthCalendar, birthHour, gender, birthLongitude } = input
+  let { birthYear, birthMonth, birthDay, birthCalendar } = input
+  const { birthHour, gender, birthLongitude } = input
 
   // --- Lunar to Solar Conversion ---
   if (birthCalendar === 'lunar') {
@@ -663,6 +664,7 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
       birthCalendar = 'solar'
     } catch {
       // If conversion fails (e.g. invalid lunar date), fall through with original values
+      // eslint-disable-next-line no-console
       console.warn(
         `[useBaZi] Failed to convert lunar date ${birthYear}-${birthMonth}-${birthDay}, treating as solar`,
       )

@@ -221,7 +221,7 @@ function generateClosing(category: string, element: string, structureName: strin
 
   const opening = elementPhrases[element] || `${element}性本自天地。`
 
-  let wordPhrase = ''
+  let wordPhrase: string
   if (category === '大吉') {
     wordPhrase = '此字数理大吉，字形结构得当，五行之气流通无碍。诚为佳兆，万事可期。'
   } else if (category === '吉') {

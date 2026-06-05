@@ -8,6 +8,7 @@ const props = withDefaults(
     size?: 'sm' | 'md' | 'lg'
   }>(),
   {
+    wuXing: null,
     size: 'md',
   },
 )

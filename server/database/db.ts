@@ -62,6 +62,7 @@ function scheduleSave(): void {
         lastSaveTime = Date.now()
         saveFile()
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('数据库保存失败:', err)
       } finally {
         saveScheduled = false
@@ -76,6 +77,7 @@ function scheduleSave(): void {
         lastSaveTime = Date.now()
         saveFile()
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('数据库保存失败:', err)
       } finally {
         saveScheduled = false
@@ -95,6 +97,7 @@ function flushSave(): void {
     lastSaveTime = Date.now()
     saveFile()
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('数据库保存失败:', err)
   }
   saveScheduled = false
@@ -143,6 +146,7 @@ export async function initDb(): Promise<void> {
         }
         dbRun('INSERT INTO _migrations (version) VALUES (1)')
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error('Migration v1 failed (hash existing tokens):', e)
       }
     }
@@ -174,7 +178,10 @@ export async function initDb(): Promise<void> {
       } catch (e) {
         try {
           db.run('ROLLBACK')
-        } catch {}
+        } catch {
+          // Intentionally empty: rollback failure is non-recoverable
+        }
+        // eslint-disable-next-line no-console
         console.error('Migration v2 failed (profiles CHECK constraint):', e)
       }
     }

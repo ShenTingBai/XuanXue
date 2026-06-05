@@ -14,7 +14,9 @@ function loadDefaults(): { prefix: string; subtitle: string } {
           subtitle: saved.subtitle || '择一而探，洞见天机',
         }
       }
-    } catch {}
+    } catch {
+      // Intentionally empty: localStorage not available in SSR
+    }
   }
   return { prefix: '你好', subtitle: '择一而探，洞见天机' }
 }
@@ -40,7 +42,9 @@ export function useGreeting() {
         if (saved.prefix) _prefix!.value = saved.prefix
         if (saved.subtitle) _subtitle!.value = saved.subtitle
       }
-    } catch {}
+    } catch {
+      // Intentionally empty: localStorage not available in SSR
+    }
   }
 
   function save(newPrefix: string, newSubtitle: string) {

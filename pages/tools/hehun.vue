@@ -158,6 +158,7 @@ function computeHeHun() {
     result.value = calculateHeHun({ personA: personA.value, personB })
     saveDivinationResult(result.value)
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error('合婚计算失败:', e)
     error.value = '合婚计算失败，请检查输入信息'
   } finally {
@@ -192,6 +193,7 @@ async function saveDivinationResult(res: HeHunResult) {
       if (code === 429) return
       if (code === 401) return
     }
+    // eslint-disable-next-line no-console
     console.error('保存合婚记录失败:', e)
   }
 }

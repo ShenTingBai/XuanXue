@@ -214,6 +214,7 @@ async function saveDivinationResult(res: ZejiResult) {
       if (code === 429) return
       if (code === 401) return
     }
+    // eslint-disable-next-line no-console
     console.error('保存择吉日记录失败:', e)
   }
 }

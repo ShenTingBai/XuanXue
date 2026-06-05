@@ -41,7 +41,11 @@ const props = withDefaults(
     textColor?: string
   }>(),
   {
+    score: 0,
     size: 120,
+    label: '',
+    strokeColor: '',
+    textColor: '',
   },
 )
 

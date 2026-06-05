@@ -106,6 +106,7 @@ async function computeNameTest() {
     result.value = res
     saveDivinationResult(res)
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error('姓名测试失败:', e)
     error.value = '计算失败，请检查输入'
   } finally {
@@ -135,6 +136,7 @@ async function saveDivinationResult(res: NameTestResult) {
       if (code === 429) return
       if (code === 401) return
     }
+    // eslint-disable-next-line no-console
     console.error('保存姓名测试记录失败:', e)
   }
 }

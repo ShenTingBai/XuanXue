@@ -364,7 +364,7 @@ export function calculateYijingScore(
   const numYang = values.filter(v => v === 7 || v === 9).length
 
   // Base: balance-based
-  let base = 50
+  let base: number
 
   // Adjust for changing lines
   if (numChanging === 0)

@@ -224,6 +224,7 @@ async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
       if (code === 401) return
       if (code === 429) return // auto-save is best-effort; rate limit is expected
     }
+    // eslint-disable-next-line no-console
     console.error('保存历史记录失败:', e)
   }
 }

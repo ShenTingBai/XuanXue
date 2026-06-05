@@ -108,6 +108,7 @@ async function computeCezi() {
     // Auto-save
     saveDivinationResult(res)
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error('测字分析失败:', e)
     error.value = '分析失败，请检查输入'
   } finally {
@@ -138,6 +139,7 @@ async function saveDivinationResult(res: CeziResult) {
       if (code === 429) return
       if (code === 401) return
     }
+    // eslint-disable-next-line no-console
     console.error('保存测字记录失败:', e)
   }
 }

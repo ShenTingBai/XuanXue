@@ -118,6 +118,7 @@ export function useExportImage() {
       return true
     } catch (e) {
       exportError.value = e instanceof Error ? e.message : '导出失败'
+      // eslint-disable-next-line no-console
       console.warn('[useExportImage] Export failed:', exportError.value)
       return false
     } finally {

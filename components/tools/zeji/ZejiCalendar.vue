@@ -131,7 +131,7 @@ function handleKeydown(e: KeyboardEvent, dateStr: string) {
   const idx = getCellIndex(dateStr)
   if (idx < 0) return
 
-  let targetIdx = idx
+  let targetIdx: number
 
   switch (e.key) {
     case 'ArrowRight':
