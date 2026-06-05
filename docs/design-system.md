@@ -152,7 +152,14 @@
 ```
 
 - 朱砂描边 + 透明底，hover 填充
-- 可加 `.btn-seal__char` 内部显示一个印章字符
+- 可加 `.btn-seal__char` 内部显示一个印章字符：
+  ```
+  <button class="btn-seal">
+    <span class="btn-seal__char" aria-hidden="true">名</span>
+    <span>开始分析</span>
+  </button>
+  ```
+  `.btn-seal__char`：1.35em 朱砂圆框印章，display font，cinnabar 色（定义见 `main.css`）
 - 适用：次要操作（合婚、测字、起名面板）
 
 #### `btn-ghost` — 幽灵按钮

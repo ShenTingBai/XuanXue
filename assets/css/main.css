@@ -212,6 +212,20 @@ html {
   .btn-seal:active {
     animation: sealPress 0.4s ease-out;
   }
+  .btn-seal__char {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35em;
+    height: 1.35em;
+    margin-right: 0.35em;
+    border: 1.5px solid var(--color-cinnabar);
+    border-radius: 50%;
+    font-family: var(--font-display), 'Ma Shan Zheng';
+    font-size: 0.85em;
+    color: var(--color-cinnabar);
+    line-height: 1;
+  }
 
   /* ── Ghost button — minimal ink style ── */
   .btn-ghost {
