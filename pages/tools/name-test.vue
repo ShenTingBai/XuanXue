@@ -269,9 +269,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             <div class="score-banner__name">{{ result.fullName }}</div>
           </div>
           <div class="score-banner__center">
-            <div class="score-ring-inline">
-              <ScoreRing :score="result.totalScore" />
-            </div>
+            <ScoreRing :score="result.totalScore" :size="64" />
           </div>
           <div class="score-banner__right">
             <p class="score-banner__summary">{{ result.summary }}</p>
@@ -504,11 +502,6 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
 
 .score-banner__center {
   flex-shrink: 0;
-}
-
-.score-ring-inline {
-  width: 3.5rem;
-  height: 3.5rem;
 }
 
 .score-banner__right {
