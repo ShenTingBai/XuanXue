@@ -149,6 +149,9 @@ export default [
       'vue/singleline-html-element-content-newline': 'off',
       'vue/html-self-closing': 'off',
       'vue/no-v-html': 'warn',
+      // Prettier handles formatting — avoid circular conflicts
+      'vue/html-indent': 'off',
+      'vue/html-closing-bracket-newline': 'off',
     },
   },
 
