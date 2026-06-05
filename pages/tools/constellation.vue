@@ -26,6 +26,21 @@ import { calculateNatalChart, serializeNatalChart } from '~/composables/useNatal
 import NatalChart from '~/components/tools/constellation/NatalChart.vue'
 import NatalChartGuide from '~/components/tools/constellation/NatalChartGuide.vue'
 import type { NatalChartData } from '~/composables/useNatalChart'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+
+// ── Methodology data ──
+const constellationClassical: ClassicalSource[] = [
+  { method: '黄道十二宫', source: 'Ptolemy《Tetrabiblos》（公元2世纪），现代西方占星学基础体系' },
+  { method: '四元素分类', source: '古希腊元素体系（Empedocles），火土风水四元素与星座性格关联' },
+  { method: '守护星体系', source: '传统占星学行星守护体系，日/月/金/水/火/木/土/天/海/冥十星配十二宫' },
+  { method: '三光（日月上升）', source: 'Astrolog 标准布局，Asc 左侧 9 点钟方向，日月上升三光解读' },
+  { method: '星盘计算', source: 'astronomy-engine v2.1.19 计算行星真实位置（VSOP87 理论）' },
+]
+const constellationSynthesis: string[] = [
+  '配对相容性为元素相容理论工程简化（great/good/bad 三级）',
+  '今日运势 + 宜忌为模板拼接（非占星学日月运行实时推演）',
+  '解释文本为现代白话转述（非 Ptolemy 原文）',
+]
 
 useHead({ title: '星座 — 玄·道' })
 
@@ -359,6 +374,17 @@ function scrollToConstellationNav() {
               </div>
             </Transition>
           <div ref="resultRef">
+          <!-- ── 方法论溯源 ── -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="section-header !mb-0">
+              <h2>星座分析</h2>
+            </div>
+            <MethodologyNote
+              :classical="constellationClassical"
+              :synthesis="constellationSynthesis"
+              tool="星座"
+            />
+          </div>
           <ConstellationHero :result="result" />
 
           <ConstellationAttributes :result="result" />

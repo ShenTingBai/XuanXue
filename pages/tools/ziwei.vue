@@ -20,6 +20,22 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+
+// ── Methodology data ──
+const ziweiClassical: ClassicalSource[] = [
+  { method: '紫微斗数体系', source: '《紫微斗数全书》（宋代陈希夷撰），十四主星/十二宫位/四化曜完整体系' },
+  { method: '星盘排盘', source: 'iztro v2.4.8（npm 包），基于《紫微斗数全书》排盘算法实现' },
+  { method: '十二宫位', source: '《紫微斗数全书》卷一·十二宫论（命宫-父母宫）' },
+  { method: '四化（禄权科忌）', source: '《紫微斗数全书》卷三·四化曜，天干引动主星化气' },
+  { method: '星曜特性', source: '同上，主星 14 + 辅星 14 + 杂曜 38，各星入命宫/各宫解读' },
+]
+const ziweiSynthesis: string[] = [
+  '星曜配色分类（gold/jade/cinnabar/ice/purple/gray/white）为前端数据可视化设计，非经典分类体系',
+  '双星组合解读为规则模板拼接（按排序后的星名做 key lookup）',
+  '解释文本为现代白话转述（非《紫微斗数全书》原文）',
+  '天星图地支→角度映射为工程定义（经典紫微无"天星图"可视化传统）',
+]
 
 useHead({ title: '紫微斗数 — 玄·道' })
 
@@ -342,6 +358,17 @@ function dismissRestoreError() {
           </div>
         </Transition>
         <div ref="resultRef">
+        <!-- ── 方法论溯源 ── -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="section-header !mb-0">
+            <h2>紫微斗数</h2>
+          </div>
+          <MethodologyNote
+            :classical="ziweiClassical"
+            :synthesis="ziweiSynthesis"
+            tool="紫微斗数"
+          />
+        </div>
         <ZiWeiTabSwitcher
           :current-view="currentView"
           @update:current-view="currentView = $event"
