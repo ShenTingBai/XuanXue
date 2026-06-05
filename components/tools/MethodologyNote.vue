@@ -228,6 +228,7 @@ function onKeydown(e: KeyboardEvent) {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 0.5rem;
+  overflow-wrap: break-word;
 }
 
 .methodology-panel__item--synth {
