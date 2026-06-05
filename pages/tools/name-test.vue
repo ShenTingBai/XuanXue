@@ -214,10 +214,17 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
 
       <!-- ══ 输入区 ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-        <div class="section-header">
-          <h2>输入姓名</h2>
+        <div class="flex items-center justify-between">
+          <div class="section-header">
+            <h2>输入姓名</h2>
+          </div>
+          <MethodologyNote
+            :classical="nameTestClassical"
+            :synthesis="nameTestSynthesis"
+            tool="姓名测试"
+          />
         </div>
-        <p class="text-xs text-ink-muted mb-6 tracking-wide">请输入您的姓名进行五格剖象分析</p>
+        <p class="text-xs text-ink-medium mb-6 tracking-wide">请输入您的姓名进行五格剖象分析</p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
@@ -295,15 +302,8 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
 
         <!-- 五格一览表 -->
         <div class="fade-in mt-6 card-warm rounded-xl overflow-hidden" :style="{ '--delay': '0.25s' }">
-          <div class="flex items-center justify-between px-8 pt-8 pb-4">
-            <div class="section-header !pb-0 !mb-0 !border-b-0">
-              <h2>五格剖象</h2>
-            </div>
-            <MethodologyNote
-              :classical="nameTestClassical"
-              :synthesis="nameTestSynthesis"
-              tool="姓名测试"
-            />
+          <div class="section-header px-8 pt-8 pb-4">
+            <h2>五格剖象</h2>
           </div>
           <div class="grid-table">
             <!-- 天格 -->
