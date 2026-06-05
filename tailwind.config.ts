@@ -14,8 +14,8 @@ export default {
       colors: {
         ink: {
           faint: '#D4C5B0',
-          light: '#6B5B4F',
-          medium: '#5E5045',
+          light: '#5E5045',
+          medium: '#6B5B4F',
           muted: '#4D4037',
           DEFAULT: '#2C1810',
           dark: '#1E1210',
