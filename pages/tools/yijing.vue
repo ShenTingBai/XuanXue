@@ -80,8 +80,15 @@
           </div>
         </Transition>
 
-        <div v-if="result && !processing" class="section-header">
-          <h2>占卜结果</h2>
+        <div v-if="result && !processing" class="flex items-center justify-between">
+          <div class="section-header">
+            <h2>占卜结果</h2>
+          </div>
+          <MethodologyNote
+            :classical="yijingClassical"
+            :synthesis="yijingSynthesis"
+            tool="六爻"
+          />
         </div>
 
         <!-- Results -->
@@ -95,12 +102,12 @@
           <!-- Reset -->
           <div class="text-center mt-6 pb-8">
             <button
-              class="btn-cin"
+              class="btn-ink"
               @click="requestReset"
               @keydown.enter="requestReset"
               @keydown.space.prevent="requestReset"
             >
-              重新占卜
+              ⟲ 重新占卜
             </button>
           </div>
 
@@ -139,8 +146,25 @@ import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 useHead({ title: '六爻占卜 — 玄·道' })
+
+// ── Methodology data ──
+const yijingClassical: ClassicalSource[] = [
+  { method: '六爻纳甲法', source: '京房《京氏易传》（西汉），八宫卦变法 + 世应定位' },
+  { method: '六十四卦卦序·卦辞·爻辞', source: '《周易》原文，《彖传》《象传》释义' },
+  { method: '六亲配法', source: '京房纳甲六亲体系，以宫卦五行为我，定父母/兄弟/官鬼/妻财/子孙' },
+  { method: '六神配法', source: '《卜筮正宗》《增删卜易》，以日干定青龙/朱雀/勾陈/螣蛇/白虎/玄武' },
+]
+const yijingSynthesis: string[] = [
+  '世应定位算法（八宫卦序→世爻规律：6,1,2,3,4,5,4,3）',
+  '评分模型：基础 50 + 卦辞吉凶(±20) + 爻动吉凶(±15) + 世应关系(±15)，压缩至 0-100',
+  '解读文本为规则模板拼接（卦辞 + 爻辞 + 世应 + 六亲动向 + 综合建议），非 AI 生成',
+  '互卦由本卦 2-3-4 爻为下卦、3-4-5 爻为上卦组成',
+  '变卦（之卦）由本卦动爻阴阳反转生成',
+]
 
 // State
 const castingMode = ref<'coin' | 'number'>('coin')

@@ -6,7 +6,7 @@
   <div v-else class="hexagram-container" :style="{ '--delay': '0.15s' }">
     <!-- Hexagram name header -->
     <div class="text-center mb-5">
-      <span v-if="label" class="font-sans text-[0.625rem] tracking-[0.2em] text-ink-light uppercase">{{ label }}</span>
+      <span v-if="label" class="font-sans text-[0.6875rem] tracking-[0.2em] text-ink-muted uppercase">{{ label }}</span>
       <div class="flex items-center justify-center gap-2 mt-1">
         <span class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight">
           {{ hexagram.name }}
@@ -15,7 +15,7 @@
       <!-- Decorative ink-wash accent -->
       <div class="flex items-center justify-center gap-2 mt-2" aria-hidden="true">
         <span class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
-        <span class="block w-1.5 h-1.5 rotate-45 bg-cinnabar/60"></span>
+        <span class="block w-1.5 h-1.5 rotate-45" :style="{ backgroundColor: `color-mix(in srgb, var(--color-cinnabar) 60%, transparent)` }"></span>
         <span class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
       </div>
     </div>
@@ -193,12 +193,12 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
+  width: 20px;
   flex-shrink: 0;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   line-height: 1;
-  color: var(--color-ink-medium);
+  color: var(--color-ink-muted);
   letter-spacing: 0;
 }
 
@@ -307,7 +307,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   align-items: center;
   gap: 4px 0;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
 }
 
 .meta-item {
@@ -318,8 +318,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .meta-label {
-  color: var(--color-ink-medium);
-  opacity: 0.6;
+  color: color-mix(in srgb, var(--color-ink-medium) 60%, transparent);
 }
 
 .meta-value {
@@ -333,7 +332,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   padding: 0 4px;
   border: 1px solid;
   border-radius: 3px;
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   line-height: 1.3;
   font-weight: 500;
 }
@@ -359,8 +358,8 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
     gap: 8px;
   }
   .yao-pos {
-    width: 20px;
-    font-size: 0.6rem;
+    width: 22px;
+    font-size: 0.6875rem;
   }
   .yao-bar--solid {
     width: 68px;
@@ -383,7 +382,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
     font-size: 0.925rem;
   }
   .hexagram-meta {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 }
 
