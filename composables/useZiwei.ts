@@ -3,8 +3,7 @@ import { astro } from 'iztro'
 import {
   getPalaceInterpretation,
   getStarInterpretation,
-  getCombinationKey,
-  COMBINATION_INTERPRETATIONS,
+  lookupCombination,
 } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
@@ -47,7 +46,7 @@ export function calculateZiWei(input: ZiWeiInput): IFunctionalAstrolabe | null {
   }
 
   try {
-    const dateStr = `${birthYear}-${birthMonth}-${birthDay}`
+    const dateStr = `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`
     return astro.bySolar(dateStr, timeIndex, gender, true, 'zh-CN')
   } catch {
     return null
@@ -96,9 +95,8 @@ export function getPalaceDetail(palace: IFunctionalPalace): {
 
   const starNames: string[] = palace.majorStars.map(s => s.name as string)
 
-  // Look up combination from the new map
-  const comboKey = getCombinationKey(starNames)
-  let combinationNote = COMBINATION_INTERPRETATIONS[comboKey] || ''
+  // Look up combination (keys normalized at lookup time for deterministic matching)
+  let combinationNote = lookupCombination(starNames)
 
   // Fallback for 杀破狼 — single star presence (any of the three triggers it)
   if (!combinationNote && ['七杀', '破军', '贪狼'].some(s => starNames.includes(s))) {

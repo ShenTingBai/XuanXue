@@ -108,14 +108,6 @@ export function getNaYin(stem: string, branch: string): string {
   return NAYIN_TABLE[Math.floor(sexagenaryPos / 2)] || ''
 }
 
-/** Convert hex color (e.g. '#4A7C59') to rgba with custom alpha */
-export function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},${alpha.toFixed(3)})`
-}
-
 /** Return Tailwind CSS classes for day master strength display */
 export function strengthColorClass(strength: string): string {
   if (strength === '强' || strength === '偏强') return 'text-cinnabar font-medium'

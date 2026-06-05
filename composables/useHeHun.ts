@@ -40,6 +40,7 @@ import {
   type HeHunGrade,
 } from '~/constants/hehun'
 import { getNayinPersonality } from '~/constants/stem-animal'
+import { getNayinWuxing as getNayinWuxingDirect } from '~/constants/bazi'
 
 // ── Types ─────────────────────────────────────────────
 
@@ -486,28 +487,36 @@ function analyzeNayin(stemBranchA: string, stemBranchB: string): HeHunDimension 
   const details: string[] = []
   let score = 0
 
+  // Authoritative direct lookup (stem+branch → wuxing) instead of heuristic character-matching
+  const stemA = stemBranchA[0]
+  const branchA = stemBranchA[1]
+  const stemB = stemBranchB[0]
+  const branchB = stemBranchB[1]
+  const wxA = getNayinWuxingDirect(stemA, branchA)
+  const wxB = getNayinWuxingDirect(stemB, branchB)
+
+  // Still fetch nayin names for human-readable detail descriptions
   const nayinA = getNayinPersonality(stemBranchA)
   const nayinB = getNayinPersonality(stemBranchB)
+  const nayinNameA = nayinA?.nayin || ''
+  const nayinNameB = nayinB?.nayin || ''
 
-  if (nayinA && nayinB) {
-    const wxA = getNayinWuxing(nayinA.nayin)
-    const wxB = getNayinWuxing(nayinB.nayin)
-
+  if (wxA && wxB) {
     if (WUXING_GENERATE[wxA] === wxB) {
       score += 8
-      details.push(`A纳音${nayinA.nayin}（${wxA}）生B纳音${nayinB.nayin}（${wxB}），上吉。`)
+      details.push(`A纳音${nayinNameA}（${wxA}）生B纳音${nayinNameB}（${wxB}），上吉。`)
     } else if (WUXING_GENERATE[wxB] === wxA) {
       score += 6
-      details.push(`B纳音${nayinB.nayin}（${wxB}）生A纳音${nayinA.nayin}（${wxA}），为吉。`)
+      details.push(`B纳音${nayinNameB}（${wxB}）生A纳音${nayinNameA}（${wxA}），为吉。`)
     } else if (WUXING_CONFLICT[wxA] === wxB) {
       score -= 5
-      details.push(`A纳音${nayinA.nayin}（${wxA}）克B纳音${nayinB.nayin}（${wxB}），相克不利。`)
+      details.push(`A纳音${nayinNameA}（${wxA}）克B纳音${nayinNameB}（${wxB}），相克不利。`)
     } else if (WUXING_CONFLICT[wxB] === wxA) {
       score -= 3
-      details.push(`B纳音${nayinB.nayin}（${wxB}）克A纳音${nayinA.nayin}（${wxA}），相克不利。`)
+      details.push(`B纳音${nayinNameB}（${wxB}）克A纳音${nayinNameA}（${wxA}），相克不利。`)
     } else {
       score += 2
-      details.push(`A之${nayinA.nayin}（${wxA}）与B之${nayinB.nayin}（${wxB}）平和无克。`)
+      details.push(`A之${nayinNameA}（${wxA}）与B之${nayinNameB}（${wxB}）平和无克。`)
     }
   } else {
     details.push('纳音信息不足，无法分析。')
