@@ -171,7 +171,7 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
 </script>
 
 <template>
-  <div class="card-warm rounded-xl p-6 sm:p-8">
+  <div class="card-warm rounded-xl p-8">
     <!-- Month header -->
     <div class="flex items-center justify-between mb-6">
       <h2 class="font-display text-lg sm:text-xl text-ink-dark tracking-[0.2em]">
@@ -196,7 +196,7 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
               v-for="w in WEEKDAYS"
               :key="w"
               scope="col"
-              class="text-center py-2 text-[0.6rem] sm:text-[0.65rem] text-ink-light/70 font-medium tracking-[0.08em]"
+              class="text-center py-2 text-[0.6875rem] text-ink-light font-medium tracking-[0.08em]"
             >
               周{{ w }}
             </th>
@@ -211,7 +211,6 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
             >
               <button
                 v-if="cell.isCurrentMonth"
-                :role="'button'"
                 :tabindex="isSelected(cell.dateStr) ? 0 : -1"
                 :aria-label="getAriaLabel(cell)"
                 :aria-pressed="isSelected(cell.dateStr)"
@@ -231,14 +230,14 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
                 @keydown="handleKeydown($event, cell.dateStr)"
               >
                 <!-- Solar day number -->
-                <span class="text-[0.8rem] sm:text-[0.9rem] font-medium leading-none" :style="{ color: getDayScoreColor(cell.dateStr) || 'var(--color-ink)' }">
+                <span class="text-sm font-medium leading-none" :style="{ color: getDayScoreColor(cell.dateStr) || 'var(--color-ink)' }">
                   {{ cell.day }}
                 </span>
 
                 <!-- Lunar day number (small, below) -->
                 <span
                   v-if="dayMap.get(cell.dateStr)"
-                  class="text-[0.5rem] sm:text-[0.55rem] leading-none mt-0.5 text-ink-light/60"
+                  class="text-[0.6875rem] leading-none mt-0.5 text-ink-light"
                 >
                   {{ dayMap.get(cell.dateStr)?.lunarDayName }}
                 </span>
@@ -246,13 +245,13 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
                 <!-- Auspiciousness indicator dot -->
                 <span
                   v-if="getDayLevel(cell.dateStr) === '吉'"
-                  class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
+                  class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
                   :style="{ backgroundColor: WUXING_COLORS['木'] }"
                   aria-hidden="true"
                 />
                 <span
                   v-if="getDayLevel(cell.dateStr) === '凶'"
-                  class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
+                  class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
                   :style="{ backgroundColor: WUXING_COLORS['火'] }"
                   aria-hidden="true"
                 />
@@ -263,7 +262,7 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
                 v-else
                 class="day-cell w-full min-w-[2.5rem] sm:min-w-[3rem] aspect-square rounded-lg flex items-center justify-center opacity-20"
               >
-                <span class="text-[0.8rem] sm:text-[0.9rem] text-ink-light/30">{{ cell.day }}</span>
+                <span class="text-sm text-ink-faint">{{ cell.day }}</span>
               </div>
             </td>
           </tr>
@@ -274,19 +273,19 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
     <!-- Legend -->
     <div class="flex items-center gap-4 mt-4 pt-3 border-t border-paper-dark/20">
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: WUXING_COLORS['木'] }" aria-hidden="true" />
-        <span class="text-[0.55rem] text-ink-light/70">吉</span>
+        <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: WUXING_COLORS['木'] }" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">吉</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: WUXING_COLORS['火'] }" aria-hidden="true" />
-        <span class="text-[0.55rem] text-ink-light/70">凶</span>
+        <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: WUXING_COLORS['火'] }" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">凶</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: WUXING_COLORS['土'], opacity: 0.5 }" aria-hidden="true" />
-        <span class="text-[0.55rem] text-ink-light/70">平</span>
+        <span class="w-2.5 h-2.5 rounded-full border" :style="{ backgroundColor: WUXING_COLORS['土'], borderColor: WUXING_COLORS['土'], opacity: 0.5 }" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">平</span>
       </div>
       <div class="flex items-center gap-1.5 ml-auto">
-        <span class="text-[0.55rem] text-ink-light/70">今日标记 · 红框为选中</span>
+        <span class="text-[0.6875rem] text-ink-light">今日标记 · 红框为选中</span>
       </div>
     </div>
   </div>
@@ -321,10 +320,18 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
 }
 
 .day-cell--ji {
-  /* subtle green glow for auspicious days */
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 4%, transparent);
+}
+.day-cell--ji:hover {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 8%, transparent);
+  border-color: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 15%, transparent);
 }
 
 .day-cell--xiong {
-  /* subtle red tint for inauspicious days */
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 3%, transparent);
+}
+.day-cell--xiong:hover {
+  background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 7%, transparent);
+  border-color: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 12%, transparent);
 }
 </style>
