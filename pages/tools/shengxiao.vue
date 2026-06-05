@@ -28,8 +28,23 @@ import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.
 import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
 import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 import type { TaiSuiRelation } from '~/constants/tai-sui'
 import { getGuardianBuddha } from '~/constants/guardian-buddha'
+
+// ── Methodology data ──
+const shengxiaoClassical: ClassicalSource[] = [
+  { method: '生肖体系', source: '《三命通会》卷三·论生肖，《论衡·物势篇》十二生肖起源' },
+  { method: '三合六合六冲六害', source: '地支合冲害体系（《三命通会》卷二·地支会合），三合局/六合/六冲/六害/六破' },
+  { method: '五行属性', source: '《三命通会》卷一·地支藏干，十二地支五行归属' },
+  { method: '太岁关系', source: '《协纪辨方书》太岁章，值/冲/刑/害/破五种关系' },
+  { method: '本命佛', source: '佛教《佛说大乘无量寿庄严清净平等觉经》，八佛护佑八生肖' },
+]
+const shengxiaoSynthesis: string[] = [
+  '运势评分：基准 65 + 太岁关系(±15~20) + 维度浮动(±8)，压缩至 0-100',
+  '解释文本为现代白话转述（非经典原文）',
+  '配对评分体现为工程校准值（非《三命通会》直接输出）',
+]
 
 useHead({ title: '生肖 — 玄·道' })
 
@@ -362,6 +377,17 @@ async function restoreFromHistory(id: number) {
             </Transition>
 
           <div ref="resultRef">
+          <!-- ── 方法论溯源 ── -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="section-header !mb-0">
+              <h2>生肖排盘</h2>
+            </div>
+            <MethodologyNote
+              :classical="shengxiaoClassical"
+              :synthesis="shengxiaoSynthesis"
+              tool="生肖"
+            />
+          </div>
           <ShengXiaoHero :result="result" />
 
           <WuXingGrid :result="result" />

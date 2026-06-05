@@ -12,6 +12,21 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+
+// ── Methodology data ──
+const zejiClassical: ClassicalSource[] = [
+  { method: '十二值星', source: '《协纪辨方书》卷五，建除满平定执破危成收开闭十二星' },
+  { method: '十二天神', source: '《星历考原》卷二，青龙明堂天刑朱雀金匮天德白虎玉堂天牢牢狱玄武司命勾陈' },
+  { method: '宜忌事项', source: '《增补万全玉匣记》，嫁娶/开业/搬家/出行/修造/安葬/祭祀/会友/求医/入学' },
+  { method: '二十八宿', source: '《星经》体系，角亢氐房心尾箕斗牛女虚危室壁奎娄胃昴毕觜参井鬼柳星张翼轸' },
+  { method: '黄黑道', source: '建满平收黑、除危定执黄、成开皆可用、破闭不可当（《协纪辨方书》口诀）' },
+]
+const zejiSynthesis: string[] = [
+  '评分算法：值星±(20~-15) + 天神±(15~-10) + 宜忌±(15~-5)，阈值：≥85上吉/≥65吉/≥45平/<45凶',
+  '事项关键词匹配为工程约定（民间常用但不完整）',
+  '评分权重和阈值为开发者校准（无经典原文量化标准）',
+]
 
 useHead({ title: '择吉日 — 玄·道' })
 
@@ -237,6 +252,17 @@ function dismissRestoreError() {
       </ToolToolbar>
 
       <div ref="resultRef">
+      <!-- ── 方法论溯源 ── -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="section-header !mb-0">
+          <h2>择吉日</h2>
+        </div>
+        <MethodologyNote
+          :classical="zejiClassical"
+          :synthesis="zejiSynthesis"
+          tool="择吉"
+        />
+      </div>
       <!-- ══ Event Type Selector ══ -->
       <div class="section-enter card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="section-header">
