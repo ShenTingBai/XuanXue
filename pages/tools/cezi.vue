@@ -14,6 +14,7 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
 useHead({ title: '测字 — 玄·道' })
 
@@ -29,6 +30,20 @@ const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
+// ── Methodology data ──
+const ceziClassical: ClassicalSource[] = [
+  { method: '81 数理吉凶表', source: '熊崎健翁《姓名学の極意》（1934），五格剖象体系，数理 1-81 吉凶分类' },
+  { method: '偏旁部首五行', source: '《说文解字》部首分类，康熙字典偏旁五行归纳' },
+  { method: '字形结构分类', source: '传统汉字学六书理论，独体/左右/上下/包围/品字五类' },
+  { method: '汉字笔画', source: '康熙字典笔画规范，makemeahanzi 开源数据库（~9565 字）' },
+]
+const ceziSynthesis: string[] = [
+  '笔画尾数→五行映射（1-2 木 / 3-4 火 / 5-6 土 / 7-8 金 / 9-0 水，工程约定）',
+  '结构检测启发式规则（包围框架识别 + 默认回退为独体）',
+  '解读文本综合模板（数理 + 五行 + 字形 + 总结，规则拼接）',
+  '数理回退：尾数推断法（末位 1-2 半吉 / 3-4 半吉 / 5-6 吉 / 7-8 吉 / 9-0 凶）',
+]
 
 function handleExport() {
   if (resultRef.value) {
@@ -147,6 +162,15 @@ function dismissRestoreError() {
   restoreError.value = ''
 }
 
+function resetToForm() {
+  result.value = null
+  error.value = ''
+  inputChar.value = ''
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
 // Helpers for display
 function getFortuneBadgeClass(category: string): string {
   if (category === '大吉') return 'fortune-badge--daji'
@@ -205,10 +229,17 @@ const interpretationParagraphs = computed(() => {
 
       <!-- ══ Input Area ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-        <div class="section-header">
-          <h2>测字占卜</h2>
+        <div class="flex items-center justify-between">
+          <div class="section-header">
+            <h2>测字占卜</h2>
+          </div>
+          <MethodologyNote
+            :classical="ceziClassical"
+            :synthesis="ceziSynthesis"
+            tool="测字"
+          />
         </div>
-        <p class="text-xs text-ink-light/80 mb-6 tracking-wide">请输入一字，以窥天机。一字一世界，拆解字形探玄机。</p>
+        <p class="text-xs text-ink-medium mb-6 tracking-wide">请输入一字，以窥天机。一字一世界，拆解字形探玄机。</p>
 
         <div class="flex flex-col items-center gap-5">
           <div class="w-full max-w-[12rem]">
@@ -223,14 +254,26 @@ const interpretationParagraphs = computed(() => {
             />
           </div>
 
-          <button
-            @click="computeCezi"
-            @keydown.enter="computeCezi"
-            :disabled="loading"
-            class="btn-seal"
-          >
-            <span>{{ loading ? '测字中...' : '开始测字' }}</span>
-          </button>
+          <div class="flex justify-center items-center gap-4">
+            <button
+              @click="computeCezi"
+              @keydown.enter="computeCezi"
+              @keydown.space.prevent="computeCezi"
+              :disabled="loading"
+              class="btn-seal"
+            >
+              <span>{{ loading ? '测字中...' : '开始测字' }}</span>
+            </button>
+            <button
+              v-if="result"
+              class="btn-ink"
+              @click="resetToForm"
+              @keydown.enter="resetToForm"
+              @keydown.space.prevent="resetToForm"
+            >
+              <span>⟲ 重新测字</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -271,7 +314,7 @@ const interpretationParagraphs = computed(() => {
               <span class="cezi-slip__stat-label">笔画</span>
               <span class="cezi-slip__stat-value">
                 {{ result.strokeCount }}
-                <span v-if="result.strokeSource === 'estimated'" class="text-[0.5rem] text-ink-light/60 ml-0.5">估算</span>
+                <span v-if="result.strokeSource === 'estimated'" class="text-[0.6875rem] text-ink-muted ml-0.5">估算</span>
               </span>
             </div>
             <div class="cezi-slip__stat">
@@ -314,12 +357,12 @@ const interpretationParagraphs = computed(() => {
             </div>
             <p class="cezi-slip__text">{{ getElementSummary(result.primaryElement) }}</p>
             <div v-if="result.radicalElement && result.radicalElement !== result.primaryElement" class="mt-2 cezi-slip__note">
-              <span class="text-[0.6rem] text-ink-light">偏旁属</span>
+              <span class="text-[0.6875rem] text-ink-muted">偏旁属</span>
               <span
-                class="text-[0.6rem] font-medium"
+                class="text-[0.6875rem] font-medium"
                 :style="{ color: getElementColor(result.radicalElement) }"
               >{{ result.radicalElement }}</span>
-              <span class="text-[0.6rem] text-ink-light">，与数理五行相异，需综合参详。</span>
+              <span class="text-[0.6875rem] text-ink-muted">，与数理五行相异，需综合参详。</span>
             </div>
           </div>
 
@@ -394,8 +437,8 @@ const interpretationParagraphs = computed(() => {
 .input-label {
   display: block;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-muted);
   letter-spacing: 0.06em;
   margin-bottom: 0.3rem;
   text-align: center;
@@ -408,33 +451,33 @@ const interpretationParagraphs = computed(() => {
   justify-content: center;
   padding: 0.15rem 0.6rem;
   border-radius: 3px;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.08em;
 }
 
 .fortune-badge--daji {
-  background: rgba(198, 40, 40, 0.1);
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
   color: var(--color-cinnabar);
-  border: 1px solid rgba(198, 40, 40, 0.2);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
 }
 
 .fortune-badge--ji {
-  background: rgba(61, 107, 75, 0.08);
+  background: color-mix(in srgb, var(--color-jade) 8%, transparent);
   color: var(--color-jade);
-  border: 1px solid rgba(61, 107, 75, 0.15);
+  border: 1px solid color-mix(in srgb, var(--color-jade) 15%, transparent);
 }
 
 .fortune-badge--banji {
-  background: rgba(122, 94, 18, 0.08);
+  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
   color: var(--color-gold);
-  border: 1px solid rgba(122, 94, 18, 0.15);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 15%, transparent);
 }
 
 .fortune-badge--xiong {
-  background: color-mix(in srgb, v-bind('WUXING_COLORS["金"]') 8%, transparent);
-  color: v-bind('WUXING_COLORS["金"]');
-  border: 1px solid color-mix(in srgb, v-bind('WUXING_COLORS["金"]') 15%, transparent);
+  background: color-mix(in srgb, var(--color-cinnabar) 8%, transparent);
+  color: var(--color-cinnabar);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
 }
 
 /* ════════════════════════════════════════ */
@@ -446,12 +489,17 @@ const interpretationParagraphs = computed(() => {
   overflow: hidden;
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  background: linear-gradient(175deg, #FDF8F0 0%, #F8F0E0 30%, #F5EBD6 100%);
-  border: 1px solid rgba(198, 40, 40, 0.06);
+  background: linear-gradient(
+    175deg,
+    var(--color-scroll-light) 0%,
+    var(--color-scroll) 30%,
+    var(--color-scroll-dark) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
   box-shadow:
-    0 1px 3px rgba(44, 26, 14, 0.04),
-    0 8px 24px rgba(44, 26, 14, 0.03),
-    inset 0 0 80px rgba(198, 40, 40, 0.015);
+    0 1px 3px color-mix(in srgb, var(--color-ink-darkest) 4%, transparent),
+    0 8px 24px color-mix(in srgb, var(--color-ink-darkest) 3%, transparent),
+    inset 0 0 80px color-mix(in srgb, var(--color-cinnabar) 1.5%, transparent);
 }
 
 @media (min-width: 640px) {
@@ -470,8 +518,7 @@ const interpretationParagraphs = computed(() => {
 
 .cezi-slip__trigram {
   font-size: 1rem;
-  opacity: 0.2;
-  color: var(--color-cinnabar);
+  color: color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
 }
 
 .cezi-slip__seal-mark {
@@ -484,8 +531,8 @@ const interpretationParagraphs = computed(() => {
   font-size: 0.85rem;
   color: var(--color-cinnabar);
   letter-spacing: 0.2em;
-  background: rgba(198, 40, 40, 0.04);
-  border: 1px solid rgba(198, 40, 40, 0.1);
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
   transform: rotate(-1deg);
 }
 
@@ -495,8 +542,8 @@ const interpretationParagraphs = computed(() => {
   margin: 0.75rem 0;
   background: repeating-linear-gradient(
     90deg,
-    rgba(44, 26, 14, 0.06) 0px,
-    rgba(44, 26, 14, 0.06) 6px,
+    color-mix(in srgb, var(--color-ink-darkest) 6%, transparent) 0px,
+    color-mix(in srgb, var(--color-ink-darkest) 6%, transparent) 6px,
     transparent 6px,
     transparent 12px
   );
@@ -516,9 +563,9 @@ const interpretationParagraphs = computed(() => {
   width: 5.5rem;
   height: 5.5rem;
   border-radius: 50%;
-  background: rgba(198, 40, 40, 0.03);
-  border: 2px solid rgba(198, 40, 40, 0.12);
-  box-shadow: 0 0 20px rgba(198, 40, 40, 0.05);
+  background: color-mix(in srgb, var(--color-cinnabar) 3%, transparent);
+  border: 2px solid color-mix(in srgb, var(--color-cinnabar) 12%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
 }
 
 .cezi-slip__char {
@@ -545,8 +592,8 @@ const interpretationParagraphs = computed(() => {
 
 .cezi-slip__stat-label {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.55rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -554,7 +601,7 @@ const interpretationParagraphs = computed(() => {
 .cezi-slip__stat-value {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark);
   letter-spacing: 0.05em;
 }
 
@@ -565,9 +612,9 @@ const interpretationParagraphs = computed(() => {
 
 .cezi-slip__section-title {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark);
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
   position: relative;
@@ -582,23 +629,23 @@ const interpretationParagraphs = computed(() => {
   transform: translateY(-50%);
   width: 3px;
   height: 0.75rem;
-  background: rgba(198, 40, 40, 0.3);
+  background: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
   border-radius: 2px;
 }
 
 .cezi-slip__text {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.75rem;
+  color: var(--color-ink-medium);
   line-height: 1.8;
   letter-spacing: 0.03em;
 }
 
 .cezi-slip__note {
   padding: 0.4rem 0.6rem;
-  background: rgba(250, 240, 224, 0.5);
+  background: color-mix(in srgb, var(--color-paper-light) 50%, transparent);
   border-radius: 0.375rem;
-  border: 1px solid rgba(44, 26, 14, 0.04);
+  border: 1px solid color-mix(in srgb, var(--color-ink-darkest) 4%, transparent);
 }
 
 /* Footer */
@@ -613,13 +660,13 @@ const interpretationParagraphs = computed(() => {
 .cezi-slip__footer-line {
   flex: 1;
   height: 1px;
-  background: rgba(44, 26, 14, 0.06);
+  background: color-mix(in srgb, var(--color-ink-darkest) 6%, transparent);
 }
 
 .cezi-slip__footer-seal {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.75rem;
-  color: rgba(198, 40, 40, 0.4);
+  color: color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
   letter-spacing: 0.3em;
 }
 
