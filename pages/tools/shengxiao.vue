@@ -27,6 +27,7 @@ import { useExportImage } from '~/composables/useExportImage'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
 import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
+import InkDivider from '~/components/tools/InkDivider.vue'
 import type { TaiSuiRelation } from '~/constants/tai-sui'
 import { getGuardianBuddha } from '~/constants/guardian-buddha'
 
@@ -385,6 +386,9 @@ async function restoreFromHistory(id: number) {
             :current-year="currentYear"
           />
 
+          <!-- ═══ Scroll-to-Talisman transition ═══ -->
+          <InkDivider>敕</InkDivider>
+
           <!-- 化太岁 -->
           <TaiSuiMitigation
             v-if="result"
@@ -397,8 +401,11 @@ async function restoreFromHistory(id: number) {
 
           <CompatibilityGrid :items="result.compatibility" />
 
+          <!-- ═══ Transition to Buddhist section ═══ -->
+          <InkDivider>佛</InkDivider>
+
           <!-- 本命佛 -->
-          <div v-if="guardianBuddha" class="mt-8 mb-6">
+          <div v-if="guardianBuddha" class="mt-2 mb-6">
             <div class="section-header">
               <h2>本命佛</h2>
             </div>

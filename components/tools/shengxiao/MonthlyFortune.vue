@@ -55,20 +55,12 @@ function levelColor(level: '旺' | '平' | '弱'): string {
   return WUXING_COLORS['土'] // gold
 }
 
-function levelBgHex(level: '旺' | '平' | '弱'): string {
-  const color = levelColor(level)
-  const r = parseInt(color.slice(1, 3), 16)
-  const g = parseInt(color.slice(3, 5), 16)
-  const b = parseInt(color.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},0.12)`
+function levelBgStyle(level: '旺' | '平' | '弱'): string {
+  return `color-mix(in srgb, ${levelColor(level)} 12%, transparent)`
 }
 
-function levelBorderHex(level: '旺' | '平' | '弱'): string {
-  const color = levelColor(level)
-  const r = parseInt(color.slice(1, 3), 16)
-  const g = parseInt(color.slice(3, 5), 16)
-  const b = parseInt(color.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},0.3)`
+function levelBorderStyle(level: '旺' | '平' | '弱'): string {
+  return `color-mix(in srgb, ${levelColor(level)} 30%, transparent)`
 }
 
 // Score bar width as percentage
@@ -149,8 +141,8 @@ function relationshipAnnotation(rel: string): string {
             isCurrentMonth(month) ? 'border-l-2' : 'border-paper-medium/40',
           ]"
           :style="{
-            backgroundColor: levelBgHex(month.level),
-            borderColor: isCurrentMonth(month) ? levelColor(month.level) : levelBorderHex(month.level),
+            backgroundColor: levelBgStyle(month.level),
+            borderColor: isCurrentMonth(month) ? levelColor(month.level) : levelBorderStyle(month.level),
             '--delay': `${0.05 + idx * 0.04}s`,
           }"
         >
@@ -160,20 +152,20 @@ function relationshipAnnotation(rel: string): string {
               <span class="font-sans text-sm font-medium text-ink-dark">
                 {{ month.monthName }}
               </span>
-              <span v-if="isCurrentMonth(month)" class="ml-1.5 px-1.5 py-0.5 text-xs rounded" :style="{ backgroundColor: levelBgHex(month.level), color: levelColor(month.level) }">
+              <span v-if="isCurrentMonth(month)" class="ml-1.5 px-1.5 py-0.5 text-xs rounded" :style="{ backgroundColor: levelBgStyle(month.level), color: levelColor(month.level) }">
                 本月
               </span>
             </div>
             <span
               class="px-1.5 py-0.5 text-xs rounded font-medium"
-              :style="{ backgroundColor: levelBgHex(month.level), color: levelColor(month.level), border: `1px solid ${levelBorderHex(month.level)}` }"
+              :style="{ backgroundColor: levelBgStyle(month.level), color: levelColor(month.level), border: `1px solid ${levelBorderStyle(month.level)}` }"
             >
               {{ month.levelLabel }}
             </span>
           </div>
 
           <!-- Stem-branch and date range -->
-          <div class="text-[0.8rem] text-ink-medium mb-2">
+          <div class="text-xs text-ink-medium mb-2">
             <span class="font-medium text-ink-dark">{{ month.monthStem }}{{ month.monthBranch }}</span>
             <span class="mx-1" aria-hidden="true">·</span>
             <span>{{ month.gregorianLabel }}</span>
@@ -182,7 +174,7 @@ function relationshipAnnotation(rel: string): string {
           <!-- Score bar -->
           <div class="mb-2">
             <div class="flex items-center justify-between mb-0.5">
-              <span class="text-[0.8rem] text-ink-medium">
+              <span class="text-xs text-ink-medium">
                 {{ month.relationship }}
                 <span v-if="relationshipAnnotation(month.relationship)" class="text-ink-light ml-1">·{{ relationshipAnnotation(month.relationship) }}</span>
               </span>
@@ -202,7 +194,7 @@ function relationshipAnnotation(rel: string): string {
           </div>
 
           <!-- Tip -->
-          <p class="text-[0.8rem] text-ink-medium leading-relaxed">
+          <p class="text-xs text-ink-medium leading-relaxed">
             {{ month.tip }}
           </p>
         </div>

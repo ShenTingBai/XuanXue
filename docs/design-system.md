@@ -45,6 +45,19 @@
 | `paper-dark` | `#E0D5C0` | 卡片边框 |
 | `paper-darker` | `#D0C0A8` | 极少用 |
 
+### 2.2b 卷（Scroll）— 符纸/佛堂底色
+
+用于敕令灵符、本命佛等特殊区块，比纸色阶更暖，模拟古卷/符纸质感：
+
+| Token | 色值 | 用途 |
+|-------|------|------|
+| `scroll-light` | `#FDF6E3` | 卷纸浅端 |
+| `scroll` | `#F9EDD4` | 卷纸中段 |
+| `scroll-dark` | `#F5E5C8` | 卷纸深端 |
+
+- 三色用于 `linear-gradient` 渐变，不单独使用
+- CSS 变量：`--color-scroll-light`、`--color-scroll`、`--color-scroll-dark`
+
 ### 2.3 朱砂（Cinnabar）— 强调色
 
 | Token | 色值 | 用途 |

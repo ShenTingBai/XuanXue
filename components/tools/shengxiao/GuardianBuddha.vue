@@ -1,5 +1,5 @@
 <template>
-  <div class="guardian-card fade-in" :style="{ '--delay': delay, '--accent': buddha.color }" role="region" aria-label="本命佛">
+  <div class="guardian-card guardian-enter" :style="{ '--delay': delay, '--accent': buddha.color }" role="region" aria-label="本命佛">
     <!-- ── Background mandala glow ── -->
     <div class="guardian-mandala" aria-hidden="true" />
 
@@ -50,9 +50,9 @@ withDefaults(defineProps<{
   overflow: hidden;
   border-radius: 0.75rem;
   background: linear-gradient(135deg,
-    #FBF4E6 0%,
-    #F5EBD6 50%,
-    #F0E4CC 100%
+    var(--color-scroll-light) 0%,
+    var(--color-scroll) 50%,
+    var(--color-scroll-dark) 100%
   );
   border: 1px solid rgba(44, 26, 14, 0.04);
   box-shadow:
@@ -113,15 +113,15 @@ withDefaults(defineProps<{
 
 .guardian-seal {
   flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--accent, #C62828);
   color: #FBF4E6;
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
   border-radius: 50%;
   box-shadow: 0 0 6px color-mix(in srgb, var(--accent, #C62828) 15%, transparent);
 }
@@ -172,7 +172,7 @@ withDefaults(defineProps<{
 .guardian-mantra__deco {
   opacity: 0.18;
   color: var(--accent, #C62828);
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
 }
 
 .guardian-mantra__text {
@@ -184,7 +184,7 @@ withDefaults(defineProps<{
 }
 
 /* ── Animation ── */
-.fade-in {
+.guardian-enter {
   animation: guardianAppear 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
 }
