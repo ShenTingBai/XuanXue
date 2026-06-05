@@ -4,9 +4,6 @@
     <button
       v-for="(animal, idx) in animals"
       :key="idx"
-      @click="$emit('select', idx)"
-      @keydown.enter="$emit('select', idx)"
-      @keydown.space.prevent="$emit('select', idx)"
       :class="[
         'flex items-center gap-3 px-5 py-3.5 rounded-r-lg text-base transition-colors w-full text-left border-l-2',
         idx === currentIndex
@@ -14,12 +11,16 @@
           : 'border-l-transparent text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
       ]"
       :aria-current="idx === currentIndex ? 'true' : undefined"
+      @click="$emit('select', idx)"
+      @keydown.enter="$emit('select', idx)"
+      @keydown.space.prevent="$emit('select', idx)"
     >
       <span
         class="branch-seal flex-shrink-0"
         :class="idx === currentIndex ? 'branch-seal--active' : ''"
         aria-hidden="true"
-      >{{ animal.branch }}</span>
+        >{{ animal.branch }}</span
+      >
       <span class="font-sans">{{ animal.name }}</span>
     </button>
   </div>

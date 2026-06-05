@@ -2,7 +2,7 @@ import { deleteSession } from '../../utils/auth'
 import { getClientIp } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const token = event.context.token
   const profileId = event.context.profileId
 

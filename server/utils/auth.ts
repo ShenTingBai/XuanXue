@@ -37,22 +37,27 @@ export function createSessionToken(profileId: number): string {
   const token = randomBytes(24).toString('hex')
   const hashed = createHmac('sha256', SESSION_SECRET).update(token).digest('hex')
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-  dbRun('INSERT INTO sessions (profile_id, token_hash, expires_at) VALUES (?, ?, ?)', [profileId, hashed, expiresAt])
+  dbRun('INSERT INTO sessions (profile_id, token_hash, expires_at) VALUES (?, ?, ?)', [
+    profileId,
+    hashed,
+    expiresAt,
+  ])
   return token
 }
 
 export function getProfileIdFromToken(rawToken: string): number | null {
   if (!rawToken) return null
   const hashed = createHmac('sha256', SESSION_SECRET).update(rawToken).digest('hex')
-  const session = dbGet(
-    'SELECT profile_id, expires_at FROM sessions WHERE token_hash = ?',
-    [hashed]
-  )
+  const session = dbGet('SELECT profile_id, expires_at FROM sessions WHERE token_hash = ?', [
+    hashed,
+  ])
   if (!session) return null
 
   // Check expiry
   if (session.expires_at) {
-    const expiresAt = new Date(session.expires_at.endsWith('Z') ? session.expires_at : session.expires_at + 'Z').getTime()
+    const expiresAt = new Date(
+      session.expires_at.endsWith('Z') ? session.expires_at : session.expires_at + 'Z',
+    ).getTime()
     if (Date.now() > expiresAt) {
       // Delete expired session
       dbRun('DELETE FROM sessions WHERE token_hash = ?', [hashed])
@@ -70,6 +75,6 @@ export function deleteSession(rawToken: string): void {
 
 export function cleanupExpiredSessions(): void {
   const now = new Date().toISOString()
-  dbRun("DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < ?", [now])
+  dbRun('DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < ?', [now])
   dbRun("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")
 }

@@ -39,9 +39,13 @@
     <!-- 用神 -->
     <div class="bazi-compact__extra">
       <span class="text-[0.6875rem] text-ink-muted">喜：</span>
-      <span v-for="el in result.favorableElements" :key="el" class="bazi-compact__favorable">{{ el }}</span>
+      <span v-for="el in result.favorableElements" :key="el" class="bazi-compact__favorable">{{
+        el
+      }}</span>
       <span class="text-[0.6875rem] text-ink-muted ml-1">忌：</span>
-      <span v-for="el in result.unfavorableElements" :key="el" class="bazi-compact__unfavorable">{{ el }}</span>
+      <span v-for="el in result.unfavorableElements" :key="el" class="bazi-compact__unfavorable">{{
+        el
+      }}</span>
     </div>
   </div>
 </template>

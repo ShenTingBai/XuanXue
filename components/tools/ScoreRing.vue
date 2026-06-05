@@ -1,21 +1,13 @@
 <template>
   <div class="score-ring-wrapper" :style="{ width: size + 'px', height: size + 'px' }">
-    <svg
-      class="score-ring-svg"
-      viewBox="0 0 120 120"
-      :aria-label="ariaLabel"
-      role="img"
-    >
+    <svg class="score-ring-svg" viewBox="0 0 120 120" :aria-label="ariaLabel" role="img">
       <!-- Background circle -->
-      <circle
-        cx="60" cy="60" r="52"
-        fill="none"
-        stroke="#E0D5C0"
-        stroke-width="6"
-      />
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#E0D5C0" stroke-width="6" />
       <!-- Score circle -->
       <circle
-        cx="60" cy="60" r="52"
+        cx="60"
+        cy="60"
+        r="52"
         fill="none"
         stroke-width="6"
         stroke-linecap="round"
@@ -27,7 +19,11 @@
       />
     </svg>
     <div class="score-ring-text" aria-hidden="true">
-      <span class="score-number" :style="{ fontSize: scoreFontSize, color: textColor || undefined }">{{ displayScore }}</span>
+      <span
+        class="score-number"
+        :style="{ fontSize: scoreFontSize, color: textColor || undefined }"
+        >{{ displayScore }}</span
+      >
       <span v-if="label" class="score-label" :style="{ fontSize: labelFontSize }">{{ label }}</span>
     </div>
   </div>
@@ -36,15 +32,18 @@
 <script setup lang="ts">
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
-const props = withDefaults(defineProps<{
-  score?: number
-  size?: number
-  label?: string
-  strokeColor?: string
-  textColor?: string
-}>(), {
-  size: 120,
-})
+const props = withDefaults(
+  defineProps<{
+    score?: number
+    size?: number
+    label?: string
+    strokeColor?: string
+    textColor?: string
+  }>(),
+  {
+    size: 120,
+  },
+)
 
 const computedStrokeColor = computed(() => {
   if (props.strokeColor) return props.strokeColor
@@ -116,7 +115,7 @@ const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
   font-family: var(--font-display);
   font-size: 2.25rem;
   line-height: 1;
-  color: #2C1810;
+  color: #2c1810;
 }
 
 .score-label {

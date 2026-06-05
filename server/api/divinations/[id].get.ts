@@ -2,7 +2,7 @@ import { dbGet } from '../../database/db'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const idParam = getRouterParam(event, 'id')
   // Validate that the id parameter consists only of digits before parseInt
   if (!idParam || !/^\d+$/.test(idParam)) {
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
   const record = dbGet(
     'SELECT id, profile_id, type, input_data, result_data, created_at FROM divination_results WHERE id = ?',
-    [id]
+    [id],
   )
 
   if (!record) {

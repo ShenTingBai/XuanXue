@@ -1,1717 +1,2043 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紫微斗数 · 天星回宫 — 墨韵命盘</title>
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
-<style>
-/* ═══════════════════════════════════════════════════
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>紫微斗数 · 天星回宫 — 墨韵命盘</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ═══════════════════════════════════════════════════
    紫微斗数 · 墨韵 Ink Resonance — Design System
    ═══════════════════════════════════════════════════ */
 
-:root {
-  /* 纸 — Paper palette */
-  --paper:       #F5F0E8;
-  --paper-mid:   #EDE4D6;
-  --paper-dark:  #E5D9C8;
+      :root {
+        /* 纸 — Paper palette */
+        --paper: #f5f0e8;
+        --paper-mid: #ede4d6;
+        --paper-dark: #e5d9c8;
 
-  /* 墨 — Ink palette */
-  --ink-deep:  #1A1A1A;
-  --ink-mid:   #5D4E37;
-  --ink-light: #8B7D6B;
-  --ink-faint: #C5B8A8;
+        /* 墨 — Ink palette */
+        --ink-deep: #1a1a1a;
+        --ink-mid: #5d4e37;
+        --ink-light: #8b7d6b;
+        --ink-faint: #c5b8a8;
 
-  /* 朱砂 Cinnabar */
-  --cinnabar: #C62828;
-  --gold:     #D4A84B;
-  --jade:     #4A8C6F;
-  --ice:      #6BA8C8;
-  --purple:   #7B6FA0;
+        /* 朱砂 Cinnabar */
+        --cinnabar: #c62828;
+        --gold: #d4a84b;
+        --jade: #4a8c6f;
+        --ice: #6ba8c8;
+        --purple: #7b6fa0;
 
-  /* 四化 colors */
-  --hua-lu:   #C62828;
-  --hua-quan: #4A8C6F;
-  --hua-ke:   #6BA8C8;
-  --hua-ji:   #5D4E37;
+        /* 四化 colors */
+        --hua-lu: #c62828;
+        --hua-quan: #4a8c6f;
+        --hua-ke: #6ba8c8;
+        --hua-ji: #5d4e37;
 
-  /* Fonts */
-  --font-display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
-  --font-serif:   'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
-  --font-sans:    'Noto Sans SC', 'PingFang SC', sans-serif;
+        /* Fonts */
+        --font-display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
+        --font-serif: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
+        --font-sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
 
-  --radius-card:  12px;
-  --border-ink:   1px solid rgba(93,78,55,0.15);
-  --border-light: 1px solid rgba(93,78,55,0.08);
-  --transition:   0.3s ease;
-}
+        --radius-card: 12px;
+        --border-ink: 1px solid rgba(93, 78, 55, 0.15);
+        --border-light: 1px solid rgba(93, 78, 55, 0.08);
+        --transition: 0.3s ease;
+      }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-html, body {
-  width: 100%;
-  min-height: 100vh;
-  background: var(--paper);
-  color: var(--ink-deep);
-  font-family: var(--font-sans);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
+      html,
+      body {
+        width: 100%;
+        min-height: 100vh;
+        background: var(--paper);
+        color: var(--ink-deep);
+        font-family: var(--font-sans);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
 
-/* ── Paper Texture via SVG feTurbulence ── */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.35;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-}
+      /* ── Paper Texture via SVG feTurbulence ── */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.35;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+      }
 
-/* ── App Layout ── */
-.app {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+      /* ── App Layout ── */
+      .app {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-/* ── Top Bar ── */
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 2rem;
-  border-bottom: var(--border-light);
-  background: var(--paper-mid);
-}
+      /* ── Top Bar ── */
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 2rem;
+        border-bottom: var(--border-light);
+        background: var(--paper-mid);
+      }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
 
-.seal-icon {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid var(--cinnabar);
-  background: var(--cinnabar);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 1rem;
-  color: var(--paper);
-  position: relative;
-}
+      .seal-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1.5px solid var(--cinnabar);
+        background: var(--cinnabar);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-size: 1rem;
+        color: var(--paper);
+        position: relative;
+      }
 
-.seal-icon::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid rgba(198,40,40,0.2);
-}
+      .seal-icon::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 1px solid rgba(198, 40, 40, 0.2);
+      }
 
-.brand-text {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  color: var(--ink-deep);
-  letter-spacing: 0.15em;
-}
+      .brand-text {
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        color: var(--ink-deep);
+        letter-spacing: 0.15em;
+      }
 
-.brand-sub {
-  font-size: 0.7rem;
-  color: var(--ink-light);
-  letter-spacing: 0.25em;
-  display: none;
-}
+      .brand-sub {
+        font-size: 0.7rem;
+        color: var(--ink-light);
+        letter-spacing: 0.25em;
+        display: none;
+      }
 
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-}
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+      }
 
-.nav-link {
-  color: var(--ink-light);
-  text-decoration: none;
-  font-size: 0.82rem;
-  letter-spacing: 0.05em;
-  transition: color var(--transition);
-  position: relative;
-}
+      .nav-link {
+        color: var(--ink-light);
+        text-decoration: none;
+        font-size: 0.82rem;
+        letter-spacing: 0.05em;
+        transition: color var(--transition);
+        position: relative;
+      }
 
-.nav-link:hover { color: var(--ink-mid); }
-.nav-link.active { color: var(--cinnabar); }
+      .nav-link:hover {
+        color: var(--ink-mid);
+      }
+      .nav-link.active {
+        color: var(--cinnabar);
+      }
 
-/* ── Hero ── */
-.hero-section {
-  text-align: center;
-  padding: 2rem 2rem 1rem;
-}
+      /* ── Hero ── */
+      .hero-section {
+        text-align: center;
+        padding: 2rem 2rem 1rem;
+      }
 
-.hero-title {
-  font-family: var(--font-display);
-  font-size: 2.6rem;
-  color: var(--ink-deep);
-  letter-spacing: 0.3em;
-}
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: 2.6rem;
+        color: var(--ink-deep);
+        letter-spacing: 0.3em;
+      }
 
-.hero-sub {
-  font-size: 0.82rem;
-  color: var(--ink-light);
-  letter-spacing: 0.5em;
-  margin-top: 0.3rem;
-}
+      .hero-sub {
+        font-size: 0.82rem;
+        color: var(--ink-light);
+        letter-spacing: 0.5em;
+        margin-top: 0.3rem;
+      }
 
-.hero-divider {
-  width: 80px;
-  height: 1.5px;
-  margin: 0.75rem auto;
-  background: var(--cinnabar);
-  opacity: 0.4;
-}
+      .hero-divider {
+        width: 80px;
+        height: 1.5px;
+        margin: 0.75rem auto;
+        background: var(--cinnabar);
+        opacity: 0.4;
+      }
 
-/* ── Tab Switcher (书签 style) ── */
-.tab-bar {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  padding: 0 2rem;
-  margin-bottom: 0.5rem;
-}
+      /* ── Tab Switcher (书签 style) ── */
+      .tab-bar {
+        display: flex;
+        justify-content: center;
+        gap: 0;
+        padding: 0 2rem;
+        margin-bottom: 0.5rem;
+      }
 
-.tab-btn {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  padding: 0.5rem 2rem;
-  background: var(--paper-mid);
-  border: var(--border-light);
-  border-bottom: none;
-  color: var(--ink-light);
-  cursor: pointer;
-  transition: all var(--transition);
-  letter-spacing: 0.1em;
-  position: relative;
-  border-radius: 6px 6px 0 0;
-}
+      .tab-btn {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        padding: 0.5rem 2rem;
+        background: var(--paper-mid);
+        border: var(--border-light);
+        border-bottom: none;
+        color: var(--ink-light);
+        cursor: pointer;
+        transition: all var(--transition);
+        letter-spacing: 0.1em;
+        position: relative;
+        border-radius: 6px 6px 0 0;
+      }
 
-.tab-btn:first-child {
-  border-right: none;
-}
+      .tab-btn:first-child {
+        border-right: none;
+      }
 
-.tab-btn.active {
-  background: var(--paper);
-  color: var(--ink-deep);
-}
+      .tab-btn.active {
+        background: var(--paper);
+        color: var(--ink-deep);
+      }
 
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--cinnabar);
-}
+      .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--cinnabar);
+      }
 
-.tab-btn:not(.active):hover {
-  color: var(--ink-mid);
-  background: var(--paper-dark);
-}
+      .tab-btn:not(.active):hover {
+        color: var(--ink-mid);
+        background: var(--paper-dark);
+      }
 
-/* ── Main Content Layout ── */
-.main-content {
-  display: flex;
-  gap: 1.5rem;
-  padding: 0 2rem 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  flex: 1;
-  align-items: flex-start;
-}
+      /* ── Main Content Layout ── */
+      .main-content {
+        display: flex;
+        gap: 1.5rem;
+        padding: 0 2rem 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+        flex: 1;
+        align-items: flex-start;
+      }
 
-.chart-area {
-  flex: 1;
-  min-width: 0;
-  position: relative;
-}
+      .chart-area {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+      }
 
-/* ── View Panes ── */
-.view-pane {
-  display: none;
-}
-.view-pane.active {
-  display: block;
-}
+      /* ── View Panes ── */
+      .view-pane {
+        display: none;
+      }
+      .view-pane.active {
+        display: block;
+      }
 
-/* ═══════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════
    View 1: 天星图 (Celestial Star Chart)
    ═══════════════════════════════════════════════════ */
 
-.celestial-chart {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  aspect-ratio: 1;
-  margin: 0 auto;
-}
+      .celestial-chart {
+        position: relative;
+        width: 100%;
+        max-width: 620px;
+        aspect-ratio: 1;
+        margin: 0 auto;
+      }
 
-/* Orbit rings SVG */
-.orbit-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
+      /* Orbit rings SVG */
+      .orbit-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
 
-/* Sector labels */
-.sector-labels {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
+      /* Sector labels */
+      .sector-labels {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
 
-.sector-label {
-  position: absolute;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  color: var(--ink-light);
-  opacity: 0.6;
-  transition: opacity var(--transition), color var(--transition);
-  white-space: nowrap;
-  transform: translate(-50%, -50%);
-  pointer-events: auto;
-  cursor: pointer;
-}
+      .sector-label {
+        position: absolute;
+        font-family: var(--font-display);
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        color: var(--ink-light);
+        opacity: 0.6;
+        transition:
+          opacity var(--transition),
+          color var(--transition);
+        white-space: nowrap;
+        transform: translate(-50%, -50%);
+        pointer-events: auto;
+        cursor: pointer;
+      }
 
-.sector-label:hover {
-  opacity: 0.9;
-  color: var(--ink-mid);
-}
-.sector-label.ming-gong {
-  color: var(--cinnabar);
-  opacity: 0.8;
-}
+      .sector-label:hover {
+        opacity: 0.9;
+        color: var(--ink-mid);
+      }
+      .sector-label.ming-gong {
+        color: var(--cinnabar);
+        opacity: 0.8;
+      }
 
-/* Center star seal */
-.center-seal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 52px;
-  height: 52px;
-  z-index: 10;
-  pointer-events: none;
-}
+      /* Center star seal */
+      .center-seal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 52px;
+        height: 52px;
+        z-index: 10;
+        pointer-events: none;
+      }
 
-.seal-body {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 2px solid var(--gold);
-  background: radial-gradient(circle at 40% 35%, #D44040, var(--cinnabar) 50%, #8A1B1B);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1);
-  animation: seal-breathe 4s ease-in-out infinite;
-}
+      .seal-body {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+        background: radial-gradient(circle at 40% 35%, #d44040, var(--cinnabar) 50%, #8a1b1b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+          0 0 18px rgba(93, 78, 55, 0.25),
+          0 0 40px rgba(93, 78, 55, 0.1);
+        animation: seal-breathe 4s ease-in-out infinite;
+      }
 
-@keyframes seal-breathe {
-  0%, 100% { box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1); }
-  50% { box-shadow: 0 0 24px rgba(93,78,55,0.35), 0 0 50px rgba(93,78,55,0.15); }
-}
+      @keyframes seal-breathe {
+        0%,
+        100% {
+          box-shadow:
+            0 0 18px rgba(93, 78, 55, 0.25),
+            0 0 40px rgba(93, 78, 55, 0.1);
+        }
+        50% {
+          box-shadow:
+            0 0 24px rgba(93, 78, 55, 0.35),
+            0 0 50px rgba(93, 78, 55, 0.15);
+        }
+      }
 
-.seal-char {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: var(--gold);
-  text-shadow: 0 0 6px rgba(212,168,75,0.3);
-}
+      .seal-char {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: var(--gold);
+        text-shadow: 0 0 6px rgba(212, 168, 75, 0.3);
+      }
 
-.seal-label {
-  position: absolute;
-  bottom: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-size: 0.65rem;
-  color: var(--ink-light);
-  white-space: nowrap;
-  letter-spacing: 0.1em;
-  opacity: 0.6;
-}
+      .seal-label {
+        position: absolute;
+        bottom: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--font-display);
+        font-size: 0.65rem;
+        color: var(--ink-light);
+        white-space: nowrap;
+        letter-spacing: 0.1em;
+        opacity: 0.6;
+      }
 
-/* Stars (天星图) */
-#starsContainer {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-}
+      /* Stars (天星图) */
+      #starsContainer {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+      }
 
-.chart-star {
-  position: absolute;
-  pointer-events: auto;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  transition: z-index 0.2s;
-}
+      .chart-star {
+        position: absolute;
+        pointer-events: auto;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        transition: z-index 0.2s;
+      }
 
-.chart-star:hover { z-index: 20; }
+      .chart-star:hover {
+        z-index: 20;
+      }
 
-.star-orb {
-  border-radius: 50%;
-  transition: transform var(--transition);
-  position: relative;
-}
+      .star-orb {
+        border-radius: 50%;
+        transition: transform var(--transition);
+        position: relative;
+      }
 
-.chart-star:hover .star-orb {
-  transform: scale(1.25);
-}
+      .chart-star:hover .star-orb {
+        transform: scale(1.25);
+      }
 
-/* Star color classes for 天星图 */
-/* gold → cinnabar with gold border */
-.star-orb.cls-gold {
-  width: 14px; height: 14px;
-  background: var(--cinnabar);
-  border: 1.5px solid var(--gold);
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
-}
-/* cinnabar → darker cinnabar */
-.star-orb.cls-cinnabar {
-  width: 14px; height: 14px;
-  background: #A02020;
-  border: 1px solid rgba(198,40,40,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
-}
-.star-orb.cls-jade {
-  width: 14px; height: 14px;
-  background: var(--jade);
-  border: 1px solid rgba(74,140,111,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
-}
-.star-orb.cls-ice {
-  width: 14px; height: 14px;
-  background: var(--ice);
-  border: 1px solid rgba(107,168,200,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
-}
-.star-orb.cls-purple {
-  width: 14px; height: 14px;
-  background: var(--purple);
-  border: 1px solid rgba(123,111,160,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
-}
-.star-orb.cls-gray {
-  width: 14px; height: 14px;
-  background: var(--ink-mid);
-  border: 1px solid rgba(93,78,55,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
-}
-.star-orb.cls-white {
-  width: 14px; height: 14px;
-  background: var(--ink-light);
-  border: 1px solid rgba(139,125,107,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.15);
-}
+      /* Star color classes for 天星图 */
+      /* gold → cinnabar with gold border */
+      .star-orb.cls-gold {
+        width: 14px;
+        height: 14px;
+        background: var(--cinnabar);
+        border: 1.5px solid var(--gold);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
+      }
+      /* cinnabar → darker cinnabar */
+      .star-orb.cls-cinnabar {
+        width: 14px;
+        height: 14px;
+        background: #a02020;
+        border: 1px solid rgba(198, 40, 40, 0.3);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
+      }
+      .star-orb.cls-jade {
+        width: 14px;
+        height: 14px;
+        background: var(--jade);
+        border: 1px solid rgba(74, 140, 111, 0.3);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
+      }
+      .star-orb.cls-ice {
+        width: 14px;
+        height: 14px;
+        background: var(--ice);
+        border: 1px solid rgba(107, 168, 200, 0.3);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
+      }
+      .star-orb.cls-purple {
+        width: 14px;
+        height: 14px;
+        background: var(--purple);
+        border: 1px solid rgba(123, 111, 160, 0.3);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
+      }
+      .star-orb.cls-gray {
+        width: 14px;
+        height: 14px;
+        background: var(--ink-mid);
+        border: 1px solid rgba(93, 78, 55, 0.3);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
+      }
+      .star-orb.cls-white {
+        width: 14px;
+        height: 14px;
+        background: var(--ink-light);
+        border: 1px solid rgba(139, 125, 107, 0.3);
+        box-shadow: 0 0 6px rgba(93, 78, 55, 0.15);
+      }
 
-/* Minor stars in 天星图 are slightly smaller */
-.chart-star.minor .star-orb.cls-gold { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-cinnabar { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-jade { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-ice { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-purple { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-gray { width: 11px; height: 11px; }
-.chart-star.minor .star-orb.cls-white { width: 11px; height: 11px; }
+      /* Minor stars in 天星图 are slightly smaller */
+      .chart-star.minor .star-orb.cls-gold {
+        width: 11px;
+        height: 11px;
+      }
+      .chart-star.minor .star-orb.cls-cinnabar {
+        width: 11px;
+        height: 11px;
+      }
+      .chart-star.minor .star-orb.cls-jade {
+        width: 11px;
+        height: 11px;
+      }
+      .chart-star.minor .star-orb.cls-ice {
+        width: 11px;
+        height: 11px;
+      }
+      .chart-star.minor .star-orb.cls-purple {
+        width: 11px;
+        height: 11px;
+      }
+      .chart-star.minor .star-orb.cls-gray {
+        width: 11px;
+        height: 11px;
+      }
+      .chart-star.minor .star-orb.cls-white {
+        width: 11px;
+        height: 11px;
+      }
 
-.star-label {
-  margin-top: 2px;
-  font-family: var(--font-serif);
-  font-size: 0.55rem;
-  color: var(--ink-mid);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  opacity: 0.5;
-  transition: opacity var(--transition);
-  pointer-events: none;
-}
+      .star-label {
+        margin-top: 2px;
+        font-family: var(--font-serif);
+        font-size: 0.55rem;
+        color: var(--ink-mid);
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        opacity: 0.5;
+        transition: opacity var(--transition);
+        pointer-events: none;
+      }
 
-.chart-star:hover .star-label {
-  opacity: 0.9;
-}
+      .chart-star:hover .star-label {
+        opacity: 0.9;
+      }
 
-.chart-star.active .star-label {
-  opacity: 0.9;
-  color: var(--cinnabar);
-}
+      .chart-star.active .star-label {
+        opacity: 0.9;
+        color: var(--cinnabar);
+      }
 
-/* 四化 chips in 天星图 */
-.mutagen-chip-tx {
-  position: absolute;
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-family: var(--font-serif);
-  font-size: 0.5rem;
-  letter-spacing: 0.04em;
-  pointer-events: none;
-  z-index: 5;
-  white-space: nowrap;
-  line-height: 1.2;
-}
+      /* 四化 chips in 天星图 */
+      .mutagen-chip-tx {
+        position: absolute;
+        padding: 1px 4px;
+        border-radius: 2px;
+        font-family: var(--font-serif);
+        font-size: 0.5rem;
+        letter-spacing: 0.04em;
+        pointer-events: none;
+        z-index: 5;
+        white-space: nowrap;
+        line-height: 1.2;
+      }
 
-.mutagen-chip-tx.lu {
-  background: rgba(198,40,40,0.15);
-  color: var(--cinnabar);
-  border: 0.5px solid rgba(198,40,40,0.2);
-}
+      .mutagen-chip-tx.lu {
+        background: rgba(198, 40, 40, 0.15);
+        color: var(--cinnabar);
+        border: 0.5px solid rgba(198, 40, 40, 0.2);
+      }
 
-.mutagen-chip-tx.quan {
-  background: rgba(74,140,111,0.15);
-  color: var(--jade);
-  border: 0.5px solid rgba(74,140,111,0.2);
-}
+      .mutagen-chip-tx.quan {
+        background: rgba(74, 140, 111, 0.15);
+        color: var(--jade);
+        border: 0.5px solid rgba(74, 140, 111, 0.2);
+      }
 
-.mutagen-chip-tx.ke {
-  background: rgba(107,168,200,0.15);
-  color: var(--ice);
-  border: 0.5px solid rgba(107,168,200,0.2);
-}
+      .mutagen-chip-tx.ke {
+        background: rgba(107, 168, 200, 0.15);
+        color: var(--ice);
+        border: 0.5px solid rgba(107, 168, 200, 0.2);
+      }
 
-.mutagen-chip-tx.ji {
-  background: rgba(93,78,55,0.12);
-  color: var(--ink-mid);
-  border: 0.5px solid rgba(93,78,55,0.15);
-}
+      .mutagen-chip-tx.ji {
+        background: rgba(93, 78, 55, 0.12);
+        color: var(--ink-mid);
+        border: 0.5px solid rgba(93, 78, 55, 0.15);
+      }
 
-/* Selection ring on active star */
-.chart-star.active::before {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 24px; height: 24px;
-  border-radius: 50%;
-  border: 1px solid var(--cinnabar);
-  transform: translate(-50%, -50%);
-  animation: ring-pulse 2s ease-out infinite;
-  pointer-events: none;
-  opacity: 0.5;
-}
+      /* Selection ring on active star */
+      .chart-star.active::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid var(--cinnabar);
+        transform: translate(-50%, -50%);
+        animation: ring-pulse 2s ease-out infinite;
+        pointer-events: none;
+        opacity: 0.5;
+      }
 
-@keyframes ring-pulse {
-  0% { width: 20px; height: 20px; opacity: 0.4; }
-  100% { width: 44px; height: 44px; opacity: 0; }
-}
+      @keyframes ring-pulse {
+        0% {
+          width: 20px;
+          height: 20px;
+          opacity: 0.4;
+        }
+        100% {
+          width: 44px;
+          height: 44px;
+          opacity: 0;
+        }
+      }
 
-/* Palace arc highlight for 天星图 */
-.palace-arc {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-.palace-arc.visible { opacity: 1; }
+      /* Palace arc highlight for 天星图 */
+      .palace-arc {
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+      .palace-arc.visible {
+        opacity: 1;
+      }
 
-/* ═══════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════
    View 2: 回宫图 (Traditional 4x4 Palace Grid)
    ═══════════════════════════════════════════════════ */
 
-.palace-grid-wrapper {
-  width: 100%;
-  max-width: 620px;
-  margin: 0 auto;
-}
+      .palace-grid-wrapper {
+        width: 100%;
+        max-width: 620px;
+        margin: 0 auto;
+      }
 
-.palace-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  width: 100%;
-  aspect-ratio: 1;
-  border: var(--border-ink);
-}
+      .palace-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        width: 100%;
+        aspect-ratio: 1;
+        border: var(--border-ink);
+      }
 
-.grid-cell {
-  border: var(--border-light);
-  background: var(--paper);
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  cursor: pointer;
-  transition: background var(--transition);
-  position: relative;
-  overflow: hidden;
-  min-height: 0;
-}
+      .grid-cell {
+        border: var(--border-light);
+        background: var(--paper);
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        cursor: pointer;
+        transition: background var(--transition);
+        position: relative;
+        overflow: hidden;
+        min-height: 0;
+      }
 
-.grid-cell:hover {
-  background: var(--paper-mid);
-}
+      .grid-cell:hover {
+        background: var(--paper-mid);
+      }
 
-.grid-cell.selected {
-  border-color: var(--cinnabar);
-  z-index: 2;
-}
+      .grid-cell.selected {
+        border-color: var(--cinnabar);
+        z-index: 2;
+      }
 
-.grid-cell.selected::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border: 1.5px solid var(--cinnabar);
-  pointer-events: none;
-}
+      .grid-cell.selected::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border: 1.5px solid var(--cinnabar);
+        pointer-events: none;
+      }
 
-/* Center area cells */
-.grid-cell.center-info {
-  cursor: default;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: var(--paper-mid);
-  border-color: rgba(93,78,55,0.12);
-}
+      /* Center area cells */
+      .grid-cell.center-info {
+        cursor: default;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: var(--paper-mid);
+        border-color: rgba(93, 78, 55, 0.12);
+      }
 
-.grid-cell.center-info:hover {
-  background: var(--paper-mid);
-}
+      .grid-cell.center-info:hover {
+        background: var(--paper-mid);
+      }
 
-.center-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  align-items: center;
-}
+      .center-info-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        align-items: center;
+      }
 
-.center-info-item {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  color: var(--ink-mid);
-  letter-spacing: 0.08em;
-}
+      .center-info-item {
+        font-family: var(--font-display);
+        font-size: 0.75rem;
+        color: var(--ink-mid);
+        letter-spacing: 0.08em;
+      }
 
-.center-info-item .label {
-  font-family: var(--font-sans);
-  font-size: 0.55rem;
-  color: var(--ink-light);
-  letter-spacing: 0.05em;
-}
+      .center-info-item .label {
+        font-family: var(--font-sans);
+        font-size: 0.55rem;
+        color: var(--ink-light);
+        letter-spacing: 0.05em;
+      }
 
-.cell-header {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  margin-bottom: 0.2rem;
-}
+      .cell-header {
+        display: flex;
+        align-items: baseline;
+        gap: 0.3rem;
+        margin-bottom: 0.2rem;
+      }
 
-.cell-branch {
-  font-family: var(--font-serif);
-  font-size: 0.6rem;
-  color: var(--ink-light);
-  letter-spacing: 0.04em;
-}
+      .cell-branch {
+        font-family: var(--font-serif);
+        font-size: 0.6rem;
+        color: var(--ink-light);
+        letter-spacing: 0.04em;
+      }
 
-.cell-name {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--ink-deep);
-  letter-spacing: 0.06em;
-}
+      .cell-name {
+        font-family: var(--font-display);
+        font-size: 0.8rem;
+        color: var(--ink-deep);
+        letter-spacing: 0.06em;
+      }
 
-.cell-name.ming-gong {
-  color: var(--cinnabar);
-}
+      .cell-name.ming-gong {
+        color: var(--cinnabar);
+      }
 
-.cell-major {
-  font-family: var(--font-serif);
-  font-size: 0.72rem;
-  color: var(--cinnabar);
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-  margin-bottom: 0.1rem;
-}
+      .cell-major {
+        font-family: var(--font-serif);
+        font-size: 0.72rem;
+        color: var(--cinnabar);
+        letter-spacing: 0.04em;
+        line-height: 1.4;
+        margin-bottom: 0.1rem;
+      }
 
-.cell-minor {
-  font-family: var(--font-serif);
-  font-size: 0.6rem;
-  color: var(--ink-mid);
-  letter-spacing: 0.03em;
-  line-height: 1.3;
-  margin-bottom: 0.1rem;
-}
+      .cell-minor {
+        font-family: var(--font-serif);
+        font-size: 0.6rem;
+        color: var(--ink-mid);
+        letter-spacing: 0.03em;
+        line-height: 1.3;
+        margin-bottom: 0.1rem;
+      }
 
-.cell-mutagens {
-  display: flex;
-  gap: 0.2rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.05rem;
-}
+      .cell-mutagens {
+        display: flex;
+        gap: 0.2rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.05rem;
+      }
 
-.mutagen-chip {
-  font-size: 0.5rem;
-  padding: 0.04rem 0.3rem;
-  border-radius: 2px;
-  letter-spacing: 0.04em;
-  font-family: var(--font-serif);
-}
+      .mutagen-chip {
+        font-size: 0.5rem;
+        padding: 0.04rem 0.3rem;
+        border-radius: 2px;
+        letter-spacing: 0.04em;
+        font-family: var(--font-serif);
+      }
 
-.mutagen-chip.lu { background: rgba(198,40,40,0.12); color: var(--cinnabar); }
-.mutagen-chip.quan { background: rgba(74,140,111,0.12); color: var(--jade); }
-.mutagen-chip.ke { background: rgba(107,168,200,0.12); color: var(--ice); }
-.mutagen-chip.ji { background: rgba(93,78,55,0.1); color: var(--ink-mid); }
+      .mutagen-chip.lu {
+        background: rgba(198, 40, 40, 0.12);
+        color: var(--cinnabar);
+      }
+      .mutagen-chip.quan {
+        background: rgba(74, 140, 111, 0.12);
+        color: var(--jade);
+      }
+      .mutagen-chip.ke {
+        background: rgba(107, 168, 200, 0.12);
+        color: var(--ice);
+      }
+      .mutagen-chip.ji {
+        background: rgba(93, 78, 55, 0.1);
+        color: var(--ink-mid);
+      }
 
-.cell-decadal {
-  font-size: 0.5rem;
-  color: var(--ink-light);
-  letter-spacing: 0.03em;
-  margin-top: auto;
-}
+      .cell-decadal {
+        font-size: 0.5rem;
+        color: var(--ink-light);
+        letter-spacing: 0.03em;
+        margin-top: auto;
+      }
 
-.cell-empty {
-  color: var(--ink-light);
-  font-size: 0.6rem;
-  font-style: italic;
-  opacity: 0.5;
-  font-family: var(--font-serif);
-}
+      .cell-empty {
+        color: var(--ink-light);
+        font-size: 0.6rem;
+        font-style: italic;
+        opacity: 0.5;
+        font-family: var(--font-serif);
+      }
 
-/* ═══════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════
    Detail Panel (shared)
    ═══════════════════════════════════════════════════ */
 
-.detail-panel-wrapper {
-  width: 280px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 1rem;
-}
+      .detail-panel-wrapper {
+        width: 280px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+      }
 
-.detail-panel {
-  background: var(--paper-mid);
-  border: var(--border-ink);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  min-height: 360px;
-  box-shadow: 0 2px 12px rgba(93,78,55,0.08);
-}
+      .detail-panel {
+        background: var(--paper-mid);
+        border: var(--border-ink);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+        min-height: 360px;
+        box-shadow: 0 2px 12px rgba(93, 78, 55, 0.08);
+      }
 
-.detail-panel-header {
-  padding: 1rem 1.25rem;
-  border-bottom: var(--border-light);
-}
+      .detail-panel-header {
+        padding: 1rem 1.25rem;
+        border-bottom: var(--border-light);
+      }
 
-.detail-palace-name {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  color: var(--ink-deep);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+      .detail-palace-name {
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        color: var(--ink-deep);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
 
-.detail-palace-branch {
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  color: var(--ink-light);
-  letter-spacing: 0.06em;
-  padding: 0.1rem 0.5rem;
-  border: var(--border-light);
-  border-radius: 4px;
-}
+      .detail-palace-branch {
+        font-family: var(--font-sans);
+        font-size: 0.65rem;
+        color: var(--ink-light);
+        letter-spacing: 0.06em;
+        padding: 0.1rem 0.5rem;
+        border: var(--border-light);
+        border-radius: 4px;
+      }
 
-.detail-section {
-  padding: 0.85rem 1.25rem;
-  border-bottom: var(--border-light);
-}
+      .detail-section {
+        padding: 0.85rem 1.25rem;
+        border-bottom: var(--border-light);
+      }
 
-.detail-section:last-child {
-  border-bottom: none;
-}
+      .detail-section:last-child {
+        border-bottom: none;
+      }
 
-.detail-section-title {
-  font-size: 0.6rem;
-  color: var(--ink-light);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-  font-weight: 500;
-}
+      .detail-section-title {
+        font-size: 0.6rem;
+        color: var(--ink-light);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+      }
 
-.detail-star-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
+      .detail-star-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
 
-.detail-star-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  color: var(--ink-mid);
-  animation: detail-in 0.35s ease-out both;
-}
+      .detail-star-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: var(--ink-mid);
+        animation: detail-in 0.35s ease-out both;
+      }
 
-.detail-star-item:nth-child(1) { animation-delay: 0.05s; }
-.detail-star-item:nth-child(2) { animation-delay: 0.1s; }
-.detail-star-item:nth-child(3) { animation-delay: 0.15s; }
+      .detail-star-item:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .detail-star-item:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .detail-star-item:nth-child(3) {
+        animation-delay: 0.15s;
+      }
 
-@keyframes detail-in {
-  from { opacity: 0; transform: translateX(-6px); }
-  to { opacity: 1; transform: translateX(0); }
-}
+      @keyframes detail-in {
+        from {
+          opacity: 0;
+          transform: translateX(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
 
-.star-dot {
-  display: inline-block;
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid transparent;
-}
+      .star-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        border: 1px solid transparent;
+      }
 
-.star-dot.major { width: 10px; height: 10px; }
-.star-dot.gold { background: var(--cinnabar); border-color: var(--gold); }
-.star-dot.cinnabar { background: #A02020; }
-.star-dot.jade { background: var(--jade); }
-.star-dot.ice { background: var(--ice); }
-.star-dot.purple { background: var(--purple); }
-.star-dot.gray { background: var(--ink-mid); }
-.star-dot.white { background: var(--ink-light); }
+      .star-dot.major {
+        width: 10px;
+        height: 10px;
+      }
+      .star-dot.gold {
+        background: var(--cinnabar);
+        border-color: var(--gold);
+      }
+      .star-dot.cinnabar {
+        background: #a02020;
+      }
+      .star-dot.jade {
+        background: var(--jade);
+      }
+      .star-dot.ice {
+        background: var(--ice);
+      }
+      .star-dot.purple {
+        background: var(--purple);
+      }
+      .star-dot.gray {
+        background: var(--ink-mid);
+      }
+      .star-dot.white {
+        background: var(--ink-light);
+      }
 
-.detail-text {
-  font-size: 0.75rem;
-  line-height: 1.7;
-  color: var(--ink-mid);
-}
+      .detail-text {
+        font-size: 0.75rem;
+        line-height: 1.7;
+        color: var(--ink-mid);
+      }
 
-.detail-text p {
-  margin-bottom: 0.4rem;
-}
+      .detail-text p {
+        margin-bottom: 0.4rem;
+      }
 
-.detail-text .highlight {
-  color: var(--cinnabar);
-}
+      .detail-text .highlight {
+        color: var(--cinnabar);
+      }
 
-.detail-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 360px;
-  color: var(--ink-light);
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  text-align: center;
-  padding: 2rem;
-  font-family: var(--font-serif);
-}
+      .detail-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 360px;
+        color: var(--ink-light);
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+        text-align: center;
+        padding: 2rem;
+        font-family: var(--font-serif);
+      }
 
-/* ═══════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════
    DaXian Timeline (shared)
    ═══════════════════════════════════════════════════ */
 
-.timeline-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem 2.5rem;
-  width: 100%;
-}
+      .timeline-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem 2.5rem;
+        width: 100%;
+      }
 
-.timeline-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
+      .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
 
-.timeline-title {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  color: var(--ink-mid);
-  letter-spacing: 0.15em;
-}
+      .timeline-title {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        color: var(--ink-mid);
+        letter-spacing: 0.15em;
+      }
 
-.timeline-current {
-  font-size: 0.7rem;
-  color: var(--cinnabar);
-  letter-spacing: 0.04em;
-}
+      .timeline-current {
+        font-size: 0.7rem;
+        color: var(--cinnabar);
+        letter-spacing: 0.04em;
+      }
 
-.timeline-track {
-  position: relative;
-  height: 2px;
-  background: var(--ink-faint);
-  border-radius: 1px;
-  margin: 1.2rem 0 0.3rem;
-  opacity: 0.4;
-}
+      .timeline-track {
+        position: relative;
+        height: 2px;
+        background: var(--ink-faint);
+        border-radius: 1px;
+        margin: 1.2rem 0 0.3rem;
+        opacity: 0.4;
+      }
 
-.timeline-fill {
-  position: absolute;
-  top: 0; left: 0;
-  height: 100%;
-  background: var(--cinnabar);
-  border-radius: 1px;
-  transition: width 0.6s ease;
-}
+      .timeline-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: var(--cinnabar);
+        border-radius: 1px;
+        transition: width 0.6s ease;
+      }
 
-.timeline-nodes {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  margin-top: -7px;
-}
+      .timeline-nodes {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin-top: -7px;
+      }
 
-.timeline-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  cursor: pointer;
-  position: relative;
-}
+      .timeline-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        cursor: pointer;
+        position: relative;
+      }
 
-.node-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 2px solid var(--ink-faint);
-  background: var(--paper);
-  transition: all var(--transition);
-}
+      .node-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 2px solid var(--ink-faint);
+        background: var(--paper);
+        transition: all var(--transition);
+      }
 
-.node-dot.active {
-  border-color: var(--cinnabar);
-  background: var(--cinnabar);
-  box-shadow: 0 0 6px rgba(198,40,40,0.2);
-}
+      .node-dot.active {
+        border-color: var(--cinnabar);
+        background: var(--cinnabar);
+        box-shadow: 0 0 6px rgba(198, 40, 40, 0.2);
+      }
 
-.node-dot.past {
-  border-color: var(--ink-light);
-  background: var(--ink-light);
-  opacity: 0.5;
-}
+      .node-dot.past {
+        border-color: var(--ink-light);
+        background: var(--ink-light);
+        opacity: 0.5;
+      }
 
-.node-label {
-  font-size: 0.55rem;
-  color: var(--ink-light);
-  white-space: nowrap;
-  letter-spacing: 0.04em;
-}
+      .node-label {
+        font-size: 0.55rem;
+        color: var(--ink-light);
+        white-space: nowrap;
+        letter-spacing: 0.04em;
+      }
 
-.node-label.active {
-  color: var(--cinnabar);
-}
+      .node-label.active {
+        color: var(--cinnabar);
+      }
 
-.node-age {
-  font-size: 0.5rem;
-  color: var(--ink-light);
-}
+      .node-age {
+        font-size: 0.5rem;
+        color: var(--ink-light);
+      }
 
-/* ═══════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════ */
 
-@media (max-width: 900px) {
-  .main-content {
-    flex-direction: column;
-    align-items: center;
-  }
-  .detail-panel-wrapper {
-    width: 100%;
-    max-width: 500px;
-    position: static;
-  }
-  .celestial-chart, .palace-grid-wrapper {
-    max-width: 500px;
-  }
-}
+      @media (max-width: 900px) {
+        .main-content {
+          flex-direction: column;
+          align-items: center;
+        }
+        .detail-panel-wrapper {
+          width: 100%;
+          max-width: 500px;
+          position: static;
+        }
+        .celestial-chart,
+        .palace-grid-wrapper {
+          max-width: 500px;
+        }
+      }
 
-@media (max-width: 600px) {
-  .hero-title { font-size: 1.8rem; }
-  .top-bar { padding: 0.5rem 1rem; }
-  .main-content { padding: 0 1rem 1.5rem; }
-  .tab-btn { font-size: 0.95rem; padding: 0.4rem 1.2rem; }
-  .celestial-chart, .palace-grid-wrapper { max-width: 380px; }
-  .grid-cell { padding: 0.3rem; }
-  .cell-name { font-size: 0.65rem; }
-  .cell-major { font-size: 0.6rem; }
-  .cell-minor { font-size: 0.5rem; }
-}
+      @media (max-width: 600px) {
+        .hero-title {
+          font-size: 1.8rem;
+        }
+        .top-bar {
+          padding: 0.5rem 1rem;
+        }
+        .main-content {
+          padding: 0 1rem 1.5rem;
+        }
+        .tab-btn {
+          font-size: 0.95rem;
+          padding: 0.4rem 1.2rem;
+        }
+        .celestial-chart,
+        .palace-grid-wrapper {
+          max-width: 380px;
+        }
+        .grid-cell {
+          padding: 0.3rem;
+        }
+        .cell-name {
+          font-size: 0.65rem;
+        }
+        .cell-major {
+          font-size: 0.6rem;
+        }
+        .cell-minor {
+          font-size: 0.5rem;
+        }
+      }
 
-@media (max-width: 400px) {
-  .celestial-chart, .palace-grid-wrapper { max-width: 320px; }
-  .grid-cell { padding: 0.2rem; }
-}
-</style>
-</head>
-<body>
-
-<div class="app">
-
-  <!-- ── Top Bar ── -->
-  <header class="top-bar">
-    <div class="brand">
-      <div class="seal-icon">紫</div>
-      <div>
-        <div class="brand-text">紫微斗数</div>
-      </div>
-    </div>
-    <nav class="nav-links">
-      <a class="nav-link" href="#">八字排盘</a>
-      <a class="nav-link active" href="#">紫微斗数</a>
-      <a class="nav-link" href="#">星座</a>
-      <a class="nav-link" href="#">生肖</a>
-      <a class="nav-link" href="#">易经</a>
-    </nav>
-  </header>
-
-  <!-- ── Hero ── -->
-  <section class="hero-section">
-    <h1 class="hero-title">天星回宫</h1>
-    <p class="hero-sub">— 墨 韵 命 盘 —</p>
-    <div class="hero-divider"></div>
-  </section>
-
-  <!-- ── Tab Switcher ── -->
-  <div class="tab-bar">
-    <button class="tab-btn active" data-view="celestial">天星图</button>
-    <button class="tab-btn" data-view="grid">回宫图</button>
-  </div>
-
-  <!-- ── Main Content ── -->
-  <div class="main-content">
-
-    <!-- Left: Chart area -->
-    <div class="chart-area">
-
-      <!-- View 1: 天星图 -->
-      <div class="view-pane active" id="viewCelestial">
-        <div class="celestial-chart" id="celestialChart">
-          <svg class="orbit-svg" id="orbitSvg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet"></svg>
-          <div class="sector-labels" id="sectorLabels"></div>
-          <div class="center-seal" id="centerSeal">
-            <div class="seal-body">
-              <span class="seal-char">紫</span>
-            </div>
-            <div class="seal-label">紫微星</div>
-          </div>
-          <div id="starsContainer"></div>
-          <div class="palace-arc" id="palaceArc"></div>
-        </div>
-      </div>
-
-      <!-- View 2: 回宫图 -->
-      <div class="view-pane" id="viewGrid">
-        <div class="palace-grid-wrapper">
-          <div class="palace-grid" id="palaceGrid"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right: Detail Panel -->
-    <aside class="detail-panel-wrapper">
-      <div class="detail-panel" id="detailPanel">
-        <div class="detail-empty" id="detailEmpty">
+      @media (max-width: 400px) {
+        .celestial-chart,
+        .palace-grid-wrapper {
+          max-width: 320px;
+        }
+        .grid-cell {
+          padding: 0.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ── Top Bar ── -->
+      <header class="top-bar">
+        <div class="brand">
+          <div class="seal-icon">紫</div>
           <div>
-            <div style="font-size:1.6rem;margin-bottom:0.3rem;font-family:var(--font-display);color:var(--ink-light);opacity:0.4;">✦</div>
-            点击宫位查看详解
+            <div class="brand-text">紫微斗数</div>
           </div>
         </div>
-        <div id="detailContent" style="display:none;">
-          <div class="detail-panel-header">
-            <div class="detail-palace-name">
-              <span id="detailPalaceName">命宫</span>
-              <span class="detail-palace-branch" id="detailBranch">寅</span>
+        <nav class="nav-links">
+          <a class="nav-link" href="#">八字排盘</a>
+          <a class="nav-link active" href="#">紫微斗数</a>
+          <a class="nav-link" href="#">星座</a>
+          <a class="nav-link" href="#">生肖</a>
+          <a class="nav-link" href="#">易经</a>
+        </nav>
+      </header>
+
+      <!-- ── Hero ── -->
+      <section class="hero-section">
+        <h1 class="hero-title">天星回宫</h1>
+        <p class="hero-sub">— 墨 韵 命 盘 —</p>
+        <div class="hero-divider"></div>
+      </section>
+
+      <!-- ── Tab Switcher ── -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-view="celestial">天星图</button>
+        <button class="tab-btn" data-view="grid">回宫图</button>
+      </div>
+
+      <!-- ── Main Content ── -->
+      <div class="main-content">
+        <!-- Left: Chart area -->
+        <div class="chart-area">
+          <!-- View 1: 天星图 -->
+          <div class="view-pane active" id="viewCelestial">
+            <div class="celestial-chart" id="celestialChart">
+              <svg
+                class="orbit-svg"
+                id="orbitSvg"
+                viewBox="0 0 600 600"
+                preserveAspectRatio="xMidYMid meet"
+              ></svg>
+              <div class="sector-labels" id="sectorLabels"></div>
+              <div class="center-seal" id="centerSeal">
+                <div class="seal-body">
+                  <span class="seal-char">紫</span>
+                </div>
+                <div class="seal-label">紫微星</div>
+              </div>
+              <div id="starsContainer"></div>
+              <div class="palace-arc" id="palaceArc"></div>
             </div>
           </div>
-          <div class="detail-section">
-            <div class="detail-section-title">主星</div>
-            <div class="detail-star-list" id="detailMajorStars"></div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-section-title">辅星</div>
-            <div class="detail-star-list" id="detailMinorStars"></div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-section-title">宫位解读</div>
-            <div class="detail-text" id="detailInterpretation"></div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-section-title">四化</div>
-            <div class="detail-star-list" id="detailMutagens"></div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-section-title">大限</div>
-            <div class="detail-text" id="detailDecadal"></div>
+
+          <!-- View 2: 回宫图 -->
+          <div class="view-pane" id="viewGrid">
+            <div class="palace-grid-wrapper">
+              <div class="palace-grid" id="palaceGrid"></div>
+            </div>
           </div>
         </div>
+
+        <!-- Right: Detail Panel -->
+        <aside class="detail-panel-wrapper">
+          <div class="detail-panel" id="detailPanel">
+            <div class="detail-empty" id="detailEmpty">
+              <div>
+                <div
+                  style="
+                    font-size: 1.6rem;
+                    margin-bottom: 0.3rem;
+                    font-family: var(--font-display);
+                    color: var(--ink-light);
+                    opacity: 0.4;
+                  "
+                >
+                  ✦
+                </div>
+                点击宫位查看详解
+              </div>
+            </div>
+            <div id="detailContent" style="display: none">
+              <div class="detail-panel-header">
+                <div class="detail-palace-name">
+                  <span id="detailPalaceName">命宫</span>
+                  <span class="detail-palace-branch" id="detailBranch">寅</span>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-section-title">主星</div>
+                <div class="detail-star-list" id="detailMajorStars"></div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-section-title">辅星</div>
+                <div class="detail-star-list" id="detailMinorStars"></div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-section-title">宫位解读</div>
+                <div class="detail-text" id="detailInterpretation"></div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-section-title">四化</div>
+                <div class="detail-star-list" id="detailMutagens"></div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-section-title">大限</div>
+                <div class="detail-text" id="detailDecadal"></div>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
-    </aside>
-  </div>
 
-  <!-- ── DaXian Timeline ── -->
-  <section class="timeline-section">
-    <div class="timeline-header">
-      <h2 class="timeline-title">大限 · 十年运程</h2>
-      <span class="timeline-current" id="timelineCurrent">当前：35岁</span>
+      <!-- ── DaXian Timeline ── -->
+      <section class="timeline-section">
+        <div class="timeline-header">
+          <h2 class="timeline-title">大限 · 十年运程</h2>
+          <span class="timeline-current" id="timelineCurrent">当前：35岁</span>
+        </div>
+        <div class="timeline-track">
+          <div class="timeline-fill" id="timelineFill"></div>
+        </div>
+        <div class="timeline-nodes" id="timelineNodes"></div>
+      </section>
     </div>
-    <div class="timeline-track">
-      <div class="timeline-fill" id="timelineFill"></div>
-    </div>
-    <div class="timeline-nodes" id="timelineNodes"></div>
-  </section>
 
-</div>
-
-<script>
-/* ═══════════════════════════════════════════════════════
+    <script>
+      /* ═══════════════════════════════════════════════════════
    Mock Data — 紫微斗数命盘 (verbatim from original)
    ═══════════════════════════════════════════════════════ */
 
-const PALACE_DATA = [
-  {
-    index: 0, name: '命宫', branch: '寅',
-    isMingGong: true,
-    stars: [{ n: '紫微', color: 'gold', major: true }, { n: '天相', color: 'jade', major: true }],
-    minors: [{ n: '左辅', color: 'jade' }, { n: '禄存', color: 'gold' }, { n: '天马', color: 'ice' }],
-    mutagens: [{ n: '化禄', cls: 'lu' }],
-    decadal: '3-12',
-    interpretation: '紫微入命，帝王之星，性刚果断，有领导才能。天相辅佐，处世圆融。左辅禄存加持，福禄双全。',
-    summary: '命主紫微坐命，气度不凡，一生贵人运强，事业有成之命。'
-  },
-  {
-    index: 1, name: '官禄', branch: '戌',
-    stars: [{ n: '天梁', color: 'gold', major: true }],
-    minors: [{ n: '文昌', color: 'ice' }, { n: '天钺', color: 'gold' }],
-    mutagens: [{ n: '化权', cls: 'quan' }],
-    decadal: '84-93',
-    interpretation: '天梁在官禄宫，事业稳健，宜公职或教育行业。',
-    summary: '事业有成，贵人提携。'
-  },
-  {
-    index: 2, name: '兄弟', branch: '卯',
-    stars: [{ n: '太阳', color: 'cinnabar', major: true }, { n: '太阴', color: 'ice', major: true }],
-    minors: [{ n: '天魁', color: 'gold' }, { n: '天钺', color: 'gold' }],
-    mutagens: [{ n: '化忌', cls: 'ji' }, { n: '化权', cls: 'quan' }],
-    decadal: '14-23',
-    interpretation: '太阳太阴在兄弟宫，日月并明，兄弟姐妹关系亲密。化权得助，化忌略存遗憾。',
-    summary: '手足情深，互帮互助。'
-  },
-  {
-    index: 3, name: '田宅', branch: '亥',
-    stars: [{ n: '巨门', color: 'gray', major: true }],
-    minors: [],
-    mutagens: [],
-    decadal: '94-103',
-    interpretation: '巨门在田宅宫，家宅需防口舌，房产运平平。',
-    summary: '家宅安宁为上。'
-  },
-  {
-    index: 4, name: '夫妻', branch: '辰',
-    stars: [{ n: '天机', color: 'jade', major: true }, { n: '天梁', color: 'gold', major: true }],
-    minors: [{ n: '文昌', color: 'ice' }, { n: '擎羊', color: 'gray' }],
-    mutagens: [{ n: '化科', cls: 'ke' }],
-    decadal: '24-33',
-    interpretation: '天机天梁在夫妻宫，配偶聪慧机敏，注重精神交流。文昌辅佐，才华出众。擎羊稍带争执，宜多包容。',
-    summary: '夫妻缘分深厚，配偶贤良。'
-  },
-  {
-    index: 5, name: '子女', branch: '巳',
-    stars: [{ n: '紫微', color: 'gold', major: true }, { n: '贪狼', color: 'cinnabar', major: true }],
-    minors: [{ n: '左辅', color: 'jade' }, { n: '右弼', color: 'jade' }],
-    mutagens: [{ n: '化禄', cls: 'lu' }],
-    decadal: '34-43',
-    interpretation: '紫微贪狼在子女宫，子女有领导才能，志向远大。左右辅弼，助力多。化禄主福，子女缘好。',
-    summary: '子女聪慧有福，前途光明。'
-  },
-  {
-    index: 6, name: '财帛', branch: '午',
-    stars: [{ n: '廉贞', color: 'cinnabar', major: true }, { n: '破军', color: 'gray', major: true }],
-    minors: [{ n: '禄存', color: 'gold' }],
-    mutagens: [],
-    decadal: '44-53',
-    interpretation: '廉贞破军守财帛，财路多变，善于开拓新局。禄存守财，积少成多。',
-    summary: '财源广进但需谨慎投资，宜守不宜攻。'
-  },
-  {
-    index: 7, name: '疾厄', branch: '未',
-    stars: [],
-    minors: [{ n: '地劫', color: 'gray' }, { n: '地空', color: 'gray' }],
-    mutagens: [],
-    decadal: '54-63',
-    interpretation: '空宫，地劫地空，体质偏弱，需注意消化系统。',
-    summary: '健康需多加留意，规律作息有益。'
-  },
-  {
-    index: 8, name: '迁移', branch: '申',
-    stars: [{ n: '武曲', color: 'gold', major: true }, { n: '七杀', color: 'cinnabar', major: true }],
-    minors: [{ n: '陀罗', color: 'gray' }],
-    mutagens: [],
-    decadal: '64-73',
-    interpretation: '武曲七杀在迁移宫，外出发展有利，动中求财。',
-    summary: '远行有得，宜向外发展。'
-  },
-  {
-    index: 9, name: '交友', branch: '酉',
-    stars: [{ n: '天府', color: 'gold', major: true }],
-    minors: [{ n: '火星', color: 'cinnabar' }],
-    mutagens: [],
-    decadal: '74-83',
-    interpretation: '天府在交友宫，交友广阔，得朋友助力。',
-    summary: '朋友多助，人缘良好。'
-  },
-  {
-    index: 10, name: '父母', branch: '丑',
-    stars: [{ n: '七杀', color: 'gray', major: true }],
-    minors: [{ n: '火星', color: 'cinnabar' }],
-    mutagens: [],
-    decadal: '114-123',
-    interpretation: '七杀在父母宫，父母性格刚强，管教严格。火星增势，略有急躁。',
-    summary: '父母威严，早年管束严格。'
-  },
-  {
-    index: 11, name: '福德', branch: '子',
-    stars: [{ n: '天同', color: 'jade', major: true }],
-    minors: [{ n: '铃星', color: 'gray' }],
-    mutagens: [],
-    decadal: '104-113',
-    interpretation: '天同在福德宫，福泽深厚，晚年安享。铃星微扰，偶有心烦。',
-    summary: '福寿绵长，心态平和。'
-  },
-];
+      const PALACE_DATA = [
+        {
+          index: 0,
+          name: '命宫',
+          branch: '寅',
+          isMingGong: true,
+          stars: [
+            { n: '紫微', color: 'gold', major: true },
+            { n: '天相', color: 'jade', major: true },
+          ],
+          minors: [
+            { n: '左辅', color: 'jade' },
+            { n: '禄存', color: 'gold' },
+            { n: '天马', color: 'ice' },
+          ],
+          mutagens: [{ n: '化禄', cls: 'lu' }],
+          decadal: '3-12',
+          interpretation:
+            '紫微入命，帝王之星，性刚果断，有领导才能。天相辅佐，处世圆融。左辅禄存加持，福禄双全。',
+          summary: '命主紫微坐命，气度不凡，一生贵人运强，事业有成之命。',
+        },
+        {
+          index: 1,
+          name: '官禄',
+          branch: '戌',
+          stars: [{ n: '天梁', color: 'gold', major: true }],
+          minors: [
+            { n: '文昌', color: 'ice' },
+            { n: '天钺', color: 'gold' },
+          ],
+          mutagens: [{ n: '化权', cls: 'quan' }],
+          decadal: '84-93',
+          interpretation: '天梁在官禄宫，事业稳健，宜公职或教育行业。',
+          summary: '事业有成，贵人提携。',
+        },
+        {
+          index: 2,
+          name: '兄弟',
+          branch: '卯',
+          stars: [
+            { n: '太阳', color: 'cinnabar', major: true },
+            { n: '太阴', color: 'ice', major: true },
+          ],
+          minors: [
+            { n: '天魁', color: 'gold' },
+            { n: '天钺', color: 'gold' },
+          ],
+          mutagens: [
+            { n: '化忌', cls: 'ji' },
+            { n: '化权', cls: 'quan' },
+          ],
+          decadal: '14-23',
+          interpretation: '太阳太阴在兄弟宫，日月并明，兄弟姐妹关系亲密。化权得助，化忌略存遗憾。',
+          summary: '手足情深，互帮互助。',
+        },
+        {
+          index: 3,
+          name: '田宅',
+          branch: '亥',
+          stars: [{ n: '巨门', color: 'gray', major: true }],
+          minors: [],
+          mutagens: [],
+          decadal: '94-103',
+          interpretation: '巨门在田宅宫，家宅需防口舌，房产运平平。',
+          summary: '家宅安宁为上。',
+        },
+        {
+          index: 4,
+          name: '夫妻',
+          branch: '辰',
+          stars: [
+            { n: '天机', color: 'jade', major: true },
+            { n: '天梁', color: 'gold', major: true },
+          ],
+          minors: [
+            { n: '文昌', color: 'ice' },
+            { n: '擎羊', color: 'gray' },
+          ],
+          mutagens: [{ n: '化科', cls: 'ke' }],
+          decadal: '24-33',
+          interpretation:
+            '天机天梁在夫妻宫，配偶聪慧机敏，注重精神交流。文昌辅佐，才华出众。擎羊稍带争执，宜多包容。',
+          summary: '夫妻缘分深厚，配偶贤良。',
+        },
+        {
+          index: 5,
+          name: '子女',
+          branch: '巳',
+          stars: [
+            { n: '紫微', color: 'gold', major: true },
+            { n: '贪狼', color: 'cinnabar', major: true },
+          ],
+          minors: [
+            { n: '左辅', color: 'jade' },
+            { n: '右弼', color: 'jade' },
+          ],
+          mutagens: [{ n: '化禄', cls: 'lu' }],
+          decadal: '34-43',
+          interpretation:
+            '紫微贪狼在子女宫，子女有领导才能，志向远大。左右辅弼，助力多。化禄主福，子女缘好。',
+          summary: '子女聪慧有福，前途光明。',
+        },
+        {
+          index: 6,
+          name: '财帛',
+          branch: '午',
+          stars: [
+            { n: '廉贞', color: 'cinnabar', major: true },
+            { n: '破军', color: 'gray', major: true },
+          ],
+          minors: [{ n: '禄存', color: 'gold' }],
+          mutagens: [],
+          decadal: '44-53',
+          interpretation: '廉贞破军守财帛，财路多变，善于开拓新局。禄存守财，积少成多。',
+          summary: '财源广进但需谨慎投资，宜守不宜攻。',
+        },
+        {
+          index: 7,
+          name: '疾厄',
+          branch: '未',
+          stars: [],
+          minors: [
+            { n: '地劫', color: 'gray' },
+            { n: '地空', color: 'gray' },
+          ],
+          mutagens: [],
+          decadal: '54-63',
+          interpretation: '空宫，地劫地空，体质偏弱，需注意消化系统。',
+          summary: '健康需多加留意，规律作息有益。',
+        },
+        {
+          index: 8,
+          name: '迁移',
+          branch: '申',
+          stars: [
+            { n: '武曲', color: 'gold', major: true },
+            { n: '七杀', color: 'cinnabar', major: true },
+          ],
+          minors: [{ n: '陀罗', color: 'gray' }],
+          mutagens: [],
+          decadal: '64-73',
+          interpretation: '武曲七杀在迁移宫，外出发展有利，动中求财。',
+          summary: '远行有得，宜向外发展。',
+        },
+        {
+          index: 9,
+          name: '交友',
+          branch: '酉',
+          stars: [{ n: '天府', color: 'gold', major: true }],
+          minors: [{ n: '火星', color: 'cinnabar' }],
+          mutagens: [],
+          decadal: '74-83',
+          interpretation: '天府在交友宫，交友广阔，得朋友助力。',
+          summary: '朋友多助，人缘良好。',
+        },
+        {
+          index: 10,
+          name: '父母',
+          branch: '丑',
+          stars: [{ n: '七杀', color: 'gray', major: true }],
+          minors: [{ n: '火星', color: 'cinnabar' }],
+          mutagens: [],
+          decadal: '114-123',
+          interpretation: '七杀在父母宫，父母性格刚强，管教严格。火星增势，略有急躁。',
+          summary: '父母威严，早年管束严格。',
+        },
+        {
+          index: 11,
+          name: '福德',
+          branch: '子',
+          stars: [{ n: '天同', color: 'jade', major: true }],
+          minors: [{ n: '铃星', color: 'gray' }],
+          mutagens: [],
+          decadal: '104-113',
+          interpretation: '天同在福德宫，福泽深厚，晚年安享。铃星微扰，偶有心烦。',
+          summary: '福寿绵长，心态平和。',
+        },
+      ]
 
-const BRANCH_ORDER = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+      const BRANCH_ORDER = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
 
-const DA_XIAN = [
-  { start: 3, end: 12, label: '初限', palace: '命宫' },
-  { start: 13, end: 22, label: '二限', palace: '兄弟' },
-  { start: 23, end: 32, label: '三限', palace: '夫妻' },
-  { start: 33, end: 42, label: '四限', palace: '子女' },
-  { start: 43, end: 52, label: '五限', palace: '财帛' },
-  { start: 53, end: 62, label: '六限', palace: '疾厄' },
-];
+      const DA_XIAN = [
+        { start: 3, end: 12, label: '初限', palace: '命宫' },
+        { start: 13, end: 22, label: '二限', palace: '兄弟' },
+        { start: 23, end: 32, label: '三限', palace: '夫妻' },
+        { start: 33, end: 42, label: '四限', palace: '子女' },
+        { start: 43, end: 52, label: '五限', palace: '财帛' },
+        { start: 53, end: 62, label: '六限', palace: '疾厄' },
+      ]
 
-const CURRENT_AGE = 35;
+      const CURRENT_AGE = 35
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    Star Color Mapping for 天星图 (gold→cinnabar+g border, etc.)
    ═══════════════════════════════════════════════════════ */
 
-const STAR_CLS = {
-  gold:     'cls-gold',
-  cinnabar: 'cls-cinnabar',
-  jade:     'cls-jade',
-  ice:      'cls-ice',
-  purple:   'cls-purple',
-  gray:     'cls-gray',
-  white:    'cls-white',
-};
+      const STAR_CLS = {
+        gold: 'cls-gold',
+        cinnabar: 'cls-cinnabar',
+        jade: 'cls-jade',
+        ice: 'cls-ice',
+        purple: 'cls-purple',
+        gray: 'cls-gray',
+        white: 'cls-white',
+      }
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    Branch → Angle mapping (for 天星图)
    寅 starts at 0° (top right, standard 紫微 convention)
    ═══════════════════════════════════════════════════════ */
 
-const BRANCH_TO_ANGLE = {
-  '寅': 0, '卯': 30, '辰': 60, '巳': 90,
-  '午': 120, '未': 150, '申': 180, '酉': 210,
-  '戌': 240, '亥': 270, '子': 300, '丑': 330,
-};
+      const BRANCH_TO_ANGLE = {
+        寅: 0,
+        卯: 30,
+        辰: 60,
+        巳: 90,
+        午: 120,
+        未: 150,
+        申: 180,
+        酉: 210,
+        戌: 240,
+        亥: 270,
+        子: 300,
+        丑: 330,
+      }
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    State
    ═══════════════════════════════════════════════════════ */
 
-let selectedPalaceIdx = -1;
-let celestialStars = [];
-let starElements = [];
-let animFrameId = null;
-let chartAnimStart = 0;
-let chartScale = 1; // responsive scale factor for 天星图
+      let selectedPalaceIdx = -1
+      let celestialStars = []
+      let starElements = []
+      let animFrameId = null
+      let chartAnimStart = 0
+      let chartScale = 1 // responsive scale factor for 天星图
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    Tab Switching
    ═══════════════════════════════════════════════════════ */
 
-function initTabs() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      const view = this.dataset.view;
-      document.querySelectorAll('.view-pane').forEach(v => v.classList.remove('active'));
-      if (view === 'celestial') {
-        document.getElementById('viewCelestial').classList.add('active');
-        if (animFrameId) {
-          cancelAnimationFrame(animFrameId);
-          animFrameId = null;
-        }
-        chartAnimStart = performance.now();
-        animFrameId = requestAnimationFrame(animateCelestial);
-      } else {
-        document.getElementById('viewGrid').classList.add('active');
-        if (animFrameId) {
-          cancelAnimationFrame(animFrameId);
-          animFrameId = null;
-        }
+      function initTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.addEventListener('click', function () {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+            this.classList.add('active')
+            const view = this.dataset.view
+            document.querySelectorAll('.view-pane').forEach(v => v.classList.remove('active'))
+            if (view === 'celestial') {
+              document.getElementById('viewCelestial').classList.add('active')
+              if (animFrameId) {
+                cancelAnimationFrame(animFrameId)
+                animFrameId = null
+              }
+              chartAnimStart = performance.now()
+              animFrameId = requestAnimationFrame(animateCelestial)
+            } else {
+              document.getElementById('viewGrid').classList.add('active')
+              if (animFrameId) {
+                cancelAnimationFrame(animFrameId)
+                animFrameId = null
+              }
+            }
+          })
+        })
       }
-    });
-  });
-}
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    Shared: Detail Panel
    ═══════════════════════════════════════════════════════ */
 
-function updateDetailPanel(index) {
-  const p = PALACE_DATA[index];
-  if (!p) return;
+      function updateDetailPanel(index) {
+        const p = PALACE_DATA[index]
+        if (!p) return
 
-  const empty = document.getElementById('detailEmpty');
-  const content = document.getElementById('detailContent');
-  if (!empty || !content) return;
+        const empty = document.getElementById('detailEmpty')
+        const content = document.getElementById('detailContent')
+        if (!empty || !content) return
 
-  empty.style.display = 'none';
-  content.style.display = 'block';
+        empty.style.display = 'none'
+        content.style.display = 'block'
 
-  const nameEl = document.getElementById('detailPalaceName');
-  const branchEl = document.getElementById('detailBranch');
-  if (nameEl) nameEl.textContent = p.name;
-  if (branchEl) branchEl.textContent = p.branch;
+        const nameEl = document.getElementById('detailPalaceName')
+        const branchEl = document.getElementById('detailBranch')
+        if (nameEl) nameEl.textContent = p.name
+        if (branchEl) branchEl.textContent = p.branch
 
-  // Major stars
-  const majorEl = document.getElementById('detailMajorStars');
-  if (majorEl) {
-    majorEl.innerHTML = '';
-    p.stars.forEach(s => {
-      const item = document.createElement('div');
-      item.className = 'detail-star-item';
-      const dot = document.createElement('span');
-      dot.className = 'star-dot major ' + s.color;
-      const name = document.createElement('span');
-      name.textContent = s.n;
-      item.append(dot, name);
-      majorEl.appendChild(item);
-    });
-    if (p.stars.length === 0) {
-      majorEl.innerHTML = '<div class="detail-text" style="opacity:0.5;">本宫无主星</div>';
-    }
-  }
+        // Major stars
+        const majorEl = document.getElementById('detailMajorStars')
+        if (majorEl) {
+          majorEl.innerHTML = ''
+          p.stars.forEach(s => {
+            const item = document.createElement('div')
+            item.className = 'detail-star-item'
+            const dot = document.createElement('span')
+            dot.className = 'star-dot major ' + s.color
+            const name = document.createElement('span')
+            name.textContent = s.n
+            item.append(dot, name)
+            majorEl.appendChild(item)
+          })
+          if (p.stars.length === 0) {
+            majorEl.innerHTML = '<div class="detail-text" style="opacity:0.5;">本宫无主星</div>'
+          }
+        }
 
-  // Minor stars
-  const minorEl = document.getElementById('detailMinorStars');
-  if (minorEl) {
-    minorEl.innerHTML = '';
-    p.minors.forEach(s => {
-      const item = document.createElement('div');
-      item.className = 'detail-star-item';
-      const dot = document.createElement('span');
-      dot.className = 'star-dot ' + s.color;
-      const name = document.createElement('span');
-      name.textContent = s.n;
-      item.append(dot, name);
-      minorEl.appendChild(item);
-    });
-    if (p.minors.length === 0) {
-      minorEl.innerHTML = '<div class="detail-text" style="opacity:0.5;">本宫无辅星</div>';
-    }
-  }
+        // Minor stars
+        const minorEl = document.getElementById('detailMinorStars')
+        if (minorEl) {
+          minorEl.innerHTML = ''
+          p.minors.forEach(s => {
+            const item = document.createElement('div')
+            item.className = 'detail-star-item'
+            const dot = document.createElement('span')
+            dot.className = 'star-dot ' + s.color
+            const name = document.createElement('span')
+            name.textContent = s.n
+            item.append(dot, name)
+            minorEl.appendChild(item)
+          })
+          if (p.minors.length === 0) {
+            minorEl.innerHTML = '<div class="detail-text" style="opacity:0.5;">本宫无辅星</div>'
+          }
+        }
 
-  // Interpretation
-  const interpEl = document.getElementById('detailInterpretation');
-  if (interpEl) {
-    interpEl.innerHTML = '<p><span class="highlight">●</span> ' + (p.summary || '') + '</p><p>' + (p.interpretation || '') + '</p>';
-  }
+        // Interpretation
+        const interpEl = document.getElementById('detailInterpretation')
+        if (interpEl) {
+          interpEl.innerHTML =
+            '<p><span class="highlight">●</span> ' +
+            (p.summary || '') +
+            '</p><p>' +
+            (p.interpretation || '') +
+            '</p>'
+        }
 
-  // Mutagens
-  const mutEl = document.getElementById('detailMutagens');
-  if (mutEl) {
-    mutEl.innerHTML = '';
-    if (p.mutagens && p.mutagens.length > 0) {
-      const descMap = { lu: '化禄 — 财禄亨通', quan: '化权 — 权威增长', ke: '化科 — 名声远扬', ji: '化忌 — 谨慎守成' };
-      p.mutagens.forEach(m => {
-        const item = document.createElement('div');
-        item.className = 'detail-star-item';
-        const chip = document.createElement('span');
-        chip.className = 'mutagen-chip ' + m.cls;
-        chip.textContent = m.n;
-        const desc = document.createElement('span');
-        desc.textContent = ' ' + (descMap[m.cls] || '');
-        item.append(chip, desc);
-        mutEl.appendChild(item);
-      });
-    } else {
-      mutEl.innerHTML = '<div class="detail-text" style="opacity:0.5;">本宫无四化</div>';
-    }
-  }
+        // Mutagens
+        const mutEl = document.getElementById('detailMutagens')
+        if (mutEl) {
+          mutEl.innerHTML = ''
+          if (p.mutagens && p.mutagens.length > 0) {
+            const descMap = {
+              lu: '化禄 — 财禄亨通',
+              quan: '化权 — 权威增长',
+              ke: '化科 — 名声远扬',
+              ji: '化忌 — 谨慎守成',
+            }
+            p.mutagens.forEach(m => {
+              const item = document.createElement('div')
+              item.className = 'detail-star-item'
+              const chip = document.createElement('span')
+              chip.className = 'mutagen-chip ' + m.cls
+              chip.textContent = m.n
+              const desc = document.createElement('span')
+              desc.textContent = ' ' + (descMap[m.cls] || '')
+              item.append(chip, desc)
+              mutEl.appendChild(item)
+            })
+          } else {
+            mutEl.innerHTML = '<div class="detail-text" style="opacity:0.5;">本宫无四化</div>'
+          }
+        }
 
-  // Decadal
-  const decEl = document.getElementById('detailDecadal');
-  if (decEl) {
-    decEl.innerHTML = '<p>大限 ' + (p.decadal || '') + '，位于 <span class="highlight">' + p.name + '宫</span>。</p>';
-  }
-}
+        // Decadal
+        const decEl = document.getElementById('detailDecadal')
+        if (decEl) {
+          decEl.innerHTML =
+            '<p>大限 ' +
+            (p.decadal || '') +
+            '，位于 <span class="highlight">' +
+            p.name +
+            '宫</span>。</p>'
+        }
+      }
 
-function selectPalace(index) {
-  if (selectedPalaceIdx === index) return;
-  selectedPalaceIdx = index;
+      function selectPalace(index) {
+        if (selectedPalaceIdx === index) return
+        selectedPalaceIdx = index
 
-  // Update 天星图
-  document.querySelectorAll('.sector-label').forEach((el, i) => {
-    el.classList.toggle('selected', i === index);
-  });
-  if (starElements.length) {
-    starElements.forEach((el, i) => {
-      const star = celestialStars[i];
-      if (!star) return;
-      el.classList.toggle('active', star.palaceIdx === index);
-    });
-  }
-  drawPalaceArc(index);
+        // Update 天星图
+        document.querySelectorAll('.sector-label').forEach((el, i) => {
+          el.classList.toggle('selected', i === index)
+        })
+        if (starElements.length) {
+          starElements.forEach((el, i) => {
+            const star = celestialStars[i]
+            if (!star) return
+            el.classList.toggle('active', star.palaceIdx === index)
+          })
+        }
+        drawPalaceArc(index)
 
-  // Update 回宫图
-  document.querySelectorAll('.grid-cell').forEach(el => {
-    el.classList.toggle('selected', parseInt(el.dataset.index) === index);
-  });
+        // Update 回宫图
+        document.querySelectorAll('.grid-cell').forEach(el => {
+          el.classList.toggle('selected', parseInt(el.dataset.index) === index)
+        })
 
-  updateDetailPanel(index);
-}
+        updateDetailPanel(index)
+      }
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    View 1: 天星图 — Celestial Star Chart
    ═══════════════════════════════════════════════════════ */
 
-// Update chart scale for responsive sizing
-function updateChartScale() {
-  const el = document.getElementById('celestialChart');
-  if (el) {
-    chartScale = el.offsetWidth / 600;
-  }
-}
-
-// Base chart dimensions (matches viewBox of SVG)
-const BASE = 600;
-const CX = 300, CY = 300;
-
-// Orbit radii (in BASE units)
-const RINGS = [
-  { r: 100, label: '内垣' },
-  { r: 145, label: '' },
-  { r: 185, label: '' },
-  { r: 225, label: '' },
-  { r: 255, label: '外垣' },
-];
-const LABEL_R = 282;
-
-/* ── Build celestial star data from PALACE_DATA ── */
-function buildCelestialStars() {
-  celestialStars = [];
-  PALACE_DATA.forEach((palace, pIdx) => {
-    const baseAngle = BRANCH_TO_ANGLE[palace.branch] || 0;
-    const allStars = [
-      ...palace.stars.map(s => ({ ...s, major: true })),
-      ...palace.minors.map(s => ({ ...s, major: false }))
-    ];
-    // Radii for different star positions within the palace sector
-    const starRadii = [RINGS[0].r, RINGS[2].r, RINGS[4].r, RINGS[1].r, RINGS[3].r];
-    // Find index of last major star for 四化 chip placement
-    let lastMajorIdx = -1;
-    allStars.forEach((s, idx) => { if (s.major) lastMajorIdx = idx; });
-    allStars.forEach((star, i) => {
-      // Spread stars within the 30° sector
-      const sectorStart = baseAngle;
-      const angleOffset = (i - (allStars.length - 1) / 2) * 4;
-      celestialStars.push({
-        name: star.n,
-        color: star.color,
-        colorClass: STAR_CLS[star.color] || 'cls-white',
-        major: star.major,
-        palaceIdx: pIdx,
-        // Angle in degrees, with offset within sector
-        angleDeg: sectorStart + 15 + angleOffset,
-        radius: starRadii[i % starRadii.length] || RINGS[2].r,
-        // Animation: slow orbital drift
-        speed: 0.003 + Math.random() * 0.004,
-        phase: Math.random() * Math.PI * 2,
-        // 四化: attached to last major star of palace
-        hasMutagen: palace.mutagens && palace.mutagens.length > 0 && i === lastMajorIdx,
-      });
-    });
-  });
-}
-
-/* ── Draw orbit rings with subtle wobble ── */
-function renderOrbitRings() {
-  const svg = document.getElementById('orbitSvg');
-  if (!svg) return;
-  svg.innerHTML = '';
-
-  // 1. Wobbly orbit rings (imperfect circles for hand-drawn feel)
-  RINGS.forEach((ring) => {
-    const path = createWobblyCircle(CX, CY, ring.r, 1.2);
-    const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    el.setAttribute('d', path);
-    el.setAttribute('fill', 'none');
-    el.setAttribute('stroke', '#C5B8A8');
-    el.setAttribute('stroke-width', '0.8');
-    el.setAttribute('opacity', '0.35');
-    svg.appendChild(el);
-  });
-
-  // 2. Sector dividers (thin cinnabar ruler marks)
-  const branches = ['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'];
-  branches.forEach((br) => {
-    const rawAngle = BRANCH_TO_ANGLE[br] || 0;
-    // Draw the divider at the START of each sector (not center)
-    const angleRad = (rawAngle - 90) * Math.PI / 180;
-    const x1 = CX + Math.cos(angleRad) * RINGS[0].r;
-    const y1 = CY + Math.sin(angleRad) * RINGS[0].r;
-    const x2 = CX + Math.cos(angleRad) * (RINGS[4].r + 8);
-    const y2 = CY + Math.sin(angleRad) * (RINGS[4].r + 8);
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.setAttribute('stroke', '#C62828');
-    line.setAttribute('stroke-width', '0.5');
-    line.setAttribute('opacity', '0.2');
-    svg.appendChild(line);
-  });
-
-  // 3. Faint traditional star-chart grid marks — horizontal and vertical reference lines
-  const gridEl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  gridEl.setAttribute('x1', CX - RINGS[4].r - 10);
-  gridEl.setAttribute('y1', CY);
-  gridEl.setAttribute('x2', CX + RINGS[4].r + 10);
-  gridEl.setAttribute('y2', CY);
-  gridEl.setAttribute('stroke', '#C5B8A8');
-  gridEl.setAttribute('stroke-width', '0.4');
-  gridEl.setAttribute('opacity', '0.12');
-  gridEl.setAttribute('stroke-dasharray', '3,5');
-  svg.appendChild(gridEl);
-
-  const gridEl2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  gridEl2.setAttribute('x1', CX);
-  gridEl2.setAttribute('y1', CY - RINGS[4].r - 10);
-  gridEl2.setAttribute('x2', CX);
-  gridEl2.setAttribute('y2', CY + RINGS[4].r + 10);
-  gridEl2.setAttribute('stroke', '#C5B8A8');
-  gridEl2.setAttribute('stroke-width', '0.4');
-  gridEl2.setAttribute('opacity', '0.12');
-  gridEl2.setAttribute('stroke-dasharray', '3,5');
-  svg.appendChild(gridEl2);
-}
-
-/* ── Helper: create a slightly wobbly (hand-drawn) circle path ── */
-function createWobblyCircle(cx, cy, r, wobble) {
-  // Use 4 cubic bezier segments with small random perturbations
-  // Seeded-ish random based on r to get consistent but varied result
-  const s = wobble || 1.5;
-  // Deterministic offsets based on ring radius (consistent per ring)
-  const offsets = [
-    Math.sin(r * 1.3) * s, Math.cos(r * 2.7) * s,
-    Math.sin(r * 3.1) * s, Math.cos(r * 4.9) * s,
-    Math.sin(r * 5.7) * s, Math.cos(r * 6.3) * s,
-    Math.sin(r * 7.1) * s, Math.cos(r * 8.5) * s,
-    Math.sin(r * 9.3) * s, Math.cos(r * 10.1) * s,
-    Math.sin(r * 11.7) * s, Math.cos(r * 12.5) * s,
-  ];
-  const k = 0.5522847498; // circle bezier kappa
-  // Anchor points
-  const a0x = cx,           a0y = cy - r + offsets[0];
-  const a1x = cx + r + offsets[1], a1y = cy;
-  const a2x = cx,           a2y = cy + r + offsets[2];
-  const a3x = cx - r + offsets[3], a3y = cy;
-  // Control points
-  const c01x = cx + k * r + offsets[4], c01y = cy - r + offsets[0];
-  const c02x = cx + r + offsets[1], c02y = cy - k * r + offsets[5];
-  const c11x = cx + r + offsets[1], c11y = cy + k * r + offsets[6];
-  const c12x = cx + k * r + offsets[4], c12y = cy + r + offsets[2];
-  const c21x = cx - k * r + offsets[7], c21y = cy + r + offsets[2];
-  const c22x = cx - r + offsets[3], c22y = cy + k * r + offsets[6];
-  const c31x = cx - r + offsets[3], c31y = cy - k * r + offsets[5];
-  const c32x = cx - k * r + offsets[7], c32y = cy - r + offsets[0];
-
-  return 'M ' + a0x + ',' + a0y +
-    ' C ' + c01x + ',' + c01y + ' ' + c02x + ',' + c02y + ' ' + a1x + ',' + a1y +
-    ' C ' + c11x + ',' + c11y + ' ' + c12x + ',' + c12y + ' ' + a2x + ',' + a2y +
-    ' C ' + c21x + ',' + c21y + ' ' + c22x + ',' + c22y + ' ' + a3x + ',' + a3y +
-    ' C ' + c31x + ',' + c31y + ' ' + c32x + ',' + c32y + ' ' + a0x + ',' + a0y + ' Z';
-}
-
-/* ── Sector Labels (around chart edge) ── */
-function renderSectorLabels() {
-  const container = document.getElementById('sectorLabels');
-  if (!container) return;
-  container.innerHTML = '';
-
-  PALACE_DATA.forEach((p, i) => {
-    const rawAngle = BRANCH_TO_ANGLE[p.branch] || 0;
-    const angleRad = ((rawAngle + 15) - 90) * Math.PI / 180;
-    const x = (CX + Math.cos(angleRad) * LABEL_R) * chartScale;
-    const y = (CY + Math.sin(angleRad) * LABEL_R) * chartScale;
-
-    const label = document.createElement('div');
-    label.className = 'sector-label' + (p.isMingGong ? ' ming-gong' : '');
-    label.textContent = p.name;
-    label.style.left = x + 'px';
-    label.style.top = y + 'px';
-    label.dataset.index = i;
-    label.addEventListener('click', function () { selectPalace(i); });
-    container.appendChild(label);
-  });
-}
-
-/* ── Star DOM Elements ── */
-function createStarElements() {
-  const container = document.getElementById('starsContainer');
-  if (!container) return;
-  container.innerHTML = '';
-  starElements = [];
-  const chipsContainer = document.createElement('div');
-  chipsContainer.id = 'mutagenChipsContainer';
-  chipsContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:4;';
-  container.appendChild(chipsContainer);
-
-  celestialStars.forEach((star, i) => {
-    const el = document.createElement('div');
-    el.className = 'chart-star' + (star.major ? '' : ' minor');
-    el.dataset.index = i;
-
-    const orb = document.createElement('div');
-    orb.className = 'star-orb ' + star.colorClass;
-    el.appendChild(orb);
-
-    const label = document.createElement('div');
-    label.className = 'star-label';
-    label.textContent = star.name;
-    el.appendChild(label);
-
-    el.addEventListener('click', function () { selectPalace(star.palaceIdx); });
-
-    container.appendChild(el);
-    starElements.push(el);
-
-    // 四化 chip near outermost star of mutagen palaces
-    if (star.hasMutagen && star.major) {
-      const palace = PALACE_DATA[star.palaceIdx];
-      if (palace && palace.mutagens) {
-        palace.mutagens.forEach(m => {
-          const chip = document.createElement('div');
-          chip.className = 'mutagen-chip-tx ' + m.cls;
-          chip.textContent = m.n;
-          chip.dataset.palaceIdx = star.palaceIdx;
-          chipsContainer.appendChild(chip);
-        });
+      // Update chart scale for responsive sizing
+      function updateChartScale() {
+        const el = document.getElementById('celestialChart')
+        if (el) {
+          chartScale = el.offsetWidth / 600
+        }
       }
-    }
-  });
 
-  // Entrance animation
-  starElements.forEach((el, i) => {
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.style.transition = 'opacity 0.5s ease';
-      el.style.opacity = '1';
-    }, 100 + i * 25);
-  });
-}
+      // Base chart dimensions (matches viewBox of SVG)
+      const BASE = 600
+      const CX = 300,
+        CY = 300
 
-/* ── Palace Arc Highlight ── */
-function drawPalaceArc(index) {
-  const el = document.getElementById('palaceArc');
-  if (!el) return;
-  if (index < 0) { el.classList.remove('visible'); return; }
-  const p = PALACE_DATA[index];
-  if (!p) { el.classList.remove('visible'); return; }
+      // Orbit radii (in BASE units)
+      const RINGS = [
+        { r: 100, label: '内垣' },
+        { r: 145, label: '' },
+        { r: 185, label: '' },
+        { r: 225, label: '' },
+        { r: 255, label: '外垣' },
+      ]
+      const LABEL_R = 282
 
-  const rawAngle = BRANCH_TO_ANGLE[p.branch] || 0;
-  el.style.background = 'conic-gradient(from ' + (rawAngle - 15) + 'deg, transparent 0deg, rgba(198,40,40,0.08) 0deg, rgba(198,40,40,0.16) 30deg, transparent 30deg, transparent 360deg)';
-  el.classList.add('visible');
-}
-
-/* ── Animation Loop (天星图) ── */
-function animateCelestial(timestamp) {
-  if (!timestamp) timestamp = performance.now();
-  const t = (timestamp - chartAnimStart) / 1000;
-
-  // Update star positions
-  celestialStars.forEach((star, i) => {
-    const el = starElements[i];
-    if (!el) return;
-
-    const angleRad = ((star.angleDeg + t * star.speed * 15) - 90) * Math.PI / 180;
-    const x = (CX + Math.cos(angleRad) * star.radius) * chartScale;
-    const y = (CY + Math.sin(angleRad) * star.radius) * chartScale;
-
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-
-    const twinkle = 0.82 + 0.18 * Math.sin(t * 1.5 + star.phase);
-    el.style.opacity = String(twinkle);
-  });
-
-  // Update 四化 chip positions — find their parent star
-  const chips = document.querySelectorAll('#mutagenChipsContainer .mutagen-chip-tx');
-  chips.forEach(chip => {
-    const pIdx = parseInt(chip.dataset.palaceIdx);
-    // Find the last major star in this palace
-    let lastStar = -1;
-    celestialStars.forEach((s, i) => {
-      if (s.palaceIdx === pIdx && s.major) lastStar = i;
-    });
-    if (lastStar >= 0 && starElements[lastStar]) {
-      const starEl = starElements[lastStar];
-      const sx = parseFloat(starEl.style.left);
-      const sy = parseFloat(starEl.style.top);
-      if (!isNaN(sx)) {
-        chip.style.left = (sx + 10) + 'px';
-        chip.style.top = (sy - 8) + 'px';
+      /* ── Build celestial star data from PALACE_DATA ── */
+      function buildCelestialStars() {
+        celestialStars = []
+        PALACE_DATA.forEach((palace, pIdx) => {
+          const baseAngle = BRANCH_TO_ANGLE[palace.branch] || 0
+          const allStars = [
+            ...palace.stars.map(s => ({ ...s, major: true })),
+            ...palace.minors.map(s => ({ ...s, major: false })),
+          ]
+          // Radii for different star positions within the palace sector
+          const starRadii = [RINGS[0].r, RINGS[2].r, RINGS[4].r, RINGS[1].r, RINGS[3].r]
+          // Find index of last major star for 四化 chip placement
+          let lastMajorIdx = -1
+          allStars.forEach((s, idx) => {
+            if (s.major) lastMajorIdx = idx
+          })
+          allStars.forEach((star, i) => {
+            // Spread stars within the 30° sector
+            const sectorStart = baseAngle
+            const angleOffset = (i - (allStars.length - 1) / 2) * 4
+            celestialStars.push({
+              name: star.n,
+              color: star.color,
+              colorClass: STAR_CLS[star.color] || 'cls-white',
+              major: star.major,
+              palaceIdx: pIdx,
+              // Angle in degrees, with offset within sector
+              angleDeg: sectorStart + 15 + angleOffset,
+              radius: starRadii[i % starRadii.length] || RINGS[2].r,
+              // Animation: slow orbital drift
+              speed: 0.003 + Math.random() * 0.004,
+              phase: Math.random() * Math.PI * 2,
+              // 四化: attached to last major star of palace
+              hasMutagen: palace.mutagens && palace.mutagens.length > 0 && i === lastMajorIdx,
+            })
+          })
+        })
       }
-    }
-  });
 
-  animFrameId = requestAnimationFrame(animateCelestial);
-}
+      /* ── Draw orbit rings with subtle wobble ── */
+      function renderOrbitRings() {
+        const svg = document.getElementById('orbitSvg')
+        if (!svg) return
+        svg.innerHTML = ''
 
-/* ── Init 天星图 ── */
-function initCelestial() {
-  updateChartScale();
-  buildCelestialStars();
-  renderOrbitRings();
-  renderSectorLabels();
-  createStarElements();
-  chartAnimStart = performance.now();
-  // Start animation only if this view is active
-  if (document.getElementById('viewCelestial').classList.contains('active')) {
-    animFrameId = requestAnimationFrame(animateCelestial);
-  }
-}
+        // 1. Wobbly orbit rings (imperfect circles for hand-drawn feel)
+        RINGS.forEach(ring => {
+          const path = createWobblyCircle(CX, CY, ring.r, 1.2)
+          const el = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+          el.setAttribute('d', path)
+          el.setAttribute('fill', 'none')
+          el.setAttribute('stroke', '#C5B8A8')
+          el.setAttribute('stroke-width', '0.8')
+          el.setAttribute('opacity', '0.35')
+          svg.appendChild(el)
+        })
 
-/* ═══════════════════════════════════════════════════════
+        // 2. Sector dividers (thin cinnabar ruler marks)
+        const branches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
+        branches.forEach(br => {
+          const rawAngle = BRANCH_TO_ANGLE[br] || 0
+          // Draw the divider at the START of each sector (not center)
+          const angleRad = ((rawAngle - 90) * Math.PI) / 180
+          const x1 = CX + Math.cos(angleRad) * RINGS[0].r
+          const y1 = CY + Math.sin(angleRad) * RINGS[0].r
+          const x2 = CX + Math.cos(angleRad) * (RINGS[4].r + 8)
+          const y2 = CY + Math.sin(angleRad) * (RINGS[4].r + 8)
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+          line.setAttribute('x1', x1)
+          line.setAttribute('y1', y1)
+          line.setAttribute('x2', x2)
+          line.setAttribute('y2', y2)
+          line.setAttribute('stroke', '#C62828')
+          line.setAttribute('stroke-width', '0.5')
+          line.setAttribute('opacity', '0.2')
+          svg.appendChild(line)
+        })
+
+        // 3. Faint traditional star-chart grid marks — horizontal and vertical reference lines
+        const gridEl = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+        gridEl.setAttribute('x1', CX - RINGS[4].r - 10)
+        gridEl.setAttribute('y1', CY)
+        gridEl.setAttribute('x2', CX + RINGS[4].r + 10)
+        gridEl.setAttribute('y2', CY)
+        gridEl.setAttribute('stroke', '#C5B8A8')
+        gridEl.setAttribute('stroke-width', '0.4')
+        gridEl.setAttribute('opacity', '0.12')
+        gridEl.setAttribute('stroke-dasharray', '3,5')
+        svg.appendChild(gridEl)
+
+        const gridEl2 = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+        gridEl2.setAttribute('x1', CX)
+        gridEl2.setAttribute('y1', CY - RINGS[4].r - 10)
+        gridEl2.setAttribute('x2', CX)
+        gridEl2.setAttribute('y2', CY + RINGS[4].r + 10)
+        gridEl2.setAttribute('stroke', '#C5B8A8')
+        gridEl2.setAttribute('stroke-width', '0.4')
+        gridEl2.setAttribute('opacity', '0.12')
+        gridEl2.setAttribute('stroke-dasharray', '3,5')
+        svg.appendChild(gridEl2)
+      }
+
+      /* ── Helper: create a slightly wobbly (hand-drawn) circle path ── */
+      function createWobblyCircle(cx, cy, r, wobble) {
+        // Use 4 cubic bezier segments with small random perturbations
+        // Seeded-ish random based on r to get consistent but varied result
+        const s = wobble || 1.5
+        // Deterministic offsets based on ring radius (consistent per ring)
+        const offsets = [
+          Math.sin(r * 1.3) * s,
+          Math.cos(r * 2.7) * s,
+          Math.sin(r * 3.1) * s,
+          Math.cos(r * 4.9) * s,
+          Math.sin(r * 5.7) * s,
+          Math.cos(r * 6.3) * s,
+          Math.sin(r * 7.1) * s,
+          Math.cos(r * 8.5) * s,
+          Math.sin(r * 9.3) * s,
+          Math.cos(r * 10.1) * s,
+          Math.sin(r * 11.7) * s,
+          Math.cos(r * 12.5) * s,
+        ]
+        const k = 0.5522847498 // circle bezier kappa
+        // Anchor points
+        const a0x = cx,
+          a0y = cy - r + offsets[0]
+        const a1x = cx + r + offsets[1],
+          a1y = cy
+        const a2x = cx,
+          a2y = cy + r + offsets[2]
+        const a3x = cx - r + offsets[3],
+          a3y = cy
+        // Control points
+        const c01x = cx + k * r + offsets[4],
+          c01y = cy - r + offsets[0]
+        const c02x = cx + r + offsets[1],
+          c02y = cy - k * r + offsets[5]
+        const c11x = cx + r + offsets[1],
+          c11y = cy + k * r + offsets[6]
+        const c12x = cx + k * r + offsets[4],
+          c12y = cy + r + offsets[2]
+        const c21x = cx - k * r + offsets[7],
+          c21y = cy + r + offsets[2]
+        const c22x = cx - r + offsets[3],
+          c22y = cy + k * r + offsets[6]
+        const c31x = cx - r + offsets[3],
+          c31y = cy - k * r + offsets[5]
+        const c32x = cx - k * r + offsets[7],
+          c32y = cy - r + offsets[0]
+
+        return (
+          'M ' +
+          a0x +
+          ',' +
+          a0y +
+          ' C ' +
+          c01x +
+          ',' +
+          c01y +
+          ' ' +
+          c02x +
+          ',' +
+          c02y +
+          ' ' +
+          a1x +
+          ',' +
+          a1y +
+          ' C ' +
+          c11x +
+          ',' +
+          c11y +
+          ' ' +
+          c12x +
+          ',' +
+          c12y +
+          ' ' +
+          a2x +
+          ',' +
+          a2y +
+          ' C ' +
+          c21x +
+          ',' +
+          c21y +
+          ' ' +
+          c22x +
+          ',' +
+          c22y +
+          ' ' +
+          a3x +
+          ',' +
+          a3y +
+          ' C ' +
+          c31x +
+          ',' +
+          c31y +
+          ' ' +
+          c32x +
+          ',' +
+          c32y +
+          ' ' +
+          a0x +
+          ',' +
+          a0y +
+          ' Z'
+        )
+      }
+
+      /* ── Sector Labels (around chart edge) ── */
+      function renderSectorLabels() {
+        const container = document.getElementById('sectorLabels')
+        if (!container) return
+        container.innerHTML = ''
+
+        PALACE_DATA.forEach((p, i) => {
+          const rawAngle = BRANCH_TO_ANGLE[p.branch] || 0
+          const angleRad = ((rawAngle + 15 - 90) * Math.PI) / 180
+          const x = (CX + Math.cos(angleRad) * LABEL_R) * chartScale
+          const y = (CY + Math.sin(angleRad) * LABEL_R) * chartScale
+
+          const label = document.createElement('div')
+          label.className = 'sector-label' + (p.isMingGong ? ' ming-gong' : '')
+          label.textContent = p.name
+          label.style.left = x + 'px'
+          label.style.top = y + 'px'
+          label.dataset.index = i
+          label.addEventListener('click', function () {
+            selectPalace(i)
+          })
+          container.appendChild(label)
+        })
+      }
+
+      /* ── Star DOM Elements ── */
+      function createStarElements() {
+        const container = document.getElementById('starsContainer')
+        if (!container) return
+        container.innerHTML = ''
+        starElements = []
+        const chipsContainer = document.createElement('div')
+        chipsContainer.id = 'mutagenChipsContainer'
+        chipsContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:4;'
+        container.appendChild(chipsContainer)
+
+        celestialStars.forEach((star, i) => {
+          const el = document.createElement('div')
+          el.className = 'chart-star' + (star.major ? '' : ' minor')
+          el.dataset.index = i
+
+          const orb = document.createElement('div')
+          orb.className = 'star-orb ' + star.colorClass
+          el.appendChild(orb)
+
+          const label = document.createElement('div')
+          label.className = 'star-label'
+          label.textContent = star.name
+          el.appendChild(label)
+
+          el.addEventListener('click', function () {
+            selectPalace(star.palaceIdx)
+          })
+
+          container.appendChild(el)
+          starElements.push(el)
+
+          // 四化 chip near outermost star of mutagen palaces
+          if (star.hasMutagen && star.major) {
+            const palace = PALACE_DATA[star.palaceIdx]
+            if (palace && palace.mutagens) {
+              palace.mutagens.forEach(m => {
+                const chip = document.createElement('div')
+                chip.className = 'mutagen-chip-tx ' + m.cls
+                chip.textContent = m.n
+                chip.dataset.palaceIdx = star.palaceIdx
+                chipsContainer.appendChild(chip)
+              })
+            }
+          }
+        })
+
+        // Entrance animation
+        starElements.forEach((el, i) => {
+          el.style.opacity = '0'
+          setTimeout(
+            () => {
+              el.style.transition = 'opacity 0.5s ease'
+              el.style.opacity = '1'
+            },
+            100 + i * 25,
+          )
+        })
+      }
+
+      /* ── Palace Arc Highlight ── */
+      function drawPalaceArc(index) {
+        const el = document.getElementById('palaceArc')
+        if (!el) return
+        if (index < 0) {
+          el.classList.remove('visible')
+          return
+        }
+        const p = PALACE_DATA[index]
+        if (!p) {
+          el.classList.remove('visible')
+          return
+        }
+
+        const rawAngle = BRANCH_TO_ANGLE[p.branch] || 0
+        el.style.background =
+          'conic-gradient(from ' +
+          (rawAngle - 15) +
+          'deg, transparent 0deg, rgba(198,40,40,0.08) 0deg, rgba(198,40,40,0.16) 30deg, transparent 30deg, transparent 360deg)'
+        el.classList.add('visible')
+      }
+
+      /* ── Animation Loop (天星图) ── */
+      function animateCelestial(timestamp) {
+        if (!timestamp) timestamp = performance.now()
+        const t = (timestamp - chartAnimStart) / 1000
+
+        // Update star positions
+        celestialStars.forEach((star, i) => {
+          const el = starElements[i]
+          if (!el) return
+
+          const angleRad = ((star.angleDeg + t * star.speed * 15 - 90) * Math.PI) / 180
+          const x = (CX + Math.cos(angleRad) * star.radius) * chartScale
+          const y = (CY + Math.sin(angleRad) * star.radius) * chartScale
+
+          el.style.left = x + 'px'
+          el.style.top = y + 'px'
+
+          const twinkle = 0.82 + 0.18 * Math.sin(t * 1.5 + star.phase)
+          el.style.opacity = String(twinkle)
+        })
+
+        // Update 四化 chip positions — find their parent star
+        const chips = document.querySelectorAll('#mutagenChipsContainer .mutagen-chip-tx')
+        chips.forEach(chip => {
+          const pIdx = parseInt(chip.dataset.palaceIdx)
+          // Find the last major star in this palace
+          let lastStar = -1
+          celestialStars.forEach((s, i) => {
+            if (s.palaceIdx === pIdx && s.major) lastStar = i
+          })
+          if (lastStar >= 0 && starElements[lastStar]) {
+            const starEl = starElements[lastStar]
+            const sx = parseFloat(starEl.style.left)
+            const sy = parseFloat(starEl.style.top)
+            if (!isNaN(sx)) {
+              chip.style.left = sx + 10 + 'px'
+              chip.style.top = sy - 8 + 'px'
+            }
+          }
+        })
+
+        animFrameId = requestAnimationFrame(animateCelestial)
+      }
+
+      /* ── Init 天星图 ── */
+      function initCelestial() {
+        updateChartScale()
+        buildCelestialStars()
+        renderOrbitRings()
+        renderSectorLabels()
+        createStarElements()
+        chartAnimStart = performance.now()
+        // Start animation only if this view is active
+        if (document.getElementById('viewCelestial').classList.contains('active')) {
+          animFrameId = requestAnimationFrame(animateCelestial)
+        }
+      }
+
+      /* ═══════════════════════════════════════════════════════
    View 2: 回宫图 — Traditional 4x4 Palace Grid
    ═══════════════════════════════════════════════════════ */
 
-/*
+      /*
   Grid layout:
   ┌────┬────┬────┬────┐
   │ 巳  │ 午  │ 未  │ 申  │  (row 0)
@@ -1728,217 +2054,230 @@ function initCelestial() {
   └────┴────┴────┴────┘
 */
 
-const GRID_MAP = [
-  { row: 0, col: 0, dataIdx: 5 },  // 巳 子女
-  { row: 0, col: 1, dataIdx: 6 },  // 午 财帛
-  { row: 0, col: 2, dataIdx: 7 },  // 未 疾厄
-  { row: 0, col: 3, dataIdx: 8 },  // 申 迁移
-  { row: 1, col: 0, dataIdx: 4 },  // 辰 夫妻
-  { row: 1, col: 3, dataIdx: 9 },  // 酉 交友
-  { row: 2, col: 0, dataIdx: 2 },  // 卯 兄弟
-  { row: 2, col: 3, dataIdx: 1 },  // 戌 官禄
-  { row: 3, col: 0, dataIdx: 0 },  // 寅 命宫
-  { row: 3, col: 1, dataIdx: 10 }, // 丑 父母
-  { row: 3, col: 2, dataIdx: 11 }, // 子 福德
-  { row: 3, col: 3, dataIdx: 3 },  // 亥 田宅
-];
+      const GRID_MAP = [
+        { row: 0, col: 0, dataIdx: 5 }, // 巳 子女
+        { row: 0, col: 1, dataIdx: 6 }, // 午 财帛
+        { row: 0, col: 2, dataIdx: 7 }, // 未 疾厄
+        { row: 0, col: 3, dataIdx: 8 }, // 申 迁移
+        { row: 1, col: 0, dataIdx: 4 }, // 辰 夫妻
+        { row: 1, col: 3, dataIdx: 9 }, // 酉 交友
+        { row: 2, col: 0, dataIdx: 2 }, // 卯 兄弟
+        { row: 2, col: 3, dataIdx: 1 }, // 戌 官禄
+        { row: 3, col: 0, dataIdx: 0 }, // 寅 命宫
+        { row: 3, col: 1, dataIdx: 10 }, // 丑 父母
+        { row: 3, col: 2, dataIdx: 11 }, // 子 福德
+        { row: 3, col: 3, dataIdx: 3 }, // 亥 田宅
+      ]
 
-function renderGrid() {
-  const grid = document.getElementById('palaceGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
+      function renderGrid() {
+        const grid = document.getElementById('palaceGrid')
+        if (!grid) return
+        grid.innerHTML = ''
 
-  // Create 4x4 grid cells
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 4; c++) {
-      // Check if this position is in the center 2x2 (rows 1-2, cols 1-2)
-      if ((r === 1 || r === 2) && (c === 1 || c === 2)) {
-        const cell = document.createElement('div');
-        cell.className = 'grid-cell center-info';
-        // Assign which center info item
-        const centerItems = [
-          { label: '五行局', value: '木三局' },
-          { label: '命主',   value: '文曲' },
-          { label: '身主',   value: '天同' },
-          { label: '命宫',   value: '寅' },
-        ];
-        const idx = (r === 1 && c === 1) ? 0 :
-                    (r === 1 && c === 2) ? 1 :
-                    (r === 2 && c === 1) ? 2 :
-                    (r === 2 && c === 2) ? 3 : 0;
-        const item = centerItems[idx];
-        cell.innerHTML = '<div class="center-info-content">' +
-          '<div class="center-info-item">' +
-            '<span class="label">' + item.label + '</span>' +
-          '</div>' +
-          '<div class="center-info-item">' + item.value + '</div>' +
-        '</div>';
-        grid.appendChild(cell);
-        continue;
+        // Create 4x4 grid cells
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 4; c++) {
+            // Check if this position is in the center 2x2 (rows 1-2, cols 1-2)
+            if ((r === 1 || r === 2) && (c === 1 || c === 2)) {
+              const cell = document.createElement('div')
+              cell.className = 'grid-cell center-info'
+              // Assign which center info item
+              const centerItems = [
+                { label: '五行局', value: '木三局' },
+                { label: '命主', value: '文曲' },
+                { label: '身主', value: '天同' },
+                { label: '命宫', value: '寅' },
+              ]
+              const idx =
+                r === 1 && c === 1
+                  ? 0
+                  : r === 1 && c === 2
+                    ? 1
+                    : r === 2 && c === 1
+                      ? 2
+                      : r === 2 && c === 2
+                        ? 3
+                        : 0
+              const item = centerItems[idx]
+              cell.innerHTML =
+                '<div class="center-info-content">' +
+                '<div class="center-info-item">' +
+                '<span class="label">' +
+                item.label +
+                '</span>' +
+                '</div>' +
+                '<div class="center-info-item">' +
+                item.value +
+                '</div>' +
+                '</div>'
+              grid.appendChild(cell)
+              continue
+            }
+
+            // Find the palace data for this grid position
+            const entry = GRID_MAP.find(g => g.row === r && g.col === c)
+            if (!entry) continue
+
+            const p = PALACE_DATA[entry.dataIdx]
+            if (!p) continue
+
+            const cell = document.createElement('div')
+            cell.className = 'grid-cell'
+            cell.dataset.index = entry.dataIdx
+            cell.addEventListener('click', function () {
+              selectPalace(entry.dataIdx)
+            })
+
+            // 1. Header: 地支 + 宫名
+            const header = document.createElement('div')
+            header.className = 'cell-header'
+            const branch = document.createElement('span')
+            branch.className = 'cell-branch'
+            branch.textContent = p.branch
+            const name = document.createElement('span')
+            name.className = 'cell-name' + (p.isMingGong ? ' ming-gong' : '')
+            name.textContent = p.name
+            header.append(branch, name)
+            cell.appendChild(header)
+
+            // 2. Major stars (朱砂 text)
+            if (p.stars && p.stars.length > 0) {
+              const majorEl = document.createElement('div')
+              majorEl.className = 'cell-major'
+              majorEl.textContent = p.stars.map(s => s.n).join('  ')
+              cell.appendChild(majorEl)
+            } else {
+              const emptyEl = document.createElement('div')
+              emptyEl.className = 'cell-empty'
+              emptyEl.textContent = '空宫'
+              cell.appendChild(emptyEl)
+            }
+
+            // 3. Minor stars
+            if (p.minors && p.minors.length > 0) {
+              const minorEl = document.createElement('div')
+              minorEl.className = 'cell-minor'
+              minorEl.textContent = p.minors.map(s => s.n).join('  ')
+              cell.appendChild(minorEl)
+            }
+
+            // 4. 四化 chips
+            if (p.mutagens && p.mutagens.length > 0) {
+              const mutEl = document.createElement('div')
+              mutEl.className = 'cell-mutagens'
+              p.mutagens.forEach(m => {
+                const chip = document.createElement('span')
+                chip.className = 'mutagen-chip ' + m.cls
+                chip.textContent = m.n
+                mutEl.appendChild(chip)
+              })
+              cell.appendChild(mutEl)
+            }
+
+            // 5. 大限
+            if (p.decadal) {
+              const decEl = document.createElement('div')
+              decEl.className = 'cell-decadal'
+              decEl.textContent = p.decadal
+              cell.appendChild(decEl)
+            }
+
+            grid.appendChild(cell)
+          }
+        }
+
+        // Select 命宫 by default
+        setTimeout(() => {
+          const mingIdx = PALACE_DATA.findIndex(p => p.isMingGong)
+          if (mingIdx >= 0) selectPalace(mingIdx)
+        }, 400)
       }
 
-      // Find the palace data for this grid position
-      const entry = GRID_MAP.find(g => g.row === r && g.col === c);
-      if (!entry) continue;
-
-      const p = PALACE_DATA[entry.dataIdx];
-      if (!p) continue;
-
-      const cell = document.createElement('div');
-      cell.className = 'grid-cell';
-      cell.dataset.index = entry.dataIdx;
-      cell.addEventListener('click', function () { selectPalace(entry.dataIdx); });
-
-      // 1. Header: 地支 + 宫名
-      const header = document.createElement('div');
-      header.className = 'cell-header';
-      const branch = document.createElement('span');
-      branch.className = 'cell-branch';
-      branch.textContent = p.branch;
-      const name = document.createElement('span');
-      name.className = 'cell-name' + (p.isMingGong ? ' ming-gong' : '');
-      name.textContent = p.name;
-      header.append(branch, name);
-      cell.appendChild(header);
-
-      // 2. Major stars (朱砂 text)
-      if (p.stars && p.stars.length > 0) {
-        const majorEl = document.createElement('div');
-        majorEl.className = 'cell-major';
-        majorEl.textContent = p.stars.map(s => s.n).join('  ');
-        cell.appendChild(majorEl);
-      } else {
-        const emptyEl = document.createElement('div');
-        emptyEl.className = 'cell-empty';
-        emptyEl.textContent = '空宫';
-        cell.appendChild(emptyEl);
-      }
-
-      // 3. Minor stars
-      if (p.minors && p.minors.length > 0) {
-        const minorEl = document.createElement('div');
-        minorEl.className = 'cell-minor';
-        minorEl.textContent = p.minors.map(s => s.n).join('  ');
-        cell.appendChild(minorEl);
-      }
-
-      // 4. 四化 chips
-      if (p.mutagens && p.mutagens.length > 0) {
-        const mutEl = document.createElement('div');
-        mutEl.className = 'cell-mutagens';
-        p.mutagens.forEach(m => {
-          const chip = document.createElement('span');
-          chip.className = 'mutagen-chip ' + m.cls;
-          chip.textContent = m.n;
-          mutEl.appendChild(chip);
-        });
-        cell.appendChild(mutEl);
-      }
-
-      // 5. 大限
-      if (p.decadal) {
-        const decEl = document.createElement('div');
-        decEl.className = 'cell-decadal';
-        decEl.textContent = p.decadal;
-        cell.appendChild(decEl);
-      }
-
-      grid.appendChild(cell);
-    }
-  }
-
-  // Select 命宫 by default
-  setTimeout(() => {
-    const mingIdx = PALACE_DATA.findIndex(p => p.isMingGong);
-    if (mingIdx >= 0) selectPalace(mingIdx);
-  }, 400);
-}
-
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    DaXian Timeline (shared)
    ═══════════════════════════════════════════════════════ */
 
-function renderTimeline() {
-  const container = document.getElementById('timelineNodes');
-  if (!container) return;
-  container.innerHTML = '';
+      function renderTimeline() {
+        const container = document.getElementById('timelineNodes')
+        if (!container) return
+        container.innerHTML = ''
 
-  DA_XIAN.forEach((dx, i) => {
-    const node = document.createElement('div');
-    node.className = 'timeline-node';
+        DA_XIAN.forEach((dx, i) => {
+          const node = document.createElement('div')
+          node.className = 'timeline-node'
 
-    const isActive = CURRENT_AGE >= dx.start && CURRENT_AGE <= dx.end;
-    const isPast = CURRENT_AGE > dx.end;
+          const isActive = CURRENT_AGE >= dx.start && CURRENT_AGE <= dx.end
+          const isPast = CURRENT_AGE > dx.end
 
-    const dot = document.createElement('div');
-    dot.className = 'node-dot' + (isActive ? ' active' : isPast ? ' past' : '');
-    node.appendChild(dot);
+          const dot = document.createElement('div')
+          dot.className = 'node-dot' + (isActive ? ' active' : isPast ? ' past' : '')
+          node.appendChild(dot)
 
-    const label = document.createElement('span');
-    label.className = 'node-label' + (isActive ? ' active' : '');
-    label.textContent = dx.palace;
-    node.appendChild(label);
+          const label = document.createElement('span')
+          label.className = 'node-label' + (isActive ? ' active' : '')
+          label.textContent = dx.palace
+          node.appendChild(label)
 
-    const age = document.createElement('span');
-    age.className = 'node-age';
-    age.textContent = dx.start + '-' + dx.end;
-    node.appendChild(age);
+          const age = document.createElement('span')
+          age.className = 'node-age'
+          age.textContent = dx.start + '-' + dx.end
+          node.appendChild(age)
 
-    container.appendChild(node);
-  });
+          container.appendChild(node)
+        })
 
-  const activeIdx = DA_XIAN.findIndex(dx => CURRENT_AGE >= dx.start && CURRENT_AGE <= dx.end);
-  const fillPercent = ((activeIdx + 0.5) / DA_XIAN.length) * 100;
-  const fillEl = document.getElementById('timelineFill');
-  if (fillEl) fillEl.style.width = fillPercent + '%';
+        const activeIdx = DA_XIAN.findIndex(dx => CURRENT_AGE >= dx.start && CURRENT_AGE <= dx.end)
+        const fillPercent = ((activeIdx + 0.5) / DA_XIAN.length) * 100
+        const fillEl = document.getElementById('timelineFill')
+        if (fillEl) fillEl.style.width = fillPercent + '%'
 
-  const currentEl = document.getElementById('timelineCurrent');
-  if (currentEl) currentEl.textContent = '当前：' + CURRENT_AGE + '岁';
-}
+        const currentEl = document.getElementById('timelineCurrent')
+        if (currentEl) currentEl.textContent = '当前：' + CURRENT_AGE + '岁'
+      }
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    Paper Texture Canvas (subtle background)
    ═══════════════════════════════════════════════════════ */
 
-function initPaperTexture() {
-  // Paper texture is handled by CSS body::after with SVG feTurbulence
-  // No additional canvas needed
-}
+      function initPaperTexture() {
+        // Paper texture is handled by CSS body::after with SVG feTurbulence
+        // No additional canvas needed
+      }
 
-/* ═══════════════════════════════════════════════════════
+      /* ═══════════════════════════════════════════════════════
    Initialize Everything
    ═══════════════════════════════════════════════════════ */
 
-function init() {
-  initTabs();
-  initPaperTexture();
-  initCelestial();
-  renderGrid();
-  renderTimeline();
+      function init() {
+        initTabs()
+        initPaperTexture()
+        initCelestial()
+        renderGrid()
+        renderTimeline()
 
-  // Auto-select 命宫 after views are ready
-  setTimeout(() => {
-    const mingIdx = PALACE_DATA.findIndex(p => p.isMingGong);
-    if (mingIdx >= 0 && selectedPalaceIdx < 0) selectPalace(mingIdx);
-  }, 600);
+        // Auto-select 命宫 after views are ready
+        setTimeout(() => {
+          const mingIdx = PALACE_DATA.findIndex(p => p.isMingGong)
+          if (mingIdx >= 0 && selectedPalaceIdx < 0) selectPalace(mingIdx)
+        }, 600)
 
-  // Recompute chart scale on resize for responsive 天星图
-  let resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      updateChartScale();
-      renderSectorLabels();
-    }, 200);
-  });
-}
+        // Recompute chart scale on resize for responsive 天星图
+        let resizeTimer
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer)
+          resizeTimer = setTimeout(function () {
+            updateChartScale()
+            renderSectorLabels()
+          }, 200)
+        })
+      }
 
-// Kick off when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-</script>
-</body>
+      // Kick off when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init)
+      } else {
+        init()
+      }
+    </script>
+  </body>
 </html>

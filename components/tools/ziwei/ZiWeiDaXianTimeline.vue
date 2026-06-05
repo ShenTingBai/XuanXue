@@ -22,7 +22,7 @@ const emit = defineEmits<{
 const activeIdx = computed(() => {
   if (props.periods.length === 0) return -1
   const idx = props.periods.findIndex(
-    (p) => props.currentAge >= p.startAge && props.currentAge <= p.endAge
+    p => props.currentAge >= p.startAge && props.currentAge <= p.endAge,
   )
   if (idx === -1) {
     if (props.currentAge < props.periods[0].startAge) return -1
@@ -49,7 +49,9 @@ function isPast(period: DaXianPeriod): boolean {
 const nodeRefs = ref<(HTMLElement | null)[]>([])
 
 function setNodeRef(idx: number) {
-  return (el: unknown) => { nodeRefs.value[idx] = el as HTMLElement | null }
+  return (el: unknown) => {
+    nodeRefs.value[idx] = el as HTMLElement | null
+  }
 }
 
 function focusNode(idx: number): void {
@@ -63,7 +65,9 @@ function focusNode(idx: number): void {
     <!-- Header -->
     <div class="flex justify-between items-end mb-4">
       <h3 class="font-display text-sm tracking-[0.15em] text-ink-medium">大限 · 十年运程</h3>
-      <span class="text-[11px] text-cinnabar tracking-[0.06em] font-medium">当前 {{ currentAge }} 岁</span>
+      <span class="text-[11px] text-cinnabar tracking-[0.06em] font-medium"
+        >当前 {{ currentAge }} 岁</span
+      >
     </div>
 
     <!-- Timeline: track + nodes in ONE container -->
@@ -102,7 +106,9 @@ function focusNode(idx: number): void {
               class="dot-element rounded-full transition-transform duration-200"
               :style="{
                 marginTop: (isActive(period) ? 0 : isPast(period) ? 2 : 3) + 'px',
-                boxShadow: isActive(period) ? `0 0 8px color-mix(in srgb, var(--color-cinnabar) 25%, transparent)` : undefined,
+                boxShadow: isActive(period)
+                  ? `0 0 8px color-mix(in srgb, var(--color-cinnabar) 25%, transparent)`
+                  : undefined,
               }"
               :class="{
                 'w-3.5 h-3.5 bg-cinnabar scale-110 ring-1 ring-white/80': isActive(period),
@@ -118,7 +124,8 @@ function focusNode(idx: number): void {
                 'text-ink-muted': isPast(period),
                 'text-ink-light': !isActive(period) && !isPast(period),
               }"
-            >{{ period.palaceName }}</span>
+              >{{ period.palaceName }}</span
+            >
             <!-- Age range -->
             <span
               class="text-[0.6875rem] transition-colors duration-300 font-sans tracking-[0.04em]"
@@ -127,7 +134,8 @@ function focusNode(idx: number): void {
                 'text-ink-light': isPast(period),
                 'text-ink-muted': !isActive(period) && !isPast(period),
               }"
-            >{{ period.startAge }}-{{ period.endAge }}</span>
+              >{{ period.startAge }}-{{ period.endAge }}</span
+            >
           </div>
         </div>
       </div>

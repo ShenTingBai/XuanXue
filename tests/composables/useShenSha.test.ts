@@ -72,8 +72,12 @@ describe('calculateShenSha', () => {
   it('年支辰见子 → 将星 (申子辰将星在子)', () => {
     // 2000-02-05: 庚辰年, after 立春
     const bazi = calculateBaZi({
-      birthYear: 2000, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar' as const, birthHour: 0, gender: '男' as const,
+      birthYear: 2000,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar' as const,
+      birthHour: 0,
+      gender: '男' as const,
     })
     // Year: 2000 is 庚辰年
     expect(bazi.yearPillar.branch).toBe('辰')
@@ -81,8 +85,11 @@ describe('calculateShenSha', () => {
     // Birth hour 0 = 子时, so hour pillar should have branch 子
     // Check if 将星 exists
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -91,9 +98,14 @@ describe('calculateShenSha', () => {
     expect(jiangXing.length).toBeGreaterThan(0)
     // Verify the 将星 is on the pillar with branch=子
     const ziJx = jiangXing.find(s => {
-      const pillarObj = s.pillar === '年柱' ? input.yearPillar :
-        s.pillar === '月柱' ? input.monthPillar :
-        s.pillar === '日柱' ? input.dayPillar : input.hourPillar
+      const pillarObj =
+        s.pillar === '年柱'
+          ? input.yearPillar
+          : s.pillar === '月柱'
+            ? input.monthPillar
+            : s.pillar === '日柱'
+              ? input.dayPillar
+              : input.hourPillar
       return pillarObj?.branch === '子'
     })
     expect(ziJx).toBeDefined()
@@ -103,13 +115,20 @@ describe('calculateShenSha', () => {
     // Use 2004-02-05 (甲申年寅月), year branch=申 → 申子辰 group → 驿马在寅
     // Month is 寅月 (after 立春 Feb 4), so month branch=寅 → triggers 驿马
     const bazi = calculateBaZi({
-      birthYear: 2004, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+      birthYear: 2004,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar' as const,
+      birthHour: 6,
+      gender: '男' as const,
     })
     expect(bazi.yearPillar.branch).toBe('申')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -117,9 +136,14 @@ describe('calculateShenSha', () => {
     const yiMa = result.filter(s => s.name === '驿马')
     // 申子辰 group → 驿马 in 寅, month pillar has 寅
     const yiMaOnYin = yiMa.some(s => {
-      const pillarObj = s.pillar === '年柱' ? input.yearPillar :
-        s.pillar === '月柱' ? input.monthPillar :
-        s.pillar === '日柱' ? input.dayPillar : input.hourPillar
+      const pillarObj =
+        s.pillar === '年柱'
+          ? input.yearPillar
+          : s.pillar === '月柱'
+            ? input.monthPillar
+            : s.pillar === '日柱'
+              ? input.dayPillar
+              : input.hourPillar
       return pillarObj?.branch === '寅'
     })
     expect(yiMaOnYin).toBe(true)
@@ -129,14 +153,21 @@ describe('calculateShenSha', () => {
   it('禄神: 甲日主 → 寅支柱有禄神', () => {
     // 1964-07-14: 甲辰年 甲寅日 (甲日主 with day branch 寅)
     const bazi = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     expect(bazi.dayMaster).toBe('甲')
     expect(bazi.dayPillar.branch).toBe('寅')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: 0, // 甲
       gender: '男' as const,
     }
@@ -158,9 +189,14 @@ describe('calculateShenSha', () => {
     expect(tianYi.length).toBeGreaterThan(0)
     // 壬 天乙在 卯/巳
     for (const ty of tianYi) {
-      const pillarObj = ty.pillar === '年柱' ? input.yearPillar :
-        ty.pillar === '月柱' ? input.monthPillar :
-        ty.pillar === '日柱' ? input.dayPillar : input.hourPillar
+      const pillarObj =
+        ty.pillar === '年柱'
+          ? input.yearPillar
+          : ty.pillar === '月柱'
+            ? input.monthPillar
+            : ty.pillar === '日柱'
+              ? input.dayPillar
+              : input.hourPillar
       expect(['卯', '巳']).toContain(pillarObj?.branch)
     }
   })
@@ -168,19 +204,30 @@ describe('calculateShenSha', () => {
   it('十恶大败 appears for known bad day pillar', () => {
     // 甲辰日 should have 十恶大败
     const bazi = calculateBaZi({
-      birthYear: 2000, birthMonth: 3, birthDay: 6,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 3,
+      birthDay: 6,
+      birthCalendar: 'solar' as const,
+      birthHour: 12,
+      gender: '女' as const,
     })
     const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '女' as const,
     }
     const result = calculateShenSha(input)
     const shiEBai = result.filter(s => s.name === '十恶大败')
-    if (['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥'].includes(dayStemBranch)) {
+    if (
+      ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥'].includes(
+        dayStemBranch,
+      )
+    ) {
       expect(shiEBai.length).toBe(1)
     } else {
       expect(shiEBai.length).toBe(0)
@@ -190,13 +237,20 @@ describe('calculateShenSha', () => {
   it('魁罡 appears when day pillar is 庚辰/庚戌/壬辰/戊戌', () => {
     // 2016-07-15: 丙申年 乙未月 戊戌日
     const bazi = calculateBaZi({
-      birthYear: 2016, birthMonth: 7, birthDay: 15,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+      birthYear: 2016,
+      birthMonth: 7,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 12,
+      gender: '男' as const,
     })
     const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -211,12 +265,19 @@ describe('calculateShenSha', () => {
     // Use a date where at least one pillar falls into 空亡 branches
     // 2000-01-01: 戊午日 → xun=甲寅(寅卯空), year pillar 己卯 → year branch=卯 matches 空亡
     const bazi = calculateBaZi({
-      birthYear: 2000, birthMonth: 1, birthDay: 1,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+      birthYear: 2000,
+      birthMonth: 1,
+      birthDay: 1,
+      birthCalendar: 'solar' as const,
+      birthHour: 12,
+      gender: '男' as const,
     })
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -247,13 +308,20 @@ describe('calculateShenSha', () => {
     // 甲日主, 太极贵人在子、午
     // Use 1964-07-14: 甲日主, year branch=辰, need a pillar with 子 or 午
     const bazi = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 0, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 0,
+      gender: '男' as const,
     })
     expect(bazi.dayMaster).toBe('甲')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -262,9 +330,14 @@ describe('calculateShenSha', () => {
     // 甲日的太极贵人在子、午 — hour=0 is 子时 (branch=子)
     expect(taiJi.length).toBeGreaterThan(0)
     for (const tj of taiJi) {
-      const pillarObj = tj.pillar === '年柱' ? input.yearPillar :
-        tj.pillar === '月柱' ? input.monthPillar :
-        tj.pillar === '日柱' ? input.dayPillar : input.hourPillar
+      const pillarObj =
+        tj.pillar === '年柱'
+          ? input.yearPillar
+          : tj.pillar === '月柱'
+            ? input.monthPillar
+            : tj.pillar === '日柱'
+              ? input.dayPillar
+              : input.hourPillar
       expect(['子', '午']).toContain(pillarObj?.branch)
     }
   })
@@ -275,13 +348,20 @@ describe('calculateShenSha', () => {
     // Need a birth date with 巳 in some pillar. 2000-06-06 甲辰年 己巳月 乙未日
     // Actually let's just verify the lookup runs and check for well-formed results
     const bazi = calculateBaZi({
-      birthYear: 2000, birthMonth: 6, birthDay: 6,
-      birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 6,
+      birthDay: 6,
+      birthCalendar: 'solar' as const,
+      birthHour: 10,
+      gender: '女' as const,
     })
     expect(bazi.dayMaster).toBe('乙')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '女' as const,
     }
@@ -299,13 +379,20 @@ describe('calculateShenSha', () => {
   it('天德贵人: 月支巳 → 天德在辛', () => {
     // 2000-05-15: 巳月 (after 立夏 May 5, before 芒种 Jun 5), month branch=巳, 天德在辛
     const bazi = calculateBaZi({
-      birthYear: 2000, birthMonth: 5, birthDay: 15,
-      birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 5,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 10,
+      gender: '女' as const,
     })
     expect(bazi.monthPillar.branch).toBe('巳')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '女' as const,
     }
@@ -315,10 +402,13 @@ describe('calculateShenSha', () => {
     if (tianDe.length > 0) {
       for (const td of tianDe) {
         expect(['辛']).toContain(
-          td.pillar === '年柱' ? input.yearPillar.stem :
-          td.pillar === '月柱' ? input.monthPillar.stem :
-          td.pillar === '日柱' ? input.dayPillar.stem :
-          input.hourPillar?.stem
+          td.pillar === '年柱'
+            ? input.yearPillar.stem
+            : td.pillar === '月柱'
+              ? input.monthPillar.stem
+              : td.pillar === '日柱'
+                ? input.dayPillar.stem
+                : input.hourPillar?.stem,
         )
       }
     }
@@ -327,13 +417,20 @@ describe('calculateShenSha', () => {
   it('月德贵人: 月支巳 → 月德在庚', () => {
     // 巳月月德在庚 (巳酉丑月德在庚)
     const bazi = calculateBaZi({
-      birthYear: 2000, birthMonth: 5, birthDay: 15,
-      birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 5,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 10,
+      gender: '女' as const,
     })
     expect(bazi.monthPillar.branch).toBe('巳')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '女' as const,
     }
@@ -342,10 +439,13 @@ describe('calculateShenSha', () => {
     if (yueDe.length > 0) {
       for (const yd of yueDe) {
         expect(['庚']).toContain(
-          yd.pillar === '年柱' ? input.yearPillar.stem :
-          yd.pillar === '月柱' ? input.monthPillar.stem :
-          yd.pillar === '日柱' ? input.dayPillar.stem :
-          input.hourPillar?.stem
+          yd.pillar === '年柱'
+            ? input.yearPillar.stem
+            : yd.pillar === '月柱'
+              ? input.monthPillar.stem
+              : yd.pillar === '日柱'
+                ? input.dayPillar.stem
+                : input.hourPillar?.stem,
         )
       }
     }
@@ -354,15 +454,22 @@ describe('calculateShenSha', () => {
   it('金舆: 甲日主见辰', () => {
     // 甲日主金舆在辰
     const bazi = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     expect(bazi.dayMaster).toBe('甲')
     // Year pillar: 甲辰年, branch=辰 → should trigger 金舆 on 年柱
     expect(bazi.yearPillar.branch).toBe('辰')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -376,14 +483,21 @@ describe('calculateShenSha', () => {
   it('飞刃: 甲日主见申 (飞刃为羊刃之对冲)', () => {
     // 甲日主羊刃在卯, 飞刃在申 (卯+6 or 卯-6 mod 12 = 申)
     const bazi = calculateBaZi({
-      birthYear: 2004, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+      birthYear: 2004,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar' as const,
+      birthHour: 6,
+      gender: '男' as const,
     })
     // 2004-02-05: 甲申年 (year branch=申)
     // Need to check day master
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -414,12 +528,19 @@ describe('calculateShenSha', () => {
 
     // Test case 2: 1964-07-14 甲日主
     const bazi2 = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     const input2 = {
-      yearPillar: bazi2.yearPillar, monthPillar: bazi2.monthPillar, dayPillar: bazi2.dayPillar,
-      hourPillar: bazi2.hourPillar, dayMaster: bazi2.dayMaster,
+      yearPillar: bazi2.yearPillar,
+      monthPillar: bazi2.monthPillar,
+      dayPillar: bazi2.dayPillar,
+      hourPillar: bazi2.hourPillar,
+      dayMaster: bazi2.dayMaster,
       dayMasterIndex: getStemIndex(bazi2.dayMaster),
       gender: '男' as const,
     }
@@ -428,12 +549,19 @@ describe('calculateShenSha', () => {
 
     // Test case 3: 2000-05-15 巳月
     const bazi3 = calculateBaZi({
-      birthYear: 2000, birthMonth: 5, birthDay: 15,
-      birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 5,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 10,
+      gender: '女' as const,
     })
     const input3 = {
-      yearPillar: bazi3.yearPillar, monthPillar: bazi3.monthPillar, dayPillar: bazi3.dayPillar,
-      hourPillar: bazi3.hourPillar, dayMaster: bazi3.dayMaster,
+      yearPillar: bazi3.yearPillar,
+      monthPillar: bazi3.monthPillar,
+      dayPillar: bazi3.dayPillar,
+      hourPillar: bazi3.hourPillar,
+      dayMaster: bazi3.dayMaster,
       dayMasterIndex: getStemIndex(bazi3.dayMaster),
       gender: '女' as const,
     }
@@ -442,12 +570,19 @@ describe('calculateShenSha', () => {
 
     // Test case 4: 2004-02-05 甲申年
     const bazi4 = calculateBaZi({
-      birthYear: 2004, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+      birthYear: 2004,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar' as const,
+      birthHour: 6,
+      gender: '男' as const,
     })
     const input4 = {
-      yearPillar: bazi4.yearPillar, monthPillar: bazi4.monthPillar, dayPillar: bazi4.dayPillar,
-      hourPillar: bazi4.hourPillar, dayMaster: bazi4.dayMaster,
+      yearPillar: bazi4.yearPillar,
+      monthPillar: bazi4.monthPillar,
+      dayPillar: bazi4.dayPillar,
+      hourPillar: bazi4.hourPillar,
+      dayMaster: bazi4.dayMaster,
       dayMasterIndex: getStemIndex(bazi4.dayMaster),
       gender: '男' as const,
     }
@@ -482,14 +617,21 @@ describe('calculateShenSha', () => {
     // Both year and day stem are 甲, so 天乙贵人 from both sources
     // 甲→天乙 in 丑/未
     const bazi = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 2, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 2,
+      gender: '男' as const,
     })
     expect(bazi.yearPillar.stem).toBe('甲')
     expect(bazi.dayMaster).toBe('甲')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       yearStemIndex: 0, // 甲
       gender: '男' as const,
@@ -505,12 +647,19 @@ describe('calculateShenSha', () => {
 
   it('年干 shensha have source="年干" and position="地支"', () => {
     const bazi = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 2, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 2,
+      gender: '男' as const,
     })
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       yearStemIndex: 0,
       gender: '男' as const,
@@ -529,7 +678,10 @@ describe('calculateShenSha', () => {
   it('yearStemIndex is optional (falls back to yearPillar.stem)', () => {
     const input = getShenShaInput()
     const resultWithout = calculateShenSha(input) // no yearStemIndex
-    const resultWith = calculateShenSha({ ...input, yearStemIndex: getStemIndex(input.yearPillar.stem) })
+    const resultWith = calculateShenSha({
+      ...input,
+      yearStemIndex: getStemIndex(input.yearPillar.stem),
+    })
     // Both should produce identical results since yearStemIndex matches yearPillar.stem
     const withoutNianGan = resultWithout.filter(s => s.source === '年干')
     const withNianGan = resultWith.filter(s => s.source === '年干')
@@ -540,13 +692,20 @@ describe('calculateShenSha', () => {
     // 1998 戊寅年, year branch=寅 → 寅午戌 group → 劫煞在亥
     // Use birthHour=22 (亥时) so hour pillar branch=亥 triggers 劫煞
     const bazi = calculateBaZi({
-      birthYear: 1998, birthMonth: 5, birthDay: 25,
-      birthCalendar: 'solar' as const, birthHour: 22, gender: '男' as const,
+      birthYear: 1998,
+      birthMonth: 5,
+      birthDay: 25,
+      birthCalendar: 'solar' as const,
+      birthHour: 22,
+      gender: '男' as const,
     })
     expect(bazi.yearPillar.branch).toBe('寅')
     const input = {
-      yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-      hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
       dayMasterIndex: getStemIndex(bazi.dayMaster),
       gender: '男' as const,
     }
@@ -568,13 +727,20 @@ describe('calculateShenSha', () => {
       // Pillar branches: 卯(年), 子(月), 午(日), 午(时 with birthHour=12)
       // Since none of the pillars have 巳 branch, 禄神 should not appear
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 1, birthDay: 1,
-        birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+        birthYear: 2000,
+        birthMonth: 1,
+        birthDay: 1,
+        birthCalendar: 'solar' as const,
+        birthHour: 12,
+        gender: '男' as const,
       })
       expect(bazi.dayMaster).toBe('戊')
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '男' as const,
       }
@@ -583,8 +749,10 @@ describe('calculateShenSha', () => {
 
       // Verify none of the pillar branches is 巳 (戊禄在巳)
       const allBranches = [
-        input.yearPillar.branch, input.monthPillar.branch,
-        input.dayPillar.branch, input.hourPillar?.branch,
+        input.yearPillar.branch,
+        input.monthPillar.branch,
+        input.dayPillar.branch,
+        input.hourPillar?.branch,
       ]
       if (!allBranches.includes('巳')) {
         expect(luShen.length).toBe(0)
@@ -596,22 +764,34 @@ describe('calculateShenSha', () => {
       // 1998-05-25: 壬日主 → 天乙在卯巳
       // Check that 天乙贵人 from 日干 does NOT include 丑/未 if day master ≠ 甲/戊/庚
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 6, birthDay: 6,
-        birthCalendar: 'solar' as const, birthHour: 10, gender: '女' as const,
+        birthYear: 2000,
+        birthMonth: 6,
+        birthDay: 6,
+        birthCalendar: 'solar' as const,
+        birthHour: 10,
+        gender: '女' as const,
       })
       expect(bazi.dayMaster).toBe('乙')
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '女' as const,
       }
       const result = calculateShenSha(input)
       const tianYi = result.filter(s => s.name === '天乙贵人' && s.source === '日干')
       for (const ty of tianYi) {
-        const pillarObj = ty.pillar === '年柱' ? input.yearPillar :
-          ty.pillar === '月柱' ? input.monthPillar :
-          ty.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        const pillarObj =
+          ty.pillar === '年柱'
+            ? input.yearPillar
+            : ty.pillar === '月柱'
+              ? input.monthPillar
+              : ty.pillar === '日柱'
+                ? input.dayPillar
+                : input.hourPillar
         // 乙日主天乙贵人在申子 — not 丑/未
         // The actual correct branch for 乙 is 子/申, so verify it's not 丑 or 未
         expect(['子', '申']).toContain(pillarObj?.branch)
@@ -624,13 +804,20 @@ describe('calculateShenSha', () => {
       // Use a date where day pillar is NOT 庚辰/庚戌/壬辰/戊戌
       // 2000-01-01 is 戊午日 — NOT a 魁罡 day
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 1, birthDay: 1,
-        birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+        birthYear: 2000,
+        birthMonth: 1,
+        birthDay: 1,
+        birthCalendar: 'solar' as const,
+        birthHour: 12,
+        gender: '男' as const,
       })
       const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '男' as const,
       }
@@ -645,12 +832,19 @@ describe('calculateShenSha', () => {
       // Use a date in 甲子旬 where no pillar has 戌 or 亥 branches
       // 2000-01-01: 戊午日, check which 旬 this is
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 1, birthDay: 1,
-        birthCalendar: 'solar' as const, birthHour: 8, gender: '女' as const,
+        birthYear: 2000,
+        birthMonth: 1,
+        birthDay: 1,
+        birthCalendar: 'solar' as const,
+        birthHour: 8,
+        gender: '女' as const,
       })
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '女' as const,
       }
@@ -660,9 +854,14 @@ describe('calculateShenSha', () => {
       // For each 空亡 found, verify the pillar's branch is actually in the 空亡 pair
       // This validates the 空亡 logic doesn't fire on random branches
       for (const kw of kongWang) {
-        const pillarObj = kw.pillar === '年柱' ? input.yearPillar :
-          kw.pillar === '月柱' ? input.monthPillar :
-          kw.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        const pillarObj =
+          kw.pillar === '年柱'
+            ? input.yearPillar
+            : kw.pillar === '月柱'
+              ? input.monthPillar
+              : kw.pillar === '日柱'
+                ? input.dayPillar
+                : input.hourPillar
         expect(pillarObj).toBeDefined()
         // The 空亡 branch should be one of the two empty branches for the 旬
         // It should NOT be a branch that belongs to the current 旬
@@ -681,12 +880,19 @@ describe('calculateShenSha', () => {
       // 1998-05-25: 壬日主, 羊刃在子
       // Verify that if no pillar has 子, then 羊刃 does not fire
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 8, birthDay: 16,
-        birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+        birthYear: 2000,
+        birthMonth: 8,
+        birthDay: 16,
+        birthCalendar: 'solar' as const,
+        birthHour: 6,
+        gender: '男' as const,
       })
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '男' as const,
       }
@@ -695,13 +901,19 @@ describe('calculateShenSha', () => {
 
       // Check what the day master is and which pillar branches exist
       const allBranches = [
-        input.yearPillar.branch, input.monthPillar.branch,
-        input.dayPillar.branch, input.hourPillar?.branch,
+        input.yearPillar.branch,
+        input.monthPillar.branch,
+        input.dayPillar.branch,
+        input.hourPillar?.branch,
       ]
       const dayMasterStem = input.dayMaster
       // Only certain day masters produce 羊刃 in specific branches
       const yangRenBranches: Record<string, string> = {
-        '甲': '卯', '丙': '午', '戊': '午', '庚': '酉', '壬': '子',
+        甲: '卯',
+        丙: '午',
+        戊: '午',
+        庚: '酉',
+        壬: '子',
       }
       const expectedBranch = yangRenBranches[dayMasterStem]
 
@@ -717,13 +929,20 @@ describe('calculateShenSha', () => {
       // If month pillar also had 辰, it would be on 月柱 too
       // But 华盖 should NOT fire on 寅/午/戌 pillars for 申子辰 group
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 3, birthDay: 6,
-        birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+        birthYear: 2000,
+        birthMonth: 3,
+        birthDay: 6,
+        birthCalendar: 'solar' as const,
+        birthHour: 12,
+        gender: '女' as const,
       })
       expect(bazi.yearPillar.branch).toBe('辰')
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '女' as const,
       }
@@ -732,9 +951,14 @@ describe('calculateShenSha', () => {
 
       // 华盖 for 申子辰 is in 辰 — verify it never fires on 寅/午/戌 branches
       for (const hg of huaGai) {
-        const pillarObj = hg.pillar === '年柱' ? input.yearPillar :
-          hg.pillar === '月柱' ? input.monthPillar :
-          hg.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        const pillarObj =
+          hg.pillar === '年柱'
+            ? input.yearPillar
+            : hg.pillar === '月柱'
+              ? input.monthPillar
+              : hg.pillar === '日柱'
+                ? input.dayPillar
+                : input.hourPillar
         expect(pillarObj?.branch).toBe('辰')
         expect(pillarObj?.branch).not.toBe('寅')
         expect(pillarObj?.branch).not.toBe('午')
@@ -746,13 +970,20 @@ describe('calculateShenSha', () => {
       // 巳月(month branch=巳): 巳酉丑 → 月德在庚 (天干)
       // If no pillar has 庚 stem, then 月德贵人 should not appear
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 5, birthDay: 15,
-        birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+        birthYear: 2000,
+        birthMonth: 5,
+        birthDay: 15,
+        birthCalendar: 'solar' as const,
+        birthHour: 6,
+        gender: '男' as const,
       })
       expect(bazi.monthPillar.branch).toBe('巳')
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '男' as const,
       }
@@ -761,18 +992,24 @@ describe('calculateShenSha', () => {
 
       // Check if any pillar has stem 庚
       const hasGeng = [
-        input.yearPillar.stem, input.monthPillar.stem,
-        input.dayPillar.stem, input.hourPillar?.stem,
+        input.yearPillar.stem,
+        input.monthPillar.stem,
+        input.dayPillar.stem,
+        input.hourPillar?.stem,
       ].includes('庚')
 
       if (!hasGeng) {
         expect(yueDe.length).toBe(0)
       } else {
         for (const yd of yueDe) {
-          const pillarStem = yd.pillar === '年柱' ? input.yearPillar.stem :
-            yd.pillar === '月柱' ? input.monthPillar.stem :
-            yd.pillar === '日柱' ? input.dayPillar.stem :
-            input.hourPillar?.stem
+          const pillarStem =
+            yd.pillar === '年柱'
+              ? input.yearPillar.stem
+              : yd.pillar === '月柱'
+                ? input.monthPillar.stem
+                : yd.pillar === '日柱'
+                  ? input.dayPillar.stem
+                  : input.hourPillar?.stem
           expect(pillarStem).toBe('庚')
         }
       }
@@ -782,20 +1019,38 @@ describe('calculateShenSha', () => {
       // Use a date that is explicitly NOT a 十恶大败 day
       // 甲子日 is NOT 十恶大败
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 3, birthDay: 7,
-        birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+        birthYear: 2000,
+        birthMonth: 3,
+        birthDay: 7,
+        birthCalendar: 'solar' as const,
+        birthHour: 12,
+        gender: '男' as const,
       })
       const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '男' as const,
       }
       const result = calculateShenSha(input)
       const shiEBai = result.filter(s => s.name === '十恶大败')
       // 甲子 is NOT one of the 十恶大败 days
-      const daBaiDays = ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥']
+      const daBaiDays = [
+        '甲辰',
+        '乙巳',
+        '丙申',
+        '丁亥',
+        '戊戌',
+        '己丑',
+        '庚辰',
+        '辛巳',
+        '壬申',
+        '癸亥',
+      ]
       if (!daBaiDays.includes(dayStemBranch)) {
         expect(shiEBai.length).toBe(0)
       }
@@ -805,12 +1060,19 @@ describe('calculateShenSha', () => {
       // 乙日主文昌在午
       // Use a chart with 乙日主 where no pillar has 午 branch
       const bazi = calculateBaZi({
-        birthYear: 2000, birthMonth: 4, birthDay: 1,
-        birthCalendar: 'solar' as const, birthHour: 2, gender: '男' as const,
+        birthYear: 2000,
+        birthMonth: 4,
+        birthDay: 1,
+        birthCalendar: 'solar' as const,
+        birthHour: 2,
+        gender: '男' as const,
       })
       const input = {
-        yearPillar: bazi.yearPillar, monthPillar: bazi.monthPillar, dayPillar: bazi.dayPillar,
-        hourPillar: bazi.hourPillar, dayMaster: bazi.dayMaster,
+        yearPillar: bazi.yearPillar,
+        monthPillar: bazi.monthPillar,
+        dayPillar: bazi.dayPillar,
+        hourPillar: bazi.hourPillar,
+        dayMaster: bazi.dayMaster,
         dayMasterIndex: getStemIndex(bazi.dayMaster),
         gender: '男' as const,
       }
@@ -819,16 +1081,28 @@ describe('calculateShenSha', () => {
 
       const dayMasterStem = input.dayMaster
       const wenChangBranch: Record<string, string> = {
-        '甲': '巳', '乙': '午', '丙': '申', '丁': '酉',
-        '戊': '申', '己': '酉', '庚': '亥', '辛': '子',
-        '壬': '寅', '癸': '卯',
+        甲: '巳',
+        乙: '午',
+        丙: '申',
+        丁: '酉',
+        戊: '申',
+        己: '酉',
+        庚: '亥',
+        辛: '子',
+        壬: '寅',
+        癸: '卯',
       }
       const expectedBranch = wenChangBranch[dayMasterStem]
 
       for (const wc of wenChang) {
-        const pillarObj = wc.pillar === '年柱' ? input.yearPillar :
-          wc.pillar === '月柱' ? input.monthPillar :
-          wc.pillar === '日柱' ? input.dayPillar : input.hourPillar
+        const pillarObj =
+          wc.pillar === '年柱'
+            ? input.yearPillar
+            : wc.pillar === '月柱'
+              ? input.monthPillar
+              : wc.pillar === '日柱'
+                ? input.dayPillar
+                : input.hourPillar
         expect(pillarObj?.branch).toBe(expectedBranch)
         // 文昌 should NOT fire on unrelated branches
         expect(pillarObj?.branch).not.toBe(expectedBranch === '巳' ? '午' : '巳')

@@ -12,15 +12,18 @@ const emit = defineEmits<{
 const showSuccess = ref(false)
 let successTimer: ReturnType<typeof setTimeout> | null = null
 
-watch(() => props.isExporting, (val, oldVal) => {
-  if (oldVal && !val) {
-    showSuccess.value = true
-    if (successTimer) clearTimeout(successTimer)
-    successTimer = setTimeout(() => {
-      showSuccess.value = false
-    }, 2000)
-  }
-})
+watch(
+  () => props.isExporting,
+  (val, oldVal) => {
+    if (oldVal && !val) {
+      showSuccess.value = true
+      if (successTimer) clearTimeout(successTimer)
+      successTimer = setTimeout(() => {
+        showSuccess.value = false
+      }, 2000)
+    }
+  },
+)
 
 onUnmounted(() => {
   if (successTimer) clearTimeout(successTimer)
@@ -32,9 +35,9 @@ const isDisabled = computed(() => props.isExporting || !props.targetRef)
 <template>
   <button
     :disabled="isDisabled"
-    @click="emit('export')"
     class="export-btn"
     :aria-label="isExporting ? '导出中...' : showSuccess ? '已保存' : '存为图片'"
+    @click="emit('export')"
   >
     <span v-if="isExporting" class="flex items-center gap-1">
       <span class="export-spinner" aria-hidden="true" />
@@ -43,8 +46,20 @@ const isDisabled = computed(() => props.isExporting || !props.targetRef)
     <span v-else-if="showSuccess">✓ 已保存</span>
     <span v-else class="flex items-center gap-1">
       <svg class="export-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path d="M3 11v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path
+          d="M3 11v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-2"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M8 2v8m0 0-3-3m3 3 3-3"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
       </svg>
       <span>存为图片</span>
     </span>
@@ -84,7 +99,9 @@ const isDisabled = computed(() => props.isExporting || !props.targetRef)
   animation: export-spin 0.6s linear infinite;
 }
 @keyframes export-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 .export-icon {
   width: 0.875rem;

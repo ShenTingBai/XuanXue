@@ -17,12 +17,12 @@
 
 ## File Structure
 
-| 文件 | 角色 | 改动方式 |
-|------|------|----------|
-| `constants/ziwei.ts` | 星色查表 + 颜色映射函数 | 追加导出，不动现有 |
-| `components/tools/ziwei/ZiWeiCelestialChart.vue` | 天星图组件本体（SFC） | **完全重写** |
-| `tests/composables/*` | 全部 composables 测试 | 不动；运行通过即合格 |
-| `pages/tools/ziwei.vue` 等 | 调用方 | 不动 |
+| 文件                                             | 角色                    | 改动方式             |
+| ------------------------------------------------ | ----------------------- | -------------------- |
+| `constants/ziwei.ts`                             | 星色查表 + 颜色映射函数 | 追加导出，不动现有   |
+| `components/tools/ziwei/ZiWeiCelestialChart.vue` | 天星图组件本体（SFC）   | **完全重写**         |
+| `tests/composables/*`                            | 全部 composables 测试   | 不动；运行通过即合格 |
+| `pages/tools/ziwei.vue` 等                       | 调用方                  | 不动                 |
 
 ---
 
@@ -61,6 +61,7 @@ git checkout -b feat/ziwei-celestial-redesign
 ## Task 1: 在 `constants/ziwei.ts` 中新增星色映射
 
 **Files:**
+
 - Modify: `constants/ziwei.ts`（在文件末尾追加）
 
 **说明：** 不动现有任何导出，仅追加 `STAR_COLOR_CLASSES`、`STAR_COLOR_MAP`、
@@ -78,21 +79,40 @@ export type StarColorClass = 'gold' | 'cinnabar' | 'jade' | 'ice' | 'purple' | '
  *  未列出的星名默认 'white'。 */
 export const STAR_COLOR_MAP: Record<string, StarColorClass> = {
   // 帝/府 — 金边朱砂
-  '紫微': 'gold', '天府': 'gold',
+  紫微: 'gold',
+  天府: 'gold',
   // 火/血 — 深朱砂
-  '太阳': 'cinnabar', '廉贞': 'cinnabar', '贪狼': 'cinnabar', '七杀': 'cinnabar',
+  太阳: 'cinnabar',
+  廉贞: 'cinnabar',
+  贪狼: 'cinnabar',
+  七杀: 'cinnabar',
   // 木/智 — 翡翠
-  '天机': 'jade', '天梁': 'jade', '天同': 'jade',
+  天机: 'jade',
+  天梁: 'jade',
+  天同: 'jade',
   // 水/月 — 冰青
-  '太阴': 'ice', '文昌': 'ice', '文曲': 'ice', '天魁': 'ice', '天钺': 'ice',
+  太阴: 'ice',
+  文昌: 'ice',
+  文曲: 'ice',
+  天魁: 'ice',
+  天钺: 'ice',
   // 帝辅 — 紫
-  '武曲': 'purple', '天相': 'purple',
+  武曲: 'purple',
+  天相: 'purple',
   // 凶煞 — 墨灰
-  '破军': 'gray', '巨门': 'gray',
-  '擎羊': 'gray', '陀罗': 'gray', '火星': 'gray', '铃星': 'gray',
-  '地空': 'gray', '地劫': 'gray',
+  破军: 'gray',
+  巨门: 'gray',
+  擎羊: 'gray',
+  陀罗: 'gray',
+  火星: 'gray',
+  铃星: 'gray',
+  地空: 'gray',
+  地劫: 'gray',
   // 中性辅 — 浅灰白（亦为兜底）
-  '左辅': 'white', '右弼': 'white', '禄存': 'white', '天马': 'white',
+  左辅: 'white',
+  右弼: 'white',
+  禄存: 'white',
+  天马: 'white',
 }
 
 /** 取星曜配色类，未知星名兜底 'white' */
@@ -121,6 +141,7 @@ git commit -m "feat(ziwei): add STAR_COLOR_MAP and getStarColorClass for celesti
 ## Task 2: 重写 `ZiWeiCelestialChart.vue` — 脚本骨架
 
 **Files:**
+
 - Modify: `components/tools/ziwei/ZiWeiCelestialChart.vue`（完全替换）
 
 **说明：** 这一步只完成 `<script setup>` 部分（不含 template/style）。
@@ -234,8 +255,8 @@ const renderedStars = computed<CelestialStar[]>(() => {
 
     type Entry = { name: string; mutagen: string | null; isMajor: boolean }
     const entries: Entry[] = [
-      ...palace.majorStars.map((s) => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: true })),
-      ...palace.minorStars.map((s) => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: false })),
+      ...palace.majorStars.map(s => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: true })),
+      ...palace.minorStars.map(s => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: false })),
     ]
     const n = entries.length
     if (n === 0) continue
@@ -300,13 +321,19 @@ const KAPPA = 0.5522847498
 function wobblyCirclePath(r: number, wobble = 1.2): string {
   const o = (k: number) => Math.sin(r * k) * wobble
   const c = (k: number) => Math.cos(r * k) * wobble
-  const oA = o(1.3), oB = c(2.7), oC = o(3.1), oD = c(4.9)
-  const oE = o(5.7), oF = c(6.3), oG = o(7.1), oH = c(8.5)
+  const oA = o(1.3),
+    oB = c(2.7),
+    oC = o(3.1),
+    oD = c(4.9)
+  const oE = o(5.7),
+    oF = c(6.3),
+    oG = o(7.1),
+    oH = c(8.5)
 
-  const top    = { x: CX,         y: CY - r + oA }
-  const right  = { x: CX + r + oB, y: CY }
-  const bottom = { x: CX,         y: CY + r + oC }
-  const left   = { x: CX - r + oD, y: CY }
+  const top = { x: CX, y: CY - r + oA }
+  const right = { x: CX + r + oB, y: CY }
+  const bottom = { x: CX, y: CY + r + oC }
+  const left = { x: CX - r + oD, y: CY }
 
   const k = KAPPA * r
   const c01 = { x: CX + k + oE, y: CY - r + oA }
@@ -328,7 +355,7 @@ function wobblyCirclePath(r: number, wobble = 1.2): string {
   ].join(' ')
 }
 
-const orbitPaths = computed(() => RINGS.map((r) => wobblyCirclePath(r)))
+const orbitPaths = computed(() => RINGS.map(r => wobblyCirclePath(r)))
 
 const innerDashedPath = computed(() => wobblyCirclePath(CENTER_VOID + 2, 0.6))
 
@@ -336,7 +363,7 @@ const innerDashedPath = computed(() => wobblyCirclePath(CENTER_VOID + 2, 0.6))
 // SVG: sector dividers
 // ═══════════════════════════════════════════════════════════════
 const dividers = computed(() =>
-  BRANCHES.map((br) => {
+  BRANCHES.map(br => {
     const angle = BRANCH_TO_ANGLE[br] ?? 0
     const p1 = pol(angle, RINGS[0])
     const p2 = pol(angle, RINGS[RINGS.length - 1] + 8)
@@ -478,6 +505,7 @@ git commit -m "refactor(ziwei): rewrite celestial chart script — geometry & da
 ## Task 3: 编写 `<template>` — DOM 结构
 
 **Files:**
+
 - Modify: `components/tools/ziwei/ZiWeiCelestialChart.vue`（替换 `<template>` 块）
 
 - [ ] **Step 3.1：替换 template**
@@ -533,20 +561,37 @@ git commit -m "refactor(ziwei): rewrite celestial chart script — geometry & da
 
       <!-- 十字参考虚线 -->
       <line
-        :x1="CX - 268" :y1="CY" :x2="CX + 268" :y2="CY"
-        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        :x1="CX - 268"
+        :y1="CY"
+        :x2="CX + 268"
+        :y2="CY"
+        stroke="#C5B8A8"
+        stroke-width="0.4"
+        opacity="0.12"
+        stroke-dasharray="3,5"
       />
       <line
-        :x1="CX" :y1="CY - 268" :x2="CX" :y2="CY + 268"
-        stroke="#C5B8A8" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        :x1="CX"
+        :y1="CY - 268"
+        :x2="CX"
+        :y2="CY + 268"
+        stroke="#C5B8A8"
+        stroke-width="0.4"
+        opacity="0.12"
+        stroke-dasharray="3,5"
       />
 
       <!-- 12 条扇形分隔 -->
       <line
         v-for="d in dividers"
         :key="`div-${d.key}`"
-        :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
-        stroke="#C62828" stroke-width="0.5" opacity="0.18"
+        :x1="d.x1"
+        :y1="d.y1"
+        :x2="d.x2"
+        :y2="d.y2"
+        stroke="#C62828"
+        stroke-width="0.5"
+        opacity="0.18"
       />
 
       <!-- 选中扇区高亮 -->
@@ -563,14 +608,16 @@ git commit -m "refactor(ziwei): rewrite celestial chart script — geometry & da
           :y1="arcEdgePoint(highlight.startAngle, highlight.innerR).y"
           :x2="arcEdgePoint(highlight.startAngle, highlight.outerR).x"
           :y2="arcEdgePoint(highlight.startAngle, highlight.outerR).y"
-          stroke="rgba(198,40,40,0.3)" stroke-width="1.2"
+          stroke="rgba(198,40,40,0.3)"
+          stroke-width="1.2"
         />
         <line
           :x1="arcEdgePoint(highlight.endAngle, highlight.innerR).x"
           :y1="arcEdgePoint(highlight.endAngle, highlight.innerR).y"
           :x2="arcEdgePoint(highlight.endAngle, highlight.outerR).x"
           :y2="arcEdgePoint(highlight.endAngle, highlight.outerR).y"
-          stroke="rgba(198,40,40,0.3)" stroke-width="1.2"
+          stroke="rgba(198,40,40,0.3)"
+          stroke-width="1.2"
         />
       </g>
     </svg>
@@ -613,7 +660,7 @@ git commit -m "refactor(ziwei): rewrite celestial chart script — geometry & da
           '--twinkle-delay': star.twinkleDelay + 's',
           '--drift-dur': star.driftDuration + 's',
           '--drift-delay': star.driftDelay + 's',
-          '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
+          '--enter-delay': star.starIndexInPalace * 25 + 'ms',
         }"
         :aria-label="star.name + (star.mutagen ? ' 化' + star.mutagen : '')"
         @click="emit('select', star.palaceIdx)"
@@ -622,11 +669,9 @@ git commit -m "refactor(ziwei): rewrite celestial chart script — geometry & da
       >
         <span class="st-orb" :class="`cls-${star.colorClass}`" />
         <span class="st-label">{{ star.name }}</span>
-        <span
-          v-if="star.mutagen"
-          class="st-mutagen"
-          :class="mutagenCss(star.mutagen)"
-        >化{{ star.mutagen }}</span>
+        <span v-if="star.mutagen" class="st-mutagen" :class="mutagenCss(star.mutagen)"
+          >化{{ star.mutagen }}</span
+        >
       </button>
     </div>
 
@@ -679,6 +724,7 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
 ## Task 4: 编写 `<style scoped>` — 全部样式与动画
 
 **Files:**
+
 - Modify: `components/tools/ziwei/ZiWeiCelestialChart.vue`（替换 `<style>` 块）
 
 - [ ] **Step 4.1：替换 style**
@@ -700,17 +746,21 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   overflow: visible;
 }
 
-.celestial-chart.is-hidden { display: none; }
+.celestial-chart.is-hidden {
+  display: none;
+}
 
 .celestial-chart::before {
   content: '';
   position: absolute;
   inset: 4%;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center,
+  background: radial-gradient(
+    ellipse at center,
     rgba(232, 222, 208, 0.18) 0%,
     rgba(238, 229, 216, 0.08) 55%,
-    transparent 75%);
+    transparent 75%
+  );
   pointer-events: none;
   z-index: -1;
 }
@@ -731,8 +781,12 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   pointer-events: none;
 }
 
-.labels-layer { z-index: 1; }
-.stars-layer  { z-index: 2; }
+.labels-layer {
+  z-index: 1;
+}
+.stars-layer {
+  z-index: 2;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Palace labels — 贤净文字（无边框无背景）
@@ -750,7 +804,10 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   background: transparent;
   border: none;
   white-space: nowrap;
-  transition: transform 0.4s ease, color 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.4s ease,
+    color 0.3s ease,
+    opacity 0.3s ease;
   animation: label-drift 24s ease-in-out infinite;
 }
 
@@ -758,33 +815,35 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.85rem;
   letter-spacing: 0.12em;
-  color: #8B7D6B;
+  color: #8b7d6b;
   opacity: 0.6;
   line-height: 1.1;
-  transition: color 0.3s, opacity 0.3s;
+  transition:
+    color 0.3s,
+    opacity 0.3s;
 }
 
 .pl-branch {
   font-family: 'Noto Serif SC', 'STSong', serif;
   font-size: 0.5rem;
-  color: #8B7D6B;
+  color: #8b7d6b;
   opacity: 0.25;
   letter-spacing: 0.04em;
   line-height: 1;
 }
 
 .palace-label:hover .pl-name {
-  color: #5D4E37;
+  color: #5d4e37;
   opacity: 0.9;
 }
 
 .palace-label.pl-ming .pl-name {
-  color: #C62828;
+  color: #c62828;
   opacity: 0.8;
 }
 
 .palace-label.pl-sel .pl-name {
-  color: #C62828;
+  color: #c62828;
   opacity: 0.95;
 }
 
@@ -792,7 +851,7 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   outline: none;
 }
 .palace-label:focus-visible .pl-name {
-  text-decoration: underline 0.5px #C62828;
+  text-decoration: underline 0.5px #c62828;
   text-underline-offset: 3px;
 }
 
@@ -819,7 +878,9 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
     drift var(--drift-dur, 90s) linear var(--drift-delay, 0s) infinite;
 }
 
-.star-item:hover { z-index: 10; }
+.star-item:hover {
+  z-index: 10;
+}
 
 .st-label-left {
   flex-direction: row-reverse;
@@ -830,7 +891,9 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   flex-shrink: 0;
   border-radius: 50%;
   position: relative;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .star-item .st-orb {
@@ -845,44 +908,46 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
 
 /* 7 colour classes */
 .st-orb.cls-gold {
-  background: #C62828;
-  border: 1.5px solid #D4A84B;
-  box-shadow: 0 0 6px rgba(93,78,55,0.2);
+  background: #c62828;
+  border: 1.5px solid #d4a84b;
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.2);
 }
 .st-orb.cls-cinnabar {
-  background: #A02020;
-  border: 1px solid rgba(198,40,40,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.18);
+  background: #a02020;
+  border: 1px solid rgba(198, 40, 40, 0.3);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
 }
 .st-orb.cls-jade {
-  background: #4A8C6F;
-  border: 1px solid rgba(74,140,111,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.18);
+  background: #4a8c6f;
+  border: 1px solid rgba(74, 140, 111, 0.3);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
 }
 .st-orb.cls-ice {
-  background: #6BA8C8;
-  border: 1px solid rgba(107,168,200,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.18);
+  background: #6ba8c8;
+  border: 1px solid rgba(107, 168, 200, 0.3);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
 }
 .st-orb.cls-purple {
-  background: #7B6FA0;
-  border: 1px solid rgba(123,111,160,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.18);
+  background: #7b6fa0;
+  border: 1px solid rgba(123, 111, 160, 0.3);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
 }
 .st-orb.cls-gray {
-  background: #5D4E37;
-  border: 1px solid rgba(93,78,55,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.18);
+  background: #5d4e37;
+  border: 1px solid rgba(93, 78, 55, 0.3);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.18);
 }
 .st-orb.cls-white {
-  background: #8B7D6B;
-  border: 1px solid rgba(139,125,107,0.3);
-  box-shadow: 0 0 6px rgba(93,78,55,0.15);
+  background: #8b7d6b;
+  border: 1px solid rgba(139, 125, 107, 0.3);
+  box-shadow: 0 0 6px rgba(93, 78, 55, 0.15);
 }
 
 .star-item:hover .st-orb {
   transform: scale(1.25);
-  box-shadow: 0 0 10px rgba(198,40,40,0.3), 0 0 18px rgba(198,40,40,0.08);
+  box-shadow:
+    0 0 10px rgba(198, 40, 40, 0.3),
+    0 0 18px rgba(198, 40, 40, 0.08);
 }
 
 /* Star label */
@@ -890,10 +955,12 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   font-family: 'Noto Serif SC', 'STSong', serif;
   font-size: 0.6rem;
   letter-spacing: 0.04em;
-  color: #5D4E37;
+  color: #5d4e37;
   opacity: 0.55;
   line-height: 1;
-  transition: opacity 0.3s, color 0.3s;
+  transition:
+    opacity 0.3s,
+    color 0.3s;
   pointer-events: none;
 }
 
@@ -906,7 +973,7 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
 .star-item:hover .st-label,
 .st-act .st-label {
   opacity: 0.95;
-  color: #C62828;
+  color: #c62828;
 }
 
 /* Active selection ring */
@@ -915,7 +982,7 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   position: absolute;
   inset: -5px;
   border-radius: 50%;
-  border: 1px solid rgba(198,40,40,0.45);
+  border: 1px solid rgba(198, 40, 40, 0.45);
   pointer-events: none;
   animation: ring-pulse 2s ease-out infinite;
 }
@@ -924,7 +991,9 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   outline: none;
 }
 .star-item:focus-visible .st-orb {
-  box-shadow: 0 0 0 2px rgba(198,40,40,0.4), 0 0 8px rgba(198,40,40,0.25);
+  box-shadow:
+    0 0 0 2px rgba(198, 40, 40, 0.4),
+    0 0 8px rgba(198, 40, 40, 0.25);
 }
 
 /* Four-Hua chip */
@@ -939,10 +1008,26 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   white-space: nowrap;
 }
 
-.st-mutagen.lu   { background: rgba(198,40,40,0.15); color: #C62828; border: 0.5px solid rgba(198,40,40,0.2); }
-.st-mutagen.quan { background: rgba(74,140,111,0.15); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.2); }
-.st-mutagen.ke   { background: rgba(107,168,200,0.15); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.2); }
-.st-mutagen.ji   { background: rgba(93,78,55,0.12); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.15); }
+.st-mutagen.lu {
+  background: rgba(198, 40, 40, 0.15);
+  color: #c62828;
+  border: 0.5px solid rgba(198, 40, 40, 0.2);
+}
+.st-mutagen.quan {
+  background: rgba(74, 140, 111, 0.15);
+  color: #4a8c6f;
+  border: 0.5px solid rgba(74, 140, 111, 0.2);
+}
+.st-mutagen.ke {
+  background: rgba(107, 168, 200, 0.15);
+  color: #6ba8c8;
+  border: 0.5px solid rgba(107, 168, 200, 0.2);
+}
+.st-mutagen.ji {
+  background: rgba(93, 78, 55, 0.12);
+  color: #5d4e37;
+  border: 0.5px solid rgba(93, 78, 55, 0.15);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Polaris (centre seal)
@@ -967,7 +1052,7 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   width: 86px;
   height: 86px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(198,40,40,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(198, 40, 40, 0.08) 0%, transparent 70%);
   transform: translate(-50%, -50%);
   pointer-events: none;
   animation: seal-glow 4s ease-in-out infinite;
@@ -977,9 +1062,11 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #D44040, #C62828 50%, #8A1B1B);
-  border: 2px solid #D4A84B;
-  box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1);
+  background: radial-gradient(circle at 40% 35%, #d44040, #c62828 50%, #8a1b1b);
+  border: 2px solid #d4a84b;
+  box-shadow:
+    0 0 18px rgba(93, 78, 55, 0.25),
+    0 0 40px rgba(93, 78, 55, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -989,8 +1076,8 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
 .polaris-char {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 1.5rem;
-  color: #D4A84B;
-  text-shadow: 0 0 6px rgba(212,168,75,0.3);
+  color: #d4a84b;
+  text-shadow: 0 0 6px rgba(212, 168, 75, 0.3);
   line-height: 1;
 }
 
@@ -1001,7 +1088,7 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   transform: translateX(-50%);
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.65rem;
-  color: #8B7D6B;
+  color: #8b7d6b;
   letter-spacing: 0.1em;
   opacity: 0.6;
   white-space: nowrap;
@@ -1016,64 +1103,106 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   pointer-events: none;
   background: rgba(245, 240, 232, 0.97);
   backdrop-filter: blur(6px);
-  border: 1px solid rgba(198,40,40,0.15);
-  border-left: 2.5px solid #C62828;
+  border: 1px solid rgba(198, 40, 40, 0.15);
+  border-left: 2.5px solid #c62828;
   border-radius: 6px;
   padding: 0.45rem 0.7rem;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.68rem;
-  color: #5D4E37;
+  color: #5d4e37;
   max-width: 200px;
   min-width: 110px;
-  box-shadow: 0 4px 16px rgba(93,78,55,0.12);
+  box-shadow: 0 4px 16px rgba(93, 78, 55, 0.12);
   opacity: 0;
   transition: opacity 0.18s;
   line-height: 1.5;
 }
 
-.star-tooltip.tp-vis { opacity: 1; }
+.star-tooltip.tp-vis {
+  opacity: 1;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Keyframes (must live OUTSIDE @layer per project convention)
    ═══════════════════════════════════════════════════════════════ */
 @keyframes star-enter {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
-  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { filter: brightness(0.92); }
-  50%      { filter: brightness(1.1); }
+  0%,
+  100% {
+    filter: brightness(0.92);
+  }
+  50% {
+    filter: brightness(1.1);
+  }
 }
 
 @keyframes drift {
-  0%   { transform: translate(-50%, -50%) rotate(0deg); }
-  50%  { transform: translate(-50%, -50%) rotate(0.6deg); }
-  100% { transform: translate(-50%, -50%) rotate(0deg); }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(0.6deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
 }
 
 @keyframes label-drift {
-  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-  50%      { transform: translate(-50%, -50%) rotate(0.2deg); }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(0.2deg);
+  }
 }
 
 @keyframes ring-pulse {
-  0%   { opacity: 0.5; transform: scale(0.9); }
-  100% { opacity: 0;   transform: scale(1.6); }
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
 }
 
 @keyframes seal-breathe {
-  0%, 100% {
-    box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1);
+  0%,
+  100% {
+    box-shadow:
+      0 0 18px rgba(93, 78, 55, 0.25),
+      0 0 40px rgba(93, 78, 55, 0.1);
   }
   50% {
-    box-shadow: 0 0 24px rgba(93,78,55,0.35), 0 0 50px rgba(93,78,55,0.15);
+    box-shadow:
+      0 0 24px rgba(93, 78, 55, 0.35),
+      0 0 50px rgba(93, 78, 55, 0.15);
   }
 }
 
 @keyframes seal-glow {
-  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.6; }
-  50%      { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.12);
+    opacity: 1;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1086,22 +1215,47 @@ git commit -m "feat(ziwei): celestial chart template — SVG + DOM layers"
   .polaris::before {
     animation: none !important;
   }
-  .star-item { opacity: 0.92; transform: translate(-50%, -50%); }
-  .star-item.st-act .st-orb::after { animation: none; opacity: 0.4; }
+  .star-item {
+    opacity: 0.92;
+    transform: translate(-50%, -50%);
+  }
+  .star-item.st-act .st-orb::after {
+    animation: none;
+    opacity: 0.4;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .pl-name { font-size: 0.72rem; }
-  .pl-branch { font-size: 0.45rem; }
-  .star-item .st-orb { width: 9px; height: 9px; }
-  .st-major .st-orb { width: 12px; height: 12px; }
-  .st-label { font-size: 0.52rem; }
-  .st-major .st-label { font-size: 0.6rem; }
-  .polaris-seal { width: 44px; height: 44px; }
-  .polaris-char { font-size: 1.25rem; }
+  .pl-name {
+    font-size: 0.72rem;
+  }
+  .pl-branch {
+    font-size: 0.45rem;
+  }
+  .star-item .st-orb {
+    width: 9px;
+    height: 9px;
+  }
+  .st-major .st-orb {
+    width: 12px;
+    height: 12px;
+  }
+  .st-label {
+    font-size: 0.52rem;
+  }
+  .st-major .st-label {
+    font-size: 0.6rem;
+  }
+  .polaris-seal {
+    width: 44px;
+    height: 44px;
+  }
+  .polaris-char {
+    font-size: 1.25rem;
+  }
 }
 </style>
 ```

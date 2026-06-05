@@ -3,7 +3,7 @@ import { toSafeProfile } from '../../utils/profile'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
@@ -89,7 +89,11 @@ export default defineEventHandler(async (event) => {
   }
 
   if (body.birth_longitude !== undefined && body.birth_longitude !== null) {
-    if (typeof body.birth_longitude !== 'number' || body.birth_longitude < -180 || body.birth_longitude > 180) {
+    if (
+      typeof body.birth_longitude !== 'number' ||
+      body.birth_longitude < -180 ||
+      body.birth_longitude > 180
+    ) {
       throw createError({ statusCode: 400, statusMessage: '经度范围为 -180 至 180' })
     }
     birthLongitude = body.birth_longitude
@@ -99,7 +103,18 @@ export default defineEventHandler(async (event) => {
   const result = dbRun(
     `INSERT INTO profiles (nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, birth_place, birth_longitude, parent_profile_id)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [nickname, null, birthDate, birthCalendar, birthHour, birthMinute, gender, birthPlace, birthLongitude, profileId]
+    [
+      nickname,
+      null,
+      birthDate,
+      birthCalendar,
+      birthHour,
+      birthMinute,
+      gender,
+      birthPlace,
+      birthLongitude,
+      profileId,
+    ],
   )
 
   const subProfile = dbGet('SELECT * FROM profiles WHERE id = ?', [result.lastInsertRowid])

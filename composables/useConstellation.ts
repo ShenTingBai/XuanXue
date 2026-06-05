@@ -64,8 +64,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '白羊座',
     symbol: '♈',
-    startMonth: 3, startDay: 21,
-    endMonth: 4, endDay: 19,
+    startMonth: 3,
+    startDay: 21,
+    endMonth: 4,
+    endDay: 19,
     element: '火',
     rulingPlanet: '火星',
     luckyColor: '红色',
@@ -75,8 +77,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '金牛座',
     symbol: '♉',
-    startMonth: 4, startDay: 20,
-    endMonth: 5, endDay: 20,
+    startMonth: 4,
+    startDay: 20,
+    endMonth: 5,
+    endDay: 20,
     element: '土',
     rulingPlanet: '金星',
     luckyColor: '绿色',
@@ -86,8 +90,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '双子座',
     symbol: '♊',
-    startMonth: 5, startDay: 21,
-    endMonth: 6, endDay: 21,
+    startMonth: 5,
+    startDay: 21,
+    endMonth: 6,
+    endDay: 21,
     element: '风',
     rulingPlanet: '水星',
     luckyColor: '黄色',
@@ -97,8 +103,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '巨蟹座',
     symbol: '♋',
-    startMonth: 6, startDay: 22,
-    endMonth: 7, endDay: 22,
+    startMonth: 6,
+    startDay: 22,
+    endMonth: 7,
+    endDay: 22,
     element: '水',
     rulingPlanet: '月亮',
     luckyColor: '白色',
@@ -108,8 +116,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '狮子座',
     symbol: '♌',
-    startMonth: 7, startDay: 23,
-    endMonth: 8, endDay: 22,
+    startMonth: 7,
+    startDay: 23,
+    endMonth: 8,
+    endDay: 22,
     element: '火',
     rulingPlanet: '太阳',
     luckyColor: '金色',
@@ -119,8 +129,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '处女座',
     symbol: '♍',
-    startMonth: 8, startDay: 23,
-    endMonth: 9, endDay: 22,
+    startMonth: 8,
+    startDay: 23,
+    endMonth: 9,
+    endDay: 22,
     element: '土',
     rulingPlanet: '水星',
     luckyColor: '灰色',
@@ -130,8 +142,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '天秤座',
     symbol: '♎',
-    startMonth: 9, startDay: 23,
-    endMonth: 10, endDay: 23,
+    startMonth: 9,
+    startDay: 23,
+    endMonth: 10,
+    endDay: 23,
     element: '风',
     rulingPlanet: '金星',
     luckyColor: '粉色',
@@ -141,8 +155,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '天蝎座',
     symbol: '♏',
-    startMonth: 10, startDay: 24,
-    endMonth: 11, endDay: 21,
+    startMonth: 10,
+    startDay: 24,
+    endMonth: 11,
+    endDay: 21,
     element: '水',
     rulingPlanet: '冥王星', // 传统守护星：火星
     luckyColor: '紫色',
@@ -152,8 +168,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '射手座',
     symbol: '♐',
-    startMonth: 11, startDay: 22,
-    endMonth: 12, endDay: 21,
+    startMonth: 11,
+    startDay: 22,
+    endMonth: 12,
+    endDay: 21,
     element: '火',
     rulingPlanet: '木星',
     luckyColor: '蓝色',
@@ -163,8 +181,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '摩羯座',
     symbol: '♑',
-    startMonth: 12, startDay: 22,
-    endMonth: 1, endDay: 19,
+    startMonth: 12,
+    startDay: 22,
+    endMonth: 1,
+    endDay: 19,
     element: '土',
     rulingPlanet: '土星',
     luckyColor: '棕色',
@@ -174,8 +194,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '水瓶座',
     symbol: '♒',
-    startMonth: 1, startDay: 20,
-    endMonth: 2, endDay: 18,
+    startMonth: 1,
+    startDay: 20,
+    endMonth: 2,
+    endDay: 18,
     element: '风',
     rulingPlanet: '天王星', // 传统守护星：土星
     luckyColor: '青色',
@@ -185,8 +207,10 @@ export const ZODIACS: ZodiacEntry[] = [
   {
     name: '双鱼座',
     symbol: '♓',
-    startMonth: 2, startDay: 19,
-    endMonth: 3, endDay: 20,
+    startMonth: 2,
+    startDay: 19,
+    endMonth: 3,
+    endDay: 20,
     element: '水',
     rulingPlanet: '海王星', // 传统守护星：木星
     luckyColor: '海蓝色',
@@ -198,43 +222,94 @@ export const ZODIACS: ZodiacEntry[] = [
 // ── Moon Sign Interpretations ──────────────────────────────
 
 export const MOON_INTERPRETATIONS: Record<string, string> = {
-  '白羊座': '月落白羊，心性如火，热烈直爽。喜怒皆形于色，不耐等候，行事风风火火。此心赤诚，然易因急躁而生悔意，宜习静中思量。',
-  '金牛座': '月落金牛，性情沉稳，喜静恶动。心绪缓发，骤变则不安。嗜声色之悦，于美食音律间得心安。一旦执意，不易转圜，有磐石之志。',
-  '双子座': '月落双子，心思灵动，如风无定。好新奇，恶沉闷，忧来则言笑遣之。兴趣辗转无常，心神不易专一，宜守一以御万变。',
-  '巨蟹座': '月入巨蟹，是为入庙之位。心绪似潮，深而善感，共情之力异于常人。家宅为安身之所，往昔为系情之锚。易为他人所染，宜修心以立界。',
-  '狮子座': '月落狮子，心气高傲，喜人称赞。情之所至，如日当空，光芒不可掩。自尊心强，伤之则郁郁难平。外显豪迈，内藏孤意。',
-  '处女座': '月落处女，心性缜密，凡事求全。情感亦以理度之，条分缕析。以勤勉消解烦忧，于细微处见精神。苛于己亦苛于人，然此心实出于责重。',
-  '天秤座': '月落天秤，心慕和美，恶争厌斗。情绪温雅有度，不欲人见其窘。取舍之间，思虑再三，盖欲周全众人。须知世间难得两全，择善而从即可。',
-  '天蝎座': '月落天蝎，是为落陷之位。情如深潭，内藏暗流。爱憎分明，绝不苟且。直觉敏锐，能察人所未察。记情至深，最畏背信。',
-  '射手座': '月落射手，心向远方，畅想无羁。以乐观为甲，以期望为盾，不堪为情所困。不悦则思游走，性喜天地广阔。须有空间，方能养心。',
-  '摩羯座': '月落摩羯，是为失势之位。情感深藏，不轻示人。以理性为衣，以事功为凭。然刚过易折，真坚韧者，知弱而能求助于人。',
-  '水瓶座': '月落水瓶，心性超然，情以理驭。虽在波澜之中，亦能冷眼观己。重神交而轻情执，自由二字，重于千金。',
-  '双鱼座': '月落双鱼，情感无涯，如梦似幻。共情之深，能感他人之痛。心游万仞，艺术想象为其栖息之所。须守己心，莫为诸苦所累。',
+  白羊座:
+    '月落白羊，心性如火，热烈直爽。喜怒皆形于色，不耐等候，行事风风火火。此心赤诚，然易因急躁而生悔意，宜习静中思量。',
+  金牛座:
+    '月落金牛，性情沉稳，喜静恶动。心绪缓发，骤变则不安。嗜声色之悦，于美食音律间得心安。一旦执意，不易转圜，有磐石之志。',
+  双子座:
+    '月落双子，心思灵动，如风无定。好新奇，恶沉闷，忧来则言笑遣之。兴趣辗转无常，心神不易专一，宜守一以御万变。',
+  巨蟹座:
+    '月入巨蟹，是为入庙之位。心绪似潮，深而善感，共情之力异于常人。家宅为安身之所，往昔为系情之锚。易为他人所染，宜修心以立界。',
+  狮子座:
+    '月落狮子，心气高傲，喜人称赞。情之所至，如日当空，光芒不可掩。自尊心强，伤之则郁郁难平。外显豪迈，内藏孤意。',
+  处女座:
+    '月落处女，心性缜密，凡事求全。情感亦以理度之，条分缕析。以勤勉消解烦忧，于细微处见精神。苛于己亦苛于人，然此心实出于责重。',
+  天秤座:
+    '月落天秤，心慕和美，恶争厌斗。情绪温雅有度，不欲人见其窘。取舍之间，思虑再三，盖欲周全众人。须知世间难得两全，择善而从即可。',
+  天蝎座:
+    '月落天蝎，是为落陷之位。情如深潭，内藏暗流。爱憎分明，绝不苟且。直觉敏锐，能察人所未察。记情至深，最畏背信。',
+  射手座:
+    '月落射手，心向远方，畅想无羁。以乐观为甲，以期望为盾，不堪为情所困。不悦则思游走，性喜天地广阔。须有空间，方能养心。',
+  摩羯座:
+    '月落摩羯，是为失势之位。情感深藏，不轻示人。以理性为衣，以事功为凭。然刚过易折，真坚韧者，知弱而能求助于人。',
+  水瓶座:
+    '月落水瓶，心性超然，情以理驭。虽在波澜之中，亦能冷眼观己。重神交而轻情执，自由二字，重于千金。',
+  双鱼座:
+    '月落双鱼，情感无涯，如梦似幻。共情之深，能感他人之痛。心游万仞，艺术想象为其栖息之所。须守己心，莫为诸苦所累。',
 }
 
 // ── Rising Sign Interpretations ────────────────────────────
 
 const RISING_INTERPRETATIONS: Record<string, string> = {
-  '白羊座': '你给人的第一印象是积极直接、充满活力。行事风风火火，带着一种天真无畏的气场，让人觉得你很有冲劲和行动力。',
-  '金牛座': '你给人的第一印象是稳重可靠、踏实从容。气质沉稳温和，让人感到安心和信赖，有时也显得固执己见、不轻易改变。',
-  '双子座': '你给人的第一印象是机智健谈、反应灵敏。善于交际，话题丰富多变，让人觉得你聪明有趣，偶尔显得不够深入。',
-  '巨蟹座': '你给人的第一印象是温和友善、容易亲近。气质柔和有礼，让人不自觉地想向你倾诉，有着天然的亲和力与包容感。',
-  '狮子座': '你给人的第一印象是自信大方、气场强大。举止间带着几分王者风范，让人不自觉地被你的存在吸引和感染。',
-  '处女座': '你给人的第一印象是严谨得体、细致周到。做事有条不紊，谈吐逻辑清晰，让人觉得你可靠专业，也带着一丝距离感。',
-  '天秤座': '你给人的第一印象是优雅迷人、彬彬有礼。言谈举止得体大方，审美品味出众，和你相处让人感到舒适愉悦。',
-  '天蝎座': '你给人的第一印象是深沉神秘、难以捉摸。眼神和气质中透着一种内敛的力量，让人对你既好奇又不敢轻易靠近。',
-  '射手座': '你给人的第一印象是开朗乐观、热情直率。笑容和言谈充满感染力，让人觉得你是一个有趣又真诚的伙伴。',
-  '摩羯座': '你给人的第一印象是沉稳干练、成熟可靠。气质端正，行事稳重，举手投足间透着一种值得信赖的分量感。',
-  '水瓶座': '你给人的第一印象是独特前卫、不拘一格。言谈举止透着与众不同的气质，让人觉得你是个有想法、有意思的人。',
-  '双鱼座': '你给人的第一印象是温柔浪漫、富有艺术气质。眼神中带着梦幻的色彩，让人觉得你善良敏感，容易激起保护欲。',
+  白羊座:
+    '你给人的第一印象是积极直接、充满活力。行事风风火火，带着一种天真无畏的气场，让人觉得你很有冲劲和行动力。',
+  金牛座:
+    '你给人的第一印象是稳重可靠、踏实从容。气质沉稳温和，让人感到安心和信赖，有时也显得固执己见、不轻易改变。',
+  双子座:
+    '你给人的第一印象是机智健谈、反应灵敏。善于交际，话题丰富多变，让人觉得你聪明有趣，偶尔显得不够深入。',
+  巨蟹座:
+    '你给人的第一印象是温和友善、容易亲近。气质柔和有礼，让人不自觉地想向你倾诉，有着天然的亲和力与包容感。',
+  狮子座:
+    '你给人的第一印象是自信大方、气场强大。举止间带着几分王者风范，让人不自觉地被你的存在吸引和感染。',
+  处女座:
+    '你给人的第一印象是严谨得体、细致周到。做事有条不紊，谈吐逻辑清晰，让人觉得你可靠专业，也带着一丝距离感。',
+  天秤座:
+    '你给人的第一印象是优雅迷人、彬彬有礼。言谈举止得体大方，审美品味出众，和你相处让人感到舒适愉悦。',
+  天蝎座:
+    '你给人的第一印象是深沉神秘、难以捉摸。眼神和气质中透着一种内敛的力量，让人对你既好奇又不敢轻易靠近。',
+  射手座:
+    '你给人的第一印象是开朗乐观、热情直率。笑容和言谈充满感染力，让人觉得你是一个有趣又真诚的伙伴。',
+  摩羯座:
+    '你给人的第一印象是沉稳干练、成熟可靠。气质端正，行事稳重，举手投足间透着一种值得信赖的分量感。',
+  水瓶座:
+    '你给人的第一印象是独特前卫、不拘一格。言谈举止透着与众不同的气质，让人觉得你是个有想法、有意思的人。',
+  双鱼座:
+    '你给人的第一印象是温柔浪漫、富有艺术气质。眼神中带着梦幻的色彩，让人觉得你善良敏感，容易激起保护欲。',
 }
 
 // ── Yi/Ji Items ──────────────────────────────────────────────
 
 const YI_POOLS: Record<string, string[]> = {
-  high: ['洽谈合作', '开拓新项目', '投资理财', '表达心意', '签署合同', '出差远行', '社交活动', '学习进修'],
-  mid: ['日常办公', '整理规划', '家人团聚', '阅读思考', '适度运动', '拜访朋友', '处理琐事', '休闲娱乐'],
-  low: ['谨慎决策', '休养生息', '反思总结', '与人沟通', '低调行事', '暂缓投资', '注意健康', '避免争执'],
+  high: [
+    '洽谈合作',
+    '开拓新项目',
+    '投资理财',
+    '表达心意',
+    '签署合同',
+    '出差远行',
+    '社交活动',
+    '学习进修',
+  ],
+  mid: [
+    '日常办公',
+    '整理规划',
+    '家人团聚',
+    '阅读思考',
+    '适度运动',
+    '拜访朋友',
+    '处理琐事',
+    '休闲娱乐',
+  ],
+  low: [
+    '谨慎决策',
+    '休养生息',
+    '反思总结',
+    '与人沟通',
+    '低调行事',
+    '暂缓投资',
+    '注意健康',
+    '避免争执',
+  ],
 }
 
 const JI_POOLS: Record<string, string[]> = {
@@ -261,7 +336,7 @@ function daysSinceJ2000(date: Date): number {
  */
 function solarLongitude(days: number): number {
   const M = (357.5291 + 0.98560028 * days) % 360
-  const mRad = M * Math.PI / 180
+  const mRad = (M * Math.PI) / 180
   const C = 1.9148 * Math.sin(mRad) + 0.02 * Math.sin(2 * mRad) + 0.0003 * Math.sin(3 * mRad)
   const lambda = (M + C + 180 + 102.9372) % 360
   return (lambda + 360) % 360
@@ -272,7 +347,7 @@ function solarLongitude(days: number): number {
  * Mean lunar longitude — simplified, accurate to ~5 degrees.
  */
 function lunarLongitude(days: number): number {
-  return ((218.3165 + 13.176396 * days) % 360 + 360) % 360
+  return (((218.3165 + 13.176396 * days) % 360) + 360) % 360
 }
 
 /**
@@ -297,9 +372,9 @@ function angularDistance(a: number, b: number): number {
  */
 function aspectScore(angle: number): number {
   const ORB = 8
-  if (angle <= 8) return 8     // conjunction — intense focus
-  if (Math.abs(angle - 60) <= ORB) return 5   // sextile — opportunity
-  if (Math.abs(angle - 90) <= ORB) return -6  // square — challenge
+  if (angle <= 8) return 8 // conjunction — intense focus
+  if (Math.abs(angle - 60) <= ORB) return 5 // sextile — opportunity
+  if (Math.abs(angle - 90) <= ORB) return -6 // square — challenge
   if (Math.abs(angle - 120) <= ORB) return 10 // trine — harmony
   if (Math.abs(angle - 180) <= ORB) return -8 // opposition — tension
   return 0
@@ -317,13 +392,18 @@ function elementForSign(signIndex: number): ConstellationResult['element'] {
  * 火 compatible with 土, 风 compatible with 水 (opposites in the 4-element cycle match).
  * Same element: strong boost. Compatible: moderate boost. Incompatible: penalty.
  */
-function elementBoost(myElement: ConstellationResult['element'], otherElement: ConstellationResult['element']): number {
+function elementBoost(
+  myElement: ConstellationResult['element'],
+  otherElement: ConstellationResult['element'],
+): number {
   if (myElement === otherElement) return 5
   // Element compatibility based on zodiac element ordering:
   // 火 compatible with 土, 风 compatible with 水
   const compatible: Record<string, string[]> = {
-    '火': ['土'], '土': ['火'],
-    '风': ['水'], '水': ['风'],
+    火: ['土'],
+    土: ['火'],
+    风: ['水'],
+    水: ['风'],
   }
   if (compatible[myElement]?.includes(otherElement)) return 3
   return -3
@@ -351,12 +431,15 @@ export function getZodiacIndex(month: number, day: number): number {
  * Handles the Capricorn wrap-around case where startMonth > endMonth.
  */
 function isDateInRange(
-  m: number, d: number,
-  sm: number, sd: number,
-  em: number, ed: number,
+  m: number,
+  d: number,
+  sm: number,
+  sd: number,
+  em: number,
+  ed: number,
 ): boolean {
   if (sm > em) {
-    return (m > sm || m < em) || (m === sm && d >= sd) || (m === em && d <= ed)
+    return m > sm || m < em || (m === sm && d >= sd) || (m === em && d <= ed)
   }
   return (m > sm && m < em) || (m === sm && d >= sd) || (m === em && d <= ed)
 }
@@ -374,7 +457,10 @@ function isDateInRange(
  * 5. Derive dimension-specific scores (love/career/wealth/health) from
  *    planetary archetypes: Moon→emotions, Sun→vitality, element→themes
  */
-function computeHoroscope(zodiacIndex: number, currentDate: Date): ConstellationResult['todayHoroscope'] {
+function computeHoroscope(
+  zodiacIndex: number,
+  currentDate: Date,
+): ConstellationResult['todayHoroscope'] {
   const days = daysSinceJ2000(currentDate)
   const sunLon = solarLongitude(days)
   const moonLon = lunarLongitude(days)
@@ -409,7 +495,12 @@ function computeHoroscope(zodiacIndex: number, currentDate: Date): Constellation
 
   // -- Base overall score (50 = neutral) --
   // Moon aspect is the strongest daily driver
-  const overallRaw = 50 + moonAspectBonus * 2.0 + sunAspectBonus * 0.8 + sunElementBonus * 1.2 + moonElementBonus * 0.6
+  const overallRaw =
+    50 +
+    moonAspectBonus * 2.0 +
+    sunAspectBonus * 0.8 +
+    sunElementBonus * 1.2 +
+    moonElementBonus * 0.6
 
   // -- Dimension-specific adjustments --
   // Love: Moon-heavy (emotions) + Venus-ruled sign affinity
@@ -534,7 +625,11 @@ function formatDateRange(z: ZodiacEntry): string {
  * @param day - Birth day (1-31)
  * @returns The moon's zodiac sign name and symbol, or undefined if year is missing
  */
-export function getMoonSign(year: number | undefined, month: number, day: number): { name: string; symbol: string } | undefined {
+export function getMoonSign(
+  year: number | undefined,
+  month: number,
+  day: number,
+): { name: string; symbol: string } | undefined {
   if (year === undefined || year === null) return undefined
   if (month < 1 || month > 12 || day < 1 || day > 31) return undefined
   const birthDate = new Date(year, month - 1, day, 12, 0, 0)
@@ -597,27 +692,27 @@ export function getRisingSign(
   const d = (utcDate.getTime() - epoch) / 86400000
 
   // Greenwich Mean Sidereal Time (degrees)
-  const gmst = ((280.46061837 + 360.98564736629 * d) % 360 + 360) % 360
+  const gmst = (((280.46061837 + 360.98564736629 * d) % 360) + 360) % 360
 
   // Local Sidereal Time for assumed longitude (UTC+8 central meridian = 120°E)
-  const LST = ((gmst + 120) % 360 + 360) % 360
+  const LST = (((gmst + 120) % 360) + 360) % 360
 
   // Obliquity of the ecliptic (approx)
-  const eps = 23.4393 * Math.PI / 180
+  const eps = (23.4393 * Math.PI) / 180
 
   // Assumed latitude (~35°N, roughly central China)
-  const lat = 35 * Math.PI / 180
+  const lat = (35 * Math.PI) / 180
 
   // Ascendant formula (Meeus, Astronomical Algorithms):
   // tan(ASC) = -cos(LST) / (sin(LST) · cos(ε) + tan(φ) · sin(ε))
   // Implemented as atan2(+cos, -denom) per standard quadrant convention
   // to derive the eastern horizon point (ascendant), not the descendant.
-  const lstRad = LST * Math.PI / 180
+  const lstRad = (LST * Math.PI) / 180
   const ascRad = Math.atan2(
     Math.cos(lstRad),
     -(Math.sin(lstRad) * Math.cos(eps) + Math.tan(lat) * Math.sin(eps)),
   )
-  const ascDeg = ((ascRad * 180 / Math.PI) + 360) % 360
+  const ascDeg = ((ascRad * 180) / Math.PI + 360) % 360
 
   const signIndex = Math.floor(ascDeg / 30) % 12
   const sign = ZODIACS[signIndex]
@@ -675,9 +770,17 @@ export function calculateConstellation(
   const moonSign = getMoonSign(birthYear, natalMonth, natalDay)
 
   // ── 上升星座 ──
-  const risingSign = birthYear !== undefined
-    ? getRisingSign(birthYear, natalMonth, natalDay, birthHour ?? null, birthMinute ?? null, birthLongitude ?? null)
-    : null
+  const risingSign =
+    birthYear !== undefined
+      ? getRisingSign(
+          birthYear,
+          natalMonth,
+          natalDay,
+          birthHour ?? null,
+          birthMinute ?? null,
+          birthLongitude ?? null,
+        )
+      : null
 
   return {
     name: zodiac.name,

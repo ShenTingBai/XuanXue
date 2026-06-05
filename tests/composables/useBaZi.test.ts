@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaZi, getTenGod, getFavorableElements, getWeightedDayMasterStrength, getSeasonalAdjustment, getPillarInterpretation } from '../../composables/useBaZi'
+import {
+  calculateBaZi,
+  getTenGod,
+  getFavorableElements,
+  getWeightedDayMasterStrength,
+  getSeasonalAdjustment,
+  getPillarInterpretation,
+} from '../../composables/useBaZi'
 import type { BaZiPillar } from '../../composables/useBaZi'
 import { STEMS } from '../../constants/bazi'
 
@@ -29,7 +36,11 @@ describe('calculateBaZi', () => {
     // 2001 is 辛巳, but before 立春 so year=2000 (庚辰)
     // Month pillar must use 2000's stem (庚) for 五虎遁 → 己丑, not 辛丑
     const result = calculateBaZi({
-      ...baseProfile, birthYear: 2001, birthMonth: 2, birthDay: 2, birthHour: null,
+      ...baseProfile,
+      birthYear: 2001,
+      birthMonth: 2,
+      birthDay: 2,
+      birthHour: null,
     })
     expect(result.yearPillar.stem).toBe('庚')
     expect(result.yearPillar.branch).toBe('辰')
@@ -39,7 +50,10 @@ describe('calculateBaZi', () => {
 
   it('handles 立春 boundary: Feb 3 1998 is still 丁丑 (previous year)', () => {
     const result = calculateBaZi({
-      ...baseProfile, birthYear: 1998, birthMonth: 2, birthDay: 3,
+      ...baseProfile,
+      birthYear: 1998,
+      birthMonth: 2,
+      birthDay: 3,
     })
     expect(result.yearPillar.stem).toBe('丁')
     expect(result.yearPillar.branch).toBe('丑')
@@ -47,7 +61,10 @@ describe('calculateBaZi', () => {
 
   it('handles 立春 boundary: Feb 4 1998 is 戊寅', () => {
     const result = calculateBaZi({
-      ...baseProfile, birthYear: 1998, birthMonth: 2, birthDay: 4,
+      ...baseProfile,
+      birthYear: 1998,
+      birthMonth: 2,
+      birthDay: 4,
     })
     expect(result.yearPillar.stem).toBe('戊')
     expect(result.yearPillar.branch).toBe('寅')
@@ -140,8 +157,12 @@ describe('calculateBaZi', () => {
     // 1965 is 乙巳年, 乙=阴, 阴男 → reverse direction
     // Month pillar 壬午, reverse first cycle = 辛巳
     const result = calculateBaZi({
-      birthYear: 1965, birthMonth: 6, birthDay: 15, birthCalendar: 'solar' as const,
-      birthHour: 8, gender: '男' as const,
+      birthYear: 1965,
+      birthMonth: 6,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     expect(result.daYun.length).toBeGreaterThan(0)
     expect(result.daYun[0].stemBranch).toBe('辛巳')
@@ -151,7 +172,8 @@ describe('calculateBaZi', () => {
 
   it('handles 子时 boundary: birthHour=23 produces branch 子', () => {
     const result = calculateBaZi({
-      ...baseProfile, birthHour: 23,
+      ...baseProfile,
+      birthHour: 23,
     })
     expect(result.hourPillar).not.toBeNull()
     expect(result.hourPillar!.branch).toBe('子')
@@ -159,7 +181,8 @@ describe('calculateBaZi', () => {
 
   it('handles 子时 boundary: birthHour=0 also produces branch 子', () => {
     const result = calculateBaZi({
-      ...baseProfile, birthHour: 0,
+      ...baseProfile,
+      birthHour: 0,
     })
     expect(result.hourPillar).not.toBeNull()
     expect(result.hourPillar!.branch).toBe('子')
@@ -171,12 +194,20 @@ describe('calculateBaZi', () => {
     // so 23:30 on Date D uses Date D's stem-branch, not Date D+1's.
     // This test documents the current behavior.
     const lateNight = calculateBaZi({
-      birthYear: 2000, birthMonth: 1, birthDay: 15,
-      birthCalendar: 'solar' as const, birthHour: 23, gender: '男' as const,
+      birthYear: 2000,
+      birthMonth: 1,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 23,
+      gender: '男' as const,
     })
     const nextDay = calculateBaZi({
-      birthYear: 2000, birthMonth: 1, birthDay: 16,
-      birthCalendar: 'solar' as const, birthHour: 0, gender: '男' as const,
+      birthYear: 2000,
+      birthMonth: 1,
+      birthDay: 16,
+      birthCalendar: 'solar' as const,
+      birthHour: 0,
+      gender: '男' as const,
     })
     // Late night uses 15th's day pillar, while next day 00:30 uses 16th's
     // Since adjacent days have different stem-branch pairs, these must differ
@@ -221,10 +252,12 @@ describe('calculateBaZi', () => {
 
   it('农历输入转换为公历后再计算八字', () => {
     const lunar = calculateBaZi({
-      ...baseProfile, birthCalendar: 'lunar' as const,
+      ...baseProfile,
+      birthCalendar: 'lunar' as const,
     })
     const solar = calculateBaZi({
-      ...baseProfile, birthCalendar: 'solar' as const,
+      ...baseProfile,
+      birthCalendar: 'solar' as const,
     })
     // 农历 1998-05-25 转换为公历后 ≠ 公历 1998-05-25，日柱应不同
     expect(lunar.dayPillar.stem + lunar.dayPillar.branch).not.toBe(
@@ -240,13 +273,23 @@ describe('calculateBaZi', () => {
   it('handles invalid date (2024-02-30) without crashing', () => {
     // Feb 30 does not exist, but the calculation engine should handle it
     // without throwing — it calculates based on raw date values
-    expect(() => calculateBaZi({
-      birthYear: 2024, birthMonth: 2, birthDay: 30,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
-    })).not.toThrow()
+    expect(() =>
+      calculateBaZi({
+        birthYear: 2024,
+        birthMonth: 2,
+        birthDay: 30,
+        birthCalendar: 'solar' as const,
+        birthHour: 12,
+        gender: '男' as const,
+      }),
+    ).not.toThrow()
     const result = calculateBaZi({
-      birthYear: 2024, birthMonth: 2, birthDay: 30,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '男' as const,
+      birthYear: 2024,
+      birthMonth: 2,
+      birthDay: 30,
+      birthCalendar: 'solar' as const,
+      birthHour: 12,
+      gender: '男' as const,
     })
     // Result should still have all expected structure
     expect(result.yearPillar).toHaveProperty('stem')
@@ -259,8 +302,12 @@ describe('calculateBaZi', () => {
     // 1964 is 甲辰年, 甲=阳, 阳女 → reverse direction
     // Month pillar 庚午, reverse first cycle = 己巳
     const result = calculateBaZi({
-      birthYear: 1964, birthMonth: 6, birthDay: 15, birthCalendar: 'solar' as const,
-      birthHour: 8, gender: '女' as const,
+      birthYear: 1964,
+      birthMonth: 6,
+      birthDay: 15,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '女' as const,
     })
     expect(result.daYun.length).toBeGreaterThan(0)
     expect(result.daYun[0].stemBranch).toBe('己巳')
@@ -285,8 +332,12 @@ describe('calculateBaZi', () => {
   it('same-stem non-day pillar gets 比肩 not 日主 (甲年甲日)', () => {
     // 1964-07-14: 甲辰年 甲寅日 — year stem = day stem = 甲
     const result = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     expect(result.dayMaster).toBe('甲')
     expect(result.yearPillar.stem).toBe('甲')
@@ -298,8 +349,12 @@ describe('calculateBaZi', () => {
     // 1964-07-14: 甲寅日, day branch 寅 hidden stems [甲, 丙, 戊]
     // The hidden 甲 matches day master — must be 比肩, not 日主
     const result = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     const allPillars = [result.yearPillar, result.monthPillar, result.dayPillar]
     if (result.hourPillar) allPillars.push(result.hourPillar)
@@ -319,7 +374,18 @@ describe('calculateBaZi', () => {
     const firstCycle = result.daYun[0]
     expect(firstCycle.stemTenGod).toBeTruthy()
     expect(firstCycle.stemTenGod).not.toBe('日主')
-    const validTenGods = ['比肩', '劫财', '食神', '伤官', '偏财', '正财', '偏官', '正官', '偏印', '正印']
+    const validTenGods = [
+      '比肩',
+      '劫财',
+      '食神',
+      '伤官',
+      '偏财',
+      '正财',
+      '偏官',
+      '正官',
+      '偏印',
+      '正印',
+    ]
     expect(validTenGods).toContain(firstCycle.stemTenGod)
   })
 })
@@ -360,8 +426,8 @@ describe('getTenGod — full 10×10 matrix', () => {
   const WUXING = ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水']
   const YIN_YANG = ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴']
 
-  const PRODUCES: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
-  const CONTROLS: Record<string, string> = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' }
+  const PRODUCES: Record<string, string> = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' }
+  const CONTROLS: Record<string, string> = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' }
 
   function expectedTenGod(dmIdx: number, targetIdx: number): string {
     if (dmIdx === targetIdx) return '比肩'
@@ -384,7 +450,10 @@ describe('getTenGod — full 10×10 matrix', () => {
       for (let target = 0; target < 10; target++) {
         const expected = expectedTenGod(dm, target)
         const actual = getTenGod(dm, STEMS[target])
-        expect(actual, `${STEMS[dm]}(DM) → ${STEMS[target]}: expected ${expected}, got ${actual}`).toBe(expected)
+        expect(
+          actual,
+          `${STEMS[dm]}(DM) → ${STEMS[target]}: expected ${expected}, got ${actual}`,
+        ).toBe(expected)
       }
     }
   })
@@ -465,30 +534,155 @@ describe('getFavorableElements — correctness', () => {
 describe('getWeightedDayMasterStrength', () => {
   it('甲木日主 寅月 年时皆木 → 强', () => {
     const pillars = [
-      { stem: '甲', branch: '寅', stemWuxing: '木', branchWuxing: '木', stemTenGod: '比肩', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '食神', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '比肩', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
-      { stem: '甲', branch: '子', stemWuxing: '木', branchWuxing: '水', stemTenGod: '比肩', hiddenStems: [{ stem: '癸', wuxing: '水' }] },
+      {
+        stem: '甲',
+        branch: '寅',
+        stemWuxing: '木',
+        branchWuxing: '木',
+        stemTenGod: '比肩',
+        hiddenStems: [
+          { stem: '甲', wuxing: '木' },
+          { stem: '丙', wuxing: '火' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '丙',
+        branch: '寅',
+        stemWuxing: '火',
+        branchWuxing: '木',
+        stemTenGod: '食神',
+        hiddenStems: [
+          { stem: '甲', wuxing: '木' },
+          { stem: '丙', wuxing: '火' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '甲',
+        branch: '午',
+        stemWuxing: '木',
+        branchWuxing: '火',
+        stemTenGod: '比肩',
+        hiddenStems: [
+          { stem: '丁', wuxing: '火' },
+          { stem: '己', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '甲',
+        branch: '子',
+        stemWuxing: '木',
+        branchWuxing: '水',
+        stemTenGod: '比肩',
+        hiddenStems: [{ stem: '癸', wuxing: '水' }],
+      },
     ] as unknown as BaZiPillar[]
     expect(getWeightedDayMasterStrength('木', pillars)).toBe('强')
   })
 
   it('庚金日主 午月 火旺克金 → 弱', () => {
     const pillars = [
-      { stem: '丙', branch: '午', stemWuxing: '火', branchWuxing: '火', stemTenGod: '七杀', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
-      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '偏财', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
-      { stem: '庚', branch: '申', stemWuxing: '金', branchWuxing: '金', stemTenGod: '日主', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '七杀', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
+      {
+        stem: '丙',
+        branch: '午',
+        stemWuxing: '火',
+        branchWuxing: '火',
+        stemTenGod: '七杀',
+        hiddenStems: [
+          { stem: '丁', wuxing: '火' },
+          { stem: '己', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '甲',
+        branch: '午',
+        stemWuxing: '木',
+        branchWuxing: '火',
+        stemTenGod: '偏财',
+        hiddenStems: [
+          { stem: '丁', wuxing: '火' },
+          { stem: '己', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '庚',
+        branch: '申',
+        stemWuxing: '金',
+        branchWuxing: '金',
+        stemTenGod: '日主',
+        hiddenStems: [
+          { stem: '庚', wuxing: '金' },
+          { stem: '壬', wuxing: '水' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '丙',
+        branch: '戌',
+        stemWuxing: '火',
+        branchWuxing: '土',
+        stemTenGod: '七杀',
+        hiddenStems: [
+          { stem: '戊', wuxing: '土' },
+          { stem: '辛', wuxing: '金' },
+          { stem: '丁', wuxing: '火' },
+        ],
+      },
     ] as unknown as BaZiPillar[]
     expect(getWeightedDayMasterStrength('金', pillars)).toBe('弱')
   })
 
   it('丙火日主 寅月 木火相助 → 偏强', () => {
     const pillars = [
-      { stem: '甲', branch: '辰', stemWuxing: '木', branchWuxing: '土', stemTenGod: '偏印', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '乙', wuxing: '木' }, { stem: '癸', wuxing: '水' }] },
-      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '日主', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '比肩', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
-      { stem: '戊', branch: '申', stemWuxing: '土', branchWuxing: '金', stemTenGod: '食神', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
+      {
+        stem: '甲',
+        branch: '辰',
+        stemWuxing: '木',
+        branchWuxing: '土',
+        stemTenGod: '偏印',
+        hiddenStems: [
+          { stem: '戊', wuxing: '土' },
+          { stem: '乙', wuxing: '木' },
+          { stem: '癸', wuxing: '水' },
+        ],
+      },
+      {
+        stem: '丙',
+        branch: '寅',
+        stemWuxing: '火',
+        branchWuxing: '木',
+        stemTenGod: '日主',
+        hiddenStems: [
+          { stem: '甲', wuxing: '木' },
+          { stem: '丙', wuxing: '火' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '丙',
+        branch: '戌',
+        stemWuxing: '火',
+        branchWuxing: '土',
+        stemTenGod: '比肩',
+        hiddenStems: [
+          { stem: '戊', wuxing: '土' },
+          { stem: '辛', wuxing: '金' },
+          { stem: '丁', wuxing: '火' },
+        ],
+      },
+      {
+        stem: '戊',
+        branch: '申',
+        stemWuxing: '土',
+        branchWuxing: '金',
+        stemTenGod: '食神',
+        hiddenStems: [
+          { stem: '庚', wuxing: '金' },
+          { stem: '壬', wuxing: '水' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
     ] as unknown as BaZiPillar[]
     expect(getWeightedDayMasterStrength('火', pillars)).toBe('偏强')
   })
@@ -532,8 +726,12 @@ describe('getSeasonalAdjustment', () => {
 describe('snapshot tests', () => {
   it('1998-05-25 BaZi result matches snapshot', () => {
     const result = calculateBaZi({
-      birthYear: 1998, birthMonth: 5, birthDay: 25,
-      birthCalendar: 'solar' as const, birthHour: 14, gender: '男' as const,
+      birthYear: 1998,
+      birthMonth: 5,
+      birthDay: 25,
+      birthCalendar: 'solar' as const,
+      birthHour: 14,
+      gender: '男' as const,
     })
     expect(result.yearPillar.stem).toMatchInlineSnapshot(`"戊"`)
     expect(result.yearPillar.branch).toMatchInlineSnapshot(`"寅"`)
@@ -558,8 +756,12 @@ describe('snapshot tests', () => {
 
   it('2000-01-01 millennium BaZi result matches snapshot', () => {
     const result = calculateBaZi({
-      birthYear: 2000, birthMonth: 1, birthDay: 1,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 1,
+      birthDay: 1,
+      birthCalendar: 'solar' as const,
+      birthHour: 12,
+      gender: '女' as const,
     })
     expect(result.yearPillar.stem).toMatchInlineSnapshot(`"己"`)
     expect(result.yearPillar.branch).toMatchInlineSnapshot(`"卯"`)
@@ -575,8 +777,12 @@ describe('snapshot tests', () => {
 
   it('1964-07-14 BaZi result matches snapshot', () => {
     const result = calculateBaZi({
-      birthYear: 1964, birthMonth: 7, birthDay: 14,
-      birthCalendar: 'solar' as const, birthHour: 8, gender: '男' as const,
+      birthYear: 1964,
+      birthMonth: 7,
+      birthDay: 14,
+      birthCalendar: 'solar' as const,
+      birthHour: 8,
+      gender: '男' as const,
     })
     expect(result.yearPillar.stem).toMatchInlineSnapshot(`"甲"`)
     expect(result.yearPillar.branch).toMatchInlineSnapshot(`"辰"`)
@@ -591,8 +797,12 @@ describe('snapshot tests', () => {
 
   it('2004-02-05 (after 立春) BaZi result matches snapshot', () => {
     const result = calculateBaZi({
-      birthYear: 2004, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar' as const, birthHour: 6, gender: '男' as const,
+      birthYear: 2004,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar' as const,
+      birthHour: 6,
+      gender: '男' as const,
     })
     expect(result.yearPillar.stem).toMatchInlineSnapshot(`"甲"`)
     expect(result.yearPillar.branch).toMatchInlineSnapshot(`"申"`)
@@ -603,8 +813,12 @@ describe('snapshot tests', () => {
 
   it('year pillar ten gods match expected values for 2000-01-01', () => {
     const result = calculateBaZi({
-      birthYear: 2000, birthMonth: 1, birthDay: 1,
-      birthCalendar: 'solar' as const, birthHour: 12, gender: '女' as const,
+      birthYear: 2000,
+      birthMonth: 1,
+      birthDay: 1,
+      birthCalendar: 'solar' as const,
+      birthHour: 12,
+      gender: '女' as const,
     })
     // 己卯年, 日主=戊, 年干己 → 劫财
     expect(result.yearPillar.stemTenGod).toMatchInlineSnapshot(`"劫财"`)
@@ -618,8 +832,12 @@ describe('snapshot tests', () => {
 
   it('element counts and percentages are consistent', () => {
     const result = calculateBaZi({
-      birthYear: 1998, birthMonth: 5, birthDay: 25,
-      birthCalendar: 'solar' as const, birthHour: 14, gender: '男' as const,
+      birthYear: 1998,
+      birthMonth: 5,
+      birthDay: 25,
+      birthCalendar: 'solar' as const,
+      birthHour: 14,
+      gender: '男' as const,
     })
     expect(result.elementCounts).toMatchInlineSnapshot(`
       {

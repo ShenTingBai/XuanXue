@@ -13,7 +13,8 @@
     </div>
     <!-- Element description footnote -->
     <p class="mt-3 font-sans text-xs text-ink-medium leading-relaxed">
-      西方四元素与五行不同：<span class="text-cinnabar font-medium">{{ result.element }}象星座</span>{{ elementDescription }}。
+      西方四元素与五行不同：<span class="text-cinnabar font-medium">{{ result.element }}象星座</span
+      >{{ elementDescription }}。
     </p>
   </div>
 </template>
@@ -26,10 +27,10 @@ const props = defineProps<{
 }>()
 
 const ELEMENT_DESCRIPTIONS: Record<string, string> = {
-  '火': '热情主动、行动力强，如同火焰般充满能量与感染力',
-  '土': '稳重务实、脚踏实地，如大地般可靠且善于积累',
-  '风': '思维敏捷、善于沟通，如风般自由流动且富创造力',
-  '水': '情感深邃、直觉敏锐，如水般善感且富有共情力',
+  火: '热情主动、行动力强，如同火焰般充满能量与感染力',
+  土: '稳重务实、脚踏实地，如大地般可靠且善于积累',
+  风: '思维敏捷、善于沟通，如风般自由流动且富创造力',
+  水: '情感深邃、直觉敏锐，如水般善感且富有共情力',
 }
 
 const elementDescription = computed(() => ELEMENT_DESCRIPTIONS[props.result.element] || '')
@@ -43,10 +44,10 @@ const elementDescription = computed(() => ELEMENT_DESCRIPTIONS[props.result.elem
  */
 function elementColorClass(): string {
   const map: Record<string, string> = {
-    '火': 'fire',
-    '土': 'earth',
-    '风': 'air',
-    '水': 'water',
+    火: 'fire',
+    土: 'earth',
+    风: 'air',
+    水: 'water',
   }
   return map[props.result.element] || 'earth'
 }

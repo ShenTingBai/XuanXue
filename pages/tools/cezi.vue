@@ -33,7 +33,10 @@ const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // ── Methodology data ──
 const ceziClassical: ClassicalSource[] = [
-  { method: '81 数理吉凶表', source: '熊崎健翁《姓名学の極意》（1934），五格剖象体系，数理 1-81 吉凶分类' },
+  {
+    method: '81 数理吉凶表',
+    source: '熊崎健翁《姓名学の極意》（1934），五格剖象体系，数理 1-81 吉凶分类',
+  },
   { method: '偏旁部首五行', source: '《说文解字》部首分类，康熙字典偏旁五行归纳' },
   { method: '字形结构分类', source: '传统汉字学六书理论，独体/左右/上下/包围/品字五类' },
   { method: '汉字笔画', source: '康熙字典笔画规范，makemeahanzi 开源数据库（~9565 字）' },
@@ -56,7 +59,9 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const prefersReducedMotion = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!prefersReducedMotion) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
@@ -142,19 +147,29 @@ async function onHistoryRestore(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, { headers })
-    if (record.result_data && typeof record.result_data === 'object' && record.result_data.character) {
+    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, {
+      headers,
+    })
+    if (
+      record.result_data &&
+      typeof record.result_data === 'object' &&
+      record.result_data.character
+    ) {
       result.value = record.result_data as CeziResult
       restoreError.value = ''
     } else {
       restoreError.value = '历史记录数据无效'
       if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+      restoreErrorTimer.value = setTimeout(() => {
+        restoreError.value = ''
+      }, 6000)
     }
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+    restoreErrorTimer.value = setTimeout(() => {
+      restoreError.value = ''
+    }, 6000)
   }
 }
 
@@ -212,10 +227,7 @@ const interpretationParagraphs = computed(() => {
     </div>
 
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar
-        :show-history="true"
-        @history="showHistoryModal = true"
-      >
+      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
         <template #extra>
           <ExportButton
             v-if="result"
@@ -233,13 +245,11 @@ const interpretationParagraphs = computed(() => {
           <div class="section-header flex-1 min-w-0">
             <h2>测字占卜</h2>
           </div>
-          <MethodologyNote
-            :classical="ceziClassical"
-            :synthesis="ceziSynthesis"
-            tool="测字"
-          />
+          <MethodologyNote :classical="ceziClassical" :synthesis="ceziSynthesis" tool="测字" />
         </div>
-        <p class="text-xs text-ink-medium mb-6 tracking-wide">请输入一字，以窥天机。一字一世界，拆解字形探玄机。</p>
+        <p class="text-xs text-ink-medium mb-6 tracking-wide">
+          请输入一字，以窥天机。一字一世界，拆解字形探玄机。
+        </p>
 
         <div class="flex flex-col items-center gap-5">
           <div class="w-full max-w-[12rem]">
@@ -256,11 +266,11 @@ const interpretationParagraphs = computed(() => {
 
           <div class="flex justify-center items-center gap-4">
             <button
+              :disabled="loading"
+              class="btn-seal"
               @click="computeCezi"
               @keydown.enter="computeCezi"
               @keydown.space.prevent="computeCezi"
-              :disabled="loading"
-              class="btn-seal"
             >
               <span>{{ loading ? '测字中...' : '开始测字' }}</span>
             </button>
@@ -314,7 +324,11 @@ const interpretationParagraphs = computed(() => {
               <span class="cezi-slip__stat-label">笔画</span>
               <span class="cezi-slip__stat-value">
                 {{ result.strokeCount }}
-                <span v-if="result.strokeSource === 'estimated'" class="text-[0.6875rem] text-ink-muted ml-0.5">估算</span>
+                <span
+                  v-if="result.strokeSource === 'estimated'"
+                  class="text-[0.6875rem] text-ink-muted ml-0.5"
+                  >估算</span
+                >
               </span>
             </div>
             <div class="cezi-slip__stat">
@@ -322,7 +336,8 @@ const interpretationParagraphs = computed(() => {
               <span
                 class="cezi-slip__stat-value font-medium"
                 :style="{ color: getElementColor(result.primaryElement) }"
-              >{{ result.primaryElement }}</span>
+                >{{ result.primaryElement }}</span
+              >
             </div>
             <div class="cezi-slip__stat">
               <span class="cezi-slip__stat-label">吉凶</span>
@@ -356,12 +371,16 @@ const interpretationParagraphs = computed(() => {
               <span class="text-xs text-ink-medium">五行属{{ result.primaryElement }}性</span>
             </div>
             <p class="cezi-slip__text">{{ getElementSummary(result.primaryElement) }}</p>
-            <div v-if="result.radicalElement && result.radicalElement !== result.primaryElement" class="mt-2 cezi-slip__note">
+            <div
+              v-if="result.radicalElement && result.radicalElement !== result.primaryElement"
+              class="mt-2 cezi-slip__note"
+            >
               <span class="text-[0.6875rem] text-ink-muted">偏旁属</span>
               <span
                 class="text-[0.6875rem] font-medium"
                 :style="{ color: getElementColor(result.radicalElement) }"
-              >{{ result.radicalElement }}</span>
+                >{{ result.radicalElement }}</span
+              >
               <span class="text-[0.6875rem] text-ink-muted">，与数理五行相异，需综合参详。</span>
             </div>
           </div>
@@ -378,11 +397,9 @@ const interpretationParagraphs = computed(() => {
           <div class="cezi-slip__section">
             <h3 class="cezi-slip__section-title">详解</h3>
             <div class="space-y-3">
-              <p
-                v-for="(para, i) in interpretationParagraphs"
-                :key="i"
-                class="cezi-slip__text"
-              >{{ para }}</p>
+              <p v-for="(para, i) in interpretationParagraphs" :key="i" class="cezi-slip__text">
+                {{ para }}
+              </p>
             </div>
           </div>
 
@@ -400,20 +417,18 @@ const interpretationParagraphs = computed(() => {
 
     <!-- Restore error toast -->
     <Transition name="toast">
-      <div
-        v-if="restoreError"
-        class="toast-notification"
-        role="alert"
-      >
+      <div v-if="restoreError" class="toast-notification" role="alert">
         <span class="toast-notification__mark" aria-hidden="true">!</span>
         <span class="toast-notification__text">{{ restoreError }}</span>
         <button
+          class="toast-notification__close"
+          aria-label="关闭提示"
           @click="dismissRestoreError"
           @keydown.enter="dismissRestoreError"
           @keydown.space.prevent="dismissRestoreError"
-          class="toast-notification__close"
-          aria-label="关闭提示"
-        >&times;</button>
+        >
+          &times;
+        </button>
       </div>
     </Transition>
 
@@ -424,11 +439,7 @@ const interpretationParagraphs = computed(() => {
       @restore="onHistoryRestore"
     />
 
-    <ScrollTopButton
-      v-if="showScrollTop"
-      @click="scrollToTop"
-      @keydown.enter="scrollToTop"
-    />
+    <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
   </ToolPageLayout>
 </template>
 
@@ -677,7 +688,13 @@ const interpretationParagraphs = computed(() => {
 }
 
 @keyframes secIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

@@ -263,13 +263,19 @@ describe('calculateLiuNian', () => {
   it('辰流年 vs 辰年柱 triggers self-xing', () => {
     // 2000-02-05 → 庚辰年, year pillar branch = 辰
     const baZi = calculateBaZi({
-      birthYear: 2000, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar', birthHour: 12, gender: '男',
+      birthYear: 2000,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar',
+      birthHour: 12,
+      gender: '男',
     })
     // 2024 = 甲辰年, 流年 branch = 辰 → 辰辰自刑
     const liuNian = calculateLiuNian({ baZi, currentYear: 2024, range: 0 })
     const year2024 = liuNian[0]
-    const yearXing = year2024.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '刑')
+    const yearXing = year2024.earthRelations.filter(
+      r => r.targetPillar === '年柱' && r.type === '刑',
+    )
     expect(yearXing.length).toBeGreaterThan(0)
     expect(yearXing[0].description).toContain('自刑')
   })
@@ -278,8 +284,12 @@ describe('calculateLiuNian', () => {
 
   it('returns year-specific shensha computed internally', () => {
     const baZi = calculateBaZi({
-      birthYear: 1998, birthMonth: 5, birthDay: 25,
-      birthCalendar: 'solar', birthHour: 14, gender: '男',
+      birthYear: 1998,
+      birthMonth: 5,
+      birthDay: 25,
+      birthCalendar: 'solar',
+      birthHour: 14,
+      gender: '男',
     })
     const result = calculateLiuNian({ baZi, currentYear: 2026 })
     expect(result.length).toBe(11)
@@ -293,8 +303,12 @@ describe('calculateLiuNian', () => {
     // 桃花在卯 — year 2023=癸卯年, branch=卯 → 桃花
     // 驿马在申 — year 2028=戊申年, branch=申 → 驿马
     const baZi = calculateBaZi({
-      birthYear: 1998, birthMonth: 5, birthDay: 25,
-      birthCalendar: 'solar', birthHour: 14, gender: '男',
+      birthYear: 1998,
+      birthMonth: 5,
+      birthDay: 25,
+      birthCalendar: 'solar',
+      birthHour: 14,
+      gender: '男',
     })
     const result = calculateLiuNian({ baZi, currentYear: 2023, range: 5 })
     const year2023 = result.find(y => y.year === 2023)
@@ -323,8 +337,12 @@ describe('calculateLiuNian', () => {
     // For a favorable shensha year, score should be higher than baseline
     // Use a year that triggers 将星 (吉) — e.g., 寅年见子 for 寅午戌将星在子
     const baZi = calculateBaZi({
-      birthYear: 1998, birthMonth: 5, birthDay: 25,
-      birthCalendar: 'solar', birthHour: 14, gender: '男',
+      birthYear: 1998,
+      birthMonth: 5,
+      birthDay: 25,
+      birthCalendar: 'solar',
+      birthHour: 14,
+      gender: '男',
     })
     const result = calculateLiuNian({ baZi, currentYear: 2020, range: 5 })
     // 2020=庚子年, 子 → 寅午戌将星在子 → 将星(吉) triggers +5
@@ -355,8 +373,12 @@ describe('calculateLiuNian', () => {
   it('寅亥合应抑制破', () => {
     // 2007-02-05 → 丁亥年, year pillar branch = 亥
     const baZi = calculateBaZi({
-      birthYear: 2007, birthMonth: 2, birthDay: 5,
-      birthCalendar: 'solar', birthHour: 12, gender: '男',
+      birthYear: 2007,
+      birthMonth: 2,
+      birthDay: 5,
+      birthCalendar: 'solar',
+      birthHour: 12,
+      gender: '男',
     })
     // 2022 = 壬寅年, 流年 branch = 寅 → 寅亥 is both 六合 and 六破
     // The code suppresses 破 when 合 exists for the same branch pair
@@ -364,7 +386,7 @@ describe('calculateLiuNian', () => {
     const year2022 = liuNian[0]
     const yearHe = year2022.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '合')
     const yearPo = year2022.earthRelations.filter(r => r.targetPillar === '年柱' && r.type === '破')
-    expect(yearHe.length).toBeGreaterThan(0)   // 合应存在
-    expect(yearPo.length).toBe(0)               // 破应被抑制
+    expect(yearHe.length).toBeGreaterThan(0) // 合应存在
+    expect(yearPo.length).toBe(0) // 破应被抑制
   })
 })

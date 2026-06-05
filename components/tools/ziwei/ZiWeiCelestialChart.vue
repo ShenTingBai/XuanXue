@@ -118,8 +118,8 @@ const chartGeometry = computed(() => {
 
     type Entry = { name: string; mutagen: string | null; isMajor: boolean }
     const entries: Entry[] = [
-      ...palace.majorStars.map((s) => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: true })),
-      ...palace.minorStars.map((s) => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: false })),
+      ...palace.majorStars.map(s => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: true })),
+      ...palace.minorStars.map(s => ({ name: s.name, mutagen: s.mutagen ?? null, isMajor: false })),
     ]
     const n = entries.length
     if (n === 0) continue
@@ -157,10 +157,10 @@ const chartGeometry = computed(() => {
   }
 
   // 2. Orbit paths
-  const orbitPaths = RINGS.map((r) => wobblyCirclePath(r))
+  const orbitPaths = RINGS.map(r => wobblyCirclePath(r))
 
   // 3. Sector dividers
-  const dividers = BRANCHES.map((br) => {
+  const dividers = BRANCHES.map(br => {
     const angle = BRANCH_TO_ANGLE[br] ?? 0
     const p1 = pol(angle, RINGS[0])
     const p2 = pol(angle, RINGS[RINGS.length - 1] + 8)
@@ -221,13 +221,19 @@ const KAPPA = 0.5522847498
 function wobblyCirclePath(r: number, wobble = 1.2): string {
   const o = (k: number) => Math.sin(r * k) * wobble
   const c = (k: number) => Math.cos(r * k) * wobble
-  const oA = o(1.3), oB = c(2.7), oC = o(3.1), oD = c(4.9)
-  const oE = o(5.7), oF = c(6.3), oG = o(7.1), oH = c(8.5)
+  const oA = o(1.3),
+    oB = c(2.7),
+    oC = o(3.1),
+    oD = c(4.9)
+  const oE = o(5.7),
+    oF = c(6.3),
+    oG = o(7.1),
+    oH = c(8.5)
 
-  const top    = { x: CX,         y: CY - r + oA }
-  const right  = { x: CX + r + oB, y: CY }
-  const bottom = { x: CX,         y: CY + r + oC }
-  const left   = { x: CX - r + oD, y: CY }
+  const top = { x: CX, y: CY - r + oA }
+  const right = { x: CX + r + oB, y: CY }
+  const bottom = { x: CX, y: CY + r + oC }
+  const left = { x: CX - r + oD, y: CY }
 
   const k = KAPPA * r
   const c01 = { x: CX + k + oE, y: CY - r + oA }
@@ -375,20 +381,37 @@ function focusLabel(idx: number) {
 
       <!-- 十字参考虚线 -->
       <line
-        :x1="CX - 268" :y1="CY" :x2="CX + 268" :y2="CY"
-        class="svg-stroke-faint" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        :x1="CX - 268"
+        :y1="CY"
+        :x2="CX + 268"
+        :y2="CY"
+        class="svg-stroke-faint"
+        stroke-width="0.4"
+        opacity="0.12"
+        stroke-dasharray="3,5"
       />
       <line
-        :x1="CX" :y1="CY - 268" :x2="CX" :y2="CY + 268"
-        class="svg-stroke-faint" stroke-width="0.4" opacity="0.12" stroke-dasharray="3,5"
+        :x1="CX"
+        :y1="CY - 268"
+        :x2="CX"
+        :y2="CY + 268"
+        class="svg-stroke-faint"
+        stroke-width="0.4"
+        opacity="0.12"
+        stroke-dasharray="3,5"
       />
 
       <!-- 12 条扇形分隔 -->
       <line
         v-for="d in chartGeometry.dividers"
         :key="`div-${d.key}`"
-        :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
-        class="svg-stroke-cinnabar" stroke-width="0.5" opacity="0.18"
+        :x1="d.x1"
+        :y1="d.y1"
+        :x2="d.x2"
+        :y2="d.y2"
+        class="svg-stroke-cinnabar"
+        stroke-width="0.5"
+        opacity="0.18"
       />
 
       <!-- 选中扇区高亮 -->
@@ -404,14 +427,16 @@ function focusLabel(idx: number) {
           :y1="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.innerR).y"
           :x2="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.outerR).x"
           :y2="arcEdgePoint(chartGeometry.highlight.startAngle, chartGeometry.highlight.outerR).y"
-          class="svg-stroke-cinnabar-30" stroke-width="1.2"
+          class="svg-stroke-cinnabar-30"
+          stroke-width="1.2"
         />
         <line
           :x1="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.innerR).x"
           :y1="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.innerR).y"
           :x2="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.outerR).x"
           :y2="arcEdgePoint(chartGeometry.highlight.endAngle, chartGeometry.highlight.outerR).y"
-          class="svg-stroke-cinnabar-30" stroke-width="1.2"
+          class="svg-stroke-cinnabar-30"
+          stroke-width="1.2"
         />
       </g>
     </svg>
@@ -421,7 +446,7 @@ function focusLabel(idx: number) {
       <button
         v-for="label in palaceLabels"
         :key="`label-${label.idx}`"
-        :ref="(el) => assignLabelRef(el, label.idx)"
+        :ref="el => assignLabelRef(el, label.idx)"
         type="button"
         class="palace-label"
         :class="{ 'pl-ming': label.isMing, 'pl-sel': label.idx === selectedIndex }"
@@ -456,7 +481,7 @@ function focusLabel(idx: number) {
           '--twinkle-delay': star.twinkleDelay + 's',
           '--drift-dur': star.driftDuration + 's',
           '--drift-delay': star.driftDelay + 's',
-          '--enter-delay': (star.starIndexInPalace * 25) + 'ms',
+          '--enter-delay': star.starIndexInPalace * 25 + 'ms',
         }"
         :aria-label="`${star.name}${star.mutagen ? ' 化' + star.mutagen : ''} — ${star.palaceName}`"
         @click="emit('select', star.palaceIdx)"
@@ -467,11 +492,9 @@ function focusLabel(idx: number) {
       >
         <span class="st-orb" :class="`cls-${star.colorClass}`" />
         <span class="st-label">{{ star.name }}</span>
-        <span
-          v-if="star.mutagen"
-          class="st-mutagen"
-          :class="mutagenCss(star.mutagen)"
-        >化{{ star.mutagen }}</span>
+        <span v-if="star.mutagen" class="st-mutagen" :class="mutagenCss(star.mutagen)"
+          >化{{ star.mutagen }}</span
+        >
       </button>
     </div>
 
@@ -485,8 +508,8 @@ function focusLabel(idx: number) {
 
     <!-- ── Tooltip ── -->
     <div
-      ref="tooltipRef"
       id="ziwei-star-tooltip"
+      ref="tooltipRef"
       class="star-tooltip"
       :class="{ 'tp-vis': tooltipVisible }"
       :style="tooltipStyle"
@@ -519,7 +542,9 @@ function focusLabel(idx: number) {
   isolation: isolate;
 }
 
-.celestial-chart.is-hidden { display: none; }
+.celestial-chart.is-hidden {
+  display: none;
+}
 
 /* Soft paper-glow: warm ink wash bleeding from the centre outward.
    Layered radial gradient gives a more atmospheric falloff than
@@ -530,14 +555,18 @@ function focusLabel(idx: number) {
   inset: 4%;
   border-radius: 50%;
   background:
-    radial-gradient(ellipse at 50% 48%,
+    radial-gradient(
+      ellipse at 50% 48%,
       color-mix(in srgb, var(--color-paper-darker) 22%, transparent) 0%,
       color-mix(in srgb, var(--color-paper-medium) 12%, transparent) 38%,
       color-mix(in srgb, var(--color-paper-medium) 4%, transparent) 62%,
-      transparent 78%),
-    radial-gradient(ellipse at 50% 70%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse at 50% 70%,
       color-mix(in srgb, var(--color-cinnabar) 2.5%, transparent) 0%,
-      transparent 55%);
+      transparent 55%
+    );
   pointer-events: none;
   z-index: -1;
 }
@@ -552,11 +581,21 @@ function focusLabel(idx: number) {
 }
 
 /* SVG color token classes for inline element colors */
-.svg-stroke-faint       { stroke: var(--color-ink-faint); }
-.svg-stroke-cinnabar    { stroke: var(--color-cinnabar); }
-.svg-fill-cinnabar-6    { fill: color-mix(in srgb, var(--color-cinnabar) 6%, transparent); }
-.svg-stroke-cinnabar-15 { stroke: color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
-.svg-stroke-cinnabar-30 { stroke: color-mix(in srgb, var(--color-cinnabar) 30%, transparent); }
+.svg-stroke-faint {
+  stroke: var(--color-ink-faint);
+}
+.svg-stroke-cinnabar {
+  stroke: var(--color-cinnabar);
+}
+.svg-fill-cinnabar-6 {
+  fill: color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
+}
+.svg-stroke-cinnabar-15 {
+  stroke: color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+.svg-stroke-cinnabar-30 {
+  stroke: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
 
 .labels-layer,
 .stars-layer {
@@ -565,8 +604,12 @@ function focusLabel(idx: number) {
   pointer-events: none;
 }
 
-.labels-layer { z-index: 1; }
-.stars-layer  { z-index: 2; }
+.labels-layer {
+  z-index: 1;
+}
+.stars-layer {
+  z-index: 2;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Palace labels — 贤净文字（无边框无背景）
@@ -619,7 +662,9 @@ function focusLabel(idx: number) {
   text-shadow: 0 0 8px color-mix(in srgb, var(--color-ink-muted) 8%, transparent);
 }
 
-.palace-label:hover .pl-branch { color: var(--color-ink-medium); }
+.palace-label:hover .pl-branch {
+  color: var(--color-ink-medium);
+}
 
 .palace-label.pl-ming .pl-name {
   color: var(--color-cinnabar);
@@ -632,7 +677,9 @@ function focusLabel(idx: number) {
   letter-spacing: 0.16em;
   text-shadow: 0 0 10px color-mix(in srgb, var(--color-cinnabar) 18%, transparent);
 }
-.palace-label.pl-sel .pl-branch { color: var(--color-cinnabar); }
+.palace-label.pl-sel .pl-branch {
+  color: var(--color-cinnabar);
+}
 
 .palace-label:focus-visible {
   outline: 2px solid var(--color-cinnabar);
@@ -665,7 +712,9 @@ function focusLabel(idx: number) {
     star-enter 600ms cubic-bezier(0.34, 1.32, 0.64, 1) var(--enter-delay, 0ms) forwards;
 }
 
-.star-item:hover { z-index: 10; }
+.star-item:hover {
+  z-index: 10;
+}
 
 .st-label-left {
   flex-direction: row-reverse;
@@ -697,7 +746,7 @@ function focusLabel(idx: number) {
   background:
     radial-gradient(circle at 35% 30%, rgba(255, 235, 200, 0.55), transparent 55%),
     var(--color-cinnabar);
-  border: 1.5px solid #D4A84B;
+  border: 1.5px solid #d4a84b;
   box-shadow:
     0 0 6px color-mix(in srgb, var(--color-ink-muted) 22%, transparent),
     0 0 0 0.5px rgba(212, 168, 75, 0.4) inset;
@@ -739,8 +788,7 @@ function focusLabel(idx: number) {
 }
 .st-orb.cls-white {
   background:
-    radial-gradient(circle at 35% 30%, rgba(245, 240, 232, 0.55), transparent 55%),
-    #8B7D6B;
+    radial-gradient(circle at 35% 30%, rgba(245, 240, 232, 0.55), transparent 55%), #8b7d6b;
   border: 1px solid rgba(139, 125, 107, 0.35);
   box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 15%, transparent);
 }
@@ -815,10 +863,26 @@ function focusLabel(idx: number) {
   box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
 }
 
-.st-mutagen.lu   { background: color-mix(in srgb, var(--color-cinnabar) 16%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 22%, transparent); }
-.st-mutagen.quan { background: color-mix(in srgb, var(--color-jade) 16%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 22%, transparent); }
-.st-mutagen.ke   { background: rgba(107, 168, 200, 0.16); color: #6BA8C8; border: 0.5px solid rgba(107, 168, 200, 0.22); }
-.st-mutagen.ji   { background: color-mix(in srgb, var(--color-ink-muted) 13%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 18%, transparent); }
+.st-mutagen.lu {
+  background: color-mix(in srgb, var(--color-cinnabar) 16%, transparent);
+  color: var(--color-cinnabar);
+  border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 22%, transparent);
+}
+.st-mutagen.quan {
+  background: color-mix(in srgb, var(--color-jade) 16%, transparent);
+  color: var(--color-jade);
+  border: 0.5px solid color-mix(in srgb, var(--color-jade) 22%, transparent);
+}
+.st-mutagen.ke {
+  background: rgba(107, 168, 200, 0.16);
+  color: #6ba8c8;
+  border: 0.5px solid rgba(107, 168, 200, 0.22);
+}
+.st-mutagen.ji {
+  background: color-mix(in srgb, var(--color-ink-muted) 13%, transparent);
+  color: var(--color-ink-muted);
+  border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Polaris (centre seal) — 紫微印
@@ -844,10 +908,12 @@ function focusLabel(idx: number) {
   width: 86px;
   height: 86px;
   border-radius: 50%;
-  background: radial-gradient(circle,
+  background: radial-gradient(
+    circle,
     color-mix(in srgb, var(--color-cinnabar) 10%, transparent) 0%,
     rgba(212, 168, 75, 0.05) 45%,
-    transparent 72%);
+    transparent 72%
+  );
   transform: translate(-50%, -50%);
   pointer-events: none;
   animation: seal-glow 4.2s ease-in-out infinite;
@@ -858,11 +924,13 @@ function focusLabel(idx: number) {
   height: 52px;
   border-radius: 50%;
   /* Lacquer-red disc with subtle off-centre highlight */
-  background: radial-gradient(circle at 38% 32%,
-    #DD4848 0%,
+  background: radial-gradient(
+    circle at 38% 32%,
+    #dd4848 0%,
     var(--color-cinnabar) 48%,
-    var(--color-cinnabar-dark) 100%);
-  border: 2px solid #D4A84B;
+    var(--color-cinnabar-dark) 100%
+  );
+  border: 2px solid #d4a84b;
   box-shadow:
     0 0 18px color-mix(in srgb, var(--color-ink-muted) 25%, transparent),
     0 0 40px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
@@ -876,7 +944,7 @@ function focusLabel(idx: number) {
 .polaris-char {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 1.5rem;
-  color: #D4A84B;
+  color: #d4a84b;
   text-shadow:
     0 0 6px rgba(212, 168, 75, 0.35),
     0 1px 0 rgba(0, 0, 0, 0.18);
@@ -935,35 +1003,70 @@ function focusLabel(idx: number) {
    Keyframes — MUST live OUTSIDE @layer per project convention
    ═══════════════════════════════════════════════════════════════ */
 @keyframes star-enter {
-  0%   { opacity: 0;    transform: translate(-50%, -50%) scale(0.55); }
-  60%  { opacity: 0.92; transform: translate(-50%, -50%) scale(1.06); }
-  100% { opacity: 1;    transform: translate(-50%, -50%) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+  60% {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { filter: brightness(0.9)  saturate(0.96); }
-  50%      { filter: brightness(1.12) saturate(1.04); }
+  0%,
+  100% {
+    filter: brightness(0.9) saturate(0.96);
+  }
+  50% {
+    filter: brightness(1.12) saturate(1.04);
+  }
 }
 
 @keyframes drift {
-  0%   { transform: translate(-50%, -50%) rotate(0deg); }
-  50%  { transform: translate(-50%, -50%) rotate(0.6deg); }
-  100% { transform: translate(-50%, -50%) rotate(0deg); }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(0.6deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
 }
 
 @keyframes label-drift {
-  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-  50%      { transform: translate(-50%, -50%) rotate(0.2deg); }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(0.2deg);
+  }
 }
 
 @keyframes ring-pulse {
-  0%   { opacity: 0.55; transform: scale(0.88); }
-  60%  { opacity: 0.18; transform: scale(1.35); }
-  100% { opacity: 0;    transform: scale(1.65); }
+  0% {
+    opacity: 0.55;
+    transform: scale(0.88);
+  }
+  60% {
+    opacity: 0.18;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.65);
+  }
 }
 
 @keyframes seal-breathe {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow:
       0 0 18px color-mix(in srgb, var(--color-ink-muted) 25%, transparent),
       0 0 40px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
@@ -978,8 +1081,15 @@ function focusLabel(idx: number) {
 }
 
 @keyframes seal-glow {
-  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.55; }
-  50%      { transform: translate(-50%, -50%) scale(1.14); opacity: 1; }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.14);
+    opacity: 1;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1004,25 +1114,62 @@ function focusLabel(idx: number) {
     transition: opacity 120ms linear;
     transform: none;
   }
-  .star-tooltip.tp-vis { transform: none; }
+  .star-tooltip.tp-vis {
+    transform: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Responsive — 小屏调适
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .pl-name { font-size: 0.72rem; letter-spacing: 0.10em; }
-  .pl-branch { font-size: 0.45rem; }
-  .palace-label.pl-sel .pl-name { letter-spacing: 0.13em; }
-  .star-item .st-orb { width: 9px; height: 9px; }
-  .st-major .st-orb { width: 12px; height: 12px; }
-  .st-label { font-size: 0.52rem; }
-  .st-major .st-label { font-size: 0.6rem; }
-  .st-mutagen { font-size: 0.46rem; padding: 1px 3px; }
-  .polaris-seal { width: 44px; height: 44px; }
-  .polaris-char { font-size: 1.25rem; }
-  .polaris::before { width: 72px; height: 72px; }
-  .polaris-label { font-size: 0.6rem; bottom: -19px; }
-  .star-tooltip { font-size: 0.62rem; max-width: 180px; padding: 0.4rem 0.6rem; }
+  .pl-name {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+  }
+  .pl-branch {
+    font-size: 0.45rem;
+  }
+  .palace-label.pl-sel .pl-name {
+    letter-spacing: 0.13em;
+  }
+  .star-item .st-orb {
+    width: 9px;
+    height: 9px;
+  }
+  .st-major .st-orb {
+    width: 12px;
+    height: 12px;
+  }
+  .st-label {
+    font-size: 0.52rem;
+  }
+  .st-major .st-label {
+    font-size: 0.6rem;
+  }
+  .st-mutagen {
+    font-size: 0.46rem;
+    padding: 1px 3px;
+  }
+  .polaris-seal {
+    width: 44px;
+    height: 44px;
+  }
+  .polaris-char {
+    font-size: 1.25rem;
+  }
+  .polaris::before {
+    width: 72px;
+    height: 72px;
+  }
+  .polaris-label {
+    font-size: 0.6rem;
+    bottom: -19px;
+  }
+  .star-tooltip {
+    font-size: 0.62rem;
+    max-width: 180px;
+    padding: 0.4rem 0.6rem;
+  }
 }
 </style>

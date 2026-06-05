@@ -17,32 +17,53 @@ defineProps<{
 <template>
   <div class="ziwei-form card-warm rounded-xl p-8 mb-6 max-w-md mx-auto relative overflow-hidden">
     <!-- Decorative top ornament -->
-    <div class="absolute top-0 left-0 right-0 h-px" :style="{ background: `linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-cinnabar) 20%, transparent) 20%, color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 50%, color-mix(in srgb, var(--color-cinnabar) 20%, transparent) 80%, transparent)` }" />
+    <div
+      class="absolute top-0 left-0 right-0 h-px"
+      :style="{
+        background: `linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-cinnabar) 20%, transparent) 20%, color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 50%, color-mix(in srgb, var(--color-cinnabar) 20%, transparent) 80%, transparent)`,
+      }"
+    />
 
-    <h2 class="font-display text-xl tracking-[0.12em] mb-6 text-center text-ink-darkest">紫微斗数排盘</h2>
+    <h2 class="font-display text-xl tracking-[0.12em] mb-6 text-center text-ink-darkest">
+      紫微斗数排盘
+    </h2>
 
     <div class="space-y-6">
       <!-- Birth date -->
       <div>
-        <label for="ziwei-birth-date" class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">出生日期</label>
+        <label
+          for="ziwei-birth-date"
+          class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans"
+          >出生日期</label
+        >
         <input
           id="ziwei-birth-date"
           type="date"
           :value="birthDate"
-          @input="onDateChange(($event.target as HTMLInputElement).value)"
           class="input-ink w-full"
+          @input="onDateChange(($event.target as HTMLInputElement).value)"
         />
       </div>
 
       <!-- Birth hour -->
       <div>
-        <label for="ziwei-birth-hour" class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">出生时辰</label>
+        <label
+          for="ziwei-birth-hour"
+          class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans"
+          >出生时辰</label
+        >
         <div class="relative">
           <select
             id="ziwei-birth-hour"
             :value="birthHour ?? ''"
-            @change="onHourChange(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
             class="input-ink w-full select-appearance"
+            @change="
+              onHourChange(
+                ($event.target as HTMLSelectElement).value
+                  ? Number(($event.target as HTMLSelectElement).value)
+                  : null,
+              )
+            "
           >
             <option value="">— 选择时辰 —</option>
             <option v-for="(name, idx) in TIME_NAMES" :key="idx" :value="idx">
@@ -54,7 +75,9 @@ defineProps<{
 
       <!-- Gender -->
       <fieldset>
-        <legend class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">性别</legend>
+        <legend class="block text-xs text-ink-light tracking-[0.08em] mb-1.5 font-sans">
+          性别
+        </legend>
         <div class="flex gap-3">
           <label
             v-for="opt in GENDER_OPTIONS"
@@ -66,16 +89,26 @@ defineProps<{
               name="ziwei-gender"
               :value="opt.value"
               :checked="gender === opt.value"
-              @change="onGenderChange(opt.value)"
               class="sr-only"
+              @change="onGenderChange(opt.value)"
             />
             <span
               class="px-4 py-2 text-sm rounded-lg border transition-all duration-300"
-              :class="gender === opt.value
-                ? 'border-cinnabar/40 bg-cinnabar/5 text-cinnabar font-medium'
-                : 'border-ink-faint/20 text-ink-light hover:border-ink-faint/40 hover:text-ink-dark'"
-              :style="gender === opt.value ? { boxShadow: '0 0 8px color-mix(in srgb, var(--color-cinnabar) 6%, transparent)' } : undefined"
-            >{{ opt.label }}</span>
+              :class="
+                gender === opt.value
+                  ? 'border-cinnabar/40 bg-cinnabar/5 text-cinnabar font-medium'
+                  : 'border-ink-faint/20 text-ink-light hover:border-ink-faint/40 hover:text-ink-dark'
+              "
+              :style="
+                gender === opt.value
+                  ? {
+                      boxShadow:
+                        '0 0 8px color-mix(in srgb, var(--color-cinnabar) 6%, transparent)',
+                    }
+                  : undefined
+              "
+              >{{ opt.label }}</span
+            >
           </label>
         </div>
       </fieldset>
@@ -83,12 +116,12 @@ defineProps<{
       <!-- Calculate button -->
       <p id="ziwei-form-hint" class="sr-only">请填写所有必填项（出生日期、时辰、性别）以启用排盘</p>
       <button
-        @click="onCalculate"
-        @keydown.enter="onCalculate"
-        @keydown.space.prevent="onCalculate"
         :disabled="loading || !birthDate || birthHour === null || !gender"
         class="btn-cin w-full justify-center mt-2"
         aria-describedby="ziwei-form-hint"
+        @click="onCalculate"
+        @keydown.enter="onCalculate"
+        @keydown.space.prevent="onCalculate"
       >
         <span>{{ loading ? '排盘中...' : '开始排盘' }}</span>
       </button>

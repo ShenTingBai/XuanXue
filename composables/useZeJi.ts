@@ -6,25 +6,25 @@ import { EVENT_TYPES, TWELVE_STAR_LEVEL } from '~/constants/zeji'
 // === Typed Exports ===
 
 export interface ZejiDayResult {
-  solarDate: string         // '2026-06-15'
-  lunarDate: string         // '五月初一'
-  lunarMonthName: string    // '五月'
-  lunarDayName: string      // '初一'
-  lunarYearGanZhi: string   // '丙午'
-  lunarMonthGanZhi: string  // '甲午'
-  lunarDayGanZhi: string    // '甲子'
-  twelveStar: string        // 十二值星
-  twelveStarLevel: string   // '吉'|'凶'|'平'
-  xiu: string               // 二十八宿
-  tianShen: string          // 天神
-  tianShenType: string      // 黄道/黑道
-  yi: string[]              // 宜
-  ji: string[]              // 忌
-  score: number             // 0-100 overall score
-  isRecommended: boolean    // score >= 65（≥85 上吉 / ≥65 吉 / ≥45 平 / <45 凶）
-  matchReasons: string[]    // Why this date matches the event
-  matchedYi: string[]       // Which 宜 items matched the event keywords
-  matchedJi: string[]       // Which 忌 items matched the event keywords
+  solarDate: string // '2026-06-15'
+  lunarDate: string // '五月初一'
+  lunarMonthName: string // '五月'
+  lunarDayName: string // '初一'
+  lunarYearGanZhi: string // '丙午'
+  lunarMonthGanZhi: string // '甲午'
+  lunarDayGanZhi: string // '甲子'
+  twelveStar: string // 十二值星
+  twelveStarLevel: string // '吉'|'凶'|'平'
+  xiu: string // 二十八宿
+  tianShen: string // 天神
+  tianShenType: string // 黄道/黑道
+  yi: string[] // 宜
+  ji: string[] // 忌
+  score: number // 0-100 overall score
+  isRecommended: boolean // score >= 65（≥85 上吉 / ≥65 吉 / ≥45 平 / <45 凶）
+  matchReasons: string[] // Why this date matches the event
+  matchedYi: string[] // Which 宜 items matched the event keywords
+  matchedJi: string[] // Which 忌 items matched the event keywords
 }
 
 export interface ZejiResult {
@@ -32,11 +32,11 @@ export interface ZejiResult {
   eventName: string
   months: {
     year: number
-    month: number           // solar month (1-12)
-    label: string           // display label e.g. '2026年 六月'
+    month: number // solar month (1-12)
+    label: string // display label e.g. '2026年 六月'
     days: ZejiDayResult[]
   }[]
-  recommendedDates: ZejiDayResult[]  // top dates across all months, sorted by score desc
+  recommendedDates: ZejiDayResult[] // top dates across all months, sorted by score desc
 }
 
 // === Scoring Helpers ===
@@ -58,12 +58,7 @@ function itemMatchesKeywords(item: string, keywords: string[]): boolean {
  * Evaluate a single day for the given event type.
  * Returns a ZejiDayResult with full almanac data and score.
  */
-function evaluateDay(
-  year: number,
-  month: number,
-  day: number,
-  eventType: string,
-): ZejiDayResult {
+function evaluateDay(year: number, month: number, day: number, eventType: string): ZejiDayResult {
   const keywords = EVENT_TYPES[eventType]?.keywords || []
   const solar = Solar.fromYmd(year, month, day)
   const lunar = solar.getLunar()

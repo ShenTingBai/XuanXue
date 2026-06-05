@@ -1,11 +1,7 @@
 <template>
   <div class="fade-in" :style="{ '--delay': delay }">
     <!-- ══ Grade banner ══ -->
-    <div
-      class="score-banner"
-      role="region"
-      aria-label="合婚评分"
-    >
+    <div class="score-banner" role="region" aria-label="合婚评分">
       <div class="banner-left">
         <div class="banner-grade" :style="{ color: grade?.color ?? 'var(--color-cinnabar)' }">
           {{ grade ? grade.level : '--' }}
@@ -19,16 +15,25 @@
         <div class="score-ring-wrap">
           <svg viewBox="0 0 120 120" class="score-ring">
             <!-- Background circle -->
-            <circle cx="60" cy="60" r="52" fill="none"
+            <circle
+              cx="60"
+              cy="60"
+              r="52"
+              fill="none"
               stroke="color-mix(in srgb, var(--color-ink-faint) 18%, transparent)"
-              stroke-width="8" />
+              stroke-width="8"
+            />
             <!-- Progress arc -->
-            <circle cx="60" cy="60" r="52" fill="none"
+            <circle
+              cx="60"
+              cy="60"
+              r="52"
+              fill="none"
               :stroke="grade?.color ?? 'var(--color-cinnabar)'"
               stroke-width="8"
               stroke-linecap="round"
               :stroke-dasharray="326.7"
-              :stroke-dashoffset="326.7 - (326.7 * totalScore / 100)"
+              :stroke-dashoffset="326.7 - (326.7 * totalScore) / 100"
               transform="rotate(-90 60 60)"
               class="score-arc"
             />
@@ -167,7 +172,13 @@ defineProps<{
 }
 
 @keyframes bannerIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

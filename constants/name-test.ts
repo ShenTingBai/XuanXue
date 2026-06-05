@@ -58,7 +58,12 @@ export const NUMBERS_81: NumberMeaning[] = [
   { number: 16, fortune: '吉', name: '厚重之数', meaning: '厚重载德，安富尊荣，地位显赫。' },
   { number: 17, fortune: '吉', name: '刚强之数', meaning: '权威刚强，突破万难，可成大业。' },
   { number: 18, fortune: '吉', name: '有志竟成', meaning: '有志竟成，智勇双全，排除万难。' },
-  { number: 19, fortune: '凶', name: '风云蔽月', meaning: '短暂明月，辛苦叠来，虽有智谋，万事挫折。' },
+  {
+    number: 19,
+    fortune: '凶',
+    name: '风云蔽月',
+    meaning: '短暂明月，辛苦叠来，虽有智谋，万事挫折。',
+  },
   { number: 20, fortune: '凶', name: '非业破运', meaning: '非业破运，灾难不安，百事难成。' },
   { number: 21, fortune: '吉', name: '明月中天', meaning: '光风霁月，大业有成，首领之数。' },
   { number: 22, fortune: '凶', name: '秋草逢霜', meaning: '秋草逢霜，怀才不遇，忧愁怨苦。' },
@@ -128,7 +133,7 @@ export const NUMBER_MAP = new Map(NUMBERS_81.map(n => [n.number, n]))
 /** 获取数理 */
 export function getNumberMeaning(num: number): NumberMeaning {
   // 81 以上取个位数+循环；仅 1-81 有定义
-  const key = num > 81 ? ((num - 1) % 81 + 1) : num
+  const key = num > 81 ? ((num - 1) % 81) + 1 : num
   return NUMBER_MAP.get(key) || NUMBERS_81[0]
 }
 
@@ -139,11 +144,16 @@ export function getNumberMeaning(num: number): NumberMeaning {
 export function getNumberWuxing(num: number): string {
   const n = num % 10 === 0 ? 10 : num % 10
   const map: Record<number, string> = {
-    1: '木', 2: '木',
-    3: '火', 4: '火',
-    5: '土', 6: '土',
-    7: '金', 8: '金',
-    9: '水', 10: '水',
+    1: '木',
+    2: '木',
+    3: '火',
+    4: '火',
+    5: '土',
+    6: '土',
+    7: '金',
+    8: '金',
+    9: '水',
+    10: '水',
   }
   return map[n] || '土'
 }
@@ -158,14 +168,15 @@ export function getSanCaiFortune(tian: string, ren: string, di: string): '吉' |
   // 相生关系
   const genIdx = (w: string) => WUXING_CYCLE.indexOf(w)
   const isGenerate = (a: string, b: string) => {
-    const ia = genIdx(a), ib = genIdx(b)
+    const ia = genIdx(a),
+      ib = genIdx(b)
     return ia >= 0 && ib >= 0 && (ib === (ia + 1) % 5 || ib === (ia + 3) % 5) // 生或反生
   }
 
   // 天→人 生则吉，克则凶
-  const tianToRen = isGenerate(tian, ren) ? '吉' : (isGenerate(ren, tian) ? '半吉' : '凶')
+  const tianToRen = isGenerate(tian, ren) ? '吉' : isGenerate(ren, tian) ? '半吉' : '凶'
   // 人→地 生则吉，克则凶
-  const renToDi = isGenerate(ren, di) ? '吉' : (isGenerate(di, ren) ? '半吉' : '凶')
+  const renToDi = isGenerate(ren, di) ? '吉' : isGenerate(di, ren) ? '半吉' : '凶'
 
   if (tianToRen === '吉' && renToDi === '吉') return '吉'
   if (tianToRen === '凶' || renToDi === '凶') return '凶'
@@ -207,7 +218,7 @@ export function calculateNameScore(
   waiFortune: '吉' | '凶' | '半吉',
   sanCaiFortune: '吉' | '凶' | '半吉',
 ): number {
-  const fortuneScore = (f: '吉' | '凶' | '半吉') => f === '吉' ? 20 : f === '半吉' ? 10 : 0
+  const fortuneScore = (f: '吉' | '凶' | '半吉') => (f === '吉' ? 20 : f === '半吉' ? 10 : 0)
   const sanCaiScore = sanCaiFortune === '吉' ? 20 : sanCaiFortune === '半吉' ? 8 : 0
 
   const scores = [

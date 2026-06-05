@@ -10,9 +10,7 @@ import {
   calculateYijingScore,
   computeYijingResult,
 } from '../../composables/useYijing'
-import {
-  HEXAGRAM_NAMES, HEXAGRAM_JUDGMENTS, LINE_JUDGMENTS,
-} from '../../constants/yijing'
+import { HEXAGRAM_NAMES, HEXAGRAM_JUDGMENTS, LINE_JUDGMENTS } from '../../constants/yijing'
 
 // ============================
 // 1. Coin Casting (castByCoin)
@@ -478,12 +476,12 @@ describe('calculateYijingScore ranges and edge cases', () => {
 
   it('returns scores in valid 0-100 range for diverse changing patterns', () => {
     const testCases = [
-      [9, 8, 8, 8, 8, 8],  // 1 changing
-      [6, 7, 8, 9, 7, 8],  // 2 changing
-      [6, 9, 6, 8, 8, 8],  // 3 changing
-      [6, 9, 6, 8, 9, 8],  // 4 changing
-      [6, 9, 6, 8, 9, 6],  // 5 changing
-      [6, 9, 6, 9, 9, 6],  // 6 changing
+      [9, 8, 8, 8, 8, 8], // 1 changing
+      [6, 7, 8, 9, 7, 8], // 2 changing
+      [6, 9, 6, 8, 8, 8], // 3 changing
+      [6, 9, 6, 8, 9, 8], // 4 changing
+      [6, 9, 6, 8, 9, 6], // 5 changing
+      [6, 9, 6, 9, 9, 6], // 6 changing
     ]
     testCases.forEach(values => {
       const result = computeYijingResult(values)
@@ -710,12 +708,12 @@ describe('derived hexagram zhuang gua', () => {
 describe('diverse hexagram combinations', () => {
   it('supports diverse inputs without throwing', () => {
     const testCases = [
-      [7, 7, 7, 7, 7, 7],  // 乾为天
-      [8, 8, 8, 8, 8, 8],  // 坤为地
-      [9, 8, 7, 8, 7, 8],  // mixed changing
-      [6, 7, 8, 9, 7, 8],  // multiple changing
-      [6, 6, 6, 6, 6, 6],  // all old yin
-      [9, 9, 9, 9, 9, 9],  // all old yang
+      [7, 7, 7, 7, 7, 7], // 乾为天
+      [8, 8, 8, 8, 8, 8], // 坤为地
+      [9, 8, 7, 8, 7, 8], // mixed changing
+      [6, 7, 8, 9, 7, 8], // multiple changing
+      [6, 6, 6, 6, 6, 6], // all old yin
+      [9, 9, 9, 9, 9, 9], // all old yang
     ]
     testCases.forEach(values => {
       const result = computeYijingResult(values)

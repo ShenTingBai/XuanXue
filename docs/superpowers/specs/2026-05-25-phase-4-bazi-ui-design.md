@@ -33,6 +33,7 @@ Reading Guide     -- no delay (unchanged)
 ```
 
 Rationale:
+
 - **ShenShaPanel after BaziGrid**: Shensha are computed from the four pillars. Placing them immediately after the pillar grid means the user reads the pillar data, then sees the derived shensha markers, then proceeds to element analysis. This creates a natural information cascade: static structure (pillars) -> derived markers (shensha) -> elemental balance (elements/strength) -> temporal cycles (da yun/liu nian).
 - **LiuNianTimeline after DaYunTimeline**: Both are temporal. Da yun is macro-scale (10-year cycles), liu nian is micro-scale (annual). Reading macro then micro is the standard BaZi interpretation flow.
 - Delay values fill the gaps between existing delays (0.05 -> 0.15 -> 0.20) and extend the sequence (0.40 -> 0.50), preserving the staggered cascade animation.
@@ -74,16 +75,19 @@ Displays the computed shensha (spirit markers) from the birth chart. Each shensh
 ### 2.3 Visual Hierarchy
 
 **Section container:**
+
 - Standard pattern: `InkDivider` + helper `<p>` + `card-paper-solid`
 - Card padding: `p-4 sm:p-5` (matches BaziGrid, ElementAnalysis)
 - Internal spacing: `space-y-4` between the three category groups
 
 **Category headers:**
+
 - `font-sans text-xs font-medium text-ink-light tracking-wider mb-2`
 - Examples: `吉神`, `中性`, `凶煞`
 - No emoji or icons -- purely typographic
 
 **Badges (吉神):**
+
 - Background: `#4A7C5918` (jade at ~9% opacity)
 - Text: `#4A7C59` (jade solid)
 - Border: `1px solid #4A7C5930`
@@ -93,12 +97,14 @@ Displays the computed shensha (spirit markers) from the birth chart. Each shensh
 - Cursor: `cursor-default` (badges are not interactive, tooltips are informational)
 
 **Badges (中性):**
+
 - Background: `#6B5B4F12` (ink-medium at ~7% opacity)
 - Text: `#6B5B4F`
 - Border: `1px solid #6B5B4F28`
 - Same size/shape as 吉神
 
 **Badges (凶煞):**
+
 - Background: `#C628280E` (cinnabar at ~5.5% opacity -- deliberately subtle)
 - Text: `#C6282890` (cinnabar at ~56% opacity -- muted, not alarming)
 - Border: `1px solid #C6282820`
@@ -106,6 +112,7 @@ Displays the computed shensha (spirit markers) from the birth chart. Each shensh
 - **Important**: Cinnabar is used muted here because these are informational markers, not warnings. We want to signal "note this" without the visual weight of a danger indicator.
 
 **Empty state:**
+
 - If a category has zero badges, omit the section entirely (`v-if`)
 - If ALL shensha arrays are empty (should not happen with full chart, but as a guard), show a single `font-sans text-xs text-ink-light/60` message: "该命局无特殊神煞标记"
 
@@ -123,6 +130,7 @@ Each badge carries a hover tooltip that appears above the badge:
 ```
 
 Design decisions:
+
 - **Tooltip appears above** (`bottom-full` positioning with `mb-1.5`)
 - **Centered** on badge (`left-1/2 -translate-x-1/2`)
 - **Max width**: `max-w-[16rem]` (256px), text wraps (`white-space: normal`)
@@ -137,6 +145,7 @@ Design decisions:
 - **pointer-events**: `pointer-events-none` (tooltip does not block hover on adjacent badges)
 
 The `source` display format: `{source} · {pillar}{position}`. Examples:
+
 - `日干 · 月柱地支`
 - `年支 · 日柱地支`
 - `日支 · 日柱本柱`
@@ -165,7 +174,7 @@ The `source` display format: `{source} · {pillar}{position}`. Examples:
 
 ```typescript
 defineProps<{
-  shenSha: ShenSha[]   // from composables/useShenSha.ts
+  shenSha: ShenSha[] // from composables/useShenSha.ts
 }>()
 ```
 
@@ -398,14 +407,15 @@ When a compact card is clicked, additional detail slides in below the summary:
 
 A four-tier color system based on the 0-100 score:
 
-| Score Range | Color      | Hex       | Meaning          |
-|-------------|------------|-----------|------------------|
-| 70 - 100    | Jade       | `#4A7C59` | Favorable        |
-| 50 - 69     | Gold       | `#B8860B` | Moderate/neutral |
-| 30 - 49     | Ink-Metal  | `#8E8E8E` | Cautious         |
-| 0 - 29      | Cinnabar   | `#C62828` | Challenging      |
+| Score Range | Color     | Hex       | Meaning          |
+| ----------- | --------- | --------- | ---------------- |
+| 70 - 100    | Jade      | `#4A7C59` | Favorable        |
+| 50 - 69     | Gold      | `#B8860B` | Moderate/neutral |
+| 30 - 49     | Ink-Metal | `#8E8E8E` | Cautious         |
+| 0 - 29      | Cinnabar  | `#C62828` | Challenging      |
 
 These colors are used for:
+
 - Score ring arc (current year)
 - Score bar fill (compact cards)
 - Score number text
@@ -413,12 +423,14 @@ These colors are used for:
 ### 3.7 Responsive Behavior
 
 **Desktop (sm+):**
+
 - Current year card: full-width expanded card
 - Compact cards: horizontal row layout as described above
 - Monthly stems: 6-column grid
 - Everything in a single `space-y-4` stack
 
 **Mobile (< sm):**
+
 - Current year card: same layout but reduced padding (`p-4` instead of `p-5`)
 - Header row wraps: year + stem+branch on first line, score ring moves below or stays right-aligned
   - The year + stem/branch + ten god use `flex-wrap` so they wrap naturally
@@ -447,9 +459,9 @@ These colors are used for:
 
 ```typescript
 defineProps<{
-  years: LiuNianYear[]     // from composables/useLiuNian.ts
-  currentYear: number      // the reference "now" year (center of timeline)
-  range: number            // how many years on each side
+  years: LiuNianYear[] // from composables/useLiuNian.ts
+  currentYear: number // the reference "now" year (center of timeline)
+  range: number // how many years on each side
 }>()
 ```
 
@@ -477,7 +489,9 @@ const shenSha = computed(() => {
     dayPillar: result.value.dayPillar,
     hourPillar: result.value.hourPillar,
     dayMaster: result.value.dayMaster,
-    dayMasterIndex: ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'].indexOf(result.value.dayMaster),
+    dayMasterIndex: ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'].indexOf(
+      result.value.dayMaster,
+    ),
     gender: result.value.gender,
   })
 })
@@ -513,22 +527,22 @@ const currentYear = computed(() => new Date().getFullYear())
 <LiuNianTimeline :years="liuNian" :current-year="currentYear" :range="5" />
 
 <!-- Before Reading Guide opening tag -->
-<div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br ...">
+<div class="mt-8 p-5 sm:p-6 rounded-xl bg-gradient-to-br ..."></div>
 ```
 
 ### 4.4 Delay Value Assignment
 
 The `fade-in` animation delay values for the two new components are chosen to fit into the existing staggered sequence:
 
-| Component        | Delay  | Notes                                              |
-|------------------|--------|----------------------------------------------------|
-| BaziGrid         | 0.05s  | Unchanged                                          |
-| **ShenShaPanel** | 0.15s  | Midpoint between BaziGrid (0.05) and ElementAnalysis (0.20) |
-| ElementAnalysis  | 0.20s  | Unchanged                                          |
-| DayMasterCard    | 0.30s  | Unchanged                                          |
-| DaYunTimeline    | 0.40s  | Unchanged                                          |
-| **LiuNianTimeline** | 0.50s | Continues the 0.10s increment pattern after DaYunTimeline |
-| Reading Guide    | n/a    | Unchanged (static, no fade-in)                     |
+| Component           | Delay | Notes                                                       |
+| ------------------- | ----- | ----------------------------------------------------------- |
+| BaziGrid            | 0.05s | Unchanged                                                   |
+| **ShenShaPanel**    | 0.15s | Midpoint between BaziGrid (0.05) and ElementAnalysis (0.20) |
+| ElementAnalysis     | 0.20s | Unchanged                                                   |
+| DayMasterCard       | 0.30s | Unchanged                                                   |
+| DaYunTimeline       | 0.40s | Unchanged                                                   |
+| **LiuNianTimeline** | 0.50s | Continues the 0.10s increment pattern after DaYunTimeline   |
+| Reading Guide       | n/a   | Unchanged (static, no fade-in)                              |
 
 ---
 
@@ -536,27 +550,27 @@ The `fade-in` animation delay values for the two new components are chosen to fi
 
 All typographic decisions follow the established component patterns:
 
-| Element                     | Font            | Size       | Weight    | Color        |
-|-----------------------------|-----------------|------------|-----------|--------------|
-| Section heading (InkDivider)| Ma Shan Zheng   | text-xl/sm | 400       | ink-dark     |
-| Helper text                 | Noto Sans SC    | text-sm    | 400       | ink-light/70 |
-| Category headers (shensha)  | Noto Sans SC    | text-xs    | 500       | ink-light    |
-| Badge text (shensha)        | Noto Sans SC    | text-xs    | 400       | varies       |
-| Tooltip description         | Noto Sans SC    | text-xs    | 400       | #D4C9B8      |
-| Tooltip source              | Noto Sans SC    | text-[0.65rem] | 400   | opacity-60   |
-| Year number (current)       | Ma Shan Zheng   | text-2xl   | 500       | cinnabar     |
-| Stem+branch (current)       | Ma Shan Zheng   | text-xl    | 400       | ink-dark     |
-| Ten god (current)           | Noto Sans SC    | text-sm    | 500       | cinnabar     |
-| Summary (current)           | Noto Sans SC    | text-sm    | 400       | ink-medium   |
-| Detail section headers      | Noto Sans SC    | text-xs    | 500       | ink-dark     |
-| Detail body text            | Noto Sans SC    | text-xs    | 400       | ink-medium   |
-| DaYun banner                | Noto Sans SC    | text-xs    | 400       | ink-light    |
-| Month grid label            | Noto Sans SC    | text-[0.6rem] | 400    | ink-light    |
-| Month grid stem+branch      | Ma Shan Zheng   | text-xs    | 400       | ink-dark     |
-| Compact: year               | Noto Sans SC    | text-sm    | 500       | ink-dark     |
-| Compact: stem+branch        | Ma Shan Zheng   | text-lg    | 400       | ink-dark     |
-| Compact: ten god badge      | Noto Sans SC    | text-xs    | 400       | varies       |
-| Compact: summary            | Noto Sans SC    | text-xs    | 400       | ink-light/70 |
+| Element                      | Font          | Size           | Weight | Color        |
+| ---------------------------- | ------------- | -------------- | ------ | ------------ |
+| Section heading (InkDivider) | Ma Shan Zheng | text-xl/sm     | 400    | ink-dark     |
+| Helper text                  | Noto Sans SC  | text-sm        | 400    | ink-light/70 |
+| Category headers (shensha)   | Noto Sans SC  | text-xs        | 500    | ink-light    |
+| Badge text (shensha)         | Noto Sans SC  | text-xs        | 400    | varies       |
+| Tooltip description          | Noto Sans SC  | text-xs        | 400    | #D4C9B8      |
+| Tooltip source               | Noto Sans SC  | text-[0.65rem] | 400    | opacity-60   |
+| Year number (current)        | Ma Shan Zheng | text-2xl       | 500    | cinnabar     |
+| Stem+branch (current)        | Ma Shan Zheng | text-xl        | 400    | ink-dark     |
+| Ten god (current)            | Noto Sans SC  | text-sm        | 500    | cinnabar     |
+| Summary (current)            | Noto Sans SC  | text-sm        | 400    | ink-medium   |
+| Detail section headers       | Noto Sans SC  | text-xs        | 500    | ink-dark     |
+| Detail body text             | Noto Sans SC  | text-xs        | 400    | ink-medium   |
+| DaYun banner                 | Noto Sans SC  | text-xs        | 400    | ink-light    |
+| Month grid label             | Noto Sans SC  | text-[0.6rem]  | 400    | ink-light    |
+| Month grid stem+branch       | Ma Shan Zheng | text-xs        | 400    | ink-dark     |
+| Compact: year                | Noto Sans SC  | text-sm        | 500    | ink-dark     |
+| Compact: stem+branch         | Ma Shan Zheng | text-lg        | 400    | ink-dark     |
+| Compact: ten god badge       | Noto Sans SC  | text-xs        | 400    | varies       |
+| Compact: summary             | Noto Sans SC  | text-xs        | 400    | ink-light/70 |
 
 ---
 
@@ -564,25 +578,25 @@ All typographic decisions follow the established component patterns:
 
 All colors are from `tailwind.config.ts` design tokens. No hardcoded values except where explicitly noted for SVG strokes or tooltip backgrounds.
 
-| Usage                          | Color       | Token / Hex          |
-|--------------------------------|-------------|----------------------|
-| 吉神 badge text/border         | Jade        | `#4A7C59` (wuxing-wood) |
-| 中性 badge text/border         | Ink-medium  | `#6B5B4F`           |
-| 凶煞 badge text/border         | Cinnabar    | `#C62828` (at ~56% text opacity) |
-| Current year card border       | Cinnabar    | `border-cinnabar`   |
-| Current year card bg tint      | Cinnabar    | `bg-cinnabar/3`     |
-| Score >= 70                    | Jade        | `#4A7C59`           |
-| Score 50-69                    | Gold        | `#B8860B`           |
-| Score 30-49                    | Ink-metal   | `#8E8E8E`           |
-| Score < 30                     | Cinnabar    | `#C62828`           |
-| 合 relation badge              | Jade        | `#4A7C59`           |
-| 冲 relation badge              | Cinnabar    | `#C62828`           |
-| 刑 relation badge              | Gold        | `#B8860B`           |
-| 害 relation badge              | Ink-metal   | `#8E8E8E`           |
-| Tooltip background             | Near-black  | `#2C2C2C` (hardcoded) |
-| Tooltip text                   | Warm light  | `#D4C9B8` (hardcoded) |
-| Monthly stem cell border       | Paper-dark  | `#E0D5C0` at 30%   |
-| Compact card divider           | Paper-dark  | `border-paper-dark/50` |
+| Usage                     | Color      | Token / Hex                      |
+| ------------------------- | ---------- | -------------------------------- |
+| 吉神 badge text/border    | Jade       | `#4A7C59` (wuxing-wood)          |
+| 中性 badge text/border    | Ink-medium | `#6B5B4F`                        |
+| 凶煞 badge text/border    | Cinnabar   | `#C62828` (at ~56% text opacity) |
+| Current year card border  | Cinnabar   | `border-cinnabar`                |
+| Current year card bg tint | Cinnabar   | `bg-cinnabar/3`                  |
+| Score >= 70               | Jade       | `#4A7C59`                        |
+| Score 50-69               | Gold       | `#B8860B`                        |
+| Score 30-49               | Ink-metal  | `#8E8E8E`                        |
+| Score < 30                | Cinnabar   | `#C62828`                        |
+| 合 relation badge         | Jade       | `#4A7C59`                        |
+| 冲 relation badge         | Cinnabar   | `#C62828`                        |
+| 刑 relation badge         | Gold       | `#B8860B`                        |
+| 害 relation badge         | Ink-metal  | `#8E8E8E`                        |
+| Tooltip background        | Near-black | `#2C2C2C` (hardcoded)            |
+| Tooltip text              | Warm light | `#D4C9B8` (hardcoded)            |
+| Monthly stem cell border  | Paper-dark | `#E0D5C0` at 30%                 |
+| Compact card divider      | Paper-dark | `border-paper-dark/50`           |
 
 The two hardcoded colors (`#2C2C2C` and `#D4C9B8`) for tooltips are deliberate: the tooltip needs high contrast against any background (paper, card, or ink-wash), and using a near-black background with light text achieves this regardless of parent context. No design system token captures this "inverse surface" concept, so hardcoded values are acceptable.
 

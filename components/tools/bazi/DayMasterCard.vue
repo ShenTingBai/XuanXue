@@ -7,7 +7,9 @@
 
     <div class="card-warm rounded-xl p-8">
       <div class="flex items-center gap-4 mb-4">
-        <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-cinnabar/5 border border-cinnabar/20 flex items-center justify-center">
+        <div
+          class="flex-shrink-0 w-14 h-14 rounded-xl bg-cinnabar/5 border border-cinnabar/20 flex items-center justify-center"
+        >
           <span class="font-display text-2xl text-cinnabar">{{ dayMaster }}</span>
         </div>
         <div>
@@ -24,9 +26,13 @@
         <div>
           <h4 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">喜用神</h4>
           <div class="flex gap-2">
-            <span v-for="el in favorableElements" :key="el"
+            <span
+              v-for="el in favorableElements"
+              :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-sans font-medium"
-              :class="elementBgClass(el)" :style="{ color: elementColor(el) }">
+              :class="elementBgClass(el)"
+              :style="{ color: elementColor(el) }"
+            >
               {{ el }}
             </span>
           </div>
@@ -34,9 +40,13 @@
         <div>
           <h4 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">忌神</h4>
           <div class="flex gap-2">
-            <span v-for="el in unfavorableElements" :key="el"
+            <span
+              v-for="el in unfavorableElements"
+              :key="el"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-sans font-medium"
-              :class="elementBgClass(el)" :style="{ color: elementColor(el) }">
+              :class="elementBgClass(el)"
+              :style="{ color: elementColor(el) }"
+            >
               {{ el }}
             </span>
           </div>
@@ -60,12 +70,19 @@ const props = defineProps<{
 const strengthColorClass = computed(() => strengthColorClassFn(props.dayMasterStrength))
 
 const ELEMENT_BG: Record<string, string> = {
-  '木': 'wuxing-wood', '火': 'wuxing-fire', '土': 'wuxing-earth',
-  '金': 'wuxing-metal', '水': 'wuxing-water',
+  木: 'wuxing-wood',
+  火: 'wuxing-fire',
+  土: 'wuxing-earth',
+  金: 'wuxing-metal',
+  水: 'wuxing-water',
 }
 
-function elementColor(el: string): string { return wuxingColor(el) }
-function elementBgClass(el: string): string { return ELEMENT_BG[el] ? `el-bg--${ELEMENT_BG[el]}` : 'el-bg--fallback' }
+function elementColor(el: string): string {
+  return wuxingColor(el)
+}
+function elementBgClass(el: string): string {
+  return ELEMENT_BG[el] ? `el-bg--${ELEMENT_BG[el]}` : 'el-bg--fallback'
+}
 </script>
 
 <style scoped>

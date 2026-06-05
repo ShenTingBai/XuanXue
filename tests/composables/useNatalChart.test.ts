@@ -1,6 +1,11 @@
 // tests/composables/useNatalChart.test.ts
 import { describe, it, expect } from 'vitest'
-import { calculateNatalChart, computeAspects, computeHouses, type PlanetPosition } from '../../composables/useNatalChart'
+import {
+  calculateNatalChart,
+  computeAspects,
+  computeHouses,
+  type PlanetPosition,
+} from '../../composables/useNatalChart'
 
 describe('calculateNatalChart', () => {
   it('returns null when birthYear is null', () => {

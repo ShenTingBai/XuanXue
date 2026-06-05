@@ -1,141 +1,131 @@
 <template>
   <ToolPageLayout>
-      <h1 class="sr-only">六爻占卜</h1>
+    <h1 class="sr-only">六爻占卜</h1>
 
-      <div class="max-w-[48rem] mx-auto">
-        <!-- Toolbar: always visible for back navigation -->
-        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-          <template #extra>
-            <ExportButton
-              v-if="result && !processing"
-              :target-ref="exportRef"
-              filename="六爻卦象.png"
-              :is-exporting="isExporting"
-              @export="handleExport"
-            />
-          </template>
-        </ToolToolbar>
+    <div class="max-w-[48rem] mx-auto">
+      <!-- Toolbar: always visible for back navigation -->
+      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+        <template #extra>
+          <ExportButton
+            v-if="result && !processing"
+            :target-ref="exportRef"
+            filename="六爻卦象.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </template>
+      </ToolToolbar>
 
-        <!-- Casting panel -->
-        <YijingCastingPanel
-          :mode="castingMode"
-          :current-toss="currentToss"
-          :coin-results="coinResults"
-          :processing="processing"
-          @toss="handleToss"
-          @cast-number="handleCastNumber"
-          @reset="requestReset"
-          @update:mode="castingMode = $event"
-        />
+      <!-- Casting panel -->
+      <YijingCastingPanel
+        :mode="castingMode"
+        :current-toss="currentToss"
+        :coin-results="coinResults"
+        :processing="processing"
+        @toss="handleToss"
+        @cast-number="handleCastNumber"
+        @reset="requestReset"
+        @update:mode="castingMode = $event"
+      />
 
-        <!-- Loading / processing -->
-        <div v-if="processing" class="space-y-6" aria-busy="true">
-          <span class="sr-only">正在加载...</span>
-          <SkeletonCard />
+      <!-- Loading / processing -->
+      <div v-if="processing" class="space-y-6" aria-busy="true">
+        <span class="sr-only">正在加载...</span>
+        <SkeletonCard />
+      </div>
+
+      <!-- Error -->
+      <div v-else-if="error" class="text-center py-16">
+        <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+        <div class="flex justify-center mt-6">
+          <button class="btn-cin" @click="handleReset">
+            <span>重新起卦</span>
+          </button>
         </div>
+      </div>
 
-        <!-- Error -->
-        <div v-else-if="error" class="text-center py-16">
-          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
-          <div class="flex justify-center mt-6">
-            <button @click="handleReset" class="btn-cin">
-              <span>重新起卦</span>
-            </button>
-          </div>
-        </div>
+      <div aria-live="polite" role="status" class="sr-only">
+        <span v-if="processing">解卦中，请稍候</span>
+        <span v-else-if="result">卦象已就绪</span>
+      </div>
 
-        <div aria-live="polite" role="status" class="sr-only">
-          <span v-if="processing">解卦中，请稍候</span>
-          <span v-else-if="result">卦象已就绪</span>
-        </div>
-
-        <!-- Reset confirmation dialog -->
-        <Transition name="confirm-dialog">
-          <div
-            ref="confirmDialogRef"
-            v-if="showResetConfirm"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-ink-dark/20 backdrop-blur-sm"
-            role="dialog"
-            aria-modal="true"
-            aria-label="确认重新起卦"
-            @keydown.escape="cancelReset"
-            @keydown.tab="handleDialogTab"
-          >
-            <div class="card-warm rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
-              <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
-              <p class="font-sans text-sm text-ink-medium mb-6">当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。</p>
-              <div class="flex gap-3 justify-end">
-                <button
-                  class="btn-ghost text-sm"
-                  @click="cancelReset"
-                  @keydown.enter="cancelReset"
-                >继续摇卦</button>
-                <button
-                  class="btn-cin"
-                  @click="confirmReset"
-                  @keydown.enter="confirmReset"
-                >确定重新起卦</button>
-              </div>
+      <!-- Reset confirmation dialog -->
+      <Transition name="confirm-dialog">
+        <div
+          v-if="showResetConfirm"
+          ref="confirmDialogRef"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-ink-dark/20 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="确认重新起卦"
+          @keydown.escape="cancelReset"
+          @keydown.tab="handleDialogTab"
+        >
+          <div class="card-warm rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
+            <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
+            <p class="font-sans text-sm text-ink-medium mb-6">
+              当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。
+            </p>
+            <div class="flex gap-3 justify-end">
+              <button class="btn-ghost text-sm" @click="cancelReset" @keydown.enter="cancelReset">
+                继续摇卦
+              </button>
+              <button class="btn-cin" @click="confirmReset" @keydown.enter="confirmReset">
+                确定重新起卦
+              </button>
             </div>
           </div>
-        </Transition>
-
-        <div v-if="result && !processing" class="flex items-center justify-between">
-          <div class="section-header flex-1 min-w-0">
-            <h2>占卜结果</h2>
-          </div>
-          <MethodologyNote
-            :classical="yijingClassical"
-            :synthesis="yijingSynthesis"
-            tool="六爻"
-          />
         </div>
+      </Transition>
 
-        <!-- Results -->
-        <div ref="resultSection" v-if="result && !processing" class="mt-8">
-          <div ref="exportRef">
-          <YijingInterpretation :result="result" :score="score" />
-          </div>
-
-          <!-- Auto-save is fire-and-forget, failures are silent -->
-
-          <!-- Reset -->
-          <div class="text-center mt-6 pb-8">
-            <button
-              class="btn-ink"
-              @click="requestReset"
-              @keydown.enter="requestReset"
-              @keydown.space.prevent="requestReset"
-            >
-              ⟲ 重新占卜
-            </button>
-          </div>
-
-          <EntertainmentDisclaimer />
+      <div v-if="result && !processing" class="flex items-center justify-between">
+        <div class="section-header flex-1 min-w-0">
+          <h2>占卜结果</h2>
         </div>
-
-          <HistoryModal
-            :show="showHistoryModal"
-            type="yijing"
-            @close="showHistoryModal = false"
-            @restore="onHistoryRestore"
-          />
-        <ScrollTopButton
-          v-if="showScrollTop"
-          class="right-8"
-          @click="scrollToTop"
-          @keydown.enter="scrollToTop"
-        />
+        <MethodologyNote :classical="yijingClassical" :synthesis="yijingSynthesis" tool="六爻" />
       </div>
+
+      <!-- Results -->
+      <div v-if="result && !processing" ref="resultSection" class="mt-8">
+        <div ref="exportRef">
+          <YijingInterpretation :result="result" :score="score" />
+        </div>
+
+        <!-- Auto-save is fire-and-forget, failures are silent -->
+
+        <!-- Reset -->
+        <div class="text-center mt-6 pb-8">
+          <button
+            class="btn-ink"
+            @click="requestReset"
+            @keydown.enter="requestReset"
+            @keydown.space.prevent="requestReset"
+          >
+            ⟲ 重新占卜
+          </button>
+        </div>
+
+        <EntertainmentDisclaimer />
+      </div>
+
+      <HistoryModal
+        :show="showHistoryModal"
+        type="yijing"
+        @close="showHistoryModal = false"
+        @restore="onHistoryRestore"
+      />
+      <ScrollTopButton
+        v-if="showScrollTop"
+        class="right-8"
+        @click="scrollToTop"
+        @keydown.enter="scrollToTop"
+      />
+    </div>
   </ToolPageLayout>
 </template>
 
 <script setup lang="ts">
-import {
-  castByNumbers,
-  computeYijingResult,
-  type YijingResult,
-} from '~/composables/useYijing'
+import { castByNumbers, computeYijingResult, type YijingResult } from '~/composables/useYijing'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
@@ -296,7 +286,7 @@ function clearAllTimers() {
 }
 
 // Reset confirmation dialog focus management
-watch(showResetConfirm, (val) => {
+watch(showResetConfirm, val => {
   if (val) {
     nextTick(() => {
       confirmDialogRef.value?.querySelector<HTMLElement>('button')?.focus()
@@ -307,9 +297,11 @@ watch(showResetConfirm, (val) => {
 function handleDialogTab(e: KeyboardEvent) {
   const dialog = confirmDialogRef.value
   if (!dialog) return
-  const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-  ))
+  const focusable = Array.from(
+    dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    ),
+  )
   if (focusable.length === 0) return
 
   const first = focusable[0]
@@ -383,7 +375,11 @@ async function restoreFromHistory(id: number) {
 
     // Restore casting mode from input_data
     if (record.input_data) {
-      const input = record.input_data as { yaoValues?: number[]; castingMode?: 'coin' | 'number'; hexagramName?: string }
+      const input = record.input_data as {
+        yaoValues?: number[]
+        castingMode?: 'coin' | 'number'
+        hexagramName?: string
+      }
       if (input.castingMode) {
         castingMode.value = input.castingMode
       }
@@ -411,7 +407,9 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const prefersReducedMotion = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!prefersReducedMotion) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
@@ -435,7 +433,11 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
       headers: getAuthHeaders(),
       body: {
         type: 'yijing',
-        input_data: { yaoValues: values, castingMode: castingMode.value, hexagramName: yijingResult.hexagram.name },
+        input_data: {
+          yaoValues: values,
+          castingMode: castingMode.value,
+          hexagramName: yijingResult.hexagram.name,
+        },
         result_data: yijingResult,
       },
     })
@@ -480,7 +482,9 @@ watch(castingMode, () => {
 }
 
 .toast-enter-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .toast-leave-active {
   transition: opacity 0.2s ease;

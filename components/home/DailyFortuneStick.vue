@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="fortune-stick-wrap"
-    :class="{ 'fortune-stick-wrap--tall': tall }"
-  >
+  <div class="fortune-stick-wrap" :class="{ 'fortune-stick-wrap--tall': tall }">
     <div class="slip-card" :class="{ 'slip-card--tall': tall }">
       <div class="slip-rule" aria-hidden="true" />
       <div v-if="tall" class="slip-rule slip-rule--btm" aria-hidden="true" />
@@ -12,7 +9,9 @@
         <div class="slip-hd" :class="{ 'slip-hd--tall': tall }">
           <span class="slip-chop" aria-hidden="true">命</span>
           <span class="slip-ttl" :class="{ 'slip-ttl--tall': tall }">今日命签</span>
-          <span class="slip-fortune" :class="'slip-fortune--' + stick.fortune">{{ stick.fortune }}</span>
+          <span class="slip-fortune" :class="'slip-fortune--' + stick.fortune">{{
+            stick.fortune
+          }}</span>
           <span class="slip-number">#{{ stick.id }}</span>
         </div>
 
@@ -25,11 +24,9 @@
           <h2 class="slip-title--tall">{{ stick.title }}</h2>
 
           <div class="slip-poem--tall">
-            <span
-              v-for="(line, i) in stick.poem"
-              :key="i"
-              class="slip-poem-line--tall"
-            >{{ line }}</span>
+            <span v-for="(line, i) in stick.poem" :key="i" class="slip-poem-line--tall">{{
+              line
+            }}</span>
           </div>
 
           <div class="slip-divider-h" aria-hidden="true">
@@ -66,11 +63,14 @@ import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { getDailyFortune } from '~/constants/fortune-sticks'
 import type { FortuneStick } from '~/constants/fortune-sticks'
 
-withDefaults(defineProps<{
-  tall?: boolean
-}>(), {
-  tall: false,
-})
+withDefaults(
+  defineProps<{
+    tall?: boolean
+  }>(),
+  {
+    tall: false,
+  },
+)
 
 const stick: FortuneStick = getDailyFortune()
 </script>
@@ -95,7 +95,7 @@ const stick: FortuneStick = getDailyFortune()
 /* ── Card base ── */
 .slip-card {
   position: relative;
-  background: linear-gradient(135deg, #F7F0E4 0%, #EDE3D3 40%, #E8DCC6 100%);
+  background: linear-gradient(135deg, #f7f0e4 0%, #ede3d3 40%, #e8dcc6 100%);
   border-radius: 0.625rem;
   padding: 0.875rem 1.125rem;
   width: 100%;
@@ -118,9 +118,12 @@ const stick: FortuneStick = getDailyFortune()
   position: absolute;
   inset: 0;
   opacity: 0.3;
-  background-image: radial-gradient(circle at 20% 30%, rgba(139, 119, 90, 0.03) 1px, transparent 1px),
-                    radial-gradient(circle at 70% 60%, rgba(139, 119, 90, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px, 60px 60px;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(139, 119, 90, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(139, 119, 90, 0.02) 1px, transparent 1px);
+  background-size:
+    40px 40px,
+    60px 60px;
   pointer-events: none;
   border-radius: inherit;
 }
@@ -139,14 +142,18 @@ const stick: FortuneStick = getDailyFortune()
   height: 2px;
   z-index: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(90deg,
+  background: repeating-linear-gradient(
+    90deg,
     rgba(198, 40, 40, 0.11) 0px,
     rgba(198, 40, 40, 0.11) 6px,
     transparent 6px,
-    transparent 10px);
+    transparent 10px
+  );
   border-radius: 0 0 1px 1px;
 }
-.slip-rule { top: -1px; }
+.slip-rule {
+  top: -1px;
+}
 .slip-rule--btm {
   bottom: -1px;
   border-radius: 1px 1px 0 0;
@@ -183,8 +190,8 @@ const stick: FortuneStick = getDailyFortune()
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-cinnabar-deeper, #9C1A1C);
-  color: var(--color-paper-lightest, #F5F0E8);
+  background: var(--color-cinnabar-deeper, #9c1a1c);
+  color: var(--color-paper-lightest, #f5f0e8);
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.5rem;
   transform: rotate(-3deg);
@@ -194,7 +201,7 @@ const stick: FortuneStick = getDailyFortune()
 .slip-ttl {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.8125rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.2em;
   font-weight: 400;
   margin-right: auto;
@@ -236,7 +243,7 @@ const stick: FortuneStick = getDailyFortune()
 
 .slip-number {
   font-size: 0.55rem;
-  color: var(--color-ink-light, #8A7A6A);
+  color: var(--color-ink-light, #8a7a6a);
   font-family: 'Noto Sans SC', sans-serif;
   opacity: 0.55;
   letter-spacing: 0.05em;
@@ -245,7 +252,7 @@ const stick: FortuneStick = getDailyFortune()
 .slip-title {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.8125rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.15em;
   font-weight: 400;
   margin-bottom: 0.25rem;
@@ -263,14 +270,14 @@ const stick: FortuneStick = getDailyFortune()
 .slip-poem-line {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.7rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   letter-spacing: 0.06em;
   line-height: 1.5;
 }
 
 .slip-poem-line:last-child::after {
   content: '。';
-  color: var(--color-ink-faint, #A89888);
+  color: var(--color-ink-faint, #a89888);
 }
 
 /* ── Explanation compact ── */
@@ -293,7 +300,7 @@ const stick: FortuneStick = getDailyFortune()
   margin-top: 1px;
   border-radius: 50%;
   background: rgba(198, 40, 40, 0.06);
-  color: var(--color-cinnabar, #C62828);
+  color: var(--color-cinnabar, #c62828);
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.45rem;
 }
@@ -301,7 +308,7 @@ const stick: FortuneStick = getDailyFortune()
 .slip-explanation-text {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.65rem;
-  color: var(--color-ink-light, #8A7A6A);
+  color: var(--color-ink-light, #8a7a6a);
   line-height: 1.55;
   letter-spacing: 0.02em;
 }
@@ -358,7 +365,7 @@ const stick: FortuneStick = getDailyFortune()
 .slip-title--tall {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 1.15rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   text-align: center;
   letter-spacing: 0.35em;
   font-weight: 400;
@@ -383,7 +390,7 @@ const stick: FortuneStick = getDailyFortune()
   display: block;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.95rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   text-align: center;
   letter-spacing: 0.18em;
   line-height: 1.7;
@@ -410,7 +417,7 @@ const stick: FortuneStick = getDailyFortune()
   flex-shrink: 0;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.65rem;
-  color: var(--color-cinnabar, #C62828);
+  color: var(--color-cinnabar, #c62828);
   letter-spacing: 0.15em;
   opacity: 0.7;
   margin-top: 0.05rem;
@@ -419,7 +426,7 @@ const stick: FortuneStick = getDailyFortune()
 .slip-explanation--tall__text {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.72rem;
-  color: var(--color-ink-light, #8A7A6A);
+  color: var(--color-ink-light, #8a7a6a);
   line-height: 1.7;
   letter-spacing: 0.03em;
 }
@@ -433,7 +440,13 @@ const stick: FortuneStick = getDailyFortune()
 }
 
 @keyframes slipAppear {
-  from { opacity: 0; transform: translateY(8px) scale(0.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

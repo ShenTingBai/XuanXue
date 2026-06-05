@@ -12,13 +12,13 @@
 
 ## 改动清单（每页通用）
 
-| 替换项 | 旧 | 新 |
-|--------|------|-----|
-| 卡片背景 | `card-paper-solid` | `card-warm` |
+| 替换项   | 旧                  | 新                                      |
+| -------- | ------------------- | --------------------------------------- |
+| 卡片背景 | `card-paper-solid`  | `card-warm`                             |
 | 分区标题 | `<InkDivider>` 组件 | `section-header` div + `seal-icon` 装饰 |
-| 操作按钮 | `btn-seal` | `btn-cin`（朱砂实心按钮） |
-| 标题字体 | `font-sans` | `font-display`（Ma Shan Zheng 书法体） |
-| 页面描述 | 普通文本 | `class="ui"`（Noto Sans SC 注解体） |
+| 操作按钮 | `btn-seal`          | `btn-cin`（朱砂实心按钮）               |
+| 标题字体 | `font-sans`         | `font-display`（Ma Shan Zheng 书法体）  |
+| 页面描述 | 普通文本            | `class="ui"`（Noto Sans SC 注解体）     |
 
 ## 各页面详情
 

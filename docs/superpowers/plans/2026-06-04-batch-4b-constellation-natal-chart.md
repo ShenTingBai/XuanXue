@@ -34,6 +34,7 @@ package.json                  ← [修改] 新增 astronomy-engine 依赖
 ### Task 1: 安装 `astronomy-engine` 依赖
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: 安装 npm 包**
@@ -62,6 +63,7 @@ git commit -m "chore: add astronomy-engine v2.x for natal chart calculations"
 ### Task 2: 创建 `constants/planet-data.ts`
 
 **Files:**
+
 - Create: `constants/planet-data.ts`
 
 **Purpose:** 行星元数据（glyph/中文名/颜色环）、72 条行星×星座解读、5 条相位解释。纯常量文件，无依赖。
@@ -82,103 +84,111 @@ export interface PlanetMeta {
 }
 
 export const PLANET_META: Record<string, PlanetMeta> = {
-  sun:      { id: 'sun',      name: '太阳', glyph: '☉', colorClass: 'gold',     ring: 'inner' },
-  moon:     { id: 'moon',     name: '月亮', glyph: '☽', colorClass: 'ice',      ring: 'inner' },
-  mercury:  { id: 'mercury',  name: '水星', glyph: '☿', colorClass: 'jade',     ring: 'mid' },
-  venus:    { id: 'venus',    name: '金星', glyph: '♀', colorClass: 'jade',     ring: 'mid' },
-  mars:     { id: 'mars',     name: '火星', glyph: '♂', colorClass: 'cinnabar', ring: 'mid' },
-  jupiter:  { id: 'jupiter',  name: '木星', glyph: '♃', colorClass: 'purple',   ring: 'outer' },
-  saturn:   { id: 'saturn',   name: '土星', glyph: '♄', colorClass: 'gray',     ring: 'outer' },
+  sun: { id: 'sun', name: '太阳', glyph: '☉', colorClass: 'gold', ring: 'inner' },
+  moon: { id: 'moon', name: '月亮', glyph: '☽', colorClass: 'ice', ring: 'inner' },
+  mercury: { id: 'mercury', name: '水星', glyph: '☿', colorClass: 'jade', ring: 'mid' },
+  venus: { id: 'venus', name: '金星', glyph: '♀', colorClass: 'jade', ring: 'mid' },
+  mars: { id: 'mars', name: '火星', glyph: '♂', colorClass: 'cinnabar', ring: 'mid' },
+  jupiter: { id: 'jupiter', name: '木星', glyph: '♃', colorClass: 'purple', ring: 'outer' },
+  saturn: { id: 'saturn', name: '土星', glyph: '♄', colorClass: 'gray', ring: 'outer' },
 }
 
-export const PLANET_ORDER: string[] = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn']
+export const PLANET_ORDER: string[] = [
+  'sun',
+  'moon',
+  'mercury',
+  'venus',
+  'mars',
+  'jupiter',
+  'saturn',
+]
 
 // ── Planet × Sign Interpretations ──────────────────────────────
 
 export const PLANET_SIGN_INTERPRETATIONS: Record<string, Record<string, string>> = {
   sun: {
-    '白羊座': '太阳在白羊，意志如烈火，行动力极强，勇往直前，是天生的开创者与领袖。',
-    '金牛座': '太阳在金牛，意志坚定稳健，重视物质积累与感官满足，不轻易动摇。',
-    '双子座': '太阳在双子，好奇心驱动人生，思维敏捷多变，善于交流与适应新环境。',
-    '巨蟹座': '太阳在巨蟹，情感是行动的原动力，家庭与安全感是人生核心主题。',
-    '狮子座': '太阳在狮子，入庙之位，自信慷慨，天生领袖，渴望成为众人瞩目的焦点。',
-    '处女座': '太阳在处女，追求完美与秩序，以服务他人为己任，细致严谨是最大力量。',
-    '天秤座': '太阳在天秤，追求和谐与平衡，优雅公正，在关系中定义自我价值。',
-    '天蝎座': '太阳在天蝎，意志力极强，深沉而炽烈，善于在危机中蜕变重生。',
-    '射手座': '太阳在射手，乐观自由，以探索真理为人生目标，视野开阔不拘小节。',
-    '摩羯座': '太阳在摩羯，目标明确步步为营，以成就和责任感定义人生的意义。',
-    '水瓶座': '太阳在水瓶，独立创新，追求自由平等，以独特视角看待世界与未来。',
-    '双鱼座': '太阳在双鱼，浪漫慈悲，边界感模糊，以艺术和灵性连接更广阔的世界。',
+    白羊座: '太阳在白羊，意志如烈火，行动力极强，勇往直前，是天生的开创者与领袖。',
+    金牛座: '太阳在金牛，意志坚定稳健，重视物质积累与感官满足，不轻易动摇。',
+    双子座: '太阳在双子，好奇心驱动人生，思维敏捷多变，善于交流与适应新环境。',
+    巨蟹座: '太阳在巨蟹，情感是行动的原动力，家庭与安全感是人生核心主题。',
+    狮子座: '太阳在狮子，入庙之位，自信慷慨，天生领袖，渴望成为众人瞩目的焦点。',
+    处女座: '太阳在处女，追求完美与秩序，以服务他人为己任，细致严谨是最大力量。',
+    天秤座: '太阳在天秤，追求和谐与平衡，优雅公正，在关系中定义自我价值。',
+    天蝎座: '太阳在天蝎，意志力极强，深沉而炽烈，善于在危机中蜕变重生。',
+    射手座: '太阳在射手，乐观自由，以探索真理为人生目标，视野开阔不拘小节。',
+    摩羯座: '太阳在摩羯，目标明确步步为营，以成就和责任感定义人生的意义。',
+    水瓶座: '太阳在水瓶，独立创新，追求自由平等，以独特视角看待世界与未来。',
+    双鱼座: '太阳在双鱼，浪漫慈悲，边界感模糊，以艺术和灵性连接更广阔的世界。',
   },
   mercury: {
-    '白羊座': '水星在白羊，思维敏捷直接，说话不拐弯抹角，学习靠冲劲而非耐心。',
-    '金牛座': '水星在金牛，思维稳健务实，学习慢但根基扎实，不喜空谈只重实际。',
-    '双子座': '水星在双子，入庙之位，思维如风般灵动，口才出众，学习能力极强。',
-    '巨蟹座': '水星在巨蟹，思维受情绪驱动，记忆力带有情感色彩，善于直觉性表达。',
-    '狮子座': '水星在狮子，表达自信有力，思维富有创造性，喜欢以戏剧化方式沟通。',
-    '处女座': '水星在处女，入庙之位，思维缜密逻辑清晰，善于分析与细节把控。',
-    '天秤座': '水星在天秤，表达优雅得体，善于权衡利弊，沟通中追求和谐与公平。',
-    '天蝎座': '水星在天蝎，思维深邃穿透力强，不满足表面答案，善于发现隐藏真相。',
-    '射手座': '水星在射手，思维开阔宏观，关注大格局而非细节，表达直率乐观。',
-    '摩羯座': '水星在摩羯，思维严谨务实，表达简洁有力，注重逻辑与可操作性。',
-    '水瓶座': '水星在水瓶，思维前卫独特，善于跳出框架思考，常有创新见解。',
-    '双鱼座': '水星在双鱼，思维跳跃富有想象力，表达偏感性，逻辑边界模糊。',
+    白羊座: '水星在白羊，思维敏捷直接，说话不拐弯抹角，学习靠冲劲而非耐心。',
+    金牛座: '水星在金牛，思维稳健务实，学习慢但根基扎实，不喜空谈只重实际。',
+    双子座: '水星在双子，入庙之位，思维如风般灵动，口才出众，学习能力极强。',
+    巨蟹座: '水星在巨蟹，思维受情绪驱动，记忆力带有情感色彩，善于直觉性表达。',
+    狮子座: '水星在狮子，表达自信有力，思维富有创造性，喜欢以戏剧化方式沟通。',
+    处女座: '水星在处女，入庙之位，思维缜密逻辑清晰，善于分析与细节把控。',
+    天秤座: '水星在天秤，表达优雅得体，善于权衡利弊，沟通中追求和谐与公平。',
+    天蝎座: '水星在天蝎，思维深邃穿透力强，不满足表面答案，善于发现隐藏真相。',
+    射手座: '水星在射手，思维开阔宏观，关注大格局而非细节，表达直率乐观。',
+    摩羯座: '水星在摩羯，思维严谨务实，表达简洁有力，注重逻辑与可操作性。',
+    水瓶座: '水星在水瓶，思维前卫独特，善于跳出框架思考，常有创新见解。',
+    双鱼座: '水星在双鱼，思维跳跃富有想象力，表达偏感性，逻辑边界模糊。',
   },
   venus: {
-    '白羊座': '金星在白羊，感情表达热烈直接，追求心动瞬间，爱时全心投入不拖泥带水。',
-    '金牛座': '金星在金牛，入庙之位，重视物质与感官享受，感情稳定持久，爱情观务实。',
-    '双子座': '金星在双子，感情中追求精神刺激与新鲜感，善于用言语表达爱意。',
-    '巨蟹座': '金星在巨蟹，感情细腻温柔，重视家庭与安全感，以照顾对方为爱的表达。',
-    '狮子座': '金星在狮子，爱情如戏剧般热烈浪漫，需要被仰慕和关注，大方慷慨。',
-    '处女座': '金星在处女，感情表达含蓄克制，以实际付出来表达爱意，注重细节关怀。',
-    '天秤座': '金星在天秤，入庙之位，天生优雅迷人，追求浪漫和谐的关系，审美品味出众。',
-    '天蝎座': '金星在天蝎，爱情炽烈深沉，渴望灵魂层面的融合，爱憎分明绝不中庸。',
-    '射手座': '金星在射手，爱情观自由开放，看重精神共鸣而非物质绑定，讨厌束缚。',
-    '摩羯座': '金星在摩羯，感情稳重务实，以责任和承诺为基石，爱得深沉但表达克制。',
-    '水瓶座': '金星在水瓶，爱情中追求独立与平等，需要精神共鸣远胜于浪漫激情。',
-    '双鱼座': '金星在双鱼，入旺之位，浪漫多情极富感染力，爱情是灵魂的交融与奉献。',
+    白羊座: '金星在白羊，感情表达热烈直接，追求心动瞬间，爱时全心投入不拖泥带水。',
+    金牛座: '金星在金牛，入庙之位，重视物质与感官享受，感情稳定持久，爱情观务实。',
+    双子座: '金星在双子，感情中追求精神刺激与新鲜感，善于用言语表达爱意。',
+    巨蟹座: '金星在巨蟹，感情细腻温柔，重视家庭与安全感，以照顾对方为爱的表达。',
+    狮子座: '金星在狮子，爱情如戏剧般热烈浪漫，需要被仰慕和关注，大方慷慨。',
+    处女座: '金星在处女，感情表达含蓄克制，以实际付出来表达爱意，注重细节关怀。',
+    天秤座: '金星在天秤，入庙之位，天生优雅迷人，追求浪漫和谐的关系，审美品味出众。',
+    天蝎座: '金星在天蝎，爱情炽烈深沉，渴望灵魂层面的融合，爱憎分明绝不中庸。',
+    射手座: '金星在射手，爱情观自由开放，看重精神共鸣而非物质绑定，讨厌束缚。',
+    摩羯座: '金星在摩羯，感情稳重务实，以责任和承诺为基石，爱得深沉但表达克制。',
+    水瓶座: '金星在水瓶，爱情中追求独立与平等，需要精神共鸣远胜于浪漫激情。',
+    双鱼座: '金星在双鱼，入旺之位，浪漫多情极富感染力，爱情是灵魂的交融与奉献。',
   },
   mars: {
-    '白羊座': '火星在白羊，入庙之位，行动力极强，竞争意识旺盛，敢为天下先。',
-    '金牛座': '火星在金牛，行动稳健持久，一旦启动便不轻易放弃，耐力惊人但启动较慢。',
-    '双子座': '火星在双子，精力分散多线并进，以机智和沟通为武器，缺乏持久专注。',
-    '巨蟹座': '火星在巨蟹，行动受情绪驱动，为保护家人而战，被动攻击多于主动出击。',
-    '狮子座': '火星在狮子，行动充满戏剧性和领导力，追求荣耀与认可，气势宏大。',
-    '处女座': '火星在处女，行动精准高效，注重细节与流程，以完美主义驱动执行。',
-    '天秤座': '火星在天秤，行动前反复权衡，追求公平与和谐，避免直接冲突。',
-    '天蝎座': '火星在天蝎，入庙之位，意志力极强，行动隐蔽而有力，不达目的不罢休。',
-    '射手座': '火星在射手，行动受理想驱动，热情奔放但容易分散，以信念为行动指南。',
-    '摩羯座': '火星在摩羯，入旺之位，行动力持久而专注，以目标和成就为导向。',
-    '水瓶座': '火星在水瓶，行动方式独特不按常理出牌，为集体和理念而奋斗。',
-    '双鱼座': '火星在双鱼，行动力起伏不定，凭直觉而非计划行事，逃避正面冲突。',
+    白羊座: '火星在白羊，入庙之位，行动力极强，竞争意识旺盛，敢为天下先。',
+    金牛座: '火星在金牛，行动稳健持久，一旦启动便不轻易放弃，耐力惊人但启动较慢。',
+    双子座: '火星在双子，精力分散多线并进，以机智和沟通为武器，缺乏持久专注。',
+    巨蟹座: '火星在巨蟹，行动受情绪驱动，为保护家人而战，被动攻击多于主动出击。',
+    狮子座: '火星在狮子，行动充满戏剧性和领导力，追求荣耀与认可，气势宏大。',
+    处女座: '火星在处女，行动精准高效，注重细节与流程，以完美主义驱动执行。',
+    天秤座: '火星在天秤，行动前反复权衡，追求公平与和谐，避免直接冲突。',
+    天蝎座: '火星在天蝎，入庙之位，意志力极强，行动隐蔽而有力，不达目的不罢休。',
+    射手座: '火星在射手，行动受理想驱动，热情奔放但容易分散，以信念为行动指南。',
+    摩羯座: '火星在摩羯，入旺之位，行动力持久而专注，以目标和成就为导向。',
+    水瓶座: '火星在水瓶，行动方式独特不按常理出牌，为集体和理念而奋斗。',
+    双鱼座: '火星在双鱼，行动力起伏不定，凭直觉而非计划行事，逃避正面冲突。',
   },
   jupiter: {
-    '白羊座': '木星在白羊，以开拓精神为成长方式，通过冒险和竞争获得好运。',
-    '金牛座': '木星在金牛，通过稳健积累和物质建设获得成长，财富运自然而来。',
-    '双子座': '木星在双子，以学习和信息交换为成长路径，知识广博带来机遇。',
-    '巨蟹座': '木星在巨蟹，家庭和情感滋养是成长的根基，善用直觉把握机遇。',
-    '狮子座': '木星在狮子，以自信和创造力开拓机遇，慷慨大方带来好人缘和好运。',
-    '处女座': '木星在处女，以精益求精的态度积累实力，细微处见成长契机。',
-    '天秤座': '木星在天秤，通过合作和社交拓展机遇，和谐的人际关系是幸运之源。',
-    '天蝎座': '木星在天蝎，在危机和深度探索中获得蜕变式成长，洞察力带来财富。',
-    '射手座': '木星在射手，入庙之位，天生乐观好运，以探索和信念开拓无限可能。',
-    '摩羯座': '木星在摩羯，通过严谨规划和持久努力获得成就，晚年运势渐入佳境。',
-    '水瓶座': '木星在水瓶，以创新和人文关怀拓展格局，志同道合者带来机遇。',
-    '双鱼座': '木星在双鱼，入庙之位，以慈悲和直觉连接好运，灵性成长带来福报。',
+    白羊座: '木星在白羊，以开拓精神为成长方式，通过冒险和竞争获得好运。',
+    金牛座: '木星在金牛，通过稳健积累和物质建设获得成长，财富运自然而来。',
+    双子座: '木星在双子，以学习和信息交换为成长路径，知识广博带来机遇。',
+    巨蟹座: '木星在巨蟹，家庭和情感滋养是成长的根基，善用直觉把握机遇。',
+    狮子座: '木星在狮子，以自信和创造力开拓机遇，慷慨大方带来好人缘和好运。',
+    处女座: '木星在处女，以精益求精的态度积累实力，细微处见成长契机。',
+    天秤座: '木星在天秤，通过合作和社交拓展机遇，和谐的人际关系是幸运之源。',
+    天蝎座: '木星在天蝎，在危机和深度探索中获得蜕变式成长，洞察力带来财富。',
+    射手座: '木星在射手，入庙之位，天生乐观好运，以探索和信念开拓无限可能。',
+    摩羯座: '木星在摩羯，通过严谨规划和持久努力获得成就，晚年运势渐入佳境。',
+    水瓶座: '木星在水瓶，以创新和人文关怀拓展格局，志同道合者带来机遇。',
+    双鱼座: '木星在双鱼，入庙之位，以慈悲和直觉连接好运，灵性成长带来福报。',
   },
   saturn: {
-    '白羊座': '土星在白羊，需学会在冲动和自律间找平衡，以耐心驯服急躁的天性。',
-    '金牛座': '土星在金牛，对物质安全感有深刻的执念，需通过踏实努力建立根基。',
-    '双子座': '土星在双子，需克服浅尝辄止的倾向，以深度思考取代表面的信息收集。',
-    '巨蟹座': '土星在巨蟹，情感表达受到克制，需学会在责任与情感之间找到平衡。',
-    '狮子座': '土星在狮子，创造力受到约束，需通过踏实努力而非天赋获得认可。',
-    '处女座': '土星在处女，自律到近乎苛刻，事事力求完美，需学会适当放松标准。',
-    '天秤座': '土星在天秤，关系中承载责任，需学会在付出与索取之间建立边界。',
-    '天蝎座': '土星在天蝎，对深层控制和信任议题有严峻考验，需放下执念方能超越。',
-    '射手座': '土星在射手，自由受到限制，需在探索与承担之间找到自己的节奏。',
-    '摩羯座': '土星在摩羯，入庙之位，天生自律严谨，以坚韧和责任感成就事业。',
-    '水瓶座': '土星在水瓶，入庙之位，以理性和远见建立秩序，是社会改革的行动者。',
-    '双鱼座': '土星在双鱼，边界感薄弱，需学会在慈悲与现实之间建立健康的界限。',
+    白羊座: '土星在白羊，需学会在冲动和自律间找平衡，以耐心驯服急躁的天性。',
+    金牛座: '土星在金牛，对物质安全感有深刻的执念，需通过踏实努力建立根基。',
+    双子座: '土星在双子，需克服浅尝辄止的倾向，以深度思考取代表面的信息收集。',
+    巨蟹座: '土星在巨蟹，情感表达受到克制，需学会在责任与情感之间找到平衡。',
+    狮子座: '土星在狮子，创造力受到约束，需通过踏实努力而非天赋获得认可。',
+    处女座: '土星在处女，自律到近乎苛刻，事事力求完美，需学会适当放松标准。',
+    天秤座: '土星在天秤，关系中承载责任，需学会在付出与索取之间建立边界。',
+    天蝎座: '土星在天蝎，对深层控制和信任议题有严峻考验，需放下执念方能超越。',
+    射手座: '土星在射手，自由受到限制，需在探索与承担之间找到自己的节奏。',
+    摩羯座: '土星在摩羯，入庙之位，天生自律严谨，以坚韧和责任感成就事业。',
+    水瓶座: '土星在水瓶，入庙之位，以理性和远见建立秩序，是社会改革的行动者。',
+    双鱼座: '土星在双鱼，边界感薄弱，需学会在慈悲与现实之间建立健康的界限。',
   },
 }
 
@@ -186,10 +196,10 @@ export const PLANET_SIGN_INTERPRETATIONS: Record<string, Record<string, string>>
 
 export const ASPECT_INTERPRETATIONS: Record<string, string> = {
   conjunction: '合相——两颗星能量融合，相互强化，影响最为直接有力。',
-  sextile:     '六合——两颗星互相激发，带来机遇与创造力，需主动把握。',
-  square:      '刑相——两颗星相互制约，带来内在张力，也是成长的催化剂。',
-  trine:       '三合——两颗星和谐共振，天赋所在，顺势而为即有所成。',
-  opposition:  '对冲——两颗星相互拉扯，需在两极之间寻找平衡与整合。',
+  sextile: '六合——两颗星互相激发，带来机遇与创造力，需主动把握。',
+  square: '刑相——两颗星相互制约，带来内在张力，也是成长的催化剂。',
+  trine: '三合——两颗星和谐共振，天赋所在，顺势而为即有所成。',
+  opposition: '对冲——两颗星相互拉扯，需在两极之间寻找平衡与整合。',
 }
 
 // ── Aspect Meta ─────────────────────────────────────────────────
@@ -203,11 +213,11 @@ export interface AspectMeta {
 }
 
 export const ASPECT_TYPES: AspectMeta[] = [
-  { type: 'conjunction', angle: 0,   orb: 8, symbol: '☌', harmonious: true  },
-  { type: 'sextile',     angle: 60,  orb: 6, symbol: '⚹', harmonious: true  },
-  { type: 'square',      angle: 90,  orb: 6, symbol: '□', harmonious: false },
-  { type: 'trine',       angle: 120, orb: 6, symbol: '△', harmonious: true  },
-  { type: 'opposition',  angle: 180, orb: 8, symbol: '☍', harmonious: false },
+  { type: 'conjunction', angle: 0, orb: 8, symbol: '☌', harmonious: true },
+  { type: 'sextile', angle: 60, orb: 6, symbol: '⚹', harmonious: true },
+  { type: 'square', angle: 90, orb: 6, symbol: '□', harmonious: false },
+  { type: 'trine', angle: 120, orb: 6, symbol: '△', harmonious: true },
+  { type: 'opposition', angle: 180, orb: 8, symbol: '☍', harmonious: false },
 ]
 
 // ── Lookup Helpers ──────────────────────────────────────────────
@@ -245,6 +255,7 @@ git commit -m "feat: add planet metadata and 77 interpretation entries for natal
 ### Task 3: 创建 `composables/useNatalChart.ts` + 测试（TDD）
 
 **Files:**
+
 - Create: `tests/composables/useNatalChart.test.ts`
 - Create: `composables/useNatalChart.ts`
 
@@ -257,7 +268,12 @@ git commit -m "feat: add planet metadata and 77 interpretation entries for natal
 ```typescript
 // tests/composables/useNatalChart.test.ts
 import { describe, it, expect } from 'vitest'
-import { calculateNatalChart, computeAspects, computeHouses, type PlanetPosition } from '../../composables/useNatalChart'
+import {
+  calculateNatalChart,
+  computeAspects,
+  computeHouses,
+  type PlanetPosition,
+} from '../../composables/useNatalChart'
 
 describe('calculateNatalChart', () => {
   it('returns null when birthYear is null', () => {
@@ -453,9 +469,9 @@ describe('computeHouses', () => {
   it('wraps around at Pisces (index 11)', () => {
     const houses = computeHouses(10) // Asc in Aquarius
     expect(houses).not.toBeNull()
-    expect(houses![0]).toBe(10)  // 1st = Aquarius
-    expect(houses![1]).toBe(11)  // 2nd = Pisces
-    expect(houses![2]).toBe(0)   // 3rd = Aries
+    expect(houses![0]).toBe(10) // 1st = Aquarius
+    expect(houses![1]).toBe(11) // 2nd = Pisces
+    expect(houses![2]).toBe(0) // 3rd = Aries
   })
 })
 ```
@@ -516,13 +532,13 @@ export interface NatalChartData {
 // ── Body Mapping ────────────────────────────────────────────────
 
 const BODY_MAP: Array<{ id: string; body: Body; meta: PlanetMeta }> = [
-  { id: 'sun',     body: Body.Sun,     meta: PLANET_META.sun },
-  { id: 'moon',    body: Body.Moon,    meta: PLANET_META.moon },
+  { id: 'sun', body: Body.Sun, meta: PLANET_META.sun },
+  { id: 'moon', body: Body.Moon, meta: PLANET_META.moon },
   { id: 'mercury', body: Body.Mercury, meta: PLANET_META.mercury },
-  { id: 'venus',   body: Body.Venus,   meta: PLANET_META.venus },
-  { id: 'mars',    body: Body.Mars,    meta: PLANET_META.mars },
+  { id: 'venus', body: Body.Venus, meta: PLANET_META.venus },
+  { id: 'mars', body: Body.Mars, meta: PLANET_META.mars },
   { id: 'jupiter', body: Body.Jupiter, meta: PLANET_META.jupiter },
-  { id: 'saturn',  body: Body.Saturn,  meta: PLANET_META.saturn },
+  { id: 'saturn', body: Body.Saturn, meta: PLANET_META.saturn },
 ]
 
 // ── Math Helpers ────────────────────────────────────────────────
@@ -536,7 +552,7 @@ function angularDistance(a: number, b: number): number {
 
 /** Get zodiac sign index (0=Aries..11=Pisces) from ecliptic longitude */
 function getSignIndex(lon: number): number {
-  return Math.floor(((lon % 360) + 360) % 360 / 30)
+  return Math.floor((((lon % 360) + 360) % 360) / 30)
 }
 
 /** Check if longitude is within ±2° of a sign boundary */
@@ -658,8 +674,10 @@ export function calculateNatalChart(
   birthMinute: number | null | undefined,
 ): NatalChartData | null {
   // Validate required fields
-  if (birthYear === null || birthYear === undefined || birthYear < 1900 || birthYear > 2100) return null
-  if (birthMonth === null || birthMonth === undefined || birthMonth < 1 || birthMonth > 12) return null
+  if (birthYear === null || birthYear === undefined || birthYear < 1900 || birthYear > 2100)
+    return null
+  if (birthMonth === null || birthMonth === undefined || birthMonth < 1 || birthMonth > 12)
+    return null
   if (birthDay === null || birthDay === undefined || birthDay < 1 || birthDay > 31) return null
 
   const hasHouses = birthHour !== null && birthHour !== undefined
@@ -736,6 +754,7 @@ git commit -m "feat: add useNatalChart composable — planet positions, aspects,
 ### Task 4: 创建 `NatalChart.vue` SVG 星盘组件
 
 **Files:**
+
 - Create: `components/tools/constellation/NatalChart.vue`
 - Modify: `composables/useConstellation.ts`（1 行：导出 MOON_INTERPRETATIONS）
 
@@ -765,7 +784,11 @@ export const MOON_INTERPRETATIONS: Record<string, string> = {
 import { computed, ref, nextTick } from 'vue'
 import type { NatalChartData, PlanetPosition, AspectLine } from '~/composables/useNatalChart'
 import { ZODIACS, MOON_INTERPRETATIONS } from '~/composables/useConstellation'
-import { PLANET_META, getPlanetInterpretation, getAspectInterpretation } from '~/constants/planet-data'
+import {
+  PLANET_META,
+  getPlanetInterpretation,
+  getAspectInterpretation,
+} from '~/constants/planet-data'
 
 // ═══════════════════════════════════════════════════════════════
 // Props & Emits
@@ -779,9 +802,9 @@ const props = defineProps<{
 // ═══════════════════════════════════════════════════════════════
 const CX = 300
 const CY = 300
-const INNER_RING = 72   // sun, moon
-const MID_RING = 115    // mercury, venus, mars
-const OUTER_RING = 155  // jupiter, saturn
+const INNER_RING = 72 // sun, moon
+const MID_RING = 115 // mercury, venus, mars
+const OUTER_RING = 155 // jupiter, saturn
 const HOUSE_LABEL_R = 190
 const ASPECT_ZONE_INNER = 210
 const ASPECT_ZONE_OUTER = 250
@@ -821,7 +844,7 @@ function pol(angleDeg: number, r: number): { x: number; y: number } {
  * Formula: svgDeg = 180 - ((lon - ascLon + 360) % 360)
  */
 function lonToSvgDeg(lon: number, ascLon: number): number {
-  const relative = ((lon - ascLon) % 360 + 360) % 360
+  const relative = (((lon - ascLon) % 360) + 360) % 360
   return 180 - relative
 }
 
@@ -944,7 +967,10 @@ const houseLabels = computed<HouseLabelData[]>(() => {
 // Sign Sector Dividers (SVG lines)
 // ═══════════════════════════════════════════════════════════════
 interface DividerLine {
-  x1: number; y1: number; x2: number; y2: number
+  x1: number
+  y1: number
+  x2: number
+  y2: number
 }
 
 const signDividers = computed<DividerLine[]>(() => {
@@ -987,7 +1013,10 @@ const mcLinePoints = computed(() => {
 // ═══════════════════════════════════════════════════════════════
 interface AspectRenderData {
   aspect: AspectLine
-  x1: number; y1: number; x2: number; y2: number
+  x1: number
+  y1: number
+  x2: number
+  y2: number
   harmonious: boolean
   symbol: string
 }
@@ -1009,13 +1038,19 @@ const aspectRenderData = computed<AspectRenderData[]>(() => {
 
     const harmonious = ['conjunction', 'sextile', 'trine'].includes(aspect.type)
     const symbols: Record<string, string> = {
-      conjunction: '☌', sextile: '⚹', square: '□', trine: '△', opposition: '☍',
+      conjunction: '☌',
+      sextile: '⚹',
+      square: '□',
+      trine: '△',
+      opposition: '☍',
     }
 
     return {
       aspect,
-      x1: pos1.x, y1: pos1.y,
-      x2: pos2.x, y2: pos2.y,
+      x1: pos1.x,
+      y1: pos1.y,
+      x2: pos2.x,
+      y2: pos2.y,
       harmonious,
       symbol: symbols[aspect.type] ?? '',
     }
@@ -1047,12 +1082,14 @@ const tooltipRef = ref<HTMLDivElement>()
 function onPlanetEnter(e: MouseEvent | FocusEvent, prd: PlanetRenderData) {
   const p = prd.planet
   // Moon uses MOON_INTERPRETATIONS (from useConstellation), other planets use PLANET_SIGN_INTERPRETATIONS
-  const interp = p.id === 'moon'
-    ? (MOON_INTERPRETATIONS[p.signName] ?? '')
-    : getPlanetInterpretation(p.id, p.signName)
-  const signHouse = props.data.hasHouses && p.houseIndex !== null
-    ? `${p.signName} · 第${p.houseIndex}宫`
-    : p.signName
+  const interp =
+    p.id === 'moon'
+      ? (MOON_INTERPRETATIONS[p.signName] ?? '')
+      : getPlanetInterpretation(p.id, p.signName)
+  const signHouse =
+    props.data.hasHouses && p.houseIndex !== null
+      ? `${p.signName} · 第${p.houseIndex}宫`
+      : p.signName
 
   // Collect aspects involving this planet
   const relatedAspects = props.data.aspects
@@ -1061,7 +1098,11 @@ function onPlanetEnter(e: MouseEvent | FocusEvent, prd: PlanetRenderData) {
       const otherId = a.p1 === p.id ? a.p2 : a.p1
       const otherMeta = PLANET_META[otherId]
       const symbols: Record<string, string> = {
-        conjunction: '☌', sextile: '⚹', square: '□', trine: '△', opposition: '☍',
+        conjunction: '☌',
+        sextile: '⚹',
+        square: '□',
+        trine: '△',
+        opposition: '☍',
       }
       return `${symbols[a.type] ?? ''} ${otherMeta?.name ?? otherId}`
     })
@@ -1148,7 +1189,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
       <circle
         v-for="r in orbitRadii"
         :key="`orbit-${r}`"
-        :cx="CX" :cy="CY" :r="r"
+        :cx="CX"
+        :cy="CY"
+        :r="r"
         fill="none"
         class="orbit-circle"
         :class="{ 'orbit-circle--outer': r === OUTER_DECORATION_R }"
@@ -1158,23 +1201,30 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
       <line
         v-for="(d, i) in signDividers"
         :key="`div-${i}`"
-        :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
+        :x1="d.x1"
+        :y1="d.y1"
+        :x2="d.x2"
+        :y2="d.y2"
         class="sign-divider"
       />
 
       <!-- Asc line (cinnabar, prominent) -->
       <line
         v-if="ascLinePoints"
-        :x1="ascLinePoints.x1" :y1="ascLinePoints.y1"
-        :x2="ascLinePoints.x2" :y2="ascLinePoints.y2"
+        :x1="ascLinePoints.x1"
+        :y1="ascLinePoints.y1"
+        :x2="ascLinePoints.x2"
+        :y2="ascLinePoints.y2"
         class="asc-line"
       />
 
       <!-- MC line (gold, subtle) -->
       <line
         v-if="mcLinePoints"
-        :x1="mcLinePoints.x1" :y1="mcLinePoints.y1"
-        :x2="mcLinePoints.x2" :y2="mcLinePoints.y2"
+        :x1="mcLinePoints.x1"
+        :y1="mcLinePoints.y1"
+        :x2="mcLinePoints.x2"
+        :y2="mcLinePoints.y2"
         class="mc-line"
       />
 
@@ -1182,7 +1232,10 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
       <line
         v-for="(al, i) in aspectRenderData"
         :key="`aspect-${i}`"
-        :x1="al.x1" :y1="al.y1" :x2="al.x2" :y2="al.y2"
+        :x1="al.x1"
+        :y1="al.y1"
+        :x2="al.x2"
+        :y2="al.y2"
         class="aspect-line"
         :class="al.harmonious ? 'aspect-line--harmonious' : 'aspect-line--challenging'"
         :stroke-dasharray="al.aspect.type === 'sextile' ? '3,3' : undefined"
@@ -1207,7 +1260,8 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         :key="`sign-${sl.signIndex}`"
         class="sign-symbol"
         :style="{ left: sl.pctX + '%', top: sl.pctY + '%' }"
-      >{{ sl.symbol }}</span>
+        >{{ sl.symbol }}</span
+      >
     </div>
 
     <!-- ═══ DOM: 宫位编号 ═══ -->
@@ -1217,7 +1271,8 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         :key="`house-${hl.number}`"
         class="house-number"
         :style="{ left: hl.pctX + '%', top: hl.pctY + '%' }"
-      >{{ hl.number }}</span>
+        >{{ hl.number }}</span
+      >
     </div>
 
     <!-- ═══ DOM: 行星标签（交互层） ═══ -->
@@ -1266,7 +1321,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         <div class="natal-tooltip__title">{{ tooltipContent.title }}</div>
         <div class="natal-tooltip__location">
           落入：{{ tooltipContent.signHouse }}
-          <span v-if="tooltipContent.boundaryWarning" class="natal-tooltip__warning">⚠ 靠近星座交界</span>
+          <span v-if="tooltipContent.boundaryWarning" class="natal-tooltip__warning"
+            >⚠ 靠近星座交界</span
+          >
         </div>
         <div v-if="tooltipContent.interpretation" class="natal-tooltip__interp">
           {{ tooltipContent.interpretation }}
@@ -1304,11 +1361,12 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   position: absolute;
   inset: 4%;
   border-radius: 50%;
-  background:
-    radial-gradient(ellipse at 50% 48%,
-      color-mix(in srgb, var(--color-paper-darker) 16%, transparent) 0%,
-      color-mix(in srgb, var(--color-paper-medium) 8%, transparent) 40%,
-      transparent 75%);
+  background: radial-gradient(
+    ellipse at 50% 48%,
+    color-mix(in srgb, var(--color-paper-darker) 16%, transparent) 0%,
+    color-mix(in srgb, var(--color-paper-medium) 8%, transparent) 40%,
+    transparent 75%
+  );
   pointer-events: none;
   z-index: -1;
 }
@@ -1358,7 +1416,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 .aspect-line {
   stroke-width: 1;
   opacity: 0.2;
-  transition: opacity 200ms ease, stroke-width 200ms ease;
+  transition:
+    opacity 200ms ease,
+    stroke-width 200ms ease;
 }
 
 .aspect-line--harmonious {
@@ -1371,15 +1431,35 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .planet-orb {
   stroke-width: 1;
-  transition: transform 200ms ease, opacity 200ms ease;
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease;
 }
 
-.planet-orb--gold     { fill: #D4A84B; stroke: rgba(212, 168, 75, 0.5); }
-.planet-orb--ice      { fill: #6BA8C8; stroke: rgba(107, 168, 200, 0.5); }
-.planet-orb--jade     { fill: #4A8C6F; stroke: rgba(74, 140, 111, 0.5); }
-.planet-orb--cinnabar { fill: var(--color-cinnabar); stroke: color-mix(in srgb, var(--color-cinnabar) 50%, transparent); }
-.planet-orb--purple   { fill: #7B6FA0; stroke: rgba(123, 111, 160, 0.5); }
-.planet-orb--gray     { fill: var(--color-ink-muted); stroke: color-mix(in srgb, var(--color-ink-muted) 40%, transparent); }
+.planet-orb--gold {
+  fill: #d4a84b;
+  stroke: rgba(212, 168, 75, 0.5);
+}
+.planet-orb--ice {
+  fill: #6ba8c8;
+  stroke: rgba(107, 168, 200, 0.5);
+}
+.planet-orb--jade {
+  fill: #4a8c6f;
+  stroke: rgba(74, 140, 111, 0.5);
+}
+.planet-orb--cinnabar {
+  fill: var(--color-cinnabar);
+  stroke: color-mix(in srgb, var(--color-cinnabar) 50%, transparent);
+}
+.planet-orb--purple {
+  fill: #7b6fa0;
+  stroke: rgba(123, 111, 160, 0.5);
+}
+.planet-orb--gray {
+  fill: var(--color-ink-muted);
+  stroke: color-mix(in srgb, var(--color-ink-muted) 40%, transparent);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    DOM Layers
@@ -1392,9 +1472,15 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   pointer-events: none;
 }
 
-.signs-layer  { z-index: 1; }
-.houses-layer { z-index: 1; }
-.planets-layer { z-index: 2; }
+.signs-layer {
+  z-index: 1;
+}
+.houses-layer {
+  z-index: 1;
+}
+.planets-layer {
+  z-index: 2;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Sign Symbols
@@ -1460,7 +1546,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   color: var(--color-ink-muted);
   opacity: 0.7;
   letter-spacing: 0.04em;
-  transition: opacity 200ms ease, color 200ms ease;
+  transition:
+    opacity 200ms ease,
+    color 200ms ease;
 }
 
 .planet-btn:hover .planet-glyph {
@@ -1505,8 +1593,13 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #DD4848 0%, var(--color-cinnabar) 48%, var(--color-cinnabar-dark) 100%);
-  border: 1.5px solid #D4A84B;
+  background: radial-gradient(
+    circle at 38% 32%,
+    #dd4848 0%,
+    var(--color-cinnabar) 48%,
+    var(--color-cinnabar-dark) 100%
+  );
+  border: 1.5px solid #d4a84b;
   box-shadow:
     0 0 14px color-mix(in srgb, var(--color-ink-muted) 20%, transparent),
     0 0 32px color-mix(in srgb, var(--color-ink-muted) 8%, transparent),
@@ -1519,7 +1612,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 .center-seal__char {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 1.25rem;
-  color: #D4A84B;
+  color: #d4a84b;
   text-shadow: 0 0 4px rgba(212, 168, 75, 0.3);
   line-height: 1;
 }
@@ -1606,14 +1699,29 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
    Keyframes — MUST be outside @layer
    ═══════════════════════════════════════════════════════════════ */
 @keyframes planet-enter {
-  0%   { opacity: 0;   transform: translate(-50%, -50%) scale(0.5); }
-  60%  { opacity: 0.9; transform: translate(-50%, -50%) scale(1.06); }
-  100% { opacity: 1;   transform: translate(-50%, -50%) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 @keyframes chart-fade-in {
-  0%   { opacity: 0; transform: scale(0.92); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1629,23 +1737,48 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
     transition: opacity 120ms linear;
     transform: none;
   }
-  .natal-tooltip--visible { transform: none; }
+  .natal-tooltip--visible {
+    transform: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Responsive (≤ 600px)
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .sign-symbol { font-size: 0.85rem; }
-  .house-number { font-size: 0.52rem; }
-  .planet-glyph { font-size: 0.75rem; }
-  .planet-name { font-size: 0.52rem; }
-  .planet-retrograde { font-size: 0.48rem; }
-  .center-seal__disc { width: 36px; height: 36px; }
-  .center-seal__char { font-size: 1rem; }
-  .natal-tooltip { font-size: 0.6rem; max-width: 200px; padding: 0.45rem 0.6rem; }
-  .natal-tooltip__title { font-size: 0.7rem; }
-  .natal-tooltip__interp { font-size: 0.58rem; }
+  .sign-symbol {
+    font-size: 0.85rem;
+  }
+  .house-number {
+    font-size: 0.52rem;
+  }
+  .planet-glyph {
+    font-size: 0.75rem;
+  }
+  .planet-name {
+    font-size: 0.52rem;
+  }
+  .planet-retrograde {
+    font-size: 0.48rem;
+  }
+  .center-seal__disc {
+    width: 36px;
+    height: 36px;
+  }
+  .center-seal__char {
+    font-size: 1rem;
+  }
+  .natal-tooltip {
+    font-size: 0.6rem;
+    max-width: 200px;
+    padding: 0.45rem 0.6rem;
+  }
+  .natal-tooltip__title {
+    font-size: 0.7rem;
+  }
+  .natal-tooltip__interp {
+    font-size: 0.58rem;
+  }
 }
 </style>
 ```
@@ -1688,6 +1821,7 @@ git commit -m "feat: add NatalChart SVG star chart component
 ### Task 5: 集成星盘到星座页面
 
 **Files:**
+
 - Modify: `pages/tools/constellation.vue`
 
 **Purpose:** 在 三垣·星盘 卡片区与 HoroscopePanel 之间插入 NatalChart section。计算独立于 `calculateConstellation()`，仅使用出生数据。
@@ -1733,34 +1867,39 @@ if (!natalChartData.value && currentProfile.value?.birth_date) {
 在模板中，找到 `<!-- ═══ 三垣 · 星盘 ═══ -->` 区块的结束 `</div>`（约第 378 行 `</div>` 闭合标签之后，`<p class="text-xs text-ink-medium/90...">` 之前），插入：
 
 ```html
-          <!-- ═══ 本命星盘 ═══ -->
-          <div v-if="natalChartData" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
-            <div class="section-header">
-              <h2>本命星盘</h2>
-            </div>
-            <div class="card-warm rounded-xl p-4 sm:p-6 flex justify-center">
-              <NatalChart :data="natalChartData" />
-            </div>
-            <p class="text-center mt-3">
-              <span class="text-[0.6rem] text-ink-light/50 font-sans tracking-wider">
-                ── 基于出生日期计算，Astrolog 标准布局（Asc 左侧 9 点钟方向）──
-              </span>
-            </p>
-          </div>
+<!-- ═══ 本命星盘 ═══ -->
+<div v-if="natalChartData" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
+  <div class="section-header">
+    <h2>本命星盘</h2>
+  </div>
+  <div class="card-warm rounded-xl p-4 sm:p-6 flex justify-center">
+    <NatalChart :data="natalChartData" />
+  </div>
+  <p class="text-center mt-3">
+    <span class="text-[0.6rem] text-ink-light/50 font-sans tracking-wider">
+      ── 基于出生日期计算，Astrolog 标准布局（Asc 左侧 9 点钟方向）──
+    </span>
+  </p>
+</div>
 
-          <!-- 缺少出生年份时的提示 -->
-          <div v-else-if="!natalChartData && !loading && !error" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
-            <div class="section-header">
-              <h2>本命星盘</h2>
-            </div>
-            <div class="card-warm rounded-xl p-8 text-center opacity-65">
-              <p class="font-sans text-sm text-ink-medium mb-3">需要出生年份以计算行星位置</p>
-              <NuxtLink
-                :to="`/profile/${currentProfile?.id}`"
-                class="text-xs text-cinnabar font-sans underline underline-offset-2"
-              >编辑档案 → 填写完整出生日期</NuxtLink>
-            </div>
-          </div>
+<!-- 缺少出生年份时的提示 -->
+<div
+  v-else-if="!natalChartData && !loading && !error"
+  class="fade-in mt-8 mb-6"
+  :style="{ '--delay': '0.3s' }"
+>
+  <div class="section-header">
+    <h2>本命星盘</h2>
+  </div>
+  <div class="card-warm rounded-xl p-8 text-center opacity-65">
+    <p class="font-sans text-sm text-ink-medium mb-3">需要出生年份以计算行星位置</p>
+    <NuxtLink
+      :to="`/profile/${currentProfile?.id}`"
+      class="text-xs text-cinnabar font-sans underline underline-offset-2"
+      >编辑档案 → 填写完整出生日期</NuxtLink
+    >
+  </div>
+</div>
 ```
 
 - [ ] **Step 3: 运行 TypeScript 类型检查**
@@ -1820,6 +1959,7 @@ npm run dev
 ```
 
 手动验证清单：
+
 - [ ] 有完整出生信息的 profile → 看到完整星盘（7 行星 + 12 宫位 + 相位线）
 - [ ] 无出生年份的 profile → 看到「需要出生年份以计算行星位置」提示
 - [ ] 无出生时辰的 profile → 看到星盘但无宫位编号和 Asc/MC 线

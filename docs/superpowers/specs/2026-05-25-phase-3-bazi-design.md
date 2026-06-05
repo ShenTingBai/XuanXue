@@ -26,24 +26,24 @@
 
 **Phase 3 新增 / 强化 Token：**
 
-| Token | 值 | 用途 |
-|-------|-----|------|
-| `bazi-grid-border` | `#C62828` 40% opacity | 四柱表格边框 |
-| `ten-god-self` | `#2C1810` | 比肩/劫财（同我） |
-| `ten-god-resource` | `#4A7C59` | 正印/偏印（生我） |
-| `ten-god-output` | `#2C5F7C` | 食神/伤官（我生） |
-| `ten-god-wealth` | `#B8860B` | 正财/偏财（我克） |
-| `ten-god-power` | `#C62828` | 正官/偏官（克我） |
-| `wuxing-bar` | 各五行色 | 统计条形图 |
+| Token              | 值                    | 用途              |
+| ------------------ | --------------------- | ----------------- |
+| `bazi-grid-border` | `#C62828` 40% opacity | 四柱表格边框      |
+| `ten-god-self`     | `#2C1810`             | 比肩/劫财（同我） |
+| `ten-god-resource` | `#4A7C59`             | 正印/偏印（生我） |
+| `ten-god-output`   | `#2C5F7C`             | 食神/伤官（我生） |
+| `ten-god-wealth`   | `#B8860B`             | 正财/偏财（我克） |
+| `ten-god-power`    | `#C62828`             | 正官/偏官（克我） |
+| `wuxing-bar`       | 各五行色              | 统计条形图        |
 
 ## 三、页面路由与导航
 
 ### 3.1 路由表
 
-| 路由 | 页面 | 说明 |
-|------|------|------|
+| 路由          | 页面     | 说明                         |
+| ------------- | -------- | ---------------------------- |
 | `/tools/bazi` | 八字排盘 | 基于出生年月日时计算四柱八字 |
-| `/` | 首页 | 八字工具卡片解锁为可点击状态 |
+| `/`           | 首页     | 八字工具卡片解锁为可点击状态 |
 
 ### 3.2 导航变更
 
@@ -51,11 +51,11 @@
 
 ### 3.3 断点与布局规则
 
-| 断点 | 布局 | 说明 |
-|------|------|------|
-| ≥ 1024px | 左侧主内容 + 右侧信息侧栏（sticky） | 侧栏为基础信息+五行概览 |
-| 640-1024px | 单列 | 侧栏折叠为可展开的顶部信息区 |
-| < 640px | 单列压缩 | 四柱改为72px卡片横向滚动，五行统计2列网格，大运横向滚动 |
+| 断点       | 布局                                | 说明                                                    |
+| ---------- | ----------------------------------- | ------------------------------------------------------- |
+| ≥ 1024px   | 左侧主内容 + 右侧信息侧栏（sticky） | 侧栏为基础信息+五行概览                                 |
+| 640-1024px | 单列                                | 侧栏折叠为可展开的顶部信息区                            |
+| < 640px    | 单列压缩                            | 四柱改为72px卡片横向滚动，五行统计2列网格，大运横向滚动 |
 
 ### 3.4 移动端设计要点
 
@@ -127,9 +127,9 @@
 
 ```typescript
 interface HiddenStem {
-  stem: string        // 天干（甲/乙/丙/丁/戊/己/庚/辛/壬/癸）
-  tenGod: string      // 十神（正官/偏官/正印/偏印/比肩/劫财/正财/偏财/食神/伤官）
-  wuxing: string      // 五行
+  stem: string // 天干（甲/乙/丙/丁/戊/己/庚/辛/壬/癸）
+  tenGod: string // 十神（正官/偏官/正印/偏印/比肩/劫财/正财/偏财/食神/伤官）
+  wuxing: string // 五行
 }
 
 interface BaZiPillar {
@@ -148,20 +148,20 @@ interface DaYunCycle {
   stemBranch: string
   stemTenGod: string
   branchTenGod: string
-  description: string   // 如"七杀/偏印"
+  description: string // 如"七杀/偏印"
 }
 
 interface BaZiResult {
   yearPillar: BaZiPillar
   monthPillar: BaZiPillar
   dayPillar: BaZiPillar
-  hourPillar: BaZiPillar | null    // birth_hour 未设置时为 null
-  dayMaster: string                 // 日主天干
+  hourPillar: BaZiPillar | null // birth_hour 未设置时为 null
+  dayMaster: string // 日主天干
   dayMasterWuxing: string
   dayMasterStrength: '强' | '偏强' | '中和' | '偏弱' | '弱'
-  favorableElements: string[]       // 喜用神
-  unfavorableElements: string[]     // 忌神
-  elementCounts: Record<string, number>  // {木: 2, 火: 3, 土: 1, 金: 2, 水: 4}
+  favorableElements: string[] // 喜用神
+  unfavorableElements: string[] // 忌神
+  elementCounts: Record<string, number> // {木: 2, 火: 3, 土: 1, 金: 2, 水: 4}
   elementPercentages: Record<string, number> // {木: 16.7, 火: 25, 土: 8.3, 金: 16.7, 水: 33.3}
   daYun: DaYunCycle[]
   birthYear: number
@@ -266,20 +266,21 @@ hourBranchIndex = (birthHour + 1) % 12
 
 日干（日主）与其他天干的关系：
 
-| 关系 | 定义 | 十神 |
-|------|------|------|
-| 同我·同阴阳 | 天干相同 | 比肩 |
-| 同我·异阴阳 | 同五行不同阴阳 | 劫财 |
-| 生我·同阴阳 | 生我且阴阳相同 | 偏印 |
-| 生我·异阴阳 | 生我且阴阳不同 | 正印 |
-| 我生·同阴阳 | 我生且阴阳相同 | 食神 |
-| 我生·异阴阳 | 我生且阴阳不同 | 伤官 |
+| 关系        | 定义           | 十神         |
+| ----------- | -------------- | ------------ |
+| 同我·同阴阳 | 天干相同       | 比肩         |
+| 同我·异阴阳 | 同五行不同阴阳 | 劫财         |
+| 生我·同阴阳 | 生我且阴阳相同 | 偏印         |
+| 生我·异阴阳 | 生我且阴阳不同 | 正印         |
+| 我生·同阴阳 | 我生且阴阳相同 | 食神         |
+| 我生·异阴阳 | 我生且阴阳不同 | 伤官         |
 | 克我·同阴阳 | 克我且阴阳相同 | 偏官（七杀） |
-| 克我·异阴阳 | 克我且阴阳不同 | 正官 |
-| 我克·同阴阳 | 我克且阴阳相同 | 偏财 |
-| 我克·异阴阳 | 我克且阴阳不同 | 正财 |
+| 克我·异阴阳 | 克我且阴阳不同 | 正官         |
+| 我克·同阴阳 | 我克且阴阳相同 | 偏财         |
+| 我克·异阴阳 | 我克且阴阳不同 | 正财         |
 
 天干五行属性：
+
 - 甲=木(阳), 乙=木(阴), 丙=火(阳), 丁=火(阴)
 - 戊=土(阳), 己=土(阴), 庚=金(阳), 辛=金(阴)
 - 壬=水(阳), 癸=水(阴)
@@ -287,19 +288,19 @@ hourBranchIndex = (birthHour + 1) % 12
 #### 地支藏干
 
 | 地支 | 藏干（主→中→余） |
-|------|----------------|
-| 子 | 癸 |
-| 丑 | 己癸辛 |
-| 寅 | 甲丙戊 |
-| 卯 | 乙 |
-| 辰 | 戊乙癸 |
-| 巳 | 丙庚戊 |
-| 午 | 丁己 |
-| 未 | 己丁乙 |
-| 申 | 庚壬戊 |
-| 酉 | 辛 |
-| 戌 | 戊辛丁 |
-| 亥 | 壬甲 |
+| ---- | ---------------- |
+| 子   | 癸               |
+| 丑   | 己癸辛           |
+| 寅   | 甲丙戊           |
+| 卯   | 乙               |
+| 辰   | 戊乙癸           |
+| 巳   | 丙庚戊           |
+| 午   | 丁己             |
+| 未   | 己丁乙           |
+| 申   | 庚壬戊           |
+| 酉   | 辛               |
+| 戌   | 戊辛丁           |
+| 亥   | 壬甲             |
 
 藏干十神同样按日主计算。
 
@@ -318,13 +319,13 @@ percentages = 各元素 counts / 总计数 × 100
 
 基于月令（Month Order）判断：
 
-| 日主五行 | 旺（得令）月 | 相（次旺）月 | 休 | 囚 | 死 |
-|---------|------------|------------|-----|-----|-----|
-| 木 | 寅、卯（春） | 亥、子（冬） | 巳、午 | 辰、戌、丑、未 | 申、酉 |
-| 火 | 巳、午（夏） | 寅、卯（春） | 辰、戌、丑、未 | 申、酉 | 亥、子 |
-| 土 | 辰、戌、丑、未（四季） | 巳、午（夏） | 申、酉 | 亥、子 | 寅、卯 |
-| 金 | 申、酉（秋） | 辰、戌、丑、未 | 亥、子 | 寅、卯 | 巳、午 |
-| 水 | 亥、子（冬） | 申、酉（秋） | 寅、卯 | 巳、午 | 辰、戌、丑、未 |
+| 日主五行 | 旺（得令）月           | 相（次旺）月   | 休             | 囚             | 死             |
+| -------- | ---------------------- | -------------- | -------------- | -------------- | -------------- |
+| 木       | 寅、卯（春）           | 亥、子（冬）   | 巳、午         | 辰、戌、丑、未 | 申、酉         |
+| 火       | 巳、午（夏）           | 寅、卯（春）   | 辰、戌、丑、未 | 申、酉         | 亥、子         |
+| 土       | 辰、戌、丑、未（四季） | 巳、午（夏）   | 申、酉         | 亥、子         | 寅、卯         |
+| 金       | 申、酉（秋）           | 辰、戌、丑、未 | 亥、子         | 寅、卯         | 巳、午         |
+| 水       | 亥、子（冬）           | 申、酉（秋）   | 寅、卯         | 巳、午         | 辰、戌、丑、未 |
 
 得令（旺）== 强；得相（次旺）== 偏强；休囚 == 中和；死 == 偏弱/弱
 
@@ -354,8 +355,8 @@ percentages = 各元素 counts / 总计数 × 100
 
 ```typescript
 interface SolarTermEntry {
-  month: number   // 公历月份 (1-12)
-  day: number     // 公历日期 (1-31)
+  month: number // 公历月份 (1-12)
+  day: number // 公历日期 (1-31)
 }
 
 // 按年份索引，每个节气存 month/day
@@ -366,56 +367,61 @@ type SolarTermTable = Record<number, SolarTermEntry[]>
 查找函数：
 
 ```typescript
-function getSolarTerm(year: number, termIndex: number): { month: number, day: number }
+function getSolarTerm(year: number, termIndex: number): { month: number; day: number }
 // termIndex: 0=立春, 1=惊蛰, 2=清明, 3=立夏, 4=芒种, 5=小暑, 6=立秋, 7=白露, 8=寒露, 9=立冬, 10=大雪, 11=小寒
 
-function getMonthPillar(year: number, month: number, day: number, calendar: 'solar' | 'lunar'): { stem: string, branch: string }
+function getMonthPillar(
+  year: number,
+  month: number,
+  day: number,
+  calendar: 'solar' | 'lunar',
+): { stem: string; branch: string }
 ```
 
 ### 4.6 组件拆分
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `BaziGrid` | `components/tools/bazi/BaziGrid.vue` | 四柱排盘核心表（年/月/日/时柱，含十神、藏干） |
-| `ElementAnalysis` | `components/tools/bazi/ElementAnalysis.vue` | 五行统计条形图 + 分析 |
-| `DayMasterCard` | `components/tools/bazi/DayMasterCard.vue` | 日主强弱 + 喜忌神卡片 |
-| `DaYunTimeline` | `components/tools/bazi/DaYunTimeline.vue` | 大运时间线（桌面端flex row + 移动端横向滚动卡片） |
+| 组件              | 文件                                        | 说明                                                       |
+| ----------------- | ------------------------------------------- | ---------------------------------------------------------- |
+| `BaziGrid`        | `components/tools/bazi/BaziGrid.vue`        | 四柱排盘核心表（年/月/日/时柱，含十神、藏干）              |
+| `ElementAnalysis` | `components/tools/bazi/ElementAnalysis.vue` | 五行统计条形图 + 分析                                      |
+| `DayMasterCard`   | `components/tools/bazi/DayMasterCard.vue`   | 日主强弱 + 喜忌神卡片                                      |
+| `DaYunTimeline`   | `components/tools/bazi/DaYunTimeline.vue`   | 大运时间线（桌面端flex row + 移动端横向滚动卡片）          |
 | `BaziInfoSidebar` | `components/tools/bazi/BaziInfoSidebar.vue` | 侧栏：基础信息 + 五行概览 + 日主摘要（移动端折叠为顶部栏） |
 
 ## 五、通用组件复用
 
-| 组件 | 用途 |
-|------|------|
+| 组件             | 用途                               |
+| ---------------- | ---------------------------------- |
 | `ToolPageLayout` | 两栏布局（主内容+侧栏/移动端导航） |
-| `InkDivider` | 章节分隔标题 |
-| `PageHero` | 页面标题区域（若需要） |
-| `SkeletonCard` | 加载骨架 |
-| `SkeletonBars` | 加载骨架条 |
+| `InkDivider`     | 章节分隔标题                       |
+| `PageHero`       | 页面标题区域（若需要）             |
+| `SkeletonCard`   | 加载骨架                           |
+| `SkeletonBars`   | 加载骨架条                         |
 
 ## 六、加载与空状态
 
-| 状态 | 展示 |
-|------|------|
-| Loading | SkeletonCard 占位 |
-| 缺少 birth_date | "请先完善出生信息"+ 链接到档案 |
+| 状态            | 展示                                  |
+| --------------- | ------------------------------------- |
+| Loading         | SkeletonCard 占位                     |
+| 缺少 birth_date | "请先完善出生信息"+ 链接到档案        |
 | 缺少 birth_hour | 四柱正常显示，时柱显示"——" + 提示文字 |
-| 数据就绪 | 完整排盘展示 |
+| 数据就绪        | 完整排盘展示                          |
 
 ## 七、动画
 
 参考 Phase 2 动画方案，按模块依次 fadeIn：
 
-| 模块 | delay | 动画 |
-|------|-------|------|
-| 四柱排盘表 | 50ms | fadeIn |
-| 五行旺衰 | 200ms | fadeIn + 条形图从 0 到目标值 |
-| 日主分析 | 300ms | fadeIn |
+| 模块       | delay | 动画                                  |
+| ---------- | ----- | ------------------------------------- |
+| 四柱排盘表 | 50ms  | fadeIn                                |
+| 五行旺衰   | 200ms | fadeIn + 条形图从 0 到目标值          |
+| 日主分析   | 300ms | fadeIn                                |
 | 大运时间线 | 400ms | fadeIn + stagger 80ms，当前运红色高亮 |
-| 侧栏信息 | 100ms | fadeIn |
+| 侧栏信息   | 100ms | fadeIn                                |
 
 ## 八、未定事项
 
 - **神煞系统**（天乙贵人、桃花、华盖等）在 Phase 4 加入
-- **合婚匹配**（双方八字对比）在 Phase 4+ 
+- **合婚匹配**（双方八字对比）在 Phase 4+
 - **流年详批**（流年与大运交互分析）在 Phase 4+
 - **起运年龄精确计算**（按节气日数 ÷3）需要进一步测试后完善

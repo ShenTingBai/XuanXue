@@ -7,30 +7,74 @@ import { getShengXiaoExplanation } from '~/constants/shengxiao'
 const EMOJIS = ['🐭', '🐮', '🐯', '🐰', '🐲', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷'] as const
 
 const ANIMAL_WUXING: Record<string, string> = {
-  '鼠': '水', '牛': '土', '虎': '木', '兔': '木',
-  '龙': '土', '蛇': '火', '马': '火', '羊': '土',
-  '猴': '金', '鸡': '金', '狗': '土', '猪': '水',
+  鼠: '水',
+  牛: '土',
+  虎: '木',
+  兔: '木',
+  龙: '土',
+  蛇: '火',
+  马: '火',
+  羊: '土',
+  猴: '金',
+  鸡: '金',
+  狗: '土',
+  猪: '水',
 }
 
 const ANIMAL_DIRECTION: Record<string, string> = {
-  '鼠': '北', '牛': '东北', '虎': '东北', '兔': '东',
-  '龙': '东南', '蛇': '东南', '马': '南', '羊': '西南',
-  '猴': '西南', '鸡': '西', '狗': '西北', '猪': '西北',
+  鼠: '北',
+  牛: '东北',
+  虎: '东北',
+  兔: '东',
+  龙: '东南',
+  蛇: '东南',
+  马: '南',
+  羊: '西南',
+  猴: '西南',
+  鸡: '西',
+  狗: '西北',
+  猪: '西北',
 }
 
 // ── Compatibility Pair Tables ─────────────────────────────────
 
 /** 三合 groups: each group of 3 animals that harmonize */
-export const SANHE_GROUPS: number[][] = [[0, 4, 8], [1, 5, 9], [2, 6, 10], [3, 7, 11]]
+export const SANHE_GROUPS: number[][] = [
+  [0, 4, 8],
+  [1, 5, 9],
+  [2, 6, 10],
+  [3, 7, 11],
+]
 
 /** 六合 pairs: each pair of 2 animals that harmonize */
-export const LIUHE_PAIRS: number[][] = [[0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7]]
+export const LIUHE_PAIRS: number[][] = [
+  [0, 1],
+  [2, 11],
+  [3, 10],
+  [4, 9],
+  [5, 8],
+  [6, 7],
+]
 
 /** 相冲 pairs: clashing animals */
-export const CHONG_PAIRS: number[][] = [[0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11]]
+export const CHONG_PAIRS: number[][] = [
+  [0, 6],
+  [1, 7],
+  [2, 8],
+  [3, 9],
+  [4, 10],
+  [5, 11],
+]
 
 /** 相害 pairs: harming animals */
-export const HAI_PAIRS: number[][] = [[0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10]]
+export const HAI_PAIRS: number[][] = [
+  [0, 7],
+  [1, 6],
+  [2, 5],
+  [3, 4],
+  [8, 11],
+  [9, 10],
+]
 
 // ── TaiSui Relationship Tables ─────────────────────────────────
 // These define all standard Earthly Branch relationships used to
@@ -43,11 +87,26 @@ function isZhiTaiSui(myIdx: number, taiSuiIdx: number): boolean {
 }
 
 /** 刑太岁: punishment branches (三刑 + 自刑) */
-export const XING_PAIRS: number[][] = [[0, 3], [2, 5], [5, 8], [2, 8], [1, 10], [10, 7], [1, 7]]
-export const SELF_XING: number[] = [4, 6, 9, 11]  // 辰/午/酉/亥 self-punishment
+export const XING_PAIRS: number[][] = [
+  [0, 3],
+  [2, 5],
+  [5, 8],
+  [2, 8],
+  [1, 10],
+  [10, 7],
+  [1, 7],
+]
+export const SELF_XING: number[] = [4, 6, 9, 11] // 辰/午/酉/亥 self-punishment
 
 /** 破太岁: break/destruction branches (六破) */
-export const PO_PAIRS: number[][] = [[0, 9], [2, 11], [4, 1], [6, 3], [8, 5], [10, 7]]
+export const PO_PAIRS: number[][] = [
+  [0, 9],
+  [2, 11],
+  [4, 1],
+  [6, 3],
+  [8, 5],
+  [10, 7],
+]
 
 // ── Relationship scoring weights ──────────────────────────────
 
@@ -81,21 +140,24 @@ function inSameSanHeGroup(myIdx: number, taiSuiIdx: number): boolean {
  * Values informed by traditional Chinese zodiac theory.
  */
 const RELATIONSHIP_WEIGHTS: Record<string, number> = {
-  '值太岁': -20,
-  '冲太岁': -15,
-  '刑太岁': -12,
-  '害太岁': -10,
-  '破太岁': -8,
-  '三合': +15,
-  '六合': +10,
-  '平': 0,
+  值太岁: -20,
+  冲太岁: -15,
+  刑太岁: -12,
+  害太岁: -10,
+  破太岁: -8,
+  三合: +15,
+  六合: +10,
+  平: 0,
 }
 
 /**
  * Determine all TaiSui relationships between a birth animal and the current year animal.
  * Returns both the primary positive and negative relationships if both exist.
  */
-function getTaiSuiRelationships(birthIdx: number, taiSuiIdx: number): { positive: string; positiveWeight: number; negative: string; negativeWeight: number } {
+function getTaiSuiRelationships(
+  birthIdx: number,
+  taiSuiIdx: number,
+): { positive: string; positiveWeight: number; negative: string; negativeWeight: number } {
   let positive = '平'
   let positiveWeight = 0
   let negative = '平'
@@ -115,7 +177,10 @@ function getTaiSuiRelationships(birthIdx: number, taiSuiIdx: number): { positive
       negativeWeight += RELATIONSHIP_WEIGHTS['冲太岁'] * 0.5
     }
   }
-  if (inPairList(birthIdx, taiSuiIdx, XING_PAIRS) || (SELF_XING.includes(birthIdx) && birthIdx === taiSuiIdx)) {
+  if (
+    inPairList(birthIdx, taiSuiIdx, XING_PAIRS) ||
+    (SELF_XING.includes(birthIdx) && birthIdx === taiSuiIdx)
+  ) {
     if (negativeWeight === 0) {
       negative = '刑太岁'
       negativeWeight = RELATIONSHIP_WEIGHTS['刑太岁']
@@ -188,50 +253,50 @@ function computeFortuneScore(
 // ── Personality Data ──────────────────────────────────────────
 
 const PERSONALITY_PRO: Record<string, string[]> = {
-  '鼠': ['聪明机智', '适应力强', '社交活跃', '观察敏锐'],
-  '牛': ['勤劳踏实', '意志坚定', '忠诚可靠', '耐心细致'],
-  '虎': ['勇敢自信', '领导力强', '热情慷慨', '正义感强'],
-  '兔': ['温柔善良', '心思细腻', '品味优雅', '谨慎稳重'],
-  '龙': ['自信热情', '富有创意', '气度不凡', '领导才能'],
-  '蛇': ['智慧深邃', '神秘优雅', '直觉敏锐', '沉静内敛'],
-  '马': ['奔放自由', '热情开朗', '行动力强', '善于交际'],
-  '羊': ['温和善良', '艺术天赋', '体贴温柔', '坚韧耐心'],
-  '猴': ['聪明灵活', '幽默风趣', '创新能力强', '社交达人'],
-  '鸡': ['勤奋认真', '自信果断', '观察力强', '守时守信'],
-  '狗': ['忠诚正直', '责任心强', '善良可靠', '守护意识'],
-  '猪': ['诚实宽容', '乐观豁达', '温和敦厚', '知足常乐'],
+  鼠: ['聪明机智', '适应力强', '社交活跃', '观察敏锐'],
+  牛: ['勤劳踏实', '意志坚定', '忠诚可靠', '耐心细致'],
+  虎: ['勇敢自信', '领导力强', '热情慷慨', '正义感强'],
+  兔: ['温柔善良', '心思细腻', '品味优雅', '谨慎稳重'],
+  龙: ['自信热情', '富有创意', '气度不凡', '领导才能'],
+  蛇: ['智慧深邃', '神秘优雅', '直觉敏锐', '沉静内敛'],
+  马: ['奔放自由', '热情开朗', '行动力强', '善于交际'],
+  羊: ['温和善良', '艺术天赋', '体贴温柔', '坚韧耐心'],
+  猴: ['聪明灵活', '幽默风趣', '创新能力强', '社交达人'],
+  鸡: ['勤奋认真', '自信果断', '观察力强', '守时守信'],
+  狗: ['忠诚正直', '责任心强', '善良可靠', '守护意识'],
+  猪: ['诚实宽容', '乐观豁达', '温和敦厚', '知足常乐'],
 }
 
 const PERSONALITY_CON: Record<string, string[]> = {
-  '鼠': ['多疑谨慎', '目光短浅', '善变不定', '爱占小利'],
-  '牛': ['固执刻板', '不善变通', '缺乏浪漫', '严肃寡言'],
-  '虎': ['冲动急躁', '好胜心强', '容易冒险', '霸道专断'],
-  '兔': ['优柔寡断', '保守怯懦', '逃避现实', '敏感多虑'],
-  '龙': ['傲慢自负', '急躁冲动', '好高骛远', '不够务实'],
-  '蛇': ['多疑猜忌', '冷漠孤僻', '占有欲强', '过于谨慎'],
-  '马': ['急躁冲动', '缺乏耐心', '半途而废', '情绪起伏'],
-  '羊': ['优柔寡断', '依赖性强', '悲观消极', '缺乏主见'],
-  '猴': ['浮躁善变', '好胜心强', '缺乏恒心', '爱耍小聪明'],
-  '鸡': ['挑剔苛刻', '爱炫耀', '固执己见', '过于现实'],
-  '狗': ['固执保守', '多虑焦虑', '批评性强', '过于忠诚'],
-  '猪': ['懒惰贪图', '容易轻信', '固执己见', '缺乏紧迫感'],
+  鼠: ['多疑谨慎', '目光短浅', '善变不定', '爱占小利'],
+  牛: ['固执刻板', '不善变通', '缺乏浪漫', '严肃寡言'],
+  虎: ['冲动急躁', '好胜心强', '容易冒险', '霸道专断'],
+  兔: ['优柔寡断', '保守怯懦', '逃避现实', '敏感多虑'],
+  龙: ['傲慢自负', '急躁冲动', '好高骛远', '不够务实'],
+  蛇: ['多疑猜忌', '冷漠孤僻', '占有欲强', '过于谨慎'],
+  马: ['急躁冲动', '缺乏耐心', '半途而废', '情绪起伏'],
+  羊: ['优柔寡断', '依赖性强', '悲观消极', '缺乏主见'],
+  猴: ['浮躁善变', '好胜心强', '缺乏恒心', '爱耍小聪明'],
+  鸡: ['挑剔苛刻', '爱炫耀', '固执己见', '过于现实'],
+  狗: ['固执保守', '多虑焦虑', '批评性强', '过于忠诚'],
+  猪: ['懒惰贪图', '容易轻信', '固执己见', '缺乏紧迫感'],
 }
 
 // ── Lucky Data ────────────────────────────────────────────────
 
-const LUCKY_DATA: Record<string, { numbers: number[], colors: string[], direction: string }> = {
-  '鼠': { numbers: [2, 3], colors: ['蓝色', '金色'], direction: '东南' },
-  '牛': { numbers: [1, 9], colors: ['绿色', '金色'], direction: '西南' },
-  '虎': { numbers: [1, 3, 5], colors: ['绿色', '蓝色'], direction: '东北' },
-  '兔': { numbers: [3, 6, 9], colors: ['绿色', '蓝色'], direction: '东' },
-  '龙': { numbers: [1, 6, 7], colors: ['金色', '银色'], direction: '东南' },
-  '蛇': { numbers: [2, 8, 9], colors: ['红色', '黄色'], direction: '南' },
-  '马': { numbers: [2, 3, 7], colors: ['红色', '绿色'], direction: '南' },
-  '羊': { numbers: [2, 7], colors: ['绿色', '红色'], direction: '西南' },
-  '猴': { numbers: [1, 4, 7], colors: ['金色', '蓝色'], direction: '西' },
-  '鸡': { numbers: [5, 7, 8], colors: ['金色', '黄色'], direction: '西' },
-  '狗': { numbers: [3, 4, 9], colors: ['绿色', '红色'], direction: '西北' },
-  '猪': { numbers: [1, 2, 9], colors: ['金色', '蓝色'], direction: '北' },
+const LUCKY_DATA: Record<string, { numbers: number[]; colors: string[]; direction: string }> = {
+  鼠: { numbers: [2, 3], colors: ['蓝色', '金色'], direction: '东南' },
+  牛: { numbers: [1, 9], colors: ['绿色', '金色'], direction: '西南' },
+  虎: { numbers: [1, 3, 5], colors: ['绿色', '蓝色'], direction: '东北' },
+  兔: { numbers: [3, 6, 9], colors: ['绿色', '蓝色'], direction: '东' },
+  龙: { numbers: [1, 6, 7], colors: ['金色', '银色'], direction: '东南' },
+  蛇: { numbers: [2, 8, 9], colors: ['红色', '黄色'], direction: '南' },
+  马: { numbers: [2, 3, 7], colors: ['红色', '绿色'], direction: '南' },
+  羊: { numbers: [2, 7], colors: ['绿色', '红色'], direction: '西南' },
+  猴: { numbers: [1, 4, 7], colors: ['金色', '蓝色'], direction: '西' },
+  鸡: { numbers: [5, 7, 8], colors: ['金色', '黄色'], direction: '西' },
+  狗: { numbers: [3, 4, 9], colors: ['绿色', '红色'], direction: '西北' },
+  猪: { numbers: [1, 2, 9], colors: ['金色', '蓝色'], direction: '北' },
 }
 
 // ── Types ─────────────────────────────────────────────────────
@@ -308,7 +373,7 @@ function getStemIndex(year: number): number {
 function getSexagenaryPosition(stemIndex: number, branchIndex: number): number {
   // P ≡ stemIndex (mod 10), P ≡ branchIndex (mod 12)
   // Since gcd(10, 12) = 2, a solution exists only when indices have the same parity
-  if ((stemIndex - branchIndex) % 2 !== 0) return 0  // invalid sexagenary pair
+  if ((stemIndex - branchIndex) % 2 !== 0) return 0 // invalid sexagenary pair
   const diff = stemIndex - branchIndex
   const k = mod(diff / 2, 6)
   return mod(stemIndex + 10 * k, 60)
@@ -420,10 +485,7 @@ function getCompatibility(animalIndex: number): Compatibility[] {
 
 // ── Main Function ─────────────────────────────────────────────
 
-export function calculateShengXiao(
-  birthYear: number,
-  currentDate?: Date,
-): ShengXiaoResult {
+export function calculateShengXiao(birthYear: number, currentDate?: Date): ShengXiaoResult {
   // ── Determine animal index ──
   const animalIndex = getAnimalIndex(birthYear)
 
@@ -455,10 +517,30 @@ export function calculateShengXiao(
   const taiSuiRelationships = getTaiSuiRelationships(animalIndex, taiSuiIdx)
   const { positiveWeight, negativeWeight } = taiSuiRelationships
 
-  const careerScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 19 + animalIndex * 7 + 1)
-  const wealthScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 23 + animalIndex * 11 + 2)
-  const loveScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 29 + animalIndex * 13 + 3)
-  const healthScore = computeFortuneScore(65, positiveWeight, negativeWeight, birthYear * 31 + animalIndex * 17 + 4)
+  const careerScore = computeFortuneScore(
+    65,
+    positiveWeight,
+    negativeWeight,
+    birthYear * 19 + animalIndex * 7 + 1,
+  )
+  const wealthScore = computeFortuneScore(
+    65,
+    positiveWeight,
+    negativeWeight,
+    birthYear * 23 + animalIndex * 11 + 2,
+  )
+  const loveScore = computeFortuneScore(
+    65,
+    positiveWeight,
+    negativeWeight,
+    birthYear * 29 + animalIndex * 13 + 3,
+  )
+  const healthScore = computeFortuneScore(
+    65,
+    positiveWeight,
+    negativeWeight,
+    birthYear * 31 + animalIndex * 17 + 4,
+  )
 
   // ── Compatibility ──
   const compatibility = getCompatibility(animalIndex)

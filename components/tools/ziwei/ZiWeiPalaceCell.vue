@@ -12,68 +12,89 @@ defineProps<{
 <template>
   <div
     class="palace-cell h-full cursor-pointer select-none flex flex-col overflow-hidden relative"
-    :class="[
-      isSelected ? 'z-[2]' : '',
-      isMingGong ? 'cell-ming' : '',
-    ]"
-    @click="onClick"
-    @keydown.enter="onClick"
-    @keydown.space.prevent="onClick"
+    :class="[isSelected ? 'z-[2]' : '', isMingGong ? 'cell-ming' : '']"
     role="button"
     :tabindex="0"
     :aria-label="`${palace.name} - ${palace.earthlyBranch}宫${isMingGong ? '（命宫）' : ''}`"
+    @click="onClick"
+    @keydown.enter="onClick"
+    @keydown.space.prevent="onClick"
   >
-
     <!-- Selection glow -->
     <div
       v-if="isSelected"
       class="absolute inset-0 z-0 pointer-events-none"
-      style="box-shadow: inset 0 0 18px color-mix(in srgb, var(--color-cinnabar) 15%, transparent), 0 0 10px color-mix(in srgb, var(--color-cinnabar) 8%, transparent); border: 1px solid var(--color-cinnabar);"
+      style="
+        box-shadow:
+          inset 0 0 18px color-mix(in srgb, var(--color-cinnabar) 15%, transparent),
+          0 0 10px color-mix(in srgb, var(--color-cinnabar) 8%, transparent);
+        border: 1px solid var(--color-cinnabar);
+      "
     />
 
     <!-- Top bar: branch + name -->
     <div class="relative z-[1] flex items-baseline gap-1 px-2 pt-1.5 pb-0.5">
-      <span class="text-[0.6875rem] text-ink-muted font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
+      <span class="text-[0.6875rem] text-ink-muted font-display tracking-[0.06em]">{{
+        palace.earthlyBranch
+      }}</span>
       <span
         class="font-display text-[0.9rem] leading-tight tracking-[0.05em] font-semibold"
         :class="isMingGong ? 'text-cinnabar' : 'text-ink-deep'"
-      >{{ palace.name }}</span>
+        >{{ palace.name }}</span
+      >
       <span v-if="isMingGong" class="ming-marker" aria-hidden="true">命</span>
     </div>
 
     <!-- Major stars -->
     <div class="relative z-[1] px-2 mb-1.5">
-      <div v-if="palace.majorStars.length > 0" class="font-sans text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+      <div
+        v-if="palace.majorStars.length > 0"
+        class="font-sans text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold"
+      >
         {{ palace.majorStars.map(s => s.name).join(' ') }}
       </div>
-      <div v-else class="font-sans text-[0.6875rem] text-ink-muted italic tracking-[0.04em]">空宫</div>
+      <div v-else class="font-sans text-[0.6875rem] text-ink-muted italic tracking-[0.04em]">
+        空宫
+      </div>
     </div>
 
     <!-- Minor stars -->
-    <div v-if="palace.minorStars.length > 0" class="relative z-[1] px-2 pb-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
+    <div
+      v-if="palace.minorStars.length > 0"
+      class="relative z-[1] px-2 pb-0.5 overflow-hidden text-ellipsis whitespace-nowrap"
+    >
       <span class="font-sans text-[0.68rem] leading-snug tracking-[0.03em] text-ink-medium">
         {{ palace.minorStars.map(s => s.name).join(' ') }}
       </span>
     </div>
 
     <!-- 四化 chips -->
-    <div v-if="palace.majorStars.some(s => s.mutagen) || palace.minorStars.some(s => s.mutagen)" class="relative z-[1] px-2 pb-1.5 flex flex-wrap gap-0.5">
+    <div
+      v-if="palace.majorStars.some(s => s.mutagen) || palace.minorStars.some(s => s.mutagen)"
+      class="relative z-[1] px-2 pb-1.5 flex flex-wrap gap-0.5"
+    >
       <span
         v-for="star in [...palace.majorStars, ...palace.minorStars].filter(s => s.mutagen)"
         :key="star.name + (star.mutagen || '')"
         class="mutagen-chip"
         :class="{
-          'lu': star.mutagen === '禄',
-          'quan': star.mutagen === '权',
-          'ke': star.mutagen === '科',
-          'ji': star.mutagen === '忌',
+          lu: star.mutagen === '禄',
+          quan: star.mutagen === '权',
+          ke: star.mutagen === '科',
+          ji: star.mutagen === '忌',
         }"
-      >化{{ star.mutagen }}</span>
+        >化{{ star.mutagen }}</span
+      >
     </div>
 
     <!-- Decadal range -->
-    <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="relative z-[1] px-2 pb-1.5 mt-auto">
-      <span class="text-[0.7rem] text-ink-muted tracking-[0.04em] font-medium">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
+    <div
+      v-if="palace.decadal?.range && palace.decadal.range[0] > 0"
+      class="relative z-[1] px-2 pb-1.5 mt-auto"
+    >
+      <span class="text-[0.7rem] text-ink-muted tracking-[0.04em] font-medium"
+        >{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span
+      >
     </div>
   </div>
 </template>
@@ -97,10 +118,26 @@ defineProps<{
   line-height: 1.4;
 }
 
-.mutagen-chip.lu { background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
-.mutagen-chip.quan { background: color-mix(in srgb, var(--color-jade) 10%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 15%, transparent); }
-.mutagen-chip.ke { background: color-mix(in srgb, #6BA8C8 10%, transparent); color: #6BA8C8; border: 0.5px solid color-mix(in srgb, #6BA8C8 15%, transparent); }
-.mutagen-chip.ji { background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
+.mutagen-chip.lu {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  color: var(--color-cinnabar);
+  border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+.mutagen-chip.quan {
+  background: color-mix(in srgb, var(--color-jade) 10%, transparent);
+  color: var(--color-jade);
+  border: 0.5px solid color-mix(in srgb, var(--color-jade) 15%, transparent);
+}
+.mutagen-chip.ke {
+  background: color-mix(in srgb, #6ba8c8 10%, transparent);
+  color: #6ba8c8;
+  border: 0.5px solid color-mix(in srgb, #6ba8c8 15%, transparent);
+}
+.mutagen-chip.ji {
+  background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent);
+  color: var(--color-ink-muted);
+  border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent);
+}
 
 .cell-ming::before {
   content: '';

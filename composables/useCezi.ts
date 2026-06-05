@@ -44,17 +44,19 @@ function isCJKChar(char: string): boolean {
   // CJK Extension G: U+30000 – U+3134F
   // CJK Extension H: U+31350 – U+323AF
   // CJK Compatibility Supplement: U+2F800 – U+2FA1F
-  return (cp >= 0x4E00 && cp <= 0x9FFF)
-    || (cp >= 0x3400 && cp <= 0x4DBF)
-    || (cp >= 0xF900 && cp <= 0xFAFF)
-    || (cp >= 0x20000 && cp <= 0x2A6DF)
-    || (cp >= 0x2A700 && cp <= 0x2B73F)
-    || (cp >= 0x2B740 && cp <= 0x2B81F)
-    || (cp >= 0x2B820 && cp <= 0x2CEAF)
-    || (cp >= 0x2CEB0 && cp <= 0x2EBEF)
-    || (cp >= 0x30000 && cp <= 0x3134F)
-    || (cp >= 0x31350 && cp <= 0x323AF)
-    || (cp >= 0x2F800 && cp <= 0x2FA1F)
+  return (
+    (cp >= 0x4e00 && cp <= 0x9fff) ||
+    (cp >= 0x3400 && cp <= 0x4dbf) ||
+    (cp >= 0xf900 && cp <= 0xfaff) ||
+    (cp >= 0x20000 && cp <= 0x2a6df) ||
+    (cp >= 0x2a700 && cp <= 0x2b73f) ||
+    (cp >= 0x2b740 && cp <= 0x2b81f) ||
+    (cp >= 0x2b820 && cp <= 0x2ceaf) ||
+    (cp >= 0x2ceb0 && cp <= 0x2ebef) ||
+    (cp >= 0x30000 && cp <= 0x3134f) ||
+    (cp >= 0x31350 && cp <= 0x323af) ||
+    (cp >= 0x2f800 && cp <= 0x2fa1f)
+  )
 }
 
 // ── Stroke Number → Wuxing ────────────────────────────
@@ -62,11 +64,16 @@ function isCJKChar(char: string): boolean {
 function getWuxingFromNumber(num: number): string {
   const n = num % 10 === 0 ? 10 : num % 10
   const map: Record<number, string> = {
-    1: '木', 2: '木',
-    3: '火', 4: '火',
-    5: '土', 6: '土',
-    7: '金', 8: '金',
-    9: '水', 10: '水',
+    1: '木',
+    2: '木',
+    3: '火',
+    4: '火',
+    5: '土',
+    6: '土',
+    7: '金',
+    8: '金',
+    9: '水',
+    10: '水',
   }
   return map[n] || '土'
 }
@@ -126,7 +133,17 @@ function detectStructure(char: string): string {
 // ── Interpretation Generation ─────────────────────────
 
 function generateInterpretation(result: Omit<CeziResult, 'interpretation'>): string {
-  const { character, strokeCount, strokeSource, numberFortune, primaryElement, radicalElement, structure, structureName, structureDesc } = result
+  const {
+    character,
+    strokeCount,
+    strokeSource,
+    numberFortune,
+    primaryElement,
+    radicalElement,
+    structure,
+    structureName,
+    structureDesc,
+  } = result
 
   const lines: string[] = []
 
@@ -140,7 +157,9 @@ function generateInterpretation(result: Omit<CeziResult, 'interpretation'>): str
   // Element traits
   const elemInterp = ELEMENT_INTERPRETATIONS[primaryElement]
   if (elemInterp) {
-    lines.push(`五行属${primaryElement}。${elemInterp.traits}事业方面，${elemInterp.career}感情方面，${elemInterp.love}`)
+    lines.push(
+      `五行属${primaryElement}。${elemInterp.traits}事业方面，${elemInterp.career}感情方面，${elemInterp.love}`,
+    )
   }
 
   // Radical element interaction
@@ -172,28 +191,32 @@ function generateInterpretation(result: Omit<CeziResult, 'interpretation'>): str
 /** Generate a note about the interaction between two elements */
 function getElementInteractionNote(primary: string, radical: string): string {
   const generating: Record<string, string> = {
-    '木火': '木生火，偏旁木性生助数理火性，此为相生之象。字形与数理相得益彰，运势更佳。',
-    '火土': '火生土，偏旁火性生助数理土性，此为相生之象。热情归于稳重，内蕴深厚力量。',
-    '土金': '土生金，偏旁土性生助数理金性，此为相生之象。厚德载物，必有所成。',
-    '金水': '金生水，偏旁金性生助数理水性，此为相生之象。刚柔并济，智慧通达。',
-    '水木': '水生木，偏旁水性生助数理木性，此为相生之象。智慧滋养生机，前途光明。',
-    '木土': '木克土，偏旁木性与数理土性相克。字形生克制衡，提示您在发展中需注意根基稳固与外在生长之间的平衡。',
-    '土水': '土克水，偏旁土性与数理水性相克。稳重之中或有限制之象，宜适当变通，不可过于保守。',
-    '水火': '水克火，偏旁水性与数理火性相克。热情与智慧之间需调和，避免冲动亦不可过于冷静。',
-    '火金': '火克金，偏旁火性与数理金性相克。果断与热情相冲，宜以中庸之道化解矛盾。',
-    '金木': '金克木，偏旁金性与数理木性相克。刚强之中须留柔和，事业拓展中注意柔克之道。',
+    木火: '木生火，偏旁木性生助数理火性，此为相生之象。字形与数理相得益彰，运势更佳。',
+    火土: '火生土，偏旁火性生助数理土性，此为相生之象。热情归于稳重，内蕴深厚力量。',
+    土金: '土生金，偏旁土性生助数理金性，此为相生之象。厚德载物，必有所成。',
+    金水: '金生水，偏旁金性生助数理水性，此为相生之象。刚柔并济，智慧通达。',
+    水木: '水生木，偏旁水性生助数理木性，此为相生之象。智慧滋养生机，前途光明。',
+    木土: '木克土，偏旁木性与数理土性相克。字形生克制衡，提示您在发展中需注意根基稳固与外在生长之间的平衡。',
+    土水: '土克水，偏旁土性与数理水性相克。稳重之中或有限制之象，宜适当变通，不可过于保守。',
+    水火: '水克火，偏旁水性与数理火性相克。热情与智慧之间需调和，避免冲动亦不可过于冷静。',
+    火金: '火克金，偏旁火性与数理金性相克。果断与热情相冲，宜以中庸之道化解矛盾。',
+    金木: '金克木，偏旁金性与数理木性相克。刚强之中须留柔和，事业拓展中注意柔克之道。',
   }
-  return generating[primary + radical] || generating[radical + primary] || `偏旁${radical}性与数理${primary}性相互作用，宜调和两性之理。`
+  return (
+    generating[primary + radical] ||
+    generating[radical + primary] ||
+    `偏旁${radical}性与数理${primary}性相互作用，宜调和两性之理。`
+  )
 }
 
 /** Generate the closing summary paragraph */
 function generateClosing(category: string, element: string, structureName: string): string {
   const elementPhrases: Record<string, string> = {
-    '木': '木性生发，如同春回大地。',
-    '火': '火性光明，如同日照中天。',
-    '土': '土性厚重，如同坤元载物。',
-    '金': '金性坚刚，如同金石之贞。',
-    '水': '水性润下，如同上善若水。',
+    木: '木性生发，如同春回大地。',
+    火: '火性光明，如同日照中天。',
+    土: '土性厚重，如同坤元载物。',
+    金: '金性坚刚，如同金石之贞。',
+    水: '水性润下，如同上善若水。',
   }
 
   const opening = elementPhrases[element] || `${element}性本自天地。`
@@ -237,11 +260,11 @@ export function analyzeCharacter(char: string): CeziResult | null {
     strokeSource = 'dictionary'
   } else {
     // Fallback estimation — same formula as stroke-dict.ts for consistency
-    const cp = trimmed.codePointAt(0) || 0x4E00
-    if (cp >= 0x20000 && cp <= 0x2FA1F) {
+    const cp = trimmed.codePointAt(0) || 0x4e00
+    if (cp >= 0x20000 && cp <= 0x2fa1f) {
       strokeCount = Math.floor((cp - 0x20000) / 50) + 3
     } else {
-      strokeCount = Math.floor((cp - 0x4E00) / 30) + 3
+      strokeCount = Math.floor((cp - 0x4e00) / 30) + 3
     }
     strokeSource = 'estimated'
   }

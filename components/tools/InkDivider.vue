@@ -1,6 +1,10 @@
 <template>
   <component :is="headingTag" class="divider-ink my-8 sm:my-10">
-    <span v-if="$slots.default" class="ink-divider-label flex items-center gap-3" :class="color === 'cinnabar' ? 'text-cinnabar' : 'text-ink-dark'">
+    <span
+      v-if="$slots.default"
+      class="ink-divider-label flex items-center gap-3"
+      :class="color === 'cinnabar' ? 'text-cinnabar' : 'text-ink-dark'"
+    >
       <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm" aria-hidden="true"></span>
       <slot />
     </span>
@@ -8,13 +12,16 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  level?: 2 | 3
-  color?: 'ink' | 'cinnabar'
-}>(), {
-  level: 2,
-  color: 'ink',
-})
+const props = withDefaults(
+  defineProps<{
+    level?: 2 | 3
+    color?: 'ink' | 'cinnabar'
+  }>(),
+  {
+    level: 2,
+    color: 'ink',
+  },
+)
 
 const headingTag = computed(() => `h${props.level}`)
 </script>

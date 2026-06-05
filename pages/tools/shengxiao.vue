@@ -1,7 +1,10 @@
 <script setup lang="ts">
-
 import { ANIMALS } from '~/constants/bazi'
-import { calculateShengXiao, getAnimalIndex, type ShengXiaoResult } from '~/composables/useShengXiao'
+import {
+  calculateShengXiao,
+  getAnimalIndex,
+  type ShengXiaoResult,
+} from '~/composables/useShengXiao'
 import { calculateMonthlyFortune, type MonthlyFortuneResult } from '~/composables/useMonthlyFortune'
 import { parseDate } from '~/utils/date'
 
@@ -35,7 +38,10 @@ import { getGuardianBuddha } from '~/constants/guardian-buddha'
 // ── Methodology data ──
 const shengxiaoClassical: ClassicalSource[] = [
   { method: '生肖体系', source: '《三命通会》卷三·论生肖，《论衡·物势篇》十二生肖起源' },
-  { method: '三合六合六冲六害', source: '地支合冲害体系（《三命通会》卷二·地支会合），三合局/六合/六冲/六害/六破' },
+  {
+    method: '三合六合六冲六害',
+    source: '地支合冲害体系（《三命通会》卷二·地支会合），三合局/六合/六冲/六害/六破',
+  },
   { method: '五行属性', source: '《三命通会》卷一·地支藏干，十二地支五行归属' },
   { method: '太岁关系', source: '《协纪辨方书》太岁章，值/冲/刑/害/破五种关系' },
   { method: '本命佛', source: '佛教《佛说大乘无量寿庄严清净平等觉经》，八佛护佑八生肖' },
@@ -75,7 +81,9 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const prefersReducedMotion = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!prefersReducedMotion) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
@@ -111,7 +119,11 @@ function computeResult() {
   loading.value = true
   error.value = ''
   const parsed = parseDate(currentProfile.value.birth_date)
-  if (!parsed) { error.value = '出生日期格式无效，请修改个人信息'; loading.value = false; return }
+  if (!parsed) {
+    error.value = '出生日期格式无效，请修改个人信息'
+    loading.value = false
+    return
+  }
   const year = parsed.year
   const calendar = currentProfile.value.birth_calendar || 'solar'
 
@@ -139,7 +151,7 @@ function selectAnimal(index: number) {
   error.value = ''
 
   const currentAnimalIdx = getAnimalIndex(currentYear.value)
-  const diff = ((currentAnimalIdx - index) % 12 + 12) % 12
+  const diff = (((currentAnimalIdx - index) % 12) + 12) % 12
   const representativeYear = currentYear.value - diff
   const calendar = currentProfile.value?.birth_calendar || 'solar'
 
@@ -198,7 +210,11 @@ function scrollToAnimalNav() {
 
 // ── Auto-save ────────────────────────────────────────
 
-async function saveDivinationResult(result: ShengXiaoResult, representativeYear: number, calendar: string) {
+async function saveDivinationResult(
+  result: ShengXiaoResult,
+  representativeYear: number,
+  calendar: string,
+) {
   try {
     const headers = getAuthHeaders()
     if (headers.Authorization) {
@@ -245,7 +261,13 @@ async function restoreFromHistory(id: number) {
     )
     if (record.result_data) {
       const data = record.result_data
-      if (data && typeof data === 'object' && 'animal' in data && 'wuXing' in data && 'fortune' in data) {
+      if (
+        data &&
+        typeof data === 'object' &&
+        'animal' in data &&
+        'wuXing' in data &&
+        'fortune' in data
+      ) {
         const typedData = data as ShengXiaoResult
         result.value = typedData
         selectedAnimal.value = getAnimalIndex(typedData.year)
@@ -262,121 +284,115 @@ async function restoreFromHistory(id: number) {
     }
     restoreError.value = '历史记录数据无效'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+    restoreErrorTimer.value = setTimeout(() => {
+      restoreError.value = ''
+    }, 6000)
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+    restoreErrorTimer.value = setTimeout(() => {
+      restoreError.value = ''
+    }, 6000)
   }
 }
-
 </script>
 
 <template>
-      <ToolPageLayout>
-        <template #nav>
-          <AnimalNav
-            v-if="selectedAnimal !== null"
-            :currentIndex="selectedAnimal"
-            @select="selectAnimal"
-          />
-        </template>
-        <template #mobile-nav>
-          <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2 scroll-hint-x">
+  <ToolPageLayout>
+    <template #nav>
+      <AnimalNav
+        v-if="selectedAnimal !== null"
+        :current-index="selectedAnimal"
+        @select="selectAnimal"
+      />
+    </template>
+    <template #mobile-nav>
+      <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2 scroll-hint-x">
+        <button
+          v-for="(animal, idx) in ANIMALS"
+          :key="idx"
+          :aria-current="idx === selectedAnimal ? 'true' : undefined"
+          :class="[
+            'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
+            idx === selectedAnimal
+              ? 'bg-cinnabar/10 text-cinnabar'
+              : 'text-ink-medium hover:bg-paper-medium/50',
+          ]"
+          @click="selectAnimal(idx)"
+          @keydown.space.prevent="selectAnimal(idx)"
+        >
+          {{ animal }}
+        </button>
+      </div>
+    </template>
+
+    <h1 class="sr-only">生肖排盘</h1>
+
+    <!-- Screen reader status -->
+    <div role="status" class="sr-only" aria-live="polite">
+      {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
+    </div>
+
+    <!-- Missing birth info -->
+    <div v-if="missingBirthInfo" class="text-center py-16">
+      <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
+      <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算生肖排盘</p>
+      <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
+        <span>前往编辑档案</span>
+      </NuxtLink>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
+      <span class="sr-only">正在加载...</span>
+      <SkeletonCard />
+      <SkeletonBars />
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="text-center py-16">
+      <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+      <div class="flex justify-center mt-6">
+        <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
+          <span>前往编辑档案</span>
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <template v-else-if="result">
+      <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
+        <!-- Top toolbar -->
+        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+          <template #extra>
+            <ExportButton
+              v-if="result"
+              :target-ref="resultRef"
+              filename="生肖运势.png"
+              :is-exporting="isExporting"
+              @export="handleExport"
+            />
+          </template>
+        </ToolToolbar>
+
+        <!-- Restore error toast -->
+        <Transition name="toast">
+          <div v-if="restoreError" class="toast-notification" role="alert">
+            <span class="toast-notification__mark" aria-hidden="true">!</span>
+            <span class="toast-notification__text">{{ restoreError }}</span>
             <button
-              v-for="(animal, idx) in ANIMALS"
-              :key="idx"
-              @click="selectAnimal(idx)"
-              @keydown.space.prevent="selectAnimal(idx)"
-              :aria-current="idx === selectedAnimal ? 'true' : undefined"
-              :class="[
-                'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
-                idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
-              ]"
+              class="toast-notification__close"
+              aria-label="关闭提示"
+              @click="dismissRestoreError"
+              @keydown.enter="dismissRestoreError"
+              @keydown.space.prevent="dismissRestoreError"
             >
-              {{ animal }}
+              &times;
             </button>
           </div>
-        </template>
+        </Transition>
 
-        <h1 class="sr-only">生肖排盘</h1>
-
-        <!-- Screen reader status -->
-        <div role="status" class="sr-only" aria-live="polite">
-          {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
-        </div>
-
-        <!-- Missing birth info -->
-        <div v-if="missingBirthInfo" class="text-center py-16">
-          <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-          <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算生肖排盘</p>
-          <NuxtLink
-            :to="`/profile/${currentProfile?.id}`"
-            class="btn-cin inline-flex"
-          >
-            <span>前往编辑档案</span>
-          </NuxtLink>
-        </div>
-
-        <!-- Loading skeleton -->
-        <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
-          <span class="sr-only">正在加载...</span>
-          <SkeletonCard />
-          <SkeletonBars />
-        </div>
-
-        <!-- Error -->
-        <div v-else-if="error" class="text-center py-16">
-          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
-          <div class="flex justify-center mt-6">
-            <NuxtLink
-              :to="`/profile/${currentProfile?.id}`"
-              class="btn-cin inline-flex"
-            >
-              <span>前往编辑档案</span>
-            </NuxtLink>
-          </div>
-        </div>
-
-        <!-- Result -->
-        <template v-else-if="result">
-          <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
-            <!-- Top toolbar -->
-            <ToolToolbar
-              :show-history="true"
-              @history="showHistoryModal = true"
-            >
-              <template #extra>
-                <ExportButton
-                  v-if="result"
-                  :target-ref="resultRef"
-                  filename="生肖运势.png"
-                  :is-exporting="isExporting"
-                  @export="handleExport"
-                />
-              </template>
-            </ToolToolbar>
-
-            <!-- Restore error toast -->
-            <Transition name="toast">
-              <div
-                v-if="restoreError"
-                class="toast-notification"
-                role="alert"
-              >
-                <span class="toast-notification__mark" aria-hidden="true">!</span>
-                <span class="toast-notification__text">{{ restoreError }}</span>
-                <button
-                  @click="dismissRestoreError"
-                  @keydown.enter="dismissRestoreError"
-                  @keydown.space.prevent="dismissRestoreError"
-                  class="toast-notification__close"
-                  aria-label="关闭提示"
-                >&times;</button>
-              </div>
-            </Transition>
-
-          <div ref="resultRef">
+        <div ref="resultRef">
           <!-- ── 方法论溯源 ── -->
           <div class="flex items-center justify-between mb-6">
             <div class="section-header !mb-0 flex-1 min-w-0">
@@ -399,8 +415,12 @@ async function restoreFromHistory(id: number) {
             </div>
             <FortuneBars :items="fortuneItems" />
             <!-- Scoring basis note -->
-            <p class="mt-4 pt-3 border-t border-ink-faint/15 font-sans text-[0.72rem] text-ink-medium leading-relaxed">
-              评分依据：本年太岁关系<span class="font-medium text-ink-dark">{{ taiSuiLabel }}</span>，结合命理维度调节。基准 65 分，吉凶关系 ±15~20 分，维度浮动 ±8 分，压缩至 0-100 区间。
+            <p
+              class="mt-4 pt-3 border-t border-ink-faint/15 font-sans text-[0.72rem] text-ink-medium leading-relaxed"
+            >
+              评分依据：本年太岁关系<span class="font-medium text-ink-dark">{{ taiSuiLabel }}</span
+              >，结合命理维度调节。基准 65 分，吉凶关系 ±15~20 分，维度浮动 ±8 分，压缩至 0-100
+              区间。
             </p>
           </div>
 
@@ -437,51 +457,46 @@ async function restoreFromHistory(id: number) {
             </div>
             <GuardianBuddha :buddha="guardianBuddha" />
           </div>
-          </div>
+        </div>
 
-          <!-- Restored from history notice -->
-          <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
-            <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
-            <button
-              @click="computeResult"
-              @keydown.enter="computeResult"
-              @keydown.space.prevent="computeResult"
-              class="btn-cin"
-            >
-              <span>刷新结果</span>
-            </button>
-          </div>
+        <!-- Restored from history notice -->
+        <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
+          <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
+          <button
+            class="btn-cin"
+            @click="computeResult"
+            @keydown.enter="computeResult"
+            @keydown.space.prevent="computeResult"
+          >
+            <span>刷新结果</span>
+          </button>
+        </div>
 
-          <div class="flex flex-wrap gap-3 justify-center mt-8">
-            <button
-              @click="scrollToAnimalNav"
-              @keydown.space.prevent="scrollToAnimalNav"
-              class="btn-cin"
-            >
-              <span>切换生肖</span>
-            </button>
-            <button
-              @click="showHistoryModal = true"
-              @keydown.enter="showHistoryModal = true"
-              @keydown.space.prevent="showHistoryModal = true"
-              class="btn-cin"
-              aria-haspopup="dialog"
-            >
-              <span>浏览历史</span>
-            </button>
-          </div>
+        <div class="flex flex-wrap gap-3 justify-center mt-8">
+          <button
+            class="btn-cin"
+            @click="scrollToAnimalNav"
+            @keydown.space.prevent="scrollToAnimalNav"
+          >
+            <span>切换生肖</span>
+          </button>
+          <button
+            class="btn-cin"
+            aria-haspopup="dialog"
+            @click="showHistoryModal = true"
+            @keydown.enter="showHistoryModal = true"
+            @keydown.space.prevent="showHistoryModal = true"
+          >
+            <span>浏览历史</span>
+          </button>
+        </div>
+      </div>
 
-          </div>
+      <EntertainmentDisclaimer />
 
-          <EntertainmentDisclaimer />
-
-          <ScrollTopButton
-            v-if="showScrollTop"
-            @click="scrollToTop"
-            @keydown.enter="scrollToTop"
-          />
-        </template>
-      </ToolPageLayout>
+      <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
+    </template>
+  </ToolPageLayout>
 
   <HistoryModal
     :show="showHistoryModal"

@@ -13,7 +13,9 @@
         <!-- Row 1: 公历 + 农历 -->
         <div v-if="solarDate.year">
           <span class="text-[0.6875rem] text-ink-muted">公历</span>
-          <span class="text-ink-medium ml-1.5">{{ solarDate.year }}-{{ solarDate.month }}-{{ solarDate.day }}</span>
+          <span class="text-ink-medium ml-1.5"
+            >{{ solarDate.year }}-{{ solarDate.month }}-{{ solarDate.day }}</span
+          >
         </div>
         <div v-if="lunarDateStr">
           <span class="text-[0.6875rem] text-ink-muted">农历</span>
@@ -22,7 +24,9 @@
         <!-- Row 2: 时辰 + 性别 -->
         <div>
           <span class="text-[0.6875rem] text-ink-muted">时辰</span>
-          <span class="text-ink-medium ml-1.5">{{ birthHour !== null ? getTimeName(birthHour) : '—' }}</span>
+          <span class="text-ink-medium ml-1.5">{{
+            birthHour !== null ? getTimeName(birthHour) : '—'
+          }}</span>
         </div>
         <div>
           <span class="text-[0.6875rem] text-ink-muted">性别</span>
@@ -42,7 +46,10 @@
       <div class="text-cinnabar font-display text-xl tracking-[0.08em] leading-tight">
         {{ astrolabe.earthlyBranchOfSoulPalace }}宫
       </div>
-      <p v-if="mingStars.length" class="text-cinnabar font-semibold text-sm tracking-[0.06em] mt-0.5">
+      <p
+        v-if="mingStars.length"
+        class="text-cinnabar font-semibold text-sm tracking-[0.06em] mt-0.5"
+      >
         {{ mingStars }}
       </p>
       <p v-else class="text-ink-muted italic text-[0.6875rem] mt-0.5">空宫</p>
@@ -127,7 +134,11 @@ const mingStars = computed(() => {
 const transformations = computed(() => {
   const result: Array<{ star: string; type: string; label: string }> = []
   for (const palace of props.astrolabe.palaces) {
-    for (const s of [...palace.majorStars, ...(palace.adjectiveStars ?? []), ...palace.minorStars]) {
+    for (const s of [
+      ...palace.majorStars,
+      ...(palace.adjectiveStars ?? []),
+      ...palace.minorStars,
+    ]) {
       if (s.mutagen) {
         result.push({ star: s.name, type: s.mutagen, label: `化${s.mutagen}` })
       }
@@ -163,8 +174,24 @@ const transformations = computed(() => {
   font-weight: 500;
 }
 
-.mutagen-tag.禄 { background: color-mix(in srgb, var(--color-cinnabar) 12%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 18%, transparent); }
-.mutagen-tag.权 { background: color-mix(in srgb, var(--color-jade) 12%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 18%, transparent); }
-.mutagen-tag.科 { background: color-mix(in srgb, #6BA8C8 12%, transparent); color: #6BA8C8; border: 0.5px solid color-mix(in srgb, #6BA8C8 18%, transparent); }
-.mutagen-tag.忌 { background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 12%, transparent); }
+.mutagen-tag.禄 {
+  background: color-mix(in srgb, var(--color-cinnabar) 12%, transparent);
+  color: var(--color-cinnabar);
+  border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 18%, transparent);
+}
+.mutagen-tag.权 {
+  background: color-mix(in srgb, var(--color-jade) 12%, transparent);
+  color: var(--color-jade);
+  border: 0.5px solid color-mix(in srgb, var(--color-jade) 18%, transparent);
+}
+.mutagen-tag.科 {
+  background: color-mix(in srgb, #6ba8c8 12%, transparent);
+  color: #6ba8c8;
+  border: 0.5px solid color-mix(in srgb, #6ba8c8 18%, transparent);
+}
+.mutagen-tag.忌 {
+  background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent);
+  color: var(--color-ink-muted);
+  border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 12%, transparent);
+}
 </style>

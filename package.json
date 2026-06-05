@@ -7,7 +7,12 @@
     "build": "nuxi build",
     "preview": "nuxi preview",
     "typecheck": "nuxi typecheck",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",
@@ -17,10 +22,28 @@
     "sql.js": "^1.11.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@nuxt/eslint": "^1.15.2",
     "@nuxtjs/tailwindcss": "^6.13.0",
     "@types/node": "^22.0.0",
+    "eslint": "^10.4.1",
+    "eslint-plugin-vue": "^10.9.2",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "nuxt": "^3.16.0",
+    "prettier": "^3.8.3",
     "tailwindcss": "^3.4.0",
+    "typescript-eslint": "^8.60.1",
     "vitest": "^3.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,vue,js,mjs}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{css,json,md,yaml,yml}": [
+      "prettier --write"
+    ]
   }
 }

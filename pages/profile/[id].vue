@@ -33,7 +33,9 @@ const error = ref('')
 const maxDate = computed(() => new Date().toISOString().split('T')[0])
 const minYear = 1920
 const isOnboarding = computed(() => route.query.onboarding === 'true')
-const redirectPath = computed(() => (route.query.redirect as string) || (route.query.from as string) || '')
+const redirectPath = computed(
+  () => (route.query.redirect as string) || (route.query.from as string) || '',
+)
 let successTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Initial values for dirty detection
@@ -120,9 +122,9 @@ onMounted(() => {
   birthHour.value = p.birth_hour ?? null
   const bm = p.birth_minute
   birthMinuteStr.value = bm != null && !isNaN(bm) ? String(bm) : ''
-	birthPlace.value = p.birth_place ?? ''
-	const bl = p.birth_longitude
-	birthLongitudeStr.value = bl != null && !isNaN(bl) ? String(bl) : ''
+  birthPlace.value = p.birth_place ?? ''
+  const bl = p.birth_longitude
+  birthLongitudeStr.value = bl != null && !isNaN(bl) ? String(bl) : ''
 
   // Store initial values for dirty detection
   initialValues.value = {
@@ -253,7 +255,9 @@ const saveProfile = async () => {
 
     success.value = true
     if (successTimeout) clearTimeout(successTimeout)
-    successTimeout = setTimeout(() => { success.value = false }, 2500)
+    successTimeout = setTimeout(() => {
+      success.value = false
+    }, 2500)
   } catch (e: unknown) {
     error.value = (e as any)?.data?.statusMessage || '保存失败，请稍后再试'
   } finally {
@@ -273,15 +277,22 @@ const saveProfile = async () => {
     </div>
 
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16 relative z-10">
-
       <!-- ═══ Back link ═══ -->
       <button
+        class="btn-ink mb-12"
         @click="goBack"
         @keydown.enter="goBack"
         @keydown.space.prevent="goBack"
-        class="btn-ink mb-12"
       >
-        <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <svg
+          aria-hidden="true"
+          class="w-4 h-4"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        >
           <path d="M10 12l-4-4 4-4" />
         </svg>
         返回
@@ -295,9 +306,7 @@ const saveProfile = async () => {
             <span class="hero-seal-char">簿</span>
           </div>
           <div class="flex-1 pt-1">
-            <h1 class="font-display text-4xl sm:text-5xl text-ink-dark leading-tight mb-2">
-              命簿
-            </h1>
+            <h1 class="font-display text-4xl sm:text-5xl text-ink-dark leading-tight mb-2">命簿</h1>
             <p class="text-sm text-ink-medium tracking-wider leading-relaxed ui">
               完善身世信息，以候天机推演
             </p>
@@ -317,9 +326,7 @@ const saveProfile = async () => {
           class="card-warm rounded-xl p-5 mb-10 flex items-start gap-4 anim-rise"
         >
           <span class="seal-icon text-[10px] w-7 h-7 flex-shrink-0" aria-hidden="true">启</span>
-          <p class="text-base text-ink leading-relaxed ui">
-            填写出生信息后即可开始命理推演
-          </p>
+          <p class="text-base text-ink leading-relaxed ui">填写出生信息后即可开始命理推演</p>
         </div>
       </Transition>
 
@@ -330,7 +337,15 @@ const saveProfile = async () => {
           role="status"
           class="card-warm rounded-xl p-4 mb-8 flex items-center gap-3 border border-jade/20"
         >
-          <svg aria-hidden="true" class="w-5 h-5 text-jade flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <svg
+            aria-hidden="true"
+            class="w-5 h-5 text-jade flex-shrink-0"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
             <path d="M3 8l3 3 7-7" />
           </svg>
           <span class="text-base text-jade ui">命簿已更新</span>
@@ -339,11 +354,7 @@ const saveProfile = async () => {
 
       <!-- ═══ Onboarding / redirect CTAs ═══ -->
       <div v-if="success" class="mb-10 flex gap-4 anim-rise">
-        <NuxtLink
-          v-if="isOnboarding"
-          to="/tools/bazi"
-          class="btn-cin"
-        >
+        <NuxtLink v-if="isOnboarding" to="/tools/bazi" class="btn-cin">
           <span>开始体验</span>
         </NuxtLink>
         <NuxtLink
@@ -362,21 +373,31 @@ const saveProfile = async () => {
           class="card-warm rounded-xl p-4 mb-8 flex items-center gap-3 border border-cinnabar/15"
           role="alert"
         >
-          <svg aria-hidden="true" class="w-5 h-5 text-cinnabar flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <svg
+            aria-hidden="true"
+            class="w-5 h-5 text-cinnabar flex-shrink-0"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          >
             <circle cx="8" cy="8" r="6" />
-            <path d="M8 5v3" /><path d="M8 10.5v.5" />
+            <path d="M8 5v3" />
+            <path d="M8 10.5v.5" />
           </svg>
           <span class="text-base text-cinnabar ui">{{ error }}</span>
         </div>
       </Transition>
 
       <!-- ═══ Form — two separate document cards ═══ -->
-      <form @submit.prevent="saveProfile" novalidate class="space-y-12">
-
+      <form novalidate class="space-y-12" @submit.prevent="saveProfile">
         <!-- ════════════════════════════════════════════════════════
              Document Card 1: 基本信息
              ════════════════════════════════════════════════════════ -->
-        <section class="document-card card-warm card-warm--elevated rounded-xl p-8 anim-rise anim-delay-1">
+        <section
+          class="document-card card-warm card-warm--elevated rounded-xl p-8 anim-rise anim-delay-1"
+        >
           <!-- Decorative corner brackets -->
           <span class="doc-corner doc-corner--tl" aria-hidden="true"></span>
           <span class="doc-corner doc-corner--tr" aria-hidden="true"></span>
@@ -418,7 +439,9 @@ const saveProfile = async () => {
             <div class="field-group">
               <div class="field-label">
                 <span class="label-seal" aria-hidden="true">性</span>
-                <span class="label-text">性别 <span class="text-ink-faint font-sans font-normal">（推荐）</span></span>
+                <span class="label-text"
+                  >性别 <span class="text-ink-faint font-sans font-normal">（推荐）</span></span
+                >
               </div>
               <div class="flex gap-5" role="radiogroup" aria-label="性别">
                 <label class="flex items-center gap-2.5 cursor-pointer group">
@@ -426,39 +449,70 @@ const saveProfile = async () => {
                   <span
                     :class="[
                       'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
-                      !gender ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
+                      !gender ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light',
                     ]"
                     aria-hidden="true"
                   >
-                    <span v-if="!gender" class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200" />
+                    <span
+                      v-if="!gender"
+                      class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
+                    />
                   </span>
-                  <span :class="['text-base transition-colors ui', !gender ? 'text-cinnabar' : 'text-ink-medium']">未设置</span>
+                  <span
+                    :class="[
+                      'text-base transition-colors ui',
+                      !gender ? 'text-cinnabar' : 'text-ink-medium',
+                    ]"
+                    >未设置</span
+                  >
                 </label>
                 <label class="flex items-center gap-2.5 cursor-pointer group">
                   <input v-model="gender" type="radio" name="gender" value="男" class="sr-only" />
                   <span
                     :class="[
                       'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
-                      gender === '男' ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
+                      gender === '男'
+                        ? 'border-cinnabar'
+                        : 'border-ink-faint group-hover:border-ink-light',
                     ]"
                     aria-hidden="true"
                   >
-                    <span v-if="gender === '男'" class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200" />
+                    <span
+                      v-if="gender === '男'"
+                      class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
+                    />
                   </span>
-                  <span :class="['text-base transition-colors ui', gender === '男' ? 'text-cinnabar' : 'text-ink-medium']">男</span>
+                  <span
+                    :class="[
+                      'text-base transition-colors ui',
+                      gender === '男' ? 'text-cinnabar' : 'text-ink-medium',
+                    ]"
+                    >男</span
+                  >
                 </label>
                 <label class="flex items-center gap-2.5 cursor-pointer group">
                   <input v-model="gender" type="radio" name="gender" value="女" class="sr-only" />
                   <span
                     :class="[
                       'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
-                      gender === '女' ? 'border-cinnabar' : 'border-ink-faint group-hover:border-ink-light'
+                      gender === '女'
+                        ? 'border-cinnabar'
+                        : 'border-ink-faint group-hover:border-ink-light',
                     ]"
                     aria-hidden="true"
                   >
-                    <span v-if="gender === '女'" class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200" />
+                    <span
+                      v-if="gender === '女'"
+                      class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
+                    />
                   </span>
-                  <span :class="['text-base transition-colors ui', gender === '女' ? 'text-cinnabar' : 'text-ink-medium']">女</span>
+                  <span
+                    :class="[
+                      'text-base transition-colors ui',
+                      gender === '女' ? 'text-cinnabar' : 'text-ink-medium',
+                    ]"
+                    >女</span
+                  >
                 </label>
               </div>
             </div>
@@ -471,7 +525,9 @@ const saveProfile = async () => {
         <!-- ════════════════════════════════════════════════════════
              Document Card 2: 出生信息
              ════════════════════════════════════════════════════════ -->
-        <section class="document-card card-warm card-warm--elevated rounded-xl p-8 anim-rise anim-delay-2">
+        <section
+          class="document-card card-warm card-warm--elevated rounded-xl p-8 anim-rise anim-delay-2"
+        >
           <!-- Decorative corner brackets -->
           <span class="doc-corner doc-corner--tl" aria-hidden="true"></span>
           <span class="doc-corner doc-corner--tr" aria-hidden="true"></span>
@@ -488,7 +544,9 @@ const saveProfile = async () => {
             <div class="field-group">
               <label for="profile-birth-date" class="field-label">
                 <span class="label-seal" aria-hidden="true">日</span>
-                <span class="label-text">出生日期 <span class="text-cinnabar" aria-hidden="true">*</span></span>
+                <span class="label-text"
+                  >出生日期 <span class="text-cinnabar" aria-hidden="true">*</span></span
+                >
               </label>
               <div class="flex flex-col sm:flex-row gap-3">
                 <input
@@ -516,22 +574,24 @@ const saveProfile = async () => {
             <div class="field-group">
               <label for="profile-birth-hour" class="field-label">
                 <span class="label-seal" aria-hidden="true">辰</span>
-                <span class="label-text">出生时辰 <span class="text-ink-faint font-sans font-normal">（推荐）</span></span>
+                <span class="label-text"
+                  >出生时辰 <span class="text-ink-faint font-sans font-normal">（推荐）</span></span
+                >
               </label>
               <p class="field-hint mb-3">若不确知时辰，请填大致出生时间</p>
               <div class="flex flex-col sm:flex-row gap-3">
-                <select
-                  id="profile-birth-hour"
-                  v-model="birthHour"
-                  class="input-warm flex-1"
-                >
+                <select id="profile-birth-hour" v-model="birthHour" class="input-warm flex-1">
                   <option :value="null">— 未知 —</option>
                   <option v-for="opt in hourOptions" :key="opt.value" :value="opt.value">
                     {{ opt.label }}
                   </option>
                 </select>
                 <div class="sm:w-28">
-                  <label for="profile-birth-minute" class="block text-[0.7rem] text-ink-light tracking-wider mb-1.5 font-sans ui">分钟（选填）</label>
+                  <label
+                    for="profile-birth-minute"
+                    class="block text-[0.7rem] text-ink-light tracking-wider mb-1.5 font-sans ui"
+                    >分钟（选填）</label
+                  >
                   <input
                     id="profile-birth-minute"
                     v-model="birthMinuteStr"
@@ -549,7 +609,9 @@ const saveProfile = async () => {
             <div class="field-group">
               <label for="profile-birth-place" class="field-label">
                 <span class="label-seal" aria-hidden="true">地</span>
-                <span class="label-text">出生地 <span class="text-ink-faint font-sans font-normal">（选填）</span></span>
+                <span class="label-text"
+                  >出生地 <span class="text-ink-faint font-sans font-normal">（选填）</span></span
+                >
               </label>
               <input
                 id="profile-birth-place"
@@ -566,7 +628,9 @@ const saveProfile = async () => {
             <div class="field-group">
               <label for="profile-birth-longitude" class="field-label">
                 <span class="label-seal" aria-hidden="true">经</span>
-                <span class="label-text">出生经度 <span class="text-ink-faint font-sans font-normal">（选填）</span></span>
+                <span class="label-text"
+                  >出生经度 <span class="text-ink-faint font-sans font-normal">（选填）</span></span
+                >
               </label>
               <input
                 id="profile-birth-longitude"
@@ -585,27 +649,20 @@ const saveProfile = async () => {
 
         <!-- ═══ Submit buttons ═══ -->
         <div class="flex items-center gap-4 anim-rise anim-delay-3">
-          <button
-            type="submit"
-            :disabled="saving"
-            class="btn-cin"
-            :aria-busy="saving"
-          >
+          <button type="submit" :disabled="saving" class="btn-cin" :aria-busy="saving">
             <span>{{ saving ? '保存中…' : '保存命簿' }}</span>
           </button>
           <button
             type="button"
+            class="btn-ink"
             @click="goBack"
             @keydown.enter="goBack"
             @keydown.space.prevent="goBack"
-            class="btn-ink"
           >
             取消
           </button>
         </div>
-
       </form>
-
     </div>
   </div>
 </template>
@@ -614,7 +671,6 @@ const saveProfile = async () => {
 /* ═══════════════════════════════════════════════════════════════
    命簿如卷 — Profile Page Decorative Styling
    ═══════════════════════════════════════════════════════════════ */
-
 
 /* ── Background Trigram Corner Marks ── */
 .bg-trigrams {
@@ -631,10 +687,22 @@ const saveProfile = async () => {
   line-height: 1;
   user-select: none;
 }
-.bg-trigram--tl { top: 24px; left: 24px; }
-.bg-trigram--tr { top: 24px; right: 24px; }
-.bg-trigram--bl { bottom: 24px; left: 24px; }
-.bg-trigram--br { bottom: 24px; right: 24px; }
+.bg-trigram--tl {
+  top: 24px;
+  left: 24px;
+}
+.bg-trigram--tr {
+  top: 24px;
+  right: 24px;
+}
+.bg-trigram--bl {
+  bottom: 24px;
+  left: 24px;
+}
+.bg-trigram--br {
+  bottom: 24px;
+  right: 24px;
+}
 
 /* ── Hero Vertical Stacked Seal ── */
 .hero-seal-stack {
@@ -659,8 +727,11 @@ const saveProfile = async () => {
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
-    0deg, transparent, transparent 2px,
-    rgba(232,220,198,0.05) 2px, rgba(232,220,198,0.05) 3px
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(232, 220, 198, 0.05) 2px,
+    rgba(232, 220, 198, 0.05) 3px
   );
   pointer-events: none;
 }
@@ -687,7 +758,8 @@ const saveProfile = async () => {
     90deg,
     color-mix(in srgb, var(--color-cinnabar-deeper) 4%, transparent) 0px,
     color-mix(in srgb, var(--color-cinnabar-deeper) 4%, transparent) 4px,
-    transparent 4px, transparent 8px
+    transparent 4px,
+    transparent 8px
   );
 }
 .hero-underline .ornament {
@@ -710,13 +782,30 @@ const saveProfile = async () => {
   pointer-events: none;
   opacity: 0.12;
 }
-.doc-corner--tl { top: 10px; left: 10px; border-top: 1px solid var(--color-cinnabar-deeper); border-left: 1px solid var(--color-cinnabar-deeper); }
-.doc-corner--tr { top: 10px; right: 10px; border-top: 1px solid var(--color-cinnabar-deeper); border-right: 1px solid var(--color-cinnabar-deeper); }
-.doc-corner--bl { bottom: 10px; left: 10px; border-bottom: 1px solid var(--color-cinnabar-deeper); border-left: 1px solid var(--color-cinnabar-deeper); }
-.doc-corner--br { bottom: 10px; right: 10px; border-bottom: 1px solid var(--color-cinnabar-deeper); border-right: 1px solid var(--color-cinnabar-deeper); }
-
-
-
+.doc-corner--tl {
+  top: 10px;
+  left: 10px;
+  border-top: 1px solid var(--color-cinnabar-deeper);
+  border-left: 1px solid var(--color-cinnabar-deeper);
+}
+.doc-corner--tr {
+  top: 10px;
+  right: 10px;
+  border-top: 1px solid var(--color-cinnabar-deeper);
+  border-right: 1px solid var(--color-cinnabar-deeper);
+}
+.doc-corner--bl {
+  bottom: 10px;
+  left: 10px;
+  border-bottom: 1px solid var(--color-cinnabar-deeper);
+  border-left: 1px solid var(--color-cinnabar-deeper);
+}
+.doc-corner--br {
+  bottom: 10px;
+  right: 10px;
+  border-bottom: 1px solid var(--color-cinnabar-deeper);
+  border-right: 1px solid var(--color-cinnabar-deeper);
+}
 
 /* ── Field Labels ── */
 .field-label {
@@ -762,5 +851,4 @@ const saveProfile = async () => {
   opacity: 0;
   transform: translateY(-4px);
 }
-
 </style>

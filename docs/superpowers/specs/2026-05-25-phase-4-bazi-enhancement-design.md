@@ -28,24 +28,25 @@
 **文件：** `composables/useShenSha.ts`
 
 **接口：**
+
 ```typescript
 interface ShenShaInput {
   yearPillar: BaZiPillar
   monthPillar: BaZiPillar
   dayPillar: BaZiPillar
   hourPillar: BaZiPillar | null
-  dayMaster: string      // 日干
+  dayMaster: string // 日干
   dayMasterIndex: number // 日干序数 0-9
   gender: '男' | '女' | null
 }
 
 interface ShenSha {
-  name: string           // 神煞名称
+  name: string // 神煞名称
   category: '吉' | '凶' | '中性'
-  source: string         // 推算来源（如 "年支", "日干", "月支"）
+  source: string // 推算来源（如 "年支", "日干", "月支"）
   pillar: '年柱' | '月柱' | '日柱' | '时柱' | '命宫' | '大运'
   position: '天干' | '地支' | '本柱'
-  description: string    // 一句话含义
+  description: string // 一句话含义
 }
 
 function calculateShenSha(input: ShenShaInput): ShenSha[]
@@ -54,21 +55,27 @@ function calculateShenSha(input: ShenShaInput): ShenSha[]
 **神煞清单（权威来源，按推算维度分组）：**
 
 以年支查：
+
 - 天乙贵人、禄神、驿马、华盖、桃花（咸池）、将星、灾煞、劫煞、孤辰、寡宿
 
 以日干查：
+
 - 太极贵人、福星贵人、文昌贵人、学堂、词馆、羊刃、飞刃
 
 以月支查：
+
 - 天德贵人、月德贵人
 
 以日支查：
+
 - 天赦、十恶大败
 
 通用/其他（查多个来源）：
+
 - 空亡、魁罡、金舆、红鸾、天喜、血刃、丧门、吊客、勾绞、元辰
 
 **分类规则：**
+
 - 吉神：天乙、太极、福星、文昌、学堂、词馆、天德、月德、天赦、禄神、将星、金舆、红鸾、天喜
 - 凶煞：羊刃、劫煞、灾煞、孤辰、寡宿、空亡、十恶大败、魁罡、血刃、丧门、吊客、勾绞、元辰、飞刃
 - 中性：驿马、华盖、桃花（咸池）
@@ -80,12 +87,14 @@ function calculateShenSha(input: ShenShaInput): ShenSha[]
 **文件：** `components/tools/bazi/ShenShaPanel.vue`
 
 **布局：** 四柱表格下方，分为三组（吉/凶/中性），每组一个横向标签云。
+
 - 吉神用玉色（#4A7C59）徽章
 - 凶煞用朱砂（#C62828）徽章（但淡化处理，避免吓人）
 - 中性用墨色（#6B5B4F）徽章
 - 每个徽章 hover 时 tooltip 显示含义和来源
 
 **文字内容：**
+
 - 徽章上只显示神煞名称
 - 含义用简短的一句话，同样来自查表，不编造
 
@@ -98,49 +107,51 @@ function calculateShenSha(input: ShenShaInput): ShenSha[]
 **文件：** `composables/useLiuNian.ts`
 
 **接口：**
+
 ```typescript
 interface LiuNianInput {
-  baZi: BaZiResult           // 原局八字
-  shenSha: ShenSha[]         // 已计算的神煞
-  currentYear: number        // 当前年份
-  range: number              // 前后各多少年，默认 5
+  baZi: BaZiResult // 原局八字
+  shenSha: ShenSha[] // 已计算的神煞
+  currentYear: number // 当前年份
+  range: number // 前后各多少年，默认 5
 }
 
 interface LiuNianYear {
   year: number
-  stem: string               // 流年天干
-  branch: string             // 流年地支
-  stemWuxing: string         // 天干五行
-  branchWuxing: string       // 地支五行
-  tenGod: string             // 流年天干对日主的十神
-  tenGodWuxing: string       // 十神对应的五行（生克关系）
-  isFavorable: boolean       // 流年五行是否为喜用神
-  earthRelations: EarthRelation[]  // 流年地支对四柱地支的关系
-  shenSha: ShenSha[]         // 流年特有的神煞
-  score: number              // 综合评分 0-100
-  summary: string            // 规则生成的总结句
-  daYunStem: string          // 对应大运天干
-  daYunBranch: string        // 对应大运地支
-  
+  stem: string // 流年天干
+  branch: string // 流年地支
+  stemWuxing: string // 天干五行
+  branchWuxing: string // 地支五行
+  tenGod: string // 流年天干对日主的十神
+  tenGodWuxing: string // 十神对应的五行（生克关系）
+  isFavorable: boolean // 流年五行是否为喜用神
+  earthRelations: EarthRelation[] // 流年地支对四柱地支的关系
+  shenSha: ShenSha[] // 流年特有的神煞
+  score: number // 综合评分 0-100
+  summary: string // 规则生成的总结句
+  daYunStem: string // 对应大运天干
+  daYunBranch: string // 对应大运地支
+
   // 仅当前年展开
   detail?: {
-    daYunInteraction: string   // 天地配合解读
+    daYunInteraction: string // 天地配合解读
     pillarsInteraction: string[] // 对每柱的影响
-    monthlyStems: Array<{ month: number, stem: string, branch: string }> // 12个月干支
+    monthlyStems: Array<{ month: number; stem: string; branch: string }> // 12个月干支
   }
 }
 
 interface EarthRelation {
-  type: string               // 合/冲/刑/害/破
-  target: string             // 被影响的地支
-  targetPillar: string       // 被影响的柱
-  description: string        // 规则生成的一句话
+  type: string // 合/冲/刑/害/破
+  target: string // 被影响的地支
+  targetPillar: string // 被影响的柱
+  description: string // 规则生成的一句话
 }
 
 function calculateLiuNian(input: LiuNianInput): LiuNianYear[]
 ```
 
 **评分算法：**
+
 - 基础分 50
 - 流年天干是否为喜用神：+30（是）/ -20（否）
 - 流年地支对日主地支的刑冲合害：
@@ -155,17 +166,20 @@ function calculateLiuNian(input: LiuNianInput): LiuNianYear[]
 **总结句生成规则（模板拼装）：**
 
 总结句由以下片段拼接：
+
 ```
 "{tenGod}年" + "{五行匹配判定}" + "{地支关系判定}" + "{神煞提示}"
 ```
 
 示例：
+
 - "正官年，木为喜神，事业运佳" → 十神=正官 + 喜用匹配 + 官星正面解读
 - "比肩年，水土相战，流年冲日支，注意变动" → 十神=比肩 + 五行冲突 + 地支冲 + 警告提示
 
 每个片段都是查表/规则判定驱动的，不编造。
 
 **月份干支计算：**
+
 - 从当年立春开始，按节气划分12个月
 - 使用年上起月法（五虎遁），直接复用 `useSolarTerms.ts`
 
@@ -174,6 +188,7 @@ function calculateLiuNian(input: LiuNianInput): LiuNianYear[]
 **文件：** `components/tools/bazi/LiuNianTimeline.vue`
 
 **当前年卡片（展开）：**
+
 - 顶部突出显示年份 + 干支 + 十神 + 评分
 - 评分用环形进度条
 - 与四柱的地支关系逐一列出（用颜色标记合/冲/刑/害）
@@ -182,6 +197,7 @@ function calculateLiuNian(input: LiuNianInput): LiuNianYear[]
 - 对应大运信息
 
 **前后年份卡片（紧凑）：**
+
 - 水平时间线布局，桌面端一行，移动端垂直堆叠
 - 每卡片：年份、干支、十神、评分条、一句话总结
 - 点击可展开更多详情
@@ -195,6 +211,7 @@ function calculateLiuNian(input: LiuNianInput): LiuNianYear[]
 ### 4.1 API 设计
 
 **POST /api/divinations** — 保存测算记录
+
 ```
 Request:
   Authorization: Bearer <token>
@@ -208,6 +225,7 @@ Response: { id, created_at }
 ```
 
 **GET /api/divinations?type=bazi** — 获取历史列表
+
 ```
 Request:
   Authorization: Bearer <token>
@@ -220,6 +238,7 @@ Response: [
 ```
 
 **GET /api/divinations/[id]** — 获取单条详情
+
 ```
 Request:
   Authorization: Bearer <token>
@@ -228,6 +247,7 @@ Response: { id, type, input_data, result_data, created_at }
 ```
 
 **安全规则：**
+
 - `profile_id` 从 token 解析，只能读写自己的记录
 - 速率限制：每分钟 10 次
 

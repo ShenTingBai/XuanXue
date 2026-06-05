@@ -1,20 +1,27 @@
 <script setup lang="ts">
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
-const props = withDefaults(defineProps<{
-  nickname: string
-  wuXing?: string | null
-  size?: 'sm' | 'md' | 'lg'
-}>(), {
-  size: 'md',
-})
+const props = withDefaults(
+  defineProps<{
+    nickname: string
+    wuXing?: string | null
+    size?: 'sm' | 'md' | 'lg'
+  }>(),
+  {
+    size: 'md',
+  },
+)
 
 const firstChar = computed(() => {
   const s = props.nickname.trim()
   return s.length > 0 ? s[0] : '?'
 })
 
-const sizeMap: Record<string, string> = { sm: 'w-8 h-8 text-sm', md: 'w-12 h-12 text-lg', lg: 'w-[72px] h-[72px] text-3xl' }
+const sizeMap: Record<string, string> = {
+  sm: 'w-8 h-8 text-sm',
+  md: 'w-12 h-12 text-lg',
+  lg: 'w-[72px] h-[72px] text-3xl',
+}
 
 /**
  * Deterministic hash-color from a string. Produces a muted traditional-Chinese

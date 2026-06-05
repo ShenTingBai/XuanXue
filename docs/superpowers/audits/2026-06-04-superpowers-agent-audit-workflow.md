@@ -32,25 +32,25 @@ verification-before-completion  Compliance Auditor       合规清单审查
 
 ### 必选（7 种 Agent 类型，覆盖 8 维度）
 
-| Agent 类型 | 审计维度 | 为什么需要 |
-|-----------|----------|-----------|
-| **Code Reviewer** | 代码质量 + Spec 合规 | 找 bug、坏味道、对照路线图检查功能完整性 |
-| **Software Architect** | 架构设计 | composable 耦合、状态管理、API 分层、模块边界 |
-| **Security Engineer** | 安全 | 鉴权流程、令牌管理、CSP/XSS、输入校验、限流 |
-| **Test Results Analyzer** | 测试质量 | 覆盖率矩阵、测试深度、缺失项、测试有效性 |
-| **UI Designer** | UI/设计系统 | 色板一致性、组件类使用、字体层级、视觉规范 |
-| **UX Researcher** | UX/用户流程 | 用户旅程完整性、空态/加载/错误态、导航逻辑 |
-| **Product Manager** | 产品/功能完整性 | 功能是否闭环、用户价值、竞品缺失项、路线图合理性 |
+| Agent 类型                | 审计维度             | 为什么需要                                       |
+| ------------------------- | -------------------- | ------------------------------------------------ |
+| **Code Reviewer**         | 代码质量 + Spec 合规 | 找 bug、坏味道、对照路线图检查功能完整性         |
+| **Software Architect**    | 架构设计             | composable 耦合、状态管理、API 分层、模块边界    |
+| **Security Engineer**     | 安全                 | 鉴权流程、令牌管理、CSP/XSS、输入校验、限流      |
+| **Test Results Analyzer** | 测试质量             | 覆盖率矩阵、测试深度、缺失项、测试有效性         |
+| **UI Designer**           | UI/设计系统          | 色板一致性、组件类使用、字体层级、视觉规范       |
+| **UX Researcher**         | UX/用户流程          | 用户旅程完整性、空态/加载/错误态、导航逻辑       |
+| **Product Manager**       | 产品/功能完整性      | 功能是否闭环、用户价值、竞品缺失项、路线图合理性 |
 
 ### 可选（按需启动）
 
-| Agent 类型 | 审计维度 | 什么时候用 |
-|-----------|----------|-----------|
-| **Accessibility Auditor** | 无障碍 | label 关联、键盘导航、ARIA、屏幕阅读器兼容 |
-| **Performance Benchmarker** | 性能 | 加载时间、打包体积、渲染性能、关键路径优化 |
-| **Reality Checker** | 对抗验证 | 对前几路发现的"问题"做反向验证，防止假阳性 |
-| **Evidence Collector** | 视觉取证 | 截图证明 UI bug，提供可视化审计证据 |
-| **Compliance Auditor** | 合规清单 | SOC 2/ISO 风格 checklist 兜底，确保无遗漏 |
+| Agent 类型                  | 审计维度 | 什么时候用                                 |
+| --------------------------- | -------- | ------------------------------------------ |
+| **Accessibility Auditor**   | 无障碍   | label 关联、键盘导航、ARIA、屏幕阅读器兼容 |
+| **Performance Benchmarker** | 性能     | 加载时间、打包体积、渲染性能、关键路径优化 |
+| **Reality Checker**         | 对抗验证 | 对前几路发现的"问题"做反向验证，防止假阳性 |
+| **Evidence Collector**      | 视觉取证 | 截图证明 UI bug，提供可视化审计证据        |
+| **Compliance Auditor**      | 合规清单 | SOC 2/ISO 风格 checklist 兜底，确保无遗漏  |
 
 ## 分支与提交策略
 
@@ -60,14 +60,14 @@ verification-before-completion  Compliance Auditor       合规清单审查
 git checkout -b audit/2026-06-04        # Step 1 之前创建
 ```
 
-| 时机 | 操作 | 说明 |
-|------|------|------|
-| Step 1 完成 | 不提交 | 只读扫描，无文件变更 |
-| Step 2 完成 | 不提交 | 只读审查，无文件变更 |
-| Step 3b 完成 | `git commit -m "docs: add project audit report"` | 审计报告存入 `docs/superpowers/audits/` |
-| Step 4 每个修复 | `git commit -m "fix: [具体修复内容]"` | 按严重度分批提交 |
-| Step 5 通过后 | 不再提交 | 除非验证暴露新问题 |
-| Step 6 通过后 | `git push`，然后 `git checkout main && git merge --no-ff audit/2026-06-04` | 完成审计修复 |
+| 时机            | 操作                                                                       | 说明                                    |
+| --------------- | -------------------------------------------------------------------------- | --------------------------------------- |
+| Step 1 完成     | 不提交                                                                     | 只读扫描，无文件变更                    |
+| Step 2 完成     | 不提交                                                                     | 只读审查，无文件变更                    |
+| Step 3b 完成    | `git commit -m "docs: add project audit report"`                           | 审计报告存入 `docs/superpowers/audits/` |
+| Step 4 每个修复 | `git commit -m "fix: [具体修复内容]"`                                      | 按严重度分批提交                        |
+| Step 5 通过后   | 不再提交                                                                   | 除非验证暴露新问题                      |
+| Step 6 通过后   | `git push`，然后 `git checkout main && git merge --no-ff audit/2026-06-04` | 完成审计修复                            |
 
 > Step 1-2 是纯只读，审计报告文档是第一个 commit。修复阶段每批修复一个 commit，方便回溯。
 
@@ -77,9 +77,9 @@ git checkout -b audit/2026-06-04        # Step 1 之前创建
 
 用 **Explore 子代理**（2 个并行）扫描项目产出清单：
 
-| # | 子代理 | 扫描范围 |
-|---|--------|----------|
-| 1.1 | Explore | pages/ + components/ — 页面和组件清单 |
+| #   | 子代理  | 扫描范围                                            |
+| --- | ------- | --------------------------------------------------- |
+| 1.1 | Explore | pages/ + components/ — 页面和组件清单               |
 | 1.2 | Explore | composables/ + constants/ + server/ — 引擎和API清单 |
 
 输出：一份结构化的"审计索引"——供后续所有审查者使用。
@@ -87,31 +87,33 @@ git checkout -b audit/2026-06-04        # Step 1 之前创建
 ### Step 2: 多维度并行审计 — 8 路必选 + 3 路可选
 
 每一路都**套用 superpowers 的 `requesting-code-review` / `code-reviewer.md` 模板**：
+
 - DESCRIPTION = 本维度审计范围和目标
 - PLAN_OR_REQUIREMENTS = 项目文档列表（roadmap.md + 设计规范 + CLAUDE.md）
 
 #### 必选 8 路（基础覆盖）
 
-| # | Agent 类型 | superpowers 模板 | 审查内容 |
-|---|-----------|-----------------|----------|
-| 2.1 | **Code Reviewer** | spec-reviewer-prompt.md | **Spec 合规**：对照 roadmap.md 检查每个功能是否实现，有无遗漏或多余 |
-| 2.2 | **Code Reviewer** | code-reviewer.md | **代码质量**：死代码、重复、类型安全、CLAUDE.md 约定、边界处理 |
-| 2.3 | **Security Engineer** | code-reviewer.md | **安全**：鉴权、令牌、CSP、XSS、输入校验、限流、敏感数据 |
-| 2.4 | **Software Architect** | code-reviewer.md | **架构**：composable 耦合、状态管理、API 分层、模块边界 |
-| 2.5 | **Test Results Analyzer** | code-reviewer.md | **测试**：覆盖率矩阵、测试深度、缺失项、运行 `npm run test` |
-| 2.6 | **UI Designer** | code-reviewer.md | **UI/设计系统**：色板一致性、组件类使用、字体层级、视觉规范 |
-| 2.7 | **UX Researcher** | code-reviewer.md | **UX/流程**：用户旅程完整性、空态/加载/错误态、导航逻辑 |
-| 2.8 | **Product Manager** | code-reviewer.md | **产品/功能**：功能闭环、用户价值、路线图对比、竞品缺失项 |
+| #   | Agent 类型                | superpowers 模板        | 审查内容                                                            |
+| --- | ------------------------- | ----------------------- | ------------------------------------------------------------------- |
+| 2.1 | **Code Reviewer**         | spec-reviewer-prompt.md | **Spec 合规**：对照 roadmap.md 检查每个功能是否实现，有无遗漏或多余 |
+| 2.2 | **Code Reviewer**         | code-reviewer.md        | **代码质量**：死代码、重复、类型安全、CLAUDE.md 约定、边界处理      |
+| 2.3 | **Security Engineer**     | code-reviewer.md        | **安全**：鉴权、令牌、CSP、XSS、输入校验、限流、敏感数据            |
+| 2.4 | **Software Architect**    | code-reviewer.md        | **架构**：composable 耦合、状态管理、API 分层、模块边界             |
+| 2.5 | **Test Results Analyzer** | code-reviewer.md        | **测试**：覆盖率矩阵、测试深度、缺失项、运行 `npm run test`         |
+| 2.6 | **UI Designer**           | code-reviewer.md        | **UI/设计系统**：色板一致性、组件类使用、字体层级、视觉规范         |
+| 2.7 | **UX Researcher**         | code-reviewer.md        | **UX/流程**：用户旅程完整性、空态/加载/错误态、导航逻辑             |
+| 2.8 | **Product Manager**       | code-reviewer.md        | **产品/功能**：功能闭环、用户价值、路线图对比、竞品缺失项           |
 
 #### 可选 3 路（深度扫描，按需启动）
 
-| # | Agent 类型 | superpowers 模板 | 审查内容 | 什么时候加 |
-|---|-----------|-----------------|----------|-----------|
-| 2.9* | **Accessibility Auditor** | code-reviewer.md | **无障碍**：label、键盘、ARIA、屏幕阅读器 | 面向公众/需要 WCAG 合规 |
-| 2.10* | **Database Optimizer** | code-reviewer.md | **数据库**：schema 设计、索引覆盖、查询效率、迁移质量 | 数据量大/查询复杂 |
-| 2.11* | **Performance Benchmarker** | code-reviewer.md | **性能**：加载时间、打包体积、关键路径 | 追求极致体验/移动端
+| #      | Agent 类型                  | superpowers 模板 | 审查内容                                              | 什么时候加              |
+| ------ | --------------------------- | ---------------- | ----------------------------------------------------- | ----------------------- |
+| 2.9\*  | **Accessibility Auditor**   | code-reviewer.md | **无障碍**：label、键盘、ARIA、屏幕阅读器             | 面向公众/需要 WCAG 合规 |
+| 2.10\* | **Database Optimizer**      | code-reviewer.md | **数据库**：schema 设计、索引覆盖、查询效率、迁移质量 | 数据量大/查询复杂       |
+| 2.11\* | **Performance Benchmarker** | code-reviewer.md | **性能**：加载时间、打包体积、关键路径                | 追求极致体验/移动端     |
 
 **每路审查者输出需遵循 `code-reviewer.md` 格式：**
+
 ```
 ### Strengths
 ### Issues
@@ -130,7 +132,7 @@ git checkout -b audit/2026-06-04        # Step 1 之前创建
 派 1 个 Reality Checker 子代理：
   输入：Step 2 中所有 HIGH 和 Important 问题列表
   任务：逐条验证 → 返回 { confirmed: true/false, reason: "..." }
-  
+
 过滤掉 verified: false 的问题 → 剩下的才是真正的修复目标
 ```
 
@@ -151,12 +153,12 @@ git checkout -b audit/2026-06-04        # Step 1 之前创建
 
 遵循 `subagent-driven-development` 的**两阶段 review** 流程，但针对修复场景做调整：
 
-| # | 子代理 | 做什么 |
-|---|--------|--------|
-| 4.1 | **Senior Developer** | 修复全部 HIGH 问题 |
-| 4.2 | **Senior Developer** | 修复全部 MED 问题 |
-| 4.3 | **Senior Developer** | 修复全部 LOW 问题 |
-| 4.4* | **Senior Developer** | 补测试覆盖 |
+| #     | 子代理               | 做什么             |
+| ----- | -------------------- | ------------------ |
+| 4.1   | **Senior Developer** | 修复全部 HIGH 问题 |
+| 4.2   | **Senior Developer** | 修复全部 MED 问题  |
+| 4.3   | **Senior Developer** | 修复全部 LOW 问题  |
+| 4.4\* | **Senior Developer** | 补测试覆盖         |
 
 > 修复代理也按 superpowers 规范：读文件 → 最小修改 → 不做无关重构。
 
@@ -180,6 +182,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 ```
 
 派 **`Code Reviewer`** 审查全部变更：
+
 - 是否还有遗漏
 - 修复是否引入了新问题
 - 测试覆盖是否充分
@@ -215,15 +218,15 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 ## 与之前实际执行的对比
 
-| 环节 | 上次实际做的 | 加上 superpowers 后改进 |
-|------|-------------|----------------------|
-| 审查模板 | 自写 prompt | 套用 code-reviewer.md 标准模板（Strengths/Issues/Assessment） |
-| 维度覆盖 | 5 路 (缺 UI/UX/a11y/产品/DB) | 8 必选 + 3 可选，全覆盖 |
-| 结果格式 | 自定格式 | 统一 `code-reviewer.md` 标准格式 |
-| 假阳性过滤 | 无 | Reality Checker 对抗验证 HIGH 问题 |
-| 修复纪律 | 有 review | 加 `verification-before-completion` 铁律 |
-| 最终审查 | 无 | 加 `requesting-code-review` 最终 diff 审查 |
-| 产品视角 | 无 | Product Manager 审功能闭环和用户价值 |
+| 环节       | 上次实际做的                 | 加上 superpowers 后改进                                       |
+| ---------- | ---------------------------- | ------------------------------------------------------------- |
+| 审查模板   | 自写 prompt                  | 套用 code-reviewer.md 标准模板（Strengths/Issues/Assessment） |
+| 维度覆盖   | 5 路 (缺 UI/UX/a11y/产品/DB) | 8 必选 + 3 可选，全覆盖                                       |
+| 结果格式   | 自定格式                     | 统一 `code-reviewer.md` 标准格式                              |
+| 假阳性过滤 | 无                           | Reality Checker 对抗验证 HIGH 问题                            |
+| 修复纪律   | 有 review                    | 加 `verification-before-completion` 铁律                      |
+| 最终审查   | 无                           | 加 `requesting-code-review` 最终 diff 审查                    |
+| 产品视角   | 无                           | Product Manager 审功能闭环和用户价值                          |
 
 ---
 
@@ -232,7 +235,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 有两种：
 
 **A. Workflow 脚本** — 一次性编排全部流程，适合"全自动无干预"
-**B. 手动分步** — Step 1 → 看结果 → Step 2 → 看结果 → ...  适合"每步查看再决定"
+**B. 手动分步** — Step 1 → 看结果 → Step 2 → 看结果 → ... 适合"每步查看再决定"
 
 推荐 **B（手动分步）**，因为审计是判断密集型工作，每步看完结果再决定下一步更有价值。
 
@@ -323,6 +326,7 @@ Strengths / Issues(Critical/Important/Minor) / Assessment。
 ## 验证
 
 执行完后验收标准：
+
 - [ ] typecheck 干净
 - [ ] build 成功
 - [ ] 所有测试通过

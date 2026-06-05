@@ -4,7 +4,7 @@ import { DIVINATION_TYPES } from './shared'
 
 const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
@@ -23,7 +23,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!VALID_TYPES.has(type)) {
-    throw createError({ statusCode: 400, statusMessage: `无效的测算类型，支持: ${DIVINATION_TYPES.join(', ')}` })
+    throw createError({
+      statusCode: 400,
+      statusMessage: `无效的测算类型，支持: ${DIVINATION_TYPES.join(', ')}`,
+    })
   }
 
   if (!input_data) {
@@ -58,7 +61,7 @@ export default defineEventHandler(async (event) => {
 
   const { lastInsertRowid } = dbRun(
     'INSERT INTO divination_results (profile_id, type, input_data, result_data) VALUES (?, ?, ?, ?)',
-    [profileId, type, inputDataStr, resultDataStr]
+    [profileId, type, inputDataStr, resultDataStr],
   )
 
   // Get created_at for the response

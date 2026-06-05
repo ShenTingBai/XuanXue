@@ -10,13 +10,13 @@
 
 ## 技术栈
 
-| 层级 | 技术 |
-|------|------|
-| 框架 | Nuxt.js 3 (Vue 3 全栈) |
-| 数据库 | SQLite (sql.js) |
+| 层级     | 技术                                                 |
+| -------- | ---------------------------------------------------- |
+| 框架     | Nuxt.js 3 (Vue 3 全栈)                               |
+| 数据库   | SQLite (sql.js)                                      |
 | 前端样式 | TailwindCSS + 自定义设计系统（墨韵 · Ink Resonance） |
-| 玄学引擎 | 纯 TypeScript，前端直接计算 |
-| 部署 | 阿里云 + Nginx |
+| 玄学引擎 | 纯 TypeScript，前端直接计算                          |
+| 部署     | 阿里云 + Nginx                                       |
 
 ## 设计系统：墨韵 · Ink Resonance
 
@@ -24,14 +24,14 @@
 
 ### 色彩体系
 
-| Token | 色值 | 用途 |
-|-------|------|------|
-| `paper-lightest` | #FBF8F4 | 最浅纸色 |
+| Token                   | 色值    | 用途               |
+| ----------------------- | ------- | ------------------ |
+| `paper-lightest`        | #FBF8F4 | 最浅纸色           |
 | `paper` / `paper-light` | #F5F0E8 | 页面背景（暖纸底） |
-| `paper-card` | #E8DCC6 | 卡片背景（暖笺） |
-| `cinnabar-deeper` | #9C1A1C | 朱砂主色 |
-| `ink-darkest` | #1A0F0A | 最深墨色（标题） |
-| `ink` / `ink-dark` | #2C1810 | 正文墨色 |
+| `paper-card`            | #E8DCC6 | 卡片背景（暖笺）   |
+| `cinnabar-deeper`       | #9C1A1C | 朱砂主色           |
+| `ink-darkest`           | #1A0F0A | 最深墨色（标题）   |
+| `ink` / `ink-dark`      | #2C1810 | 正文墨色           |
 
 ### 品牌标识
 
@@ -41,20 +41,20 @@
 
 ### 核心组件
 
-| 组件类 | 用途 |
-|--------|------|
-| `btn-cin` | 朱砂实心按钮（双边框 + hover 加深） |
-| `btn-ink` | 墨色描边按钮 |
-| `seal-icon` / `seal-icon--lg` / `seal-icon--hero` | 朱砂印章 |
-| `card-warm` / `card-warm--elevated` | 暖笺卡片 |
-| `tool-card--new` | 工具入口卡片（符头顶线 + 卦象角标 + hover 动画） |
-| `input-warm` | 暖笺输入框 |
-| `section-header` | 分区标题（朱砂短杠 + 文字） |
-| `talisman-line` | 符头顶线装饰 |
-| `corner-mark` | 卦象角标（☰☷☵☲等） |
-| `divider-seal` | 朱砂印分割线 |
-| `rule-boundary` / `fish-tail` | 线装书天地界栏 + 鱼尾 |
-| `anim-rise` + `anim-delay-1~5` | 入场动画 |
+| 组件类                                            | 用途                                             |
+| ------------------------------------------------- | ------------------------------------------------ |
+| `btn-cin`                                         | 朱砂实心按钮（双边框 + hover 加深）              |
+| `btn-ink`                                         | 墨色描边按钮                                     |
+| `seal-icon` / `seal-icon--lg` / `seal-icon--hero` | 朱砂印章                                         |
+| `card-warm` / `card-warm--elevated`               | 暖笺卡片                                         |
+| `tool-card--new`                                  | 工具入口卡片（符头顶线 + 卦象角标 + hover 动画） |
+| `input-warm`                                      | 暖笺输入框                                       |
+| `section-header`                                  | 分区标题（朱砂短杠 + 文字）                      |
+| `talisman-line`                                   | 符头顶线装饰                                     |
+| `corner-mark`                                     | 卦象角标（☰☷☵☲等）                           |
+| `divider-seal`                                    | 朱砂印分割线                                     |
+| `rule-boundary` / `fish-tail`                     | 线装书天地界栏 + 鱼尾                            |
+| `anim-rise` + `anim-delay-1~5`                    | 入场动画                                         |
 
 ### 纸纹纹理
 
@@ -64,27 +64,27 @@
 
 ### profiles（用户档案）
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | integer (PK, 自增) | 自动生成 |
-| nickname | text (唯一) | 用户昵称，登录标识 |
-| pin | text (4位) | 登录 PIN 码 |
-| birth_date | text (YYYY-MM-DD, 可选) | 出生日期 |
+| 字段           | 类型                     | 说明                      |
+| -------------- | ------------------------ | ------------------------- |
+| id             | integer (PK, 自增)       | 自动生成                  |
+| nickname       | text (唯一)              | 用户昵称，登录标识        |
+| pin            | text (4位)               | 登录 PIN 码               |
+| birth_date     | text (YYYY-MM-DD, 可选)  | 出生日期                  |
 | birth_calendar | text (solar/lunar, 可选) | 出生日期历法（阳历/农历） |
-| birth_hour | integer (0-23, 可选) | 出生小时 |
-| birth_minute | integer (0-59, 可选) | 出生分钟 |
-| gender | text (男/女, 可选) | 性别 |
-| created_at | datetime | 创建时间 |
-| updated_at | datetime | 更新时间 |
+| birth_hour     | integer (0-23, 可选)     | 出生小时                  |
+| birth_minute   | integer (0-59, 可选)     | 出生分钟                  |
+| gender         | text (男/女, 可选)       | 性别                      |
+| created_at     | datetime                 | 创建时间                  |
+| updated_at     | datetime                 | 更新时间                  |
 
 ### sessions（登录会话）
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | integer (PK, 自增) | 自动生成 |
+| 字段       | 类型                       | 说明     |
+| ---------- | -------------------------- | -------- |
+| id         | integer (PK, 自增)         | 自动生成 |
 | profile_id | integer (FK → profiles.id) | 关联档案 |
-| token | text (唯一) | 登录令牌 |
-| created_at | datetime | 创建时间 |
+| token      | text (唯一)                | 登录令牌 |
+| created_at | datetime                   | 创建时间 |
 
 - 登录/注册时服务端生成 token，存入 `sessions` 表
 - 同时返回给客户端，存入 `localStorage`（键 `xuanxue:session`）
@@ -94,42 +94,45 @@
 
 ### divination_results（测算记录）
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | integer (PK) | 自动生成 |
-| profile_id | integer (FK → profiles.id) | 关联档案 |
-| type | text | 工具类型 (shengxiao / constellation / bazi / yijing / ziwei) |
-| input_data | json | 输入参数 |
-| result_data | json | 计算结果 |
-| created_at | datetime | 测算时间 |
+| 字段        | 类型                       | 说明                                                         |
+| ----------- | -------------------------- | ------------------------------------------------------------ |
+| id          | integer (PK)               | 自动生成                                                     |
+| profile_id  | integer (FK → profiles.id) | 关联档案                                                     |
+| type        | text                       | 工具类型 (shengxiao / constellation / bazi / yijing / ziwei) |
+| input_data  | json                       | 输入参数                                                     |
+| result_data | json                       | 计算结果                                                     |
+| created_at  | datetime                   | 测算时间                                                     |
 
 ## 页面路由
 
-| 路由 | 页面 | 说明 | 状态 |
-|------|------|------|------|
-| `/` | 首页 | 未登录：英雄区 + 工具卡片 + 预览；已登录：问候语 + 工具网格 | ✅ |
-| `/login` | 登录/注册 | 结缘立卷卡片 + 号令/密令 + 四角卦象 | ✅ |
-| `/profile/:id` | 档案编辑 | 修改个人信息 | ✅ |
-| `/tools/shengxiao` | 生肖 | 生肖排盘 + 五行 + 性格 + 配对 | ✅ |
-| `/tools/constellation` | 星座 | 星座特征 + 今日运势 + 星盘 | ✅ |
-| `/tools/bazi` | 八字 | 四柱排盘 + 十神 + 大运 + 神煞 + 流年 | ✅ |
-| `/tools/yijing` | 六爻 | 数字起卦 + 六十四卦 + 变卦 | ✅ |
-| `/tools/ziwei` | 紫微斗数 | 十二宫排盘 + 天星图 + 星曜分析 | ✅ |
+| 路由                   | 页面      | 说明                                                        | 状态 |
+| ---------------------- | --------- | ----------------------------------------------------------- | ---- |
+| `/`                    | 首页      | 未登录：英雄区 + 工具卡片 + 预览；已登录：问候语 + 工具网格 | ✅   |
+| `/login`               | 登录/注册 | 结缘立卷卡片 + 号令/密令 + 四角卦象                         | ✅   |
+| `/profile/:id`         | 档案编辑  | 修改个人信息                                                | ✅   |
+| `/tools/shengxiao`     | 生肖      | 生肖排盘 + 五行 + 性格 + 配对                               | ✅   |
+| `/tools/constellation` | 星座      | 星座特征 + 今日运势 + 星盘                                  | ✅   |
+| `/tools/bazi`          | 八字      | 四柱排盘 + 十神 + 大运 + 神煞 + 流年                        | ✅   |
+| `/tools/yijing`        | 六爻      | 数字起卦 + 六十四卦 + 变卦                                  | ✅   |
+| `/tools/ziwei`         | 紫微斗数  | 十二宫排盘 + 天星图 + 星曜分析                              | ✅   |
 
 ## 功能规划
 
 ### Phase 1：基础系统 ✅
+
 - 用户登录（昵称 + 4 位 PIN）
 - 档案管理（创建、编辑）
 - 首页工具网格 + 导航
 - Session 持久化（localStorage）
 
 ### Phase 2：生肖 + 星座 ✅
+
 - 生肖计算（标准生肖算法）
 - 生肖五行属性、性格特征（标准参考资料）
 - 十二星座划分、性格特征、星盘
 
 ### Phase 3：八字排盘 ✅
+
 - 节气数据（lunar-javascript 万年历）
 - 年柱推算（立春为界）
 - 月柱推算（五虎遁）
@@ -139,16 +142,19 @@
 - 大运起运（标准子平法）
 
 ### Phase 4：八字增强 ✅
+
 - 神煞系统（25+ 查表，覆盖四柱/大运/流年）
 - 流年详批（前后各 5 年，规则驱动评分 + 文本模板）
 - 测算记录保存 + 历史回看（HistoryModal）
 
 ### Phase 5：六爻占卜 ✅
+
 - 数字起卦 / 手动摇卦
 - 六十四卦系统（含变卦）
 - 卦象解读 + 爻辞展示
 
 ### Phase 6：紫微斗数 ✅
+
 - 十二宫排盘
 - 星曜安放 + 天星图可视化
 - 大限流年
@@ -163,6 +169,7 @@
 - 详见 [`plans/2026-05-31-xuandao-phase-7-plus-roadmap.md`](../plans/2026-05-31-xuandao-phase-7-plus-roadmap.md)
 
 ### 设计系统落地 🔄 （`feat/design-system-rollout` 分支）
+
 - 品牌从"玄学"升级为"玄·道"
 - 墨韵 · Ink Resonance 视觉体系
 - 英雄区 + 工具卡片 + 登录页面重设计
@@ -213,4 +220,3 @@
 - **节气边界**：使用 `getSolarTerm()`，禁止硬编码日期
 - **十神**：`getTenGod` 永远不返回 `'日主'`——手动在日柱赋值
 - **日期解析**：使用 `parseDate()`，禁止 `new Date(str)`
-

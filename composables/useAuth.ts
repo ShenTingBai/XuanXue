@@ -33,7 +33,11 @@ export const useAuth = () => {
       const raw = localStorage.getItem(SESSION_KEY)
       if (!raw) return null
       const parsed = JSON.parse(raw)
-      if (typeof parsed?.token === 'string' && parsed?.profile && typeof parsed.profile.id === 'number') {
+      if (
+        typeof parsed?.token === 'string' &&
+        parsed?.profile &&
+        typeof parsed.profile.id === 'number'
+      ) {
         return parsed as StoredSession
       }
       localStorage.removeItem(SESSION_KEY)
@@ -108,9 +112,12 @@ export const useAuth = () => {
     const session = getStoredSession()
     if (!session?.token) return
     try {
-      const res = await $fetch<{ main: ProfileWithFlag; subs: ProfileWithFlag[] }>('/api/profiles', {
-        headers: { Authorization: `Bearer ${session.token}` },
-      })
+      const res = await $fetch<{ main: ProfileWithFlag; subs: ProfileWithFlag[] }>(
+        '/api/profiles',
+        {
+          headers: { Authorization: `Bearer ${session.token}` },
+        },
+      )
       currentProfile.value = res.main
       subProfiles.value = [res.main, ...res.subs]
       // Sync localStorage with the fresh main profile
@@ -129,5 +136,16 @@ export const useAuth = () => {
     currentProfile.value = profile
   }
 
-  return { currentProfile, subProfiles, getAuthHeaders, restoreSession, login, register, logout, updateProfile, loadSubProfiles, switchProfile }
+  return {
+    currentProfile,
+    subProfiles,
+    getAuthHeaders,
+    restoreSession,
+    login,
+    register,
+    logout,
+    updateProfile,
+    loadSubProfiles,
+    switchProfile,
+  }
 }

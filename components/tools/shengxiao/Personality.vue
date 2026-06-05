@@ -10,7 +10,9 @@
         <span class="nayin-seal" aria-hidden="true">音</span>
         <div class="nayin-body">
           <div class="nayin-headline">
-            <span class="nayin-label">{{ result.stemBranch }} · {{ result.animal }} · {{ nayinInfo.nayin }}</span>
+            <span class="nayin-label"
+              >{{ result.stemBranch }} · {{ result.animal }} · {{ nayinInfo.nayin }}</span
+            >
           </div>
           <p class="nayin-core">
             <span class="nayin-core__label">纳音断性</span>
@@ -18,11 +20,7 @@
           </p>
           <p class="nayin-desc">{{ nayinInfo.description }}</p>
           <div class="nayin-tags">
-            <span
-              v-for="kw in nayinInfo.keywords"
-              :key="kw"
-              class="nayin-tag"
-            >{{ kw }}</span>
+            <span v-for="kw in nayinInfo.keywords" :key="kw" class="nayin-tag">{{ kw }}</span>
           </div>
         </div>
       </div>
@@ -98,8 +96,8 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-cinnabar, #C62828);
-  color: #FAF0E0;
+  background: var(--color-cinnabar, #c62828);
+  color: #faf0e0;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.6875rem;
   letter-spacing: 0.1em;
@@ -120,7 +118,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 .nayin-label {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.82rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.18em;
 }
 
@@ -142,7 +140,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 .nayin-core__text {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 1.05rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.12em;
   line-height: 1.4;
 }
@@ -150,7 +148,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 .nayin-desc {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.65;
   letter-spacing: 0.03em;
   margin-bottom: 0.5rem;
@@ -166,7 +164,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
   display: inline-block;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.6875rem;
-  color: var(--color-cinnabar, #C62828);
+  color: var(--color-cinnabar, #c62828);
   padding: 0.08rem 0.5rem;
   border-radius: 999px;
   background: rgba(198, 40, 40, 0.04);

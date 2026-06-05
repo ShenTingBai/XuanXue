@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { getSolarTerm, getMonthBranch, getMonthStemStart, getMonthPillar } from '../../composables/useSolarTerms'
+import {
+  getSolarTerm,
+  getMonthBranch,
+  getMonthStemStart,
+  getMonthPillar,
+} from '../../composables/useSolarTerms'
 
 describe('getSolarTerm', () => {
   it('returns correct 立春 date for 2024', () => {
@@ -79,10 +84,13 @@ describe('all 12 major solar terms for 2024', () => {
     { name: '小寒', termIndex: 11, month: 1, day: 5 },
   ]
 
-  it.each(expected2024)('$name should be in correct month (termIndex=$termIndex)', ({ termIndex, month }) => {
-    const result = getSolarTerm(2024, termIndex)
-    expect(result.month).toBe(month)
-  })
+  it.each(expected2024)(
+    '$name should be in correct month (termIndex=$termIndex)',
+    ({ termIndex, month }) => {
+      const result = getSolarTerm(2024, termIndex)
+      expect(result.month).toBe(month)
+    },
+  )
 
   it.each(expected2024)('$name day should be within ±1 of expected', ({ termIndex, day }) => {
     const result = getSolarTerm(2024, termIndex)

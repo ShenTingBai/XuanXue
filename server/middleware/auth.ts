@@ -1,6 +1,6 @@
 import { getProfileIdFromToken } from '../utils/auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
   const profileId = token ? getProfileIdFromToken(token) : null

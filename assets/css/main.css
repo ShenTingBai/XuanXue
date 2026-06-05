@@ -43,36 +43,37 @@ html {
 
   /* ── Design Tokens (CSS Custom Properties) ── */
   :root {
-    --color-ink-darkest: #1A0F0A;
-    --color-ink-dark: #1E1210;
-    --color-ink: #2C1810;
-    --color-ink-medium: #6B5B4F;
-    --color-ink-light: #5E5045;
-    --color-ink-mid: #5E5045;
-    --color-ink-muted: #4D4037;
-    --color-ink-faint: #D4C5B0;
-    --color-paper-lightest: #FBF8F4;
-    --color-paper-light: #F5F0E8;
-    --color-paper-medium: #EDE4D3;
-    --color-paper-card: #E8DCC6;
-    --color-paper-dark: #E0D5C0;
-    --color-paper-darker: #D0C0A8;
-    --color-scroll-light: #FDF6E3;
-    --color-scroll: #F9EDD4;
-    --color-scroll-dark: #F5E5C8;
-    --color-cinnabar: #C62828;
-    --color-cinnabar-light: #E53935;
-    --color-cinnabar-dark: #8E1D1D;
-    --color-cinnabar-deeper: #9C1A1C;
-    --color-cinnabar-deepest: #7A1416;
-    --color-gold: #7A5E12;
-    --color-gold-light: #9A7818;
-    --color-jade: #3D6B4B;
-    --color-jade-light: #4D7A5A;
-    --color-star-ice: #6BA8C8;     /* 紫微天星图：文曜（文昌/文曲/天魁/天钺） */
-    --color-star-purple: #7B6FA0;  /* 紫微天星图：辅曜（武曲/天相） */
+    --color-ink-darkest: #1a0f0a;
+    --color-ink-dark: #1e1210;
+    --color-ink: #2c1810;
+    --color-ink-medium: #6b5b4f;
+    --color-ink-light: #5e5045;
+    --color-ink-mid: #5e5045;
+    --color-ink-muted: #4d4037;
+    --color-ink-faint: #d4c5b0;
+    --color-paper-lightest: #fbf8f4;
+    --color-paper-light: #f5f0e8;
+    --color-paper-medium: #ede4d3;
+    --color-paper-card: #e8dcc6;
+    --color-paper-dark: #e0d5c0;
+    --color-paper-darker: #d0c0a8;
+    --color-scroll-light: #fdf6e3;
+    --color-scroll: #f9edd4;
+    --color-scroll-dark: #f5e5c8;
+    --color-cinnabar: #c62828;
+    --color-cinnabar-light: #e53935;
+    --color-cinnabar-dark: #8e1d1d;
+    --color-cinnabar-deeper: #9c1a1c;
+    --color-cinnabar-deepest: #7a1416;
+    --color-gold: #7a5e12;
+    --color-gold-light: #9a7818;
+    --color-jade: #3d6b4b;
+    --color-jade-light: #4d7a5a;
+    --color-star-ice: #6ba8c8; /* 紫微天星图：文曜（文昌/文曲/天魁/天钺） */
+    --color-star-purple: #7b6fa0; /* 紫微天星图：辅曜（武曲/天相） */
     --font-display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
-    --font-sans: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', sans-serif;
+    --font-sans:
+      'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', sans-serif;
     --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease-out;
     --transition-slow: 0.5s ease-out;
@@ -204,10 +205,10 @@ html {
     cursor: not-allowed;
   }
   .btn-seal:disabled::before,
-  .btn-seal[aria-busy="true"]::before {
+  .btn-seal[aria-busy='true']::before {
     display: none;
   }
-  .btn-seal[aria-busy="true"] {
+  .btn-seal[aria-busy='true'] {
     cursor: wait;
     opacity: 0.7;
   }
@@ -263,7 +264,9 @@ html {
     width: 1px;
     height: 0.875rem;
     background: var(--color-ink-faint);
-    transition: background 0.2s ease, height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition:
+      background 0.2s ease,
+      height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .marginal-toggle:hover {
     color: var(--color-cinnabar);
@@ -282,7 +285,7 @@ html {
     font-size: 0.55rem;
     transition: transform 0.3s ease;
   }
-  .marginal-toggle[aria-expanded="true"] .marginal-toggle__arrow {
+  .marginal-toggle[aria-expanded='true'] .marginal-toggle__arrow {
     transform: rotate(180deg);
   }
 
@@ -365,7 +368,10 @@ html {
     cursor: default;
     overflow: hidden;
     will-change: transform;
-    transition: border-color var(--transition-slow), box-shadow var(--transition-slow), transform var(--transition-slow);
+    transition:
+      border-color var(--transition-slow),
+      box-shadow var(--transition-slow),
+      transform var(--transition-slow);
   }
 
   .tool-card--active {
@@ -430,7 +436,10 @@ html {
     border-radius: 12px;
     font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
     font-size: 1.35rem;
-    transition: background var(--transition-normal), border-color var(--transition-normal), transform var(--transition-normal);
+    transition:
+      background var(--transition-normal),
+      border-color var(--transition-normal),
+      transform var(--transition-normal);
   }
 
   .card-icon--active {
@@ -458,7 +467,9 @@ html {
     bottom: 12px;
     right: 14px;
     opacity: 0;
-    transition: opacity var(--transition-normal), transform var(--transition-normal);
+    transition:
+      opacity var(--transition-normal),
+      transform var(--transition-normal);
   }
 
   .tool-card--active:hover .card-enter-hint {
@@ -515,7 +526,12 @@ html {
     top: 50%;
     width: 180px;
     height: 2px;
-    background: linear-gradient(to right, rgba(198, 40, 40, 0.25), rgba(214, 197, 176, 0.5), transparent);
+    background: linear-gradient(
+      to right,
+      rgba(198, 40, 40, 0.25),
+      rgba(214, 197, 176, 0.5),
+      transparent
+    );
     border-radius: 1px;
   }
 
@@ -615,7 +631,7 @@ html {
     background: linear-gradient(
       90deg,
       rgba(214, 197, 176, 0.25) 25%,
-      rgba(214, 197, 176, 0.40) 50%,
+      rgba(214, 197, 176, 0.4) 50%,
       rgba(214, 197, 176, 0.25) 75%
     );
     background-size: 200% 100%;
@@ -640,10 +656,18 @@ html {
     @apply absolute inset-y-0 left-0 rounded-full;
     transition: width var(--transition-slow);
   }
-  .fortune-bar__fill--great  { @apply bg-jade; }
-  .fortune-bar__fill--good   { @apply bg-gold; }
-  .fortune-bar__fill--normal { @apply bg-ink-medium; }
-  .fortune-bar__fill--low    { @apply bg-cinnabar; }
+  .fortune-bar__fill--great {
+    @apply bg-jade;
+  }
+  .fortune-bar__fill--good {
+    @apply bg-gold;
+  }
+  .fortune-bar__fill--normal {
+    @apply bg-ink-medium;
+  }
+  .fortune-bar__fill--low {
+    @apply bg-cinnabar;
+  }
 
   /* ── Yi/Ji Panel ── */
   .yiji-card {
@@ -685,17 +709,31 @@ html {
   .wuxing-card {
     @apply rounded-xl p-4 text-center border;
     background: rgba(251, 248, 244, 0.9);
-    transition: border-color var(--transition-fast), transform var(--transition-fast);
+    transition:
+      border-color var(--transition-fast),
+      transform var(--transition-fast);
   }
   .wuxing-card:hover {
     transform: translateY(-2px);
   }
-  .wuxing-card--wood  { border-color: var(--color-jade); }
-  .wuxing-card--air   { border-color: var(--color-jade-light); }
-  .wuxing-card--fire  { border-color: var(--color-cinnabar); }
-  .wuxing-card--earth { border-color: var(--color-gold); }
-  .wuxing-card--metal { border-color: #5E5E5E; }
-  .wuxing-card--water { border-color: #2C5F7C; }
+  .wuxing-card--wood {
+    border-color: var(--color-jade);
+  }
+  .wuxing-card--air {
+    border-color: var(--color-jade-light);
+  }
+  .wuxing-card--fire {
+    border-color: var(--color-cinnabar);
+  }
+  .wuxing-card--earth {
+    border-color: var(--color-gold);
+  }
+  .wuxing-card--metal {
+    border-color: #5e5e5e;
+  }
+  .wuxing-card--water {
+    border-color: #2c5f7c;
+  }
 
   /* ── ── ── ── ── ──
      新 · 玄道 设计系统组件
@@ -717,20 +755,20 @@ html {
     cursor: pointer;
     position: relative;
     transition: all 0.35s ease;
-    box-shadow: 0 4px 24px rgba(156,26,28,0.06);
+    box-shadow: 0 4px 24px rgba(156, 26, 28, 0.06);
   }
   .btn-cin::before {
     content: '';
     position: absolute;
     inset: 4px;
-    border: 1px solid rgba(245,240,232,0.06);
+    border: 1px solid rgba(245, 240, 232, 0.06);
     pointer-events: none;
   }
   .btn-cin::after {
     content: '';
     position: absolute;
     inset: -6px;
-    border: 3px solid rgba(156,26,28,0.015);
+    border: 3px solid rgba(156, 26, 28, 0.015);
     pointer-events: none;
     mask-image: radial-gradient(ellipse at center, transparent 65%, black 100%);
     -webkit-mask-image: radial-gradient(ellipse at center, transparent 65%, black 100%);
@@ -738,7 +776,7 @@ html {
   .btn-cin:hover {
     background: var(--color-cinnabar-deepest);
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(156,26,28,0.10);
+    box-shadow: 0 8px 32px rgba(156, 26, 28, 0.1);
   }
   .btn-cin:active {
     transform: scale(0.96);
@@ -757,7 +795,7 @@ html {
     padding: 0.875rem 2.5rem;
     background: transparent;
     color: var(--color-ink-medium);
-    border: 1px solid rgba(44,26,14,0.06);
+    border: 1px solid rgba(44, 26, 14, 0.06);
     font-family: var(--font-sans);
     font-weight: 500;
     font-size: 0.9375rem;
@@ -767,8 +805,8 @@ html {
   }
   .btn-ink:hover {
     color: var(--color-ink);
-    border-color: rgba(44,26,14,0.15);
-    background: rgba(44,26,14,0.01);
+    border-color: rgba(44, 26, 14, 0.15);
+    background: rgba(44, 26, 14, 0.01);
     transform: translateY(-2px);
   }
 
@@ -786,7 +824,7 @@ html {
     left: 0;
     right: 0;
     height: 1px;
-    background: rgba(156,26,28,0.08);
+    background: rgba(156, 26, 28, 0.08);
     pointer-events: none;
   }
   .section-header h2 {
@@ -809,7 +847,7 @@ html {
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: rgba(156,26,28,0.12);
+    background: rgba(156, 26, 28, 0.12);
     pointer-events: none;
   }
   @media (min-width: 640px) {
@@ -838,8 +876,11 @@ html {
     position: absolute;
     inset: 0;
     background: repeating-linear-gradient(
-      0deg, transparent, transparent 2px,
-      rgba(232,220,198,0.04) 2px, rgba(232,220,198,0.04) 3px
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(232, 220, 198, 0.04) 2px,
+      rgba(232, 220, 198, 0.04) 3px
     );
     pointer-events: none;
   }
@@ -853,9 +894,9 @@ html {
     height: 100px;
     font-size: 2.75rem;
     box-shadow:
-      0 0 0 4px rgba(156,26,28,0.08),
-      0 0 0 10px rgba(156,26,28,0.025),
-      0 12px 48px rgba(156,26,28,0.06);
+      0 0 0 4px rgba(156, 26, 28, 0.08),
+      0 0 0 10px rgba(156, 26, 28, 0.025),
+      0 12px 48px rgba(156, 26, 28, 0.06);
   }
 
   /* ── 符头顶线 ── */
@@ -867,8 +908,10 @@ html {
     height: 3px;
     background: repeating-linear-gradient(
       90deg,
-      rgba(156,26,28,0.04) 0px, rgba(156,26,28,0.04) 6px,
-      transparent 6px, transparent 10px
+      rgba(156, 26, 28, 0.04) 0px,
+      rgba(156, 26, 28, 0.04) 6px,
+      transparent 6px,
+      transparent 10px
     );
     transition: all 0.45s ease;
     pointer-events: none;
@@ -878,8 +921,10 @@ html {
     right: 6%;
     background: repeating-linear-gradient(
       90deg,
-      rgba(156,26,28,0.08) 0px, rgba(156,26,28,0.08) 6px,
-      transparent 6px, transparent 10px
+      rgba(156, 26, 28, 0.08) 0px,
+      rgba(156, 26, 28, 0.08) 6px,
+      transparent 6px,
+      transparent 10px
     );
     height: 4px;
   }
@@ -889,13 +934,13 @@ html {
     position: relative;
     background: var(--color-paper-card);
     box-shadow:
-      inset 0 0 0 1px rgba(44,26,14,0.015),
-      0 4px 20px rgba(44,26,14,0.04);
+      inset 0 0 0 1px rgba(44, 26, 14, 0.015),
+      0 4px 20px rgba(44, 26, 14, 0.04);
   }
   .card-warm--elevated {
     box-shadow:
-      inset 0 0 0 1px rgba(44,26,14,0.015),
-      0 4px 24px rgba(44,26,14,0.04);
+      inset 0 0 0 1px rgba(44, 26, 14, 0.015),
+      0 4px 24px rgba(44, 26, 14, 0.04);
   }
 
   /* ── Hero 咒语排版 ── */
@@ -913,14 +958,18 @@ html {
     opacity: 0.65;
     transition: opacity 0.4s;
   }
-  .hero-incant__line:hover { opacity: 1; }
+  .hero-incant__line:hover {
+    opacity: 1;
+  }
   .hero-incant__divider {
     width: 20px;
     height: 1px;
     background: repeating-linear-gradient(
       90deg,
-      rgba(156,26,28,0.08) 0px, rgba(156,26,28,0.08) 3px,
-      transparent 3px, transparent 6px
+      rgba(156, 26, 28, 0.08) 0px,
+      rgba(156, 26, 28, 0.08) 3px,
+      transparent 3px,
+      transparent 6px
     );
     margin: 4px 0;
   }
@@ -942,32 +991,46 @@ html {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    border: 2px solid rgba(156,26,28,0.07);
+    border: 2px solid rgba(156, 26, 28, 0.07);
   }
   .grid-cinnabar th {
     padding: 7px 8px;
     text-align: center;
-    border-bottom: 1px solid rgba(156,26,28,0.07);
+    border-bottom: 1px solid rgba(156, 26, 28, 0.07);
     font-family: var(--font-sans);
     font-size: 0.625rem;
     color: var(--color-ink-medium);
     letter-spacing: 0.15em;
     font-weight: 500;
-    background: rgba(156,26,28,0.015);
+    background: rgba(156, 26, 28, 0.015);
   }
-  .grid-cinnabar th:not(:last-child) { border-right: 2px solid rgba(156,26,28,0.07); }
-  .grid-cinnabar th .mk { font-size: 0.5rem; color: var(--color-cinnabar-deeper); margin-left: 3px; }
-  .grid-cinnabar th.is-day { background: rgba(156,26,28,0.05); }
+  .grid-cinnabar th:not(:last-child) {
+    border-right: 2px solid rgba(156, 26, 28, 0.07);
+  }
+  .grid-cinnabar th .mk {
+    font-size: 0.5rem;
+    color: var(--color-cinnabar-deeper);
+    margin-left: 3px;
+  }
+  .grid-cinnabar th.is-day {
+    background: rgba(156, 26, 28, 0.05);
+  }
   .grid-cinnabar td {
     padding: 10px 8px;
     text-align: center;
-    border-bottom: 1px solid rgba(156,26,28,0.035);
+    border-bottom: 1px solid rgba(156, 26, 28, 0.035);
     font-size: 1.375rem;
     line-height: 1.3;
   }
-  .grid-cinnabar td:not(:last-child) { border-right: 2px solid rgba(156,26,28,0.035); }
-  .grid-cinnabar td.is-day { background: rgba(156,26,28,0.03); }
-  .grid-cinnabar td.sub { padding: 7px 8px; }
+  .grid-cinnabar td:not(:last-child) {
+    border-right: 2px solid rgba(156, 26, 28, 0.035);
+  }
+  .grid-cinnabar td.is-day {
+    background: rgba(156, 26, 28, 0.03);
+  }
+  .grid-cinnabar td.sub {
+    padding: 7px 8px;
+  }
 
   /* ── 日主朱砂块 ── */
   .master-block {
@@ -981,7 +1044,7 @@ html {
     gap: 6px;
     padding: 6px 20px;
     background: var(--color-cinnabar-deeper);
-    box-shadow: 0 2px 12px rgba(156,26,28,0.06);
+    box-shadow: 0 2px 12px rgba(156, 26, 28, 0.06);
   }
   .master-block__big {
     font-size: 1.75rem;
@@ -991,7 +1054,7 @@ html {
   .master-block__sub {
     font-family: var(--font-sans);
     font-size: 0.75rem;
-    color: rgba(232,220,198,0.85);
+    color: rgba(232, 220, 198, 0.85);
   }
 
   /* ── 分割线（带印章） ── */
@@ -1005,13 +1068,15 @@ html {
     height: 1px;
     background: repeating-linear-gradient(
       90deg,
-      rgba(156,26,28,0.035) 0px, rgba(156,26,28,0.035) 4px,
-      transparent 4px, transparent 8px
+      rgba(156, 26, 28, 0.035) 0px,
+      rgba(156, 26, 28, 0.035) 4px,
+      transparent 4px,
+      transparent 8px
     );
   }
   .divider-seal__word {
     font-size: 0.9375rem;
-    color: rgba(44,26,14,0.10);
+    color: rgba(44, 26, 14, 0.1);
     letter-spacing: 0.4em;
     flex-shrink: 0;
   }
@@ -1020,24 +1085,42 @@ html {
   .corner-mark {
     position: absolute;
     font-size: 0.8125rem;
-    color: rgba(156,26,28,0.015);
+    color: rgba(156, 26, 28, 0.015);
     line-height: 1;
     pointer-events: none;
     transition: color 0.35s ease;
   }
-  .group:hover .corner-mark { color: rgba(156,26,28,0.035); }
-  .corner-mark--tl { top: 10px; left: 12px; }
-  .corner-mark--br { bottom: 10px; right: 12px; }
+  .group:hover .corner-mark {
+    color: rgba(156, 26, 28, 0.035);
+  }
+  .corner-mark--tl {
+    top: 10px;
+    left: 12px;
+  }
+  .corner-mark--br {
+    bottom: 10px;
+    right: 12px;
+  }
 
   /* ── 入场动画 ── */
   .anim-rise {
     animation: rise 0.8s ease-out both;
   }
-  .anim-delay-1 { animation-delay: 0.1s; }
-  .anim-delay-2 { animation-delay: 0.2s; }
-  .anim-delay-3 { animation-delay: 0.3s; }
-  .anim-delay-4 { animation-delay: 0.4s; }
-  .anim-delay-5 { animation-delay: 0.5s; }
+  .anim-delay-1 {
+    animation-delay: 0.1s;
+  }
+  .anim-delay-2 {
+    animation-delay: 0.2s;
+  }
+  .anim-delay-3 {
+    animation-delay: 0.3s;
+  }
+  .anim-delay-4 {
+    animation-delay: 0.4s;
+  }
+  .anim-delay-5 {
+    animation-delay: 0.5s;
+  }
 
   /* ── 工具卡片（玄·道风格） ── */
   .tool-card--new {
@@ -1049,34 +1132,44 @@ html {
     text-decoration: none;
     transition: all 0.45s ease;
     box-shadow:
-      inset 0 0 0 1px rgba(44,26,14,0.015),
-      0 4px 20px rgba(44,26,14,0.04);
+      inset 0 0 0 1px rgba(44, 26, 14, 0.015),
+      0 4px 20px rgba(44, 26, 14, 0.04);
   }
   /* 符头顶线 */
   .tool-card--new::before {
     content: '';
     position: absolute;
     top: -1px;
-    left: 15%; right: 15%;
+    left: 15%;
+    right: 15%;
     height: 3px;
-    background: repeating-linear-gradient(90deg,
-      rgba(156,26,28,0.04) 0px, rgba(156,26,28,0.04) 6px,
-      transparent 6px, transparent 10px);
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156, 26, 28, 0.04) 0px,
+      rgba(156, 26, 28, 0.04) 6px,
+      transparent 6px,
+      transparent 10px
+    );
     transition: all 0.45s ease;
     pointer-events: none;
   }
   .tool-card--new:hover {
     transform: translateY(-4px);
     box-shadow:
-      inset 0 0 0 1px rgba(156,26,28,0.03),
-      0 8px 32px rgba(44,26,14,0.08),
-      0 0 0 2px rgba(156,26,28,0.03);
+      inset 0 0 0 1px rgba(156, 26, 28, 0.03),
+      0 8px 32px rgba(44, 26, 14, 0.08),
+      0 0 0 2px rgba(156, 26, 28, 0.03);
   }
   .tool-card--new:hover::before {
-    left: 6%; right: 6%;
-    background: repeating-linear-gradient(90deg,
-      rgba(156,26,28,0.08) 0px, rgba(156,26,28,0.08) 6px,
-      transparent 6px, transparent 10px);
+    left: 6%;
+    right: 6%;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(156, 26, 28, 0.08) 0px,
+      rgba(156, 26, 28, 0.08) 6px,
+      transparent 6px,
+      transparent 10px
+    );
     height: 4px;
   }
   /* 工具卡片朱砂印 hover */
@@ -1090,7 +1183,7 @@ html {
   }
   /* 工具卡片卦象 hover */
   .tool-card--new:hover .tool-card__trigram {
-    color: rgba(156,26,28,0.035);
+    color: rgba(156, 26, 28, 0.035);
   }
 
   /* 工具卡片卦象 */
@@ -1099,7 +1192,7 @@ html {
     bottom: 10px;
     right: 14px;
     font-size: 15px;
-    color: rgba(44,26,14,0.012);
+    color: rgba(44, 26, 14, 0.012);
     pointer-events: none;
     transition: color 0.45s ease;
   }
@@ -1113,18 +1206,20 @@ html {
   .input-warm {
     width: 100%;
     padding: 0.75rem 1rem;
-    background: rgba(232,220,198,0.4);
-    border: 1px solid rgba(44,26,14,0.025);
+    background: rgba(232, 220, 198, 0.4);
+    border: 1px solid rgba(44, 26, 14, 0.025);
     font-family: var(--font-sans);
     font-size: 0.875rem;
     color: var(--color-ink);
     outline: none;
     transition: all 0.3s ease;
   }
-  .input-warm::placeholder { color: var(--color-ink-faint); }
+  .input-warm::placeholder {
+    color: var(--color-ink-faint);
+  }
   .input-warm:focus {
-    border-color: rgba(156,26,28,0.07);
-    box-shadow: 0 0 0 3px rgba(156,26,28,0.015);
+    border-color: rgba(156, 26, 28, 0.07);
+    box-shadow: 0 0 0 3px rgba(156, 26, 28, 0.015);
   }
 }
 
@@ -1132,10 +1227,18 @@ html {
 
 /* ── Seal Stamp Animation ── */
 @keyframes sealPress {
-  0% { transform: scale(1); }
-  40% { transform: scale(0.92); }
-  70% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.92);
+  }
+  70% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ── Fade In Animation ── */
@@ -1159,14 +1262,24 @@ html {
 
 /* ── Skeleton Shimmer Keyframe ── */
 @keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ── Rise Animation ── */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Number Input Spinners ── */
@@ -1180,7 +1293,8 @@ html {
 }
 
 /* ── Custom Focus Styles ── */
-input:focus-visible, select:focus-visible {
+input:focus-visible,
+select:focus-visible {
   outline: 2px solid var(--color-cinnabar);
   outline-offset: 1px;
   border-bottom-color: var(--color-cinnabar);
@@ -1221,7 +1335,9 @@ a:focus-visible {
 /* ── Expand/Collapse Transition ── */
 .expand-enter-active,
 .expand-leave-active {
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  transition:
+    opacity var(--transition-normal),
+    transform var(--transition-normal);
   overflow: hidden;
   transform-origin: top;
 }
@@ -1251,9 +1367,9 @@ a:focus-visible {
   gap: 0.75rem;
   padding: 0.875rem 1rem;
   background: var(--color-paper-lightest);
-  border: 1px solid rgba(156,26,28,0.15);
+  border: 1px solid rgba(156, 26, 28, 0.15);
   border-left: 4px solid var(--color-cinnabar);
-  box-shadow: 0 8px 32px rgba(44,24,16,0.12);
+  box-shadow: 0 8px 32px rgba(44, 24, 16, 0.12);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
@@ -1312,7 +1428,9 @@ a:focus-visible {
 
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

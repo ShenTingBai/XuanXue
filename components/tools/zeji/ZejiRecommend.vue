@@ -13,7 +13,7 @@ const RANK_SYMBOLS = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '�
 
 // ── Curated top-N display ──
 const INITIAL_VISIBLE = 3
-const MIN_FOR_COLLAPSE = 5  // ≤5 items → just show all, no need to collapse
+const MIN_FOR_COLLAPSE = 5 // ≤5 items → just show all, no need to collapse
 
 const showAll = ref(false)
 const hasMore = computed(() => props.recommendedDates.length > MIN_FOR_COLLAPSE)
@@ -68,7 +68,8 @@ function contextReasons(reasons: string[]): string[] {
 function starTooltip(day: ZejiDayResult): string {
   const reason = day.matchReasons.find(r => r.includes('日·'))
   const base = reason || `${day.twelveStar}日`
-  const guide = day.twelveStarLevel === '吉' ? '黄道吉日' : day.twelveStarLevel === '凶' ? '黑道凶日' : '平日'
+  const guide =
+    day.twelveStarLevel === '吉' ? '黄道吉日' : day.twelveStarLevel === '凶' ? '黑道凶日' : '平日'
   return `${base}（${guide}）`
 }
 
@@ -88,16 +89,9 @@ function shenTooltip(day: ZejiDayResult): string {
     </h2>
 
     <!-- Empty state -->
-    <div
-      v-if="recommendedDates.length === 0"
-      class="py-10 text-center"
-    >
-      <p class="text-sm text-ink-medium tracking-[0.08em]">
-        本月暂无{{ eventName }}吉日
-      </p>
-      <p class="text-xs text-ink-light mt-1">
-        可切换月份查看，或点击日历格子查看每日详情
-      </p>
+    <div v-if="recommendedDates.length === 0" class="py-10 text-center">
+      <p class="text-sm text-ink-medium tracking-[0.08em]">本月暂无{{ eventName }}吉日</p>
+      <p class="text-xs text-ink-light mt-1">可切换月份查看，或点击日历格子查看每日详情</p>
     </div>
 
     <!-- Recommended dates list — curated: top 3, then expandable -->
@@ -106,122 +100,129 @@ function shenTooltip(day: ZejiDayResult): string {
         <div
           v-for="(day, index) in visibleDates"
           :key="day.solarDate"
-        class="rec-card"
-        :class="{ 'rec-card--expanded': isExpanded(index) }"
-        :style="{ '--score-color': scoreColor(day.score) }"
-        role="article"
-        :aria-expanded="isExpanded(index)"
-        :aria-label="`${day.lunarMonthName}${day.lunarDayName}，评分${day.score}，${scoreLabel(day.score)}`"
-      >
-        <!-- ── Left: Score Seal ── -->
-        <div
-          class="rec-seal"
-          :style="{
-            background: scoreColor(day.score) + '0A',
-            borderColor: scoreColor(day.score) + '20',
-          }"
+          class="rec-card"
+          :class="{ 'rec-card--expanded': isExpanded(index) }"
+          :style="{ '--score-color': scoreColor(day.score) }"
+          role="article"
+          :aria-expanded="isExpanded(index)"
+          :aria-label="`${day.lunarMonthName}${day.lunarDayName}，评分${day.score}，${scoreLabel(day.score)}`"
         >
-          <span class="rec-seal__rank" aria-hidden="true">{{ RANK_SYMBOLS[index] || index + 1 }}</span>
-          <span
-            class="rec-seal__score"
-            :style="{ color: scoreColor(day.score) }"
-          >{{ day.score }}</span>
-          <span
-            class="rec-seal__label"
-            :style="{ color: scoreColor(day.score) }"
-          >{{ scoreLabel(day.score) }}</span>
-        </div>
-
-        <!-- ── Right: Body ── -->
-        <div class="rec-body">
-          <!-- Always visible — Row 1: Date -->
-          <div class="rec-body__date">
-            <span class="rec-body__lunar">{{ day.lunarMonthName }}{{ day.lunarDayName }}</span>
-            <span class="rec-body__solar">{{ day.solarDate }}</span>
-          </div>
-
-          <!-- Always visible — Row 2: Core indicators (值星 + 天神 + 宜) -->
-          <div class="rec-body__tags">
-            <!-- 值星 badge with tooltip -->
-            <span
-              class="rec-tag"
-              :style="{
-                background: (TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土']) + '0E',
-                color: TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土'],
-                borderColor: (TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土']) + '22',
-              }"
-              :title="starTooltip(day)"
-            >{{ day.twelveStar }}日</span>
-
-            <!-- 天神 badge with tooltip -->
-            <span
-              v-if="day.tianShen"
-              class="rec-tag"
-              :style="{
-                background: day.tianShenType === '黄道' ? 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 8%, transparent)' : 'color-mix(in srgb, ' + WUXING_COLORS['火'] + ' 6%, transparent)',
-                color: day.tianShenType === '黄道' ? WUXING_COLORS['木'] : WUXING_COLORS['火'],
-                borderColor: day.tianShenType === '黄道' ? 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 16%, transparent)' : 'color-mix(in srgb, ' + WUXING_COLORS['火'] + ' 12%, transparent)',
-              }"
-              :title="shenTooltip(day)"
-            >{{ day.tianShen }}</span>
-
-            <!-- Matched 宜 — the most actionable info -->
-            <span
-              v-for="yi in day.matchedYi"
-              :key="yi"
-              class="rec-tag rec-tag--yi"
-              :title="`宜${yi}：此日适合${yi}`"
-            >{{ yi }}</span>
-          </div>
-
-          <!-- ══ Expandable detail ══ -->
+          <!-- ── Left: Score Seal ── -->
           <div
-            class="rec-body__extra"
-            :class="{ 'rec-body__extra--open': isExpanded(index) }"
+            class="rec-seal"
+            :style="{
+              background: scoreColor(day.score) + '0A',
+              borderColor: scoreColor(day.score) + '20',
+            }"
           >
-            <div class="rec-body__extra-inner">
-              <!-- 干支 + 二十八宿 -->
-              <div class="rec-body__meta">
-                <span>{{ day.lunarYearGanZhi }}年 {{ day.lunarMonthGanZhi }}月 {{ day.lunarDayGanZhi }}日</span>
-                <span v-if="day.xiu" class="rec-body__xiu">{{ day.xiu }}</span>
-              </div>
+            <span class="rec-seal__rank" aria-hidden="true">{{
+              RANK_SYMBOLS[index] || index + 1
+            }}</span>
+            <span class="rec-seal__score" :style="{ color: scoreColor(day.score) }">{{
+              day.score
+            }}</span>
+            <span class="rec-seal__label" :style="{ color: scoreColor(day.score) }">{{
+              scoreLabel(day.score)
+            }}</span>
+          </div>
 
-              <!-- Context reasons — 值星 desc + 天神 desc -->
-              <p
-                v-if="contextReasons(day.matchReasons).length > 0"
-                class="rec-body__context"
+          <!-- ── Right: Body ── -->
+          <div class="rec-body">
+            <!-- Always visible — Row 1: Date -->
+            <div class="rec-body__date">
+              <span class="rec-body__lunar">{{ day.lunarMonthName }}{{ day.lunarDayName }}</span>
+              <span class="rec-body__solar">{{ day.solarDate }}</span>
+            </div>
+
+            <!-- Always visible — Row 2: Core indicators (值星 + 天神 + 宜) -->
+            <div class="rec-body__tags">
+              <!-- 值星 badge with tooltip -->
+              <span
+                class="rec-tag"
+                :style="{
+                  background:
+                    (TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土']) + '0E',
+                  color: TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土'],
+                  borderColor:
+                    (TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土']) + '22',
+                }"
+                :title="starTooltip(day)"
+                >{{ day.twelveStar }}日</span
               >
-                {{ contextReasons(day.matchReasons).join(' · ') }}
-              </p>
 
-              <!-- Matched 忌 — risk indicators (show only when expanded, and only if there are matches) -->
-              <div v-if="day.matchedJi.length > 0" class="rec-body__ji">
-                <span class="rec-body__ji-label">需注意</span>
-                <span
-                  v-for="ji in day.matchedJi"
-                  :key="ji"
-                  class="rec-tag rec-tag--ji"
-                >{{ ji }}</span>
+              <!-- 天神 badge with tooltip -->
+              <span
+                v-if="day.tianShen"
+                class="rec-tag"
+                :style="{
+                  background:
+                    day.tianShenType === '黄道'
+                      ? 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 8%, transparent)'
+                      : 'color-mix(in srgb, ' + WUXING_COLORS['火'] + ' 6%, transparent)',
+                  color: day.tianShenType === '黄道' ? WUXING_COLORS['木'] : WUXING_COLORS['火'],
+                  borderColor:
+                    day.tianShenType === '黄道'
+                      ? 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 16%, transparent)'
+                      : 'color-mix(in srgb, ' + WUXING_COLORS['火'] + ' 12%, transparent)',
+                }"
+                :title="shenTooltip(day)"
+                >{{ day.tianShen }}</span
+              >
+
+              <!-- Matched 宜 — the most actionable info -->
+              <span
+                v-for="yi in day.matchedYi"
+                :key="yi"
+                class="rec-tag rec-tag--yi"
+                :title="`宜${yi}：此日适合${yi}`"
+                >{{ yi }}</span
+              >
+            </div>
+
+            <!-- ══ Expandable detail ══ -->
+            <div class="rec-body__extra" :class="{ 'rec-body__extra--open': isExpanded(index) }">
+              <div class="rec-body__extra-inner">
+                <!-- 干支 + 二十八宿 -->
+                <div class="rec-body__meta">
+                  <span
+                    >{{ day.lunarYearGanZhi }}年 {{ day.lunarMonthGanZhi }}月
+                    {{ day.lunarDayGanZhi }}日</span
+                  >
+                  <span v-if="day.xiu" class="rec-body__xiu">{{ day.xiu }}</span>
+                </div>
+
+                <!-- Context reasons — 值星 desc + 天神 desc -->
+                <p v-if="contextReasons(day.matchReasons).length > 0" class="rec-body__context">
+                  {{ contextReasons(day.matchReasons).join(' · ') }}
+                </p>
+
+                <!-- Matched 忌 — risk indicators (show only when expanded, and only if there are matches) -->
+                <div v-if="day.matchedJi.length > 0" class="rec-body__ji">
+                  <span class="rec-body__ji-label">需注意</span>
+                  <span v-for="ji in day.matchedJi" :key="ji" class="rec-tag rec-tag--ji">{{
+                    ji
+                  }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Expand/collapse trigger -->
-          <button
-            class="rec-body__toggle"
-            :aria-label="isExpanded(index) ? '收起详情' : '展开详情'"
-            @click.stop="toggleExpand(index)"
-            @keydown.enter.stop="toggleExpand(index)"
-            @keydown.space.prevent.stop="toggleExpand(index)"
-          >
-            <span class="rec-body__toggle-text">{{ isExpanded(index) ? '收起' : '详情' }}</span>
-            <span
-              class="rec-body__toggle-arrow"
-              :class="{ 'rec-body__toggle-arrow--open': isExpanded(index) }"
-              aria-hidden="true"
-            >▾</span>
-          </button>
-        </div>
+            <!-- Expand/collapse trigger -->
+            <button
+              class="rec-body__toggle"
+              :aria-label="isExpanded(index) ? '收起详情' : '展开详情'"
+              @click.stop="toggleExpand(index)"
+              @keydown.enter.stop="toggleExpand(index)"
+              @keydown.space.prevent.stop="toggleExpand(index)"
+            >
+              <span class="rec-body__toggle-text">{{ isExpanded(index) ? '收起' : '详情' }}</span>
+              <span
+                class="rec-body__toggle-arrow"
+                :class="{ 'rec-body__toggle-arrow--open': isExpanded(index) }"
+                aria-hidden="true"
+                >▾</span
+              >
+            </button>
+          </div>
         </div>
       </div>
 
@@ -243,7 +244,8 @@ function shenTooltip(day: ZejiDayResult): string {
           class="rec-show-all__arrow"
           :class="{ 'rec-show-all__arrow--open': showAll }"
           aria-hidden="true"
-        >▾</span>
+          >▾</span
+        >
         <span class="rec-show-all__line" aria-hidden="true"></span>
       </button>
     </div>
@@ -261,7 +263,10 @@ function shenTooltip(day: ZejiDayResult): string {
   border-radius: 0.5rem;
   border: 1px solid rgba(44, 26, 14, 0.05);
   background: rgba(251, 248, 244, 0.35);
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: inset 3px 0 0 0 var(--score-color, transparent);
   cursor: default;
 }
@@ -274,8 +279,9 @@ function shenTooltip(day: ZejiDayResult): string {
 .rec-card--expanded {
   background: rgba(251, 248, 244, 0.5);
   border-color: rgba(44, 26, 14, 0.08);
-  box-shadow: inset 3px 0 0 0 var(--score-color, transparent),
-              0 1px 4px rgba(44, 26, 14, 0.04);
+  box-shadow:
+    inset 3px 0 0 0 var(--score-color, transparent),
+    0 1px 4px rgba(44, 26, 14, 0.04);
 }
 
 /* ── Seal ── */

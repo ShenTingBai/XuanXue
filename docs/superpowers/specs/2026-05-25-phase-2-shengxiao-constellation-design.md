@@ -26,26 +26,26 @@
 
 **Phase 2 新增 Token：**
 
-| Token | 值 | 用途 |
-|-------|-----|------|
-| `wuxing-wood` | `#4A7C59` | 五行木色，属性卡片 |
-| `wuxing-fire` | `#C62828` | 五行火色 |
-| `wuxing-earth` | `#B8860B` | 五行土色 |
-| `wuxing-metal` | `#8E8E8E` | 行金色 |
-| `wuxing-water` | `#2C5F7C` | 五行水色 |
-| `compat-great` | `rgba(74,124,89,0.12)` bg / `#4A7C59` text | 大吉配对背景 |
-| `compat-good` | `rgba(184,134,11,0.12)` bg / `#B8860B` text | 中吉配对背景 |
-| `yiyi-border` | `3px solid` | 宜忌区分（绿色=宜，灰色=忌） |
+| Token          | 值                                          | 用途                         |
+| -------------- | ------------------------------------------- | ---------------------------- |
+| `wuxing-wood`  | `#4A7C59`                                   | 五行木色，属性卡片           |
+| `wuxing-fire`  | `#C62828`                                   | 五行火色                     |
+| `wuxing-earth` | `#B8860B`                                   | 五行土色                     |
+| `wuxing-metal` | `#8E8E8E`                                   | 行金色                       |
+| `wuxing-water` | `#2C5F7C`                                   | 五行水色                     |
+| `compat-great` | `rgba(74,124,89,0.12)` bg / `#4A7C59` text  | 大吉配对背景                 |
+| `compat-good`  | `rgba(184,134,11,0.12)` bg / `#B8860B` text | 中吉配对背景                 |
+| `yiyi-border`  | `3px solid`                                 | 宜忌区分（绿色=宜，灰色=忌） |
 
 ## 三、页面路由与导航
 
 ### 3.1 路由表
 
-| 路由 | 页面 | 说明 |
-|------|------|------|
-| `/tools/shengxiao` | 生肖排盘 | 基于出生年计算生肖、五行、性格、配对 |
+| 路由                   | 页面     | 说明                                 |
+| ---------------------- | -------- | ------------------------------------ |
+| `/tools/shengxiao`     | 生肖排盘 | 基于出生年计算生肖、五行、性格、配对 |
 | `/tools/constellation` | 星座运势 | 基于出生月日计算星座、性格、今日运势 |
-| `/` | 首页 | 工具卡片生肖/星座解锁为可点击状态 |
+| `/`                    | 首页     | 工具卡片生肖/星座解锁为可点击状态    |
 
 ### 3.2 导航结构
 
@@ -62,11 +62,11 @@
 
 ### 3.3 断点与布局规则
 
-| 断点 | 布局 | 说明 |
-|------|------|------|
-| ≥ 1024px | 左侧主内容 + 右侧侧栏（sticky） | 侧栏为 12 生肖/12 星座选择导航 |
-| 640-1024px | 单列 | 生肖/星座选择改为顶部横向滚动条或下拉组件 |
-| < 640px | 单列压缩 | 2 列卡片，配对网格减至 3-4 列，Hero 字号降级 |
+| 断点       | 布局                            | 说明                                         |
+| ---------- | ------------------------------- | -------------------------------------------- |
+| ≥ 1024px   | 左侧主内容 + 右侧侧栏（sticky） | 侧栏为 12 生肖/12 星座选择导航               |
+| 640-1024px | 单列                            | 生肖/星座选择改为顶部横向滚动条或下拉组件    |
+| < 640px    | 单列压缩                        | 2 列卡片，配对网格减至 3-4 列，Hero 字号降级 |
 
 ## 四、生肖排盘页 (`/tools/shengxiao`)
 
@@ -117,23 +117,23 @@
 
 ```typescript
 interface ShengXiaoResult {
-  animal: string            // 生肖名（鼠/牛/虎/兔/龙/蛇/马/羊/猴/鸡/狗/猪）
-  animalEmoji: string       // 对应 emoji
-  earthlyBranch: string     // 地支（子/丑/寅/卯/辰/巳/午/未/申/酉/戌/亥）
-  year: number              // 出生年份
-  heavenlyStem: string      // 天干（甲/乙/丙/丁/戊/己/庚/辛/壬/癸）
-  stemBranch: string        // 干支（如戊寅）
-  wuXing: string            // 五行（金/木/水/火/土）
-  naYin: string             // 纳音（如城头土）
-  direction: string         // 方向
-  yangOrYin: string         // 阴阳（阳/阴）
-  personalityPro: string[]  // 优点列表
-  personalityCon: string[]  // 缺点列表
+  animal: string // 生肖名（鼠/牛/虎/兔/龙/蛇/马/羊/猴/鸡/狗/猪）
+  animalEmoji: string // 对应 emoji
+  earthlyBranch: string // 地支（子/丑/寅/卯/辰/巳/午/未/申/酉/戌/亥）
+  year: number // 出生年份
+  heavenlyStem: string // 天干（甲/乙/丙/丁/戊/己/庚/辛/壬/癸）
+  stemBranch: string // 干支（如戊寅）
+  wuXing: string // 五行（金/木/水/火/土）
+  naYin: string // 纳音（如城头土）
+  direction: string // 方向
+  yangOrYin: string // 阴阳（阳/阴）
+  personalityPro: string[] // 优点列表
+  personalityCon: string[] // 缺点列表
   fortune: {
-    career:   { level: string, score: number }  // 事业
-    wealth:   { level: string, score: number }  // 财运
-    love:     { level: string, score: number }  // 感情
-    health:   { level: string, score: number }  // 健康
+    career: { level: string; score: number } // 事业
+    wealth: { level: string; score: number } // 财运
+    love: { level: string; score: number } // 感情
+    health: { level: string; score: number } // 健康
   }
   compatibility: Array<{
     animal: string
@@ -162,6 +162,7 @@ interface ShengXiaoResult {
 **纳音查询：** 按完整干支查 60 纳音表。
 
 **配对规则：**
+
 - 三合（大吉）：申子辰、亥卯未、寅午戌、巳酉丑
 - 六合（大吉）：子丑、寅亥、卯戌、辰酉、巳申、午未
 - 相冲（凶）：子午、丑未、寅申、卯酉、辰戌、巳亥
@@ -181,14 +182,14 @@ health  score = (seed * 31 + 13) % 61 + 30
 
 ### 4.5 组件拆分
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `ShengXiaoHero` | `components/tools/shengxiao/Hero.vue` | Hero 区（emoji + 书法体名称 + 命格徽章） |
-| `WuXingGrid` | `components/tools/shengxiao/WuXingGrid.vue` | 2×2 五行属性卡片 |
-| `PersonalityCard` | `components/tools/shengxiao/Personality.vue` | 优缺点分列 |
-| `FortuneBars` | `components/tools/FortuneBars.vue` | 通用运势进度条（生肖/星座复用） |
-| `CompatibilityGrid` | `components/tools/shengxiao/CompatibilityGrid.vue` | 配对网格 |
-| `AnimalNav` | `components/tools/shengxiao/AnimalNav.vue` | 12生肖导航（桌面侧栏） |
+| 组件                | 文件                                               | 说明                                     |
+| ------------------- | -------------------------------------------------- | ---------------------------------------- |
+| `ShengXiaoHero`     | `components/tools/shengxiao/Hero.vue`              | Hero 区（emoji + 书法体名称 + 命格徽章） |
+| `WuXingGrid`        | `components/tools/shengxiao/WuXingGrid.vue`        | 2×2 五行属性卡片                         |
+| `PersonalityCard`   | `components/tools/shengxiao/Personality.vue`       | 优缺点分列                               |
+| `FortuneBars`       | `components/tools/FortuneBars.vue`                 | 通用运势进度条（生肖/星座复用）          |
+| `CompatibilityGrid` | `components/tools/shengxiao/CompatibilityGrid.vue` | 配对网格                                 |
+| `AnimalNav`         | `components/tools/shengxiao/AnimalNav.vue`         | 12生肖导航（桌面侧栏）                   |
 
 ## 五、星座运势页 (`/tools/constellation`)
 
@@ -240,28 +241,28 @@ health  score = (seed * 31 + 13) % 61 + 30
 
 ```typescript
 interface ConstellationResult {
-  name: string              // 星座名（白羊座/金牛座/...）
-  symbol: string            // 星座符号（♈/♉/♊/...）
-  dateRange: string         // 日期范围（如"3月21日 — 4月19日"）
+  name: string // 星座名（白羊座/金牛座/...）
+  symbol: string // 星座符号（♈/♉/♊/...）
+  dateRange: string // 日期范围（如"3月21日 — 4月19日"）
   element: '火' | '土' | '风' | '水'
-  rulingPlanet: string      // 守护星
-  luckyColor: string        // 幸运色
-  luckyNumber: number       // 幸运数
-  personality: string       // 性格描述
+  rulingPlanet: string // 守护星
+  luckyColor: string // 幸运色
+  luckyNumber: number // 幸运数
+  personality: string // 性格描述
   todayHoroscope: {
-    overall:  number        // 综合（0-100）
-    love:     number        // 爱情
-    career:   number        // 事业
-    wealth:   number        // 财运
-    health:   number        // 健康
+    overall: number // 综合（0-100）
+    love: number // 爱情
+    career: number // 事业
+    wealth: number // 财运
+    health: number // 健康
   }
-  todayYi: string[]         // 今日宜
-  todayJi: string[]         // 今日忌
+  todayYi: string[] // 今日宜
+  todayJi: string[] // 今日忌
   compatibility: Array<{
     name: string
     symbol: string
     level: 'great' | 'good' | 'bad'
-    label: string           // 绝配/中配/相克
+    label: string // 绝配/中配/相克
   }>
 }
 ```
@@ -286,23 +287,23 @@ dayScore = seed / modulus * 100
 
 ### 5.4 组件拆分
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `ConstellationHero` | `components/tools/constellation/Hero.vue` | Hero + 标签 |
-| `HoroscopePanel` | `components/tools/constellation/HoroscopePanel.vue` | 今日运势 5 维进度条面板 |
-| `YiJiPanel` | `components/tools/constellation/YiJiPanel.vue` | 宜忌并排卡片 |
-| `ConstellationNav` | `components/tools/constellation/Nav.vue` | 12星座导航 |
+| 组件                | 文件                                                | 说明                    |
+| ------------------- | --------------------------------------------------- | ----------------------- |
+| `ConstellationHero` | `components/tools/constellation/Hero.vue`           | Hero + 标签             |
+| `HoroscopePanel`    | `components/tools/constellation/HoroscopePanel.vue` | 今日运势 5 维进度条面板 |
+| `YiJiPanel`         | `components/tools/constellation/YiJiPanel.vue`      | 宜忌并排卡片            |
+| `ConstellationNav`  | `components/tools/constellation/Nav.vue`            | 12星座导航              |
 
 ## 六、通用组件提取
 
 Phase 1 中直接写在页面里的重复模式提取为可复用组件：
 
-| 组件 | 说明 | 从哪提取 |
-|------|------|---------|
-| `InkDivider.vue` | divider-ink 分隔线 | 多个页面重复的 `section-divider` 样式 |
-| `FortuneBars.vue` | 通用运势进度条组件 | 生肖/星座都用到 |
-| `ToolPageLayout.vue` | 工具页面通用布局（顶栏+侧栏+响应式） | 生肖/星座共享 |
-| `PageHero.vue` | 工具页 Hero 区基础结构 | 生肖/星座共享 |
+| 组件                 | 说明                                 | 从哪提取                              |
+| -------------------- | ------------------------------------ | ------------------------------------- |
+| `InkDivider.vue`     | divider-ink 分隔线                   | 多个页面重复的 `section-divider` 样式 |
+| `FortuneBars.vue`    | 通用运势进度条组件                   | 生肖/星座都用到                       |
+| `ToolPageLayout.vue` | 工具页面通用布局（顶栏+侧栏+响应式） | 生肖/星座共享                         |
+| `PageHero.vue`       | 工具页 Hero 区基础结构               | 生肖/星座共享                         |
 
 ## 七、安全增强
 
@@ -329,6 +330,7 @@ function verifyPin(pin: string, stored: string): boolean {
 ```
 
 **影响范围：**
+
 - `server/api/auth/register.post.ts` — 注册时调用 `hashPin`
 - `server/api/auth/login.post.ts` — 登录时调用 `verifyPin` 替代直接比较
 - 现有用户数据迁移：在 `login.post.ts` 中检查 PIN 格式——若长度为 4 且不含 `:` 分隔符（未哈希），则判定为旧格式；登录验证通过后，立即用 `hashPin` 重新处理并 `UPDATE profiles SET pin = ? WHERE id = ?` 持久化哈希值。register 始终直接哈希存储。不存在"部分用户哈希、部分明文"的中间状态——首次登录后自动完成升级。
@@ -339,7 +341,7 @@ function verifyPin(pin: string, stored: string): boolean {
 
 ```typescript
 // server/utils/rateLimit.ts
-const rateMap = new Map<string, { count: number, resetAt: number }>()
+const rateMap = new Map<string, { count: number; resetAt: number }>()
 
 export function checkRateLimit(key: string, maxAttempts = 5, windowMs = 60000): boolean {
   // 按 IP/ProfileId 限流
@@ -347,6 +349,7 @@ export function checkRateLimit(key: string, maxAttempts = 5, windowMs = 60000): 
 ```
 
 应用于：
+
 - `POST /api/auth/login` — 5 次/分钟
 - `POST /api/auth/register` — 3 次/分钟
 - `PUT /api/profiles/:id` — 10 次/分钟
@@ -423,13 +426,13 @@ CREATE TABLE IF NOT EXISTS security_log (
 
 每个工具页面的模块依次 fadeIn（staggered）：
 
-| 模块 | delay | 动画 |
-|------|-------|------|
-| Hero 区 | 50ms | fadeIn + translateY(0) |
-| 属性卡片 | 150ms each | fadeIn + stagger 100ms |
-| 性格/详情 | 350ms | fadeIn |
-| 福祉条/运势 | 400ms | fadeIn + 进度条从 0 到目标值动画 |
-| 配对网格 | 500ms each | fadeIn + stagger 80ms |
+| 模块        | delay      | 动画                             |
+| ----------- | ---------- | -------------------------------- |
+| Hero 区     | 50ms       | fadeIn + translateY(0)           |
+| 属性卡片    | 150ms each | fadeIn + stagger 100ms           |
+| 性格/详情   | 350ms      | fadeIn                           |
+| 福祉条/运势 | 400ms      | fadeIn + 进度条从 0 到目标值动画 |
+| 配对网格    | 500ms each | fadeIn + stagger 80ms            |
 
 ### 配对卡片交互
 

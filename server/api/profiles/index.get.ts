@@ -1,7 +1,7 @@
 import { dbAll, dbGet } from '../../database/db'
 import { toSafeProfile } from '../../utils/profile'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const profileId = event.context.profileId
   if (!profileId) {
     throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   // Get sub-profiles where parent_profile_id matches
   const subProfiles = dbAll(
     'SELECT * FROM profiles WHERE parent_profile_id = ? ORDER BY created_at ASC',
-    [profileId]
+    [profileId],
   )
 
   const main = toSafeProfile(mainProfile)
@@ -24,6 +24,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     main: { ...main, isMain: true },
-    subs: subs.map((p) => ({ ...p, isMain: false })),
+    subs: subs.map(p => ({ ...p, isMain: false })),
   }
 })

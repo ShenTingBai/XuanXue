@@ -1,7 +1,7 @@
 import { dbGet } from '../../database/db'
 import { toSafeProfile } from '../../utils/profile'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const idRaw = event.context.params!.id
   if (!/^\d+$/.test(idRaw)) {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
@@ -12,8 +12,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const profileIdFromToken = event.context.profileId
-  if (!profileIdFromToken) throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
-  if (profileIdFromToken !== id) throw createError({ statusCode: 403, statusMessage: '无权访问此档案' })
+  if (!profileIdFromToken)
+    throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
+  if (profileIdFromToken !== id)
+    throw createError({ statusCode: 403, statusMessage: '无权访问此档案' })
 
   const profile = dbGet('SELECT * FROM profiles WHERE id = ?', [id])
   if (!profile) {

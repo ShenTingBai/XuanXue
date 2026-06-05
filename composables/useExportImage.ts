@@ -29,7 +29,7 @@ export function useExportImage() {
   function lockCompactText(target: HTMLElement): StylePatch[] {
     const patches: StylePatch[] = []
     const all = target.querySelectorAll<HTMLElement>('*')
-    all.forEach((el) => {
+    all.forEach(el => {
       const style = getComputedStyle(el)
       const disp = style.display
 
@@ -57,7 +57,7 @@ export function useExportImage() {
   function patchBackdropFilters(target: HTMLElement): StylePatch[] {
     const patches: StylePatch[] = []
     const all = target.querySelectorAll<HTMLElement>('*')
-    all.forEach((el) => {
+    all.forEach(el => {
       const style = getComputedStyle(el)
       const backdrop = style.getPropertyValue('backdrop-filter')
       const webkitBackdrop = style.getPropertyValue('-webkit-backdrop-filter')
@@ -89,9 +89,7 @@ export function useExportImage() {
         await document.fonts.ready
       }
 
-      const [{ toPng, getFontEmbedCSS }] = await Promise.all([
-        import('html-to-image'),
-      ])
+      const [{ toPng, getFontEmbedCSS }] = await Promise.all([import('html-to-image')])
 
       if (!cachedFontCSS) {
         try {

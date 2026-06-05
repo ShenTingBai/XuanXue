@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { calculateHeHun, createPersonInfoFromProfile, type HeHunResult, type PersonInfo } from '~/composables/useHeHun'
+import {
+  calculateHeHun,
+  createPersonInfoFromProfile,
+  type HeHunResult,
+  type PersonInfo,
+} from '~/composables/useHeHun'
 import { parseDate } from '~/utils/date'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -47,7 +52,7 @@ const bCalendar = ref<'solar' | 'lunar'>('solar')
 const bNickname = ref('')
 
 // Sync date string ↔ year/month/day
-watch(bDateStr, (val) => {
+watch(bDateStr, val => {
   const parts = val.split('-')
   if (parts.length === 3) {
     bYear.value = parseInt(parts[0], 10)
@@ -76,7 +81,9 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const prefersReducedMotion = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!prefersReducedMotion) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
@@ -194,19 +201,29 @@ async function onHistoryRestore(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, { headers })
-    if (record.result_data && typeof record.result_data === 'object' && record.result_data.totalScore !== undefined) {
+    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, {
+      headers,
+    })
+    if (
+      record.result_data &&
+      typeof record.result_data === 'object' &&
+      record.result_data.totalScore !== undefined
+    ) {
       result.value = record.result_data as HeHunResult
       restoreError.value = ''
     } else {
       restoreError.value = '历史记录数据无效'
       if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+      restoreErrorTimer.value = setTimeout(() => {
+        restoreError.value = ''
+      }, 6000)
     }
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+    restoreErrorTimer.value = setTimeout(() => {
+      restoreError.value = ''
+    }, 6000)
   }
 }
 
@@ -231,10 +248,14 @@ const computedGrade = computed<HeHunGrade | null>(() => {
         <div v-if="personA" class="sidebar-info">
           <p class="sidebar-name">{{ currentProfile?.nickname || '我' }}</p>
           <p class="sidebar-dob">{{ personA.year }}年{{ personA.month }}月{{ personA.day }}日</p>
-          <p class="sidebar-dob">{{ personA.gender }} · {{ personA.calendar === 'solar' ? '公历' : '农历' }}</p>
+          <p class="sidebar-dob">
+            {{ personA.gender }} · {{ personA.calendar === 'solar' ? '公历' : '农历' }}
+          </p>
         </div>
         <div v-else class="sidebar-empty">
-          <p class="text-xs text-ink-light">请先完善<a href="/profile" class="text-cinnabar">个人档案</a>中的出生信息</p>
+          <p class="text-xs text-ink-light">
+            请先完善<a href="/profile" class="text-cinnabar">个人档案</a>中的出生信息
+          </p>
         </div>
       </div>
     </template>
@@ -257,10 +278,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
     <!-- Main content -->
     <template v-else>
       <div class="max-w-[48rem] mx-auto">
-        <ToolToolbar
-          :show-history="true"
-          @history="showHistoryModal = true"
-        >
+        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
           <template #extra>
             <ExportButton
               v-if="result"
@@ -284,12 +302,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
             <template v-if="bCalendar === 'solar'">
               <div class="sm:col-span-2">
                 <label for="b-date" class="input-label">出生日期</label>
-                <input
-                  id="b-date"
-                  v-model="bDateStr"
-                  type="date"
-                  class="input-ink w-full"
-                />
+                <input id="b-date" v-model="bDateStr" type="date" class="input-ink w-full" />
               </div>
             </template>
             <template v-else>
@@ -299,7 +312,8 @@ const computedGrade = computed<HeHunGrade | null>(() => {
                   id="b-year"
                   v-model.number="bYear"
                   type="number"
-                  min="1900" max="2100"
+                  min="1900"
+                  max="2100"
                   class="input-ink w-full"
                   placeholder="如 1990"
                 />
@@ -310,7 +324,8 @@ const computedGrade = computed<HeHunGrade | null>(() => {
                   id="b-month"
                   v-model.number="bMonth"
                   type="number"
-                  min="1" max="12"
+                  min="1"
+                  max="12"
                   class="input-ink w-full"
                 />
               </div>
@@ -320,7 +335,8 @@ const computedGrade = computed<HeHunGrade | null>(() => {
                   id="b-day"
                   v-model.number="bDay"
                   type="number"
-                  min="1" max="31"
+                  min="1"
+                  max="31"
                   class="input-ink w-full"
                 />
               </div>
@@ -328,14 +344,12 @@ const computedGrade = computed<HeHunGrade | null>(() => {
             <!-- Hour -->
             <div>
               <label for="b-hour" class="input-label">出生时辰</label>
-              <select
-                id="b-hour"
-                v-model.number="bHour"
-                class="input-ink w-full"
-              >
+              <select id="b-hour" v-model.number="bHour" class="input-ink w-full">
                 <option :value="null">未知</option>
-                <option v-for="h in 12" :key="h" :value="(h * 2 - 2)">
-                  {{ '子丑寅卯辰巳午未申酉戌亥'[h - 1] }}时（{{ String(h * 2 - 2).padStart(2, '0') }}:00-{{ String(h * 2).padStart(2, '0') }}:00）
+                <option v-for="h in 12" :key="h" :value="h * 2 - 2">
+                  {{ '子丑寅卯辰巳午未申酉戌亥'[h - 1] }}时（{{
+                    String(h * 2 - 2).padStart(2, '0')
+                  }}:00-{{ String(h * 2).padStart(2, '0') }}:00）
                 </option>
               </select>
             </div>
@@ -344,11 +358,11 @@ const computedGrade = computed<HeHunGrade | null>(() => {
               <label class="input-label block mb-2">性别</label>
               <div class="flex gap-4">
                 <label class="radio-inline">
-                  <input type="radio" v-model="bGender" value="男" class="sr-only" />
+                  <input v-model="bGender" type="radio" value="男" class="sr-only" />
                   <span class="radio-custom">男</span>
                 </label>
                 <label class="radio-inline">
-                  <input type="radio" v-model="bGender" value="女" class="sr-only" />
+                  <input v-model="bGender" type="radio" value="女" class="sr-only" />
                   <span class="radio-custom">女</span>
                 </label>
               </div>
@@ -358,11 +372,11 @@ const computedGrade = computed<HeHunGrade | null>(() => {
               <label class="input-label block mb-2">历法</label>
               <div class="flex gap-4">
                 <label class="radio-inline">
-                  <input type="radio" v-model="bCalendar" value="solar" class="sr-only" />
+                  <input v-model="bCalendar" type="radio" value="solar" class="sr-only" />
                   <span class="radio-custom">公历</span>
                 </label>
                 <label class="radio-inline">
-                  <input type="radio" v-model="bCalendar" value="lunar" class="sr-only" />
+                  <input v-model="bCalendar" type="radio" value="lunar" class="sr-only" />
                   <span class="radio-custom">农历</span>
                 </label>
               </div>
@@ -382,10 +396,10 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 
           <div class="flex justify-center mt-8">
             <button
-              @click="computeHeHun"
-              @keydown.enter="computeHeHun"
               :disabled="loading"
               class="btn-seal"
+              @click="computeHeHun"
+              @keydown.enter="computeHeHun"
             >
               <span>{{ loading ? '正在合婚...' : '开始合婚' }}</span>
             </button>
@@ -406,78 +420,92 @@ const computedGrade = computed<HeHunGrade | null>(() => {
         <!-- ══ Result ══ -->
         <template v-if="result">
           <div ref="resultRef">
-          <!-- Score -->
-          <div class="mt-8">
-            <HeHunScoreCard
-              :total-score="result.totalScore"
-              :grade="computedGrade"
-              delay="0.15s"
-            />
-          </div>
-
-          <!-- Summary -->
-          <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.25s' }">
-            <div class="flex items-center justify-between">
-              <div class="section-header flex-1 min-w-0">
-                <h2>合婚综论</h2>
-              </div>
-              <MethodologyNote
-                tool="八字合婚"
-                :classical="hehunClassical"
-                :synthesis="hehunSynthesis"
+            <!-- Score -->
+            <div class="mt-8">
+              <HeHunScoreCard
+                :total-score="result.totalScore"
+                :grade="computedGrade"
+                delay="0.15s"
               />
             </div>
-            <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4">{{ result.summary }}</p>
 
-            <!-- Warnings -->
-            <div v-if="result.warnings.length > 0" class="space-y-1.5 mb-4">
-              <p class="font-sans text-xs font-medium text-cinnabar mb-1">注意事项</p>
-              <p
-                v-for="(w, i) in result.warnings"
-                :key="i"
-                class="font-sans text-xs text-ink-light pl-3 border-l-2 border-cinnabar/30"
-              >{{ w }}</p>
-            </div>
-
-            <!-- Suggestions -->
-            <div class="space-y-1">
-              <p class="font-sans text-xs font-medium mb-1" style="color: var(--color-jade)">建议</p>
-              <p
-                v-for="(s, i) in result.suggestions"
-                :key="i"
-                class="font-sans text-xs text-ink-light pl-3"
-                style="border-left: 2px solid color-mix(in srgb, var(--color-jade) 30%, transparent)"
-              >{{ s }}</p>
-            </div>
-          </div>
-
-          <!-- Dimensions -->
-          <div class="mt-6 space-y-4">
-            <p class="font-sans text-xs text-ink-muted tracking-wide text-center">维度分析</p>
-            <HeHunDimensionCard
-              v-for="(dim, i) in result.dimensions"
-              :key="dim.name"
-              :dim="dim"
-              :delay="`${0.3 + i * 0.07}s`"
-            />
-          </div>
-
-          <!-- 八字对比 -->
-          <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.7s' }">
-            <div class="section-header">
-              <h2>八字对照</h2>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-              <div>
-                <p class="font-sans text-xs text-ink-medium mb-3">{{ currentProfile?.nickname || '本人' }}</p>
-                <BaziSmallDisplay :result="result.baziA" />
+            <!-- Summary -->
+            <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.25s' }">
+              <div class="flex items-center justify-between">
+                <div class="section-header flex-1 min-w-0">
+                  <h2>合婚综论</h2>
+                </div>
+                <MethodologyNote
+                  tool="八字合婚"
+                  :classical="hehunClassical"
+                  :synthesis="hehunSynthesis"
+                />
               </div>
-              <div>
-                <p class="font-sans text-xs text-ink-medium mb-3">{{ bNickname.trim() || '对方' }}</p>
-                <BaziSmallDisplay :result="result.baziB" />
+              <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4">
+                {{ result.summary }}
+              </p>
+
+              <!-- Warnings -->
+              <div v-if="result.warnings.length > 0" class="space-y-1.5 mb-4">
+                <p class="font-sans text-xs font-medium text-cinnabar mb-1">注意事项</p>
+                <p
+                  v-for="(w, i) in result.warnings"
+                  :key="i"
+                  class="font-sans text-xs text-ink-light pl-3 border-l-2 border-cinnabar/30"
+                >
+                  {{ w }}
+                </p>
+              </div>
+
+              <!-- Suggestions -->
+              <div class="space-y-1">
+                <p class="font-sans text-xs font-medium mb-1" style="color: var(--color-jade)">
+                  建议
+                </p>
+                <p
+                  v-for="(s, i) in result.suggestions"
+                  :key="i"
+                  class="font-sans text-xs text-ink-light pl-3"
+                  style="
+                    border-left: 2px solid color-mix(in srgb, var(--color-jade) 30%, transparent);
+                  "
+                >
+                  {{ s }}
+                </p>
               </div>
             </div>
-          </div>
+
+            <!-- Dimensions -->
+            <div class="mt-6 space-y-4">
+              <p class="font-sans text-xs text-ink-muted tracking-wide text-center">维度分析</p>
+              <HeHunDimensionCard
+                v-for="(dim, i) in result.dimensions"
+                :key="dim.name"
+                :dim="dim"
+                :delay="`${0.3 + i * 0.07}s`"
+              />
+            </div>
+
+            <!-- 八字对比 -->
+            <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.7s' }">
+              <div class="section-header">
+                <h2>八字对照</h2>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+                <div>
+                  <p class="font-sans text-xs text-ink-medium mb-3">
+                    {{ currentProfile?.nickname || '本人' }}
+                  </p>
+                  <BaziSmallDisplay :result="result.baziA" />
+                </div>
+                <div>
+                  <p class="font-sans text-xs text-ink-medium mb-3">
+                    {{ bNickname.trim() || '对方' }}
+                  </p>
+                  <BaziSmallDisplay :result="result.baziB" />
+                </div>
+              </div>
+            </div>
           </div>
         </template>
 
@@ -486,20 +514,18 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 
       <!-- Restore error toast -->
       <Transition name="toast">
-        <div
-          v-if="restoreError"
-          class="toast-notification"
-          role="alert"
-        >
+        <div v-if="restoreError" class="toast-notification" role="alert">
           <span class="toast-notification__mark" aria-hidden="true">!</span>
           <span class="toast-notification__text">{{ restoreError }}</span>
           <button
+            class="toast-notification__close"
+            aria-label="关闭提示"
             @click="dismissRestoreError"
             @keydown.enter="dismissRestoreError"
             @keydown.space.prevent="dismissRestoreError"
-            class="toast-notification__close"
-            aria-label="关闭提示"
-          >&times;</button>
+          >
+            &times;
+          </button>
         </div>
       </Transition>
 
@@ -624,7 +650,13 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 }
 
 @keyframes secIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

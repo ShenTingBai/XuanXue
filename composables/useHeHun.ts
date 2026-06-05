@@ -18,13 +18,26 @@
 import { calculateBaZi, type BaZiResult } from './useBaZi'
 import { parseDate } from '~/utils/date'
 import {
-  HEHUN_WEIGHTS, STEM_FIVE_COMBINE, STEM_CONFLICT, STEM_GENERATE,
-  BRANCH_SIX_COMBINE, BRANCH_TRIPLE_COMBINE,
-  BRANCH_SIX_CONFLICT, BRANCH_SIX_HARM, BRANCH_PUNISHMENT,
-  WUXING_GENERATE, WUXING_CONFLICT, getNayinWuxing,
-  GUCHEN_GUASU, YINCHA_YANGCUO_DAYS, SHIE_DAIBAI_DAYS,
-  GULUAN_DAYS, BAZHUAN_DAYS, JIUCHOU_DAYS,
-  getHeHunGrade, type HeHunGrade,
+  HEHUN_WEIGHTS,
+  STEM_FIVE_COMBINE,
+  STEM_CONFLICT,
+  STEM_GENERATE,
+  BRANCH_SIX_COMBINE,
+  BRANCH_TRIPLE_COMBINE,
+  BRANCH_SIX_CONFLICT,
+  BRANCH_SIX_HARM,
+  BRANCH_PUNISHMENT,
+  WUXING_GENERATE,
+  WUXING_CONFLICT,
+  getNayinWuxing,
+  GUCHEN_GUASU,
+  YINCHA_YANGCUO_DAYS,
+  SHIE_DAIBAI_DAYS,
+  GULUAN_DAYS,
+  BAZHUAN_DAYS,
+  JIUCHOU_DAYS,
+  getHeHunGrade,
+  type HeHunGrade,
 } from '~/constants/hehun'
 import { getNayinPersonality } from '~/constants/stem-animal'
 
@@ -105,8 +118,10 @@ function getLevel(score: number, maxScore: number): '吉' | '凶' | '中' {
 // ════════════════════════════════════════
 
 function analyzeYearPillar(
-  stemA: string, branchA: string,
-  stemB: string, branchB: string,
+  stemA: string,
+  branchA: string,
+  stemB: string,
+  branchB: string,
 ): HeHunDimension & { items: PillarRelation[] } {
   const maxScore = HEHUN_WEIGHTS.YEAR_PILLAR
   const items: PillarRelation[] = []
@@ -114,43 +129,103 @@ function analyzeYearPillar(
 
   // 1. 天干合
   if (STEM_FIVE_COMBINE[stemA] === stemB) {
-    items.push({ name: '天干五合', relation: `${stemA}${stemB}合`, score: 6, level: '吉', detail: '天干五合，气运相通。' })
+    items.push({
+      name: '天干五合',
+      relation: `${stemA}${stemB}合`,
+      score: 6,
+      level: '吉',
+      detail: '天干五合，气运相通。',
+    })
     total += 6
   } else if (STEM_GENERATE[stemA]?.includes(stemB)) {
-    items.push({ name: '天干相生', relation: `${stemA}生${stemB}`, score: 3, level: '吉', detail: '天干相生，彼此助益。' })
+    items.push({
+      name: '天干相生',
+      relation: `${stemA}生${stemB}`,
+      score: 3,
+      level: '吉',
+      detail: '天干相生，彼此助益。',
+    })
     total += 3
   } else if (STEM_CONFLICT[stemA]?.includes(stemB)) {
-    items.push({ name: '天干相克', relation: `${stemA}克${stemB}`, score: -4, level: '凶', detail: '天干相克，气场相悖，易生口角。' })
+    items.push({
+      name: '天干相克',
+      relation: `${stemA}克${stemB}`,
+      score: -4,
+      level: '凶',
+      detail: '天干相克，气场相悖，易生口角。',
+    })
     total -= 4
   } else {
-    items.push({ name: '天干比和', relation: `${stemA}${stemB}平`, score: 0, level: '中', detail: '天干比和，无大碍。' })
+    items.push({
+      name: '天干比和',
+      relation: `${stemA}${stemB}平`,
+      score: 0,
+      level: '中',
+      detail: '天干比和，无大碍。',
+    })
   }
 
   // 2. 地支六合
   if (BRANCH_SIX_COMBINE[branchA] === branchB) {
-    items.push({ name: '地支六合', relation: `${branchA}${branchB}六合`, score: 6, level: '吉', detail: '地支六合，根基稳固。' })
+    items.push({
+      name: '地支六合',
+      relation: `${branchA}${branchB}六合`,
+      score: 6,
+      level: '吉',
+      detail: '地支六合，根基稳固。',
+    })
     total += 6
   } else if (BRANCH_TRIPLE_COMBINE[branchA]?.includes(branchB)) {
-    items.push({ name: '地支三合', relation: `${branchA}${branchB}三合`, score: 4, level: '吉', detail: '地支三合，气场相投。' })
+    items.push({
+      name: '地支三合',
+      relation: `${branchA}${branchB}三合`,
+      score: 4,
+      level: '吉',
+      detail: '地支三合，气场相投。',
+    })
     total += 4
   } else if (BRANCH_SIX_CONFLICT[branchA] === branchB) {
-    items.push({ name: '地支六冲', relation: `${branchA}${branchB}冲`, score: -6, level: '凶', detail: '地支相冲，根基动摇，家宅难安。' })
+    items.push({
+      name: '地支六冲',
+      relation: `${branchA}${branchB}冲`,
+      score: -6,
+      level: '凶',
+      detail: '地支相冲，根基动摇，家宅难安。',
+    })
     total -= 6
   } else if (BRANCH_SIX_HARM[branchA] === branchB) {
-    items.push({ name: '地支六害', relation: `${branchA}${branchB}害`, score: -4, level: '凶', detail: '地支相害，暗生嫌隙。' })
+    items.push({
+      name: '地支六害',
+      relation: `${branchA}${branchB}害`,
+      score: -4,
+      level: '凶',
+      detail: '地支相害，暗生嫌隙。',
+    })
     total -= 4
   } else if (BRANCH_PUNISHMENT[branchA]?.includes(branchB)) {
-    items.push({ name: '地支相刑', relation: `${branchA}${branchB}刑`, score: -3, level: '凶', detail: '地支相刑，易生矛盾。' })
+    items.push({
+      name: '地支相刑',
+      relation: `${branchA}${branchB}刑`,
+      score: -3,
+      level: '凶',
+      detail: '地支相刑，易生矛盾。',
+    })
     total -= 3
   } else {
-    items.push({ name: '地支平和', relation: `${branchA}${branchB}平`, score: 1, level: '中', detail: '地支平和，无冲无克。' })
+    items.push({
+      name: '地支平和',
+      relation: `${branchA}${branchB}平`,
+      score: 1,
+      level: '中',
+      detail: '地支平和，无冲无克。',
+    })
     total += 1
   }
 
   // 3. 生肖三合六合冲害（额外检查）
   const branchIndexA = '子丑寅卯辰巳午未申酉戌亥'.indexOf(branchA)
   const branchIndexB = '子丑寅卯辰巳午未申酉戌亥'.indexOf(branchB)
-  const animalSixCombine = (['子丑', '寅亥', '卯戌', '辰酉', '巳申', '午未'] as const)
+  const animalSixCombine = ['子丑', '寅亥', '卯戌', '辰酉', '巳申', '午未'] as const
   const animalPair = `${branchA}${branchB}`
   const animalPairRev = `${branchB}${branchA}`
   const isAnimalSixCombine = animalSixCombine.some(p => p === animalPair || p === animalPairRev)
@@ -174,9 +249,12 @@ function analyzeYearPillar(
 // ════════════════════════════════════════
 
 function analyzeDayPillar(
-  stemA: string, branchA: string,
-  stemB: string, branchB: string,
-  stemBranchA: string, stemBranchB: string,
+  stemA: string,
+  branchA: string,
+  stemB: string,
+  branchB: string,
+  stemBranchA: string,
+  stemBranchB: string,
 ): HeHunDimension & { items: PillarRelation[] } {
   const maxScore = HEHUN_WEIGHTS.DAY_PILLAR
   const items: PillarRelation[] = []
@@ -184,53 +262,131 @@ function analyzeDayPillar(
 
   // 1. 日干五合（最重要）
   if (STEM_FIVE_COMBINE[stemA] === stemB) {
-    items.push({ name: '日干五合', relation: `${stemA}${stemB}合`, score: 10, level: '吉', detail: '日干五合，夫妻情深意笃，情感默契。' })
+    items.push({
+      name: '日干五合',
+      relation: `${stemA}${stemB}合`,
+      score: 10,
+      level: '吉',
+      detail: '日干五合，夫妻情深意笃，情感默契。',
+    })
     total += 10
   } else if (STEM_GENERATE[stemA]?.includes(stemB)) {
-    items.push({ name: '日干相生', relation: `${stemA}生${stemB}`, score: 6, level: '吉', detail: '日干相生，互敬互爱，扶持成长。' })
+    items.push({
+      name: '日干相生',
+      relation: `${stemA}生${stemB}`,
+      score: 6,
+      level: '吉',
+      detail: '日干相生，互敬互爱，扶持成长。',
+    })
     total += 6
   } else if (STEM_CONFLICT[stemA]?.includes(stemB)) {
-    items.push({ name: '日干相克', relation: `${stemA}克${stemB}`, score: -6, level: '凶', detail: '日干相克，夫妻观念分歧大，易生冲突。' })
+    items.push({
+      name: '日干相克',
+      relation: `${stemA}克${stemB}`,
+      score: -6,
+      level: '凶',
+      detail: '日干相克，夫妻观念分歧大，易生冲突。',
+    })
     total -= 6
   } else {
-    items.push({ name: '日干比和', relation: `${stemA}${stemB}平`, score: 1, level: '中', detail: '日干比和，个性相近，但需注意互不相让。' })
+    items.push({
+      name: '日干比和',
+      relation: `${stemA}${stemB}平`,
+      score: 1,
+      level: '中',
+      detail: '日干比和，个性相近，但需注意互不相让。',
+    })
     total += 1
   }
 
   // 2. 日支关系（夫妻宫）
   if (BRANCH_SIX_COMBINE[branchA] === branchB) {
-    items.push({ name: '日支六合', relation: `${branchA}${branchB}合`, score: 8, level: '吉', detail: '夫妻宫六合，家庭根基牢固，婚姻稳定。' })
+    items.push({
+      name: '日支六合',
+      relation: `${branchA}${branchB}合`,
+      score: 8,
+      level: '吉',
+      detail: '夫妻宫六合，家庭根基牢固，婚姻稳定。',
+    })
     total += 8
   } else if (BRANCH_TRIPLE_COMBINE[branchA]?.includes(branchB)) {
-    items.push({ name: '日支三合', relation: `${branchA}${branchB}三合`, score: 6, level: '吉', detail: '夫妻宫三合，气场相投，志趣相合。' })
+    items.push({
+      name: '日支三合',
+      relation: `${branchA}${branchB}三合`,
+      score: 6,
+      level: '吉',
+      detail: '夫妻宫三合，气场相投，志趣相合。',
+    })
     total += 6
   } else if (BRANCH_SIX_CONFLICT[branchA] === branchB) {
-    items.push({ name: '日支六冲', relation: `${branchA}${branchB}冲`, score: -10, level: '凶', detail: '夫妻宫相冲，婚姻多波折，宜慎之。' })
+    items.push({
+      name: '日支六冲',
+      relation: `${branchA}${branchB}冲`,
+      score: -10,
+      level: '凶',
+      detail: '夫妻宫相冲，婚姻多波折，宜慎之。',
+    })
     total -= 10
   } else if (BRANCH_SIX_HARM[branchA] === branchB) {
-    items.push({ name: '日支六害', relation: `${branchA}${branchB}害`, score: -6, level: '凶', detail: '夫妻宫相害，易生嫌隙，需多沟通。' })
+    items.push({
+      name: '日支六害',
+      relation: `${branchA}${branchB}害`,
+      score: -6,
+      level: '凶',
+      detail: '夫妻宫相害，易生嫌隙，需多沟通。',
+    })
     total -= 6
   } else if (BRANCH_PUNISHMENT[branchA]?.includes(branchB)) {
-    items.push({ name: '日支相刑', relation: `${branchA}${branchB}刑`, score: -4, level: '凶', detail: '夫妻宫相刑，因小事生摩擦。' })
+    items.push({
+      name: '日支相刑',
+      relation: `${branchA}${branchB}刑`,
+      score: -4,
+      level: '凶',
+      detail: '夫妻宫相刑，因小事生摩擦。',
+    })
     total -= 4
   } else {
-    items.push({ name: '日支平和', relation: `平和`, score: 2, level: '吉', detail: '夫妻宫平和，无冲无克。' })
+    items.push({
+      name: '日支平和',
+      relation: `平和`,
+      score: 2,
+      level: '吉',
+      detail: '夫妻宫平和，无冲无克。',
+    })
     total += 2
   }
 
   // 3. 阴差阳错日检查
   if (YINCHA_YANGCUO_DAYS.has(stemBranchA)) {
-    items.push({ name: '日柱神煞', relation: '阴差阳错', score: -3, level: '凶', detail: 'A方阴差阳错日，婚姻易有波折。' })
+    items.push({
+      name: '日柱神煞',
+      relation: '阴差阳错',
+      score: -3,
+      level: '凶',
+      detail: 'A方阴差阳错日，婚姻易有波折。',
+    })
     total -= 3
   }
   if (YINCHA_YANGCUO_DAYS.has(stemBranchB)) {
-    items.push({ name: '日柱神煞', relation: '阴差阳错', score: -3, level: '凶', detail: 'B方阴差阳错日，婚姻易有波折。' })
+    items.push({
+      name: '日柱神煞',
+      relation: '阴差阳错',
+      score: -3,
+      level: '凶',
+      detail: 'B方阴差阳错日，婚姻易有波折。',
+    })
     total -= 3
   }
 
   // 4. 孤鸾日
   if (GULUAN_DAYS.has(stemBranchA) || GULUAN_DAYS.has(stemBranchB)) {
-    items.push({ name: '日柱神煞', relation: '孤鸾', score: -2, level: '凶', detail: '一方犯孤鸾，情路较为坎坷。' })
+    items.push({
+      name: '日柱神煞',
+      relation: '孤鸾',
+      score: -2,
+      level: '凶',
+      detail: '一方犯孤鸾，情路较为坎坷。',
+    })
     total -= 2
   }
 
@@ -251,8 +407,10 @@ function analyzeDayPillar(
 // ════════════════════════════════════════
 
 function analyzeElementComplement(
-  favorableA: string[], unfavorableA: string[],
-  favorableB: string[], unfavorableB: string[],
+  favorableA: string[],
+  unfavorableA: string[],
+  favorableB: string[],
+  unfavorableB: string[],
   elementCountsA: Record<string, number>,
   elementCountsB: Record<string, number>,
 ): HeHunDimension {
@@ -272,7 +430,9 @@ function analyzeElementComplement(
 
   if (complementAB.length > 0 && complementBA.length > 0) {
     score += 10
-    details.push(`喜用神双向互补：A需${complementAB.join('、')}，B需${complementBA.join('、')}，彼此互济。`)
+    details.push(
+      `喜用神双向互补：A需${complementAB.join('、')}，B需${complementBA.join('、')}，彼此互济。`,
+    )
   } else if (complementAB.length > 0) {
     score += 5
     details.push(`A之喜用神（${complementAB.join('、')}）恰为B所克，B可补A之不足。`)
@@ -286,8 +446,12 @@ function analyzeElementComplement(
 
   // 2. 五行流通检查：是否形成相生链
   const allElements = ['金', '木', '水', '火', '土']
-  const dominantA = allElements.reduce((a, b) => (elementCountsA[a] || 0) >= (elementCountsB[b] || 0) ? a : b)
-  const dominantB = allElements.reduce((a, b) => (elementCountsB[a] || 0) >= (elementCountsB[b] || 0) ? a : b)
+  const dominantA = allElements.reduce((a, b) =>
+    (elementCountsA[a] || 0) >= (elementCountsB[b] || 0) ? a : b,
+  )
+  const dominantB = allElements.reduce((a, b) =>
+    (elementCountsB[a] || 0) >= (elementCountsB[b] || 0) ? a : b,
+  )
 
   // 检查一方强元素是否生另一方弱元素
   if (WUXING_GENERATE[dominantA] && favorableSetB.has(WUXING_GENERATE[dominantA])) {
@@ -325,10 +489,7 @@ function analyzeElementComplement(
 // 纳音相生克分析
 // ════════════════════════════════════════
 
-function analyzeNayin(
-  stemBranchA: string,
-  stemBranchB: string,
-): HeHunDimension {
+function analyzeNayin(stemBranchA: string, stemBranchB: string): HeHunDimension {
   const maxScore = HEHUN_WEIGHTS.NAYIN
   const details: string[] = []
   let score = 0
@@ -412,16 +573,18 @@ function analyzeTenGod(
   const spouseStemA = genderA === '男' ? '正财' : '正官'
   const spouseStemB = genderB === '男' ? '正财' : '正官'
 
-  const spouseCountA = pillarsA.filter(p =>
-    p.stemTenGod === spouseStemA || p.branchTenGod === spouseStemA
+  const spouseCountA = pillarsA.filter(
+    p => p.stemTenGod === spouseStemA || p.branchTenGod === spouseStemA,
   ).length
-  const spouseCountB = pillarsB.filter(p =>
-    p.stemTenGod === spouseStemB || p.branchTenGod === spouseStemB
+  const spouseCountB = pillarsB.filter(
+    p => p.stemTenGod === spouseStemB || p.branchTenGod === spouseStemB,
   ).length
 
   if (spouseCountA > 0 && spouseCountB > 0) {
     score += 5
-    details.push(`A（${genderA}）有${spouseStemA}出现，B（${genderB}）有${spouseStemB}出现，配偶星明朗。`)
+    details.push(
+      `A（${genderA}）有${spouseStemA}出现，B（${genderB}）有${spouseStemB}出现，配偶星明朗。`,
+    )
   } else if (spouseCountA > 0) {
     score += 2
     details.push(`A（${genderA}）有${spouseStemA}出现，配偶缘分清晰。`)
@@ -485,8 +648,10 @@ function analyzeTenGod(
 // ════════════════════════════════════════
 
 function analyzeShenSha(
-  yearBranchA: string, yearBranchB: string,
-  stemBranchA: string, stemBranchB: string,
+  yearBranchA: string,
+  yearBranchB: string,
+  stemBranchA: string,
+  stemBranchB: string,
 ): HeHunDimension {
   const maxScore = HEHUN_WEIGHTS.SHENSHA
   const details: string[] = []
@@ -545,9 +710,7 @@ function analyzeShenSha(
 // 生肖关系（单独检查）
 // ════════════════════════════════════════
 
-function analyzeAnimal(
-  branchA: string, branchB: string,
-): HeHunDimension {
+function analyzeAnimal(branchA: string, branchB: string): HeHunDimension {
   const maxScore = HEHUN_WEIGHTS.ANIMAL
   const details: string[] = []
   let score = 0
@@ -683,22 +846,35 @@ export function calculateHeHun(input: HeHunInput): HeHunResult {
 
   // 2. 各维度分析
   const yearResult = analyzeYearPillar(
-    yearPillar.stem, yearPillar.branch,
-    yearPillarB.stem, yearPillarB.branch,
+    yearPillar.stem,
+    yearPillar.branch,
+    yearPillarB.stem,
+    yearPillarB.branch,
   )
   const dayResult = analyzeDayPillar(
-    dayPillar.stem, dayPillar.branch,
-    dayPillarB.stem, dayPillarB.branch,
-    stemBranchA, stemBranchB,
+    dayPillar.stem,
+    dayPillar.branch,
+    dayPillarB.stem,
+    dayPillarB.branch,
+    stemBranchA,
+    stemBranchB,
   )
   const elementResult = analyzeElementComplement(
-    baziA.favorableElements, baziA.unfavorableElements,
-    baziB.favorableElements, baziB.unfavorableElements,
-    baziA.elementCounts, baziB.elementCounts,
+    baziA.favorableElements,
+    baziA.unfavorableElements,
+    baziB.favorableElements,
+    baziB.unfavorableElements,
+    baziA.elementCounts,
+    baziB.elementCounts,
   )
   const nayinResult = analyzeNayin(stemBranchA, stemBranchB)
   const tenGodResult = analyzeTenGod(personA.gender, personB.gender, baziA, baziB)
-  const shenshaResult = analyzeShenSha(yearPillar.branch, yearPillarB.branch, stemBranchA, stemBranchB)
+  const shenshaResult = analyzeShenSha(
+    yearPillar.branch,
+    yearPillarB.branch,
+    stemBranchA,
+    stemBranchB,
+  )
   const animalResult = analyzeAnimal(yearPillar.branch, yearPillarB.branch)
 
   const dimensions = [
@@ -720,8 +896,11 @@ export function calculateHeHun(input: HeHunInput): HeHunResult {
 
   // 5. 总结
   const { summary, suggestions, warnings } = generateSummary(
-    totalScore, dimensions, grade,
-    yearPillar.branch, yearPillarB.branch,
+    totalScore,
+    dimensions,
+    grade,
+    yearPillar.branch,
+    yearPillarB.branch,
   )
 
   return {
@@ -754,7 +933,7 @@ export function createPersonInfoFromProfile(profile: {
     month: parsed.month,
     day: parsed.day,
     hour: profile.birth_hour ?? null,
-    gender: (profile.gender === '男' || profile.gender === '女') ? profile.gender : '男',
+    gender: profile.gender === '男' || profile.gender === '女' ? profile.gender : '男',
     calendar: profile.birth_calendar || 'solar',
     nickname: profile.nickname || '本人',
   }

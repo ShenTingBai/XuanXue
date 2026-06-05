@@ -7,12 +7,15 @@ import type { Profile } from '../../composables/useAuth'
 // ============================================================================
 
 const stateMap = new Map<string, { value: any }>()
-vi.stubGlobal('useState', vi.fn(<T>(key: string, init?: () => T): { value: T } => {
-  if (!stateMap.has(key)) {
-    stateMap.set(key, { value: init ? init() : undefined })
-  }
-  return stateMap.get(key)!
-}))
+vi.stubGlobal(
+  'useState',
+  vi.fn(<T>(key: string, init?: () => T): { value: T } => {
+    if (!stateMap.has(key)) {
+      stateMap.set(key, { value: init ? init() : undefined })
+    }
+    return stateMap.get(key)!
+  }),
+)
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
@@ -47,9 +50,15 @@ describe('useAuth', () => {
     store = {}
     vi.stubGlobal('localStorage', {
       getItem: vi.fn((key: string) => store[key] ?? null),
-      setItem: vi.fn((key: string, value: string) => { store[key] = value }),
-      removeItem: vi.fn((key: string) => { delete store[key] }),
-      clear: vi.fn(() => { store = {} }),
+      setItem: vi.fn((key: string, value: string) => {
+        store[key] = value
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete store[key]
+      }),
+      clear: vi.fn(() => {
+        store = {}
+      }),
     })
     mockFetch.mockReset()
   })
@@ -219,9 +228,7 @@ describe('useAuth', () => {
     })
 
     it('rejects on invalid credentials (401)', async () => {
-      mockFetch.mockRejectedValueOnce(
-        Object.assign(new Error('Unauthorized'), { statusCode: 401 }),
-      )
+      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Unauthorized'), { statusCode: 401 }))
       const auth = useAuth()
       await expect(auth.login('wronguser', '0000')).rejects.toThrow()
       expect(auth.currentProfile.value).toBeNull()
@@ -255,18 +262,14 @@ describe('useAuth', () => {
     })
 
     it('rejects on duplicate nickname (409)', async () => {
-      mockFetch.mockRejectedValueOnce(
-        Object.assign(new Error('Conflict'), { statusCode: 409 }),
-      )
+      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Conflict'), { statusCode: 409 }))
       const auth = useAuth()
       await expect(auth.register('existing', '1234')).rejects.toThrow()
       expect(store[SESSION_KEY]).toBeUndefined()
     })
 
     it('rejects on invalid PIN format (400)', async () => {
-      mockFetch.mockRejectedValueOnce(
-        Object.assign(new Error('Bad request'), { statusCode: 400 }),
-      )
+      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Bad request'), { statusCode: 400 }))
       const auth = useAuth()
       await expect(auth.register('newuser', '12')).rejects.toThrow()
     })

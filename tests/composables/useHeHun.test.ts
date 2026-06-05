@@ -1,15 +1,30 @@
 import { describe, it, expect } from 'vitest'
-import { calculateHeHun, createPersonInfoFromProfile, type PersonInfo, type HeHunResult } from '../../composables/useHeHun'
+import {
+  calculateHeHun,
+  createPersonInfoFromProfile,
+  type PersonInfo,
+  type HeHunResult,
+} from '../../composables/useHeHun'
 
 describe('calculateHeHun', () => {
   // Two people born in 1998 (戊寅) and 1996 (丙子) for a basic pairing
   const personA: PersonInfo = {
-    year: 1998, month: 5, day: 25, hour: 14,
-    gender: '男', calendar: 'solar', nickname: '张三',
+    year: 1998,
+    month: 5,
+    day: 25,
+    hour: 14,
+    gender: '男',
+    calendar: 'solar',
+    nickname: '张三',
   }
   const personB: PersonInfo = {
-    year: 1996, month: 8, day: 15, hour: 10,
-    gender: '女', calendar: 'solar', nickname: '李四',
+    year: 1996,
+    month: 8,
+    day: 15,
+    hour: 10,
+    gender: '女',
+    calendar: 'solar',
+    nickname: '李四',
   }
 
   it('returns a HeHunResult with all top-level fields', () => {
@@ -185,7 +200,14 @@ describe('calculateHeHun', () => {
 
   it('different person pairs produce different total scores', () => {
     const pair1 = calculateHeHun({ personA, personB })
-    const differentB: PersonInfo = { year: 2000, month: 1, day: 1, hour: 12, gender: '女', calendar: 'solar' }
+    const differentB: PersonInfo = {
+      year: 2000,
+      month: 1,
+      day: 1,
+      hour: 12,
+      gender: '女',
+      calendar: 'solar',
+    }
     const pair2 = calculateHeHun({ personA: personA, personB: differentB })
     // Very unlikely two different pairs score identically across all dimensions
     expect(pair1.dimensions.map(d => d.score)).not.toEqual(pair2.dimensions.map(d => d.score))
@@ -196,16 +218,44 @@ describe('calculateHeHun', () => {
 
 describe('HeHun grade', () => {
   it('grade returns valid label for a known pairing', () => {
-    const personA: PersonInfo = { year: 1998, month: 5, day: 25, hour: 14, gender: '男', calendar: 'solar' }
-    const personB: PersonInfo = { year: 1996, month: 8, day: 15, hour: 10, gender: '女', calendar: 'solar' }
+    const personA: PersonInfo = {
+      year: 1998,
+      month: 5,
+      day: 25,
+      hour: 14,
+      gender: '男',
+      calendar: 'solar',
+    }
+    const personB: PersonInfo = {
+      year: 1996,
+      month: 8,
+      day: 15,
+      hour: 10,
+      gender: '女',
+      calendar: 'solar',
+    }
     const result = calculateHeHun({ personA, personB })
     const validLabels = ['天作之合', '良缘可成', '缘浅需慎']
     expect(validLabels).toContain(result.grade.label)
   })
 
   it('grade has level field and description', () => {
-    const personA: PersonInfo = { year: 1998, month: 5, day: 25, hour: 14, gender: '男', calendar: 'solar' }
-    const personB: PersonInfo = { year: 1996, month: 8, day: 15, hour: 10, gender: '女', calendar: 'solar' }
+    const personA: PersonInfo = {
+      year: 1998,
+      month: 5,
+      day: 25,
+      hour: 14,
+      gender: '男',
+      calendar: 'solar',
+    }
+    const personB: PersonInfo = {
+      year: 1996,
+      month: 8,
+      day: 15,
+      hour: 10,
+      gender: '女',
+      calendar: 'solar',
+    }
     const result = calculateHeHun({ personA, personB })
     expect(['上婚', '中婚', '下婚']).toContain(result.grade.level)
     expect(result.grade.description.length).toBeGreaterThan(0)
