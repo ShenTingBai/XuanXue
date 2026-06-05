@@ -232,9 +232,12 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 .methodology-panel__item--synth {
+  display: block;
   color: var(--color-ink-muted);
   padding-left: 0.5rem;
   border-left: 2px solid color-mix(in srgb, var(--color-ink-faint) 25%, transparent);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .methodology-panel__method {
