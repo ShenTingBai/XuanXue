@@ -19,77 +19,79 @@
 
 ### 2.1 墨（Ink）— 文字色阶
 
-| Token | 色值 | 用途 |
-|-------|------|------|
-| `ink-darkest` | `#1A0F0A` | 极少用 |
-| `ink-dark` | `#1E1210` | **标题色**、重要文字 |
-| `ink` | `#2C1810` | 正文强调 |
-| `ink-medium` | `#6B5B4F` | **正文色**（最低对比度要求） |
-| `ink-muted` | `#4D4037` | 辅助信息 |
-| `ink-light` | `#5E5045` | 标签、占位符 |
-| `ink-faint` | `#D4C5B0` | 分割线、边框、装饰 |
+| Token         | 色值      | 用途                         |
+| ------------- | --------- | ---------------------------- |
+| `ink-darkest` | `#1A0F0A` | 极少用                       |
+| `ink-dark`    | `#1E1210` | **标题色**、重要文字         |
+| `ink`         | `#2C1810` | 正文强调                     |
+| `ink-medium`  | `#6B5B4F` | **正文色**（最低对比度要求） |
+| `ink-muted`   | `#4D4037` | 辅助信息                     |
+| `ink-light`   | `#5E5045` | 标签、占位符                 |
+| `ink-faint`   | `#D4C5B0` | 分割线、边框、装饰           |
 
 **规则**：
+
 - 正文文字 **禁止** 使用 `ink-light` 或更低对比度。正文最低为 `ink-medium`。
 - 辅助文字/标签最低为 `ink-light`（`0.6875rem` 以上）或 `ink-medium`（`0.6875rem` 以下）。
 - Tailwind 类名：`text-ink-dark`、`text-ink`、`text-ink-medium`、`text-ink-light`、`text-ink-faint`。
 
 ### 2.2 纸（Paper）— 背景色阶
 
-| Token | 色值 | 用途 |
-|-------|------|------|
-| `paper-lightest` | `#FBF8F4` | 全页底色 |
-| `paper-light` | `#F5F0E8` | 浅底卡片 |
-| `paper-medium` | `#EDE4D3` | hover 态背景 |
-| `paper-card` | `#E8DCC6` | **卡片底色**（card-warm） |
-| `paper-dark` | `#E0D5C0` | 卡片边框 |
-| `paper-darker` | `#D0C0A8` | 极少用 |
+| Token            | 色值      | 用途                      |
+| ---------------- | --------- | ------------------------- |
+| `paper-lightest` | `#FBF8F4` | 全页底色                  |
+| `paper-light`    | `#F5F0E8` | 浅底卡片                  |
+| `paper-medium`   | `#EDE4D3` | hover 态背景              |
+| `paper-card`     | `#E8DCC6` | **卡片底色**（card-warm） |
+| `paper-dark`     | `#E0D5C0` | 卡片边框                  |
+| `paper-darker`   | `#D0C0A8` | 极少用                    |
 
 ### 2.2b 卷（Scroll）— 符纸/佛堂底色
 
 用于敕令灵符、本命佛等特殊区块，比纸色阶更暖，模拟古卷/符纸质感：
 
-| Token | 色值 | 用途 |
-|-------|------|------|
+| Token          | 色值      | 用途     |
+| -------------- | --------- | -------- |
 | `scroll-light` | `#FDF6E3` | 卷纸浅端 |
-| `scroll` | `#F9EDD4` | 卷纸中段 |
-| `scroll-dark` | `#F5E5C8` | 卷纸深端 |
+| `scroll`       | `#F9EDD4` | 卷纸中段 |
+| `scroll-dark`  | `#F5E5C8` | 卷纸深端 |
 
 - 三色用于 `linear-gradient` 渐变，不单独使用
 - CSS 变量：`--color-scroll-light`、`--color-scroll`、`--color-scroll-dark`
 
 ### 2.3 朱砂（Cinnabar）— 强调色
 
-| Token | 色值 | 用途 |
-|-------|------|------|
-| `cinnabar` | `#C62828` | **主强调色**：链接、选中态、重要徽章 |
-| `cinnabar-light` | `#E53935` | hover 高亮 |
-| `cinnabar-dark` | `#8E1D1D` | 深色点缀 |
-| `cinnabar-deeper` | `#9C1A1C` | btn-cin 背景 |
-| `cinnabar-deepest` | `#7A1416` | btn-cin hover 背景 |
+| Token              | 色值      | 用途                                 |
+| ------------------ | --------- | ------------------------------------ |
+| `cinnabar`         | `#C62828` | **主强调色**：链接、选中态、重要徽章 |
+| `cinnabar-light`   | `#E53935` | hover 高亮                           |
+| `cinnabar-dark`    | `#8E1D1D` | 深色点缀                             |
+| `cinnabar-deeper`  | `#9C1A1C` | btn-cin 背景                         |
+| `cinnabar-deepest` | `#7A1416` | btn-cin hover 背景                   |
 
 **规则**：
+
 - 朱砂是**唯一**的暖色强调。不要引入橙色、粉色等其他暖色。
 - `bg-cinnabar/10` 是最常用的浅底强调（选中态、标签背景）。
 
 ### 2.4 金（Gold）& 玉（Jade）— 点缀色
 
-| Token | 色值 | 用途 |
-|-------|------|------|
-| `gold` | `#7A5E12` | 中评/中性徽章、MC 线 |
-| `gold-light` | `#9A7818` | 亮金色 |
-| `jade` | `#3D6B4B` | 好评/吉徽章、和谐相位 |
-| `jade-light` | `#4D7A5A` | 亮玉色 |
+| Token        | 色值      | 用途                  |
+| ------------ | --------- | --------------------- |
+| `gold`       | `#7A5E12` | 中评/中性徽章、MC 线  |
+| `gold-light` | `#9A7818` | 亮金色                |
+| `jade`       | `#3D6B4B` | 好评/吉徽章、和谐相位 |
+| `jade-light` | `#4D7A5A` | 亮玉色                |
 
 ### 2.5 五行色
 
-| 元素 | 色值 | Tailwind |
-|------|------|----------|
-| 木 | `#3D6B4B` | `wuxing-wood` |
-| 火 | `#C62828` | `wuxing-fire` |
-| 土 | `#7A5E12` | `wuxing-earth` |
-| 金 | `#5E5E5E` | `wuxing-metal` |
-| 水 | `#2C5F7C` | `wuxing-water` |
+| 元素 | 色值      | Tailwind       |
+| ---- | --------- | -------------- |
+| 木   | `#3D6B4B` | `wuxing-wood`  |
+| 火   | `#C62828` | `wuxing-fire`  |
+| 土   | `#7A5E12` | `wuxing-earth` |
+| 金   | `#5E5E5E` | `wuxing-metal` |
+| 水   | `#2C5F7C` | `wuxing-water` |
 
 回退色：`#6B5B4F`（来自 `WUXING_FALLBACK_COLOR` 常量）。
 
@@ -97,14 +99,15 @@
 
 **禁止**使用以下方式处理颜色：
 
-| ❌ 禁止 | ✅ 正确 |
-|---------|---------|
-| `rgba(198, 40, 40, 0.08)` | `color-mix(in srgb, var(--color-cinnabar) 8%, transparent)` |
-| `bg-cinnabar/10` | scoped CSS: `background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent)` |
-| `opacity-60` 降低文字 | `text-ink-medium` 或 `color-mix(in srgb, var(--color-ink) 60%, transparent)` |
-| `text-cinnabar/80` | `text-cinnabar`（全饱和度）或 scoped CSS color-mix |
+| ❌ 禁止                   | ✅ 正确                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| `rgba(198, 40, 40, 0.08)` | `color-mix(in srgb, var(--color-cinnabar) 8%, transparent)`                          |
+| `bg-cinnabar/10`          | scoped CSS: `background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent)` |
+| `opacity-60` 降低文字     | `text-ink-medium` 或 `color-mix(in srgb, var(--color-ink) 60%, transparent)`         |
+| `text-cinnabar/80`        | `text-cinnabar`（全饱和度）或 scoped CSS color-mix                                   |
 
 **原因**：
+
 - Tailwind 的 `bg-color/opacity` 用 CSS `opacity` 属性实现，会同时影响文字和子元素
 - `color-mix()` 只降低颜色饱和度，不影响元素整体透明度
 - 在多层叠加卡片（Ink Resonance 的核心视觉特征）中，`opacity` 会导致叠加区域颜色失真
@@ -117,12 +120,13 @@
 
 ### 3.1 字体族
 
-| Token | 字体 | 用途 |
-|-------|------|------|
-| `font-display` | Ma Shan Zheng → STKaiti → KaiTi → cursive | **页面标题、section 标题、大字数据** |
-| `font-sans` | Noto Sans SC → PingFang SC → … → sans-serif | **正文、标签、按钮、表单** |
+| Token          | 字体                                        | 用途                                 |
+| -------------- | ------------------------------------------- | ------------------------------------ |
+| `font-display` | Ma Shan Zheng → STKaiti → KaiTi → cursive   | **页面标题、section 标题、大字数据** |
+| `font-sans`    | Noto Sans SC → PingFang SC → … → sans-serif | **正文、标签、按钮、表单**           |
 
 **规则**：
+
 - `font-display` 只用于**标题**和**数据展示**（h1、h2、大数字）。不用在段落文本。
 - `font-sans` 用于所有其他文字。
 - 正文最小字号：`text-sm`（0.875rem）。**禁止** `text-xs` 做正文。
@@ -131,10 +135,10 @@
 
 **例外：数据可视化标签**。以下场景可使用 `0.6rem`（仅限单字/双字标签，且必须有独立的颜色+形状编码作为备用传达手段）：
 
-| 场景 | 字号 | 理由 |
-|------|------|------|
+| 场景                         | 字号   | 理由                                                                                               |
+| ---------------------------- | ------ | -------------------------------------------------------------------------------------------------- |
 | 紫微天星图星曜标签（SVG 内） | 0.6rem | SVG 坐标空间紧凑，文字过多无法容纳；每个星曜同时有颜色（`StarColorClass`）和形状（SVG 圆）双重编码 |
-| 八字排盘表地支小字 | 0.6rem | 表格式数据展示，每格空间有限；信息同时以颜色（五行色）和文字（天干地支）双重传达 |
+| 八字排盘表地支小字           | 0.6rem | 表格式数据展示，每格空间有限；信息同时以颜色（五行色）和文字（天干地支）双重传达                   |
 
 - 数据可视化例外**仅限**不能合理缩放的小型 SVG/Canvas 图表或高密度表格
 - 例外使用**必须**在本节的表中注册（场景 + 字号 + 理由），否则视为违规
@@ -142,18 +146,18 @@
 
 ### 3.2 字阶参考
 
-| 类名 | 大小 | 用途 |
-|------|------|------|
-| `text-5xl` | 3rem | Hero 大符号（星座 ♈、生肖 🐀） |
-| `text-4xl` | 2.25rem | 页面主标题 |
-| `text-3xl` | 1.875rem | Hero 标题 |
-| `text-2xl` | 1.5rem | Logo |
-| `text-xl` | 1.25rem | Section 标题（`section-header h2`） |
-| `text-base` | 1rem | 正文（较少用，多用 text-sm） |
-| `text-sm` | 0.875rem | **正文默认值** |
-| `text-xs` | 0.75rem | 标签、辅助信息、脚注 |
-| `text-[0.72rem]` | 0.72rem | 紧凑标签（需在 ink-medium 级别） |
-| `text-[0.6875rem]` | 0.6875rem | 绝对最小（徽章内文字） |
+| 类名               | 大小      | 用途                                |
+| ------------------ | --------- | ----------------------------------- |
+| `text-5xl`         | 3rem      | Hero 大符号（星座 ♈、生肖 🐀）     |
+| `text-4xl`         | 2.25rem   | 页面主标题                          |
+| `text-3xl`         | 1.875rem  | Hero 标题                           |
+| `text-2xl`         | 1.5rem    | Logo                                |
+| `text-xl`          | 1.25rem   | Section 标题（`section-header h2`） |
+| `text-base`        | 1rem      | 正文（较少用，多用 text-sm）        |
+| `text-sm`          | 0.875rem  | **正文默认值**                      |
+| `text-xs`          | 0.75rem   | 标签、辅助信息、脚注                |
+| `text-[0.72rem]`   | 0.72rem   | 紧凑标签（需在 ink-medium 级别）    |
+| `text-[0.6875rem]` | 0.6875rem | 绝对最小（徽章内文字）              |
 
 ---
 
@@ -259,13 +263,23 @@
 ```
 
 **Transition CSS**（必须有，放在组件 `<style scoped>` 中）：
+
 ```css
 .expand-enter-active,
-.expand-leave-active { transition: all 0.3s ease; overflow: hidden; }
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
 .expand-enter-from,
-.expand-leave-to { max-height: 0; opacity: 0; }
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
 .expand-enter-to,
-.expand-leave-from { max-height: 2000px; opacity: 1; }
+.expand-leave-from {
+  max-height: 2000px;
+  opacity: 1;
+}
 ```
 
 ### 4.2 卡片
@@ -332,7 +346,7 @@
 ```
 
 - 背景：`linear-gradient(175deg, var(--color-scroll-light), var(--color-scroll), var(--color-scroll-dark))`
-- 使用 scroll-* 色阶（比 paper 更暖），三色渐变模拟古卷光泽
+- 使用 scroll-\* 色阶（比 paper 更暖），三色渐变模拟古卷光泽
 - 内边距 `p-6 sm:p-8`（因卡片本身有文字篇幅需求）
 - 定义在 `pages/tools/cezi.vue` `<style scoped>` 中
 - 适用：测字结果展示。**不**作为通用卡片——其他页面用 `card-warm`
@@ -367,7 +381,10 @@
 不需要完整 `score-banner` 时的轻量强调模式：
 
 ```html
-<div class="card-warm rounded-xl p-8 border-l-[3px] border-l-cinnabar" :style="{ background: `color-mix(in srgb, var(--color-cinnabar) 5%, var(--color-paper-card))` }">
+<div
+  class="card-warm rounded-xl p-8 border-l-[3px] border-l-cinnabar"
+  :style="{ background: `color-mix(in srgb, var(--color-cinnabar) 5%, var(--color-paper-card))` }"
+>
   <!-- 内容 -->
 </div>
 ```
@@ -406,14 +423,14 @@
 
 #### 西方四元素徽章
 
-星座页面使用的四元素色彩体系，独立于五行（wuxing-*）：
+星座页面使用的四元素色彩体系，独立于五行（wuxing-\*）：
 
-| 元素 | Tailwind | 说明 |
-|------|----------|------|
-| 火 | `border-cinnabar/30 text-cinnabar bg-cinnabar/5` | 炽热本能 |
-| 土 | `border-gold/30 text-gold bg-gold/5` | 稳固包容 |
-| 风 | `border-jade/30 text-jade bg-jade/5` | 灵动流通 |
-| 水 | `border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5` | 深邃情感 |
+| 元素 | Tailwind                                                     | 说明     |
+| ---- | ------------------------------------------------------------ | -------- |
+| 火   | `border-cinnabar/30 text-cinnabar bg-cinnabar/5`             | 炽热本能 |
+| 土   | `border-gold/30 text-gold bg-gold/5`                         | 稳固包容 |
+| 风   | `border-jade/30 text-jade bg-jade/5`                         | 灵动流通 |
+| 水   | `border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5` | 深邃情感 |
 
 - 使用 Ink Resonance 现有令牌，**不**引入新色值
 - 与五行（木火土金水）使用不同的 Tailwind 类名，避免概念混淆
@@ -452,6 +469,7 @@
 #### `section-header` — 分区标题
 
 **独立使用**（全宽朱丝栏横线）：
+
 ```html
 <div class="section-header">
   <h2>分区标题</h2>
@@ -463,6 +481,7 @@
 - 适用：卡片内的独立分区标题
 
 **与 MethodologyNote 并排**（全宽横线 + 溯源面板居右）：
+
 ```html
 <div class="flex items-center justify-between mb-6">
   <div class="section-header !mb-0 flex-1 min-w-0">
@@ -479,6 +498,7 @@
 #### `divider-ink` — 墨韵分割线
 
 通过 `InkDivider` 组件使用：
+
 ```html
 <InkDivider>文字</InkDivider>
 ```
@@ -522,7 +542,13 @@
 #### `fortune-bar` — 运势进度条
 
 ```html
-<div class="fortune-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+<div
+  class="fortune-bar"
+  role="progressbar"
+  aria-valuenow="60"
+  aria-valuemin="0"
+  aria-valuemax="100"
+>
   <div class="fortune-bar__fill fortune-bar__fill--good" :style="{ width: '60%' }" />
 </div>
 ```
@@ -537,6 +563,7 @@
 ```html
 <span class="seal-mark">吉</span>
 ```
+
 20×20px，朱砂边框，书法字体，微旋转。用于列表项角标。
 
 #### `seal-icon` — 圆形印章
@@ -544,25 +571,26 @@
 ```html
 <span class="seal-icon">命</span>
 ```
+
 32px 圆，深朱砂底 + 纸色字 + 纹理叠加。有大号 `--lg`（56px）和 `--hero`（100px）变体。
 
 ### 4.7 工具页通用组件
 
-| 组件 | 路径 | 用途 |
-|------|------|------|
-| `ToolPageLayout` | `components/tools/ToolPageLayout.vue` | 三栏布局（#nav / #mobile-nav / #nav-right） |
-| `ToolToolbar` | `components/tools/ToolToolbar.vue` | 顶部工具栏（历史 + 导出） |
-| `ExportButton` | `components/tools/ExportButton.vue` | 导出图片按钮 |
-| `HistoryModal` | `components/tools/HistoryModal.vue` | 历史记录弹窗 |
-| `ScrollTopButton` | `components/tools/ScrollTopButton.vue` | 回到顶部 |
-| `EntertainmentDisclaimer` | `components/tools/EntertainmentDisclaimer.vue` | 娱乐免责声明 |
-| `FortuneBars` | `components/tools/FortuneBars.vue` | 多维度运势柱状图 |
-| `ScoreRing` | `components/tools/ScoreRing.vue` | 评分环形图 |
-| `SkeletonCard` | `components/tools/SkeletonCard.vue` | 骨架屏卡片 |
-| `SkeletonBars` | `components/tools/SkeletonBars.vue` | 骨架屏柱状图 |
-| `InkDivider` | `components/tools/InkDivider.vue` | 墨韵分割线 |
-| `PageHero` | `components/tools/PageHero.vue` | 页面标题区 |
-| `MethodologyNote` | `components/tools/MethodologyNote.vue` | 方法论溯源面板 |
+| 组件                      | 路径                                           | 用途                                        |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------- |
+| `ToolPageLayout`          | `components/tools/ToolPageLayout.vue`          | 三栏布局（#nav / #mobile-nav / #nav-right） |
+| `ToolToolbar`             | `components/tools/ToolToolbar.vue`             | 顶部工具栏（历史 + 导出）                   |
+| `ExportButton`            | `components/tools/ExportButton.vue`            | 导出图片按钮                                |
+| `HistoryModal`            | `components/tools/HistoryModal.vue`            | 历史记录弹窗                                |
+| `ScrollTopButton`         | `components/tools/ScrollTopButton.vue`         | 回到顶部                                    |
+| `EntertainmentDisclaimer` | `components/tools/EntertainmentDisclaimer.vue` | 娱乐免责声明                                |
+| `FortuneBars`             | `components/tools/FortuneBars.vue`             | 多维度运势柱状图                            |
+| `ScoreRing`               | `components/tools/ScoreRing.vue`               | 评分环形图                                  |
+| `SkeletonCard`            | `components/tools/SkeletonCard.vue`            | 骨架屏卡片                                  |
+| `SkeletonBars`            | `components/tools/SkeletonBars.vue`            | 骨架屏柱状图                                |
+| `InkDivider`              | `components/tools/InkDivider.vue`              | 墨韵分割线                                  |
+| `PageHero`                | `components/tools/PageHero.vue`                | 页面标题区                                  |
+| `MethodologyNote`         | `components/tools/MethodologyNote.vue`         | 方法论溯源面板                              |
 
 #### `MethodologyNote` — 方法论溯源面板
 
@@ -570,24 +598,17 @@
 
 ```html
 <script setup lang="ts">
-import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+  import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-const classical: ClassicalSource[] = [
-  { method: '方法名', source: '《典籍名》卷次·章节（朝代作者），补充说明' },
-  // 通常 4-5 条
-]
-const synthesis: string[] = [
-  '开发者合成的具体逻辑描述',
-  '评分公式 / 阈值约定 / 工程校准说明',
-]
+  const classical: ClassicalSource[] = [
+    { method: '方法名', source: '《典籍名》卷次·章节（朝代作者），补充说明' },
+    // 通常 4-5 条
+  ]
+  const synthesis: string[] = ['开发者合成的具体逻辑描述', '评分公式 / 阈值约定 / 工程校准说明']
 </script>
 
 <template>
-  <MethodologyNote
-    :classical="classical"
-    :synthesis="synthesis"
-    tool="工具名"
-  />
+  <MethodologyNote :classical="classical" :synthesis="synthesis" tool="工具名" />
 </template>
 ```
 
@@ -605,6 +626,7 @@ const synthesis: string[] = [
 | 无输入区的工具（八字、生肖、星座、紫微、择吉、易经） | 结果区顶部，与 section-header 并排 | bazi、shengxiao、constellation、ziwei、zeji、yijing |
 
 **数据规范**：
+
 - `method`：简短的方法名（≤15 字），让读者一眼知道这是什么
 - `source`：完整的文献溯源，包含书名、卷次、朝代、作者
 - `synthesis` 每条以 `→`、`=` 等符号开头表示具体的工程决策
@@ -713,22 +735,22 @@ const synthesis: string[] = [
 
 ### 5.2 间距规则
 
-| 场景 | 间距 |
-|------|------|
-| 卡片内边距 | `p-8`（32px），必须固定，不随断点变化 |
-| 卡片之间 | `mb-6` |
-| 分区之间 | `mt-8 mb-6` |
-| Grid 间距 | `gap-3 sm:gap-4`（小卡片 grid）、`gap-6`（大区块 grid） |
-| 页面上下 | `py-6 sm:py-8`（工具页） |
+| 场景       | 间距                                                    |
+| ---------- | ------------------------------------------------------- |
+| 卡片内边距 | `p-8`（32px），必须固定，不随断点变化                   |
+| 卡片之间   | `mb-6`                                                  |
+| 分区之间   | `mt-8 mb-6`                                             |
+| Grid 间距  | `gap-3 sm:gap-4`（小卡片 grid）、`gap-6`（大区块 grid） |
+| 页面上下   | `py-6 sm:py-8`（工具页）                                |
 
 ### 5.3 z-index 层级
 
-| 层级 | Token | 用途 |
-|------|-------|------|
-| 10 | `--z-content` | 页面内容 |
-| 40 | `--z-overlay` | 纸纹纹理（`body::after`） |
-| 50 | `--z-dropdown` | 下拉菜单 |
-| 60 | `--z-modal` | 模态框、通知条 |
+| 层级 | Token          | 用途                      |
+| ---- | -------------- | ------------------------- |
+| 10   | `--z-content`  | 页面内容                  |
+| 40   | `--z-overlay`  | 纸纹纹理（`body::after`） |
+| 50   | `--z-dropdown` | 下拉菜单                  |
+| 60   | `--z-modal`    | 模态框、通知条            |
 
 ---
 
@@ -736,11 +758,11 @@ const synthesis: string[] = [
 
 ### 6.1 时间令牌
 
-| Token | 值 | 用途 |
-|-------|-----|------|
-| `--transition-fast` | `0.15s ease` | hover 颜色/边框变化 |
+| Token                 | 值              | 用途                |
+| --------------------- | --------------- | ------------------- |
+| `--transition-fast`   | `0.15s ease`    | hover 颜色/边框变化 |
 | `--transition-normal` | `0.3s ease-out` | 展开/收起、淡入淡出 |
-| `--transition-slow` | `0.5s ease-out` | 页面入场动画 |
+| `--transition-slow`   | `0.5s ease-out` | 页面入场动画        |
 
 ### 6.2 入场动画
 
@@ -778,9 +800,13 @@ const synthesis: string[] = [
 
 ```css
 .content-fade-enter-active,
-.content-fade-leave-active { transition: opacity 0.25s ease; }
+.content-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
 .content-fade-enter-from,
-.content-fade-leave-to { opacity: 0; }
+.content-fade-leave-to {
+  opacity: 0;
+}
 ```
 
 - `mode="out-in"`：旧内容先离场，新内容后入场——避免布局跳动
@@ -807,20 +833,38 @@ const synthesis: string[] = [
 ```css
 /* Card: fade + rise */
 @keyframes card-enter {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Border rule: horizontal unroll */
 @keyframes rule-extend {
-  from { transform: scaleX(0); opacity: 0; }
-  to   { transform: scaleX(1); opacity: 1; }
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 /* Seal: stamp impression (spring) */
 @keyframes seal-stamp {
-  from { opacity: 0; transform: scale(0.6); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 ```
 
@@ -835,9 +879,9 @@ const synthesis: string[] = [
 ```css
 .login-card {
   box-shadow:
-    0 2px 8px rgba(44, 26, 14, 0.06),    /* 贴近桌面的紧密阴影 */
-    0 8px 32px rgba(44, 26, 14, 0.08),    /* 卷轴下方扩散阴影 */
-    0 1px 0 rgba(44, 26, 14, 0.04) inset;  /* 顶部微弱的纸边反光 */
+    0 2px 8px rgba(44, 26, 14, 0.06),
+    /* 贴近桌面的紧密阴影 */ 0 8px 32px rgba(44, 26, 14, 0.08),
+    /* 卷轴下方扩散阴影 */ 0 1px 0 rgba(44, 26, 14, 0.04) inset; /* 顶部微弱的纸边反光 */
 }
 ```
 
@@ -858,7 +902,9 @@ const synthesis: string[] = [
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
@@ -866,6 +912,7 @@ const synthesis: string[] = [
 ```
 
 开发时应在 JS 中检测：
+
 ```ts
 const prefersReducedMotion = import.meta.client
   ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -878,12 +925,12 @@ const prefersReducedMotion = import.meta.client
 
 ### 7.1 全局规则
 
-| 状态 | 规则 |
-|------|------|
-| hover | `transition-colors`（0.15s）或 `transition-all`（0.3s），颜色变朱砂或上浮 2–4px |
-| focus-visible | 2px 朱砂 outline，offset 2px，圆角 4px |
-| active | 缩至 96%–98% |
-| disabled | 50% 透明度，`cursor: not-allowed`，禁用所有 transform |
+| 状态          | 规则                                                                            |
+| ------------- | ------------------------------------------------------------------------------- |
+| hover         | `transition-colors`（0.15s）或 `transition-all`（0.3s），颜色变朱砂或上浮 2–4px |
+| focus-visible | 2px 朱砂 outline，offset 2px，圆角 4px                                          |
+| active        | 缩至 96%–98%                                                                    |
+| disabled      | 50% 透明度，`cursor: not-allowed`，禁用所有 transform                           |
 
 ### 7.2 键盘交互
 
@@ -905,15 +952,15 @@ const prefersReducedMotion = import.meta.client
 
 ### 8.2 ARIA 速查
 
-| 场景 | 属性 |
-|------|------|
-| 自定义下拉菜单 | `aria-haspopup="menu"`（**不要**用 `"true"`） |
-| 自定义对话框 | `aria-haspopup="dialog"` |
-| 可折叠区域 | `aria-expanded` + `aria-controls` |
-| 进度条 | `role="progressbar"` + `aria-valuenow/min/max` + `aria-labelledby` |
-| 装饰元素 | `aria-hidden="true"` |
-| 动态内容区 | `aria-live="polite"` + `aria-atomic="true"` |
-| 列表 | `role="list"` + `role="listitem"`（紧凑 grid 展示时） |
+| 场景           | 属性                                                               |
+| -------------- | ------------------------------------------------------------------ |
+| 自定义下拉菜单 | `aria-haspopup="menu"`（**不要**用 `"true"`）                      |
+| 自定义对话框   | `aria-haspopup="dialog"`                                           |
+| 可折叠区域     | `aria-expanded` + `aria-controls`                                  |
+| 进度条         | `role="progressbar"` + `aria-valuenow/min/max` + `aria-labelledby` |
+| 装饰元素       | `aria-hidden="true"`                                               |
+| 动态内容区     | `aria-live="polite"` + `aria-atomic="true"`                        |
+| 列表           | `role="list"` + `role="listitem"`（紧凑 grid 展示时）              |
 
 ### 8.3 Reduced Motion
 
@@ -923,18 +970,26 @@ const prefersReducedMotion = import.meta.client
 
 **吉凶/状态等颜色编码的信息必须同时使用形状或文字区分**，禁止纯依赖颜色（红绿色盲影响约 8% 男性用户）。
 
-| 信号 | 颜色 | 形状 | 示例 |
-|------|------|------|------|
-| 吉 | `WUXING_COLORS['木']` `#3D6B4B` | ● 实心圆 `rounded-full` | 日历日格右上角圆点 |
-| 凶 | `WUXING_COLORS['火']` `#C62828` | ◆ 旋转菱形 `rounded-[1px] rotate-45` | 日历日格右上角菱形 |
-| 平 | `WUXING_COLORS['土']` `#7A5E12` | ○ 空心圆 `rounded-full border` | 日历图例 |
+| 信号 | 颜色                            | 形状                                 | 示例               |
+| ---- | ------------------------------- | ------------------------------------ | ------------------ |
+| 吉   | `WUXING_COLORS['木']` `#3D6B4B` | ● 实心圆 `rounded-full`              | 日历日格右上角圆点 |
+| 凶   | `WUXING_COLORS['火']` `#C62828` | ◆ 旋转菱形 `rounded-[1px] rotate-45` | 日历日格右上角菱形 |
+| 平   | `WUXING_COLORS['土']` `#7A5E12` | ○ 空心圆 `rounded-full border`       | 日历图例           |
 
 **实现：**
+
 ```css
 /* 吉 — 圆 */
-.indicator--ji { border-radius: 50%; background: var(--color-wuxing-wood); }
+.indicator--ji {
+  border-radius: 50%;
+  background: var(--color-wuxing-wood);
+}
 /* 凶 — 菱形（视觉上独立于圆形） */
-.indicator--xiong { border-radius: 1px; background: var(--color-wuxing-fire); transform: rotate(45deg); }
+.indicator--xiong {
+  border-radius: 1px;
+  background: var(--color-wuxing-fire);
+  transform: rotate(45deg);
+}
 ```
 
 **图例** 必须标注形状含义（如「吉 · 圆点」「凶 · 菱形」），不能仅标注颜色。
@@ -965,22 +1020,29 @@ const prefersReducedMotion = import.meta.client
 
 ```html
 <script setup lang="ts">
-const { currentProfile, restoreSession } = useAuth()
-const router = useRouter()
-const result = ref<ResultType | null>(null)
-const loading = ref(true)
-const missingBirthInfo = ref(false)
-const error = ref('')
-const showHistoryModal = ref(false)
-const resultRef = ref<HTMLElement | null>(null)
-const { exportToImage, isExporting } = useExportImage()
+  const { currentProfile, restoreSession } = useAuth()
+  const router = useRouter()
+  const result = ref<ResultType | null>(null)
+  const loading = ref(true)
+  const missingBirthInfo = ref(false)
+  const error = ref('')
+  const showHistoryModal = ref(false)
+  const resultRef = ref<HTMLElement | null>(null)
+  const { exportToImage, isExporting } = useExportImage()
 
-onMounted(() => {
-  restoreSession()
-  if (!currentProfile.value) { router.push('/login'); return }
-  if (!currentProfile.value.birth_date) { missingBirthInfo.value = true; loading.value = false; return }
-  computeResult()
-})
+  onMounted(() => {
+    restoreSession()
+    if (!currentProfile.value) {
+      router.push('/login')
+      return
+    }
+    if (!currentProfile.value.birth_date) {
+      missingBirthInfo.value = true
+      loading.value = false
+      return
+    }
+    computeResult()
+  })
 </script>
 
 <template>
@@ -1012,7 +1074,12 @@ onMounted(() => {
       <div class="max-w-[48rem] mx-auto">
         <ToolToolbar :show-history="true" @history="showHistoryModal = true">
           <template #extra>
-            <ExportButton :target-ref="resultRef" filename="工具名.png" :is-exporting="isExporting" @export="handleExport" />
+            <ExportButton
+              :target-ref="resultRef"
+              filename="工具名.png"
+              :is-exporting="isExporting"
+              @export="handleExport"
+            />
           </template>
         </ToolToolbar>
 
@@ -1027,7 +1094,12 @@ onMounted(() => {
         </div>
       </div>
 
-      <HistoryModal :show="showHistoryModal" type="tooltype" @close="showHistoryModal = false" @restore="onHistoryRestore" />
+      <HistoryModal
+        :show="showHistoryModal"
+        type="tooltype"
+        @close="showHistoryModal = false"
+        @restore="onHistoryRestore"
+      />
       <EntertainmentDisclaimer />
       <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" />
     </template>
@@ -1041,18 +1113,18 @@ onMounted(() => {
 
 ### 11.1 更新触发条件
 
-| 场景 | 是否更新 | 更新范围 |
-|------|---------|---------|
-| 新增了可被其他页面复用的 UI 模式 | **必须** | 新增组件条目 / CSS 类条目 |
-| 修改了 `main.css` 中的全局 CSS 类行为 | **必须** | 对应组件的属性表 |
-| 修改了 `tailwind.config.ts` 中的色板/字体/阴影 | **必须** | 色彩/字体/阴影章节 |
-| 新增了全局 CSS 变量（`--color-*` 等） | **必须** | 对应章节的 Token 表 |
-| 修改了既有组件的标准交互模式 | **必须** | 对应组件的说明和代码示例 |
-| 废弃了一个不再使用的全局 CSS 类 | **必须** | 标记为 `~~删除线~~` 或移到废弃章节 |
-| 单页内调整字号/间距/颜色（用已有类名） | **不需要** | — |
-| 修复单页可读性 bug（用已有规范） | **不需要** | — |
-| 文案修改、措辞调整 | **不需要** | — |
-| 新增页面（完全复用已有组件） | **不需要** | — |
+| 场景                                           | 是否更新   | 更新范围                           |
+| ---------------------------------------------- | ---------- | ---------------------------------- |
+| 新增了可被其他页面复用的 UI 模式               | **必须**   | 新增组件条目 / CSS 类条目          |
+| 修改了 `main.css` 中的全局 CSS 类行为          | **必须**   | 对应组件的属性表                   |
+| 修改了 `tailwind.config.ts` 中的色板/字体/阴影 | **必须**   | 色彩/字体/阴影章节                 |
+| 新增了全局 CSS 变量（`--color-*` 等）          | **必须**   | 对应章节的 Token 表                |
+| 修改了既有组件的标准交互模式                   | **必须**   | 对应组件的说明和代码示例           |
+| 废弃了一个不再使用的全局 CSS 类                | **必须**   | 标记为 `~~删除线~~` 或移到废弃章节 |
+| 单页内调整字号/间距/颜色（用已有类名）         | **不需要** | —                                  |
+| 修复单页可读性 bug（用已有规范）               | **不需要** | —                                  |
+| 文案修改、措辞调整                             | **不需要** | —                                  |
+| 新增页面（完全复用已有组件）                   | **不需要** | —                                  |
 
 ### 11.2 决策树
 

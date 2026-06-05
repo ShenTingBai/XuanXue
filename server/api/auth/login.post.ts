@@ -1,10 +1,16 @@
 import { dbGet, dbRun } from '../../database/db'
-import { createSessionToken, hashPin, verifyPin, isLegacyPin, cleanupExpiredSessions } from '../../utils/auth'
+import {
+  createSessionToken,
+  hashPin,
+  verifyPin,
+  isLegacyPin,
+  cleanupExpiredSessions,
+} from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   // Body size limit: prevent oversized payloads
   const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
   if (contentLength > 1024) {
@@ -45,7 +51,7 @@ export default defineEventHandler(async (event) => {
   // Account lockout: count failed logins in the last 15 minutes
   const recentFailures = dbGet(
     "SELECT COUNT(*) as count FROM security_log WHERE profile_id = ? AND event_type = 'login_failed' AND created_at > datetime('now', '-15 minutes')",
-    [profile.id]
+    [profile.id],
   )
 
   if (recentFailures && (recentFailures.count as number) >= 10) {

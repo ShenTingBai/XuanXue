@@ -7,18 +7,27 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 const store: Record<string, string> = {}
 vi.stubGlobal('localStorage', {
   getItem: (key: string) => store[key] ?? null,
-  setItem: (key: string, value: string) => { store[key] = value },
-  removeItem: (key: string) => { delete store[key] },
-  clear: () => { Object.keys(store).forEach(k => delete store[k]) },
+  setItem: (key: string, value: string) => {
+    store[key] = value
+  },
+  removeItem: (key: string) => {
+    delete store[key]
+  },
+  clear: () => {
+    Object.keys(store).forEach(k => delete store[k])
+  },
 })
 
 const stateMap = new Map<string, { value: any }>()
-vi.stubGlobal('useState', vi.fn(<T>(key: string, init?: () => T): { value: T } => {
-  if (!stateMap.has(key)) {
-    stateMap.set(key, { value: init ? init() : undefined })
-  }
-  return stateMap.get(key)!
-}))
+vi.stubGlobal(
+  'useState',
+  vi.fn(<T>(key: string, init?: () => T): { value: T } => {
+    if (!stateMap.has(key)) {
+      stateMap.set(key, { value: init ? init() : undefined })
+    }
+    return stateMap.get(key)!
+  }),
+)
 
 // ============================================================================
 // Tests

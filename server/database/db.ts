@@ -124,13 +124,16 @@ export async function initDb(): Promise<void> {
     )`)
 
     const appliedMigrations = new Set(
-      dbAll('SELECT version FROM _migrations').map(r => r.version as number)
+      dbAll('SELECT version FROM _migrations').map(r => r.version as number),
     )
 
     // Migration v1: Hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
     if (!appliedMigrations.has(1)) {
       try {
-        const rows = dbAll('SELECT id, token_hash FROM sessions') as { id: number; token_hash: string }[]
+        const rows = dbAll('SELECT id, token_hash FROM sessions') as {
+          id: number
+          token_hash: string
+        }[]
         for (const row of rows) {
           const token = row.token_hash
           if (token && token.length === 48) {
@@ -154,18 +157,24 @@ export async function initDb(): Promise<void> {
     // Migration v2: remove pin CHECK(length(pin)=4) constraint for hashed PIN support
     if (!appliedMigrations.has(2)) {
       try {
-        const tableInfo = dbGet("SELECT sql FROM sqlite_master WHERE type='table' AND name='profiles'")
+        const tableInfo = dbGet(
+          "SELECT sql FROM sqlite_master WHERE type='table' AND name='profiles'",
+        )
         if (tableInfo && (tableInfo.sql as string).includes('CHECK(length(pin) = 4)')) {
-          db.run("BEGIN")
+          db.run('BEGIN')
           db.run('ALTER TABLE profiles RENAME TO profiles_old')
           db.run(CREATE_PROFILES_TABLE)
-          db.run(`INSERT INTO profiles (id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at) SELECT id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at FROM profiles_old`)
+          db.run(
+            `INSERT INTO profiles (id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at) SELECT id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at FROM profiles_old`,
+          )
           db.run('DROP TABLE profiles_old')
-          db.run("COMMIT")
+          db.run('COMMIT')
         }
         dbRun('INSERT INTO _migrations (version) VALUES (2)')
       } catch (e) {
-        try { db.run("ROLLBACK") } catch {}
+        try {
+          db.run('ROLLBACK')
+        } catch {}
         console.error('Migration v2 failed (profiles CHECK constraint):', e)
       }
     }
@@ -193,11 +202,19 @@ export async function initDb(): Promise<void> {
       }
     }
 
-    process.on('SIGINT', () => { flushSave(); process.exit(0) })
-    process.on('SIGTERM', () => { flushSave(); process.exit(0) })
+    process.on('SIGINT', () => {
+      flushSave()
+      process.exit(0)
+    })
+    process.on('SIGTERM', () => {
+      flushSave()
+      process.exit(0)
+    })
 
     // Graceful shutdown: flush pending save before process exits
-    process.on('beforeExit', () => { flushSave() })
+    process.on('beforeExit', () => {
+      flushSave()
+    })
 
     saveFile()
   })()
@@ -231,7 +248,10 @@ export function dbAll(sql: string, params: any[] = []): Record<string, any>[] {
   return results
 }
 
-export function dbRun(sql: string, params: any[] = []): { lastInsertRowid: number; changes: number } {
+export function dbRun(
+  sql: string,
+  params: any[] = [],
+): { lastInsertRowid: number; changes: number } {
   const database = getDb()
   database.run(sql, params)
   scheduleSave()

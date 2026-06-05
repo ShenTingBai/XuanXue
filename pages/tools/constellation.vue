@@ -1,6 +1,10 @@
 <script setup lang="ts">
-
-import { calculateConstellation, getZodiacIndex, ZODIACS, type ConstellationResult } from '~/composables/useConstellation'
+import {
+  calculateConstellation,
+  getZodiacIndex,
+  ZODIACS,
+  type ConstellationResult,
+} from '~/composables/useConstellation'
 import { parseDate } from '~/utils/date'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -32,8 +36,14 @@ import MethodologyNote, { type ClassicalSource } from '~/components/tools/Method
 const constellationClassical: ClassicalSource[] = [
   { method: '黄道十二宫', source: 'Ptolemy《Tetrabiblos》（公元2世纪），现代西方占星学基础体系' },
   { method: '四元素分类', source: '古希腊元素体系（Empedocles），火土风水四元素与星座性格关联' },
-  { method: '守护星体系', source: '传统占星学行星守护体系，日/月/金/水/火/木/土/天/海/冥十星配十二宫' },
-  { method: '三光（日月上升）', source: 'Astrolog 标准布局，Asc 左侧 9 点钟方向，日月上升三光解读' },
+  {
+    method: '守护星体系',
+    source: '传统占星学行星守护体系，日/月/金/水/火/木/土/天/海/冥十星配十二宫',
+  },
+  {
+    method: '三光（日月上升）',
+    source: 'Astrolog 标准布局，Asc 左侧 9 点钟方向，日月上升三光解读',
+  },
   { method: '星盘计算', source: 'astronomy-engine v2.1.19 计算行星真实位置（VSOP87 理论）' },
 ]
 const constellationSynthesis: string[] = [
@@ -54,7 +64,7 @@ const userZodiacIndex = ref(0)
 const savedDivinationId = ref<number | null>(null)
 const showHistoryModal = ref(false)
 const saveError = ref('')
-	const natalChartData = ref<NatalChartData | null>(null)
+const natalChartData = ref<NatalChartData | null>(null)
 const chartTextCopied = ref(false)
 const chartTextTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const restoreError = ref('')
@@ -70,7 +80,9 @@ async function copyChartText() {
   await navigator.clipboard.writeText(text)
   chartTextCopied.value = true
   if (chartTextTimer.value) clearTimeout(chartTextTimer.value)
-  chartTextTimer.value = setTimeout(() => { chartTextCopied.value = false }, 2000)
+  chartTextTimer.value = setTimeout(() => {
+    chartTextCopied.value = false
+  }, 2000)
 }
 
 function handleExport() {
@@ -84,7 +96,9 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const prefersReducedMotion = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!prefersReducedMotion) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
@@ -121,7 +135,11 @@ function computeResult() {
   error.value = ''
 
   const parsed = parseDate(currentProfile.value.birth_date)
-  if (!parsed) { error.value = '出生日期格式无效，请修改个人信息'; loading.value = false; return }
+  if (!parsed) {
+    error.value = '出生日期格式无效，请修改个人信息'
+    loading.value = false
+    return
+  }
   const { year, month, day } = parsed
 
   savedDivinationId.value = null
@@ -145,8 +163,12 @@ function computeResult() {
 
   try {
     result.value = calculateConstellation(
-      month, day, new Date(), year,
-      month, day,
+      month,
+      day,
+      new Date(),
+      year,
+      month,
+      day,
       currentProfile.value?.birth_hour,
       currentProfile.value?.birth_minute,
     )
@@ -181,8 +203,12 @@ function selectZodiac(index: number) {
 
   try {
     result.value = calculateConstellation(
-      month, day, new Date(), birthYear,
-      birthMonth, birthDay,
+      month,
+      day,
+      new Date(),
+      birthYear,
+      birthMonth,
+      birthDay,
       currentProfile.value?.birth_hour,
       currentProfile.value?.birth_minute,
     )
@@ -194,7 +220,6 @@ function selectZodiac(index: number) {
 }
 
 const zodiacShortNames = ZODIACS.map(z => z.name.slice(0, 2))
-
 
 // ── Auto-save & History ────────────────────────────────────────
 
@@ -226,7 +251,6 @@ async function saveDivinationResult(result: ConstellationResult, month: number, 
   }
 }
 
-
 function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   restoreFromHistory(id)
@@ -247,7 +271,9 @@ async function restoreFromHistory(id: number) {
       } else {
         restoreError.value = '历史记录数据无效'
         if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-        restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+        restoreErrorTimer.value = setTimeout(() => {
+          restoreError.value = ''
+        }, 6000)
         return
       }
     }
@@ -256,7 +282,9 @@ async function restoreFromHistory(id: number) {
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+    restoreErrorTimer.value = setTimeout(() => {
+      restoreError.value = ''
+    }, 6000)
   }
 }
 
@@ -271,193 +299,187 @@ function scrollToConstellationNav() {
 </script>
 
 <template>
-      <ToolPageLayout>
-        <template #nav>
-          <ConstellationNav
-            :currentIndex="selectedZodiac"
-            @select="selectZodiac"
-          />
-        </template>
-        <template #mobile-nav>
-          <div data-constellation-nav class="flex gap-2 overflow-x-auto pb-2 scroll-hint-x">
-            <button
-              v-for="(name, idx) in zodiacShortNames"
-              :key="idx"
-              @click="selectZodiac(idx)"
-              @keydown.space.prevent="selectZodiac(idx)"
-              :aria-current="idx === selectedZodiac ? 'true' : undefined"
-              :class="[
-                'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
-                idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50',
-              ]"
-            >
-              {{ name }}
-            </button>
-          </div>
-        </template>
+  <ToolPageLayout>
+    <template #nav>
+      <ConstellationNav :current-index="selectedZodiac" @select="selectZodiac" />
+    </template>
+    <template #mobile-nav>
+      <div data-constellation-nav class="flex gap-2 overflow-x-auto pb-2 scroll-hint-x">
+        <button
+          v-for="(name, idx) in zodiacShortNames"
+          :key="idx"
+          :aria-current="idx === selectedZodiac ? 'true' : undefined"
+          :class="[
+            'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
+            idx === selectedZodiac
+              ? 'bg-cinnabar/10 text-cinnabar'
+              : 'text-ink-medium hover:bg-paper-medium/50',
+          ]"
+          @click="selectZodiac(idx)"
+          @keydown.space.prevent="selectZodiac(idx)"
+        >
+          {{ name }}
+        </button>
+      </div>
+    </template>
 
-        <h1 class="sr-only">星座分析</h1>
+    <h1 class="sr-only">星座分析</h1>
 
-        <!-- Screen reader status -->
-        <div role="status" class="sr-only" aria-live="polite">
-          {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
-        </div>
+    <!-- Screen reader status -->
+    <div role="status" class="sr-only" aria-live="polite">
+      {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
+    </div>
 
-        <!-- Missing birth info -->
-        <div v-if="missingBirthInfo" class="text-center py-16">
-          <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-          <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算星座运势</p>
-          <NuxtLink
-            :to="`/profile/${currentProfile?.id}`"
-            class="btn-cin inline-flex"
-          >
-            <span>前往编辑档案</span>
-          </NuxtLink>
-        </div>
+    <!-- Missing birth info -->
+    <div v-if="missingBirthInfo" class="text-center py-16">
+      <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
+      <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算星座运势</p>
+      <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
+        <span>前往编辑档案</span>
+      </NuxtLink>
+    </div>
 
-        <!-- Loading skeleton -->
-        <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
-          <span class="sr-only">正在加载...</span>
-          <SkeletonCard />
-          <SkeletonBars />
-        </div>
+    <!-- Loading skeleton -->
+    <div v-else-if="loading" class="space-y-6" aria-busy="true" aria-live="polite">
+      <span class="sr-only">正在加载...</span>
+      <SkeletonCard />
+      <SkeletonBars />
+    </div>
 
-        <!-- Error -->
-        <div v-else-if="error" class="text-center py-16">
-          <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
-          <div class="flex justify-center mt-6">
-            <NuxtLink
-              :to="`/profile/${currentProfile?.id}`"
-              class="btn-cin inline-flex"
-            >
-              <span>前往编辑档案</span>
-            </NuxtLink>
-          </div>
-        </div>
+    <!-- Error -->
+    <div v-else-if="error" class="text-center py-16">
+      <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+      <div class="flex justify-center mt-6">
+        <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
+          <span>前往编辑档案</span>
+        </NuxtLink>
+      </div>
+    </div>
 
-        <!-- Result -->
-        <template v-else-if="result">
-          <Transition name="content-fade" mode="out-in">
-          <div :key="selectedZodiac" class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
-            <!-- Top toolbar -->
-            <ToolToolbar
-              :show-history="true"
-              @history="showHistoryModal = true"
-            >
-              <template #extra>
-                <ExportButton
-                  v-if="result"
-                  :target-ref="resultRef"
-                  filename="星座星盘.png"
-                  :is-exporting="isExporting"
-                  @export="handleExport"
-                />
-              </template>
-            </ToolToolbar>
+    <!-- Result -->
+    <template v-else-if="result">
+      <Transition name="content-fade" mode="out-in">
+        <div
+          :key="selectedZodiac"
+          class="max-w-[48rem] mx-auto"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <!-- Top toolbar -->
+          <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+            <template #extra>
+              <ExportButton
+                v-if="result"
+                :target-ref="resultRef"
+                filename="星座星盘.png"
+                :is-exporting="isExporting"
+                @export="handleExport"
+              />
+            </template>
+          </ToolToolbar>
 
-            <!-- Restore error toast -->
-            <Transition name="toast">
-              <div
-                v-if="restoreError"
-                class="toast-notification"
-                role="alert"
-              >
-                <span class="toast-notification__mark" aria-hidden="true">!</span>
-                <span class="toast-notification__text">{{ restoreError }}</span>
-                <button
-                  @click="dismissRestoreError"
-                  @keydown.enter="dismissRestoreError"
-                  @keydown.space.prevent="dismissRestoreError"
-                  class="toast-notification__close"
-                  aria-label="关闭提示"
-                >&times;</button>
-              </div>
-            </Transition>
-          <div ref="resultRef">
-          <!-- ── 方法论溯源 ── -->
-          <div class="flex items-center justify-between mb-6">
-            <div class="section-header !mb-0 flex-1 min-w-0">
-              <h2>星座分析</h2>
-            </div>
-            <MethodologyNote
-              :classical="constellationClassical"
-              :synthesis="constellationSynthesis"
-              tool="星座"
-            />
-          </div>
-          <ConstellationHero :result="result" />
-
-          <ConstellationAttributes :result="result" />
-
-          <ThreeLuminaries
-            :result="result"
-            :selected-zodiac="selectedZodiac"
-            :user-zodiac-index="userZodiacIndex"
-          />
-
-
-          <!-- ═══ 本命星盘 ═══ -->
-          <div v-if="natalChartData" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
-            <div class="section-header">
-              <h2>本命星盘</h2>
-            </div>
-            <div class="card-warm rounded-xl p-4 sm:p-6 flex justify-center">
-              <NatalChart :data="natalChartData" />
-            </div>
-            <p class="text-center mt-3">
-              <span class="text-xs text-ink-medium font-sans tracking-wider">
-                ── 基于出生日期计算，Astrolog 标准布局（Asc 左侧 9 点钟方向）──
-              </span>
-            </p>
-            <div class="flex justify-center mt-2">
+          <!-- Restore error toast -->
+          <Transition name="toast">
+            <div v-if="restoreError" class="toast-notification" role="alert">
+              <span class="toast-notification__mark" aria-hidden="true">!</span>
+              <span class="toast-notification__text">{{ restoreError }}</span>
               <button
-                @click="copyChartText"
-                @keydown.enter="copyChartText"
-                class="text-sm text-ink-medium border border-ink-faint/20 rounded px-3 py-1.5 hover:border-cinnabar/30 hover:text-cinnabar transition-colors"
-                :aria-label="chartTextCopied ? '已复制' : '复制星盘文本，可粘贴给 AI 解读'"
+                class="toast-notification__close"
+                aria-label="关闭提示"
+                @click="dismissRestoreError"
+                @keydown.enter="dismissRestoreError"
+                @keydown.space.prevent="dismissRestoreError"
               >
-                <span v-if="chartTextCopied">✓ 已复制</span>
-                <span v-else>📋 复制星盘文本</span>
+                &times;
               </button>
             </div>
+          </Transition>
+          <div ref="resultRef">
+            <!-- ── 方法论溯源 ── -->
+            <div class="flex items-center justify-between mb-6">
+              <div class="section-header !mb-0 flex-1 min-w-0">
+                <h2>星座分析</h2>
+              </div>
+              <MethodologyNote
+                :classical="constellationClassical"
+                :synthesis="constellationSynthesis"
+                tool="星座"
+              />
+            </div>
+            <ConstellationHero :result="result" />
 
-            <NatalChartGuide
-              v-if="result"
-              :data="natalChartData"
+            <ConstellationAttributes :result="result" />
+
+            <ThreeLuminaries
               :result="result"
+              :selected-zodiac="selectedZodiac"
+              :user-zodiac-index="userZodiacIndex"
             />
-          </div>
 
-          <!-- 缺少出生年份时的提示 -->
-          <div v-else-if="!natalChartData && !loading && !error" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
-            <div class="section-header">
-              <h2>本命星盘</h2>
+            <!-- ═══ 本命星盘 ═══ -->
+            <div v-if="natalChartData" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
+              <div class="section-header">
+                <h2>本命星盘</h2>
+              </div>
+              <div class="card-warm rounded-xl p-4 sm:p-6 flex justify-center">
+                <NatalChart :data="natalChartData" />
+              </div>
+              <p class="text-center mt-3">
+                <span class="text-xs text-ink-medium font-sans tracking-wider">
+                  ── 基于出生日期计算，Astrolog 标准布局（Asc 左侧 9 点钟方向）──
+                </span>
+              </p>
+              <div class="flex justify-center mt-2">
+                <button
+                  class="text-sm text-ink-medium border border-ink-faint/20 rounded px-3 py-1.5 hover:border-cinnabar/30 hover:text-cinnabar transition-colors"
+                  :aria-label="chartTextCopied ? '已复制' : '复制星盘文本，可粘贴给 AI 解读'"
+                  @click="copyChartText"
+                  @keydown.enter="copyChartText"
+                >
+                  <span v-if="chartTextCopied">✓ 已复制</span>
+                  <span v-else>📋 复制星盘文本</span>
+                </button>
+              </div>
+
+              <NatalChartGuide v-if="result" :data="natalChartData" :result="result" />
             </div>
-            <div class="card-warm rounded-xl p-8 text-center opacity-65">
-              <p class="font-sans text-sm text-ink-medium mb-3">需要出生年份以计算行星位置</p>
-              <NuxtLink
-                :to="`/profile/${currentProfile?.id}`"
-                class="text-xs text-cinnabar font-sans underline underline-offset-2"
-              >编辑档案 → 填写完整出生日期</NuxtLink>
+
+            <!-- 缺少出生年份时的提示 -->
+            <div
+              v-else-if="!natalChartData && !loading && !error"
+              class="fade-in mt-8 mb-6"
+              :style="{ '--delay': '0.3s' }"
+            >
+              <div class="section-header">
+                <h2>本命星盘</h2>
+              </div>
+              <div class="card-warm rounded-xl p-8 text-center opacity-65">
+                <p class="font-sans text-sm text-ink-medium mb-3">需要出生年份以计算行星位置</p>
+                <NuxtLink
+                  :to="`/profile/${currentProfile?.id}`"
+                  class="text-xs text-cinnabar font-sans underline underline-offset-2"
+                >
+                  编辑档案 → 填写完整出生日期
+                </NuxtLink>
+              </div>
             </div>
-          </div>
-          <div class="divider-ink mt-8 mb-6" role="separator" />
+            <div class="divider-ink mt-8 mb-6" role="separator" />
 
-          <HoroscopePanel :horoscope="result.todayHoroscope" />
+            <HoroscopePanel :horoscope="result.todayHoroscope" />
 
-          <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
+            <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
 
-          <ConstellationCompatibility :items="result.compatibility" />
+            <ConstellationCompatibility :items="result.compatibility" />
           </div>
 
           <!-- Restored from history -->
           <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
             <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
             <button
+              class="btn-cin"
               @click="computeResult"
               @keydown.enter="computeResult"
               @keydown.space.prevent="computeResult"
-              class="btn-cin"
             >
               <span>刷新运势</span>
             </button>
@@ -466,18 +488,18 @@ function scrollToConstellationNav() {
           <!-- Action buttons -->
           <div class="flex flex-wrap gap-3 justify-center my-8">
             <button
+              class="btn-cin"
               @click="scrollToConstellationNav"
               @keydown.space.prevent="scrollToConstellationNav"
-              class="btn-cin"
             >
               <span>切换星座</span>
             </button>
             <button
+              class="btn-cin"
+              aria-haspopup="dialog"
               @click="showHistoryModal = true"
               @keydown.enter="showHistoryModal = true"
               @keydown.space.prevent="showHistoryModal = true"
-              class="btn-cin"
-              aria-haspopup="dialog"
             >
               <span>浏览历史</span>
             </button>
@@ -491,16 +513,12 @@ function scrollToConstellationNav() {
           />
 
           <EntertainmentDisclaimer />
-          </div>
-          </Transition>
+        </div>
+      </Transition>
 
-          <ScrollTopButton
-            v-if="showScrollTop"
-            @click="scrollToTop"
-            @keydown.enter="scrollToTop"
-          />
-        </template>
-      </ToolPageLayout>
+      <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
+    </template>
+  </ToolPageLayout>
 </template>
 
 <style scoped>

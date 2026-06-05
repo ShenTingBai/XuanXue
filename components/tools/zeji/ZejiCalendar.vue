@@ -5,14 +5,14 @@ import { TWELVE_STAR_LEVEL } from '~/constants/zeji'
 
 const props = defineProps<{
   year: number
-  month: number           // solar month (1-12)
+  month: number // solar month (1-12)
   days: ZejiDayResult[]
-  selectedDate: string | null  // 'YYYY-MM-DD'
+  selectedDate: string | null // 'YYYY-MM-DD'
   eventType: string
 }>()
 
 const emit = defineEmits<{
-  selectDate: [date: string]  // emits 'YYYY-MM-DD'
+  selectDate: [date: string] // emits 'YYYY-MM-DD'
 }>()
 
 // Weekday headers (Monday to Sunday)
@@ -188,7 +188,11 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
         :aria-label="`${year}年${month}月择日日历`"
       >
         <caption class="sr-only">
-          {{ year }}年{{ month }}月 择吉日历，使用方向键在日期间导航
+          {{
+            year
+          }}年{{
+            month
+          }}月 择吉日历，使用方向键在日期间导航
         </caption>
         <thead>
           <tr>
@@ -230,7 +234,10 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
                 @keydown="handleKeydown($event, cell.dateStr)"
               >
                 <!-- Solar day number -->
-                <span class="text-sm font-medium leading-none" :style="{ color: getDayScoreColor(cell.dateStr) || 'var(--color-ink)' }">
+                <span
+                  class="text-sm font-medium leading-none"
+                  :style="{ color: getDayScoreColor(cell.dateStr) || 'var(--color-ink)' }"
+                >
                   {{ cell.day }}
                 </span>
 
@@ -273,19 +280,38 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
     <!-- Legend -->
     <div class="flex items-center gap-4 mt-4 pt-3 border-t border-paper-dark/20">
       <div class="flex items-center gap-1.5">
-        <span class="indicator-dot indicator-dot--ji inline-block relative" style="position:static" aria-hidden="true" />
+        <span
+          class="indicator-dot indicator-dot--ji inline-block relative"
+          style="position: static"
+          aria-hidden="true"
+        />
         <span class="text-[0.6875rem] text-ink-light">吉 · 圆点</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="indicator-dot indicator-dot--xiong inline-block relative" style="position:static" aria-hidden="true" />
+        <span
+          class="indicator-dot indicator-dot--xiong inline-block relative"
+          style="position: static"
+          aria-hidden="true"
+        />
         <span class="text-[0.6875rem] text-ink-light">凶 · 菱形</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2.5 h-2.5 rounded-full border" :style="{ borderColor: WUXING_COLORS['土'], opacity: 0.5 }" aria-hidden="true" />
+        <span
+          class="w-2.5 h-2.5 rounded-full border"
+          :style="{ borderColor: WUXING_COLORS['土'], opacity: 0.5 }"
+          aria-hidden="true"
+        />
         <span class="text-[0.6875rem] text-ink-light">平 · 空心</span>
       </div>
       <div class="flex items-center gap-1.5 ml-auto">
-        <span class="w-3 h-3 rounded" :style="{ background: 'rgba(198,40,40,0.12)', border: '1.5px solid ' + 'var(--color-cinnabar)' }" aria-hidden="true" />
+        <span
+          class="w-3 h-3 rounded"
+          :style="{
+            background: 'rgba(198,40,40,0.12)',
+            border: '1.5px solid ' + 'var(--color-cinnabar)',
+          }"
+          aria-hidden="true"
+        />
         <span class="text-[0.6875rem] text-ink-light">红底为选中</span>
       </div>
     </div>
@@ -306,7 +332,7 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
 }
 
 .day-cell:focus-visible {
-  outline: 2px solid var(--color-cinnabar, #C62828);
+  outline: 2px solid var(--color-cinnabar, #c62828);
   outline-offset: -2px;
 }
 
@@ -315,9 +341,11 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
 }
 
 .day-cell--selected {
-  border-color: var(--color-cinnabar, #C62828) !important;
+  border-color: var(--color-cinnabar, #c62828) !important;
   background: rgba(198, 40, 40, 0.1);
-  box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.12), 0 1px 6px rgba(198, 40, 40, 0.08);
+  box-shadow:
+    0 0 0 2px rgba(198, 40, 40, 0.12),
+    0 1px 6px rgba(198, 40, 40, 0.08);
 }
 
 /* ── Accessibility: shape-distinct indicators (not color-only) ── */

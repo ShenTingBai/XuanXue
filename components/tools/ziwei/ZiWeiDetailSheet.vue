@@ -9,8 +9,8 @@
         <!-- Backdrop: dark ink wash -->
         <div
           class="absolute inset-0 bg-ink-dark/40 backdrop-blur-[2px]"
-          @click="emit('close')"
           aria-hidden="true"
+          @click="emit('close')"
         />
 
         <!-- Sheet panel: unrolled scroll -->
@@ -23,7 +23,19 @@
           @click.stop
         >
           <!-- Scroll-rod top ornament -->
-          <div class="h-0.5 flex-shrink-0" style="background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 20%, var(--color-cinnabar) 50%, color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 80%, transparent);" />
+          <div
+            class="h-0.5 flex-shrink-0"
+            style="
+              background: linear-gradient(
+                90deg,
+                transparent,
+                color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 20%,
+                var(--color-cinnabar) 50%,
+                color-mix(in srgb, var(--color-cinnabar) 35%, transparent) 80%,
+                transparent
+              );
+            "
+          />
           <div class="h-px bg-ink-faint/10 flex-shrink-0" />
 
           <!-- Drag handle -->
@@ -38,7 +50,10 @@
               <h3 class="font-display text-lg tracking-[0.12em] text-ink-dark truncate">
                 {{ palace?.name ?? '' }}解读
               </h3>
-              <span v-if="palace" class="font-sans text-[0.6875rem] text-ink-muted tracking-[0.06em] flex-shrink-0 border border-ink-faint/15 rounded px-1.5 py-0.5">
+              <span
+                v-if="palace"
+                class="font-sans text-[0.6875rem] text-ink-muted tracking-[0.06em] flex-shrink-0 border border-ink-faint/15 rounded px-1.5 py-0.5"
+              >
                 {{ palace.heavenlyStem }}{{ palace.earthlyBranch }}
               </span>
             </div>
@@ -54,10 +69,10 @@
             <button
               ref="closeButtonRef"
               class="sheet-close-btn flex-shrink-0 ml-2"
+              aria-label="关闭宫位解读"
               @click="emit('close')"
               @keydown.enter="emit('close')"
               @keydown.space.prevent="emit('close')"
-              aria-label="关闭宫位解读"
             >
               <span>闭</span>
             </button>
@@ -72,12 +87,7 @@
           </div>
 
           <!-- Focus trap sentinel -->
-          <div
-            tabindex="0"
-            class="focus-trap-sentinel"
-            aria-hidden="true"
-            @focus="trapFocusBack"
-          />
+          <div tabindex="0" class="focus-trap-sentinel" aria-hidden="true" @focus="trapFocusBack" />
         </div>
       </div>
     </Transition>
@@ -118,13 +128,16 @@ function onResize() {
 }
 
 // Focus management
-watch(() => props.show, (val) => {
-  if (val) {
-    nextTick(() => {
-      closeButtonRef.value?.focus()
-    })
-  }
-})
+watch(
+  () => props.show,
+  val => {
+    if (val) {
+      nextTick(() => {
+        closeButtonRef.value?.focus()
+      })
+    }
+  },
+)
 
 function trapFocusBack() {
   closeButtonRef.value?.focus()

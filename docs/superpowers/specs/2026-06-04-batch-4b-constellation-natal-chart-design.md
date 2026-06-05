@@ -28,14 +28,14 @@
 
 ### 1.3 范围
 
-| 包含 | 不包含 |
-|------|--------|
-| 七曜（日月水金火木土）位置计算 | 天王星、海王星、冥王星 |
-| Whole Sign House 宫位制 | Placidus / Koch 等需要经纬度的宫位制 |
-| 5 种主要相位（合/六合/刑/三合/冲） | 次要相位（半六合、梅花相位等） |
-| SVG 2D 圆形星盘渲染 | 3D 天文馆效果 |
-| 72 条行星 × 星座解读 | 引用单一权威古籍 |
-| TypeScript + Nuxt 3 + Vitest + `astronomy-engine` | — |
+| 包含                                              | 不包含                               |
+| ------------------------------------------------- | ------------------------------------ |
+| 七曜（日月水金火木土）位置计算                    | 天王星、海王星、冥王星               |
+| Whole Sign House 宫位制                           | Placidus / Koch 等需要经纬度的宫位制 |
+| 5 种主要相位（合/六合/刑/三合/冲）                | 次要相位（半六合、梅花相位等）       |
+| SVG 2D 圆形星盘渲染                               | 3D 天文馆效果                        |
+| 72 条行星 × 星座解读                              | 引用单一权威古籍                     |
+| TypeScript + Nuxt 3 + Vitest + `astronomy-engine` | —                                    |
 
 ### 1.4 设计原则
 
@@ -59,7 +59,7 @@
 import { GeoVector, Ecliptic, Body } from 'astronomy-engine'
 
 // 获取火星地心黄经——一行代码
-const geo = GeoVector(Body.Mars, birthDate, true)  // true = 光行差修正
+const geo = GeoVector(Body.Mars, birthDate, true) // true = 光行差修正
 const ecl = Ecliptic(geo)
 // ecl.elon = 地心黄经 (0-360°)
 // ecl.elat = 黄纬 (-90~90°)
@@ -78,15 +78,15 @@ const ecl = Ecliptic(geo)
 
 **七曜与 `Body` 枚举的映射：**
 
-| 行星 | `Body` 枚举 | ID |
-|------|-----------|-----|
-| ☉ 太阳 | `Body.Sun` | sun |
-| ☽ 月亮 | `Body.Moon` | moon |
+| 行星   | `Body` 枚举    | ID      |
+| ------ | -------------- | ------- |
+| ☉ 太阳 | `Body.Sun`     | sun     |
+| ☽ 月亮 | `Body.Moon`    | moon    |
 | ☿ 水星 | `Body.Mercury` | mercury |
-| ♀ 金星 | `Body.Venus` | venus |
-| ♂ 火星 | `Body.Mars` | mars |
+| ♀ 金星 | `Body.Venus`   | venus   |
+| ♂ 火星 | `Body.Mars`    | mars    |
 | ♃ 木星 | `Body.Jupiter` | jupiter |
-| ♄ 土星 | `Body.Saturn` | saturn |
+| ♄ 土星 | `Body.Saturn`  | saturn  |
 
 > 💡 `astronomy-engine` 也支持天王星/海王星/冥王星——不需要额外代价。如果将来需要，加一行映射即可。本期不包含（无对应的 12 星座解读数据）。
 
@@ -98,7 +98,7 @@ const ecl = Ecliptic(geo)
 function isRetrograde(body: Body, birthDate: Date): boolean {
   const today = Ecliptic(GeoVector(body, birthDate, true)).elon
   const tomorrow = Ecliptic(GeoVector(body, new Date(birthDate.getTime() + 86400000), true)).elon
-  return tomorrow < today  // 黄经递减 = 逆行
+  return tomorrow < today // 黄经递减 = 逆行
 }
 ```
 
@@ -106,11 +106,11 @@ function isRetrograde(body: Body, birthDate: Date): boolean {
 
 `useConstellation.ts` 中已有 `solarLongitude()` 和 `lunarLongitude()` 继续用于：
 
-| 函数 | 用途 | 状态 |
-|------|------|------|
-| `solarLongitude()` | 今日运势评分的日心角度计算 | **保留**（运势不需要 astrometry-engine 精度） |
-| `lunarLongitude()` | 月亮星座单独查询 | **保留**（保持向后兼容） |
-| `getRisingSign()` | 上升星座计算（用于星盘 Asc + Whole Sign House 宫位起点） | **保留 + 复用** |
+| 函数               | 用途                                                     | 状态                                          |
+| ------------------ | -------------------------------------------------------- | --------------------------------------------- |
+| `solarLongitude()` | 今日运势评分的日心角度计算                               | **保留**（运势不需要 astrometry-engine 精度） |
+| `lunarLongitude()` | 月亮星座单独查询                                         | **保留**（保持向后兼容）                      |
+| `getRisingSign()`  | 上升星座计算（用于星盘 Asc + Whole Sign House 宫位起点） | **保留 + 复用**                               |
 
 **星盘不调用 `solarLongitude()` 或 `lunarLongitude()`**——直接用 `astronomy-engine`。两个系统共存但互不依赖。
 
@@ -118,15 +118,16 @@ function isRetrograde(body: Body, birthDate: Date): boolean {
 
 对七曜两两配对（C(7,2) = 21 对），检查角度差：
 
-| 相位 | 角度 | 容许度 | 符号 | 线型 |
-|------|------|--------|------|------|
-| 合相 (conjunction) | 0° | ±8° | ☌ | 实线, jade |
-| 六合 (sextile) | 60° | ±6° | ⚹ | 虚线, jade |
-| 刑 (square) | 90° | ±6° | □ | 实线, cinnabar |
-| 三合 (trine) | 120° | ±6° | △ | 实线, jade |
-| 对冲 (opposition) | 180° | ±8° | ☍ | 实线, cinnabar |
+| 相位               | 角度 | 容许度 | 符号 | 线型           |
+| ------------------ | ---- | ------ | ---- | -------------- |
+| 合相 (conjunction) | 0°   | ±8°    | ☌    | 实线, jade     |
+| 六合 (sextile)     | 60°  | ±6°    | ⚹    | 虚线, jade     |
+| 刑 (square)        | 90°  | ±6°    | □    | 实线, cinnabar |
+| 三合 (trine)       | 120° | ±6°    | △    | 实线, jade     |
+| 对冲 (opposition)  | 180° | ±8°    | ☍    | 实线, cinnabar |
 
 **降噪规则：**
+
 - 默认仅展示**紧密相位**（orb ≤ 最大容许度的一半）
 - 合相且两星同星座 → 不画穿过圆心的直线，改画星盘外侧的小弧线
 - 所有相位线 opacity 0.2-0.25，hover 时提升至 0.5
@@ -153,23 +154,23 @@ houseCusp[i] = (AscSignIndex + i - 1) × 30°  // i = 1..12
 ```typescript
 interface PlanetPosition {
   id: 'sun' | 'moon' | 'mercury' | 'venus' | 'mars' | 'jupiter' | 'saturn'
-  name: string                // 中文名
-  glyph: string               // Unicode 符号
-  longitude: number           // 地心黄经 0-360°
-  signIndex: number           // 0=Aries..11=Pisces
+  name: string // 中文名
+  glyph: string // Unicode 符号
+  longitude: number // 地心黄经 0-360°
+  signIndex: number // 0=Aries..11=Pisces
   signName: string
-  signSymbol: string          // ♈♉♊...
-  houseIndex: number | null   // 1-12，无时辰时为 null
+  signSymbol: string // ♈♉♊...
+  houseIndex: number | null // 1-12，无时辰时为 null
   retrograde: boolean
-  boundaryWarning: boolean    // 在星座边界 ±2° 内
+  boundaryWarning: boolean // 在星座边界 ±2° 内
 }
 
 interface AspectLine {
-  p1: string                  // planet id
+  p1: string // planet id
   p2: string
   type: 'conjunction' | 'sextile' | 'square' | 'trine' | 'opposition'
-  angle: number               // 实际角度差 0-180°
-  orb: number                 // 与精确相位的偏差
+  angle: number // 实际角度差 0-180°
+  orb: number // 与精确相位的偏差
 }
 
 interface NatalChartData {
@@ -178,7 +179,7 @@ interface NatalChartData {
   ascSignIndex: number | null
   ascLongitude: number | null
   mcLongitude: number | null
-  hasHouses: boolean          // birthHour !== null
+  hasHouses: boolean // birthHour !== null
 }
 ```
 
@@ -214,6 +215,7 @@ r=0                              圆心
 ```
 
 行星半径环按类型分配以避免碰撞：
+
 - inner（r=72）：太阳、月亮
 - mid（r=115）：水星、金星、火星
 - outer（r=155）：木星、土星
@@ -221,6 +223,7 @@ r=0                              圆心
 ### 3.3 关键：角度映射公式
 
 星盘 Astrolog 标准布置：
+
 - Asc（上升点）→ 星盘左侧（9 点钟，SVG 180°）
 - 宫位从 Asc 开始逆时针编号
 
@@ -236,12 +239,12 @@ y = CY + r × sin(svgRad)
 
 **‼ 验证表（实现时必须通过）：**
 
-| 位置 | 黄经 | relativeAngle | svgDeg | SVG 方向 |
-|------|------|--------------|--------|---------|
-| Asc | = Asc | 0° | 180° | 9 点钟 ✓ |
-| IC | Asc+90° | 90° | 90° | 6 点钟 ✓ |
-| DSC | Asc+180° | 180° | 0° | 3 点钟 ✓ |
-| MC | Asc+270° | 270° | 270° | 12 点钟 ✓ |
+| 位置 | 黄经     | relativeAngle | svgDeg | SVG 方向  |
+| ---- | -------- | ------------- | ------ | --------- |
+| Asc  | = Asc    | 0°            | 180°   | 9 点钟 ✓  |
+| IC   | Asc+90°  | 90°           | 90°    | 6 点钟 ✓  |
+| DSC  | Asc+180° | 180°          | 0°     | 3 点钟 ✓  |
+| MC   | Asc+270° | 270°          | 270°   | 12 点钟 ✓ |
 
 > ⚠️ 这个公式与 ZiWeiCelestialChart 的 `BRANCH_TO_ANGLE` 完全不同，不可混用。ZiWei 用固定地支→角度映射，星盘用动态 Asc→角度映射。
 
@@ -254,17 +257,18 @@ y = CY + r × sin(svgRad)
 
 ### 3.5 图层分解
 
-| 层 | z-index | 内容 | 实现 |
-|----|---------|------|------|
-| 0 | 0 | 外圈装饰圆、宫头分隔线、Asc 粗线(朱砂)、相位连线、行星底圆、中心圆 | SVG |
-| 1 | 1 | 12 宫位标号（第1-12宫） | DOM（百分比定位） |
-| 2 | 2 | 12 星座符号（♈♉♊…）、7 行星 glyph+名称+逆行℞标记 | DOM（百分比定位） |
-| 3 | 3 | 中心「命」字印章 + Asc度数标注 | DOM |
-| 20 | 20 | Tooltip | DOM |
+| 层  | z-index | 内容                                                               | 实现              |
+| --- | ------- | ------------------------------------------------------------------ | ----------------- |
+| 0   | 0       | 外圈装饰圆、宫头分隔线、Asc 粗线(朱砂)、相位连线、行星底圆、中心圆 | SVG               |
+| 1   | 1       | 12 宫位标号（第1-12宫）                                            | DOM（百分比定位） |
+| 2   | 2       | 12 星座符号（♈♉♊…）、7 行星 glyph+名称+逆行℞标记                | DOM（百分比定位） |
+| 3   | 3       | 中心「命」字印章 + Asc度数标注                                     | DOM               |
+| 20  | 20      | Tooltip                                                            | DOM               |
 
 ### 3.6 交互
 
 **行星 hover（`:hover` CSS + `mouseenter` handler）：**
+
 - `transform: scale(1.25)` 放大（200ms transition）
 - 该行星参与的相位线高亮（加粗 + opacity → 0.5）
 - Tooltip 显示：
@@ -277,10 +281,12 @@ y = CY + r × sin(svgRad)
   ```
 
 **相位线 hover：**
+
 - 线加粗、两端行星同时高亮
 - Tooltip 显示相位类型 + 解释
 
 **Tooltip 定位：**
+
 - 桌面端（> 640px）：星盘右侧固定位置
 - 移动端（≤ 640px）：星盘下方
 - 不使用随鼠标浮动的定位（避免 `getBoundingClientRect` 在 `nextTick` 中的抖动问题）
@@ -288,6 +294,7 @@ y = CY + r × sin(svgRad)
 ### 3.7 无宫位时的降级渲染
 
 当 `birthHour === null`（无出生时辰）：
+
 - 仍绘制 12 星座扇区线（星座边界不依赖时辰）
 - 不绘制 Asc/MC 线
 - 不显示宫位编号
@@ -296,17 +303,17 @@ y = CY + r × sin(svgRad)
 
 ### 3.8 配色
 
-| 元素 | 颜色 | CSS |
-|------|------|-----|
-| 外圈装饰圆 | 淡墨 | `stroke-ink-faint opacity-20` |
-| 星座扇区分隔线 | 微淡墨虚线 | `stroke-ink-faint opacity-10 stroke-dasharray="2,4"` |
-| Asc 线 | 朱砂 | `stroke-cinnabar opacity-50 stroke-width-1.5` |
-| MC 线 | 金 | `stroke-gold opacity-35` |
-| 行星底圆 | 按行星 | `☉=gold ☽=ice ☿=jade ♀=jade ♂=cinnabar ♃=purple ♄=gray` |
-| 吉相位线（合/三合/六合） | 玉色半透明 | `stroke-jade opacity-20` |
-| 凶相位线（刑/冲） | 朱砂半透明 | `stroke-cinnabar opacity-18` |
-| 中心印章 | 朱砂底 + 金边 | 同 ZiWei 印章样式 |
-| Tooltip 背景 | 纸卡色 | `card-warm` |
+| 元素                     | 颜色          | CSS                                                     |
+| ------------------------ | ------------- | ------------------------------------------------------- |
+| 外圈装饰圆               | 淡墨          | `stroke-ink-faint opacity-20`                           |
+| 星座扇区分隔线           | 微淡墨虚线    | `stroke-ink-faint opacity-10 stroke-dasharray="2,4"`    |
+| Asc 线                   | 朱砂          | `stroke-cinnabar opacity-50 stroke-width-1.5`           |
+| MC 线                    | 金            | `stroke-gold opacity-35`                                |
+| 行星底圆                 | 按行星        | `☉=gold ☽=ice ☿=jade ♀=jade ♂=cinnabar ♃=purple ♄=gray` |
+| 吉相位线（合/三合/六合） | 玉色半透明    | `stroke-jade opacity-20`                                |
+| 凶相位线（刑/冲）        | 朱砂半透明    | `stroke-cinnabar opacity-18`                            |
+| 中心印章                 | 朱砂底 + 金边 | 同 ZiWei 印章样式                                       |
+| Tooltip 背景             | 纸卡色        | `card-warm`                                             |
 
 ### 3.9 响应式
 
@@ -341,18 +348,18 @@ y = CY + r × sin(svgRad)
 
 ### 4.1 预置常量规模
 
-| 数据类型 | 条目数 | 存放位置 | 每条字数 |
-|---------|--------|---------|---------|
-| 行星元数据（glyph/中文名/颜色环） | 7 组 | `constants/planet-data.ts` | 参数值 |
-| 太阳 × 星座解读 | 12 条 | 同上 | 30-40 字 |
-| 月亮 × 星座解读 | 复用已有 `MOON_INTERPRETATIONS` | `useConstellation.ts` | 已有 |
-| 水星 × 星座解读 | 12 条 | `constants/planet-data.ts` | 30-40 字 |
-| 金星 × 星座解读 | 12 条 | 同上 | 30-40 字 |
-| 火星 × 星座解读 | 12 条 | 同上 | 30-40 字 |
-| 木星 × 星座解读 | 12 条 | 同上 | 30-40 字 |
-| 土星 × 星座解读 | 12 条 | 同上 | 30-40 字 |
-| 相位解释 | 5 条 | 同上 | 20-30 字 |
-| **合计新写** | **77 条** | | |
+| 数据类型                          | 条目数                          | 存放位置                   | 每条字数 |
+| --------------------------------- | ------------------------------- | -------------------------- | -------- |
+| 行星元数据（glyph/中文名/颜色环） | 7 组                            | `constants/planet-data.ts` | 参数值   |
+| 太阳 × 星座解读                   | 12 条                           | 同上                       | 30-40 字 |
+| 月亮 × 星座解读                   | 复用已有 `MOON_INTERPRETATIONS` | `useConstellation.ts`      | 已有     |
+| 水星 × 星座解读                   | 12 条                           | `constants/planet-data.ts` | 30-40 字 |
+| 金星 × 星座解读                   | 12 条                           | 同上                       | 30-40 字 |
+| 火星 × 星座解读                   | 12 条                           | 同上                       | 30-40 字 |
+| 木星 × 星座解读                   | 12 条                           | 同上                       | 30-40 字 |
+| 土星 × 星座解读                   | 12 条                           | 同上                       | 30-40 字 |
+| 相位解释                          | 5 条                            | 同上                       | 20-30 字 |
+| **合计新写**                      | **77 条**                       |                            |          |
 
 > 数据来源说明：解读文字基于通用星座命理知识合成，与项目现有解读数据（生肖、紫微、八字）一致的质量标准，非引用单一权威古籍。每条确保自洽、不矛盾、符合基本占星逻辑。
 
@@ -362,25 +369,25 @@ y = CY + r × sin(svgRad)
 // constants/planet-data.ts
 
 export const PLANET_SIGN_INTERPRETATIONS: Record<string, Record<string, string>> = {
-  'sun': {
-    '白羊座': '太阳在白羊，意志如烈火，行动力极强，勇往直前，是天生的开创者与领袖。',
-    '金牛座': '太阳在金牛，意志坚定稳健，重视物质积累与感官满足，不轻易动摇。',
+  sun: {
+    白羊座: '太阳在白羊，意志如烈火，行动力极强，勇往直前，是天生的开创者与领袖。',
+    金牛座: '太阳在金牛，意志坚定稳健，重视物质积累与感官满足，不轻易动摇。',
     // ... 10 more
   },
-  'mercury': {
-    '白羊座': '水星在白羊，思维敏捷直接，说话不拐弯抹角，学习靠冲劲而非耐心。',
-    '金牛座': '水星在金牛，思维稳健务实，学习慢但根基扎实，不喜空谈只重实际。',
+  mercury: {
+    白羊座: '水星在白羊，思维敏捷直接，说话不拐弯抹角，学习靠冲劲而非耐心。',
+    金牛座: '水星在金牛，思维稳健务实，学习慢但根基扎实，不喜空谈只重实际。',
     // ... 10 more
   },
   // venus, mars, jupiter, saturn: 各 12 条
 }
 
 export const ASPECT_INTERPRETATIONS: Record<string, string> = {
-  'conjunction': '合相——两颗星能量融合，相互强化，影响最为直接有力。',
-  'sextile': '六合——两颗星互相激发，带来机遇与创造力，需主动把握。',
-  'square': '刑相——两颗星相互制约，带来内在张力，也是成长的催化剂。',
-  'trine': '三合——两颗星和谐共振，天赋所在，顺势而为即有所成。',
-  'opposition': '对冲——两颗星相互拉扯，需在两极之间寻找平衡与整合。',
+  conjunction: '合相——两颗星能量融合，相互强化，影响最为直接有力。',
+  sextile: '六合——两颗星互相激发，带来机遇与创造力，需主动把握。',
+  square: '刑相——两颗星相互制约，带来内在张力，也是成长的催化剂。',
+  trine: '三合——两颗星和谐共振，天赋所在，顺势而为即有所成。',
+  opposition: '对冲——两颗星相互拉扯，需在两极之间寻找平衡与整合。',
 }
 ```
 
@@ -405,6 +412,7 @@ tests/composables/useNatalChart.test.ts  — 数据组装 + 边界测试，约 1
 ```
 
 包括：
+
 - 7 颗行星字段组装完整性（name/glyph/signIndex/houseIndex 均不为空）
 - 相位检测基础案例（已知角度差的假数据验证 5 种相位判定）
 - Whole Sign House 宫位划分（假 Asc 星座验证宫号映射）
@@ -414,6 +422,7 @@ tests/composables/useNatalChart.test.ts  — 数据组装 + 边界测试，约 1
 ### 5.3 SVG 组件验证
 
 SVG 星盘组件不编写单元测试（纯视觉组件），通过以下方式验证：
+
 - TypeScript 类型检查（`npx nuxi typecheck`）
 - 手动视觉验证（dev server + 多种出生日期测试）
 - 响应式测试（320px / 375px / 768px / 1024px）
@@ -440,16 +449,16 @@ tests/composables/
 
 ## 七、边界与降级
 
-| 条件 | 行为 |
-|------|------|
-| `birthYear === null` | 星盘 section 不渲染，显示「请完善出生年份」 |
-| `birthYear < 1900` 或 `> 2100` | 仍计算但 tooltip 显示 ⚠「超出公式最佳范围」 |
-| `birthHour === null` | 正常绘制行星+相位，无宫位线/编号，tooltip 不含宫位 |
-| `birthHour === 0` | 有效时辰（子时），完整星盘 |
-| 星座边界 ±2° | `boundaryWarning=true`，tooltip 显示「靠近 XX 与 YY 交界」 |
-| 2 星 < 5° | 碰撞去重到不同半径环 |
-| ≥3 星 < 5°（星群） | 聚合显示 + tooltip 标注「星群聚集」 |
-| 无紧密相位（orb 全 > 一半） | 仅显示合相线，其余不画 |
+| 条件                           | 行为                                                       |
+| ------------------------------ | ---------------------------------------------------------- |
+| `birthYear === null`           | 星盘 section 不渲染，显示「请完善出生年份」                |
+| `birthYear < 1900` 或 `> 2100` | 仍计算但 tooltip 显示 ⚠「超出公式最佳范围」                |
+| `birthHour === null`           | 正常绘制行星+相位，无宫位线/编号，tooltip 不含宫位         |
+| `birthHour === 0`              | 有效时辰（子时），完整星盘                                 |
+| 星座边界 ±2°                   | `boundaryWarning=true`，tooltip 显示「靠近 XX 与 YY 交界」 |
+| 2 星 < 5°                      | 碰撞去重到不同半径环                                       |
+| ≥3 星 < 5°（星群）             | 聚合显示 + tooltip 标注「星群聚集」                        |
+| 无紧密相位（orb 全 > 一半）    | 仅显示合相线，其余不画                                     |
 
 ---
 

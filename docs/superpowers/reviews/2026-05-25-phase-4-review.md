@@ -3,11 +3,13 @@
 **Reviewed by:** Code Reviewer Agent
 **Date:** 2026-05-25
 **Documents reviewed:**
+
 - `docs/superpowers/specs/2026-05-25-phase-4-bazi-enhancement-design.md` (Design Spec)
 - `docs/superpowers/plans/2026-05-25-phase-4-bazi-enhancement.md` (Implementation Plan)
 - `docs/superpowers/specs/2026-05-25-phase-4-bazi-ui-design.md` (UI Design Spec)
 
 **Cross-reference files:**
+
 - `composables/useBaZi.ts`, `composables/useSolarTerms.ts`, `constants/bazi.ts`, `pages/tools/bazi.vue`, `tailwind.config.ts`
 
 ---
@@ -20,6 +22,7 @@
   - BaziGrid (0.05s) -> **ShenShaPanel (0.15s)** -> ElementAnalysis (0.20s) -> DayMasterCard (0.30s) -> DaYunTimeline (0.40s) -> **LiuNianTimeline (0.50s)** -> Reading Guide
 
 - **Plan (Task 6d):** Places both ShenShaPanel AND LiuNianTimeline AFTER DaYunTimeline:
+
   ```
   After the DaYunTimeline section, add ShenShaPanel and LiuNianTimeline
   ```
@@ -31,16 +34,18 @@
 ### 2. LiuNianInput Missing `shenSha` Field
 
 - **Spec (Section 3.1):** `LiuNianInput` includes `shenSha: ShenSha[]` — pre-computed birth chart shensha to be used for year-specific shensha determination.
+
   ```typescript
   interface LiuNianInput {
     baZi: BaZiResult
-    shenSha: ShenSha[]       // This is in the spec
+    shenSha: ShenSha[] // This is in the spec
     currentYear: number
     range: number
   }
   ```
 
 - **Plan (Task 3a):** `LiuNianInput` omits the `shenSha` field entirely:
+
   ```typescript
   export interface LiuNianInput {
     baZi: BaZiResult
@@ -58,8 +63,10 @@
 ### 3. `isFavorable` Logic Bug in calculateLiuNian
 
 - **Plan (Task 3a, line 1194-1195):**
+
   ```typescript
-  const isFavorable = favorableElements.includes(stemWuxing) ||
+  const isFavorable =
+    favorableElements.includes(stemWuxing) ||
     (!unfavorableElements.includes(stemWuxing) && favorableElements.some(f => stemWuxing === f))
   ```
 
@@ -77,16 +84,19 @@
   ```
   Or alternatively:
   ```typescript
-  const isFavorable = favorableElements.includes(stemWuxing) || !unfavorableElements.includes(stemWuxing)
+  const isFavorable =
+    favorableElements.includes(stemWuxing) || !unfavorableElements.includes(stemWuxing)
   ```
   if neutral elements should be treated as favorable.
 
 ### 4. `getSolarTerm` Call is Dead Code in getMonthlyStems
 
 - **Plan (Task 3a, line 1023):**
+
   ```typescript
   const liChun = getSolarTerm(year, 0)
   ```
+
   The variable `liChun` is never used. `getSolarTerm` is imported but the month boundaries are computed purely from sequential indexing, not solar terms.
 
 - **Impact:** The plan acknowledges this in its CLAUDE.md notes: "Precise solar-term-based month boundaries would require integrating `getSolarTerm` for each month within the year." The current implementation uses sequential month numbering, which is approximately correct but not exact for birth dates near solar term boundaries.
@@ -96,11 +106,13 @@
 ### 5. `getMonthStemStart` Imported but Not Used
 
 - **Plan (Task 3a, line 874):** Imports `getMonthStemStart` from `useSolarTerms.ts`
+
   ```typescript
   import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
   ```
 
 - **Implementation (line 1019):** Reimplements the formula inline:
+
   ```typescript
   const monthStemStart = (yearStemIdx * 2 + 2) % 10 // 五虎遁
   ```
@@ -112,6 +124,7 @@
 ### 6. `buildSummary` Uses a `baZi` Hack Property
 
 - **Plan (Task 3a, lines 1263-1269):**
+
   ```typescript
   const fullYearInfo: LiuNianYear = {
     ...yearInfo,

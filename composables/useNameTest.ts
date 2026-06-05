@@ -2,8 +2,11 @@
 
 import { getStrokeCount } from '~/constants/stroke-dict'
 import {
-  getNumberMeaning, getNumberWuxing, getSanCaiFortune,
-  getNumberCategories, calculateNameScore,
+  getNumberMeaning,
+  getNumberWuxing,
+  getSanCaiFortune,
+  getNumberCategories,
+  calculateNameScore,
 } from '~/constants/name-test'
 
 // ── Types ─────────────────────────────────────────────
@@ -30,11 +33,11 @@ export interface NameTestResult {
   givenName: string
   /** 五格 */
   grids: {
-    tian: GridResult   // 天格
-    ren: GridResult    // 人格（主运）
-    di: GridResult     // 地格（前运）
-    total: GridResult  // 总格（后运）
-    wai: GridResult    // 外格（副运）
+    tian: GridResult // 天格
+    ren: GridResult // 人格（主运）
+    di: GridResult // 地格（前运）
+    total: GridResult // 总格（后运）
+    wai: GridResult // 外格（副运）
   }
   /** 三才配置 */
   sanCai: {
@@ -61,7 +64,7 @@ export interface NameTestResult {
 // ════════════════════════════════════════
 
 function toValidNumber(n: number): number {
-  if (n <= 0 || n > 81) return ((n - 1) % 81 + 81) % 81 + 1
+  if (n <= 0 || n > 81) return ((((n - 1) % 81) + 81) % 81) + 1
   return n
 }
 
@@ -143,15 +146,28 @@ export function calculateNameTest(surname: string, givenName: string): NameTestR
 
   // 10. 总分
   const totalScore = calculateNameScore(
-    tian.fortune, ren.fortune, di.fortune,
-    total.fortune, wai.fortune, sanCaiFortune,
+    tian.fortune,
+    ren.fortune,
+    di.fortune,
+    total.fortune,
+    wai.fortune,
+    sanCaiFortune,
   )
 
   // 11. 总结
   const summary = genSummary(totalScore, sanCaiFortune, ren.fortune, categories)
 
   // 12. 详情
-  const details = genDetails(tian, ren, di, total, wai, sanCaiFortune, { tian: tian.wuxing, ren: ren.wuxing, di: di.wuxing }, categories)
+  const details = genDetails(
+    tian,
+    ren,
+    di,
+    total,
+    wai,
+    sanCaiFortune,
+    { tian: tian.wuxing, ren: ren.wuxing, di: di.wuxing },
+    categories,
+  )
 
   return {
     fullName,
@@ -167,8 +183,10 @@ export function calculateNameTest(surname: string, givenName: string): NameTestR
 }
 
 function genSummary(
-  score: number, sanCai: '吉' | '凶' | '半吉',
-  ren: '吉' | '凶' | '半吉', categories: string[],
+  score: number,
+  sanCai: '吉' | '凶' | '半吉',
+  ren: '吉' | '凶' | '半吉',
+  categories: string[],
 ): string {
   const lines: string[] = []
 
@@ -204,8 +222,11 @@ function genSummary(
 }
 
 function genDetails(
-  tian: GridResult, ren: GridResult, di: GridResult,
-  total: GridResult, wai: GridResult,
+  tian: GridResult,
+  ren: GridResult,
+  di: GridResult,
+  total: GridResult,
+  wai: GridResult,
   sanCaiFortune: '吉' | '凶' | '半吉',
   sanCaiWuxing: { tian: string; ren: string; di: string },
   categories: string[],

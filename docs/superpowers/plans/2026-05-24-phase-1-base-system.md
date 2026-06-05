@@ -49,6 +49,7 @@ xuanxue/
 ### Task 1: Scaffold Nuxt 3 project
 
 **Files:**
+
 - Create: `package.json`
 - Create: `nuxt.config.ts`
 
@@ -85,11 +86,11 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
   nitro: {
     externals: {
-      module: ['better-sqlite3']
-    }
+      module: ['better-sqlite3'],
+    },
   },
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true }
+  devtools: { enabled: true },
 })
 ```
 
@@ -145,6 +146,7 @@ git commit -m "feat: scaffold Nuxt 3 project with TailwindCSS and better-sqlite3
 ### Task 2: Database setup (schema + connection)
 
 **Files:**
+
 - Create: `server/database/schema.ts`
 - Create: `server/database/db.ts`
 
@@ -246,6 +248,7 @@ git commit -m "feat: add SQLite schema and connection singleton"
 ### Task 3: Auth API (login + register)
 
 **Files:**
+
 - Create: `server/utils/profile.ts`
 - Create: `server/utils/auth.ts`
 - Create: `server/api/auth/login.post.ts`
@@ -268,9 +271,7 @@ import { getDb } from '../database/db'
 
 export function createSessionToken(profileId: number): string {
   const db = getDb()
-  const token = Array.from({ length: 32 }, () =>
-    Math.random().toString(36).charAt(2)
-  ).join('')
+  const token = Array.from({ length: 32 }, () => Math.random().toString(36).charAt(2)).join('')
   db.prepare('INSERT INTO sessions (profile_id, token) VALUES (?, ?)').run(profileId, token)
   return token
 }
@@ -278,9 +279,9 @@ export function createSessionToken(profileId: number): string {
 export function getProfileIdFromToken(token: string): number | null {
   if (!token) return null
   const db = getDb()
-  const session = db.prepare(
-    'SELECT profile_id FROM sessions WHERE token = ?'
-  ).get(token) as { profile_id: number } | undefined
+  const session = db.prepare('SELECT profile_id FROM sessions WHERE token = ?').get(token) as
+    | { profile_id: number }
+    | undefined
   return session?.profile_id || null
 }
 
@@ -296,7 +297,7 @@ export function deleteSession(token: string): void {
 import { getDb } from '../../database/db'
 import { createSessionToken } from '../../utils/auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody(event)
   const { nickname, pin } = body || {}
 
@@ -309,7 +310,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = getDb()
-  const profile = db.prepare('SELECT * FROM profiles WHERE nickname = ? AND pin = ?').get(nickname, pin) as Record<string, unknown> | undefined
+  const profile = db
+    .prepare('SELECT * FROM profiles WHERE nickname = ? AND pin = ?')
+    .get(nickname, pin) as Record<string, unknown> | undefined
 
   if (!profile) {
     throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
@@ -327,7 +330,7 @@ export default defineEventHandler(async (event) => {
 import { getDb } from '../../database/db'
 import { createSessionToken } from '../../utils/auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody(event)
   const { nickname, pin } = body || {}
 
@@ -351,11 +354,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 409, statusMessage: '该昵称已被使用' })
   }
 
-  const result = db.prepare(
-    'INSERT INTO profiles (nickname, pin) VALUES (?, ?)'
-  ).run(nickname, pin)
+  const result = db.prepare('INSERT INTO profiles (nickname, pin) VALUES (?, ?)').run(nickname, pin)
 
-  const profile = db.prepare('SELECT * FROM profiles WHERE id = ?').get(result.lastInsertRowid) as Record<string, unknown>
+  const profile = db
+    .prepare('SELECT * FROM profiles WHERE id = ?')
+    .get(result.lastInsertRowid) as Record<string, unknown>
 
   const token = createSessionToken(result.lastInsertRowid as number)
 
@@ -368,7 +371,7 @@ export default defineEventHandler(async (event) => {
 ```typescript
 import { getProfileIdFromToken, deleteSession } from '../../utils/auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.replace('Bearer ', '')
 
@@ -396,6 +399,7 @@ curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"nickname":"测试用户","pin":"1234"}'
 ```
+
 Expected: `{"success":true,"profile":{...},"token":"<32-char-token>"}` (save the token for later tests)
 
 ```bash
@@ -404,6 +408,7 @@ curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"nickname":"测试用户","pin":"1234"}'
 ```
+
 Expected: `{"success":true,"profile":{...},"token":"<32-char-token>"}`
 
 ```bash
@@ -412,6 +417,7 @@ curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"nickname":"测试用户","pin":"0000"}'
 ```
+
 Expected: 401 error
 
 ```bash
@@ -420,6 +426,7 @@ curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"nickname":"测试用户","pin":"1234"}'
 ```
+
 Expected: 409 error
 
 - [ ] **Step 6: Commit**
@@ -434,6 +441,7 @@ git commit -m "feat: add auth API (login + register + logout) with session token
 ### Task 4: Profile API (read + update)
 
 **Files:**
+
 - Create: `server/api/profiles/[id].get.ts`
 - Create: `server/api/profiles/[id].put.ts`
 
@@ -443,7 +451,7 @@ git commit -m "feat: add auth API (login + register + logout) with session token
 import { getDb } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const id = parseInt(event.context.params!.id)
 
   if (isNaN(id)) {
@@ -461,7 +469,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = getDb()
-  const profile = db.prepare('SELECT * FROM profiles WHERE id = ?').get(id) as Record<string, unknown> | undefined
+  const profile = db.prepare('SELECT * FROM profiles WHERE id = ?').get(id) as
+    | Record<string, unknown>
+    | undefined
 
   if (!profile) {
     throw createError({ statusCode: 404, statusMessage: '档案不存在' })
@@ -477,7 +487,7 @@ export default defineEventHandler(async (event) => {
 import { getDb } from '../../database/db'
 import { getProfileIdFromToken } from '../../utils/auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const id = parseInt(event.context.params!.id)
 
   if (isNaN(id)) {
@@ -546,7 +556,10 @@ export default defineEventHandler(async (event) => {
 
   db.prepare(`UPDATE profiles SET ${updates.join(', ')} WHERE id = ?`).run(...values)
 
-  const profile = db.prepare('SELECT * FROM profiles WHERE id = ?').get(id) as Record<string, unknown>
+  const profile = db.prepare('SELECT * FROM profiles WHERE id = ?').get(id) as Record<
+    string,
+    unknown
+  >
 
   return { success: true, profile: toSafeProfile(profile) }
 })
@@ -558,6 +571,7 @@ export default defineEventHandler(async (event) => {
 # Get profile
 curl http://localhost:3000/api/profiles/1
 ```
+
 Expected: Profile object
 
 ```bash
@@ -568,6 +582,7 @@ curl -X PUT http://localhost:3000/api/profiles/1 \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"birth_date":"2000-01-15","gender":"男"}'
 ```
+
 Expected: Updated profile
 
 ```bash
@@ -576,6 +591,7 @@ curl -X PUT http://localhost:3000/api/profiles/1 \
   -H "Content-Type: application/json" \
   -d '{"birth_date":"2000-01-15"}'
 ```
+
 Expected: 403 error
 
 - [ ] **Step 4: Commit**
@@ -590,6 +606,7 @@ git commit -m "feat: add profile API (read + update)"
 ### Task 5: Auth composable
 
 **Files:**
+
 - Create: `composables/useAuth.ts`
 
 - [ ] **Step 1: Create composables/useAuth.ts**
@@ -623,7 +640,11 @@ function getStoredSession(): SessionData | null {
   if (import.meta.client) {
     const raw = localStorage.getItem(SESSION_KEY)
     if (raw) {
-      try { return JSON.parse(raw) } catch { /* ignore */ }
+      try {
+        return JSON.parse(raw)
+      } catch {
+        /* ignore */
+      }
     }
   }
   return null
@@ -652,7 +673,7 @@ export function useAuth() {
     try {
       const data = await $fetch('/api/auth/login', {
         method: 'POST',
-        body: { nickname, pin }
+        body: { nickname, pin },
       })
 
       if (!data?.profile) {
@@ -674,7 +695,7 @@ export function useAuth() {
     try {
       const data = await $fetch('/api/auth/register', {
         method: 'POST',
-        body: { nickname, pin }
+        body: { nickname, pin },
       })
 
       if (!data?.profile) {
@@ -698,7 +719,7 @@ export function useAuth() {
 
     try {
       const data = await $fetch(`/api/profiles/${session.profileId}`, {
-        headers: session.token ? { authorization: `Bearer ${session.token}` } : {}
+        headers: session.token ? { authorization: `Bearer ${session.token}` } : {},
       })
       if (data?.profile) {
         currentProfile.value = data.profile
@@ -753,7 +774,7 @@ export function useAuth() {
     restoreSession,
     refreshProfile,
     getAuthHeaders,
-    logout
+    logout,
   }
 }
 ```
@@ -770,6 +791,7 @@ git commit -m "feat: add useAuth composable for auth state management"
 ### Task 6: Login page
 
 **Files:**
+
 - Create: `pages/login.vue`
 
 - [ ] **Step 1: Create pages/login.vue**
@@ -920,6 +942,7 @@ function switchMode() {
 - [ ] **Step 2: Test login page**
 
 Navigate to http://localhost:3000/login
+
 - Verify the login/register form renders
 - Test creating a new profile (register mode)
 - Test logging in with the created profile
@@ -937,6 +960,7 @@ git commit -m "feat: add login/register page"
 ### Task 7: Home page (tool grid)
 
 **Files:**
+
 - Create: `pages/index.vue`
 
 - [ ] **Step 1: Create pages/index.vue**
@@ -979,7 +1003,7 @@ const tools: ToolCard[] = [
     description: '查看生肖属性、五行、性格特征与配对',
     icon: '🐉',
     status: 'ready',
-    route: '/tools/shengxiao'
+    route: '/tools/shengxiao',
   },
   {
     id: 'constellation',
@@ -987,7 +1011,7 @@ const tools: ToolCard[] = [
     description: '十二星座性格特征、配对与运势',
     icon: '♈',
     status: 'ready',
-    route: '/tools/constellation'
+    route: '/tools/constellation',
   },
   {
     id: 'bazi',
@@ -995,7 +1019,7 @@ const tools: ToolCard[] = [
     description: '四柱推命、十神定位、五行生克分析',
     icon: '☯',
     status: 'coming-soon',
-    route: ''
+    route: '',
   },
   {
     id: 'yijing',
@@ -1003,7 +1027,7 @@ const tools: ToolCard[] = [
     description: '周易起卦、卦象解读',
     icon: '📜',
     status: 'coming-soon',
-    route: ''
+    route: '',
   },
   {
     id: 'ziwei',
@@ -1011,8 +1035,8 @@ const tools: ToolCard[] = [
     description: '十二宫排盘、星曜命盘分析',
     icon: '⭐',
     status: 'coming-soon',
-    route: ''
-  }
+    route: '',
+  },
 ]
 </script>
 
@@ -1029,7 +1053,9 @@ const tools: ToolCard[] = [
             @click="showProfileMenu = !showProfileMenu"
             class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
           >
-            <span class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-sm font-medium">
+            <span
+              class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-sm font-medium"
+            >
               {{ currentProfile.nickname[0] }}
             </span>
             <span>{{ currentProfile.nickname }}</span>
@@ -1063,9 +1089,7 @@ const tools: ToolCard[] = [
     <main class="max-w-4xl mx-auto px-4 py-8">
       <!-- Greeting -->
       <div class="mb-8" v-if="currentProfile">
-        <h2 class="text-2xl font-bold text-white">
-          你好，{{ currentProfile.nickname }}
-        </h2>
+        <h2 class="text-2xl font-bold text-white">你好，{{ currentProfile.nickname }}</h2>
         <p class="text-gray-400 mt-1">选择一个工具开始探索</p>
       </div>
 
@@ -1079,7 +1103,7 @@ const tools: ToolCard[] = [
             'rounded-2xl p-5 border transition-all',
             tool.status === 'ready'
               ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-purple-500/50 cursor-pointer'
-              : 'bg-white/5 border-white/5 opacity-40 cursor-not-allowed'
+              : 'bg-white/5 border-white/5 opacity-40 cursor-not-allowed',
           ]"
         >
           <div class="text-3xl mb-3">{{ tool.icon }}</div>
@@ -1109,6 +1133,7 @@ const tools: ToolCard[] = [
 - [ ] **Step 2: Test home page**
 
 Navigate to http://localhost:3000
+
 - Without login: should redirect to /login
 - After login: should show tool grid with greeting
 - Verify profile dropdown works (edit profile + logout)
@@ -1126,6 +1151,7 @@ git commit -m "feat: add home page with tool grid"
 ### Task 8: Profile edit page
 
 **Files:**
+
 - Create: `pages/profile/[id].vue`
 
 - [ ] **Step 1: Create pages/profile/[id].vue**
@@ -1176,7 +1202,10 @@ onMounted(async () => {
 const hourOptions = Array.from({ length: 12 }, (_, i) => {
   const earthly = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
   const hour = (i * 2 + 23) % 24
-  return { label: `${earthly[i]}时 (${hour.toString().padStart(2, '0')}:00-${((hour + 1) % 24).toString().padStart(2, '0')}:59)`, value: hour }
+  return {
+    label: `${earthly[i]}时 (${hour.toString().padStart(2, '0')}:00-${((hour + 1) % 24).toString().padStart(2, '0')}:59)`,
+    value: hour,
+  }
 })
 
 async function handleSave() {
@@ -1199,13 +1228,15 @@ async function handleSave() {
         birth_calendar: birthCalendar.value,
         birth_hour: birthHour.value,
         birth_minute: birthMinute.value,
-        gender: gender.value
-      }
+        gender: gender.value,
+      },
     })
 
     await refreshProfile()
     success.value = true
-    setTimeout(() => { success.value = false }, 2000)
+    setTimeout(() => {
+      success.value = false
+    }, 2000)
   } catch (e: any) {
     error.value = e?.data?.statusMessage || e?.statusMessage || e?.message || '保存失败'
   } finally {
@@ -1218,9 +1249,7 @@ async function handleSave() {
   <div class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
     <header class="border-b border-white/10 bg-white/5 backdrop-blur">
       <div class="max-w-4xl mx-auto px-4 h-14 flex items-center gap-4">
-        <button @click="router.push('/')" class="text-gray-400 hover:text-white">
-          ← 返回
-        </button>
+        <button @click="router.push('/')" class="text-gray-400 hover:text-white">← 返回</button>
         <h1 class="text-lg font-semibold text-white">编辑档案</h1>
       </div>
     </header>
@@ -1250,14 +1279,17 @@ async function handleSave() {
           <label class="block text-sm text-gray-300 mb-1">历法</label>
           <div class="flex gap-3">
             <button
-              v-for="opt in [{label:'阳历',value:'solar'},{label:'农历',value:'lunar'}]"
+              v-for="opt in [
+                { label: '阳历', value: 'solar' },
+                { label: '农历', value: 'lunar' },
+              ]"
               :key="opt.value"
               @click="birthCalendar = birthCalendar === opt.value ? null : opt.value"
               :class="[
                 'flex-1 py-2 rounded-xl border transition-colors',
                 birthCalendar === opt.value
                   ? 'bg-purple-600 border-purple-500 text-white'
-                  : 'bg-white/5 border-white/10 text-gray-400 hover:border-purple-500/50'
+                  : 'bg-white/5 border-white/10 text-gray-400 hover:border-purple-500/50',
               ]"
             >
               {{ opt.label }}
@@ -1304,7 +1336,7 @@ async function handleSave() {
                 'flex-1 py-2 rounded-xl border transition-colors',
                 gender === opt
                   ? 'bg-purple-600 border-purple-500 text-white'
-                  : 'bg-white/5 border-white/10 text-gray-400 hover:border-purple-500/50'
+                  : 'bg-white/5 border-white/10 text-gray-400 hover:border-purple-500/50',
               ]"
             >
               {{ opt }}
@@ -1334,6 +1366,7 @@ async function handleSave() {
 - [ ] **Step 2: Test profile edit page**
 
 Navigate to http://localhost:3000/profile/1
+
 - Verify all fields load correctly
 - Edit birth date, select gender, save
 - Verify success message appears
@@ -1353,6 +1386,7 @@ git commit -m "feat: add profile edit page"
 The login page needs to check for an existing session on mount, so returning users skip straight to home.
 
 **Files:**
+
 - Modify: `pages/login.vue`
 
 - [ ] **Step 1: Add session restore check to login.vue**
@@ -1362,18 +1396,9 @@ Add `onMounted` and `restoreSession` to the page so it auto-redirects if already
 Insert after the existing import and `const` declarations in `pages/login.vue`:
 
 ```vue
-import { ref, onMounted } from 'vue'
-
-// ... existing refs ...
-
-const { login, register, loading, restoreSession } = useAuth()
-
-onMounted(async () => {
-  const restored = await restoreSession()
-  if (restored) {
-    await router.push('/')
-  }
-})
+import { ref, onMounted } from 'vue' // ... existing refs ... const { login, register, loading,
+restoreSession } = useAuth() onMounted(async () => { const restored = await restoreSession() if
+(restored) { await router.push('/') } })
 ```
 
 - [ ] **Step 2: Verify end-to-end flow**

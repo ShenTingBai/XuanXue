@@ -5,7 +5,20 @@ import { STEMS, BRANCHES } from '~/constants/bazi'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
 
-const SOLAR_TERM_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒']
+const SOLAR_TERM_NAMES = [
+  '立春',
+  '惊蛰',
+  '清明',
+  '立夏',
+  '芒种',
+  '小暑',
+  '立秋',
+  '白露',
+  '寒露',
+  '立冬',
+  '大雪',
+  '小寒',
+]
 
 useHead({ title: '玄·道 — 玄天机 · 道命理' })
 
@@ -26,49 +39,94 @@ interface Tool {
 
 const tools: Tool[] = [
   {
-    id: 'bazi', name: '八字', char: '命',
+    id: 'bazi',
+    name: '八字',
+    char: '命',
     description: '了解你的先天命格、性格特质和人生大运',
-    route: '/tools/bazi', available: true, accent: '#C62828', trigram: '☰',
+    route: '/tools/bazi',
+    available: true,
+    accent: '#C62828',
+    trigram: '☰',
   },
   {
-    id: 'yijing', name: '六爻', char: '卦',
+    id: 'yijing',
+    name: '六爻',
+    char: '卦',
     description: '针对具体问题（事业、感情、决策）获得卦象指引',
-    route: '/tools/yijing', available: true, accent: '#2C5F7C', trigram: '☵',
+    route: '/tools/yijing',
+    available: true,
+    accent: '#2C5F7C',
+    trigram: '☵',
   },
   {
-    id: 'shengxiao', name: '生肖', char: '肖',
+    id: 'shengxiao',
+    name: '生肖',
+    char: '肖',
     description: '查看你的生肖性格、幸运元素和年度运势',
-    route: '/tools/shengxiao', available: true, accent: '#3D6B4B', trigram: '☷',
+    route: '/tools/shengxiao',
+    available: true,
+    accent: '#3D6B4B',
+    trigram: '☷',
   },
   {
-    id: 'constellation', name: '星座', char: '星',
+    id: 'constellation',
+    name: '星座',
+    char: '星',
     description: '查看你的星座特征、今日宜忌和配对分析',
-    route: '/tools/constellation', available: true, accent: '#7A5E12', trigram: '☲',
+    route: '/tools/constellation',
+    available: true,
+    accent: '#7A5E12',
+    trigram: '☲',
   },
   {
-    id: 'ziwei', name: '紫微斗数', char: '斗',
+    id: 'ziwei',
+    name: '紫微斗数',
+    char: '斗',
     description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
-    route: '/tools/ziwei', available: true, accent: '#6B5B4F', trigram: '☴',
+    route: '/tools/ziwei',
+    available: true,
+    accent: '#6B5B4F',
+    trigram: '☴',
   },
   {
-    id: 'hehun', name: '合婚', char: '合',
+    id: 'hehun',
+    name: '合婚',
+    char: '合',
     description: '双方八字合婚匹配分析，了解姻缘深浅',
-    route: '/tools/hehun', available: true, accent: '#C62828', trigram: '⚢',
+    route: '/tools/hehun',
+    available: true,
+    accent: '#C62828',
+    trigram: '⚢',
   },
   {
-    id: 'name-test', name: '姓名', char: '名',
+    id: 'name-test',
+    name: '姓名',
+    char: '名',
     description: '五格剖象姓名分析，了解名字的吉凶数理',
-    route: '/tools/name-test', available: true, accent: '#2C5F7C', trigram: '⚣',
+    route: '/tools/name-test',
+    available: true,
+    accent: '#2C5F7C',
+    trigram: '⚣',
   },
   {
-    id: 'cezi', name: '测字', char: '测',
+    id: 'cezi',
+    name: '测字',
+    char: '测',
     description: '一字一世界，拆解字形探玄机，笔画之间见乾坤',
-    route: '/tools/cezi', available: true, accent: '#5E5E5E', trigram: '☰',
+    route: '/tools/cezi',
+    available: true,
+    accent: '#5E5E5E',
+    trigram: '☰',
   },
   {
-    id: 'zeji', name: '择日', char: '择',
+    id: 'zeji',
+    name: '择日',
+    char: '择',
     description: '黄历择吉，结合建除十二星与二十八宿，为重要事项挑选良辰吉日',
-    route: '/tools/zeji', available: true, accent: '#C62828', trigram: '☲',
+    route: '/tools/zeji',
+    available: true,
+    accent: '#C62828',
+    trigram: '☲',
   },
 ]
 
@@ -106,10 +164,13 @@ async function fetchRecentActivity() {
   if (!headers.Authorization) return
   recentLoading.value = true
   try {
-    const data = await $fetch<{ id: number; type: string; created_at: string }[]>('/api/divinations', {
-      headers,
-    })
-    recentActivity.value = data.slice(0, 5).map((item) => {
+    const data = await $fetch<{ id: number; type: string; created_at: string }[]>(
+      '/api/divinations',
+      {
+        headers,
+      },
+    )
+    recentActivity.value = data.slice(0, 5).map(item => {
       const mapped = toolTypeMap[item.type]
       return {
         id: item.id,
@@ -134,8 +195,8 @@ const todayAstro = computed(() => {
   const y = now.getFullYear()
   const m = now.getMonth() + 1
   const d = now.getDate()
-  const ys = ((y - 4) % 10 + 10) % 10
-  const yb = ((y - 4) % 12 + 12) % 12
+  const ys = (((y - 4) % 10) + 10) % 10
+  const yb = (((y - 4) % 12) + 12) % 12
   const mp = getMonthPillar(y, m, d)
   let termIdx = -1
   for (let i = 0; i < 12; i++) {
@@ -164,11 +225,14 @@ onMounted(() => {
 
 // Refresh recent activity each time user navigates back to home
 const route = useRoute()
-watch(() => route.path, (path) => {
-  if (path === '/' && currentProfile.value) {
-    fetchRecentActivity()
-  }
-})
+watch(
+  () => route.path,
+  path => {
+    if (path === '/' && currentProfile.value) {
+      fetchRecentActivity()
+    }
+  },
+)
 
 const goToLogin = () => {
   router.push('/login')
@@ -178,7 +242,10 @@ const goToLogin = () => {
 <template>
   <div class="min-h-screen relative">
     <!-- ═══ Loading Skeleton ═══ -->
-    <div v-if="!sessionReady" class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10">
+    <div
+      v-if="!sessionReady"
+      class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10"
+    >
       <div class="space-y-6">
         <div class="mb-12 sm:mb-16">
           <div class="skeleton-pulse h-12 w-64 mb-3 rounded" />
@@ -204,86 +271,85 @@ const goToLogin = () => {
     <!-- ════════════════════════════════════ -->
     <template v-if="sessionReady && !currentProfile">
       <div class="relative z-10">
-
         <!-- ── Hero ── -->
-        <section
-          class="relative overflow-hidden"
-          aria-labelledby="hero-heading"
-        >
-          <div class="relative" style="background:
-            radial-gradient(ellipse 50% 40% at 70% 25%, rgba(156,26,28,0.02) 0%, transparent 60%),
-            radial-gradient(ellipse 35% 30% at 20% 75%, rgba(44,26,14,0.015) 0%, transparent 50%);">
+        <section class="relative overflow-hidden" aria-labelledby="hero-heading">
+          <div
+            class="relative"
+            style="
+              background:
+                radial-gradient(
+                  ellipse 50% 40% at 70% 25%,
+                  rgba(156, 26, 28, 0.02) 0%,
+                  transparent 60%
+                ),
+                radial-gradient(
+                  ellipse 35% 30% at 20% 75%,
+                  rgba(44, 26, 14, 0.015) 0%,
+                  transparent 50%
+                );
+            "
+          >
             <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
               <div class="flex flex-col items-center text-center max-w-2xl mx-auto">
-
                 <!-- Stamp -->
-                <div
-                  class="anim-rise mb-8"
-                >
-                  <span
-                    class="seal-icon seal-icon--hero"
-                    aria-hidden="true"
-                  >玄</span>
+                <div class="anim-rise mb-8">
+                  <span class="seal-icon seal-icon--hero" aria-hidden="true">玄</span>
                 </div>
 
                 <!-- Title -->
-                <h1
-                  id="hero-heading"
-                  class="anim-rise anim-delay-1 font-display hero-title"
-                >
-                  玄<span class="title-dot"></span>道<span class="title-dot"></span><span class="text-cinnabar-deeper">知天命</span>
+                <h1 id="hero-heading" class="anim-rise anim-delay-1 font-display hero-title">
+                  玄<span class="title-dot"></span>道<span class="title-dot"></span
+                  ><span class="text-cinnabar-deeper">知天命</span>
                 </h1>
 
                 <!-- Incantation -->
                 <div class="hero-incant anim-rise anim-delay-2">
-                  <span class="hero-incant__line">{{ tools.filter(t => t.available).slice(0, 5).map(t => t.name).join(' · ') }}</span>
+                  <span class="hero-incant__line">{{
+                    tools
+                      .filter(t => t.available)
+                      .slice(0, 5)
+                      .map(t => t.name)
+                      .join(' · ')
+                  }}</span>
                   <span class="hero-incant__divider"></span>
                   <span class="hero-incant__line">中式命理，一应俱全</span>
                 </div>
 
                 <!-- CTA -->
                 <div class="anim-rise anim-delay-4 flex gap-4 mt-10">
-                  <button
-                    class="btn-cin"
-                    @click="goToLogin"
-                  >
-                    开始推演
-                  </button>
-                  <NuxtLink
-                    to="/login"
-                    class="btn-ink no-underline"
-                  >
-                    已有档案
-                  </NuxtLink>
+                  <button class="btn-cin" @click="goToLogin">开始推演</button>
+                  <NuxtLink to="/login" class="btn-ink no-underline"> 已有档案 </NuxtLink>
                 </div>
-
               </div>
             </div>
           </div>
         </section>
 
         <!-- ── 何为命理 ── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="何为命理">
+        <section
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16"
+          aria-label="何为命理"
+        >
           <div class="section-header">
             <h2>何 为 命 理</h2>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
-            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay:0.05s">
+            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay: 0.05s">
               <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">古</span>
               <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">古法传承</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 基于《三命通会》《渊海子平》《易经》等经典古籍，延续千年命理推算体系。
               </p>
             </div>
-            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay:0.15s">
+            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay: 0.15s">
               <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">全</span>
               <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">一应俱全</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 四柱八字、紫微斗数、六爻占卜、生肖星座、姓名测字——命理之术，尽汇于此。
               </p>
             </div>
-            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay:0.25s">
+            <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay: 0.25s">
               <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">简</span>
               <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">即问即答</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
@@ -306,19 +372,35 @@ const goToLogin = () => {
             <div
               v-for="tool in tools"
               :key="tool.id"
-              :class="[
-                'tool-card--new',
-                tool.available ? '' : 'opacity-50 cursor-default',
-              ]"
+              :class="['tool-card--new', tool.available ? '' : 'opacity-50 cursor-default']"
               :aria-label="tool.available ? tool.name : tool.name + '（即将推出）'"
               :aria-disabled="tool.available ? undefined : 'true'"
             >
               <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
               <span
                 class="seal-icon seal-icon--lg"
-                :style="tool.available ? { marginBottom: '20px' } : { marginBottom: '20px', background: 'var(--color-ink-light)', boxShadow: 'none' }"
-              >{{ tool.char }}</span>
-              <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:8px;">{{ tool.name }}</div>
+                :style="
+                  tool.available
+                    ? { marginBottom: '20px' }
+                    : {
+                        marginBottom: '20px',
+                        background: 'var(--color-ink-light)',
+                        boxShadow: 'none',
+                      }
+                "
+                >{{ tool.char }}</span
+              >
+              <div
+                class="tool-card__name"
+                style="
+                  font-size: 19px;
+                  color: var(--color-ink);
+                  letter-spacing: 0.25em;
+                  margin-bottom: 8px;
+                "
+              >
+                {{ tool.name }}
+              </div>
               <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
                 {{ tool.description }}
               </p>
@@ -333,14 +415,27 @@ const goToLogin = () => {
         </section>
 
         <!-- ── 三步入门 ── -->
-        <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16" aria-label="如何开始">
+        <section
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16"
+          aria-label="如何开始"
+        >
           <div class="section-header">
             <h2>如 何 开 始</h2>
           </div>
 
-          <div class="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-8 sm:gap-16 mt-6">
-            <div class="flex flex-col items-center text-center max-w-[12rem] anim-rise" style="--delay:0.05s">
-              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true" style="font-family:var(--font-display)">壹</span>
+          <div
+            class="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-8 sm:gap-16 mt-6"
+          >
+            <div
+              class="flex flex-col items-center text-center max-w-[12rem] anim-rise"
+              style="--delay: 0.05s"
+            >
+              <span
+                class="seal-icon seal-icon--lg mb-4"
+                aria-hidden="true"
+                style="font-family: var(--font-display)"
+                >壹</span
+              >
               <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">填写出生</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 输入你的出生年月日时，只需一次。
@@ -348,13 +443,28 @@ const goToLogin = () => {
             </div>
 
             <div class="hidden sm:flex items-center pt-10" aria-hidden="true">
-              <svg class="w-6 h-6 text-ink-faint/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <svg
+                class="w-6 h-6 text-ink-faint/30"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </div>
 
-            <div class="flex flex-col items-center text-center max-w-[12rem] anim-rise" style="--delay:0.15s">
-              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true" style="font-family:var(--font-display)">贰</span>
+            <div
+              class="flex flex-col items-center text-center max-w-[12rem] anim-rise"
+              style="--delay: 0.15s"
+            >
+              <span
+                class="seal-icon seal-icon--lg mb-4"
+                aria-hidden="true"
+                style="font-family: var(--font-display)"
+                >贰</span
+              >
               <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">即刻排盘</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 系统自动推算四柱八字、紫微命盘、星盘轨迹。
@@ -362,13 +472,28 @@ const goToLogin = () => {
             </div>
 
             <div class="hidden sm:flex items-center pt-10" aria-hidden="true">
-              <svg class="w-6 h-6 text-ink-faint/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <svg
+                class="w-6 h-6 text-ink-faint/30"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </div>
 
-            <div class="flex flex-col items-center text-center max-w-[12rem] anim-rise" style="--delay:0.25s">
-              <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true" style="font-family:var(--font-display)">叁</span>
+            <div
+              class="flex flex-col items-center text-center max-w-[12rem] anim-rise"
+              style="--delay: 0.25s"
+            >
+              <span
+                class="seal-icon seal-icon--lg mb-4"
+                aria-hidden="true"
+                style="font-family: var(--font-display)"
+                >叁</span
+              >
               <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">解读天命</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
                 查看运势分析、神煞流年、五行喜忌，洞察人生玄机。
@@ -381,9 +506,19 @@ const goToLogin = () => {
         <section class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div class="divider-seal mb-10">
             <span class="divider-seal__line" aria-hidden="true"></span>
-            <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">玄</span>
+            <span
+              class="seal-icon"
+              style="width: 26px; height: 26px; font-size: 10px"
+              aria-hidden="true"
+              >玄</span
+            >
             <span class="divider-seal__word">玄·道</span>
-            <span class="seal-icon" style="width:26px;height:26px;font-size:10px;" aria-hidden="true">道</span>
+            <span
+              class="seal-icon"
+              style="width: 26px; height: 26px; font-size: 10px"
+              aria-hidden="true"
+              >道</span
+            >
             <span class="divider-seal__line" aria-hidden="true"></span>
           </div>
 
@@ -392,7 +527,6 @@ const goToLogin = () => {
             <NuxtLink to="/login" class="btn-ink no-underline">浏览命盘</NuxtLink>
           </div>
         </section>
-
       </div>
     </template>
 
@@ -411,25 +545,37 @@ const goToLogin = () => {
                 <div class="flex items-center gap-3 sm:gap-4">
                   <span
                     class="hidden sm:block w-6 h-px flex-shrink-0"
-                    style="background:linear-gradient(to right, rgba(156,26,28,0.4), transparent);"
+                    style="
+                      background: linear-gradient(to right, rgba(156, 26, 28, 0.4), transparent);
+                    "
                     aria-hidden="true"
                   />
-                  <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl" style="color:var(--color-ink);letter-spacing:0.05em;">
-                    {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{ currentProfile.nickname }}</span>
+                  <h1
+                    class="font-display text-3xl sm:text-4xl lg:text-5xl"
+                    style="color: var(--color-ink); letter-spacing: 0.05em"
+                  >
+                    {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{
+                      currentProfile.nickname
+                    }}</span>
                   </h1>
                   <!-- 岁次 seal -->
                   <span
                     class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[0.6875rem] tracking-[0.15em] text-ink-medium/60 border border-ink-faint/20 font-sans"
-                    style="transform:rotate(-1deg);"
-                  >{{ todayAstro?.yearGanZhi || '' }}</span>
+                    style="transform: rotate(-1deg)"
+                    >{{ todayAstro?.yearGanZhi || '' }}</span
+                  >
                 </div>
                 <div class="flex items-center gap-3 ml-0 sm:ml-10">
                   <span
                     class="seal-icon"
-                    style="width:26px;height:26px;font-size:10px;border-radius:3px;"
+                    style="width: 26px; height: 26px; font-size: 10px; border-radius: 3px"
                     aria-hidden="true"
-                  >玄</span>
-                  <p class="ui" style="font-size:13px;color:var(--color-ink-light);letter-spacing:0.15em;">
+                    >玄</span
+                  >
+                  <p
+                    class="ui"
+                    style="font-size: 13px; color: var(--color-ink-light); letter-spacing: 0.15em"
+                  >
                     {{ greeting.subtitle }}
                   </p>
                 </div>
@@ -437,14 +583,31 @@ const goToLogin = () => {
             </div>
 
             <!-- Bottom half: 今日玄机 -->
-            <div class="flex-1 min-h-0 anim-rise" style="--delay:0.1s">
-              <div class="talisman-card h-full flex flex-col items-center justify-center text-center" aria-label="今日黄历">
-                <span class="absolute top-3 left-3 text-[1rem] opacity-15" style="color:#C62828;" aria-hidden="true">☰</span>
-                <span class="absolute top-3 right-3 text-[1rem] opacity-15" style="color:#C62828;" aria-hidden="true">☷</span>
+            <div class="flex-1 min-h-0 anim-rise" style="--delay: 0.1s">
+              <div
+                class="talisman-card h-full flex flex-col items-center justify-center text-center"
+                aria-label="今日黄历"
+              >
+                <span
+                  class="absolute top-3 left-3 text-[1rem] opacity-15"
+                  style="color: #c62828"
+                  aria-hidden="true"
+                  >☰</span
+                >
+                <span
+                  class="absolute top-3 right-3 text-[1rem] opacity-15"
+                  style="color: #c62828"
+                  aria-hidden="true"
+                  >☷</span
+                >
                 <template v-if="todayAstro">
                   <span class="talisman-seal--sm mb-2" aria-hidden="true">玄</span>
-                  <p class="talisman-lunar-date">{{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}</p>
-                  <p class="talisman-gregorian">{{ todayAstro.dateStr }} · 星期{{ todayAstro.weekday }}</p>
+                  <p class="talisman-lunar-date">
+                    {{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}
+                  </p>
+                  <p class="talisman-gregorian">
+                    {{ todayAstro.dateStr }} · 星期{{ todayAstro.weekday }}
+                  </p>
                   <div class="flex items-center justify-center gap-3 mb-1.5">
                     <span class="talisman-ganzhi">{{ todayAstro.yearGanZhi }}年</span>
                     <span class="w-px h-2 bg-ink-faint/20" aria-hidden="true"></span>
@@ -459,7 +622,7 @@ const goToLogin = () => {
           </div>
 
           <!-- ── Right column: Fortune stick, full height ── -->
-          <div class="anim-rise" style="--delay:0.2s">
+          <div class="anim-rise" style="--delay: 0.2s">
             <DailyFortuneStick tall class="w-full h-full" />
           </div>
         </div>
@@ -480,9 +643,29 @@ const goToLogin = () => {
             :class="'anim-delay-' + (index + 1)"
           >
             <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-            <span class="seal-icon seal-icon--lg" style="margin-bottom:16px;">{{ tool.char }}</span>
-            <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:4px;">{{ tool.name }}</div>
-            <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">{{ tool.description }}</p>
+            <span class="seal-icon seal-icon--lg" style="margin-bottom: 16px">{{ tool.char }}</span>
+            <div
+              class="tool-card__name"
+              style="
+                font-size: 19px;
+                color: var(--color-ink);
+                letter-spacing: 0.25em;
+                margin-bottom: 4px;
+              "
+            >
+              {{ tool.name }}
+            </div>
+            <p
+              class="ui"
+              style="
+                font-size: 12px;
+                color: var(--color-ink-light);
+                letter-spacing: 0.08em;
+                line-height: 1.6;
+              "
+            >
+              {{ tool.description }}
+            </p>
           </NuxtLink>
 
           <div
@@ -494,10 +677,47 @@ const goToLogin = () => {
             :class="'anim-delay-' + (tools.filter(t => t.available).length + index + 1)"
           >
             <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-            <span class="seal-icon seal-icon--lg" style="margin-bottom:16px;background:var(--color-ink-light);box-shadow:none;">{{ tool.char }}</span>
-            <div class="tool-card__name" style="font-size:19px;color:var(--color-ink);letter-spacing:0.25em;margin-bottom:4px;">{{ tool.name }}</div>
-            <p class="ui" style="font-size:12px;color:var(--color-ink-light);letter-spacing:0.08em;line-height:1.6;">{{ tool.description }}</p>
-            <span class="ui" style="position:absolute;top:12px;right:12px;padding:2px 8px;border-radius:999px;font-size:9px;border:1px solid rgba(44,26,14,0.08);color:var(--color-ink-light);">即将推出</span>
+            <span
+              class="seal-icon seal-icon--lg"
+              style="margin-bottom: 16px; background: var(--color-ink-light); box-shadow: none"
+              >{{ tool.char }}</span
+            >
+            <div
+              class="tool-card__name"
+              style="
+                font-size: 19px;
+                color: var(--color-ink);
+                letter-spacing: 0.25em;
+                margin-bottom: 4px;
+              "
+            >
+              {{ tool.name }}
+            </div>
+            <p
+              class="ui"
+              style="
+                font-size: 12px;
+                color: var(--color-ink-light);
+                letter-spacing: 0.08em;
+                line-height: 1.6;
+              "
+            >
+              {{ tool.description }}
+            </p>
+            <span
+              class="ui"
+              style="
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                padding: 2px 8px;
+                border-radius: 999px;
+                font-size: 9px;
+                border: 1px solid rgba(44, 26, 14, 0.08);
+                color: var(--color-ink-light);
+              "
+              >即将推出</span
+            >
           </div>
         </div>
 
@@ -513,7 +733,11 @@ const goToLogin = () => {
 
           <!-- Loading state -->
           <div v-if="recentLoading" class="flex gap-3 overflow-x-auto pb-2">
-            <div v-for="n in 5" :key="n" class="flex-shrink-0 w-20 skeleton-pulse h-20 rounded-lg" />
+            <div
+              v-for="n in 5"
+              :key="n"
+              class="flex-shrink-0 w-20 skeleton-pulse h-20 rounded-lg"
+            />
           </div>
 
           <!-- Recent items -->
@@ -527,10 +751,13 @@ const goToLogin = () => {
             >
               <span
                 class="seal-icon text-xs w-8 h-8 group-hover:bg-cinnabar transition-colors"
-                style="border-radius:0.25rem;"
+                style="border-radius: 0.25rem"
                 aria-hidden="true"
-              >{{ item.icon }}</span>
-              <span class="text-[0.6875rem] text-ink-medium/70 tracking-[0.08em] leading-tight text-center">
+                >{{ item.icon }}</span
+              >
+              <span
+                class="text-[0.6875rem] text-ink-medium/70 tracking-[0.08em] leading-tight text-center"
+              >
                 {{ item.relativeTime }}
               </span>
             </NuxtLink>
@@ -538,15 +765,11 @@ const goToLogin = () => {
         </section>
 
         <!-- Empty state -->
-        <div
-          v-if="!recentLoading && recentActivity.length === 0"
-          class="text-center py-8"
-        >
+        <div v-if="!recentLoading && recentActivity.length === 0" class="text-center py-8">
           <p class="text-[0.75rem] text-ink-light/60 tracking-[0.1em]">
             暂无记录，开始探索玄学工具吧
           </p>
         </div>
-
       </div>
     </template>
 
@@ -569,7 +792,6 @@ const goToLogin = () => {
 </template>
 
 <style scoped>
-
 /* ═══ Hero Title ═══ */
 .hero-title {
   font-size: 4.25rem;
@@ -588,11 +810,13 @@ const goToLogin = () => {
   border-radius: 1rem;
   padding: 1.75rem 1.5rem;
   text-align: center;
-  background: #FAF0E0;
+  background: #faf0e0;
   border: 1px solid rgba(198, 40, 40, 0.08);
 }
 @media (min-width: 640px) {
-  .talisman-card { padding: 2rem; }
+  .talisman-card {
+    padding: 2rem;
+  }
 }
 .talisman-seal--sm {
   display: inline-flex;
@@ -609,14 +833,16 @@ const goToLogin = () => {
   color: var(--color-paper-lightest);
 }
 .talisman-lunar-date {
-  font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
   font-size: 1.75rem;
   color: var(--color-ink-dark);
   letter-spacing: 0.2em;
   margin-bottom: 0.25rem;
 }
 @media (min-width: 640px) {
-  .talisman-lunar-date { font-size: 2rem; }
+  .talisman-lunar-date {
+    font-size: 2rem;
+  }
 }
 .talisman-gregorian {
   font-size: 0.6875rem;

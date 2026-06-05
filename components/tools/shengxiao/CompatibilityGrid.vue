@@ -8,13 +8,16 @@
         v-for="(item, idx) in items"
         :key="item.animal"
         class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300 hover:-translate-y-0.5"
-        :class="[borderClass(item.level), expandedIdx === idx ? 'cursor-default' : 'cursor-pointer']"
-        @click="toggleExpand(idx)"
-        @keydown.enter="toggleExpand(idx)"
-        @keydown.space.prevent="toggleExpand(idx)"
+        :class="[
+          borderClass(item.level),
+          expandedIdx === idx ? 'cursor-default' : 'cursor-pointer',
+        ]"
         tabindex="0"
         role="button"
         :aria-expanded="expandedIdx === idx"
+        @click="toggleExpand(idx)"
+        @keydown.enter="toggleExpand(idx)"
+        @keydown.space.prevent="toggleExpand(idx)"
       >
         <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.emoji }}</div>
         <div class="font-display text-base text-ink-dark">{{ item.animal }}</div>

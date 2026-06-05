@@ -8,41 +8,56 @@
 
 import { ANIMALS, BRANCHES, WUXING_BRANCH, STEMS } from '~/constants/bazi'
 import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
-import { LIUHE_PAIRS, SANHE_GROUPS, CHONG_PAIRS, XING_PAIRS, HAI_PAIRS, PO_PAIRS } from './useShengXiao'
+import {
+  LIUHE_PAIRS,
+  SANHE_GROUPS,
+  CHONG_PAIRS,
+  XING_PAIRS,
+  HAI_PAIRS,
+  PO_PAIRS,
+} from './useShengXiao'
 
 // === Five-element cycle maps ================================================
 
 /** 相生 cycle: A generates B */
 const SHENG_CYCLE: Record<string, string> = {
-  '木': '火', '火': '土', '土': '金', '金': '水', '水': '木',
+  木: '火',
+  火: '土',
+  土: '金',
+  金: '水',
+  水: '木',
 }
 
 /** 相克 cycle: A restrains B */
 const KE_CYCLE: Record<string, string> = {
-  '木': '土', '土': '水', '水': '火', '火': '金', '金': '木',
+  木: '土',
+  土: '水',
+  水: '火',
+  火: '金',
+  金: '木',
 }
 
 // === Types ==================================================================
 
 export interface MonthlyFortuneItem {
-  monthIndex: number       // 1-12 (1=寅月, 2=卯月...12=丑月)
-  monthName: string        // '寅月', '卯月', etc.
-  monthBranch: string      // '寅', '卯', etc.
-  monthStem: string        // heavenly stem for this month (from 五虎遁)
-  gregorianLabel: string   // '2/4—3/5' (approximate Gregorian range)
-  score: number            // 0-100
+  monthIndex: number // 1-12 (1=寅月, 2=卯月...12=丑月)
+  monthName: string // '寅月', '卯月', etc.
+  monthBranch: string // '寅', '卯', etc.
+  monthStem: string // heavenly stem for this month (from 五虎遁)
+  gregorianLabel: string // '2/4—3/5' (approximate Gregorian range)
+  score: number // 0-100
   level: '旺' | '平' | '弱'
-  levelLabel: string       // '运势旺盛' | '运势平稳' | '运势低迷'
-  relationship: string     // '六合' | '三合' | '相冲' | '相刑' | '相害' | '相破' | '无特殊关系'
+  levelLabel: string // '运势旺盛' | '运势平稳' | '运势低迷'
+  relationship: string // '六合' | '三合' | '相冲' | '相刑' | '相害' | '相破' | '无特殊关系'
   relationshipDesc: string // Human-readable description
-  tip: string              // One-line fortune tip
+  tip: string // One-line fortune tip
 }
 
 export interface MonthlyFortuneResult {
   year: number
-  animal: string           // user's zodiac animal
-  animalBranch: string     // user's earthly branch
-  animalElement: string    // user's wuxing element
+  animal: string // user's zodiac animal
+  animalBranch: string // user's earthly branch
+  animalElement: string // user's wuxing element
   months: MonthlyFortuneItem[]
 }
 
@@ -58,7 +73,7 @@ interface MonthStemEntry {
 }
 
 function computeMonthStems(year: number): MonthStemEntry[] {
-  const yearStemIndex = ((year - 4) % 10 + 10) % 10
+  const yearStemIndex = (((year - 4) % 10) + 10) % 10
   const monthStemStart = getMonthStemStart(yearStemIndex)
   const monthBranches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
 
@@ -108,12 +123,12 @@ function inSameSanHeGroup(animalIdx: number, monthIdx: number): boolean {
 function getFortuneTip(relationship: string, userElement: string, monthElement: string): string {
   // Relationship-based tips take priority
   const relationshipTips: Record<string, string> = {
-    '六合': '贵人相助，运势顺畅，宜积极进取',
-    '三合': '人缘颇佳，合作有利，宜拓展社交',
-    '相冲': '变动较多，宜静不宜动，谨慎应对',
-    '相刑': '口舌是非易生，注意人际关系',
-    '相害': '暗中阻碍，防小人，守成为上',
-    '相破': '计划易生变故，细节不可疏忽',
+    六合: '贵人相助，运势顺畅，宜积极进取',
+    三合: '人缘颇佳，合作有利，宜拓展社交',
+    相冲: '变动较多，宜静不宜动，谨慎应对',
+    相刑: '口舌是非易生，注意人际关系',
+    相害: '暗中阻碍，防小人，守成为上',
+    相破: '计划易生变故，细节不可疏忽',
   }
 
   if (relationshipTips[relationship]) {
@@ -140,12 +155,12 @@ function getFortuneTip(relationship: string, userElement: string, monthElement: 
 /** Human-readable relationship description for display */
 function getRelationshipDescription(relationship: string): string {
   const descriptions: Record<string, string> = {
-    '六合': '与月令六合，贵人相助，运势顺畅',
-    '三合': '与月令三合，人缘颇佳，合作有利',
-    '相冲': '与月令相冲，变动较多，宜静不宜动',
-    '相刑': '与月令相刑，口舌是非易生',
-    '相害': '与月令相害，暗中阻碍，防小人',
-    '相破': '与月令相破，计划易生变故',
+    六合: '与月令六合，贵人相助，运势顺畅',
+    三合: '与月令三合，人缘颇佳，合作有利',
+    相冲: '与月令相冲，变动较多，宜静不宜动',
+    相刑: '与月令相刑，口舌是非易生',
+    相害: '与月令相害，暗中阻碍，防小人',
+    相破: '与月令相破，计划易生变故',
   }
   return descriptions[relationship] || ''
 }
@@ -159,10 +174,23 @@ export function calculateMonthlyFortune(
   animalElement: string,
 ): MonthlyFortuneResult {
   // Convert birth year to animal index (consistent with getAnimalIndex)
-  const animalIdx = ((birthYear - 4) % 12 + 12) % 12
+  const animalIdx = (((birthYear - 4) % 12) + 12) % 12
   const animalBranchIdx = BRANCHES.indexOf(animalBranch)
   const monthStems = computeMonthStems(currentYear)
-  const monthNames = ['寅月', '卯月', '辰月', '巳月', '午月', '未月', '申月', '酉月', '戌月', '亥月', '子月', '丑月']
+  const monthNames = [
+    '寅月',
+    '卯月',
+    '辰月',
+    '巳月',
+    '午月',
+    '未月',
+    '申月',
+    '酉月',
+    '戌月',
+    '亥月',
+    '子月',
+    '丑月',
+  ]
 
   const months: MonthlyFortuneItem[] = monthStems.map((ms, i) => {
     const monthBranchIdx = BRANCHES.indexOf(ms.branch)
@@ -197,13 +225,13 @@ export function calculateMonthlyFortune(
     if (relationship === '无特殊关系') {
       const monthElement = WUXING_BRANCH[ms.branch]
       if (SHENG_CYCLE[monthElement] === animalElement) {
-        score += 6  // month generates user
+        score += 6 // month generates user
       } else if (SHENG_CYCLE[animalElement] === monthElement) {
-        score -= 3  // user generates month
+        score -= 3 // user generates month
       } else if (KE_CYCLE[monthElement] === animalElement) {
-        score -= 6  // month restrains user
+        score -= 6 // month restrains user
       } else if (KE_CYCLE[animalElement] === monthElement) {
-        score += 3  // user restrains month
+        score += 3 // user restrains month
       } else {
         // Same element
         score += 4

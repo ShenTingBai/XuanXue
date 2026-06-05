@@ -24,7 +24,7 @@ defineProps<{
     <!-- Outer decorative border -->
     <div
       class="absolute -inset-px pointer-events-none z-10"
-      style="border: 1px solid color-mix(in srgb, var(--color-ink-medium) 15%, transparent);"
+      style="border: 1px solid color-mix(in srgb, var(--color-ink-medium) 15%, transparent)"
     />
 
     <div
@@ -32,7 +32,7 @@ defineProps<{
       :key="palace.index"
       class="bg-paper relative"
       role="listitem"
-      style="border: 1px solid color-mix(in srgb, var(--color-ink-medium) 10%, transparent);"
+      style="border: 1px solid color-mix(in srgb, var(--color-ink-medium) 10%, transparent)"
       :style="{
         gridRow: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.row,
         gridColumn: BRANCH_GRID_POSITIONS[palace.earthlyBranch]?.col,
@@ -47,7 +47,12 @@ defineProps<{
     </div>
 
     <!-- Center info area -->
-    <div class="col-start-2 col-end-4 row-start-2 row-end-4 grid grid-cols-2 grid-rows-2 relative z-[1]" style="box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink-medium) 6%, transparent);">
+    <div
+      class="col-start-2 col-end-4 row-start-2 row-end-4 grid grid-cols-2 grid-rows-2 relative z-[1]"
+      style="
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink-medium) 6%, transparent);
+      "
+    >
       <div
         v-for="(item, i) in [
           { label: '五行局', value: fiveElementsClass },
@@ -57,15 +62,18 @@ defineProps<{
         ]"
         :key="i"
         class="flex flex-col items-center justify-center text-center"
-        :class="[
-          'bg-paper-medium',
-          i < 2 ? 'border-b' : '',
-          i % 2 === 0 ? 'border-r' : '',
-        ]"
-        style="border-color: color-mix(in srgb, var(--color-ink-medium) 10%, transparent);"
+        :class="['bg-paper-medium', i < 2 ? 'border-b' : '', i % 2 === 0 ? 'border-r' : '']"
+        style="border-color: color-mix(in srgb, var(--color-ink-medium) 10%, transparent)"
       >
-        <div class="text-[0.6875rem] tracking-[0.08em] text-ink-muted font-sans mb-0.5 font-medium">{{ item.label }}</div>
-        <div class="text-[14px] font-display tracking-[0.08em] font-semibold" style="color: var(--color-ink);">{{ item.value }}</div>
+        <div class="text-[0.6875rem] tracking-[0.08em] text-ink-muted font-sans mb-0.5 font-medium">
+          {{ item.label }}
+        </div>
+        <div
+          class="text-[14px] font-display tracking-[0.08em] font-semibold"
+          style="color: var(--color-ink)"
+        >
+          {{ item.value }}
+        </div>
       </div>
     </div>
   </div>

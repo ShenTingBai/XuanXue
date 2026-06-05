@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { calculateMonthlyFortune, type MonthlyFortuneResult } from '../../composables/useMonthlyFortune'
+import {
+  calculateMonthlyFortune,
+  type MonthlyFortuneResult,
+} from '../../composables/useMonthlyFortune'
 
 describe('calculateMonthlyFortune', () => {
   /** Helper: find a month by its branch name */
@@ -199,8 +202,34 @@ describe('calculateMonthlyFortune', () => {
   // ── Month indices and names are sequential and correct ──
   it('month names and indices are sequential from 寅 to 丑', () => {
     const result = calculateMonthlyFortune(1996, 2026, '子', '水')
-    const expectedNames = ['寅月', '卯月', '辰月', '巳月', '午月', '未月', '申月', '酉月', '戌月', '亥月', '子月', '丑月']
-    const expectedBranches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
+    const expectedNames = [
+      '寅月',
+      '卯月',
+      '辰月',
+      '巳月',
+      '午月',
+      '未月',
+      '申月',
+      '酉月',
+      '戌月',
+      '亥月',
+      '子月',
+      '丑月',
+    ]
+    const expectedBranches = [
+      '寅',
+      '卯',
+      '辰',
+      '巳',
+      '午',
+      '未',
+      '申',
+      '酉',
+      '戌',
+      '亥',
+      '子',
+      '丑',
+    ]
 
     for (let i = 0; i < 12; i++) {
       expect(result.months[i].monthIndex).toBe(i + 1)
@@ -243,10 +272,16 @@ describe('calculateMonthlyFortune', () => {
     //   Same element (+4): 得令当旺
 
     for (const month of neutralSnake) {
-      const monthElement = month.monthBranch === '寅' || month.monthBranch === '卯' ? '木' :
-        month.monthBranch === '巳' || month.monthBranch === '午' ? '火' :
-        month.monthBranch === '申' || month.monthBranch === '酉' ? '金' :
-        month.monthBranch === '亥' || month.monthBranch === '子' ? '水' : '土'
+      const monthElement =
+        month.monthBranch === '寅' || month.monthBranch === '卯'
+          ? '木'
+          : month.monthBranch === '巳' || month.monthBranch === '午'
+            ? '火'
+            : month.monthBranch === '申' || month.monthBranch === '酉'
+              ? '金'
+              : month.monthBranch === '亥' || month.monthBranch === '子'
+                ? '水'
+                : '土'
 
       // 生 (木生火): month generates user → score base +6
       if (monthElement === '木') {
@@ -282,10 +317,16 @@ describe('calculateMonthlyFortune', () => {
     const pig = calculateMonthlyFortune(2007, 2026, '亥', '水')
     const neutralPig = pig.months.filter(m => m.relationship === '无特殊关系')
     for (const month of neutralPig) {
-      const monthElement = month.monthBranch === '寅' || month.monthBranch === '卯' ? '木' :
-        month.monthBranch === '巳' || month.monthBranch === '午' ? '火' :
-        month.monthBranch === '申' || month.monthBranch === '酉' ? '金' :
-        month.monthBranch === '亥' || month.monthBranch === '子' ? '水' : '土'
+      const monthElement =
+        month.monthBranch === '寅' || month.monthBranch === '卯'
+          ? '木'
+          : month.monthBranch === '巳' || month.monthBranch === '午'
+            ? '火'
+            : month.monthBranch === '申' || month.monthBranch === '酉'
+              ? '金'
+              : month.monthBranch === '亥' || month.monthBranch === '子'
+                ? '水'
+                : '土'
 
       if (monthElement === '金') {
         expect(month.tip).toBe('月令生扶，精力充沛，顺势而为')

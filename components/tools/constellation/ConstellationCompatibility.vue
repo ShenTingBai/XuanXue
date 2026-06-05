@@ -8,12 +8,15 @@
         v-for="(item, idx) in items"
         :key="item.name"
         class="card-warm rounded-xl p-3 sm:p-4 text-center transition-all duration-300"
-        :class="[borderClass(item.level), expandedIdx === idx ? '' : 'cursor-pointer hover:-translate-y-0.5']"
-        @click="toggleExpand(idx)"
-        @keydown.enter="toggleExpand(idx)"
+        :class="[
+          borderClass(item.level),
+          expandedIdx === idx ? '' : 'cursor-pointer hover:-translate-y-0.5',
+        ]"
         tabindex="0"
         role="button"
         :aria-expanded="expandedIdx === idx"
+        @click="toggleExpand(idx)"
+        @keydown.enter="toggleExpand(idx)"
       >
         <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.symbol }}</div>
         <div class="font-display text-base text-ink-dark">{{ item.name }}</div>
@@ -32,7 +35,13 @@
           >
             <p
               class="text-left font-sans text-xs text-ink-medium leading-relaxed pl-2 border-l-2"
-              :class="item.level === 'great' ? 'border-wuxing-wood/40' : item.level === 'bad' ? 'border-cinnabar/30' : 'border-ink-faint/40'"
+              :class="
+                item.level === 'great'
+                  ? 'border-wuxing-wood/40'
+                  : item.level === 'bad'
+                    ? 'border-cinnabar/30'
+                    : 'border-ink-faint/40'
+              "
             >
               {{ item.explanation }}
             </p>

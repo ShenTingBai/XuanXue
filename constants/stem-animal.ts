@@ -25,42 +25,48 @@ export const NAYIN_PERSONALITIES: NayinPersonality[] = [
     nayin: '海中金',
     stemBranches: ['甲子', '乙丑'],
     core: '深邃难测',
-    description: '外表平静，内心深沉。沉得住气，善于等待时机。内在才华出众但需外力激发。精明练达，处世圆融，社交能力强。',
+    description:
+      '外表平静，内心深沉。沉得住气，善于等待时机。内在才华出众但需外力激发。精明练达，处世圆融，社交能力强。',
     keywords: ['城府深', '沉得住气', '精明练达'],
   },
   {
     nayin: '炉中火',
     stemBranches: ['丙寅', '丁卯'],
     core: '热情积极',
-    description: '热情奔放，积极向上。做事专注有威严，为人正直忠诚。前者气势旺盛宜远行，后者文雅恬淡喜清闲。',
+    description:
+      '热情奔放，积极向上。做事专注有威严，为人正直忠诚。前者气势旺盛宜远行，后者文雅恬淡喜清闲。',
     keywords: ['热情', '专注', '正直'],
   },
   {
     nayin: '大林木',
     stemBranches: ['戊辰', '己巳'],
     core: '仁义好善',
-    description: '仁爱善良，重情重义。喜欢结交朋友，为人讲义气，有团队精神。能团结众人，有领导风范。',
+    description:
+      '仁爱善良，重情重义。喜欢结交朋友，为人讲义气，有团队精神。能团结众人，有领导风范。',
     keywords: ['仁义', '好善', '重友情'],
   },
   {
     nayin: '路旁土',
     stemBranches: ['庚午', '辛未'],
     core: '随俗浮沉',
-    description: '性格随环境变化，适应性较强。注重外在形象，喜欢追求时尚潮流。内心有不安定感，渴望认可。',
+    description:
+      '性格随环境变化，适应性较强。注重外在形象，喜欢追求时尚潮流。内心有不安定感，渴望认可。',
     keywords: ['适应力强', '随俗', '时尚'],
   },
   {
     nayin: '剑锋金',
     stemBranches: ['壬申', '癸酉'],
     core: '刚直果决',
-    description: '性格刚强果断，直来直去。做事雷厉风行，有魄力。态度强硬时难免咄咄逼人，但内心坦荡。',
+    description:
+      '性格刚强果断，直来直去。做事雷厉风行，有魄力。态度强硬时难免咄咄逼人，但内心坦荡。',
     keywords: ['刚直', '果断', '坦荡'],
   },
   {
     nayin: '山头火',
     stemBranches: ['甲戌', '乙亥'],
     core: '激情热烈',
-    description: '平时沉寂内敛，一旦爆发则有燎原之势。具有爆发力和创造力，情感丰富浓烈，做事有冲劲。',
+    description:
+      '平时沉寂内敛，一旦爆发则有燎原之势。具有爆发力和创造力，情感丰富浓烈，做事有冲劲。',
     keywords: ['激情', '爆发力', '创造力'],
   },
   {
@@ -246,6 +252,9 @@ export function getNayinPersonality(stemBranch: string): NayinPersonality | unde
  * @param stem 天干，如"甲"
  * @param branch 地支，如"子"
  */
-export function getNayinPersonalityByStemBranch(stem: string, branch: string): NayinPersonality | undefined {
+export function getNayinPersonalityByStemBranch(
+  stem: string,
+  branch: string,
+): NayinPersonality | undefined {
   return getNayinPersonality(stem + branch)
 }

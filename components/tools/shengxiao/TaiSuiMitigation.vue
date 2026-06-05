@@ -54,11 +54,7 @@
           化 解 方 法
         </h3>
         <div class="methods-list">
-          <div
-            v-for="(idx, i) in guide.methodIndices"
-            :key="idx"
-            class="method-item"
-          >
+          <div v-for="(idx, i) in guide.methodIndices" :key="idx" class="method-item">
             <span class="method-num">{{ i + 1 }}</span>
             <div class="method-content">
               <h4 class="method-title">{{ methods[idx].title }}</h4>
@@ -119,25 +115,31 @@ import {
   type MitigationGuide,
 } from '~/constants/tai-sui'
 
-const props = withDefaults(defineProps<{
-  birthYear: number
-  currentYear?: number
-  relation: TaiSuiRelation
-  positive?: string
-  negative?: string
-  delay?: string
-}>(), {
-  currentYear: new Date().getFullYear(),
-  positive: '平',
-  negative: '平',
-  delay: '0.4s',
-})
+const props = withDefaults(
+  defineProps<{
+    birthYear: number
+    currentYear?: number
+    relation: TaiSuiRelation
+    positive?: string
+    negative?: string
+    delay?: string
+  }>(),
+  {
+    currentYear: new Date().getFullYear(),
+    positive: '平',
+    negative: '平',
+    delay: '0.4s',
+  },
+)
 
 const currentDeity = computed(() => getYearTaiSui(props.currentYear))
 const birthDeity = computed(() => getBirthTaiSui(props.birthYear))
 
 const guide = computed<MitigationGuide>(() => {
-  const key = props.negative !== '平' ? props.negative as TaiSuiRelation : props.positive as TaiSuiRelation
+  const key =
+    props.negative !== '平'
+      ? (props.negative as TaiSuiRelation)
+      : (props.positive as TaiSuiRelation)
   return MITIGATION_GUIDES[key] || MITIGATION_GUIDES['平']
 })
 
@@ -159,7 +161,8 @@ const severityClass = computed(() => {
 /* ── Card shell ── */
 .mitigation-card {
   position: relative;
-  background: linear-gradient(180deg,
+  background: linear-gradient(
+    180deg,
     var(--color-scroll-light) 0%,
     var(--color-scroll) 40%,
     var(--color-scroll-dark) 100%
@@ -176,14 +179,13 @@ const severityClass = computed(() => {
   position: absolute;
   inset: 0;
   opacity: 0.2;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 24px,
-      rgba(198, 40, 40, 0.02) 24px,
-      rgba(198, 40, 40, 0.02) 25px
-    );
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 24px,
+    rgba(198, 40, 40, 0.02) 24px,
+    rgba(198, 40, 40, 0.02) 25px
+  );
   pointer-events: none;
 }
 
@@ -194,7 +196,9 @@ const severityClass = computed(() => {
 }
 
 @media (min-width: 640px) {
-  .mitigation-inner { padding: 2rem 2rem; }
+  .mitigation-inner {
+    padding: 2rem 2rem;
+  }
 }
 
 /* ── Top / Bottom decorative rules ── */
@@ -258,8 +262,8 @@ const severityClass = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-cinnabar, #C62828);
-  color: #FDF6E3;
+  background: var(--color-cinnabar, #c62828);
+  color: #fdf6e3;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.75rem;
   letter-spacing: 0.1em;
@@ -271,7 +275,7 @@ const severityClass = computed(() => {
 .mitigation-title {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 1.125rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.35em;
   font-weight: 400;
   line-height: 1.3;
@@ -314,7 +318,7 @@ const severityClass = computed(() => {
 }
 
 .deity-card--current {
-  border-left: 3px solid var(--color-cinnabar, #C62828);
+  border-left: 3px solid var(--color-cinnabar, #c62828);
 }
 
 .deity-card--birth {
@@ -334,7 +338,7 @@ const severityClass = computed(() => {
   display: block;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.78rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   letter-spacing: 0.2em;
   margin-bottom: 0.125rem;
 }
@@ -343,7 +347,7 @@ const severityClass = computed(() => {
   display: block;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 1.125rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.15em;
   line-height: 1.3;
   margin-bottom: 0.375rem;
@@ -352,7 +356,7 @@ const severityClass = computed(() => {
 .deity-bio {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.6;
   letter-spacing: 0.03em;
 }
@@ -463,7 +467,7 @@ const severityClass = computed(() => {
   width: 100%;
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.7;
   letter-spacing: 0.03em;
   margin-top: 0.25rem;
@@ -480,7 +484,7 @@ const severityClass = computed(() => {
   gap: 0.5rem;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.9rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.3em;
   font-weight: 400;
   margin-bottom: 0.875rem;
@@ -520,7 +524,7 @@ const severityClass = computed(() => {
   justify-content: center;
   border-radius: 50%;
   background: rgba(198, 40, 40, 0.06);
-  color: var(--color-cinnabar, #C62828);
+  color: var(--color-cinnabar, #c62828);
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.6875rem;
   margin-top: 0.05rem;
@@ -533,7 +537,7 @@ const severityClass = computed(() => {
 .method-title {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.85rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   letter-spacing: 0.15em;
   font-weight: 400;
   line-height: 1.4;
@@ -543,7 +547,7 @@ const severityClass = computed(() => {
 .method-summary {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.72rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.5;
   letter-spacing: 0.03em;
   margin-bottom: 0.2rem;
@@ -552,7 +556,7 @@ const severityClass = computed(() => {
 .method-detail {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.7rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.6;
   letter-spacing: 0.02em;
 }
@@ -598,7 +602,7 @@ const severityClass = computed(() => {
 }
 
 .advisory-heading--taboo {
-  color: var(--color-cinnabar, #C62828);
+  color: var(--color-cinnabar, #c62828);
   opacity: 0.7;
 }
 
@@ -619,7 +623,7 @@ const severityClass = computed(() => {
   line-height: 1.6;
   letter-spacing: 0.03em;
   padding: 0.15rem 0;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
 }
 
 .advisory-item::before {
@@ -645,12 +649,7 @@ const severityClass = computed(() => {
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(198, 40, 40, 0.06) 30%,
-    transparent
-  );
+  background: linear-gradient(to right, transparent, rgba(198, 40, 40, 0.06) 30%, transparent);
 }
 
 .mantra-divider__diamond {
@@ -661,7 +660,7 @@ const severityClass = computed(() => {
 .mantra-text {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.85rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   letter-spacing: 0.15em;
   line-height: 1.8;
 }
@@ -673,7 +672,13 @@ const severityClass = computed(() => {
 }
 
 @keyframes mitigationAppear {
-  from { opacity: 0; transform: translateY(12px) scale(0.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

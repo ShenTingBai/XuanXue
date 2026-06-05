@@ -1,8 +1,15 @@
 <template>
   <div class="space-y-3">
-    <div v-for="(item, index) in items" :key="item.label" class="fade-in" :style="{ '--delay': '0.4s' }">
+    <div
+      v-for="(item, index) in items"
+      :key="item.label"
+      class="fade-in"
+      :style="{ '--delay': '0.4s' }"
+    >
       <div class="flex items-center justify-between mb-1">
-        <span :id="`fortune-label-${index}`" class="font-sans text-sm text-ink-medium">{{ item.label }}</span>
+        <span :id="`fortune-label-${index}`" class="font-sans text-sm text-ink-medium">{{
+          item.label
+        }}</span>
         <span
           class="font-sans text-sm font-medium"
           :class="{
@@ -15,7 +22,14 @@
           {{ item.score }}
         </span>
       </div>
-      <div class="fortune-bar" role="progressbar" :aria-valuenow="item.score" aria-valuemin="0" aria-valuemax="100" :aria-labelledby="`fortune-label-${index}`">
+      <div
+        class="fortune-bar"
+        role="progressbar"
+        :aria-valuenow="item.score"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        :aria-labelledby="`fortune-label-${index}`"
+      >
         <div
           class="fortune-bar__fill"
           :class="{

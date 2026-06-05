@@ -21,7 +21,13 @@
     </div>
 
     <!-- Progress bar -->
-    <div class="dim-bar-wrap" role="progressbar" :aria-valuenow="barValue" aria-valuemin="0" aria-valuemax="100">
+    <div
+      class="dim-bar-wrap"
+      role="progressbar"
+      :aria-valuenow="barValue"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
       <div class="dim-bar-bg">
         <div class="dim-bar-fill" :style="{ width: barPercent + '%', background: scoreColor }" />
       </div>
@@ -29,11 +35,7 @@
 
     <!-- Items (sub-details) -->
     <div v-if="dim.items && dim.items.length > 0" class="dim-items">
-      <div
-        v-for="(item, i) in dim.items"
-        :key="i"
-        class="dim-item"
-      >
+      <div v-for="(item, i) in dim.items" :key="i" class="dim-item">
         <span class="dim-item__name">{{ item.name }}</span>
         <span class="dim-item__relation">{{ item.relation }}</span>
         <span
@@ -151,12 +153,20 @@ const barPercent = computed(() => {
   font-weight: 500;
 }
 
-.dim-level.吉 { color: v-bind('WUXING_COLORS["木"]'); }
-.dim-level.凶 { color: v-bind('WUXING_COLORS["火"]'); }
-.dim-level.中 { color: v-bind('WUXING_COLORS["土"]'); }
+.dim-level.吉 {
+  color: v-bind('WUXING_COLORS["木"]');
+}
+.dim-level.凶 {
+  color: v-bind('WUXING_COLORS["火"]');
+}
+.dim-level.中 {
+  color: v-bind('WUXING_COLORS["土"]');
+}
 
 /* ── Progress bar ── */
-.dim-bar-wrap { margin-bottom: 0.625rem; }
+.dim-bar-wrap {
+  margin-bottom: 0.625rem;
+}
 
 .dim-bar-bg {
   height: 4px;
@@ -187,7 +197,9 @@ const barPercent = computed(() => {
   gap: 0.3rem 0.5rem;
 }
 
-.dim-item:first-child { border-top: none; }
+.dim-item:first-child {
+  border-top: none;
+}
 
 .dim-item__name {
   font-family: 'Noto Sans SC', sans-serif;
@@ -236,7 +248,9 @@ const barPercent = computed(() => {
   border-top: 1px solid color-mix(in srgb, var(--color-ink-faint) 8%, transparent);
 }
 
-.dim-detail-line:first-child { border-top: none; }
+.dim-detail-line:first-child {
+  border-top: none;
+}
 
 /* ── Animation ── */
 .fade-in {
@@ -245,7 +259,13 @@ const barPercent = computed(() => {
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

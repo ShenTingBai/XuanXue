@@ -1,6 +1,11 @@
 // composables/useZiwei.ts
 import { astro } from 'iztro'
-import { getPalaceInterpretation, getStarInterpretation, getCombinationKey, COMBINATION_INTERPRETATIONS } from '~/constants/ziwei'
+import {
+  getPalaceInterpretation,
+  getStarInterpretation,
+  getCombinationKey,
+  COMBINATION_INTERPRETATIONS,
+} from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import type FunctionalStar from 'iztro/lib/star/FunctionalStar'
@@ -14,7 +19,7 @@ export interface ZiWeiInput {
   birthYear: number
   birthMonth: number
   birthDay: number
-  birthHour: number | null   // iztro timeIndex 0-12
+  birthHour: number | null // iztro timeIndex 0-12
   gender: 'male' | 'female' | null
   birthLongitude?: number | null
 }
@@ -66,7 +71,9 @@ export function getShenGongIndex(palaces: IFunctionalPalace[]): number {
  * 从 palaces 收集所有四化。
  * 四化以 star.mutagen 形式存在于每颗星上。
  */
-export function collectTransformations(palaces: IFunctionalPalace[]): { star: string; transformation: string }[] {
+export function collectTransformations(
+  palaces: IFunctionalPalace[],
+): { star: string; transformation: string }[] {
   const result: { star: string; transformation: string }[] = []
   for (const p of palaces) {
     for (const s of [...p.majorStars, ...p.minorStars, ...p.adjectiveStars]) {
@@ -83,7 +90,9 @@ export function getPalaceDetail(palace: IFunctionalPalace): {
   combinationNote: string
 } {
   const palaceSummary = getPalaceInterpretation(palace.name)
-  const starReadings = palace.majorStars.map(s => getStarInterpretation(s.name as string)).filter(Boolean)
+  const starReadings = palace.majorStars
+    .map(s => getStarInterpretation(s.name as string))
+    .filter(Boolean)
 
   const starNames: string[] = palace.majorStars.map(s => s.name as string)
 
@@ -188,13 +197,22 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
       heavenlyStem: p.heavenlyStem,
       isBodyPalace: p.isBodyPalace,
       majorStars: p.majorStars.map(s => ({
-        name: s.name, type: s.type, brightness: s.brightness, mutagen: s.mutagen, isMajor: true,
+        name: s.name,
+        type: s.type,
+        brightness: s.brightness,
+        mutagen: s.mutagen,
+        isMajor: true,
       })),
       minorStars: p.minorStars.map(s => ({
-        name: s.name, type: s.type, mutagen: s.mutagen, isMajor: false,
+        name: s.name,
+        type: s.type,
+        mutagen: s.mutagen,
+        isMajor: false,
       })),
       adjectiveStars: p.adjectiveStars.map(s => ({
-        name: s.name, type: s.type, mutagen: s.mutagen,
+        name: s.name,
+        type: s.type,
+        mutagen: s.mutagen,
       })),
       decadalRange: p.decadal?.range ?? [0, 0],
       ages: p.ages,
@@ -257,7 +275,12 @@ export function deserializeAstrolabe(raw: Record<string, unknown>): IFunctionalA
   // Explicit validation: type assertions never throw, so we must check manually.
   for (const p of palaces) {
     const dr = p.decadal?.range
-    if (!Array.isArray(dr) || dr.length !== 2 || typeof dr[0] !== 'number' || typeof dr[1] !== 'number') {
+    if (
+      !Array.isArray(dr) ||
+      dr.length !== 2 ||
+      typeof dr[0] !== 'number' ||
+      typeof dr[1] !== 'number'
+    ) {
       return null
     }
     if (!Array.isArray(p.ages) || !p.ages.every(a => typeof a === 'number')) {

@@ -45,7 +45,10 @@ export function useGreeting() {
 
   function save(newPrefix: string, newSubtitle: string) {
     if (import.meta.client) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ prefix: newPrefix, subtitle: newSubtitle }))
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ prefix: newPrefix, subtitle: newSubtitle }),
+      )
     }
     _prefix!.value = newPrefix
     _subtitle!.value = newSubtitle

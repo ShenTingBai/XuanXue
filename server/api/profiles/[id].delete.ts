@@ -1,7 +1,7 @@
 import { dbGet, dbRun } from '../../database/db'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const idRaw = getRouterParam(event, 'id')
   if (!idRaw || !/^\d+$/.test(idRaw)) {
     throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })

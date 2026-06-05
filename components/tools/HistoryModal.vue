@@ -22,14 +22,17 @@ const listRef = ref<HTMLUListElement | null>(null)
 const closeButtonRef = ref<HTMLElement | null>(null)
 const activeOptionIdx = ref(0)
 
-watch(() => props.show, (val) => {
-  if (val) {
-    fetchHistory()
-    nextTick(() => {
-      closeButtonRef.value?.focus()
-    })
-  }
-})
+watch(
+  () => props.show,
+  val => {
+    if (val) {
+      fetchHistory()
+      nextTick(() => {
+        closeButtonRef.value?.focus()
+      })
+    }
+  },
+)
 
 function trapFocusBack() {
   closeButtonRef.value?.focus()
@@ -69,9 +72,7 @@ async function fetchHistory() {
 function formatHistoryDate(dateStr: string): string {
   try {
     // SQLite 'datetime' returns space-separated ("2026-05-31 12:34:56") not ISO with 'T'
-    const [datePart, timePart] = dateStr.includes('T')
-      ? dateStr.split('T')
-      : dateStr.split(' ')
+    const [datePart, timePart] = dateStr.includes('T') ? dateStr.split('T') : dateStr.split(' ')
     if (!datePart) return dateStr
     const [y, m, d] = datePart.split('-').map(Number)
     const pad = (n: number) => String(n).padStart(2, '0')
@@ -90,7 +91,7 @@ function formatHistoryLabel(inputData: any): string {
   if (!inputData) return ''
   if (props.type === 'bazi') {
     const { birthYear, birthMonth, birthDay, gender } = inputData
-    const pad = (n: number | undefined) => n ? String(n).padStart(2, '0') : '??'
+    const pad = (n: number | undefined) => (n ? String(n).padStart(2, '0') : '??')
     let label = `${birthYear || '??'}-${pad(birthMonth)}-${pad(birthDay)}`
     if (gender) label += ` ${gender}`
     return label
@@ -106,7 +107,7 @@ function formatHistoryLabel(inputData: any): string {
     // Fallback: construct from individual fields
     const { birthYear, birthMonth, birthDay, birthHour, gender } = inputData
     if (!birthYear || !birthMonth || !birthDay) return ''
-    const pad = (n: number | undefined) => n ? String(n).padStart(2, '0') : '??'
+    const pad = (n: number | undefined) => (n ? String(n).padStart(2, '0') : '??')
     const label = `${birthYear}-${pad(birthMonth)}-${pad(birthDay)}`
     const hourLabel = birthHour !== undefined && birthHour !== null ? ` 第${birthHour + 1}时` : ''
     const genderLabel = gender ? ` ${gender === 'male' ? '男' : '女'}` : ''
@@ -157,9 +158,10 @@ function handleKeydown(e: KeyboardEvent) {
 
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault()
-    activeOptionIdx.value = e.key === 'ArrowDown'
-      ? (activeOptionIdx.value + 1) % items.length
-      : (activeOptionIdx.value - 1 + items.length) % items.length
+    activeOptionIdx.value =
+      e.key === 'ArrowDown'
+        ? (activeOptionIdx.value + 1) % items.length
+        : (activeOptionIdx.value - 1 + items.length) % items.length
     items[activeOptionIdx.value]?.focus()
   }
 }
@@ -176,15 +178,12 @@ function onListboxFocus() {
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div
-        v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      >
+      <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <!-- Backdrop: dark ink wash with subtle blur -->
         <div
           class="absolute inset-0 bg-ink-dark/40 backdrop-blur-[2px]"
-          @click="emit('close')"
           aria-hidden="true"
+          @click="emit('close')"
         />
 
         <!-- Card: star almanac scroll -->
@@ -197,11 +196,7 @@ function onListboxFocus() {
           @keydown="handleKeydown"
         >
           <!-- Top focus trap sentinel — catches Shift+Tab from close button -->
-          <div
-            tabindex="0"
-            class="focus-trap-sentinel"
-            @focus="trapFocusForward"
-          />
+          <div tabindex="0" class="focus-trap-sentinel" @focus="trapFocusForward" />
           <!-- ── Header ── -->
           <div class="px-8 pt-8 pb-4 flex-shrink-0">
             <!-- Top ink line -->
@@ -224,24 +219,28 @@ function onListboxFocus() {
               <button
                 ref="closeButtonRef"
                 class="history-close-btn"
+                aria-label="关闭历史记录"
                 @click="emit('close')"
                 @keydown.enter="emit('close')"
                 @keydown.space.prevent="emit('close')"
-                aria-label="关闭历史记录"
               >
                 <span>闭</span>
               </button>
             </div>
-            <p class="font-sans text-[10px] text-ink-light/80 text-right mt-2 select-none">最近 5 条</p>
+            <p class="font-sans text-[10px] text-ink-light/80 text-right mt-2 select-none">
+              最近 5 条
+            </p>
           </div>
 
           <!-- ── Content ── -->
           <div class="flex-1 overflow-y-auto px-8 pb-8">
-
             <!-- Loading: three skeleton lines -->
             <div v-if="loading" class="py-10 space-y-6" role="status" aria-label="加载中">
               <div v-for="i in 3" :key="i" class="flex items-center gap-3">
-                <div class="w-0.5 h-10 bg-ink-dark/10 flex-shrink-0 rounded-full" aria-hidden="true" />
+                <div
+                  class="w-0.5 h-10 bg-ink-dark/10 flex-shrink-0 rounded-full"
+                  aria-hidden="true"
+                />
                 <div class="flex-1 space-y-2">
                   <div class="h-3 bg-ink-dark/8 rounded w-20 animate-pulse" />
                   <div class="h-4 bg-ink-dark/8 rounded w-36 animate-pulse" />
@@ -253,7 +252,7 @@ function onListboxFocus() {
             <template v-if="fetchError">
               <div class="text-ink-light/70 text-sm text-center py-8">
                 <p>{{ fetchError }}</p>
-                <button @click="fetchHistory" class="btn-seal mt-4">重试</button>
+                <button class="btn-seal mt-4" @click="fetchHistory">重试</button>
               </div>
             </template>
 
@@ -298,23 +297,17 @@ function onListboxFocus() {
                       </p>
                     </div>
                     <!-- Right arrow: appears on hover -->
-                    <span
-                      class="history-record-arrow flex-shrink-0 ml-2"
-                      aria-hidden="true"
-                    >&#8594;</span>
+                    <span class="history-record-arrow flex-shrink-0 ml-2" aria-hidden="true"
+                      >&#8594;</span
+                    >
                   </div>
                 </div>
               </li>
             </ul>
-
           </div>
 
           <!-- Focus trap sentinel — cycles Tab back to close button -->
-          <div
-            tabindex="0"
-            class="focus-trap-sentinel"
-            @focus="trapFocusBack"
-          />
+          <div tabindex="0" class="focus-trap-sentinel" @focus="trapFocusBack" />
         </div>
       </div>
     </Transition>

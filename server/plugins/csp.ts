@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
 
-export default defineNitroPlugin((nitroApp) => {
+export default defineNitroPlugin(nitroApp => {
   nitroApp.hooks.hook('render:response', (response, { event }) => {
     // Generate a cryptographically random nonce per request
     const nonce = randomBytes(16).toString('hex')
@@ -15,7 +15,7 @@ export default defineNitroPlugin((nitroApp) => {
       setResponseHeader(
         event,
         'Content-Security-Policy',
-        csp.replace(/script-src\s+'self'\s+'unsafe-inline'/, `script-src 'self' 'nonce-${nonce}'`)
+        csp.replace(/script-src\s+'self'\s+'unsafe-inline'/, `script-src 'self' 'nonce-${nonce}'`),
       )
     }
 
@@ -26,7 +26,7 @@ export default defineNitroPlugin((nitroApp) => {
     if (typeof response.body === 'string') {
       response.body = response.body.replace(
         /<script(?![^>]*\snonce[=])/gi,
-        `<script nonce="${nonce}"`
+        `<script nonce="${nonce}"`,
       )
     }
   })

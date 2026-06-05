@@ -3,8 +3,8 @@
     <div class="inline-flex rounded-lg border border-ink-faint/25 bg-paper-dark/60 p-0.5">
       <button
         v-for="(tab, idx) in tabs"
-        :key="tab.value"
         :id="'tab-' + tab.value"
+        :key="tab.value"
         :ref="setTabRef(idx)"
         role="tab"
         :aria-selected="currentView === tab.value"
@@ -46,7 +46,9 @@ const tabs = [
 const tabRefs = ref<(HTMLElement | null)[]>([])
 
 function setTabRef(idx: number) {
-  return (el: unknown) => { tabRefs.value[idx] = el as HTMLElement | null }
+  return (el: unknown) => {
+    tabRefs.value[idx] = el as HTMLElement | null
+  }
 }
 
 function focusTab(idx: number): void {

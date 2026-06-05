@@ -5,14 +5,12 @@
     aria-label="宫位解读"
   >
     <!-- Empty state -->
-    <div
-      v-if="!detailView"
-      class="flex items-center justify-center p-8"
-      style="min-height: 360px;"
-    >
+    <div v-if="!detailView" class="flex items-center justify-center p-8" style="min-height: 360px">
       <div class="text-center">
         <div class="text-[2rem] mb-2 font-display text-ink-muted" aria-hidden="true">✦</div>
-        <p role="status" class="text-xs text-ink-muted tracking-[0.12em] font-sans">点击宫位查看详解</p>
+        <p role="status" class="text-xs text-ink-muted tracking-[0.12em] font-sans">
+          点击宫位查看详解
+        </p>
       </div>
     </div>
 
@@ -21,23 +19,30 @@
       <!-- Header -->
       <div class="detail-header">
         <div class="flex items-center gap-2.5">
-          <h3 class="font-display text-[1.6rem] tracking-[0.06em]" style="color: var(--color-ink-darkest);">{{ detailView.name }}</h3>
+          <h3
+            class="font-display text-[1.6rem] tracking-[0.06em]"
+            style="color: var(--color-ink-darkest)"
+          >
+            {{ detailView.name }}
+          </h3>
           <span class="detail-branch-badge">{{ detailView.stem }}{{ detailView.branch }}</span>
         </div>
       </div>
 
       <!-- Major stars -->
       <div class="detail-section">
-        <h4 class="detail-section-title">
-          <span class="title-dot"></span>主星
-        </h4>
+        <h4 class="detail-section-title"><span class="title-dot"></span>主星</h4>
         <div v-if="detailView.majorStars.length > 0" class="detail-star-list">
           <div
             v-for="star in detailView.majorStars"
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot major" :class="getStarColorClass(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
+            <span
+              class="star-dot major"
+              :class="getStarColorClass(star.name)"
+              :aria-label="getStarColorLabel(star.name)"
+            ></span>
             <span class="star-name">{{ star.name }}</span>
             <span v-if="star.brightness" class="star-brightness">{{ star.brightness }}</span>
           </div>
@@ -47,16 +52,18 @@
 
       <!-- Minor stars -->
       <div class="detail-section">
-        <h4 class="detail-section-title">
-          <span class="title-dot"></span>辅星
-        </h4>
+        <h4 class="detail-section-title"><span class="title-dot"></span>辅星</h4>
         <div v-if="detailView.minorStars.length > 0" class="detail-star-list">
           <div
             v-for="star in detailView.minorStars"
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot" :class="getStarColorClass(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
+            <span
+              class="star-dot"
+              :class="getStarColorClass(star.name)"
+              :aria-label="getStarColorLabel(star.name)"
+            ></span>
             <span class="star-name">{{ star.name }}</span>
           </div>
         </div>
@@ -75,7 +82,11 @@
             :key="String(star.name)"
             class="detail-star-item"
           >
-            <span class="star-dot" :class="getStarColorClass(star.name)" :aria-label="getStarColorLabel(star.name)"></span>
+            <span
+              class="star-dot"
+              :class="getStarColorClass(star.name)"
+              :aria-label="getStarColorLabel(star.name)"
+            ></span>
             <span class="star-name">{{ star.name }}</span>
           </div>
         </div>
@@ -84,29 +95,30 @@
 
       <!-- Four transformations -->
       <div v-if="detailView.transformations.length > 0" class="detail-section">
-        <h4 class="detail-section-title">
-          <span class="title-dot"></span>四化
-        </h4>
+        <h4 class="detail-section-title"><span class="title-dot"></span>四化</h4>
         <div class="flex flex-wrap gap-1.5">
           <span
             v-for="t in detailView.transformations"
             :key="t.star + t.transformation"
             class="mutagen-chip"
             :class="getMutagenClass(t.transformation)"
-          >{{ t.star }} · 化{{ t.transformation }}</span>
+            >{{ t.star }} · 化{{ t.transformation }}</span
+          >
         </div>
       </div>
 
       <!-- Interpretation -->
       <div class="detail-section">
-        <h4 class="detail-section-title">
-          <span class="title-dot"></span>宫位解读
-        </h4>
+        <h4 class="detail-section-title"><span class="title-dot"></span>宫位解读</h4>
         <div class="detail-text">
           <p v-if="detailView.interpretation.palaceSummary" class="summary-line">
             {{ detailView.interpretation.palaceSummary }}
           </p>
-          <p v-for="(reading, i) in detailView.interpretation.starReadings" :key="i" class="reading-line">
+          <p
+            v-for="(reading, i) in detailView.interpretation.starReadings"
+            :key="i"
+            class="reading-line"
+          >
             {{ reading }}
           </p>
           <p v-if="detailView.interpretation.combinationNote" class="combination-note">
@@ -126,11 +138,10 @@
 
       <!-- Decadal range -->
       <div v-if="detailView.decadalRange && detailView.decadalRange[0] > 0" class="detail-section">
-        <h4 class="detail-section-title">
-          <span class="title-dot"></span>大限
-        </h4>
+        <h4 class="detail-section-title"><span class="title-dot"></span>大限</h4>
         <p class="detail-text">
-          {{ detailView.decadalRange[0] }}–{{ detailView.decadalRange[1] }}岁，行 <span class="text-cinnabar font-medium">{{ detailView.name }}宫</span>
+          {{ detailView.decadalRange[0] }}–{{ detailView.decadalRange[1] }}岁，行
+          <span class="text-cinnabar font-medium">{{ detailView.name }}宫</span>
         </p>
       </div>
     </div>
@@ -155,7 +166,13 @@ const detailView = computed(() => {
 })
 
 const STAR_COLOR_LABEL_MAP: Record<StarColorClass, string> = {
-  'gold': '主星', 'jade': '辅星', 'cinnabar': '煞星', 'ice': '文星', 'purple': '吉星', 'gray': '杂曜', 'white': '杂曜',
+  gold: '主星',
+  jade: '辅星',
+  cinnabar: '煞星',
+  ice: '文星',
+  purple: '吉星',
+  gray: '杂曜',
+  white: '杂曜',
 }
 
 function getStarColorLabel(name: StarName | string): string {
@@ -164,7 +181,10 @@ function getStarColorLabel(name: StarName | string): string {
 }
 
 const MUTAGEN_CLASS_MAP: Record<string, string> = {
-  '禄': 'lu', '权': 'quan', '科': 'ke', '忌': 'ji',
+  禄: 'lu',
+  权: 'quan',
+  科: 'ke',
+  忌: 'ji',
 }
 
 function getMutagenClass(transformation: string): string {
@@ -197,7 +217,9 @@ function getMutagenClass(transformation: string): string {
   padding: 0.75rem 1.5rem;
   border-bottom: 1px solid color-mix(in srgb, var(--color-ink-muted) 6%, transparent);
 }
-.detail-section:last-child { border-bottom: none; }
+.detail-section:last-child {
+  border-bottom: none;
+}
 
 /* ── Section titles ── */
 .detail-section-title {
@@ -237,14 +259,28 @@ function getMutagenClass(transformation: string): string {
   color: var(--color-ink-muted);
   animation: detail-in 0.3s ease-out both;
 }
-.detail-star-item:nth-child(1) { animation-delay: 0.03s; }
-.detail-star-item:nth-child(2) { animation-delay: 0.08s; }
-.detail-star-item:nth-child(3) { animation-delay: 0.13s; }
-.detail-star-item:nth-child(4) { animation-delay: 0.18s; }
+.detail-star-item:nth-child(1) {
+  animation-delay: 0.03s;
+}
+.detail-star-item:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.detail-star-item:nth-child(3) {
+  animation-delay: 0.13s;
+}
+.detail-star-item:nth-child(4) {
+  animation-delay: 0.18s;
+}
 
 @keyframes detail-in {
-  from { opacity: 0; transform: translateX(-4px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .star-dot {
@@ -255,15 +291,33 @@ function getMutagenClass(transformation: string): string {
   flex-shrink: 0;
   border: 1px solid transparent;
 }
-.star-dot.major { width: 11px; height: 11px; }
+.star-dot.major {
+  width: 11px;
+  height: 11px;
+}
 
-.star-dot.gold     { background: var(--color-cinnabar); border-color: color-mix(in srgb, var(--color-gold) 50%, transparent); }
-.star-dot.cinnabar { background: var(--color-cinnabar-dark); }
-.star-dot.jade     { background: var(--color-jade); }
-.star-dot.ice      { background: var(--color-star-ice); }
-.star-dot.purple   { background: var(--color-star-purple); }
-.star-dot.gray     { background: var(--color-ink-muted); }
-.star-dot.white    { background: var(--color-ink-light); }
+.star-dot.gold {
+  background: var(--color-cinnabar);
+  border-color: color-mix(in srgb, var(--color-gold) 50%, transparent);
+}
+.star-dot.cinnabar {
+  background: var(--color-cinnabar-dark);
+}
+.star-dot.jade {
+  background: var(--color-jade);
+}
+.star-dot.ice {
+  background: var(--color-star-ice);
+}
+.star-dot.purple {
+  background: var(--color-star-purple);
+}
+.star-dot.gray {
+  background: var(--color-ink-muted);
+}
+.star-dot.white {
+  background: var(--color-ink-light);
+}
 
 .star-name {
   font-size: 0.85rem;
@@ -286,10 +340,26 @@ function getMutagenClass(transformation: string): string {
   font-family: var(--font-sans);
   white-space: nowrap;
 }
-.mutagen-chip.lu   { background: color-mix(in srgb, var(--color-cinnabar) 12%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
-.mutagen-chip.quan { background: color-mix(in srgb, var(--color-jade) 12%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 15%, transparent); }
-.mutagen-chip.ke   { background: color-mix(in srgb, #6BA8C8 12%, transparent); color: #6BA8C8; border: 0.5px solid color-mix(in srgb, #6BA8C8 15%, transparent); }
-.mutagen-chip.ji   { background: color-mix(in srgb, var(--color-ink-muted) 7%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
+.mutagen-chip.lu {
+  background: color-mix(in srgb, var(--color-cinnabar) 12%, transparent);
+  color: var(--color-cinnabar);
+  border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+.mutagen-chip.quan {
+  background: color-mix(in srgb, var(--color-jade) 12%, transparent);
+  color: var(--color-jade);
+  border: 0.5px solid color-mix(in srgb, var(--color-jade) 15%, transparent);
+}
+.mutagen-chip.ke {
+  background: color-mix(in srgb, #6ba8c8 12%, transparent);
+  color: #6ba8c8;
+  border: 0.5px solid color-mix(in srgb, #6ba8c8 15%, transparent);
+}
+.mutagen-chip.ji {
+  background: color-mix(in srgb, var(--color-ink-muted) 7%, transparent);
+  color: var(--color-ink-muted);
+  border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent);
+}
 
 /* ── Text content ── */
 .detail-text {
@@ -335,6 +405,9 @@ function getMutagenClass(transformation: string): string {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .detail-star-item { animation: none; opacity: 1; }
+  .detail-star-item {
+    animation: none;
+    opacity: 1;
+  }
 }
 </style>

@@ -1,5 +1,10 @@
 <template>
-  <div class="guardian-card guardian-enter" :style="{ '--delay': delay, '--accent': buddha.color }" role="region" aria-label="本命佛">
+  <div
+    class="guardian-card guardian-enter"
+    :style="{ '--delay': delay, '--accent': buddha.color }"
+    role="region"
+    aria-label="本命佛"
+  >
     <!-- ── Background mandala glow ── -->
     <div class="guardian-mandala" aria-hidden="true" />
 
@@ -32,12 +37,15 @@
 <script setup lang="ts">
 import type { GuardianBuddha } from '~/constants/guardian-buddha'
 
-withDefaults(defineProps<{
-  buddha: GuardianBuddha
-  delay?: string
-}>(), {
-  delay: '0.45s',
-})
+withDefaults(
+  defineProps<{
+    buddha: GuardianBuddha
+    delay?: string
+  }>(),
+  {
+    delay: '0.45s',
+  },
+)
 </script>
 
 <style scoped>
@@ -49,14 +57,15 @@ withDefaults(defineProps<{
   position: relative;
   overflow: hidden;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     var(--color-scroll-light) 0%,
     var(--color-scroll) 50%,
     var(--color-scroll-dark) 100%
   );
   border: 1px solid rgba(44, 26, 14, 0.04);
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--accent, #C62828) 3%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent, #c62828) 3%, transparent),
     0 2px 12px rgba(44, 26, 14, 0.02);
 }
 
@@ -69,8 +78,8 @@ withDefaults(defineProps<{
   height: 140%;
   background: radial-gradient(
     ellipse at center,
-    color-mix(in srgb, var(--accent, #C62828) 4%, transparent) 0%,
-    color-mix(in srgb, var(--accent, #C62828) 2%, transparent) 40%,
+    color-mix(in srgb, var(--accent, #c62828) 4%, transparent) 0%,
+    color-mix(in srgb, var(--accent, #c62828) 2%, transparent) 40%,
     transparent 70%
   );
   pointer-events: none;
@@ -97,7 +106,7 @@ withDefaults(defineProps<{
   font-size: 3.5rem;
   line-height: 1;
   opacity: 0.035;
-  color: var(--accent, #C62828);
+  color: var(--accent, #c62828);
   pointer-events: none;
   font-family: serif;
   user-select: none;
@@ -118,18 +127,18 @@ withDefaults(defineProps<{
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent, #C62828);
-  color: #FBF4E6;
+  background: var(--accent, #c62828);
+  color: #fbf4e6;
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.6875rem;
   border-radius: 50%;
-  box-shadow: 0 0 6px color-mix(in srgb, var(--accent, #C62828) 15%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent, #c62828) 15%, transparent);
 }
 
 .guardian-name {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 1.15rem;
-  color: var(--accent, #C62828);
+  color: var(--accent, #c62828);
   letter-spacing: 0.2em;
   font-weight: 400;
   line-height: 1.3;
@@ -140,7 +149,7 @@ withDefaults(defineProps<{
 .guardian-meaning {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--accent, #C62828) 55%, #5A4A3A);
+  color: color-mix(in srgb, var(--accent, #c62828) 55%, #5a4a3a);
   letter-spacing: 0.15em;
   line-height: 1.5;
   margin-bottom: 0.625rem;
@@ -151,7 +160,7 @@ withDefaults(defineProps<{
 .guardian-desc {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 0.8rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark, #2c1810);
   line-height: 1.7;
   letter-spacing: 0.03em;
   padding-left: 2.125rem;
@@ -171,14 +180,14 @@ withDefaults(defineProps<{
 
 .guardian-mantra__deco {
   opacity: 0.18;
-  color: var(--accent, #C62828);
+  color: var(--accent, #c62828);
   font-size: 0.6875rem;
 }
 
 .guardian-mantra__text {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.8rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium, #5a4a3a);
   letter-spacing: 0.15em;
   opacity: 0.85;
 }
@@ -190,7 +199,13 @@ withDefaults(defineProps<{
 }
 
 @keyframes guardianAppear {
-  from { opacity: 0; transform: translateY(10px) scale(0.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

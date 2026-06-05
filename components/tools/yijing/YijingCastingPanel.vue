@@ -40,7 +40,6 @@
 
     <!-- Coin casting mode -->
     <div v-if="mode === 'coin'" class="casting-card rounded-xl p-8 text-center">
-
       <!-- Toss progress indicator -->
       <div class="flex justify-center gap-1.5 mb-6" aria-hidden="true">
         <span
@@ -59,28 +58,39 @@
           class="coin-circle"
           :class="{
             'coin-flipping': isFlipping,
-            'coin-heads': currentToss > 0 && currentToss <= 6 && coinResults[currentToss - 1] && coinResults[currentToss - 1][n - 1] === 3,
-            'coin-tails': currentToss > 0 && currentToss <= 6 && coinResults[currentToss - 1] && coinResults[currentToss - 1][n - 1] === 2,
+            'coin-heads':
+              currentToss > 0 &&
+              currentToss <= 6 &&
+              coinResults[currentToss - 1] &&
+              coinResults[currentToss - 1][n - 1] === 3,
+            'coin-tails':
+              currentToss > 0 &&
+              currentToss <= 6 &&
+              coinResults[currentToss - 1] &&
+              coinResults[currentToss - 1][n - 1] === 2,
           }"
           :style="{ animationDelay: `${(n - 1) * 0.1}s` }"
           aria-hidden="true"
         >
-          <span v-if="currentToss > 0 && coinResults[currentToss - 1]" class="coin-face">{{ coinResults[currentToss - 1][n - 1] === 3 ? '字' : '背' }}</span>
+          <span v-if="currentToss > 0 && coinResults[currentToss - 1]" class="coin-face">{{
+            coinResults[currentToss - 1][n - 1] === 3 ? '字' : '背'
+          }}</span>
           <span v-else class="coin-face">?</span>
         </div>
       </div>
 
       <!-- Progress text -->
-      <p class="font-sans text-sm text-ink-light mb-6 leading-relaxed" aria-live="polite" aria-atomic="true">
-        <template v-if="currentToss === 0">
-          诚心默念所问之事，然后摇动铜钱
-        </template>
+      <p
+        class="font-sans text-sm text-ink-light mb-6 leading-relaxed"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <template v-if="currentToss === 0"> 诚心默念所问之事，然后摇动铜钱 </template>
         <template v-else-if="currentToss < 6">
-          第 <strong class="text-cinnabar">{{ currentToss }}</strong>/6 次
+          第 <strong class="text-cinnabar">{{ currentToss }}</strong
+          >/6 次
         </template>
-        <template v-else>
-          卦象已成，正在解卦...
-        </template>
+        <template v-else> 卦象已成，正在解卦... </template>
       </p>
 
       <!-- Toss button -->
@@ -119,7 +129,11 @@
         <div class="space-y-5">
           <!-- Upper trigram -->
           <div>
-            <label for="yijing-upper" class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center">上 卦 — 天数</label>
+            <label
+              for="yijing-upper"
+              class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center"
+              >上 卦 — 天数</label
+            >
             <input
               id="yijing-upper"
               v-model="upperNum"
@@ -135,7 +149,11 @@
 
           <!-- Lower trigram -->
           <div>
-            <label for="yijing-lower" class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center">下 卦 — 地数</label>
+            <label
+              for="yijing-lower"
+              class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center"
+              >下 卦 — 地数</label
+            >
             <input
               id="yijing-lower"
               v-model="lowerNum"
@@ -151,7 +169,11 @@
 
           <!-- Moving line -->
           <div>
-            <label for="yijing-moving" class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center">动 爻 — 变数</label>
+            <label
+              for="yijing-moving"
+              class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center"
+              >动 爻 — 变数</label
+            >
             <input
               id="yijing-moving"
               v-model="movingNum"
@@ -167,7 +189,11 @@
         </div>
 
         <!-- Validation error -->
-        <div v-if="validationError" role="alert" class="text-cinnabar text-sm mt-4 text-center font-sans">
+        <div
+          v-if="validationError"
+          role="alert"
+          class="text-cinnabar text-sm mt-4 text-center font-sans"
+        >
           {{ validationError }}
         </div>
 
@@ -199,8 +225,12 @@ import { onUnmounted } from 'vue'
 const coinTabRef = ref<HTMLElement | null>(null)
 const numberTabRef = ref<HTMLElement | null>(null)
 
-function focusCoinTab() { coinTabRef.value?.focus() }
-function focusNumberTab() { numberTabRef.value?.focus() }
+function focusCoinTab() {
+  coinTabRef.value?.focus()
+}
+function focusNumberTab() {
+  numberTabRef.value?.focus()
+}
 
 const props = defineProps<{
   mode: 'coin' | 'number'
@@ -229,14 +259,16 @@ watch([upperNum, lowerNum, movingNum], () => {
   validationError.value = ''
 })
 
-watch(() => props.mode, () => {
-  validationError.value = ''
-})
+watch(
+  () => props.mode,
+  () => {
+    validationError.value = ''
+  },
+)
 
 // Flipping animation state
 const isFlipping = ref(false)
 const tossTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
 
 function handleTossClick() {
   if (props.currentToss >= 6 || isFlipping.value) return
@@ -256,7 +288,8 @@ onUnmounted(() => {
 })
 
 function validateNumberInput(field: 'upper' | 'lower' | 'moving') {
-  const val = field === 'upper' ? upperNum.value : field === 'lower' ? lowerNum.value : movingNum.value
+  const val =
+    field === 'upper' ? upperNum.value : field === 'lower' ? lowerNum.value : movingNum.value
   if (val === null) return
   const max = field === 'moving' ? 6 : 8
   if (val < 1 || val > max) {
@@ -310,7 +343,13 @@ function handleNumberSubmit() {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--_coin-base), var(--_coin-dark), color-mix(in srgb, var(--_coin-dark) 80%, black 20%), var(--_coin-dark));
+  background: linear-gradient(
+    135deg,
+    var(--_coin-base),
+    var(--_coin-dark),
+    color-mix(in srgb, var(--_coin-dark) 80%, black 20%),
+    var(--_coin-dark)
+  );
   border: 2px solid var(--_coin-dark);
   display: inline-flex;
   align-items: center;
@@ -351,9 +390,15 @@ function handleNumberSubmit() {
 }
 
 @keyframes coinFlip {
-  0% { transform: rotateY(0deg); }
-  50% { transform: rotateY(720deg); }
-  100% { transform: rotateY(720deg); }
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(720deg);
+  }
+  100% {
+    transform: rotateY(720deg);
+  }
 }
 
 .tab-btn {

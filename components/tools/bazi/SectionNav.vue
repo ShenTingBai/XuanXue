@@ -11,11 +11,13 @@
         'px-3 py-2.5 text-xs rounded-full font-sans border transition-colors no-underline focus-visible:ring-2 focus-visible:ring-cinnabar focus-visible:ring-offset-2 flex-shrink-0',
         activeNavSection === item.anchor
           ? 'bg-cinnabar text-paper-lightest border-cinnabar'
-          : 'border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30'
+          : 'border-paper-dark/40 text-ink-medium hover:text-cinnabar hover:border-cinnabar/30',
       ]"
       :aria-current="activeNavSection === item.anchor ? 'true' : undefined"
       @click.prevent="navigateToSection(item.anchor)"
-    ><span>{{ item.label }}</span><span class="ml-0.5 text-ink-muted">({{ item.subtitle }})</span></a>
+      ><span>{{ item.label }}</span
+      ><span class="ml-0.5 text-ink-muted">({{ item.subtitle }})</span></a
+    >
   </nav>
 </template>
 
@@ -52,7 +54,9 @@ async function navigateToSection(anchorName: string) {
 
   const el = document.getElementById(id)
   if (el) {
-    const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+    const prefersReducedMotion = import.meta.client
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
     if (prefersReducedMotion) {
       el.scrollIntoView()
     } else {

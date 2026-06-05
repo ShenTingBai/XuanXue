@@ -46,12 +46,12 @@ implementation_skill: frontend-design
 
 `.celestial-chart` 容器（aspect-ratio: 1，max-w 620px）内 4 层堆叠：
 
-| z-index | 层 | 内容 | 技术 |
-|---------|----|------|------|
-| 0 | SVG 底层 | 5 条手绘抣动轨道圈、12 条扇形分隔虚线、十字虚线、选中扇形高亮弧 | 静态 SVG `<path>` / `<line>` |
-| 1 | DOM 标签层 | 12 个宫位文字标签 | 绝对定位 `<button>` |
-| 2 | DOM 星曜层 | 主星 + 辅星 + 四化标签 + tooltip | 绝对定位 `<div>` + CSS 变量驱动 keyframe |
-| 3 | DOM 中央 | 紫微印章 + 印章下文字"紫微星" | 绝对定位 `<div>` |
+| z-index | 层         | 内容                                                            | 技术                                     |
+| ------- | ---------- | --------------------------------------------------------------- | ---------------------------------------- |
+| 0       | SVG 底层   | 5 条手绘抣动轨道圈、12 条扇形分隔虚线、十字虚线、选中扇形高亮弧 | 静态 SVG `<path>` / `<line>`             |
+| 1       | DOM 标签层 | 12 个宫位文字标签                                               | 绝对定位 `<button>`                      |
+| 2       | DOM 星曜层 | 主星 + 辅星 + 四化标签 + tooltip                                | 绝对定位 `<div>` + CSS 变量驱动 keyframe |
+| 3       | DOM 中央   | 紫微印章 + 印章下文字"紫微星"                                   | 绝对定位 `<div>`                         |
 
 数据流：父组件传 `palaces: IFunctionalPalace[]` → 单一 `computed`
 构建 `CelestialStar[]`（含位置、颜色类、动画 phase 与 speed）→ 模板渲染。
@@ -60,14 +60,15 @@ implementation_skill: frontend-design
 ## 几何参数
 
 ```ts
-const CX = 300, CY = 300                 // SVG viewBox 600×600 中心
-const PALACE_SECTOR_DEG = 30             // 每宫 30°
-const RINGS = [110, 150, 190, 225, 258]  // 5 个星位轨道半径
-const ORBIT_RING_RADII = RINGS           // SVG 轨道圈也用这 5 个半径
-const LABEL_R = 282                      // 宫位标签距中心
-const CENTER_VOID = 76                   // 中央留白半径（虚线圈）
-const ANGLE_OFFSET_PER_STAR = 4          // 星曜在扇区内角度间隔（度）
-const SECTOR_CENTER_OFFSET = 15          // baseAngle + 15° = 扇区中线
+const CX = 300,
+  CY = 300 // SVG viewBox 600×600 中心
+const PALACE_SECTOR_DEG = 30 // 每宫 30°
+const RINGS = [110, 150, 190, 225, 258] // 5 个星位轨道半径
+const ORBIT_RING_RADII = RINGS // SVG 轨道圈也用这 5 个半径
+const LABEL_R = 282 // 宫位标签距中心
+const CENTER_VOID = 76 // 中央留白半径（虚线圈）
+const ANGLE_OFFSET_PER_STAR = 4 // 星曜在扇区内角度间隔（度）
+const SECTOR_CENTER_OFFSET = 15 // baseAngle + 15° = 扇区中线
 ```
 
 `BRANCH_TO_ANGLE` 沿用 `constants/ziwei.ts` 现有映射（午=255°/SVG 顶部）。
@@ -92,18 +93,19 @@ const SECTOR_CENTER_OFFSET = 15          // baseAngle + 15° = 扇区中线
 interface CelestialStar {
   id: string
   name: string
-  pctX: number; pctY: number       // % of container
+  pctX: number
+  pctY: number // % of container
   isMajor: boolean
   palaceIdx: number
   colorClass: ColorClass
   mutagen: '禄' | '权' | '科' | '忌' | null
   // CSS 变量
-  twinkleDuration: number          // 4-7s deterministic
-  twinklePhase: number             // 0-1 deterministic, 用于 animation-delay
-  driftDuration: number            // 60-120s deterministic
-  driftPhase: number               // 用于 animation-delay
-  labelOnLeft: boolean             // 标签放球右还是球左（pos.x < CX 时左侧球→标签放右）
-  starIndexInPalace: number        // 用于 entrance stagger
+  twinkleDuration: number // 4-7s deterministic
+  twinklePhase: number // 0-1 deterministic, 用于 animation-delay
+  driftDuration: number // 60-120s deterministic
+  driftPhase: number // 用于 animation-delay
+  labelOnLeft: boolean // 标签放球右还是球左（pos.x < CX 时左侧球→标签放右）
+  starIndexInPalace: number // 用于 entrance stagger
 }
 ```
 
@@ -113,15 +115,15 @@ interface CelestialStar {
 
 新增 `STAR_COLOR_MAP: Record<string, ColorClass>` 到 `constants/ziwei.ts`：
 
-| 类别 | 星曜 | ColorClass | 颜色值 | 边框 |
-|------|------|----------|--------|------|
-| 帝/府 | 紫微、天府 | `gold` | `#C62828` | 1.5px `#D4A84B` |
-| 火/血 | 太阳、廉贞、贪狼、七杀 | `cinnabar` | `#A02020` | 1px `rgba(198,40,40,0.3)` |
-| 木/智 | 天机、天梁、天同 | `jade` | `#4A8C6F` | 1px `rgba(74,140,111,0.3)` |
-| 水/月 | 太阴、文昌、文曲、天魁、天钺 | `ice` | `#6BA8C8` | 1px `rgba(107,168,200,0.3)` |
-| 帝辅 | 武曲、天相 | `purple` | `#7B6FA0` | 1px `rgba(123,111,160,0.3)` |
-| 凶煞 | 破军、巨门、擎羊、陀罗、火星、铃星、地空、地劫 | `gray` | `#5D4E37` | 1px `rgba(93,78,55,0.3)` |
-| 中性 | 左辅、右弼、禄存、天马、其他 | `white` | `#8B7D6B` | 1px `rgba(139,125,107,0.3)` |
+| 类别  | 星曜                                           | ColorClass | 颜色值    | 边框                        |
+| ----- | ---------------------------------------------- | ---------- | --------- | --------------------------- |
+| 帝/府 | 紫微、天府                                     | `gold`     | `#C62828` | 1.5px `#D4A84B`             |
+| 火/血 | 太阳、廉贞、贪狼、七杀                         | `cinnabar` | `#A02020` | 1px `rgba(198,40,40,0.3)`   |
+| 木/智 | 天机、天梁、天同                               | `jade`     | `#4A8C6F` | 1px `rgba(74,140,111,0.3)`  |
+| 水/月 | 太阴、文昌、文曲、天魁、天钺                   | `ice`      | `#6BA8C8` | 1px `rgba(107,168,200,0.3)` |
+| 帝辅  | 武曲、天相                                     | `purple`   | `#7B6FA0` | 1px `rgba(123,111,160,0.3)` |
+| 凶煞  | 破军、巨门、擎羊、陀罗、火星、铃星、地空、地劫 | `gray`     | `#5D4E37` | 1px `rgba(93,78,55,0.3)`    |
+| 中性  | 左辅、右弼、禄存、天马、其他                   | `white`    | `#8B7D6B` | 1px `rgba(139,125,107,0.3)` |
 
 未在表中显式列出的星名 → 默认 `white`。
 
@@ -145,23 +147,34 @@ interface CelestialStar {
 
 ```css
 .star-item {
-  --twinkle-duration: 5s;       /* 由内联 style 注入，4-7s */
-  --twinkle-delay: -2s;         /* 由内联 style 注入，0 ~ -duration */
-  --drift-duration: 90s;        /* 60-120s */
+  --twinkle-duration: 5s; /* 由内联 style 注入，4-7s */
+  --twinkle-delay: -2s; /* 由内联 style 注入，0 ~ -duration */
+  --drift-duration: 90s; /* 60-120s */
   --drift-delay: -30s;
   animation:
     twinkle var(--twinkle-duration) ease-in-out var(--twinkle-delay) infinite,
-    drift   var(--drift-duration)   linear        var(--drift-delay)   infinite;
+    drift var(--drift-duration) linear var(--drift-delay) infinite;
 }
 @keyframes twinkle {
-  0%, 100% { opacity: 0.78 }
-  50%      { opacity: 1 }
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 @keyframes drift {
   /* 沿 transform 做 ±3° 微摆 */
-  0%   { transform: translate(-50%, -50%) rotate(0deg) }
-  50%  { transform: translate(-50%, -50%) rotate(0.6deg) }
-  100% { transform: translate(-50%, -50%) rotate(0deg) }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(0.6deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
 }
 ```
 
@@ -179,9 +192,19 @@ interface CelestialStar {
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  .star-item, .palace-label, .polaris-seal, .polaris::before { animation: none !important }
-  .star-item { opacity: 0.92 }
-  .st-act::before { animation: none; opacity: 0.4 }
+  .star-item,
+  .palace-label,
+  .polaris-seal,
+  .polaris::before {
+    animation: none !important;
+  }
+  .star-item {
+    opacity: 0.92;
+  }
+  .st-act::before {
+    animation: none;
+    opacity: 0.4;
+  }
 }
 ```
 
@@ -229,12 +252,12 @@ interface CelestialStar {
 
 每颗带 `mutagen` 的星，在球右上 +10/-8 位置叠一个小 chip：
 
-| 类型 | bg | 文字色 | border |
-|------|----|------|--------|
-| 禄（lu） | `rgba(198,40,40,0.15)` | `#C62828` | `0.5px rgba(198,40,40,0.2)` |
-| 权（quan） | `rgba(74,140,111,0.15)` | `#4A8C6F` | `0.5px rgba(74,140,111,0.2)` |
-| 科（ke） | `rgba(107,168,200,0.15)` | `#6BA8C8` | `0.5px rgba(107,168,200,0.2)` |
-| 忌（ji） | `rgba(93,78,55,0.12)` | `#5D4E37` | `0.5px rgba(93,78,55,0.15)` |
+| 类型       | bg                       | 文字色    | border                        |
+| ---------- | ------------------------ | --------- | ----------------------------- |
+| 禄（lu）   | `rgba(198,40,40,0.15)`   | `#C62828` | `0.5px rgba(198,40,40,0.2)`   |
+| 权（quan） | `rgba(74,140,111,0.15)`  | `#4A8C6F` | `0.5px rgba(74,140,111,0.2)`  |
+| 科（ke）   | `rgba(107,168,200,0.15)` | `#6BA8C8` | `0.5px rgba(107,168,200,0.2)` |
+| 忌（ji）   | `rgba(93,78,55,0.12)`    | `#5D4E37` | `0.5px rgba(93,78,55,0.15)`   |
 
 字号 0.5rem，padding `1px 4px`，圆角 2px，`pointer-events: none`。
 
@@ -263,10 +286,10 @@ defineEmits<{ select: [index: number] }>()
 
 ## 改动文件清单
 
-| 文件 | 改动 |
-|------|------|
-| `components/tools/ziwei/ZiWeiCelestialChart.vue` | 完全重写 |
-| `constants/ziwei.ts` | 新增 `STAR_COLOR_MAP` 常量及 `getStarColorClass()` 函数 |
+| 文件                                             | 改动                                                    |
+| ------------------------------------------------ | ------------------------------------------------------- |
+| `components/tools/ziwei/ZiWeiCelestialChart.vue` | 完全重写                                                |
+| `constants/ziwei.ts`                             | 新增 `STAR_COLOR_MAP` 常量及 `getStarColorClass()` 函数 |
 
 不动其他任何文件。
 
@@ -298,12 +321,12 @@ defineEmits<{ select: [index: number] }>()
 
 ## 风险与权衡
 
-| 风险 | 缓解 |
-|------|------|
-| 实际数据星数多于 5 时，会在同半径上落两颗 | `i % 5` 循环已处理，但要在密集宫位测试避免标签重叠 |
-| CSS 动画在低端设备仍可能掉帧 | 动画属性仅 transform/opacity，已是 GPU 友好 |
-| 字体未加载时排版抖动 | 字体已预加载，沿用项目策略 |
-| 颜色映射可能漏星名 | 默认 `white` 兜底，且 `STAR_COLOR_MAP` 写在常量文件便于增补 |
+| 风险                                      | 缓解                                                        |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| 实际数据星数多于 5 时，会在同半径上落两颗 | `i % 5` 循环已处理，但要在密集宫位测试避免标签重叠          |
+| CSS 动画在低端设备仍可能掉帧              | 动画属性仅 transform/opacity，已是 GPU 友好                 |
+| 字体未加载时排版抖动                      | 字体已预加载，沿用项目策略                                  |
+| 颜色映射可能漏星名                        | 默认 `white` 兜底，且 `STAR_COLOR_MAP` 写在常量文件便于增补 |
 
 ## 实现工作流
 

@@ -8,19 +8,40 @@
       <div v-if="gender">性别：{{ gender }}</div>
     </div>
 
-    <hr class="border-paper-dark/50 my-3">
+    <hr class="border-paper-dark/50 my-3" />
 
     <div class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-1.5">本命日主</div>
     <div class="flex items-baseline gap-1.5 mb-2">
-      <span class="font-display text-xl text-cinnabar font-medium">{{ dayMaster }}{{ dayMasterWuxing }}</span>
-      <span class="font-sans text-xs font-medium" :class="strengthClass">{{ dayMasterStrength }}</span>
+      <span class="font-display text-xl text-cinnabar font-medium"
+        >{{ dayMaster }}{{ dayMasterWuxing }}</span
+      >
+      <span class="font-sans text-xs font-medium" :class="strengthClass">{{
+        dayMasterStrength
+      }}</span>
     </div>
 
-    <hr class="border-paper-dark/50 my-3">
+    <hr class="border-paper-dark/50 my-3" />
 
     <div class="space-y-1">
-      <div class="font-sans text-xs text-ink-medium tracking-wider">助你：<span class="font-medium" v-for="el in favorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
-      <div class="font-sans text-xs text-ink-medium tracking-wider">忌神：<span v-for="el in unfavorableElements" :key="el" :style="{ color: elementColor(el) }"> {{ el }} </span></div>
+      <div class="font-sans text-xs text-ink-medium tracking-wider">
+        助你：<span
+          v-for="el in favorableElements"
+          :key="el"
+          class="font-medium"
+          :style="{ color: elementColor(el) }"
+        >
+          {{ el }}
+        </span>
+      </div>
+      <div class="font-sans text-xs text-ink-medium tracking-wider">
+        忌神：<span
+          v-for="el in unfavorableElements"
+          :key="el"
+          :style="{ color: elementColor(el) }"
+        >
+          {{ el }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -42,5 +63,7 @@ import { wuxingColor, strengthColorClass } from '~/constants/bazi'
 
 const strengthClass = computed(() => strengthColorClass(props.dayMasterStrength))
 
-function elementColor(el: string): string { return wuxingColor(el) }
+function elementColor(el: string): string {
+  return wuxingColor(el)
+}
 </script>

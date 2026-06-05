@@ -3,7 +3,11 @@
 import { computed, ref, nextTick } from 'vue'
 import type { NatalChartData, PlanetPosition, AspectLine } from '~/composables/useNatalChart'
 import { ZODIACS, MOON_INTERPRETATIONS } from '~/composables/useConstellation'
-import { PLANET_META, getPlanetInterpretation, getAspectInterpretation } from '~/constants/planet-data'
+import {
+  PLANET_META,
+  getPlanetInterpretation,
+  getAspectInterpretation,
+} from '~/constants/planet-data'
 
 // ═══════════════════════════════════════════════════════════════
 // Props & Emits
@@ -55,7 +59,7 @@ function pol(angleDeg: number, r: number): { x: number; y: number } {
  * Formula: svgDeg = 180 - ((lon - ascLon + 360) % 360)
  */
 function lonToSvgDeg(lon: number, ascLon: number): number {
-  const relative = ((lon - ascLon) % 360 + 360) % 360
+  const relative = (((lon - ascLon) % 360) + 360) % 360
   return 180 - relative
 }
 
@@ -172,7 +176,10 @@ const houseLabels = computed<HouseLabelData[]>(() => {
 // Sign Sector Dividers (SVG lines)
 // ═══════════════════════════════════════════════════════════════
 interface DividerLine {
-  x1: number; y1: number; x2: number; y2: number
+  x1: number
+  y1: number
+  x2: number
+  y2: number
 }
 
 const signDividers = computed<DividerLine[]>(() => {
@@ -214,7 +221,10 @@ const mcLinePoints = computed(() => {
 // ═══════════════════════════════════════════════════════════════
 interface AspectRenderData {
   aspect: AspectLine
-  x1: number; y1: number; x2: number; y2: number
+  x1: number
+  y1: number
+  x2: number
+  y2: number
   harmonious: boolean
   symbol: string
 }
@@ -235,13 +245,19 @@ const aspectRenderData = computed<AspectRenderData[]>(() => {
 
     const harmonious = ['conjunction', 'sextile', 'trine'].includes(aspect.type)
     const symbols: Record<string, string> = {
-      conjunction: '☌', sextile: '⚹', square: '□', trine: '△', opposition: '☍',
+      conjunction: '☌',
+      sextile: '⚹',
+      square: '□',
+      trine: '△',
+      opposition: '☍',
     }
 
     return {
       aspect,
-      x1: pos1.x, y1: pos1.y,
-      x2: pos2.x, y2: pos2.y,
+      x1: pos1.x,
+      y1: pos1.y,
+      x2: pos2.x,
+      y2: pos2.y,
       harmonious,
       symbol: symbols[aspect.type] ?? '',
     }
@@ -273,12 +289,14 @@ const tooltipRef = ref<HTMLDivElement>()
 function onPlanetEnter(e: MouseEvent | FocusEvent, prd: PlanetRenderData) {
   const p = prd.planet
   // Moon uses MOON_INTERPRETATIONS (from useConstellation), other planets use PLANET_SIGN_INTERPRETATIONS
-  const interp = p.id === 'moon'
-    ? (MOON_INTERPRETATIONS[p.signName] ?? '')
-    : getPlanetInterpretation(p.id, p.signName)
-  const signHouse = props.data.hasHouses && p.houseIndex !== null
-    ? `${p.signName} · 第${p.houseIndex}宫`
-    : p.signName
+  const interp =
+    p.id === 'moon'
+      ? (MOON_INTERPRETATIONS[p.signName] ?? '')
+      : getPlanetInterpretation(p.id, p.signName)
+  const signHouse =
+    props.data.hasHouses && p.houseIndex !== null
+      ? `${p.signName} · 第${p.houseIndex}宫`
+      : p.signName
 
   const relatedAspects = props.data.aspects
     .filter(a => a.p1 === p.id || a.p2 === p.id)
@@ -286,7 +304,11 @@ function onPlanetEnter(e: MouseEvent | FocusEvent, prd: PlanetRenderData) {
       const otherId = a.p1 === p.id ? a.p2 : a.p1
       const otherMeta = PLANET_META[otherId]
       const symbols: Record<string, string> = {
-        conjunction: '☌', sextile: '⚹', square: '□', trine: '△', opposition: '☍',
+        conjunction: '☌',
+        sextile: '⚹',
+        square: '□',
+        trine: '△',
+        opposition: '☍',
       }
       return `${symbols[a.type] ?? ''} ${otherMeta?.name ?? otherId}`
     })
@@ -372,7 +394,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
       <circle
         v-for="r in orbitRadii"
         :key="`orbit-${r}`"
-        :cx="CX" :cy="CY" :r="r"
+        :cx="CX"
+        :cy="CY"
+        :r="r"
         fill="none"
         class="orbit-circle"
         :class="{ 'orbit-circle--outer': r === OUTER_DECORATION_R }"
@@ -382,23 +406,30 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
       <line
         v-for="(d, i) in signDividers"
         :key="`div-${i}`"
-        :x1="d.x1" :y1="d.y1" :x2="d.x2" :y2="d.y2"
+        :x1="d.x1"
+        :y1="d.y1"
+        :x2="d.x2"
+        :y2="d.y2"
         class="sign-divider"
       />
 
       <!-- Asc line -->
       <line
         v-if="ascLinePoints"
-        :x1="ascLinePoints.x1" :y1="ascLinePoints.y1"
-        :x2="ascLinePoints.x2" :y2="ascLinePoints.y2"
+        :x1="ascLinePoints.x1"
+        :y1="ascLinePoints.y1"
+        :x2="ascLinePoints.x2"
+        :y2="ascLinePoints.y2"
         class="asc-line"
       />
 
       <!-- MC line -->
       <line
         v-if="mcLinePoints"
-        :x1="mcLinePoints.x1" :y1="mcLinePoints.y1"
-        :x2="mcLinePoints.x2" :y2="mcLinePoints.y2"
+        :x1="mcLinePoints.x1"
+        :y1="mcLinePoints.y1"
+        :x2="mcLinePoints.x2"
+        :y2="mcLinePoints.y2"
         class="mc-line"
       />
 
@@ -406,7 +437,10 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
       <line
         v-for="(al, i) in aspectRenderData"
         :key="`aspect-${i}`"
-        :x1="al.x1" :y1="al.y1" :x2="al.x2" :y2="al.y2"
+        :x1="al.x1"
+        :y1="al.y1"
+        :x2="al.x2"
+        :y2="al.y2"
         class="aspect-line"
         :class="al.harmonious ? 'aspect-line--harmonious' : 'aspect-line--challenging'"
         :stroke-dasharray="al.aspect.type === 'sextile' ? '5,3' : undefined"
@@ -431,7 +465,8 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         :key="`sign-${sl.signIndex}`"
         class="sign-symbol"
         :style="{ left: sl.pctX + '%', top: sl.pctY + '%' }"
-      >{{ sl.symbol }}</span>
+        >{{ sl.symbol }}</span
+      >
     </div>
 
     <!-- ═══ DOM: 宫位编号 ═══ -->
@@ -441,7 +476,8 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         :key="`house-${hl.number}`"
         class="house-number"
         :style="{ left: hl.pctX + '%', top: hl.pctY + '%' }"
-      >{{ hl.number }}</span>
+        >{{ hl.number }}</span
+      >
     </div>
 
     <!-- ═══ DOM: 行星标签 ═══ -->
@@ -490,7 +526,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
         <div class="natal-tooltip__title">{{ tooltipContent.title }}</div>
         <div class="natal-tooltip__location">
           落入：{{ tooltipContent.signHouse }}
-          <span v-if="tooltipContent.boundaryWarning" class="natal-tooltip__warning">⚠ 靠近星座交界</span>
+          <span v-if="tooltipContent.boundaryWarning" class="natal-tooltip__warning"
+            >⚠ 靠近星座交界</span
+          >
         </div>
         <div v-if="tooltipContent.interpretation" class="natal-tooltip__interp">
           {{ tooltipContent.interpretation }}
@@ -527,11 +565,12 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   position: absolute;
   inset: 4%;
   border-radius: 50%;
-  background:
-    radial-gradient(ellipse at 50% 48%,
-      color-mix(in srgb, var(--color-paper-darker) 16%, transparent) 0%,
-      color-mix(in srgb, var(--color-paper-medium) 8%, transparent) 40%,
-      transparent 75%);
+  background: radial-gradient(
+    ellipse at 50% 48%,
+    color-mix(in srgb, var(--color-paper-darker) 16%, transparent) 0%,
+    color-mix(in srgb, var(--color-paper-medium) 8%, transparent) 40%,
+    transparent 75%
+  );
   pointer-events: none;
   z-index: -1;
 }
@@ -581,7 +620,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 .aspect-line {
   stroke-width: 1.5;
   opacity: 0.35;
-  transition: opacity 200ms ease, stroke-width 200ms ease;
+  transition:
+    opacity 200ms ease,
+    stroke-width 200ms ease;
 }
 
 .aspect-line--harmonious {
@@ -599,15 +640,35 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 
 .planet-orb {
   stroke-width: 1;
-  transition: transform 200ms ease, opacity 200ms ease;
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease;
 }
 
-.planet-orb--gold     { fill: #D4A84B; stroke: rgba(212, 168, 75, 0.5); }
-.planet-orb--ice      { fill: #6BA8C8; stroke: rgba(107, 168, 200, 0.5); }
-.planet-orb--jade     { fill: #4A8C6F; stroke: rgba(74, 140, 111, 0.5); }
-.planet-orb--cinnabar { fill: var(--color-cinnabar); stroke: color-mix(in srgb, var(--color-cinnabar) 50%, transparent); }
-.planet-orb--purple   { fill: #7B6FA0; stroke: rgba(123, 111, 160, 0.5); }
-.planet-orb--gray     { fill: var(--color-ink-muted); stroke: color-mix(in srgb, var(--color-ink-muted) 40%, transparent); }
+.planet-orb--gold {
+  fill: #d4a84b;
+  stroke: rgba(212, 168, 75, 0.5);
+}
+.planet-orb--ice {
+  fill: #6ba8c8;
+  stroke: rgba(107, 168, 200, 0.5);
+}
+.planet-orb--jade {
+  fill: #4a8c6f;
+  stroke: rgba(74, 140, 111, 0.5);
+}
+.planet-orb--cinnabar {
+  fill: var(--color-cinnabar);
+  stroke: color-mix(in srgb, var(--color-cinnabar) 50%, transparent);
+}
+.planet-orb--purple {
+  fill: #7b6fa0;
+  stroke: rgba(123, 111, 160, 0.5);
+}
+.planet-orb--gray {
+  fill: var(--color-ink-muted);
+  stroke: color-mix(in srgb, var(--color-ink-muted) 40%, transparent);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    DOM Layers
@@ -620,9 +681,15 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   pointer-events: none;
 }
 
-.signs-layer  { z-index: 1; }
-.houses-layer { z-index: 1; }
-.planets-layer { z-index: 2; }
+.signs-layer {
+  z-index: 1;
+}
+.houses-layer {
+  z-index: 1;
+}
+.planets-layer {
+  z-index: 2;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Sign Symbols
@@ -688,7 +755,9 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   color: var(--color-ink-muted);
   opacity: 0.7;
   letter-spacing: 0.04em;
-  transition: opacity 200ms ease, color 200ms ease;
+  transition:
+    opacity 200ms ease,
+    color 200ms ease;
 }
 
 .planet-btn:hover .planet-glyph {
@@ -733,8 +802,13 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #DD4848 0%, var(--color-cinnabar) 48%, var(--color-cinnabar-dark) 100%);
-  border: 1.5px solid #D4A84B;
+  background: radial-gradient(
+    circle at 38% 32%,
+    #dd4848 0%,
+    var(--color-cinnabar) 48%,
+    var(--color-cinnabar-dark) 100%
+  );
+  border: 1.5px solid #d4a84b;
   box-shadow:
     0 0 14px color-mix(in srgb, var(--color-ink-muted) 20%, transparent),
     0 0 32px color-mix(in srgb, var(--color-ink-muted) 8%, transparent),
@@ -747,7 +821,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 .center-seal__char {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 1.25rem;
-  color: #D4A84B;
+  color: #d4a84b;
   text-shadow: 0 0 4px rgba(212, 168, 75, 0.3);
   line-height: 1;
 }
@@ -834,9 +908,18 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
    Keyframes — MUST be outside @layer
    ═══════════════════════════════════════════════════════════════ */
 @keyframes planet-enter {
-  0%   { opacity: 0;   transform: translate(-50%, -50%) scale(0.5); }
-  60%  { opacity: 0.9; transform: translate(-50%, -50%) scale(1.06); }
-  100% { opacity: 1;   transform: translate(-50%, -50%) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -852,22 +935,47 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
     transition: opacity 120ms linear;
     transform: none;
   }
-  .natal-tooltip--visible { transform: none; }
+  .natal-tooltip--visible {
+    transform: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Responsive (≤ 600px)
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .sign-symbol { font-size: 0.85rem; }
-  .house-number { font-size: 0.625rem; }
-  .planet-glyph { font-size: 0.75rem; }
-  .planet-name { font-size: 0.625rem; }
-  .planet-retrograde { font-size: 0.625rem; }
-  .center-seal__disc { width: 36px; height: 36px; }
-  .center-seal__char { font-size: 1rem; }
-  .natal-tooltip { font-size: 0.6875rem; max-width: 200px; padding: 0.45rem 0.6rem; }
-  .natal-tooltip__title { font-size: 0.75rem; }
-  .natal-tooltip__interp { font-size: 0.6875rem; }
+  .sign-symbol {
+    font-size: 0.85rem;
+  }
+  .house-number {
+    font-size: 0.625rem;
+  }
+  .planet-glyph {
+    font-size: 0.75rem;
+  }
+  .planet-name {
+    font-size: 0.625rem;
+  }
+  .planet-retrograde {
+    font-size: 0.625rem;
+  }
+  .center-seal__disc {
+    width: 36px;
+    height: 36px;
+  }
+  .center-seal__char {
+    font-size: 1rem;
+  }
+  .natal-tooltip {
+    font-size: 0.6875rem;
+    max-width: 200px;
+    padding: 0.45rem 0.6rem;
+  }
+  .natal-tooltip__title {
+    font-size: 0.75rem;
+  }
+  .natal-tooltip__interp {
+    font-size: 0.6875rem;
+  }
 }
 </style>

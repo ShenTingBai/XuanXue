@@ -3,7 +3,7 @@ import { toSafeProfile } from '../../utils/profile'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   // Body size limit: prevent oversized payloads
   const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
   if (contentLength > 4096) {
@@ -101,7 +101,11 @@ export default defineEventHandler(async (event) => {
 
   if (body.birth_longitude !== undefined) {
     if (body.birth_longitude !== null) {
-      if (typeof body.birth_longitude !== 'number' || body.birth_longitude < -180 || body.birth_longitude > 180) {
+      if (
+        typeof body.birth_longitude !== 'number' ||
+        body.birth_longitude < -180 ||
+        body.birth_longitude > 180
+      ) {
         throw createError({ statusCode: 400, statusMessage: '经度范围为 -180 至 180' })
       }
     }

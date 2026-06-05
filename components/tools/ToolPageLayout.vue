@@ -11,7 +11,10 @@
       <!-- Main content area -->
       <div class="flex-1 min-w-0">
         <!-- Mobile nav: shown on <lg, hidden on lg+ (only when slot is provided) -->
-        <div v-if="$slots['mobile-nav']" class="lg:hidden mb-6 overflow-x-auto -mx-4 px-4 scroll-hint-x scrollbar-hide">
+        <div
+          v-if="$slots['mobile-nav']"
+          class="lg:hidden mb-6 overflow-x-auto -mx-4 px-4 scroll-hint-x scrollbar-hide"
+        >
           <nav class="flex gap-1 pb-2" aria-label="工具导航（移动端）">
             <slot name="mobile-nav" />
           </nav>

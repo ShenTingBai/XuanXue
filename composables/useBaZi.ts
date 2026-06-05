@@ -1,20 +1,35 @@
 import { getMonthPillar, getSolarTerm } from './useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 
-import { STEMS, BRANCHES, getStemIndex, WUXING_STEM, WUXING_BRANCH, getNayinWuxing } from '~/constants/bazi'
+import {
+  STEMS,
+  BRANCHES,
+  getStemIndex,
+  WUXING_STEM,
+  WUXING_BRANCH,
+  getNayinWuxing,
+} from '~/constants/bazi'
 import { getTrueSolarHour } from '~/utils/time'
 
 // === Helper ===
 
 function branchIndex(b: string): number {
-  return BRANCHES.indexOf(b as typeof BRANCHES[number])
+  return BRANCHES.indexOf(b as (typeof BRANCHES)[number])
 }
 
 // === Constants ===
 
 const STEM_YIN_YANG: Record<string, '阳' | '阴'> = {
-  '甲': '阳', '乙': '阴', '丙': '阳', '丁': '阴', '戊': '阳',
-  '己': '阴', '庚': '阳', '辛': '阴', '壬': '阳', '癸': '阴',
+  甲: '阳',
+  乙: '阴',
+  丙: '阳',
+  丁: '阴',
+  戊: '阳',
+  己: '阴',
+  庚: '阳',
+  辛: '阴',
+  壬: '阳',
+  癸: '阴',
 }
 
 // === Typed Exports ===
@@ -67,18 +82,18 @@ export interface BaZiResult {
 // === Hidden Stems Table ===
 // Each branch has 1-3 hidden stems (主/中/余)
 const HIDDEN_STEMS: Record<string, string[]> = {
-  '子': ['癸'],
-  '丑': ['己', '癸', '辛'],
-  '寅': ['甲', '丙', '戊'],
-  '卯': ['乙'],
-  '辰': ['戊', '乙', '癸'],
-  '巳': ['丙', '庚', '戊'],
-  '午': ['丁', '己'],
-  '未': ['己', '丁', '乙'],
-  '申': ['庚', '壬', '戊'],
-  '酉': ['辛'],
-  '戌': ['戊', '辛', '丁'],
-  '亥': ['壬', '甲'],
+  子: ['癸'],
+  丑: ['己', '癸', '辛'],
+  寅: ['甲', '丙', '戊'],
+  卯: ['乙'],
+  辰: ['戊', '乙', '癸'],
+  巳: ['丙', '庚', '戊'],
+  午: ['丁', '己'],
+  未: ['己', '丁', '乙'],
+  申: ['庚', '壬', '戊'],
+  酉: ['辛'],
+  戌: ['戊', '辛', '丁'],
+  亥: ['壬', '甲'],
 }
 
 // === Ten Gods Matrix ===
@@ -104,9 +119,9 @@ const TEN_GOD_MATRIX: string[][] = (() => {
 
       // 生我 (generates day master): target's wuxing generates dm's wuxing
       // Wood→Fire→Earth→Metal→Water→Wood
-      const produces: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
+      const produces: Record<string, string> = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' }
       // 克我 (controls day master)
-      const controls: Record<string, string> = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' }
+      const controls: Record<string, string> = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' }
 
       if (targetWx === dmWx) {
         // Same element, different stem
@@ -143,38 +158,38 @@ export function getTenGod(dayMasterIndex: number, targetStem: string): string {
 
 /** 天干特性 */
 const STEM_TRAITS: Record<string, string> = {
-  '甲': '甲木参天',
-  '乙': '乙木柔韧',
-  '丙': '丙火猛烈',
-  '丁': '丁火柔中',
-  '戊': '戊土厚重',
-  '己': '己土肥沃',
-  '庚': '庚金刚锐',
-  '辛': '辛金秀气',
-  '壬': '壬水汪洋',
-  '癸': '癸水至阴',
+  甲: '甲木参天',
+  乙: '乙木柔韧',
+  丙: '丙火猛烈',
+  丁: '丁火柔中',
+  戊: '戊土厚重',
+  己: '己土肥沃',
+  庚: '庚金刚锐',
+  辛: '辛金秀气',
+  壬: '壬水汪洋',
+  癸: '癸水至阴',
 }
 
 /** 十神心性 */
 const TEN_GOD_TRAITS: Record<string, string> = {
-  '正官': '正官护身',
-  '七杀': '七杀攻身',
-  '正印': '正印护持',
-  '偏印': '偏印生身',
-  '比肩': '比肩助力',
-  '劫财': '劫财相扶',
-  '食神': '食神泄秀',
-  '伤官': '伤官吐秀',
-  '正财': '正财稳进',
-  '偏财': '偏财横发',
+  正官: '正官护身',
+  七杀: '七杀攻身',
+  正印: '正印护持',
+  偏印: '偏印生身',
+  比肩: '比肩助力',
+  劫财: '劫财相扶',
+  食神: '食神泄秀',
+  伤官: '伤官吐秀',
+  正财: '正财稳进',
+  偏财: '偏财横发',
 }
 
 /** 柱位语境 */
 const PILLAR_CONTEXT: Record<string, string> = {
-  '年柱': '祖上根基',
-  '月柱': '父母荫庇',
-  '日柱': '自身造化',
-  '时柱': '晚年归宿',
+  年柱: '祖上根基',
+  月柱: '父母荫庇',
+  日柱: '自身造化',
+  时柱: '晚年归宿',
 }
 
 /**
@@ -215,12 +230,12 @@ function isYangYear(stemIndex: number): boolean {
 
 /** Get the stem index from a year (for year pillar calculation) */
 function getYearStemIndex(year: number): number {
-  return ((year - 4) % 10 + 10) % 10
+  return (((year - 4) % 10) + 10) % 10
 }
 
 /** Get the branch index from a year (for year pillar calculation) */
 function getYearBranchIndex(year: number): number {
-  return ((year - 4) % 12 + 12) % 12
+  return (((year - 4) % 12) + 12) % 12
 }
 
 /** Check if a date is before 立春 using the computed solar term date for the given year */
@@ -230,11 +245,7 @@ function isBeforeLiChun(year: number, month: number, day: number): boolean {
 }
 
 /** Build a pillar object */
-function buildPillar(
-  stemIndex: number,
-  branchIndex: number,
-  dayMasterIndex: number,
-): BaZiPillar {
+function buildPillar(stemIndex: number, branchIndex: number, dayMasterIndex: number): BaZiPillar {
   const stem = STEMS[stemIndex]
   const branch = BRANCHES[branchIndex]
   const hiddenStemChars = HIDDEN_STEMS[branch] || []
@@ -268,16 +279,17 @@ const DAYS_FROM_EPOCH_TO_1900_01_01 = 693902
  * Uses Zeller-like formula with reference date 1900-01-01 = 甲子日 (stem=0, branch=0).
  */
 function getDayPillarIndices(year: number, month: number, day: number): [number, number] {
-  let y = month <= 2 ? year - 1 : year
-  let m = month <= 2 ? month + 12 : month
+  const y = month <= 2 ? year - 1 : year
+  const m = month <= 2 ? month + 12 : month
 
-  const days = 365 * y
-    + Math.floor(y / 4)
-    - Math.floor(y / 100)
-    + Math.floor(y / 400)
-    + Math.floor((153 * m - 457) / 5)
-    + day
-    - DAYS_FROM_EPOCH_TO_1900_01_01
+  const days =
+    365 * y +
+    Math.floor(y / 4) -
+    Math.floor(y / 100) +
+    Math.floor(y / 400) +
+    Math.floor((153 * m - 457) / 5) +
+    day -
+    DAYS_FROM_EPOCH_TO_1900_01_01
 
   const stemIndex = ((days % 10) + 10) % 10
   const branchIndex = ((days % 12) + 12) % 12
@@ -326,21 +338,21 @@ export function getWeightedDayMasterStrength(
   function factorScore(wuxing: string): number {
     const fIdx = CYCLE.indexOf(wuxing)
     if (fIdx < 0) return 0
-    if (fIdx === myIdx) return 1              // same wuxing
-    if ((fIdx + 1) % 5 === myIdx) return 0.5  // generates me (生我)
+    if (fIdx === myIdx) return 1 // same wuxing
+    if ((fIdx + 1) % 5 === myIdx) return 0.5 // generates me (生我)
     if ((fIdx + 2) % 5 === myIdx) return -1.5 // controls me (克我)
     return 0
   }
 
   // Pillar order: [年柱, 月柱, 日柱, 时柱]
   const weights: { idx: number; field: 'stem' | 'branch'; weight: number }[] = [
-    { idx: 0, field: 'stem', weight: 1.0 },   // year stem
-    { idx: 0, field: 'branch', weight: 1.0 },  // year branch
-    { idx: 1, field: 'branch', weight: 2.0 },  // month branch
-    { idx: 2, field: 'stem', weight: 1.0 },    // day stem
-    { idx: 2, field: 'branch', weight: 1.5 },  // day branch
-    { idx: 3, field: 'stem', weight: 1.0 },    // hour stem
-    { idx: 3, field: 'branch', weight: 1.0 },  // hour branch
+    { idx: 0, field: 'stem', weight: 1.0 }, // year stem
+    { idx: 0, field: 'branch', weight: 1.0 }, // year branch
+    { idx: 1, field: 'branch', weight: 2.0 }, // month branch
+    { idx: 2, field: 'stem', weight: 1.0 }, // day stem
+    { idx: 2, field: 'branch', weight: 1.5 }, // day branch
+    { idx: 3, field: 'stem', weight: 1.0 }, // hour stem
+    { idx: 3, field: 'branch', weight: 1.0 }, // hour branch
   ]
 
   let total = 0
@@ -366,7 +378,6 @@ export function getWeightedDayMasterStrength(
   if (total >= -3) return '偏弱'
   return '弱'
 }
-
 
 /**
  * Get seasonal climate adjustment element based on month branch.
@@ -401,27 +412,39 @@ export function getSeasonalAdjustment(monthBranchIndex: number): string {
  * analysis — even if the seasonal element would normally be unfavorable,
  * it is still added as favorable.
  */
-export function getFavorableElements(dayMasterWuxing: string, strength: string, monthBranchIndex?: number): [string[], string[]] {
+export function getFavorableElements(
+  dayMasterWuxing: string,
+  strength: string,
+  monthBranchIndex?: number,
+): [string[], string[]] {
   // 我生 (食伤/EXPRESSION): DM generates this element
-  const generating: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' }
+  const generating: Record<string, string> = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' }
   // 我克 (财/WEALTH): DM controls this element
-  const controlling: Record<string, string> = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' }
+  const controlling: Record<string, string> = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' }
   // 克我 (官杀/OFFICER): this element controls DM
-  const controlled: Record<string, string> = { '木': '金', '火': '水', '土': '木', '金': '火', '水': '土' }
+  const controlled: Record<string, string> = { 木: '金', 火: '水', 土: '木', 金: '火', 水: '土' }
   // 生我 (印/RESOURCE): this element generates DM
-  const generatedBy: Record<string, string> = { '木': '水', '火': '木', '土': '火', '金': '土', '水': '金' }
+  const generatedBy: Record<string, string> = { 木: '水', 火: '木', 土: '火', 金: '土', 水: '金' }
 
   let favorable: string[]
   let unfavorable: string[]
 
   if (strength === '强' || strength === '偏强') {
     // 身强喜克泄耗: 官杀(克我) + 食伤(我生) + 财(我克) are favorable
-    favorable = [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]]
+    favorable = [
+      controlled[dayMasterWuxing],
+      generating[dayMasterWuxing],
+      controlling[dayMasterWuxing],
+    ]
     unfavorable = [dayMasterWuxing, generatedBy[dayMasterWuxing]]
   } else if (strength === '弱' || strength === '偏弱') {
     // 身弱喜扶帮: 印(生我) + 比劫(同我) are favorable
     favorable = [generatedBy[dayMasterWuxing], dayMasterWuxing]
-    unfavorable = [controlled[dayMasterWuxing], generating[dayMasterWuxing], controlling[dayMasterWuxing]]
+    unfavorable = [
+      controlled[dayMasterWuxing],
+      generating[dayMasterWuxing],
+      controlling[dayMasterWuxing],
+    ]
   } else {
     // 中和 → full analysis needed; simple balance for now
     favorable = [controlled[dayMasterWuxing], generating[dayMasterWuxing]]
@@ -441,7 +464,7 @@ export function getFavorableElements(dayMasterWuxing: string, strength: string, 
 
 /** Compute element counts from all pillars */
 function computeElementCounts(pillars: BaZiPillar[]): Record<string, number> {
-  const counts: Record<string, number> = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 }
+  const counts: Record<string, number> = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 }
   for (const p of pillars) {
     if (!p) continue
     if (counts[p.stemWuxing] !== undefined) counts[p.stemWuxing]++
@@ -521,7 +544,8 @@ function computeStartAge(
     }
     // After all terms → next term is next year's 立春
     const nextLiChun = getSolarTerm(birthYear + 1, 0)
-    const nextIsLeap = ((birthYear + 1) % 4 === 0 && (birthYear + 1) % 100 !== 0) || (birthYear + 1) % 400 === 0
+    const nextIsLeap =
+      ((birthYear + 1) % 4 === 0 && (birthYear + 1) % 100 !== 0) || (birthYear + 1) % 400 === 0
     const nextMD = [31, nextIsLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     let nextDOY = 0
     for (let m = 0; m < nextLiChun.month - 1; m++) nextDOY += nextMD[m]
@@ -582,8 +606,8 @@ function computeDaYun(
 
   for (let i = 0; i < 8; i++) {
     const offset = forward ? i + 1 : -(i + 1)
-    const stemIdx = ((monthStemIndex + offset) % 10 + 10) % 10
-    const branchIdx = ((monthBranchIndex + offset) % 12 + 12) % 12
+    const stemIdx = (((monthStemIndex + offset) % 10) + 10) % 10
+    const branchIdx = (((monthBranchIndex + offset) % 12) + 12) % 12
     const stem = STEMS[stemIdx]
     const branch = BRANCHES[branchIdx]
     cycles.push({
@@ -639,7 +663,9 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
       birthCalendar = 'solar'
     } catch {
       // If conversion fails (e.g. invalid lunar date), fall through with original values
-      console.warn(`[useBaZi] Failed to convert lunar date ${birthYear}-${birthMonth}-${birthDay}, treating as solar`)
+      console.warn(
+        `[useBaZi] Failed to convert lunar date ${birthYear}-${birthMonth}-${birthDay}, treating as solar`,
+      )
     }
   }
 
@@ -666,9 +692,10 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
 
   // --- Hour Pillar ---
   // Apply true solar time correction if birth longitude is available
-  const solarHour = birthHour !== null && birthLongitude != null
-    ? getTrueSolarHour(birthHour, birthLongitude)
-    : birthHour
+  const solarHour =
+    birthHour !== null && birthLongitude != null
+      ? getTrueSolarHour(birthHour, birthLongitude)
+      : birthHour
   let hourPillar: BaZiPillar | null = null
   if (solarHour !== null) {
     // Normalize to 0-23 range
@@ -700,15 +727,43 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
   const dayMasterWuxing = WUXING_STEM[dayMaster]
 
   // Pillar interpretations
-  yearPillar.interpretation = getPillarInterpretation(yearPillar.stem, yearPillar.stemTenGod, '年柱', yearPillar.branchWuxing, dayMasterWuxing)
-  monthPillar.interpretation = getPillarInterpretation(monthPillar.stem, monthPillar.stemTenGod, '月柱', monthPillar.branchWuxing, dayMasterWuxing)
-  dayPillar.interpretation = getPillarInterpretation(dayPillar.stem, dayPillar.stemTenGod, '日柱', dayPillar.branchWuxing, dayMasterWuxing)
+  yearPillar.interpretation = getPillarInterpretation(
+    yearPillar.stem,
+    yearPillar.stemTenGod,
+    '年柱',
+    yearPillar.branchWuxing,
+    dayMasterWuxing,
+  )
+  monthPillar.interpretation = getPillarInterpretation(
+    monthPillar.stem,
+    monthPillar.stemTenGod,
+    '月柱',
+    monthPillar.branchWuxing,
+    dayMasterWuxing,
+  )
+  dayPillar.interpretation = getPillarInterpretation(
+    dayPillar.stem,
+    dayPillar.stemTenGod,
+    '日柱',
+    dayPillar.branchWuxing,
+    dayMasterWuxing,
+  )
   if (hourPillar) {
-    hourPillar.interpretation = getPillarInterpretation(hourPillar.stem, hourPillar.stemTenGod, '时柱', hourPillar.branchWuxing, dayMasterWuxing)
+    hourPillar.interpretation = getPillarInterpretation(
+      hourPillar.stem,
+      hourPillar.stemTenGod,
+      '时柱',
+      hourPillar.branchWuxing,
+      dayMasterWuxing,
+    )
   }
 
   const dayMasterStrength = getWeightedDayMasterStrength(dayMasterWuxing, pillars)
-  const [favorableElements, unfavorableElements] = getFavorableElements(dayMasterWuxing, dayMasterStrength, monthBranchIndex)
+  const [favorableElements, unfavorableElements] = getFavorableElements(
+    dayMasterWuxing,
+    dayMasterStrength,
+    monthBranchIndex,
+  )
 
   // Da Yun
   const rawDaYun = computeDaYun(monthPillar, yearStemIndex, gender, birthYear, birthMonth, birthDay)

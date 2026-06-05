@@ -15,6 +15,7 @@
 ### Task 0: 添加工具区标题 CSS 类
 
 **Files:**
+
 - Modify: `assets/css/main.css:729`
 
 在 `.section-header h2` 后添加一个工具区专用的变体，尺寸介于首页微型标题和 InkDivider 大标题之间。
@@ -24,17 +25,17 @@
 位置：在 `assets/css/main.css` 中 `.section-header h2` 样式块之后添加：
 
 ```css
+.section-header--tool h2 {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  color: var(--color-ink);
+  letter-spacing: 0.2em;
+}
+@media (min-width: 640px) {
   .section-header--tool h2 {
-    font-family: var(--font-display);
-    font-size: 1.125rem;
-    color: var(--color-ink);
-    letter-spacing: 0.2em;
+    font-size: 1.25rem;
   }
-  @media (min-width: 640px) {
-    .section-header--tool h2 {
-      font-size: 1.25rem;
-    }
-  }
+}
 ```
 
 - [ ] **Step 2: Build 验证**
@@ -43,6 +44,7 @@
 npx nuxt typecheck 2>&1 | tail -5
 npm run build 2>&1 | tail -5
 ```
+
 Expected: typecheck + build 通过
 
 - [ ] **Step 3: Commit**
@@ -57,6 +59,7 @@ git commit -m "style: add section-header--tool modifier for tool page section ti
 ### Task 1: 星座页面适配
 
 **Files — 同时修改：**
+
 - Modify: `pages/tools/constellation.vue`
 - Modify: `components/tools/constellation/Hero.vue`
 - Modify: `components/tools/constellation/HoroscopePanel.vue`
@@ -65,10 +68,13 @@ git commit -m "style: add section-header--tool modifier for tool page section ti
 - [ ] **Step 1: 替换 ConstellationHero — card-paper-solid → card-warm**
 
 `components/tools/constellation/Hero.vue`:
+
 ```
 class="fade-in card-paper-solid rounded-xl p-8 mb-6"
 ```
+
 →
+
 ```
 class="fade-in card-warm rounded-xl p-8 mb-6"
 ```
@@ -76,15 +82,19 @@ class="fade-in card-warm rounded-xl p-8 mb-6"
 - [ ] **Step 2: 替换 HoroscopePanel — card-paper-solid + InkDivider**
 
 `components/tools/constellation/HoroscopePanel.vue`:
+
 ```
 class="fade-in card-paper-solid rounded-xl p-8 mb-6"
 ```
+
 →
+
 ```
 class="fade-in card-warm rounded-xl p-8 mb-6"
 ```
 
 删除 InkDivider 导入，替换 `<InkDivider class="mt-6">综合运势</InkDivider>` 为：
+
 ```html
 <div class="section-header section-header--tool mt-6">
   <span class="bar" aria-hidden="true"></span>
@@ -97,6 +107,7 @@ class="fade-in card-warm rounded-xl p-8 mb-6"
 
 `components/tools/constellation/YiJiPanel.vue`:
 删除 InkDivider 导入，替换 `<InkDivider>今日宜忌</InkDivider>` 为：
+
 ```html
 <div class="section-header section-header--tool">
   <span class="bar" aria-hidden="true"></span>
@@ -108,10 +119,12 @@ class="fade-in card-warm rounded-xl p-8 mb-6"
 - [ ] **Step 4: 替换 constellation.vue 页面内容**
 
 `pages/tools/constellation.vue`:
+
 - 删除 InkDivider 导入
 - 性格特征卡片：`class="card-paper-solid rounded-xl p-5"` → `class="card-warm rounded-xl p-5"`
 - 速配星座卡片：`class="card-paper-solid rounded-xl p-3 sm:p-4 ..."` → `class="card-warm rounded-xl p-3 sm:p-4 ..."`
 - 性格特征标题 `<InkDivider>性格特征</InkDivider>` → section-header 模式：
+
 ```html
 <div class="section-header section-header--tool">
   <span class="bar" aria-hidden="true"></span>
@@ -119,6 +132,7 @@ class="fade-in card-warm rounded-xl p-8 mb-6"
   <h2>性格特征</h2>
 </div>
 ```
+
 - 速配星座标题 `<InkDivider>速配星座</InkDivider>` → section-header 模式（seal-icon 字符"配"）
 - `btn-seal` → `btn-cin`（所有按钮）
 
@@ -141,6 +155,7 @@ git commit -m "style: adapt constellation page to ink-resonance design system"
 ### Task 2: 生肖页面适配
 
 **Files — 同时修改：**
+
 - Modify: `pages/tools/shengxiao.vue`
 - Modify: `components/tools/shengxiao/Hero.vue`
 - Modify: `components/tools/shengxiao/Personality.vue`
@@ -153,6 +168,7 @@ git commit -m "style: adapt constellation page to ink-resonance design system"
 - [ ] **Step 2: 替换 Personality**
 
 `components/tools/shengxiao/Personality.vue`:
+
 - 两处 `card-paper-solid` → `card-warm`
 - 删除 InkDivider 导入
 - `<InkDivider>性格特征</InkDivider>` → section-header 模式（seal-icon 字符"性"）
@@ -161,6 +177,7 @@ git commit -m "style: adapt constellation page to ink-resonance design system"
 - [ ] **Step 3: 替换 CompatibilityGrid**
 
 `components/tools/shengxiao/CompatibilityGrid.vue`:
+
 - `card-paper-solid` → `card-warm`
 - 删除 InkDivider 导入
 - `<InkDivider>相性配对</InkDivider>` → section-header 模式（seal-icon 字符"配"）
@@ -168,6 +185,7 @@ git commit -m "style: adapt constellation page to ink-resonance design system"
 - [ ] **Step 4: 替换 shengxiao.vue 页面**
 
 `pages/tools/shengxiao.vue`:
+
 - 删除 InkDivider 导入
 - 幸运信息卡片：`card-paper-solid` → `card-warm`，标题 InkDivider → section-header（seal-icon 字符"幸"）
 - 流年运势卡片：同上（seal-icon 字符"年"）
@@ -193,18 +211,21 @@ git commit -m "style: adapt shengxiao page to ink-resonance design system"
 ### Task 3: 六爻页面适配
 
 **Files — 同时修改：**
+
 - Modify: `pages/tools/yijing.vue`
 - Modify: `components/tools/yijing/YijingInterpretation.vue`
 
 - [ ] **Step 1: 替换 YijingInterpretation**
 
 `components/tools/yijing/YijingInterpretation.vue`:
+
 - 所有 5 处 `card-paper-solid` → `card-warm`
 - `InkDivider` → 删除导入，替换为 section-header 模式（seal-icon 字符"卦"）
 
 - [ ] **Step 2: 替换 yijing.vue 页面**
 
 `pages/tools/yijing.vue`:
+
 - 删除 InkDivider 导入
 - 确认对话框 `<div class="card-paper-solid rounded-xl p-8 ...">` → `card-warm`
 - `<InkDivider v-if="result && !processing" />` → section-header 模式
@@ -214,6 +235,7 @@ git commit -m "style: adapt shengxiao page to ink-resonance design system"
 - [ ] **Step 3: 替换 YijingCastingPanel 按钮**
 
 `components/tools/yijing/YijingCastingPanel.vue`:
+
 - `btn-seal` → `btn-cin`（起卦/重置按钮）
 
 - [ ] **Step 4: Build 验证**
@@ -235,6 +257,7 @@ git commit -m "style: adapt yijing page to ink-resonance design system"
 ### Task 4: 紫微斗数页面适配
 
 **Files — 同时修改：**
+
 - Modify: `pages/tools/ziwei.vue`
 - Modify: `components/tools/ziwei/ZiWeiInputForm.vue`
 - Modify: `components/tools/ziwei/ZiWeiInfoSidebar.vue`
@@ -242,17 +265,20 @@ git commit -m "style: adapt yijing page to ink-resonance design system"
 - [ ] **Step 1: 替换 ZiWeiInputForm**
 
 `components/tools/ziwei/ZiWeiInputForm.vue`:
+
 - `card-paper-solid` → `card-warm`
 - `btn-seal` → `btn-cin`
 
 - [ ] **Step 2: 替换 ZiWeiInfoSidebar**
 
 `components/tools/ziwei/ZiWeiInfoSidebar.vue`:
+
 - `card-paper-solid` → `card-warm`
 
 - [ ] **Step 3: 替换 ziwei.vue 页面**
 
 `pages/tools/ziwei.vue`:
+
 - `btn-seal` → `btn-cin`（所有按钮）
 - 天星图、宫位网格、详情面板的外围容器 `card-paper-solid` → `card-warm`（检查 `ZiWeiDetailPanel.vue`、`ZiWeiDetailSheet.vue`、`ZiWeiPalaceGrid.vue`、`ZiWeiDaXianTimeline.vue` 如有 `card-paper-solid` 则替换）
 
@@ -275,6 +301,7 @@ git commit -m "style: adapt ziwei page to ink-resonance design system"
 ### Task 5: 八字页面适配
 
 **Files — 同时修改：**
+
 - Modify: `pages/tools/bazi.vue`
 - Modify: `components/tools/bazi/BaziGrid.vue`
 - Modify: `components/tools/bazi/BaziInfoSidebar.vue`
@@ -289,11 +316,16 @@ git commit -m "style: adapt ziwei page to ink-resonance design system"
 - [ ] **Step 1: 替换 CollapsibleSection**
 
 `components/tools/bazi/CollapsibleSection.vue`:
+
 - `card-paper-solid` → `card-warm`
 - 在标题左侧的红 bar 和 h2 之间增加 seal-icon。添加 `sealChar` prop（`type: String, default: '命'`），在模板中红 bar 后插入：
+
 ```html
-<span v-if="sealChar" class="seal-icon text-[9px] w-7 h-7 flex-shrink-0" aria-hidden="true">{{ sealChar }}</span>
+<span v-if="sealChar" class="seal-icon text-[9px] w-7 h-7 flex-shrink-0" aria-hidden="true"
+  >{{ sealChar }}</span
+>
 ```
+
 - Props 增加 `sealChar?: string`
 - `bazi.vue` 中每个 `<CollapsibleSection>` 调用处传入对应字符：
   - 四柱排盘 → seal-char="命"
@@ -320,6 +352,7 @@ git commit -m "style: adapt ziwei page to ink-resonance design system"
 - [ ] **Step 5: 替换 LiuNianTimeline**
 
 `components/tools/bazi/LiuNianTimeline.vue`:
+
 - 当前年行运卡片和每年条目两处 `card-paper-solid` → `card-warm`
 
 - [ ] **Step 6: 替换 ReadingGuide**
@@ -333,6 +366,7 @@ git commit -m "style: adapt ziwei page to ink-resonance design system"
 - [ ] **Step 8: 替换 bazi.vue 页面 InkDivider**
 
 `pages/tools/bazi.vue`:
+
 - 删除 InkDivider 导入
 - 各折叠区标题的 InkDivider 替换（在组件内部已处理，主要检查页面级的 InkDivider 引用）
 - `btn-seal` → `btn-cin`
@@ -358,11 +392,13 @@ git commit -m "style: adapt bazi page to ink-resonance design system"
 - [ ] **Step 1: 替换 HistoryModal**
 
 `components/tools/HistoryModal.vue`:
+
 - `card-paper-solid` → `card-warm`（主对话框 + CSS 引用）
 
 - [ ] **Step 2: 替换 SkeletonCard**
 
 `components/tools/SkeletonCard.vue`:
+
 - `card-paper-solid` → `card-warm`
 
 - [ ] **Step 3: Build + 全面验证**

@@ -19,9 +19,18 @@ export default defineNuxtPlugin(() => {
           if (response.status !== 401) return
 
           // Skip auth endpoints — login/register 401 is normal business logic
-          const url = typeof request === 'string' ? request : (request instanceof URL ? request.href : request.url)
+          const url =
+            typeof request === 'string'
+              ? request
+              : request instanceof URL
+                ? request.href
+                : request.url
           const path = new URL(url, 'http://localhost').pathname
-          if (path === '/api/auth/login' || path === '/api/auth/register' || path === '/api/auth/logout') {
+          if (
+            path === '/api/auth/login' ||
+            path === '/api/auth/register' ||
+            path === '/api/auth/logout'
+          ) {
             return
           }
 

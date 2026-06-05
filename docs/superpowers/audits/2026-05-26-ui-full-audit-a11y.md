@@ -9,23 +9,28 @@
 ## Serious Issues (5)
 
 ### 1. 首页工具卡片使用 `<div role="button">` 而非原生元素
+
 - **WCAG 1.3.1** | pages/index.vue:78-136
 - 修复：替换为 `<NuxtLink>` 或 `<button>`，消除手动 role/tabindex/keyboard 处理
 
 ### 2. 性别单选按钮缺少 `name` 属性
+
 - **WCAG 4.1.2** | pages/profile/[id].vue:322,328,346
 - 修复：添加 `name="gender"` 到全部三个 radio input
 
 ### 3. 流年分数图例文字对比度不足
+
 - **WCAG 1.4.3** | LiuNianTimeline.vue:5
 - `text-ink-faint (#D4C5B0)` 在纸色背景上约 1.5:1（需要 4.5:1）
 - 修复：改为 `text-ink-medium`
 
 ### 4. 表单验证错误未与输入字段关联
+
 - **WCAG 3.3.1** | login.vue:131-137, YijingCastingPanel.vue:154-156
 - 修复：添加 `aria-describedby` 指向错误消息
 
 ### 5. 必填字段未标记
+
 - **WCAG 3.3.2** | 登录、资料、六爻数字起卦表单
 - 修复：添加 `required` + `aria-required="true"` + 红色星号
 

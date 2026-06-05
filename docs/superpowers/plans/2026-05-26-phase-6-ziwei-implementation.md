@@ -19,6 +19,7 @@
 ### Task 1: Install iztro and write smoke test
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `tests/composables/useZiwei.test.ts`
 
@@ -78,6 +79,7 @@ git commit -m "feat: install iztro and verify with smoke test"
 ### Task 2: Create constants/ziwei.ts — interpretation templates + chart geometry
 
 **Files:**
+
 - Create: `constants/ziwei.ts`
 
 - [ ] **Step 1: Write palace interpretation data and chart geometry constants**
@@ -87,89 +89,116 @@ git commit -m "feat: install iztro and verify with smoke test"
 
 /** 十二宫基本特性 */
 export const PALACE_INTERPRETATIONS: Record<string, string> = {
-  '命宫': '代表一个人的先天禀赋、性格特质、人生走向。命宫中的星曜组合决定了个人的基本格局。',
-  '兄弟宫': '代表兄弟姐妹关系、朋友往来、人际互动。也反映与平辈之间的缘分和助力。',
-  '夫妻宫': '代表婚姻状况、配偶特征、感情生活的方式和质量。',
-  '子女宫': '代表子女缘分、生育状况、与晚辈的关系，也反映个人的创造力和表现欲。',
-  '财帛宫': '代表财运状况、理财能力、财富积累的方式和机会。',
-  '疾厄宫': '代表身体健康状况、潜在疾病倾向、抵抗力和恢复能力。',
-  '迁移宫': '代表外出运势、旅行运、人际关系网络，以及对环境变化的适应能力。',
-  '交友宫': '代表社交圈、朋友质量、合作伙伴的缘分，以及在社会中的人际影响力。',
-  '官禄宫': '代表事业发展、职业选择、工作态度和成就，也反映社会地位。',
-  '田宅宫': '代表不动产状况、居住环境、家庭背景，也反映财富积累的稳定度。',
-  '福德宫': '代表精神生活、福分深浅、内心世界和精神追求。',
-  '父母宫': '代表父母关系、家庭背景、遗传特质，以及长辈缘分。',
+  命宫: '代表一个人的先天禀赋、性格特质、人生走向。命宫中的星曜组合决定了个人的基本格局。',
+  兄弟宫: '代表兄弟姐妹关系、朋友往来、人际互动。也反映与平辈之间的缘分和助力。',
+  夫妻宫: '代表婚姻状况、配偶特征、感情生活的方式和质量。',
+  子女宫: '代表子女缘分、生育状况、与晚辈的关系，也反映个人的创造力和表现欲。',
+  财帛宫: '代表财运状况、理财能力、财富积累的方式和机会。',
+  疾厄宫: '代表身体健康状况、潜在疾病倾向、抵抗力和恢复能力。',
+  迁移宫: '代表外出运势、旅行运、人际关系网络，以及对环境变化的适应能力。',
+  交友宫: '代表社交圈、朋友质量、合作伙伴的缘分，以及在社会中的人际影响力。',
+  官禄宫: '代表事业发展、职业选择、工作态度和成就，也反映社会地位。',
+  田宅宫: '代表不动产状况、居住环境、家庭背景，也反映财富积累的稳定度。',
+  福德宫: '代表精神生活、福分深浅、内心世界和精神追求。',
+  父母宫: '代表父母关系、家庭背景、遗传特质，以及长辈缘分。',
 }
 
 /** 主星基本解读（单星入命宫时） */
 export const STAR_INTERPRETATIONS: Record<string, string> = {
-  '紫微': '紫微入命宫，帝王之星，性刚果断，领导力强，喜受人尊重。',
-  '天机': '天机入命宫，智慧之星，思维敏捷，善谋略，变化多端。',
-  '太阳': '太阳入命宫，光明之星，热情开朗，慷慨大方，贵气显赫。',
-  '武曲': '武曲入命宫，财星之一，性格刚毅，执行力强，适合金融军警。',
-  '天同': '天同入命宫，福星，性情温和，知足常乐，福禄双全。',
-  '廉贞': '廉贞入命宫，次桃花星，聪明刚烈，重情义，有政治才能。',
-  '天府': '天府入命宫，令星，稳重守成，有领导才能，福禄丰足。',
-  '太阴': '太阴入命宫，温柔之星，细腻敏感，有艺术气质，主富。',
-  '贪狼': '贪狼入命宫，桃花星，多才多艺，交际广泛，欲望强烈。',
-  '巨门': '巨门入命宫，暗星之一，口才佳，善辩论，是非较多。',
-  '天相': '天相入命宫，印星，公正善良，乐于助人，有协调能力。',
-  '天梁': '天梁入命宫，荫星，有长者风范，慈悲为怀，有贵人运。',
-  '七杀': '七杀入命宫，将星，性格刚烈，敢拼敢闯，有开创精神。',
-  '破军': '破军入命宫，耗星，勇于变革，突破常规，先破后立。',
+  紫微: '紫微入命宫，帝王之星，性刚果断，领导力强，喜受人尊重。',
+  天机: '天机入命宫，智慧之星，思维敏捷，善谋略，变化多端。',
+  太阳: '太阳入命宫，光明之星，热情开朗，慷慨大方，贵气显赫。',
+  武曲: '武曲入命宫，财星之一，性格刚毅，执行力强，适合金融军警。',
+  天同: '天同入命宫，福星，性情温和，知足常乐，福禄双全。',
+  廉贞: '廉贞入命宫，次桃花星，聪明刚烈，重情义，有政治才能。',
+  天府: '天府入命宫，令星，稳重守成，有领导才能，福禄丰足。',
+  太阴: '太阴入命宫，温柔之星，细腻敏感，有艺术气质，主富。',
+  贪狼: '贪狼入命宫，桃花星，多才多艺，交际广泛，欲望强烈。',
+  巨门: '巨门入命宫，暗星之一，口才佳，善辩论，是非较多。',
+  天相: '天相入命宫，印星，公正善良，乐于助人，有协调能力。',
+  天梁: '天梁入命宫，荫星，有长者风范，慈悲为怀，有贵人运。',
+  七杀: '七杀入命宫，将星，性格刚烈，敢拼敢闯，有开创精神。',
+  破军: '破军入命宫，耗星，勇于变革，突破常规，先破后立。',
 }
 
 /** 四化解读 */
 export const TRANSFORMATION_INTERPRETATIONS: Record<string, Record<string, string>> = {
-  '禄': {
-    '紫微': '禄存紫微，帝王得禄，权威更盛，财运亨通。',
-    '天机': '天机化禄，智慧增财，善用智谋生财。',
+  禄: {
+    紫微: '禄存紫微，帝王得禄，权威更盛，财运亨通。',
+    天机: '天机化禄，智慧增财，善用智谋生财。',
     // After implementation, expand to all stars
   },
-  '权': {
-    '紫微': '紫微化权，帝王掌权，领导权威更加巩固。',
-    '天机': '天机化权，智慧为权，善于策划掌控全局。',
+  权: {
+    紫微: '紫微化权，帝王掌权，领导权威更加巩固。',
+    天机: '天机化权，智慧为权，善于策划掌控全局。',
   },
-  '科': {},
-  '忌': {},
+  科: {},
+  忌: {},
 }
 
 /** 宫位对应的地支 */
 export const PALACE_BRANCH_MAP: Record<string, string> = {
-  '命宫': '寅', '兄弟宫': '卯', '夫妻宫': '辰',
-  '子女宫': '巳', '财帛宫': '午', '疾厄宫': '未',
-  '迁移宫': '申', '交友宫': '酉', '官禄宫': '戌',
-  '田宅宫': '亥', '福德宫': '子', '父母宫': '丑',
+  命宫: '寅',
+  兄弟宫: '卯',
+  夫妻宫: '辰',
+  子女宫: '巳',
+  财帛宫: '午',
+  疾厄宫: '未',
+  迁移宫: '申',
+  交友宫: '酉',
+  官禄宫: '戌',
+  田宅宫: '亥',
+  福德宫: '子',
+  父母宫: '丑',
 }
 
 /** 地支在 3×4 网格中的 grid-row/grid-col 位置
  *  4 列布局：巳午未申（行1），辰+空+酉（行2），卯+空+戌（行3），寅丑子亥（行4） */
 export const BRANCH_GRID_POSITIONS: Record<string, { row: number; col: number }> = {
-  '巳': { row: 1, col: 1 },
-  '午': { row: 1, col: 2 },
-  '未': { row: 1, col: 3 },
-  '申': { row: 1, col: 4 },
-  '辰': { row: 2, col: 1 },
-  '酉': { row: 2, col: 4 },
-  '卯': { row: 3, col: 1 },
-  '戌': { row: 3, col: 4 },
-  '寅': { row: 4, col: 1 },
-  '丑': { row: 4, col: 2 },
-  '子': { row: 4, col: 3 },
-  '亥': { row: 4, col: 4 },
+  巳: { row: 1, col: 1 },
+  午: { row: 1, col: 2 },
+  未: { row: 1, col: 3 },
+  申: { row: 1, col: 4 },
+  辰: { row: 2, col: 1 },
+  酉: { row: 2, col: 4 },
+  卯: { row: 3, col: 1 },
+  戌: { row: 3, col: 4 },
+  寅: { row: 4, col: 1 },
+  丑: { row: 4, col: 2 },
+  子: { row: 4, col: 3 },
+  亥: { row: 4, col: 4 },
 }
 
 /** 地支顺序索引 */
 export const BRANCH_INDEX: Record<string, number> = {
-  '子': 0, '丑': 1, '寅': 2, '卯': 3, '辰': 4, '巳': 5,
-  '午': 6, '未': 7, '申': 8, '酉': 9, '戌': 10, '亥': 11,
+  子: 0,
+  丑: 1,
+  寅: 2,
+  卯: 3,
+  辰: 4,
+  巳: 5,
+  午: 6,
+  未: 7,
+  申: 8,
+  酉: 9,
+  戌: 10,
+  亥: 11,
 }
 
 /** 地支→角度映射（天星图使用），寅=0° 为紫微斗数标准 */
 export const BRANCH_TO_ANGLE: Record<string, number> = {
-  '寅': 0, '卯': 30, '辰': 60, '巳': 90,
-  '午': 120, '未': 150, '申': 180, '酉': 210,
-  '戌': 240, '亥': 270, '子': 300, '丑': 330,
+  寅: 0,
+  卯: 30,
+  辰: 60,
+  巳: 90,
+  午: 120,
+  未: 150,
+  申: 180,
+  酉: 210,
+  戌: 240,
+  亥: 270,
+  子: 300,
+  丑: 330,
 }
 
 /** 天星图轨道半径（相对 600×600 viewBox） */
@@ -184,7 +213,21 @@ export const ORBIT_RADII = {
 
 /** 时辰名称（用于输入选择）。index 0-11 对应早子-亥，index 12=晚子。
  *  注意: iztro timeIndex 0=早子时, 12=晚子时 */
-export const TIME_NAMES = ['子时', '丑时', '寅时', '卯时', '辰时', '巳时', '午时', '未时', '申时', '酉时', '戌时', '亥时', '晚子时']
+export const TIME_NAMES = [
+  '子时',
+  '丑时',
+  '寅时',
+  '卯时',
+  '辰时',
+  '巳时',
+  '午时',
+  '未时',
+  '申时',
+  '酉时',
+  '戌时',
+  '亥时',
+  '晚子时',
+]
 
 /** 时辰（下拉选择）→ iztro timeIndex 映射
  *  下拉 index 0(子时) → iztro timeIndex 0(早子)
@@ -233,6 +276,7 @@ git commit -m "feat: add ziwei constants, interpretation templates, and chart ge
 ### Task 3: Create useZiwei.ts composable
 
 **Files:**
+
 - Create: `composables/useZiwei.ts`
 
 - [ ] **Step 1: Write the composable wrapping iztro**
@@ -255,7 +299,7 @@ export interface ZiWeiInput {
   birthYear: number
   birthMonth: number
   birthDay: number
-  birthHour: number | null   // iztro timeIndex 0-12
+  birthHour: number | null // iztro timeIndex 0-12
   gender: 'male' | 'female' | null
 }
 
@@ -289,7 +333,9 @@ export function getShenGongIndex(palaces: IFunctionalPalace[]): number {
  * 从 palaces 收集所有四化。
  * 四化以 star.mutagen 形式存在于每颗星上。
  */
-export function collectTransformations(palaces: IFunctionalPalace[]): { star: string; transformation: string }[] {
+export function collectTransformations(
+  palaces: IFunctionalPalace[],
+): { star: string; transformation: string }[] {
   const result: { star: string; transformation: string }[] = []
   for (const p of palaces) {
     for (const s of [...p.majorStars, ...p.minorStars, ...p.adjectiveStars]) {
@@ -369,13 +415,20 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
       heavenlyStem: p.heavenlyStem,
       isBodyPalace: p.isBodyPalace,
       majorStars: p.majorStars.map(s => ({
-        name: s.name, type: s.type, brightness: s.brightness, mutagen: s.mutagen,
+        name: s.name,
+        type: s.type,
+        brightness: s.brightness,
+        mutagen: s.mutagen,
       })),
       minorStars: p.minorStars.map(s => ({
-        name: s.name, type: s.type, mutagen: s.mutagen,
+        name: s.name,
+        type: s.type,
+        mutagen: s.mutagen,
       })),
       adjectiveStars: p.adjectiveStars.map(s => ({
-        name: s.name, type: s.type, mutagen: s.mutagen,
+        name: s.name,
+        type: s.type,
+        mutagen: s.mutagen,
       })),
       decadalRange: p.decadal?.range ?? [0, 0],
       ages: p.ages,
@@ -390,7 +443,12 @@ export function serializeAstrolabe(astrolabe: IFunctionalAstrolabe): Record<stri
 // tests/composables/useZiwei.test.ts (update existing file)
 import { describe, it, expect } from 'vitest'
 import { astro } from 'iztro'
-import { calculateZiWei, getPalaceDetail, getMingGongIndex, type ZiWeiInput } from '~/composables/useZiwei'
+import {
+  calculateZiWei,
+  getPalaceDetail,
+  getMingGongIndex,
+  type ZiWeiInput,
+} from '~/composables/useZiwei'
 
 describe('iztro smoke test', () => {
   it('generates astrolabe from solar date', () => {
@@ -421,7 +479,7 @@ describe('calculateZiWei', () => {
     birthYear: 2000,
     birthMonth: 8,
     birthDay: 16,
-    birthHour: 2,  // iztro timeIndex
+    birthHour: 2, // iztro timeIndex
     gender: 'male',
   }
 
@@ -457,8 +515,11 @@ describe('calculateZiWei', () => {
 describe('getPalaceDetail', () => {
   it('returns palace summary text for known palaces', () => {
     const astrolabe = calculateZiWei({
-      birthYear: 2000, birthMonth: 8, birthDay: 16,
-      birthHour: 2, gender: 'male',
+      birthYear: 2000,
+      birthMonth: 8,
+      birthDay: 16,
+      birthHour: 2,
+      gender: 'male',
     })!
     const mingIndex = getMingGongIndex(astrolabe.palaces)
     const mingPalace = astrolabe.palaces[mingIndex]
@@ -470,8 +531,11 @@ describe('getPalaceDetail', () => {
 
   it('returns star readings for palaces with stars', () => {
     const astrolabe = calculateZiWei({
-      birthYear: 2000, birthMonth: 8, birthDay: 16,
-      birthHour: 2, gender: 'male',
+      birthYear: 2000,
+      birthMonth: 8,
+      birthDay: 16,
+      birthHour: 2,
+      gender: 'male',
     })!
     const palacesWithStars = astrolabe.palaces.filter(p => p.majorStars.length > 0)
     if (palacesWithStars.length > 0) {
@@ -500,6 +564,7 @@ git commit -m "feat: add useZiwei composable wrapping iztro"
 ### Task 4: Create ZiWeiPalaceCell.vue
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiPalaceCell.vue`
 
 - [ ] **Step 1: Write the single palace cell component**
@@ -521,7 +586,9 @@ defineProps<{
   <div
     class="palace-cell h-full cursor-pointer select-none flex flex-col"
     :class="[
-      isSelected ? 'ring-2 ring-cinnabar bg-cinnabar/5' : 'border border-paper-dark/30 hover:border-cinnabar/40 hover:bg-cinnabar/[0.02]',
+      isSelected
+        ? 'ring-2 ring-cinnabar bg-cinnabar/5'
+        : 'border border-paper-dark/30 hover:border-cinnabar/40 hover:bg-cinnabar/[0.02]',
       isMingGong ? 'border-cinnabar/50' : '',
     ]"
     @click="onClick"
@@ -533,13 +600,16 @@ defineProps<{
   >
     <!-- 顶栏：地支 + 宫名 -->
     <div class="flex items-center justify-between px-1.5 py-0.5 border-b border-paper-dark/20">
-      <span class="text-xs font-semibold text-cinnabar-dark/70 font-serif">{{ palace.earthlyBranch }}</span>
+      <span class="text-xs font-semibold text-cinnabar-dark/70 font-serif">{{
+        palace.earthlyBranch
+      }}</span>
       <span
         class="text-[10px] px-1.5 py-0.5 rounded"
-        :class="isMingGong
-          ? 'bg-cinnabar text-paper font-medium'
-          : 'bg-ink-dark/5 text-ink-dark/70'"
-      >{{ palace.name }}</span>
+        :class="
+          isMingGong ? 'bg-cinnabar text-paper font-medium' : 'bg-ink-dark/5 text-ink-dark/70'
+        "
+        >{{ palace.name }}</span
+      >
     </div>
 
     <!-- 主星 -->
@@ -561,7 +631,10 @@ defineProps<{
             'text-ink-light': star.brightness === '陷',
           }"
         >
-          {{ star.name }}<span v-if="star.brightness && star.brightness !== '平'" class="text-[9px] opacity-60">[{{ star.brightness }}]</span>
+          {{ star.name
+          }}<span v-if="star.brightness && star.brightness !== '平'" class="text-[9px] opacity-60"
+            >[{{ star.brightness }}]</span
+          >
         </span>
       </div>
       <div v-else class="text-[10px] text-ink-light/50 italic">(空)</div>
@@ -569,11 +642,9 @@ defineProps<{
 
     <!-- 辅星 -->
     <div v-if="palace.minorStars.length > 0" class="px-1.5 pb-0.5 flex flex-wrap gap-x-1">
-      <span
-        v-for="star in palace.minorStars"
-        :key="star.name"
-        class="text-[9px] text-ink-light"
-      >{{ star.name }}</span>
+      <span v-for="star in palace.minorStars" :key="star.name" class="text-[9px] text-ink-light">{{
+        star.name
+      }}</span>
     </div>
 
     <!-- 四化 chip -->
@@ -588,12 +659,15 @@ defineProps<{
           'bg-green-50 text-green-700': star.mutagen === '科',
           'bg-gray-100 text-gray-500': star.mutagen === '忌',
         }"
-      >{{ star.name }}化{{ star.mutagen }}</span>
+        >{{ star.name }}化{{ star.mutagen }}</span
+      >
     </div>
 
     <!-- 大限 -->
     <div v-if="palace.decadalRange && palace.decadalRange[0] > 0" class="px-1.5 pb-0.5 mt-auto">
-      <span class="text-[8px] text-ink-light/60">{{ palace.decadalRange[0] }}~{{ palace.decadalRange[1] }}</span>
+      <span class="text-[8px] text-ink-light/60"
+        >{{ palace.decadalRange[0] }}~{{ palace.decadalRange[1] }}</span
+      >
     </div>
   </div>
 </template>
@@ -611,6 +685,7 @@ git commit -m "feat: add ZiWeiPalaceCell component"
 ### Task 5: Create ZiWeiPalaceGrid.vue
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiPalaceGrid.vue`
 
 - [ ] **Step 1: Write the 3×4 palace grid component**
@@ -675,6 +750,7 @@ git commit -m "feat: add ZiWeiPalaceGrid 3x4 grid component"
 ### Task 6: Create ZiWeiCelestialChart.vue
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiCelestialChart.vue`
 
 - [ ] **Step 1: Write the celestial star chart (天星图) component**
@@ -743,28 +819,79 @@ let initialized = false
 
 // ── Star name → color mapping for orbs ──
 const STAR_COLOR_MAP: Record<string, string> = {
-  '紫微': 'gold', '天府': 'gold', '武曲': 'gold', '天梁': 'gold',
-  '天相': 'jade', '天机': 'jade', '天同': 'jade',
-  '太阳': 'cinnabar', '廉贞': 'cinnabar', '贪狼': 'cinnabar', '七杀': 'cinnabar',
-  '巨门': 'gray', '破军': 'gray',
-  '太阴': 'ice', '文昌': 'ice', '文曲': 'ice', '天马': 'ice',
-  '左辅': 'jade', '右弼': 'jade', '禄存': 'gold', '天魁': 'gold', '天钺': 'gold',
-  '擎羊': 'gray', '陀罗': 'gray', '火星': 'gray', '铃星': 'gray',
-  '地劫': 'gray', '地空': 'gray',
+  紫微: 'gold',
+  天府: 'gold',
+  武曲: 'gold',
+  天梁: 'gold',
+  天相: 'jade',
+  天机: 'jade',
+  天同: 'jade',
+  太阳: 'cinnabar',
+  廉贞: 'cinnabar',
+  贪狼: 'cinnabar',
+  七杀: 'cinnabar',
+  巨门: 'gray',
+  破军: 'gray',
+  太阴: 'ice',
+  文昌: 'ice',
+  文曲: 'ice',
+  天马: 'ice',
+  左辅: 'jade',
+  右弼: 'jade',
+  禄存: 'gold',
+  天魁: 'gold',
+  天钺: 'gold',
+  擎羊: 'gray',
+  陀罗: 'gray',
+  火星: 'gray',
+  铃星: 'gray',
+  地劫: 'gray',
+  地空: 'gray',
 }
 
 const MUTAGEN_CLS: Record<string, string> = {
-  '禄': 'lu', '权': 'quan', '科': 'ke', '忌': 'ji',
+  禄: 'lu',
+  权: 'quan',
+  科: 'ke',
+  忌: 'ji',
 }
 
 const ORB_BASE_STYLES: Record<string, Record<string, string>> = {
-  gold:      { background: '#C62828', border: '1.5px solid #D4A84B', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  cinnabar:  { background: '#A02020', border: '1px solid rgba(198,40,40,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  jade:      { background: '#3D6B4B', border: '1px solid rgba(61,107,75,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  ice:       { background: '#6BA8C8', border: '1px solid rgba(107,168,200,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  purple:    { background: '#7B6FA0', border: '1px solid rgba(123,111,160,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  gray:      { background: '#5D4E37', border: '1px solid rgba(93,78,55,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.2)' },
-  white:     { background: '#8B7D6B', border: '1px solid rgba(139,125,107,0.3)', boxShadow: '0 0 6px rgba(93,78,55,0.15)' },
+  gold: {
+    background: '#C62828',
+    border: '1.5px solid #D4A84B',
+    boxShadow: '0 0 6px rgba(93,78,55,0.2)',
+  },
+  cinnabar: {
+    background: '#A02020',
+    border: '1px solid rgba(198,40,40,0.3)',
+    boxShadow: '0 0 6px rgba(93,78,55,0.2)',
+  },
+  jade: {
+    background: '#3D6B4B',
+    border: '1px solid rgba(61,107,75,0.3)',
+    boxShadow: '0 0 6px rgba(93,78,55,0.2)',
+  },
+  ice: {
+    background: '#6BA8C8',
+    border: '1px solid rgba(107,168,200,0.3)',
+    boxShadow: '0 0 6px rgba(93,78,55,0.2)',
+  },
+  purple: {
+    background: '#7B6FA0',
+    border: '1px solid rgba(123,111,160,0.3)',
+    boxShadow: '0 0 6px rgba(93,78,55,0.2)',
+  },
+  gray: {
+    background: '#5D4E37',
+    border: '1px solid rgba(93,78,55,0.3)',
+    boxShadow: '0 0 6px rgba(93,78,55,0.2)',
+  },
+  white: {
+    background: '#8B7D6B',
+    border: '1px solid rgba(139,125,107,0.3)',
+    boxShadow: '0 0 6px rgba(93,78,55,0.15)',
+  },
 }
 
 function getStarColor(name: string): string {
@@ -777,19 +904,61 @@ function createWobblyCircle(cx: number, cy: number, r: number, wobble: number): 
   const o = (i: number) => Math.sin(r * (1.3 + i * 1.4)) * s
   const c = (i: number) => Math.cos(r * (2.7 + i * 2.2)) * s
   const k = 0.5522847498
-  return 'M ' + (cx) + ',' + (cy - r + o(0)) +
-    ' C ' + (cx + k * r + o(1)) + ',' + (cy - r + o(0)) +
-    ' ' + (cx + r + c(1)) + ',' + (cy - k * r + c(2)) +
-    ' ' + (cx + r + c(1)) + ',' + (cy) +
-    ' C ' + (cx + r + c(1)) + ',' + (cy + k * r + c(3)) +
-    ' ' + (cx + k * r + o(1)) + ',' + (cy + r + o(4)) +
-    ' ' + (cx) + ',' + (cy + r + o(4)) +
-    ' C ' + (cx - k * r + o(5)) + ',' + (cy + r + o(4)) +
-    ' ' + (cx - r + c(6)) + ',' + (cy + k * r + c(3)) +
-    ' ' + (cx - r + c(6)) + ',' + (cy) +
-    ' C ' + (cx - r + c(6)) + ',' + (cy - k * r + c(2)) +
-    ' ' + (cx - k * r + o(5)) + ',' + (cy - r + o(0)) +
-    ' ' + (cx) + ',' + (cy - r + o(0)) + ' Z'
+  return (
+    'M ' +
+    cx +
+    ',' +
+    (cy - r + o(0)) +
+    ' C ' +
+    (cx + k * r + o(1)) +
+    ',' +
+    (cy - r + o(0)) +
+    ' ' +
+    (cx + r + c(1)) +
+    ',' +
+    (cy - k * r + c(2)) +
+    ' ' +
+    (cx + r + c(1)) +
+    ',' +
+    cy +
+    ' C ' +
+    (cx + r + c(1)) +
+    ',' +
+    (cy + k * r + c(3)) +
+    ' ' +
+    (cx + k * r + o(1)) +
+    ',' +
+    (cy + r + o(4)) +
+    ' ' +
+    cx +
+    ',' +
+    (cy + r + o(4)) +
+    ' C ' +
+    (cx - k * r + o(5)) +
+    ',' +
+    (cy + r + o(4)) +
+    ' ' +
+    (cx - r + c(6)) +
+    ',' +
+    (cy + k * r + c(3)) +
+    ' ' +
+    (cx - r + c(6)) +
+    ',' +
+    cy +
+    ' C ' +
+    (cx - r + c(6)) +
+    ',' +
+    (cy - k * r + c(2)) +
+    ' ' +
+    (cx - k * r + o(5)) +
+    ',' +
+    (cy - r + o(0)) +
+    ' ' +
+    cx +
+    ',' +
+    (cy - r + o(0)) +
+    ' Z'
+  )
 }
 
 // ── Build celestial star data from iztro palaces ──
@@ -802,7 +971,11 @@ function buildCelestialStars() {
     const allStars: { name: string; major: boolean; mutagen: string | null }[] = [
       ...palace.majorStars.map(s => ({ name: s.name, major: true, mutagen: s.mutagen || null })),
       ...palace.minorStars.map(s => ({ name: s.name, major: false, mutagen: s.mutagen || null })),
-      ...palace.adjectiveStars.map(s => ({ name: s.name, major: false, mutagen: s.mutagen || null })),
+      ...palace.adjectiveStars.map(s => ({
+        name: s.name,
+        major: false,
+        mutagen: s.mutagen || null,
+      })),
     ]
 
     allStars.forEach((star, i) => {
@@ -846,7 +1019,7 @@ function renderOrbitRings() {
   const branches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
   branches.forEach(br => {
     const rawAngle = BRANCH_TO_ANGLE[br] || 0
-    const angleRad = (rawAngle - 90) * Math.PI / 180
+    const angleRad = ((rawAngle - 90) * Math.PI) / 180
     const x1 = CX + Math.cos(angleRad) * RINGS[0].r
     const y1 = CY + Math.sin(angleRad) * RINGS[0].r
     const x2 = CX + Math.cos(angleRad) * (RINGS[4].r + 8)
@@ -888,7 +1061,7 @@ function renderSectorLabels() {
 
   props.palaces.forEach((palace, i) => {
     const rawAngle = BRANCH_TO_ANGLE[palace.earthlyBranch] || 0
-    const angleRad = ((rawAngle + 15) - 90) * Math.PI / 180
+    const angleRad = ((rawAngle + 15 - 90) * Math.PI) / 180
     const x = (CX + Math.cos(angleRad) * LABEL_R) * chartScale
     const y = (CY + Math.sin(angleRad) * LABEL_R) * chartScale
 
@@ -952,10 +1125,13 @@ function createStarElements() {
   // Staggered entrance fade-in
   starElements.forEach((el, i) => {
     el.style.opacity = '0'
-    setTimeout(() => {
-      el.style.transition = 'opacity 0.5s ease'
-      el.style.opacity = '1'
-    }, 100 + i * 25)
+    setTimeout(
+      () => {
+        el.style.transition = 'opacity 0.5s ease'
+        el.style.opacity = '1'
+      },
+      100 + i * 25,
+    )
   })
 }
 
@@ -968,8 +1144,7 @@ function drawPalaceArc(index: number) {
     return
   }
   const rawAngle = BRANCH_TO_ANGLE[props.palaces[index].earthlyBranch] || 0
-  el.style.background =
-    `conic-gradient(from ${rawAngle - 15}deg, transparent 0deg, rgba(198,40,40,0.08) 0deg, rgba(198,40,40,0.16) 30deg, transparent 30deg, transparent 360deg)`
+  el.style.background = `conic-gradient(from ${rawAngle - 15}deg, transparent 0deg, rgba(198,40,40,0.08) 0deg, rgba(198,40,40,0.16) 30deg, transparent 30deg, transparent 360deg)`
   el.classList.add('visible')
 }
 
@@ -982,7 +1157,7 @@ function animateCelestial(timestamp: number) {
     const el = starElements[i]
     if (!el) continue
 
-    const angleRad = ((star.angleDeg + t * star.speed * 15) - 90) * Math.PI / 180
+    const angleRad = ((star.angleDeg + t * star.speed * 15 - 90) * Math.PI) / 180
     const x = (CX + Math.cos(angleRad) * star.radius) * chartScale
     const y = (CY + Math.sin(angleRad) * star.radius) * chartScale
 
@@ -1005,8 +1180,8 @@ function animateCelestial(timestamp: number) {
         const sx = parseFloat(parentEl.style.left)
         const sy = parseFloat(parentEl.style.top)
         if (!isNaN(sx)) {
-          chip.style.left = (sx + 10) + 'px'
-          chip.style.top = (sy - 8) + 'px'
+          chip.style.left = sx + 10 + 'px'
+          chip.style.top = sy - 8 + 'px'
         }
       }
     }
@@ -1077,7 +1252,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="chartContainer" class="celestial-chart relative w-full aspect-square max-w-[620px] mx-auto">
+  <div
+    ref="chartContainer"
+    class="celestial-chart relative w-full aspect-square max-w-[620px] mx-auto"
+  >
     <svg
       ref="orbitSvg"
       class="absolute inset-0 w-full h-full z-0 pointer-events-none"
@@ -1098,11 +1276,14 @@ onUnmounted(() => {
         <span
           class="font-display text-[1.5rem] text-[#D4A84B]"
           style="text-shadow: 0 0 6px rgba(212,168,75,0.3);"
-        >紫</span>
+          >紫</span
+        >
       </div>
       <div
         class="absolute -bottom-[18px] left-1/2 -translate-x-1/2 font-display text-[0.65rem] text-ink-light whitespace-nowrap tracking-[0.1em] opacity-60"
-      >紫微星</div>
+      >
+        紫微星
+      </div>
     </div>
 
     <!-- Palace arc highlight overlay -->
@@ -1119,9 +1300,11 @@ onUnmounted(() => {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
-  color: #7A6A5C;
+  color: #7a6a5c;
   opacity: 0.6;
-  transition: opacity 0.3s, color 0.3s;
+  transition:
+    opacity 0.3s,
+    color 0.3s;
   white-space: nowrap;
   transform: translate(-50%, -50%);
   pointer-events: auto;
@@ -1129,10 +1312,10 @@ onUnmounted(() => {
 }
 .sector-label:hover {
   opacity: 0.9;
-  color: #6B5B4F;
+  color: #6b5b4f;
 }
 .sector-label.ming-gong {
-  color: #C62828;
+  color: #c62828;
   opacity: 0.8;
 }
 
@@ -1147,14 +1330,21 @@ onUnmounted(() => {
   z-index: 3;
   transition: z-index 0.2s;
 }
-.chart-star:hover { z-index: 20; }
-.star-orb { border-radius: 50%; transition: transform 0.3s; }
-.chart-star:hover .star-orb { transform: scale(1.25); }
+.chart-star:hover {
+  z-index: 20;
+}
+.star-orb {
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.chart-star:hover .star-orb {
+  transform: scale(1.25);
+}
 
 .star-label {
   margin-top: 2px;
   font-size: 0.55rem;
-  color: #6B5B4F;
+  color: #6b5b4f;
   letter-spacing: 0.04em;
   white-space: nowrap;
   opacity: 0.5;
@@ -1162,16 +1352,23 @@ onUnmounted(() => {
   pointer-events: none;
   font-family: 'Noto Sans SC', sans-serif;
 }
-.chart-star:hover .star-label { opacity: 0.9; }
-.chart-star.active .star-label { opacity: 0.9; color: #C62828; }
+.chart-star:hover .star-label {
+  opacity: 0.9;
+}
+.chart-star.active .star-label {
+  opacity: 0.9;
+  color: #c62828;
+}
 
 .chart-star.active::before {
   content: '';
   position: absolute;
-  top: 50%; left: 50%;
-  width: 24px; height: 24px;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 1px solid #C62828;
+  border: 1px solid #c62828;
   transform: translate(-50%, -50%);
   animation: ring-pulse 2s ease-out infinite;
   pointer-events: none;
@@ -1191,21 +1388,56 @@ onUnmounted(() => {
   font-family: 'Noto Sans SC', sans-serif;
   transition: opacity 0.3s;
 }
-.mutagen-chip-tx.lu { background: rgba(198,40,40,0.15); color: #C62828; border: 0.5px solid rgba(198,40,40,0.2); }
-.mutagen-chip-tx.quan { background: rgba(61,107,75,0.15); color: #3D6B4B; border: 0.5px solid rgba(61,107,75,0.2); }
-.mutagen-chip-tx.ke { background: rgba(107,168,200,0.15); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.2); }
-.mutagen-chip-tx.ji { background: rgba(93,78,55,0.12); color: #5D4E37; border: 0.5px solid rgba(93,78,55,0.15); }
+.mutagen-chip-tx.lu {
+  background: rgba(198, 40, 40, 0.15);
+  color: #c62828;
+  border: 0.5px solid rgba(198, 40, 40, 0.2);
+}
+.mutagen-chip-tx.quan {
+  background: rgba(61, 107, 75, 0.15);
+  color: #3d6b4b;
+  border: 0.5px solid rgba(61, 107, 75, 0.2);
+}
+.mutagen-chip-tx.ke {
+  background: rgba(107, 168, 200, 0.15);
+  color: #6ba8c8;
+  border: 0.5px solid rgba(107, 168, 200, 0.2);
+}
+.mutagen-chip-tx.ji {
+  background: rgba(93, 78, 55, 0.12);
+  color: #5d4e37;
+  border: 0.5px solid rgba(93, 78, 55, 0.15);
+}
 
-.palace-arc.visible { opacity: 1 !important; }
+.palace-arc.visible {
+  opacity: 1 !important;
+}
 
 @keyframes ring-pulse {
-  0% { width: 20px; height: 20px; opacity: 0.4; }
-  100% { width: 44px; height: 44px; opacity: 0; }
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.4;
+  }
+  100% {
+    width: 44px;
+    height: 44px;
+    opacity: 0;
+  }
 }
 
 @keyframes seal-breathe {
-  0%, 100% { box-shadow: 0 0 18px rgba(93,78,55,0.25), 0 0 40px rgba(93,78,55,0.1); }
-  50% { box-shadow: 0 0 24px rgba(93,78,55,0.35), 0 0 50px rgba(93,78,55,0.15); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 18px rgba(93, 78, 55, 0.25),
+      0 0 40px rgba(93, 78, 55, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 24px rgba(93, 78, 55, 0.35),
+      0 0 50px rgba(93, 78, 55, 0.15);
+  }
 }
 </style>
 ```
@@ -1222,6 +1454,7 @@ git commit -m "feat: add ZiWeiCelestialChart SVG+DOM celestial view"
 ### Task 7: Create ZiWeiTabSwitcher.vue
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiTabSwitcher.vue`
 
 - [ ] **Step 1: Write the tab switcher component**
@@ -1269,16 +1502,16 @@ const emit = defineEmits<{
 
 <style scoped>
 .tab-switch {
-  background: #EDE4D3;
-  color: #7A6A5C;
+  background: #ede4d3;
+  color: #7a6a5c;
 }
 .tab-switch.inactive:hover {
-  color: #6B5B4F;
-  background: #E0D5C0;
+  color: #6b5b4f;
+  background: #e0d5c0;
 }
 .tab-switch.active {
-  background: #F5F0E8;
-  color: #1E1210;
+  background: #f5f0e8;
+  color: #1e1210;
   z-index: 1;
 }
 .tab-switch.active::after {
@@ -1288,7 +1521,7 @@ const emit = defineEmits<{
   left: 0;
   right: 0;
   height: 2px;
-  background: #C62828;
+  background: #c62828;
 }
 </style>
 ```
@@ -1305,6 +1538,7 @@ git commit -m "feat: add ZiWeiTabSwitcher with celestial/grid tabs"
 ### Task 8: Create ZiWeiDetailPanel.vue (right sidebar)
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiDetailPanel.vue`
 
 - [ ] **Step 1: Write the detail panel component**
@@ -1336,11 +1570,16 @@ const detailView = computed(() => {
     <div v-if="detailView" class="space-y-3">
       <div class="flex items-center gap-2">
         <h3 class="font-serif text-lg font-bold text-ink-dark">{{ detailView.name }}</h3>
-        <span class="text-xs text-ink-light bg-ink-dark/5 px-2 py-0.5 rounded">{{ detailView.stem }}{{ detailView.branch }}</span>
+        <span class="text-xs text-ink-light bg-ink-dark/5 px-2 py-0.5 rounded"
+          >{{ detailView.stem }}{{ detailView.branch }}</span
+        >
       </div>
 
       <!-- 大限 -->
-      <div v-if="detailView.decadalRange && detailView.decadalRange[0] > 0" class="text-xs text-ink-light">
+      <div
+        v-if="detailView.decadalRange && detailView.decadalRange[0] > 0"
+        class="text-xs text-ink-light"
+      >
         大限：{{ detailView.decadalRange[0] }}~{{ detailView.decadalRange[1] }}
       </div>
 
@@ -1353,7 +1592,10 @@ const detailView = computed(() => {
             :key="star.name"
             class="px-2 py-0.5 text-sm rounded bg-ink-dark/5 text-ink-dark font-medium"
           >
-            {{ star.name }}<span v-if="star.brightness" class="text-[10px] text-ink-light ml-0.5">{{ star.brightness }}</span>
+            {{ star.name
+            }}<span v-if="star.brightness" class="text-[10px] text-ink-light ml-0.5">{{
+              star.brightness
+            }}</span>
           </span>
         </div>
       </div>
@@ -1366,7 +1608,8 @@ const detailView = computed(() => {
             v-for="star in detailView.minorStars"
             :key="star.name"
             class="px-1.5 py-0.5 text-xs text-ink-light bg-ink-dark/[0.04] rounded"
-          >{{ star.name }}</span>
+            >{{ star.name }}</span
+          >
         </div>
       </div>
 
@@ -1384,13 +1627,17 @@ const detailView = computed(() => {
               'bg-green-50 text-green-700': t.transformation === '科',
               'bg-gray-100 text-gray-500': t.transformation === '忌',
             }"
-          >{{ t.star }}化{{ t.transformation }}</span>
+            >{{ t.star }}化{{ t.transformation }}</span
+          >
         </div>
       </div>
 
       <!-- 解读 -->
       <div class="space-y-2 pt-2 border-t border-paper-dark/20">
-        <p v-if="detailView.interpretation.palaceSummary" class="text-xs text-ink-dark leading-relaxed">
+        <p
+          v-if="detailView.interpretation.palaceSummary"
+          class="text-xs text-ink-dark leading-relaxed"
+        >
           {{ detailView.interpretation.palaceSummary }}
         </p>
         <div v-if="detailView.interpretation.starReadings.length > 0" class="space-y-1">
@@ -1398,18 +1645,21 @@ const detailView = computed(() => {
             v-for="(reading, i) in detailView.interpretation.starReadings"
             :key="i"
             class="text-xs text-ink-dark leading-relaxed"
-          >{{ reading }}</p>
+          >
+            {{ reading }}
+          </p>
         </div>
-        <p v-if="detailView.interpretation.combinationNote" class="text-xs text-cinnabar leading-relaxed font-medium">
+        <p
+          v-if="detailView.interpretation.combinationNote"
+          class="text-xs text-cinnabar leading-relaxed font-medium"
+        >
           {{ detailView.interpretation.combinationNote }}
         </p>
       </div>
     </div>
 
     <!-- Empty state -->
-    <div v-else class="text-center py-8 text-ink-light/50 text-sm">
-      选择一个宫位查看详细解读
-    </div>
+    <div v-else class="text-center py-8 text-ink-light/50 text-sm">选择一个宫位查看详细解读</div>
   </div>
 </template>
 ```
@@ -1426,6 +1676,7 @@ git commit -m "feat: add ZiWeiDetailPanel right sidebar component"
 ### Task 9: Create ZiWeiDaXianTimeline.vue
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiDaXianTimeline.vue`
 
 - [ ] **Step 1: Write the timeline component**
@@ -1449,16 +1700,14 @@ const props = defineProps<{
 <template>
   <div v-if="periods.length > 0" class="overflow-x-auto py-4">
     <div class="flex gap-2 min-w-max px-2">
-      <div
-        v-for="(period, i) in periods"
-        :key="i"
-        class="flex flex-col items-center min-w-[80px]"
-      >
+      <div v-for="(period, i) in periods" :key="i" class="flex flex-col items-center min-w-[80px]">
         <div
           class="w-full px-3 py-2 rounded-lg text-center text-xs transition-colors cursor-default"
-          :class="currentAge >= period.startAge && currentAge <= period.endAge
-            ? 'bg-cinnabar/10 ring-1 ring-cinnabar/30 text-ink-dark font-medium'
-            : 'bg-ink-dark/5 text-ink-light'"
+          :class="
+            currentAge >= period.startAge && currentAge <= period.endAge
+              ? 'bg-cinnabar/10 ring-1 ring-cinnabar/30 text-ink-dark font-medium'
+              : 'bg-ink-dark/5 text-ink-light'
+          "
         >
           <div class="font-semibold">{{ period.startAge }}-{{ period.endAge }}岁</div>
           <div class="text-[10px] mt-0.5 opacity-70">{{ period.palaceName }}</div>
@@ -1484,6 +1733,7 @@ git commit -m "feat: add ZiWeiDaXianTimeline component"
 ### Task 10: Create ZiWeiInputForm.vue
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiInputForm.vue`
 
 - [ ] **Step 1: Write the input form component**
@@ -1506,7 +1756,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-6 mb-6 max-w-md mx-auto">
+  <div
+    class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-6 mb-6 max-w-md mx-auto"
+  >
     <h2 class="font-serif text-lg font-bold text-ink-dark mb-4 text-center">紫微斗数排盘</h2>
 
     <div class="space-y-4">
@@ -1557,10 +1809,13 @@ defineProps<{
             />
             <span
               class="px-4 py-2 text-sm rounded-lg border transition-colors"
-              :class="gender === opt.value
-                ? 'border-cinnabar bg-cinnabar/5 text-cinnabar font-medium'
-                : 'border-paper-dark/30 text-ink-light hover:border-ink-dark/30'"
-            >{{ opt.label }}</span>
+              :class="
+                gender === opt.value
+                  ? 'border-cinnabar bg-cinnabar/5 text-cinnabar font-medium'
+                  : 'border-paper-dark/30 text-ink-light hover:border-ink-dark/30'
+              "
+              >{{ opt.label }}</span
+            >
           </label>
         </div>
       </div>
@@ -1592,6 +1847,7 @@ git commit -m "feat: add ZiWeiInputForm component"
 ### Task 11: Create ZiWeiInfoSidebar.vue (profile info)
 
 **Files:**
+
 - Create: `components/tools/ziwei/ZiWeiInfoSidebar.vue`
 
 - [ ] **Step 1: Write the info sidebar**
@@ -1605,7 +1861,7 @@ import { getTimeName } from '~/constants/ziwei'
 
 const props = defineProps<{
   astrolabe: IFunctionalAstrolabe
-  birthHour: number | null  // iztro timeIndex (0-12)
+  birthHour: number | null // iztro timeIndex (0-12)
 }>()
 
 const solarDate = computed(() => {
@@ -1619,7 +1875,9 @@ const solarDate = computed(() => {
 </script>
 
 <template>
-  <div class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-4 text-xs space-y-2">
+  <div
+    class="bg-paper/80 backdrop-blur-sm rounded-xl border border-paper-dark/30 p-4 text-xs space-y-2"
+  >
     <h4 class="font-serif font-semibold text-ink-dark text-sm">命盘信息</h4>
     <div class="space-y-1.5 text-ink-light">
       <div>
@@ -1663,11 +1921,13 @@ git commit -m "feat: add ZiWeiInfoSidebar profile info component"
 ### Task 12: Create pages/tools/ziwei.vue with dual-view support
 
 **Files:**
+
 - Create: `pages/tools/ziwei.vue`
 
 - [ ] **Step 1: Write the page entry with tab switching between 天星图 and 回宫图**
 
 Key additions over the initial plan:
+
 - `currentView` ref toggling between `'celestial'` and `'grid'`
 - `<ZiWeiTabSwitcher>` for switching views
 - `<ZiWeiCelestialChart>` for the celestial star chart view
@@ -1676,7 +1936,12 @@ Key additions over the initial plan:
 ```vue
 <!-- pages/tools/ziwei.vue -->
 <script setup lang="ts">
-import { calculateZiWei, getDetailedPalaceView, getMingGongIndex, serializeAstrolabe } from '~/composables/useZiwei'
+import {
+  calculateZiWei,
+  getDetailedPalaceView,
+  getMingGongIndex,
+  serializeAstrolabe,
+} from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
@@ -1778,7 +2043,11 @@ async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
         headers,
         body: {
           type: 'ziwei',
-          input_data: { birthDate: birthDate.value, birthHour: birthHour.value, gender: gender.value },
+          input_data: {
+            birthDate: birthDate.value,
+            birthHour: birthHour.value,
+            gender: gender.value,
+          },
           result_data: serializeAstrolabe(astroData),
         },
       })
@@ -1797,10 +2066,9 @@ async function restoreFromHistory(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ input_data: any; result_data: any }>(
-      `/api/divinations/${id}`,
-      { headers },
-    )
+    const record = await $fetch<{ input_data: any; result_data: any }>(`/api/divinations/${id}`, {
+      headers,
+    })
     // Re-calculate from saved input_data (more reliable than restoring serialized snapshot)
     if (record.input_data?.birthDate) {
       birthDate.value = record.input_data.birthDate
@@ -1834,9 +2102,9 @@ async function restoreFromHistory(id: number) {
         :gender="gender"
         :loading="false"
         :on-calculate="handleCalculate"
-        :on-date-change="(val: string) => birthDate = val"
-        :on-hour-change="(val: number | null) => birthHour = val"
-        :on-gender-change="(val: 'male' | 'female') => gender = val"
+        :on-date-change="(val: string) => (birthDate = val)"
+        :on-hour-change="(val: number | null) => (birthHour = val)"
+        :on-gender-change="(val: 'male' | 'female') => (gender = val)"
       />
     </div>
 
@@ -1858,12 +2126,8 @@ async function restoreFromHistory(id: number) {
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
       <div class="max-w-[620px] mx-auto">
-
         <!-- Tab Switcher -->
-        <ZiWeiTabSwitcher
-          :current-view="currentView"
-          @update:current-view="currentView = $event"
-        />
+        <ZiWeiTabSwitcher :current-view="currentView" @update:current-view="currentView = $event" />
 
         <!-- Celestial Chart (天星图) -->
         <ZiWeiCelestialChart
@@ -1888,23 +2152,21 @@ async function restoreFromHistory(id: number) {
         <div class="mt-4">
           <h3 class="text-xs text-ink-light/60 mb-2 text-center">大限</h3>
           <ZiWeiDaXianTimeline
-            :periods="astrolabe.palaces.map(p => ({
-              startAge: p.decadal?.range[0] ?? 0,
-              endAge: p.decadal?.range[1] ?? 0,
-              palaceName: p.name,
-              stars: p.majorStars.map(s => s.name).join(' '),
-            }))"
+            :periods="
+              astrolabe.palaces.map(p => ({
+                startAge: p.decadal?.range[0] ?? 0,
+                endAge: p.decadal?.range[1] ?? 0,
+                palaceName: p.name,
+                stars: p.majorStars.map(s => s.name).join(' '),
+              }))
+            "
             :current-age="new Date().getFullYear() - parseInt(astrolabe.solarDate.split('-')[0])"
           />
         </div>
 
         <!-- History -->
         <div class="flex justify-center mt-6">
-          <button
-            @click="showHistoryModal = true"
-            class="btn-seal"
-            aria-haspopup="dialog"
-          >
+          <button @click="showHistoryModal = true" class="btn-seal" aria-haspopup="dialog">
             <span>浏览历史</span>
           </button>
         </div>
@@ -1915,10 +2177,7 @@ async function restoreFromHistory(id: number) {
     <template v-if="astrolabe" #nav-right>
       <div class="space-y-4">
         <ZiWeiInfoSidebar :astrolabe="astrolabe" :birth-hour="birthHour" />
-        <ZiWeiDetailPanel
-          v-if="selectedPalace"
-          :palace="selectedPalace"
-        />
+        <ZiWeiDetailPanel v-if="selectedPalace" :palace="selectedPalace" />
       </div>
     </template>
   </ToolPageLayout>
@@ -1944,16 +2203,20 @@ git commit -m "feat: add Ziwei page with dual-view (celestial + grid) tab switch
 ### Task 13: Enable navigation entries
 
 **Files:**
+
 - Modify: `layouts/default.vue:15`
 - Modify: `pages/index.vue:47-50`
 
 - [ ] **Step 1: Enable ziwei in nav layout**
 
 Change line 15 from:
+
 ```typescript
   { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: false },
 ```
+
 to:
+
 ```typescript
   { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
 ```
@@ -1961,13 +2224,16 @@ to:
 - [ ] **Step 2: Enable ziwei on homepage**
 
 Change lines 47-50 from:
+
 ```typescript
     id: 'ziwei', name: '紫微斗数', char: '斗',
     description: '十二宫精批 ・ 星曜解读 ・ 即将上线',
     landingDescription: '排十二宫垣，解星曜布局与穷通祸福',
     route: '/tools/ziwei', available: false, accent: '#6B5B4F',
 ```
+
 to:
+
 ```typescript
     id: 'ziwei', name: '紫微斗数', char: '斗',
     description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',

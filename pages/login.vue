@@ -84,9 +84,15 @@ const submit = async () => {
       <div class="card-warm rounded-xl p-8 relative overflow-hidden login-card">
         <!-- Corner trigrams -->
         <span class="corner-mark absolute top-3 left-3 text-[1.125rem]" aria-hidden="true">☰</span>
-        <span class="corner-mark absolute top-3 right-3 text-[1.125rem]" aria-hidden="true">☷</span>
-        <span class="corner-mark absolute bottom-3 left-3 text-[1.125rem]" aria-hidden="true">☵</span>
-        <span class="corner-mark absolute bottom-3 right-3 text-[1.125rem]" aria-hidden="true">☲</span>
+        <span class="corner-mark absolute top-3 right-3 text-[1.125rem]" aria-hidden="true"
+          >☷</span
+        >
+        <span class="corner-mark absolute bottom-3 left-3 text-[1.125rem]" aria-hidden="true"
+          >☵</span
+        >
+        <span class="corner-mark absolute bottom-3 right-3 text-[1.125rem]" aria-hidden="true"
+          >☲</span
+        >
 
         <!-- Top talisman line -->
         <div class="talisman-line mb-6" />
@@ -95,9 +101,15 @@ const submit = async () => {
         <div class="text-center mb-8">
           <h1 class="sr-only">玄·道 — 登录</h1>
           <div class="inline-flex items-center justify-center mb-4">
-            <span class="seal-icon w-16 h-16 text-base flex items-center justify-center" aria-hidden="true">玄</span>
+            <span
+              class="seal-icon w-16 h-16 text-base flex items-center justify-center"
+              aria-hidden="true"
+              >玄</span
+            >
           </div>
-          <h2 class="text-xl font-display text-ink-dark tracking-[0.15em] mb-2">{{ isLogin ? '已有命卷' : '结缘立卷' }}</h2>
+          <h2 class="text-xl font-display text-ink-dark tracking-[0.15em] mb-2">
+            {{ isLogin ? '已有命卷' : '结缘立卷' }}
+          </h2>
           <p class="font-sans text-ink-medium text-xs tracking-[0.25em]">
             {{ isLogin ? '入卷推演 · 以窥天机' : '以道为凭 · 以问天机' }}
           </p>
@@ -120,9 +132,9 @@ const submit = async () => {
             :aria-selected="isLogin"
             :tabindex="isLogin ? 0 : -1"
             aria-controls="tabpanel-auth"
-            @click="isLogin = true"
             class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
             :class="isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
+            @click="isLogin = true"
           >
             登录
           </button>
@@ -132,9 +144,9 @@ const submit = async () => {
             :aria-selected="!isLogin"
             :tabindex="!isLogin ? 0 : -1"
             aria-controls="tabpanel-auth"
-            @click="isLogin = false"
             class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
             :class="!isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
+            @click="isLogin = false"
           >
             注册
           </button>
@@ -147,7 +159,10 @@ const submit = async () => {
             class="mb-6 px-4 py-3 rounded-lg bg-gold/8 border border-gold/20 text-ink-dark text-sm flex items-center gap-2.5"
             role="alert"
           >
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold/25 flex items-center justify-center text-gold text-xs font-bold">!</span>
+            <span
+              class="flex-shrink-0 w-5 h-5 rounded-full bg-gold/25 flex items-center justify-center text-gold text-xs font-bold"
+              >!</span
+            >
             <span>{{ expiredNote }}</span>
           </div>
         </Transition>
@@ -165,11 +180,19 @@ const submit = async () => {
         </Transition>
 
         <!-- Form -->
-        <div id="tabpanel-auth" role="tabpanel" :aria-labelledby="isLogin ? 'tab-login' : 'tab-register'">
-          <form @submit.prevent="submit" novalidate class="space-y-5">
+        <div
+          id="tabpanel-auth"
+          role="tabpanel"
+          :aria-labelledby="isLogin ? 'tab-login' : 'tab-register'"
+        >
+          <form novalidate class="space-y-5" @submit.prevent="submit">
             <div>
-              <label for="login-nickname" class="block text-xs text-ink-light tracking-[0.15em] mb-1.5">
-                {{ isLogin ? '号令' : '道号' }}<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
+              <label
+                for="login-nickname"
+                class="block text-xs text-ink-light tracking-[0.15em] mb-1.5"
+              >
+                {{ isLogin ? '号令' : '道号'
+                }}<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
               </label>
               <input
                 id="login-nickname"
@@ -224,7 +247,7 @@ const submit = async () => {
               class="btn-cin w-full mt-2"
               :aria-busy="loading"
             >
-              <span>{{ loading ? '请稍候...' : (isLogin ? '入 卷' : '立 卷') }}</span>
+              <span>{{ loading ? '请稍候...' : isLogin ? '入 卷' : '立 卷' }}</span>
             </button>
           </form>
         </div>
@@ -232,11 +255,21 @@ const submit = async () => {
         <!-- Switch hint -->
         <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
           尚未立卷？
-          <button @click="switchMode" class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline">结缘注册</button>
+          <button
+            class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
+            @click="switchMode"
+          >
+            结缘注册
+          </button>
         </div>
         <div v-else class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
           已有命卷？
-          <button @click="switchMode" class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline">入卷登录</button>
+          <button
+            class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
+            @click="switchMode"
+          >
+            入卷登录
+          </button>
         </div>
 
         <!-- Bottom talisman line -->

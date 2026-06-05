@@ -28,10 +28,10 @@ defineProps<{
 }>()
 
 const elementLabels: Record<string, string> = {
-  '火': '火象星座',
-  '土': '土象星座',
-  '风': '风象星座',
-  '水': '水象星座',
+  火: '火象星座',
+  土: '土象星座',
+  风: '风象星座',
+  水: '水象星座',
 }
 
 function elementLabel(element: string): string {
@@ -40,10 +40,10 @@ function elementLabel(element: string): string {
 
 function elementBadgeClass(element: string): string {
   const map: Record<string, string> = {
-    '火': 'border-cinnabar/30 text-cinnabar bg-cinnabar/5',
-    '土': 'border-gold/30 text-gold bg-gold/5',
-    '风': 'border-jade/30 text-jade bg-jade/5',
-    '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
+    火: 'border-cinnabar/30 text-cinnabar bg-cinnabar/5',
+    土: 'border-gold/30 text-gold bg-gold/5',
+    风: 'border-jade/30 text-jade bg-jade/5',
+    水: 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
   }
   return map[element] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
 }

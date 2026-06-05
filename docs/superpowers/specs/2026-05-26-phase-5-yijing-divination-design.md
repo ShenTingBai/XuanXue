@@ -32,13 +32,13 @@ interface HexagramInfo {
   name: string
   judgment: string
   palaceName: string
-  palaceIndex: number      // 0-7 乾兑离震巽坎艮坤
-  palacePosition: number   // 1-8 within palace
+  palaceIndex: number // 0-7 乾兑离震巽坎艮坤
+  palacePosition: number // 1-8 within palace
   palaceWuxing: string
   shiPosition: number
   yingPosition: number
-  yaoValues: number[]      // 6 numbers [6|7|8|9]
-  binary: string           // 6-char '0'/'1', bit 0 = line 1
+  yaoValues: number[] // 6 numbers [6|7|8|9]
+  binary: string // 6-char '0'/'1', bit 0 = line 1
 }
 ```
 
@@ -46,15 +46,15 @@ interface HexagramInfo {
 
 ```typescript
 interface YaoResult {
-  value: number      // 6 (老阴/变爻), 7 (少阳), 8 (少阴), 9 (老阳/变爻)
+  value: number // 6 (老阴/变爻), 7 (少阳), 8 (少阴), 9 (老阳/变爻)
   isYang: boolean
   isChanging: boolean
   display: '老阴' | '少阳' | '少阴' | '老阳'
 }
 
 interface ZhuangGuaLine {
-  position: number       // 1 (初爻) … 6 (上爻)
-  positionName: string   // 初/二/三/四/五/上 ＋ 九/六
+  position: number // 1 (初爻) … 6 (上爻)
+  positionName: string // 初/二/三/四/五/上 ＋ 九/六
   yao: YaoResult
   naJiaStem: string
   naJiaBranch: string
@@ -88,27 +88,29 @@ interface YijingResult {
 完整的 64 条 `HexagramData` 记录，按周易序排列。
 
 数据来源：《周易》原文（通行本）。
+
 - 卦名：如 "乾"、"坤"、"屯"、"蒙"...
 - 卦辞：如 "乾，元亨利贞"
 - 爻辞：每卦 6 条，从初爻到上爻
 
 必含字段：
+
 - `id`, `name`, `judgment`, `lineTexts[6]`, `upperTrigram`, `lowerTrigram`, `gong`, `shiPos`, `yingPos`
 
 ### 3.2 纳甲规则表
 
 八卦纳甲干支映射：
 
-| 卦 | 内卦(下)纳干 | 外卦(上)纳干 | 纳支（从初爻起） |
-|----|------------|------------|----------------|
-| 乾 | 甲 | 壬 | 子、寅、辰、午、申、戌 |
-| 坤 | 乙 | 癸 | 未、巳、卯、丑、亥、酉 |
-| 震 | 庚 | 庚 | 子、寅、辰、午、申、戌 |
-| 巽 | 辛 | 辛 | 丑、亥、酉、未、巳、卯 |
-| 坎 | 戊 | 戊 | 寅、辰、午、申、戌、子 |
-| 离 | 己 | 己 | 卯、丑、亥、酉、未、巳 |
-| 艮 | 丙 | 丙 | 辰、午、申、戌、子、寅 |
-| 兑 | 丁 | 丁 | 巳、卯、丑、亥、酉、未 |
+| 卦  | 内卦(下)纳干 | 外卦(上)纳干 | 纳支（从初爻起）       |
+| --- | ------------ | ------------ | ---------------------- |
+| 乾  | 甲           | 壬           | 子、寅、辰、午、申、戌 |
+| 坤  | 乙           | 癸           | 未、巳、卯、丑、亥、酉 |
+| 震  | 庚           | 庚           | 子、寅、辰、午、申、戌 |
+| 巽  | 辛           | 辛           | 丑、亥、酉、未、巳、卯 |
+| 坎  | 戊           | 戊           | 寅、辰、午、申、戌、子 |
+| 离  | 己           | 己           | 卯、丑、亥、酉、未、巳 |
+| 艮  | 丙           | 丙           | 辰、午、申、戌、子、寅 |
+| 兑  | 丁           | 丁           | 巳、卯、丑、亥、酉、未 |
 
 ### 3.3 其他规则表
 
@@ -124,6 +126,7 @@ interface YijingResult {
 ### 4.1 起卦
 
 #### 摇卦法
+
 ```
 - 3枚硬币，正面=3，反面=2
 - 抛一次求一爻，重复6次
@@ -136,6 +139,7 @@ interface YijingResult {
 ```
 
 #### 数字起卦法
+
 ```
 - 用户输入3个数字
 - 上卦 = 第1个数 mod 8 (0=坤, 1=乾, 2=兑, 3=离, 4=震, 5=巽, 6=坎, 7=艮)
@@ -191,6 +195,7 @@ Step 6 — 互卦：
 ### 4.3 评分与解读
 
 **评分算法（参考流年的做法）：**
+
 - 基础分 50
 - 变爻数量修正：0个→中平(-5)，1个→有变(+5)，2个→多变(-3)，3个以上→剧变(-10)
 - 六亲动态修正：官鬼动→-8，妻财动→+5，父母动→-3，子孙动→+6，兄弟动→-5
@@ -199,6 +204,7 @@ Step 6 — 互卦：
 - 最终 clamp 到 0-100
 
 **总结句模板：**
+
 ```
 "{卦名}卦，{吉凶判定}。{变爻提示}。{六亲动向}。{神煞提示}"
 ```
@@ -211,7 +217,11 @@ Step 6 — 互卦：
 function castByCoin(): number[]
 // 3枚硬币，抛6次，内部生成随机结果，返回 [line1_value, ..., line6_value]
 
-function castByNumbers(upperNum: number, lowerNum: number, movingNum: number): { values: number[]; changingLine: number }
+function castByNumbers(
+  upperNum: number,
+  lowerNum: number,
+  movingNum: number,
+): { values: number[]; changingLine: number }
 // upperNum/lowerNum: 1-8 (1=乾~8=坤), movingNum: 1-6 (变爻位置)
 
 function computeYijingResult(values: number[]): YijingResult
@@ -269,6 +279,7 @@ components/tools/yijing/
 ### 5.3 页面集成
 
 `pages/tools/yijing.vue` 遵循现有模式：
+
 - 使用 `ToolPageLayout`，仅使用默认插槽（无 nav/nav-right）
 - `onMounted` 中调用 `restoreSession()`
 - 页面状态：`result: YijingResult | null`、`castingPhase: 'idle' | 'casting' | 'done'`

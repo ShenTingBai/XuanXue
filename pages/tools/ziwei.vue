@@ -1,6 +1,11 @@
 <!-- pages/tools/ziwei.vue -->
 <script setup lang="ts">
-import { calculateZiWei, getMingGongIndex, serializeAstrolabe, deserializeAstrolabe } from '~/composables/useZiwei'
+import {
+  calculateZiWei,
+  getMingGongIndex,
+  serializeAstrolabe,
+  deserializeAstrolabe,
+} from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
@@ -24,7 +29,10 @@ import MethodologyNote, { type ClassicalSource } from '~/components/tools/Method
 
 // ── Methodology data ──
 const ziweiClassical: ClassicalSource[] = [
-  { method: '紫微斗数体系', source: '《紫微斗数全书》（宋代陈希夷撰），十四主星/十二宫位/四化曜完整体系' },
+  {
+    method: '紫微斗数体系',
+    source: '《紫微斗数全书》（宋代陈希夷撰），十四主星/十二宫位/四化曜完整体系',
+  },
   { method: '星盘排盘', source: 'iztro v2.4.8（npm 包），基于《紫微斗数全书》排盘算法实现' },
   { method: '十二宫位', source: '《紫微斗数全书》卷一·十二宫论（命宫-父母宫）' },
   { method: '四化（禄权科忌）', source: '《紫微斗数全书》卷三·四化曜，天干引动主星化气' },
@@ -67,7 +75,9 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const prefersReducedMotion = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!prefersReducedMotion) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
@@ -234,7 +244,13 @@ async function restoreFromHistory(id: number) {
 
     // Restore form fields from input_data
     if (record.input_data) {
-      const input = record.input_data as { birthYear: number; birthMonth: number; birthDay: number; birthHour: number | null; gender: 'male' | 'female' | null }
+      const input = record.input_data as {
+        birthYear: number
+        birthMonth: number
+        birthDay: number
+        birthHour: number | null
+        gender: 'male' | 'female' | null
+      }
       birthDate.value = `${input.birthYear}-${String(input.birthMonth).padStart(2, '0')}-${String(input.birthDay).padStart(2, '0')}`
       birthHour.value = input.birthHour ?? null
       gender.value = input.gender ?? null
@@ -260,7 +276,9 @@ async function restoreFromHistory(id: number) {
   } catch {
     restoreError.value = '历史记录加载失败，请稍后重试'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => { restoreError.value = '' }, 6000)
+    restoreErrorTimer.value = setTimeout(() => {
+      restoreError.value = ''
+    }, 6000)
   }
 }
 
@@ -274,8 +292,15 @@ function dismissRestoreError() {
     <h1 class="sr-only">紫微斗数</h1>
 
     <!-- Initial loading / auth guard -->
-    <div v-if="!ready" class="flex items-center justify-center py-20" role="status" aria-live="polite">
-      <div class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin" />
+    <div
+      v-if="!ready"
+      class="flex items-center justify-center py-20"
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin"
+      />
       <span class="sr-only">正在加载命盘...</span>
     </div>
 
@@ -291,7 +316,7 @@ function dismissRestoreError() {
     <div v-else-if="error" class="text-center py-16">
       <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
       <div class="flex justify-center mt-6">
-        <button @click="handleCalculate" class="btn-cin">
+        <button class="btn-cin" @click="handleCalculate">
           <span>重新排盘</span>
         </button>
       </div>
@@ -305,9 +330,9 @@ function dismissRestoreError() {
         :gender="gender"
         :loading="false"
         :on-calculate="handleCalculate"
-        :on-date-change="(val: string) => birthDate = val"
-        :on-hour-change="(val: number | null) => birthHour = val"
-        :on-gender-change="(val: 'male' | 'female') => gender = val"
+        :on-date-change="(val: string) => (birthDate = val)"
+        :on-hour-change="(val: number | null) => (birthHour = val)"
+        :on-gender-change="(val: 'male' | 'female') => (gender = val)"
       />
     </div>
 
@@ -320,12 +345,8 @@ function dismissRestoreError() {
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
       <div class="w-full max-w-full sm:max-w-[48rem] mx-auto">
-
         <!-- Top toolbar -->
-        <ToolToolbar
-          :show-history="true"
-          @history="showHistoryModal = true"
-        >
+        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
           <template #extra>
             <ExportButton
               v-if="astrolabe"
@@ -341,89 +362,82 @@ function dismissRestoreError() {
 
         <!-- Restore error toast -->
         <Transition name="toast">
-          <div
-            v-if="restoreError"
-            class="toast-notification"
-            role="alert"
-          >
+          <div v-if="restoreError" class="toast-notification" role="alert">
             <span class="toast-notification__mark" aria-hidden="true">!</span>
             <span class="toast-notification__text">{{ restoreError }}</span>
             <button
+              class="toast-notification__close"
+              aria-label="关闭提示"
               @click="dismissRestoreError"
               @keydown.enter="dismissRestoreError"
               @keydown.space.prevent="dismissRestoreError"
-              class="toast-notification__close"
-              aria-label="关闭提示"
-            >&times;</button>
+            >
+              &times;
+            </button>
           </div>
         </Transition>
         <div ref="resultRef">
-        <!-- ── 方法论溯源 ── -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="section-header !mb-0 flex-1 min-w-0">
-            <h2>紫微斗数</h2>
+          <!-- ── 方法论溯源 ── -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="section-header !mb-0 flex-1 min-w-0">
+              <h2>紫微斗数</h2>
+            </div>
+            <MethodologyNote
+              :classical="ziweiClassical"
+              :synthesis="ziweiSynthesis"
+              tool="紫微斗数"
+            />
           </div>
-          <MethodologyNote
-            :classical="ziweiClassical"
-            :synthesis="ziweiSynthesis"
-            tool="紫微斗数"
+          <ZiWeiTabSwitcher
+            :current-view="currentView"
+            @update:current-view="currentView = $event"
           />
-        </div>
-        <ZiWeiTabSwitcher
-          :current-view="currentView"
-          @update:current-view="currentView = $event"
-        />
 
-        <p class="text-xs text-ink-muted text-center mt-2 mb-1 tracking-wide">
-          点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
-        </p>
+          <p class="text-xs text-ink-muted text-center mt-2 mb-1 tracking-wide">
+            点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
+          </p>
 
-        <!-- View Transition -->
-        <Transition name="view-fade" mode="out-in">
-          <div
-            v-if="currentView === 'celestial'"
-            id="panel-celestial"
-            role="tabpanel"
-            :aria-labelledby="'tab-celestial'"
-            :key="'celestial'"
-          >
-            <ZiWeiCelestialChart
-              :palaces="astrolabe.palaces"
-              :selected-index="selectedIndex"
-              :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-              :is-visible="currentView === 'celestial'"
+          <!-- View Transition -->
+          <Transition name="view-fade" mode="out-in">
+            <div
+              v-if="currentView === 'celestial'"
+              id="panel-celestial"
+              :key="'celestial'"
+              role="tabpanel"
+              :aria-labelledby="'tab-celestial'"
+            >
+              <ZiWeiCelestialChart
+                :palaces="astrolabe.palaces"
+                :selected-index="selectedIndex"
+                :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+                :is-visible="currentView === 'celestial'"
+                @select="handleSelectPalace"
+              />
+            </div>
+            <div v-else id="panel-grid" :key="'grid'" role="tabpanel" :aria-labelledby="'tab-grid'">
+              <ZiWeiPalaceGrid
+                :palaces="astrolabe.palaces"
+                :selected-index="selectedIndex"
+                :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+                :five-elements-class="astrolabe.fiveElementsClass"
+                :soul="astrolabe.soul"
+                :body="astrolabe.body"
+                :ming-gong-branch="
+                  astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''
+                "
+                :on-select-palace="handleSelectPalace"
+              />
+            </div>
+          </Transition>
+
+          <!-- DaXian Timeline -->
+          <div class="mt-4">
+            <ZiWeiDaXianTimeline
+              :periods="sortedPeriods"
+              :current-age="currentAge"
               @select="handleSelectPalace"
             />
           </div>
-          <div
-            v-else
-            id="panel-grid"
-            role="tabpanel"
-            :aria-labelledby="'tab-grid'"
-            :key="'grid'"
-          >
-            <ZiWeiPalaceGrid
-              :palaces="astrolabe.palaces"
-              :selected-index="selectedIndex"
-              :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-              :five-elements-class="astrolabe.fiveElementsClass"
-              :soul="astrolabe.soul"
-              :body="astrolabe.body"
-              :ming-gong-branch="astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''"
-              :on-select-palace="handleSelectPalace"
-            />
-          </div>
-        </Transition>
-
-        <!-- DaXian Timeline -->
-        <div class="mt-4">
-          
-          <ZiWeiDaXianTimeline
-            :periods="sortedPeriods"
-            :current-age="currentAge"
-            @select="handleSelectPalace"
-          />
-        </div>
         </div>
 
         <!-- Restored from history notice -->
@@ -434,26 +448,25 @@ function dismissRestoreError() {
         <!-- Action buttons -->
         <div class="flex flex-wrap gap-3 justify-center mt-8">
           <button
+            class="btn-cin"
             @click="handleCalculate"
             @keydown.enter="handleCalculate"
             @keydown.space.prevent="handleCalculate"
-            class="btn-cin"
           >
             <span>重新排盘</span>
           </button>
           <button
+            class="btn-cin"
+            aria-haspopup="dialog"
             @click="showHistoryModal = true"
             @keydown.enter="showHistoryModal = true"
             @keydown.space.prevent="showHistoryModal = true"
-            class="btn-cin"
-            aria-haspopup="dialog"
           >
             <span>浏览历史</span>
           </button>
         </div>
 
         <EntertainmentDisclaimer />
-
       </div>
 
       <ScrollTopButton
@@ -467,13 +480,8 @@ function dismissRestoreError() {
     <!-- nav-right slot: palace detail panel -->
     <template v-if="astrolabe" #nav-right>
       <div class="space-y-4">
-        <ZiWeiInfoSidebar
-          :astrolabe="astrolabe"
-          :birth-hour="birthHour"
-        />
-        <ZiWeiDetailPanel
-          :palace="selectedPalace"
-        />
+        <ZiWeiInfoSidebar :astrolabe="astrolabe" :birth-hour="birthHour" />
+        <ZiWeiDetailPanel :palace="selectedPalace" />
       </div>
     </template>
   </ToolPageLayout>
@@ -503,7 +511,9 @@ function dismissRestoreError() {
 }
 
 .toast-enter-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .toast-leave-active {
   transition: opacity 0.2s ease;

@@ -79,6 +79,7 @@ xuanxue/
 ### Task 1: Infrastructure — Design tokens, CSS utilities, test setup, CSP
 
 **Files:**
+
 - Modify: `tailwind.config.ts`
 - Modify: `assets/css/main.css`
 - Modify: `package.json`
@@ -116,7 +117,7 @@ Append these styles at the end of `assets/css/main.css` (before the `@media (pre
   background: linear-gradient(
     90deg,
     rgba(214, 197, 176, 0.15) 25%,
-    rgba(214, 197, 176, 0.30) 50%,
+    rgba(214, 197, 176, 0.3) 50%,
     rgba(214, 197, 176, 0.15) 75%
   );
   background-size: 200% 100%;
@@ -124,8 +125,12 @@ Append these styles at the end of `assets/css/main.css` (before the `@media (pre
 }
 
 @keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-block {
@@ -145,42 +150,54 @@ Append these styles at the end of `assets/css/main.css` (before the `@media (pre
 .fortune-bar__fill {
   @apply absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out;
 }
-.fortune-bar__fill--great  { background: #4A7C59; }
-.fortune-bar__fill--good   { background: #B8860B; }
-.fortune-bar__fill--normal { background: #6B5B4F; }
-.fortune-bar__fill--low    { background: #C62828; }
+.fortune-bar__fill--great {
+  background: #4a7c59;
+}
+.fortune-bar__fill--good {
+  background: #b8860b;
+}
+.fortune-bar__fill--normal {
+  background: #6b5b4f;
+}
+.fortune-bar__fill--low {
+  background: #c62828;
+}
 
 /* ===== Yi/Ji Panel ===== */
 .yiyi-card {
   @apply rounded-xl p-4 border;
 }
 .yiyi-card--yi {
-  border-color: #4A7C59;
+  border-color: #4a7c59;
   background: rgba(74, 124, 89, 0.06);
 }
 .yiyi-card--ji {
-  border-color: #8E8E8E;
+  border-color: #8e8e8e;
   background: rgba(142, 142, 142, 0.06);
 }
 .yiyi-border {
   border-width: 3px;
   border-style: solid;
 }
-.yiyi-border--yi { border-color: #4A7C59; }
-.yiyi-border--ji { border-color: #8E8E8E; }
+.yiyi-border--yi {
+  border-color: #4a7c59;
+}
+.yiyi-border--ji {
+  border-color: #8e8e8e;
+}
 
 /* ===== Nav Link ===== */
 .nav-link {
   @apply relative inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition-colors no-underline;
-  color: #6B5B4F;
+  color: #6b5b4f;
   font-family: 'Noto Sans SC', sans-serif;
 }
 .nav-link:hover {
-  color: #C62828;
+  color: #c62828;
   background: rgba(198, 40, 40, 0.05);
 }
 .nav-link--active {
-  color: #C62828;
+  color: #c62828;
   background: rgba(198, 40, 40, 0.08);
 }
 .nav-link--locked {
@@ -193,16 +210,28 @@ Append these styles at the end of `assets/css/main.css` (before the `@media (pre
 .wuxing-card {
   @apply rounded-xl p-4 text-center border;
   background: rgba(251, 248, 244, 0.9);
-  transition: border-color 0.25s ease, transform 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease;
 }
 .wuxing-card:hover {
   transform: translateY(-2px);
 }
-.wuxing-card--wood  { border-color: #4A7C59; }
-.wuxing-card--fire  { border-color: #C62828; }
-.wuxing-card--earth { border-color: #B8860B; }
-.wuxing-card--metal { border-color: #8E8E8E; }
-.wuxing-card--water { border-color: #2C5F7C; }
+.wuxing-card--wood {
+  border-color: #4a7c59;
+}
+.wuxing-card--fire {
+  border-color: #c62828;
+}
+.wuxing-card--earth {
+  border-color: #b8860b;
+}
+.wuxing-card--metal {
+  border-color: #8e8e8e;
+}
+.wuxing-card--water {
+  border-color: #2c5f7c;
+}
 ```
 
 - [ ] **Step 3: Add vitest to package.json**
@@ -265,6 +294,7 @@ git commit -m "feat: add design tokens, CSS utilities, test infra, and CSP heade
 ### Task 2: Shared components — InkDivider, ToolPageLayout, PageHero, FortuneBars, SkeletonCard, SkeletonBars
 
 **Files:**
+
 - Create: `components/tools/InkDivider.vue`
 - Create: `components/tools/ToolPageLayout.vue`
 - Create: `components/tools/PageHero.vue`
@@ -387,7 +417,14 @@ defineProps<{
           {{ item.score }}
         </span>
       </div>
-      <div class="fortune-bar" role="progressbar" :aria-valuenow="item.score" aria-valuemin="0" aria-valuemax="100" :aria-label="item.label">
+      <div
+        class="fortune-bar"
+        role="progressbar"
+        :aria-valuenow="item.score"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        :aria-label="item.label"
+      >
         <div
           class="fortune-bar__fill"
           :class="{
@@ -439,7 +476,9 @@ defineProps<{
   <div class="space-y-4">
     <div v-for="i in 4" :key="i" class="space-y-1">
       <div class="skeleton-block w-16 mb-1" />
-      <div class="fortune-bar"><div class="skeleton-pulse h-full rounded-full" style="width: var(--fill, '60%')" /></div>
+      <div class="fortune-bar">
+        <div class="skeleton-pulse h-full rounded-full" style="width: var(--fill, '60%')" />
+      </div>
     </div>
   </div>
 </template>
@@ -461,6 +500,7 @@ git commit -m "feat: add shared tool components (InkDivider, ToolPageLayout, Pag
 ### Task 3: Layout navigation bar + Index page unlock
 
 **Files:**
+
 - Modify: `layouts/default.vue`
 - Modify: `pages/index.vue`
 
@@ -469,6 +509,7 @@ git commit -m "feat: add shared tool components (InkDivider, ToolPageLayout, Pag
 Insert the tool nav row between the logo and the profile section, inside the existing `header` element. Modify the header's inner flex container to accommodate three sections: logo left, nav center, profile right.
 
 Replace the current header block (from `<header class="sticky top-0 z-50 ...">` to the closing `</header>`) with this updated version. The key changes:
+
 1. Add a centered nav section `<nav>` between logo and profile
 2. Use `justify-between` on the outer flex container
 3. Add responsive classes: `hidden md:flex` for desktop nav items
@@ -532,7 +573,13 @@ interface NavTool {
 
 const navTools: NavTool[] = [
   { id: 'shengxiao', name: '生肖', emoji: '🐯', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', emoji: '♈', route: '/tools/constellation', available: true },
+  {
+    id: 'constellation',
+    name: '星座',
+    emoji: '♈',
+    route: '/tools/constellation',
+    available: true,
+  },
   { id: 'bazi', name: '八字', emoji: '☯', route: '/tools/bazi', available: false },
   { id: 'yijing', name: '六爻', emoji: '📜', route: '/tools/yijing', available: false },
   { id: 'ziwei', name: '紫微斗数', emoji: '⭐', route: '/tools/ziwei', available: false },
@@ -547,11 +594,46 @@ In `pages/index.vue`, change the tool cards array so `shengxiao` and `constellat
 
 ```typescript
 const tools: Tool[] = [
-  { id: 'shengxiao', name: '生肖', char: '兽', description: '生肖排盘 · 五行性格 · 生肖配对', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', char: '辰', description: '十二星座 · 性格特征 · 今日运势', route: '/tools/constellation', available: true },
-  { id: 'bazi', name: '八字', char: '命', description: '四柱排盘 · 十神定位 · 五行生克', route: '/tools/bazi', available: false },
-  { id: 'yijing', name: '六爻', char: '卦', description: '数字起卦 · 卦象解读 · 吉凶判断', route: '/tools/yijing', available: false },
-  { id: 'ziwei', name: '紫微斗数', char: '斗', description: '十二宫排盘 · 星曜分析 · 命盘解读', route: '/tools/ziwei', available: false },
+  {
+    id: 'shengxiao',
+    name: '生肖',
+    char: '兽',
+    description: '生肖排盘 · 五行性格 · 生肖配对',
+    route: '/tools/shengxiao',
+    available: true,
+  },
+  {
+    id: 'constellation',
+    name: '星座',
+    char: '辰',
+    description: '十二星座 · 性格特征 · 今日运势',
+    route: '/tools/constellation',
+    available: true,
+  },
+  {
+    id: 'bazi',
+    name: '八字',
+    char: '命',
+    description: '四柱排盘 · 十神定位 · 五行生克',
+    route: '/tools/bazi',
+    available: false,
+  },
+  {
+    id: 'yijing',
+    name: '六爻',
+    char: '卦',
+    description: '数字起卦 · 卦象解读 · 吉凶判断',
+    route: '/tools/yijing',
+    available: false,
+  },
+  {
+    id: 'ziwei',
+    name: '紫微斗数',
+    char: '斗',
+    description: '十二宫排盘 · 星曜分析 · 命盘解读',
+    route: '/tools/ziwei',
+    available: false,
+  },
 ]
 ```
 
@@ -560,7 +642,8 @@ const tools: Tool[] = [
 Run: `cd /d/Develop/Project/github/XuanXue && npx nuxi dev` in background.
 
 Navigate to http://localhost:3000 — verify:
-- Top bar shows navigation items: 生肖 (🐯), 星座 (♈), 八字 (☯ *), 六爻 (📜 *), 紫微斗数 (⭐ *)
+
+- Top bar shows navigation items: 生肖 (🐯), 星座 (♈), 八字 (☯ _), 六爻 (📜 _), 紫微斗数 (⭐ \*)
 - Active nav item (home = none active) shows normal inactive styling
 - Locked items (八字, 六爻, 紫微斗数) are grayed out
 - Index page cards: 生肖 and 星座 show as unlocked (hover effects, clickable)
@@ -579,6 +662,7 @@ git commit -m "feat: add tool navigation bar and unlock shengxiao/constellation 
 ### Task 4: ShengXiao calculation engine
 
 **Files:**
+
 - Create: `composables/useShengXiao.ts`
 - Create: `tests/composables/useShengXiao.test.ts`
 
@@ -757,28 +841,70 @@ const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申',
 const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
 
 const ANIMAL_WUXING: Record<string, string> = {
-  鼠: '水', 牛: '土', 虎: '木', 兔: '木',
-  龙: '土', 蛇: '火', 马: '火', 羊: '土',
-  猴: '金', 鸡: '金', 狗: '土', 猪: '水',
+  鼠: '水',
+  牛: '土',
+  虎: '木',
+  兔: '木',
+  龙: '土',
+  蛇: '火',
+  马: '火',
+  羊: '土',
+  猴: '金',
+  鸡: '金',
+  狗: '土',
+  猪: '水',
 }
 
 const ANIMAL_DIRECTION: Record<string, string> = {
-  鼠: '北', 牛: '东北', 虎: '东北', 兔: '东',
-  龙: '东南', 蛇: '南', 马: '南', 羊: '西南',
-  猴: '西', 鸡: '西', 狗: '西北', 猪: '北',
+  鼠: '北',
+  牛: '东北',
+  虎: '东北',
+  兔: '东',
+  龙: '东南',
+  蛇: '南',
+  马: '南',
+  羊: '西南',
+  猴: '西',
+  鸡: '西',
+  狗: '西北',
+  猪: '北',
 }
 
 // 60 纳音 table indexed by sexagenary pair index (0-29, each covers two consecutive pairs)
 const NAYIN_TABLE = [
-  '海中金', '炉中火', '大林木', '路旁土', '剑锋金',
-  '山头火', '涧下水', '城头土', '白蜡金', '杨柳木',
-  '泉中水', '屋上土', '霹雳火', '松柏木', '长流水',
-  '沙中金', '山下火', '平地木', '壁上土', '金箔金',
-  '佛灯火', '天河水', '大驿土', '钗钏金', '桑柘木',
-  '大溪水', '沙中土', '天上火', '石榴木', '大海水',
+  '海中金',
+  '炉中火',
+  '大林木',
+  '路旁土',
+  '剑锋金',
+  '山头火',
+  '涧下水',
+  '城头土',
+  '白蜡金',
+  '杨柳木',
+  '泉中水',
+  '屋上土',
+  '霹雳火',
+  '松柏木',
+  '长流水',
+  '沙中金',
+  '山下火',
+  '平地木',
+  '壁上土',
+  '金箔金',
+  '佛灯火',
+  '天河水',
+  '大驿土',
+  '钗钏金',
+  '桑柘木',
+  '大溪水',
+  '沙中土',
+  '天上火',
+  '石榴木',
+  '大海水',
 ]
 
-const ANIMAL_PERSONALITY: Record<string, { pro: string[], con: string[] }> = {
+const ANIMAL_PERSONALITY: Record<string, { pro: string[]; con: string[] }> = {
   鼠: { pro: ['聪明机敏', '适应力强', '善于社交'], con: ['缺乏胆识', '目光短浅', '善钻营'] },
   牛: { pro: ['勤勉踏实', '忠诚可靠', '坚韧不拔'], con: ['固执己见', '缺乏变通', '不善表达'] },
   虎: { pro: ['勇敢自信', '热情开朗', '领袖气质'], con: ['刚愎自用', '缺乏耐心', '容易冲动'] },
@@ -810,22 +936,37 @@ const ANIMAL_LUCKY: Record<string, Lucky> = {
 
 // Compatibility rules: sanhe groups, liuhe pairs, chong pairs, hai pairs
 const SANHE_GROUPS = [
-  [0, 4, 8],   // 申子辰 (猴鼠龙)
-  [1, 5, 9],   // 巳酉丑 (蛇鸡牛)
-  [2, 6, 10],  // 寅午戌 (虎马狗)
-  [3, 7, 11],  // 亥卯未 (猪兔羊)
+  [0, 4, 8], // 申子辰 (猴鼠龙)
+  [1, 5, 9], // 巳酉丑 (蛇鸡牛)
+  [2, 6, 10], // 寅午戌 (虎马狗)
+  [3, 7, 11], // 亥卯未 (猪兔羊)
 ]
 
 const LIUHE_PAIRS: [number, number][] = [
-  [0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7],  // 子丑, 寅亥, 卯戌, 辰酉, 巳申, 午未
+  [0, 1],
+  [2, 11],
+  [3, 10],
+  [4, 9],
+  [5, 8],
+  [6, 7], // 子丑, 寅亥, 卯戌, 辰酉, 巳申, 午未
 ]
 
 const CHONG_PAIRS: [number, number][] = [
-  [0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11],  // 子午, 丑未, 寅申, 卯酉, 辰戌, 巳亥
+  [0, 6],
+  [1, 7],
+  [2, 8],
+  [3, 9],
+  [4, 10],
+  [5, 11], // 子午, 丑未, 寅申, 卯酉, 辰戌, 巳亥
 ]
 
 const HAI_PAIRS: [number, number][] = [
-  [0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10],  // 子未, 丑午, 寅巳, 卯辰, 申亥, 酉戌
+  [0, 7],
+  [1, 6],
+  [2, 5],
+  [3, 4],
+  [8, 11],
+  [9, 10], // 子未, 丑午, 寅巳, 卯辰, 申亥, 酉戌
 ]
 
 // Determine yang (even stem index) or yin (odd stem index)
@@ -837,7 +978,7 @@ function isYang(stemIndex: number): string {
 function sexagenaryPosition(stemIndex: number, branchIndex: number): number {
   // Solve: P % 10 = stemIndex, P % 12 = branchIndex
   // Using Chinese Remainder Theorem simplified for this case
-  const k = (((stemIndex - branchIndex) / 2) + 6) % 6
+  const k = ((stemIndex - branchIndex) / 2 + 6) % 6
   return (stemIndex + 10 * k) % 60
 }
 
@@ -935,7 +1076,7 @@ function computeCompatibility(animalIndex: number): Compatibility[] {
 
 // Compute fortune scores (deterministic, based on animalIndex + currentYear)
 function computeFortune(animalIndex: number, currentYear: number): Fortune {
-  const stemIndex = ((currentYear - 4) % 10 + 10) % 10
+  const stemIndex = (((currentYear - 4) % 10) + 10) % 10
   const seed = currentYear * 7 + animalIndex * 13 + stemIndex * 17
 
   function calc(multiplier: number, addend: number): number {
@@ -967,13 +1108,13 @@ function computeFortune(animalIndex: number, currentYear: number): Fortune {
 export function calculateShengXiao(
   birthYear: number,
   calendar: 'solar' | 'lunar',
-  currentDate?: Date
+  currentDate?: Date,
 ): ShengXiaoResult {
   const now = currentDate || new Date()
   const currentYear = now.getFullYear()
 
   // Animal index from birth year
-  let animalIndex = ((birthYear - 4) % 12 + 12) % 12
+  let animalIndex = (((birthYear - 4) % 12) + 12) % 12
 
   // Lunar new year boundary: if solar calendar and before Feb 4, use previous year
   if (calendar === 'solar') {
@@ -991,7 +1132,7 @@ export function calculateShengXiao(
   const earthlyBranch = BRANCHES[animalIndex]
 
   // Heavenly stem from birth year
-  const stemIndex = ((birthYear - 4) % 10 + 10) % 10
+  const stemIndex = (((birthYear - 4) % 10) + 10) % 10
   const heavenlyStem = STEMS[stemIndex]
   const stemBranch = heavenlyStem + earthlyBranch
 
@@ -1047,6 +1188,7 @@ git commit -m "feat: add ShengXiao calculation engine with tests"
 ### Task 5: Constellation calculation engine
 
 **Files:**
+
 - Create: `composables/useConstellation.ts`
 - Create: `tests/composables/useConstellation.test.ts`
 
@@ -1241,18 +1383,174 @@ interface ZodiacDef {
 }
 
 const ZODIACS: ZodiacDef[] = [
-  { name: '白羊座', symbol: '♈', startMonth: 3, startDay: 21, endMonth: 4, endDay: 19, element: '火', rulingPlanet: '火星', luckyColor: '红色', luckyNumber: 9, personality: '热情冲动、勇敢直率、充满活力、喜欢挑战。白羊座的人天生具有领导气质，做事果断直接，但有时缺乏耐心。' },
-  { name: '金牛座', symbol: '♉', startMonth: 4, startDay: 20, endMonth: 5, endDay: 20, element: '土', rulingPlanet: '金星', luckyColor: '绿色', luckyNumber: 6, personality: '稳重踏实、坚持不懈、热爱美食与艺术。金牛座的人忠诚可靠，做事脚踏实地，但有时过于固执。' },
-  { name: '双子座', symbol: '♊', startMonth: 5, startDay: 21, endMonth: 6, endDay: 21, element: '风', rulingPlanet: '水星', luckyColor: '黄色', luckyNumber: 5, personality: '聪明机智、善于沟通、多才多艺、好奇心强。双子座的人思维敏捷，适应力强，但有时缺乏恒心。' },
-  { name: '巨蟹座', symbol: '♋', startMonth: 6, startDay: 22, endMonth: 7, endDay: 22, element: '水', rulingPlanet: '月亮', luckyColor: '白色', luckyNumber: 2, personality: '温柔体贴、家庭观念强、直觉敏锐、富有同情心。巨蟹座的人非常重视感情和家庭，但有时过于敏感。' },
-  { name: '狮子座', symbol: '♌', startMonth: 7, startDay: 23, endMonth: 8, endDay: 22, element: '火', rulingPlanet: '太阳', luckyColor: '金色', luckyNumber: 1, personality: '自信大方、热情慷慨、领导力强、富有魅力。狮子座的人天生就是焦点，充满创造力和热情，但有时过于自负。' },
-  { name: '处女座', symbol: '♍', startMonth: 8, startDay: 23, endMonth: 9, endDay: 22, element: '土', rulingPlanet: '水星', luckyColor: '灰色', luckyNumber: 5, personality: '细心谨慎、追求完美、分析力强、务实可靠。处女座的人做事一丝不苟，善于分析和规划，但有时过于挑剔。' },
-  { name: '天秤座', symbol: '♎', startMonth: 9, startDay: 23, endMonth: 10, endDay: 23, element: '风', rulingPlanet: '金星', luckyColor: '粉色', luckyNumber: 6, personality: '优雅公正、社交达人、审美出众、追求和谐。天秤座的人善于平衡各方关系，品味高雅，但有时犹豫不决。' },
-  { name: '天蝎座', symbol: '♏', startMonth: 10, startDay: 24, endMonth: 11, endDay: 21, element: '水', rulingPlanet: '冥王星', luckyColor: '紫色', luckyNumber: 8, personality: '深沉神秘、意志坚定、洞察力强、情感炽烈。天蝎座的人目标明确，执行力极强，但有时占有欲过强。' },
-  { name: '射手座', symbol: '♐', startMonth: 11, startDay: 22, endMonth: 12, endDay: 21, element: '火', rulingPlanet: '木星', luckyColor: '蓝色', luckyNumber: 3, personality: '乐观开朗、热爱自由、冒险精神、诚实直率。射手座的人心胸开阔，喜欢探索未知，但有时过于冲动。' },
-  { name: '摩羯座', symbol: '♑', startMonth: 12, startDay: 22, endMonth: 1, endDay: 19, element: '土', rulingPlanet: '土星', luckyColor: '棕色', luckyNumber: 8, personality: '踏实稳重、有责任心、目标明确、坚韧不拔。摩羯座的人做事认真负责，追求事业成就，但有时过于严肃。' },
-  { name: '水瓶座', symbol: '♒', startMonth: 1, startDay: 20, endMonth: 2, endDay: 18, element: '风', rulingPlanet: '天王星', luckyColor: '青色', luckyNumber: 4, personality: '创新独立、思想前卫、友善博爱、理性客观。水瓶座的人富有创造力和人道主义精神，但有时过于理想化。' },
-  { name: '双鱼座', symbol: '♓', startMonth: 2, startDay: 19, endMonth: 3, endDay: 20, element: '水', rulingPlanet: '海王星', luckyColor: '海蓝色', luckyNumber: 7, personality: '温柔浪漫、想象力丰富、善解人意、富有艺术天赋。双鱼座的人极具同情心和创造力，但有时过于逃避现实。' },
+  {
+    name: '白羊座',
+    symbol: '♈',
+    startMonth: 3,
+    startDay: 21,
+    endMonth: 4,
+    endDay: 19,
+    element: '火',
+    rulingPlanet: '火星',
+    luckyColor: '红色',
+    luckyNumber: 9,
+    personality:
+      '热情冲动、勇敢直率、充满活力、喜欢挑战。白羊座的人天生具有领导气质，做事果断直接，但有时缺乏耐心。',
+  },
+  {
+    name: '金牛座',
+    symbol: '♉',
+    startMonth: 4,
+    startDay: 20,
+    endMonth: 5,
+    endDay: 20,
+    element: '土',
+    rulingPlanet: '金星',
+    luckyColor: '绿色',
+    luckyNumber: 6,
+    personality:
+      '稳重踏实、坚持不懈、热爱美食与艺术。金牛座的人忠诚可靠，做事脚踏实地，但有时过于固执。',
+  },
+  {
+    name: '双子座',
+    symbol: '♊',
+    startMonth: 5,
+    startDay: 21,
+    endMonth: 6,
+    endDay: 21,
+    element: '风',
+    rulingPlanet: '水星',
+    luckyColor: '黄色',
+    luckyNumber: 5,
+    personality:
+      '聪明机智、善于沟通、多才多艺、好奇心强。双子座的人思维敏捷，适应力强，但有时缺乏恒心。',
+  },
+  {
+    name: '巨蟹座',
+    symbol: '♋',
+    startMonth: 6,
+    startDay: 22,
+    endMonth: 7,
+    endDay: 22,
+    element: '水',
+    rulingPlanet: '月亮',
+    luckyColor: '白色',
+    luckyNumber: 2,
+    personality:
+      '温柔体贴、家庭观念强、直觉敏锐、富有同情心。巨蟹座的人非常重视感情和家庭，但有时过于敏感。',
+  },
+  {
+    name: '狮子座',
+    symbol: '♌',
+    startMonth: 7,
+    startDay: 23,
+    endMonth: 8,
+    endDay: 22,
+    element: '火',
+    rulingPlanet: '太阳',
+    luckyColor: '金色',
+    luckyNumber: 1,
+    personality:
+      '自信大方、热情慷慨、领导力强、富有魅力。狮子座的人天生就是焦点，充满创造力和热情，但有时过于自负。',
+  },
+  {
+    name: '处女座',
+    symbol: '♍',
+    startMonth: 8,
+    startDay: 23,
+    endMonth: 9,
+    endDay: 22,
+    element: '土',
+    rulingPlanet: '水星',
+    luckyColor: '灰色',
+    luckyNumber: 5,
+    personality:
+      '细心谨慎、追求完美、分析力强、务实可靠。处女座的人做事一丝不苟，善于分析和规划，但有时过于挑剔。',
+  },
+  {
+    name: '天秤座',
+    symbol: '♎',
+    startMonth: 9,
+    startDay: 23,
+    endMonth: 10,
+    endDay: 23,
+    element: '风',
+    rulingPlanet: '金星',
+    luckyColor: '粉色',
+    luckyNumber: 6,
+    personality:
+      '优雅公正、社交达人、审美出众、追求和谐。天秤座的人善于平衡各方关系，品味高雅，但有时犹豫不决。',
+  },
+  {
+    name: '天蝎座',
+    symbol: '♏',
+    startMonth: 10,
+    startDay: 24,
+    endMonth: 11,
+    endDay: 21,
+    element: '水',
+    rulingPlanet: '冥王星',
+    luckyColor: '紫色',
+    luckyNumber: 8,
+    personality:
+      '深沉神秘、意志坚定、洞察力强、情感炽烈。天蝎座的人目标明确，执行力极强，但有时占有欲过强。',
+  },
+  {
+    name: '射手座',
+    symbol: '♐',
+    startMonth: 11,
+    startDay: 22,
+    endMonth: 12,
+    endDay: 21,
+    element: '火',
+    rulingPlanet: '木星',
+    luckyColor: '蓝色',
+    luckyNumber: 3,
+    personality:
+      '乐观开朗、热爱自由、冒险精神、诚实直率。射手座的人心胸开阔，喜欢探索未知，但有时过于冲动。',
+  },
+  {
+    name: '摩羯座',
+    symbol: '♑',
+    startMonth: 12,
+    startDay: 22,
+    endMonth: 1,
+    endDay: 19,
+    element: '土',
+    rulingPlanet: '土星',
+    luckyColor: '棕色',
+    luckyNumber: 8,
+    personality:
+      '踏实稳重、有责任心、目标明确、坚韧不拔。摩羯座的人做事认真负责，追求事业成就，但有时过于严肃。',
+  },
+  {
+    name: '水瓶座',
+    symbol: '♒',
+    startMonth: 1,
+    startDay: 20,
+    endMonth: 2,
+    endDay: 18,
+    element: '风',
+    rulingPlanet: '天王星',
+    luckyColor: '青色',
+    luckyNumber: 4,
+    personality:
+      '创新独立、思想前卫、友善博爱、理性客观。水瓶座的人富有创造力和人道主义精神，但有时过于理想化。',
+  },
+  {
+    name: '双鱼座',
+    symbol: '♓',
+    startMonth: 2,
+    startDay: 19,
+    endMonth: 3,
+    endDay: 20,
+    element: '水',
+    rulingPlanet: '海王星',
+    luckyColor: '海蓝色',
+    luckyNumber: 7,
+    personality:
+      '温柔浪漫、想象力丰富、善解人意、富有艺术天赋。双鱼座的人极具同情心和创造力，但有时过于逃避现实。',
+  },
 ]
 
 // Determine zodiac index from birth month and day
@@ -1262,9 +1560,13 @@ function getZodiacIndex(month: number, day: number): number {
     // Handle wrap-around for Capricorn (Dec 22 - Jan 19)
     if (z.startMonth > z.endMonth) {
       // Wraps around year boundary
-      if ((month === z.startMonth && day >= z.startDay) || (month === z.endMonth && day <= z.endDay) ||
-          (month > z.startMonth || (month === 1 && month <= z.endMonth)) ||
-          (month > z.startMonth && month <= 12)) {
+      if (
+        (month === z.startMonth && day >= z.startDay) ||
+        (month === z.endMonth && day <= z.endDay) ||
+        month > z.startMonth ||
+        (month === 1 && month <= z.endMonth) ||
+        (month > z.startMonth && month <= 12)
+      ) {
         // Actually, for wrap-around: if month >= startMonth OR month <= endMonth
         if (month >= z.startMonth || month <= z.endMonth) {
           // Need to check boundaries
@@ -1286,15 +1588,42 @@ function getZodiacIndex(month: number, day: number): number {
 
 // Yi/Ji template pools — mapped by hourglass score ranges
 const YI_POOLS: Record<string, string[]> = {
-  high: ['洽谈合作', '开拓新项目', '投资理财', '表达心意', '签署合同', '出差远行', '社交活动', '学习进修'],
-  mid:  ['日常办公', '整理规划', '家人团聚', '阅读思考', '适度运动', '拜访朋友', '处理琐事', '休闲娱乐'],
-  low:  ['谨慎决策', '休养生息', '反思总结', '与人沟通', '低调行事', '暂缓投资', '注意健康', '避免争执'],
+  high: [
+    '洽谈合作',
+    '开拓新项目',
+    '投资理财',
+    '表达心意',
+    '签署合同',
+    '出差远行',
+    '社交活动',
+    '学习进修',
+  ],
+  mid: [
+    '日常办公',
+    '整理规划',
+    '家人团聚',
+    '阅读思考',
+    '适度运动',
+    '拜访朋友',
+    '处理琐事',
+    '休闲娱乐',
+  ],
+  low: [
+    '谨慎决策',
+    '休养生息',
+    '反思总结',
+    '与人沟通',
+    '低调行事',
+    '暂缓投资',
+    '注意健康',
+    '避免争执',
+  ],
 }
 
 const JI_POOLS: Record<string, string[]> = {
   high: ['冲动消费', '与人争执', '过度承诺', '轻信他人'],
-  mid:  ['拖延犹豫', '过度疲劳', '冒险投资', '草率决定'],
-  low:  ['重大决策', '长途出行', '签订合同', '借贷担保', '投机取巧', '与人冲突'],
+  mid: ['拖延犹豫', '过度疲劳', '冒险投资', '草率决定'],
+  low: ['重大决策', '长途出行', '签订合同', '借贷担保', '投机取巧', '与人冲突'],
 }
 
 // Get zodiac index
@@ -1318,10 +1647,14 @@ function getZodiacIndex(month: number, day: number): number {
 }
 
 // Compute horoscope
-function computeHoroscope(zodiacIndex: number, currentDate: Date): ConstellationResult['todayHoroscope'] {
+function computeHoroscope(
+  zodiacIndex: number,
+  currentDate: Date,
+): ConstellationResult['todayHoroscope'] {
   // Date-based deterministic seed
   const dateStr = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`
-  const dateNum = currentDate.getFullYear() * 10000 + (currentDate.getMonth() + 1) * 100 + currentDate.getDate()
+  const dateNum =
+    currentDate.getFullYear() * 10000 + (currentDate.getMonth() + 1) * 100 + currentDate.getDate()
   const modulus = 7919 // A prime number
   const seed = (dateNum * 7 + zodiacIndex * 13) % modulus
 
@@ -1337,7 +1670,7 @@ function computeHoroscope(zodiacIndex: number, currentDate: Date): Constellation
 }
 
 // Pick Yi/Ji items based on overall score
-function pickYiJi(overall: number): { yi: string[], ji: string[] } {
+function pickYiJi(overall: number): { yi: string[]; ji: string[] } {
   const pool = overall >= 60 ? 'high' : overall >= 40 ? 'mid' : 'low'
   const yiPool = YI_POOLS[pool]
   const jiPool = JI_POOLS[pool]
@@ -1347,7 +1680,7 @@ function pickYiJi(overall: number): { yi: string[], ji: string[] } {
     const shuffled = [...arr]
     const seedVal = overall * 31 + offset * 17
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = ((seedVal * (i + 1) * 7) % (i + 1) + i + 1) % (i + 1)
+      const j = (((seedVal * (i + 1) * 7) % (i + 1)) + i + 1) % (i + 1)
       ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled.slice(0, count)
@@ -1415,7 +1748,20 @@ function computeConstellationCompat(zodiacIndex: number): ConstellationResult['c
 }
 
 function formatDateRange(z: ZodiacDef): string {
-  const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+  const monthNames = [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ]
   return `${monthNames[z.startMonth - 1]}${z.startDay}日 — ${monthNames[z.endMonth - 1]}${z.endDay}日`
 }
 
@@ -1429,7 +1775,7 @@ function formatDateRange(z: ZodiacDef): string {
 export function calculateConstellation(
   month: number,
   day: number,
-  currentDate?: Date
+  currentDate?: Date,
 ): ConstellationResult {
   const now = currentDate || new Date()
   const zodiacIndex = getZodiacIndex(month, day)
@@ -1476,6 +1822,7 @@ git commit -m "feat: add Constellation calculation engine with tests"
 ### Task 6: ShengXiao page and components
 
 **Files:**
+
 - Create: `components/tools/shengxiao/Hero.vue`
 - Create: `components/tools/shengxiao/WuXingGrid.vue`
 - Create: `components/tools/shengxiao/Personality.vue`
@@ -1489,7 +1836,9 @@ git commit -m "feat: add Constellation calculation engine with tests"
 <template>
   <div class="fade-in card-paper-solid rounded-2xl p-6 sm:p-8 mb-6" :style="{ '--delay': '0.05s' }">
     <div class="flex items-start gap-4 sm:gap-6">
-      <span class="flex-shrink-0 text-5xl sm:text-6xl" aria-hidden="true">{{ result.animalEmoji }}</span>
+      <span class="flex-shrink-0 text-5xl sm:text-6xl" aria-hidden="true">{{
+        result.animalEmoji
+      }}</span>
       <div class="min-w-0">
         <h1 class="font-display text-3xl sm:text-4xl text-ink-dark">
           {{ result.animal }}
@@ -1498,11 +1847,15 @@ git commit -m "feat: add Constellation calculation engine with tests"
           {{ result.stemBranch }}年 · {{ result.year }} · {{ result.yangOrYin }}性
         </p>
         <div class="flex flex-wrap gap-2 mt-3">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans border"
-            :class="badgeClass(result.wuXing)">
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans border"
+            :class="badgeClass(result.wuXing)"
+          >
             {{ result.naYin }}命
           </span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30">
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30"
+          >
             {{ result.earthlyBranch }} · {{ result.direction }}
           </span>
         </div>
@@ -1520,11 +1873,11 @@ defineProps<{
 
 function badgeClass(wuXing: string): string {
   const map: Record<string, string> = {
-    '木': 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
-    '火': 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
-    '土': 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
-    '金': 'border-wuxing-metal/30 text-wuxing-metal bg-wuxing-metal/5',
-    '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
+    木: 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
+    火: 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
+    土: 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
+    金: 'border-wuxing-metal/30 text-wuxing-metal bg-wuxing-metal/5',
+    水: 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
   }
   return map[wuXing] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
 }
@@ -1537,7 +1890,12 @@ function badgeClass(wuXing: string): string {
 <template>
   <div class="fade-in mb-6" :style="{ '--delay': '0.15s' }">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-      <div v-for="item in items" :key="item.label" class="wuxing-card" :class="`wuxing-card--${item.color}`">
+      <div
+        v-for="item in items"
+        :key="item.label"
+        class="wuxing-card"
+        :class="`wuxing-card--${item.color}`"
+      >
         <div class="font-display text-lg sm:text-xl text-ink-dark mb-0.5">{{ item.value }}</div>
         <div class="font-sans text-xs text-ink-light tracking-wider">{{ item.label }}</div>
       </div>
@@ -1553,7 +1911,13 @@ const props = defineProps<{
 }>()
 
 const wuxingColor = (): string => {
-  const map: Record<string, string> = { '木': 'wood', '火': 'fire', '土': 'earth', '金': 'metal', '水': 'water' }
+  const map: Record<string, string> = {
+    木: 'wood',
+    火: 'fire',
+    土: 'earth',
+    金: 'metal',
+    水: 'water',
+  }
   return map[props.result.wuXing] || 'earth'
 }
 
@@ -1579,7 +1943,11 @@ const items = [
           <span aria-hidden="true">▸</span> 优点
         </h4>
         <ul class="space-y-1.5">
-          <li v-for="pro in result.personalityPro" :key="pro" class="font-sans text-sm text-ink-medium flex items-start gap-2">
+          <li
+            v-for="pro in result.personalityPro"
+            :key="pro"
+            class="font-sans text-sm text-ink-medium flex items-start gap-2"
+          >
             <span class="text-wuxing-wood mt-0.5 flex-shrink-0" aria-hidden="true">●</span>
             {{ pro }}
           </li>
@@ -1591,7 +1959,11 @@ const items = [
           <span aria-hidden="true">▸</span> 缺点
         </h4>
         <ul class="space-y-1.5">
-          <li v-for="con in result.personalityCon" :key="con" class="font-sans text-sm text-ink-medium flex items-start gap-2">
+          <li
+            v-for="con in result.personalityCon"
+            :key="con"
+            class="font-sans text-sm text-ink-medium flex items-start gap-2"
+          >
             <span class="text-cinnabar/70 mt-0.5 flex-shrink-0" aria-hidden="true">○</span>
             {{ con }}
           </li>
@@ -1645,15 +2017,19 @@ defineProps<{
 }>()
 
 function borderClass(level: string): string {
-  return level === 'great' ? 'hover:border-compat-great' :
-         level === 'good' ? 'hover:border-compat-good' :
-         'hover:border-cinnabar/30'
+  return level === 'great'
+    ? 'hover:border-compat-great'
+    : level === 'good'
+      ? 'hover:border-compat-good'
+      : 'hover:border-cinnabar/30'
 }
 
 function levelClass(level: string): string {
-  return level === 'great' ? 'bg-wuxing-wood/10 text-wuxing-wood' :
-         level === 'good' ? 'bg-[rgba(184,134,11,0.1)] text-gold' :
-         'bg-cinnabar/5 text-cinnabar/80'
+  return level === 'great'
+    ? 'bg-wuxing-wood/10 text-wuxing-wood'
+    : level === 'good'
+      ? 'bg-[rgba(184,134,11,0.1)] text-gold'
+      : 'bg-cinnabar/5 text-cinnabar/80'
 }
 </script>
 ```
@@ -1671,7 +2047,7 @@ function levelClass(level: string): string {
         'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left',
         idx === currentIndex
           ? 'bg-cinnabar/10 text-cinnabar font-medium'
-          : 'text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50'
+          : 'text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
       ]"
       :aria-current="idx === currentIndex ? 'true' : undefined"
     >
@@ -1758,7 +2134,7 @@ function computeResult() {
 }
 
 function computeAnimalIndex(year: number): number {
-  return ((year - 4) % 12 + 12) % 12
+  return (((year - 4) % 12) + 12) % 12
 }
 
 function selectAnimal(index: number) {
@@ -1787,7 +2163,9 @@ function selectAnimal(index: number) {
 }
 
 const currentYear = computed(() => new Date().getFullYear())
-const displayTitle = computed(() => result.value ? `${result.value.animal} · ${currentYear.value}流年运势` : '')
+const displayTitle = computed(() =>
+  result.value ? `${result.value.animal} · ${currentYear.value}流年运势` : '',
+)
 </script>
 
 <template>
@@ -1803,12 +2181,27 @@ const displayTitle = computed(() => result.value ? `${result.value.animal} · ${
         </template>
         <template #mobile-nav>
           <button
-            v-for="(animal, idx) in ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']"
+            v-for="(animal, idx) in [
+              '鼠',
+              '牛',
+              '虎',
+              '兔',
+              '龙',
+              '蛇',
+              '马',
+              '羊',
+              '猴',
+              '鸡',
+              '狗',
+              '猪',
+            ]"
             :key="idx"
             @click="selectAnimal(idx)"
             :class="[
               'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
-              idx === selectedAnimal ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50'
+              idx === selectedAnimal
+                ? 'bg-cinnabar/10 text-cinnabar'
+                : 'text-ink-medium hover:bg-paper-medium/50',
             ]"
           >
             {{ animal }}
@@ -1819,10 +2212,7 @@ const displayTitle = computed(() => result.value ? `${result.value.animal} · ${
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
           <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算生肖排盘</p>
-          <NuxtLink
-            :to="`/profile/${currentProfile?.id}`"
-            class="btn-seal inline-flex"
-          >
+          <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-seal inline-flex">
             <span>前往编辑档案</span>
           </NuxtLink>
         </div>
@@ -1840,12 +2230,14 @@ const displayTitle = computed(() => result.value ? `${result.value.animal} · ${
           <PersonalityCard :result="result" />
 
           <InkDivider>{{ currentYear }}年流年运势</InkDivider>
-          <FortuneBars :items="[
-            { label: '事业', score: result.fortune.career.score },
-            { label: '财运', score: result.fortune.wealth.score },
-            { label: '感情', score: result.fortune.love.score },
-            { label: '健康', score: result.fortune.health.score },
-          ]" />
+          <FortuneBars
+            :items="[
+              { label: '事业', score: result.fortune.career.score },
+              { label: '财运', score: result.fortune.wealth.score },
+              { label: '感情', score: result.fortune.love.score },
+              { label: '健康', score: result.fortune.health.score },
+            ]"
+          />
 
           <CompatibilityGrid :items="result.compatibility" />
 
@@ -1866,6 +2258,7 @@ const displayTitle = computed(() => result.value ? `${result.value.animal} · ${
 Run dev server: `cd /d/Develop/Project/github/XuanXue && npx nuxi dev`
 
 Navigate to http://localhost:3000/tools/shengxiao
+
 - If no birth_date set: should show "请先完善出生信息" with link to profile
 - If birth_date set: should show the full zodiac reading
 - Click different animals in the sidebar nav
@@ -1885,6 +2278,7 @@ git commit -m "feat: add ShengXiao tool page with all sub-components"
 ### Task 7: Constellation page and components
 
 **Files:**
+
 - Create: `components/tools/constellation/Hero.vue`
 - Create: `components/tools/constellation/HoroscopePanel.vue`
 - Create: `components/tools/constellation/YiJiPanel.vue`
@@ -1906,11 +2300,15 @@ git commit -m "feat: add ShengXiao tool page with all sub-components"
           {{ result.dateRange }}
         </p>
         <div class="flex flex-wrap gap-2 mt-3">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans border"
-            :class="elementBadgeClass(result.element)">
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans border"
+            :class="elementBadgeClass(result.element)"
+          >
             {{ result.element }}象
           </span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30">
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans bg-ink-faint/20 text-ink-medium border border-ink-faint/30"
+          >
             {{ result.rulingPlanet }}守护
           </span>
         </div>
@@ -1928,10 +2326,10 @@ defineProps<{
 
 function elementBadgeClass(element: string): string {
   const map: Record<string, string> = {
-    '火': 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
-    '土': 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
-    '风': 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
-    '水': 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
+    火: 'border-wuxing-fire/30 text-wuxing-fire bg-wuxing-fire/5',
+    土: 'border-wuxing-earth/30 text-wuxing-earth bg-wuxing-earth/5',
+    风: 'border-wuxing-wood/30 text-wuxing-wood bg-wuxing-wood/5',
+    水: 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
   }
   return map[element] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
 }
@@ -1949,13 +2347,15 @@ function elementBadgeClass(element: string): string {
       <p class="font-sans text-xs text-ink-light mt-1">今日综合运势</p>
     </div>
 
-    <FortuneBars :items="[
-      { label: '综合', score: horoscope.overall },
-      { label: '爱情', score: horoscope.love },
-      { label: '事业', score: horoscope.career },
-      { label: '财运', score: horoscope.wealth },
-      { label: '健康', score: horoscope.health },
-    ]" />
+    <FortuneBars
+      :items="[
+        { label: '综合', score: horoscope.overall },
+        { label: '爱情', score: horoscope.love },
+        { label: '事业', score: horoscope.career },
+        { label: '财运', score: horoscope.wealth },
+        { label: '健康', score: horoscope.health },
+      ]"
+    />
   </div>
 </template>
 
@@ -1981,8 +2381,15 @@ defineProps<{
           <span aria-hidden="true">宜</span>
         </h4>
         <ul class="space-y-2">
-          <li v-for="item in yi" :key="item" class="font-sans text-sm text-ink-medium flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full bg-wuxing-wood flex-shrink-0" aria-hidden="true" />
+          <li
+            v-for="item in yi"
+            :key="item"
+            class="font-sans text-sm text-ink-medium flex items-center gap-2"
+          >
+            <span
+              class="w-1.5 h-1.5 rounded-full bg-wuxing-wood flex-shrink-0"
+              aria-hidden="true"
+            />
             {{ item }}
           </li>
         </ul>
@@ -1993,7 +2400,11 @@ defineProps<{
           <span aria-hidden="true">忌</span>
         </h4>
         <ul class="space-y-2">
-          <li v-for="item in ji" :key="item" class="font-sans text-sm text-ink-medium flex items-center gap-2">
+          <li
+            v-for="item in ji"
+            :key="item"
+            class="font-sans text-sm text-ink-medium flex items-center gap-2"
+          >
             <span class="w-1.5 h-1.5 rounded-full bg-ink-light flex-shrink-0" aria-hidden="true" />
             {{ item }}
           </li>
@@ -2024,7 +2435,7 @@ defineProps<{
         'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left',
         idx === currentIndex
           ? 'bg-cinnabar/10 text-cinnabar font-medium'
-          : 'text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50'
+          : 'text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
       ]"
       :aria-current="idx === currentIndex ? 'true' : undefined"
     >
@@ -2112,18 +2523,18 @@ function selectZodiac(index: number) {
 
   // Use a representative date for the selected zodiac
   const zodiacDates: { month: number; day: number }[] = [
-    { month: 4, day: 1 },   // 白羊
-    { month: 5, day: 1 },   // 金牛
-    { month: 6, day: 1 },   // 双子
-    { month: 7, day: 1 },   // 巨蟹
-    { month: 8, day: 1 },   // 狮子
-    { month: 9, day: 1 },   // 处女
-    { month: 10, day: 1 },  // 天秤
-    { month: 11, day: 1 },  // 天蝎
-    { month: 12, day: 1 },  // 射手
-    { month: 1, day: 1 },   // 摩羯
-    { month: 2, day: 1 },   // 水瓶
-    { month: 3, day: 1 },   // 双鱼
+    { month: 4, day: 1 }, // 白羊
+    { month: 5, day: 1 }, // 金牛
+    { month: 6, day: 1 }, // 双子
+    { month: 7, day: 1 }, // 巨蟹
+    { month: 8, day: 1 }, // 狮子
+    { month: 9, day: 1 }, // 处女
+    { month: 10, day: 1 }, // 天秤
+    { month: 11, day: 1 }, // 天蝎
+    { month: 12, day: 1 }, // 射手
+    { month: 1, day: 1 }, // 摩羯
+    { month: 2, day: 1 }, // 水瓶
+    { month: 3, day: 1 }, // 双鱼
   ]
 
   const d = zodiacDates[index]
@@ -2139,19 +2550,31 @@ function selectZodiac(index: number) {
     <div class="relative z-10">
       <ToolPageLayout>
         <template #nav>
-          <ConstellationNav
-            :currentIndex="selectedZodiac"
-            @select="selectZodiac"
-          />
+          <ConstellationNav :currentIndex="selectedZodiac" @select="selectZodiac" />
         </template>
         <template #mobile-nav>
           <button
-            v-for="(z, idx) in ['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼']"
+            v-for="(z, idx) in [
+              '白羊',
+              '金牛',
+              '双子',
+              '巨蟹',
+              '狮子',
+              '处女',
+              '天秤',
+              '天蝎',
+              '射手',
+              '摩羯',
+              '水瓶',
+              '双鱼',
+            ]"
             :key="idx"
             @click="selectZodiac(idx)"
             :class="[
               'flex-shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors',
-              idx === selectedZodiac ? 'bg-cinnabar/10 text-cinnabar' : 'text-ink-medium hover:bg-paper-medium/50'
+              idx === selectedZodiac
+                ? 'bg-cinnabar/10 text-cinnabar'
+                : 'text-ink-medium hover:bg-paper-medium/50',
             ]"
           >
             {{ z }}
@@ -2162,10 +2585,7 @@ function selectZodiac(index: number) {
         <div v-if="missingBirthInfo" class="text-center py-16">
           <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
           <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以查看星座运势</p>
-          <NuxtLink
-            :to="`/profile/${currentProfile?.id}`"
-            class="btn-seal inline-flex"
-          >
+          <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-seal inline-flex">
             <span>前往编辑档案</span>
           </NuxtLink>
         </div>
@@ -2183,23 +2603,43 @@ function selectZodiac(index: number) {
           <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
 
           <InkDivider>性格特征</InkDivider>
-          <div class="fade-in card-paper-solid rounded-xl p-5 sm:p-6 mb-6" :style="{ '--delay': '0.35s' }">
-            <p class="font-sans text-sm text-ink-medium leading-relaxed">{{ result.personality }}</p>
+          <div
+            class="fade-in card-paper-solid rounded-xl p-5 sm:p-6 mb-6"
+            :style="{ '--delay': '0.35s' }"
+          >
+            <p class="font-sans text-sm text-ink-medium leading-relaxed">
+              {{ result.personality }}
+            </p>
           </div>
 
           <InkDivider>速配星座</InkDivider>
-          <div class="fade-in grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" :style="{ '--delay': '0.5s' }">
+          <div
+            class="fade-in grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
+            :style="{ '--delay': '0.5s' }"
+          >
             <div
               v-for="item in result.compatibility"
               :key="item.name"
               class="card-paper-solid rounded-xl p-3 sm:p-4 text-center transition-all duration-300 cursor-default hover:-translate-y-0.5"
-              :class="item.level === 'great' ? 'hover:border-compat-great' : item.level === 'good' ? 'hover:border-compat-good' : 'hover:border-cinnabar/30'"
+              :class="
+                item.level === 'great'
+                  ? 'hover:border-compat-great'
+                  : item.level === 'good'
+                    ? 'hover:border-compat-good'
+                    : 'hover:border-cinnabar/30'
+              "
             >
               <div class="text-2xl sm:text-3xl mb-1" aria-hidden="true">{{ item.symbol }}</div>
               <div class="font-display text-sm text-ink-dark">{{ item.name }}</div>
               <span
                 class="inline-block mt-1 px-2 py-0.5 rounded text-[0.625rem] font-sans tracking-wider"
-                :class="item.level === 'great' ? 'bg-wuxing-wood/10 text-wuxing-wood' : item.level === 'good' ? 'bg-[rgba(184,134,11,0.1)] text-gold' : 'bg-cinnabar/5 text-cinnabar/80'"
+                :class="
+                  item.level === 'great'
+                    ? 'bg-wuxing-wood/10 text-wuxing-wood'
+                    : item.level === 'good'
+                      ? 'bg-[rgba(184,134,11,0.1)] text-gold'
+                      : 'bg-cinnabar/5 text-cinnabar/80'
+                "
               >
                 {{ item.label }}
               </span>
@@ -2223,6 +2663,7 @@ function selectZodiac(index: number) {
 Run dev server: `cd /d/Develop/Project/github/XuanXue && npx nuxi dev`
 
 Navigate to http://localhost:3000/tools/constellation
+
 - If no birth_date set: should show "请先完善出生信息" with link to profile
 - If birth_date set: should show the full constellation reading
 - Click different constellations in the sidebar nav
@@ -2243,6 +2684,7 @@ git commit -m "feat: add Constellation tool page with all sub-components"
 ### Task 8: Security — PIN hashing + session expiry + schema migration
 
 **Files:**
+
 - Modify: `server/database/schema.ts`
 - Modify: `server/utils/auth.ts`
 - Modify: `server/api/auth/login.post.ts`
@@ -2253,6 +2695,7 @@ git commit -m "feat: add Constellation tool page with all sub-components"
 In `server/database/schema.ts`, modify `CREATE_SESSIONS_TABLE` to add the `expires_at` column, and add the `CREATE_SECURITY_LOG_TABLE` variable:
 
 Replace:
+
 ```typescript
 export const CREATE_SESSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS sessions (
@@ -2265,6 +2708,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 ```
 
 With:
+
 ```typescript
 export const CREATE_SESSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS sessions (
@@ -2278,6 +2722,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 ```
 
 And add after `INDEX_DIVINATION_PROFILE`:
+
 ```typescript
 export const CREATE_SECURITY_LOG_TABLE = `
 CREATE TABLE IF NOT EXISTS security_log (
@@ -2297,8 +2742,10 @@ export const INDEX_SECURITY_LOG_TYPE = `CREATE INDEX IF NOT EXISTS idx_security_
 Also add `ALTER TABLE` migration to the `db.ts` initialization for existing databases. In `server/database/db.ts`, after the existing table creation statements in the `initDb` function, add:
 
 ```typescript
-    // Migration: add expires_at column if it doesn't exist (Phase 2)
-    try { db.run("ALTER TABLE sessions ADD COLUMN expires_at TEXT") } catch {}
+// Migration: add expires_at column if it doesn't exist (Phase 2)
+try {
+  db.run('ALTER TABLE sessions ADD COLUMN expires_at TEXT')
+} catch {}
 ```
 
 - [ ] **Step 2: Create hashPin and verifyPin in auth.ts**
@@ -2337,16 +2784,17 @@ export function isLegacyPin(stored: string): boolean {
 export function createSessionToken(profileId: number): string {
   const token = randomBytes(24).toString('hex')
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-  dbRun('INSERT INTO sessions (profile_id, token, expires_at) VALUES (?, ?, ?)', [profileId, token, expiresAt])
+  dbRun('INSERT INTO sessions (profile_id, token, expires_at) VALUES (?, ?, ?)', [
+    profileId,
+    token,
+    expiresAt,
+  ])
   return token
 }
 
 export function getProfileIdFromToken(token: string): number | null {
   if (!token) return null
-  const session = dbGet(
-    'SELECT profile_id, expires_at FROM sessions WHERE token = ?',
-    [token]
-  )
+  const session = dbGet('SELECT profile_id, expires_at FROM sessions WHERE token = ?', [token])
   if (!session) return null
 
   // Check expiry
@@ -2368,7 +2816,7 @@ export function deleteSession(token: string): void {
 
 export function cleanupExpiredSessions(): void {
   const now = new Date().toISOString()
-  dbRun("DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < ?", [now])
+  dbRun('DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < ?', [now])
 }
 ```
 
@@ -2380,10 +2828,16 @@ Replace `server/api/auth/login.post.ts` with:
 
 ```typescript
 import { dbGet, dbRun } from '../../database/db'
-import { createSessionToken, hashPin, verifyPin, isLegacyPin, cleanupExpiredSessions } from '../../utils/auth'
+import {
+  createSessionToken,
+  hashPin,
+  verifyPin,
+  isLegacyPin,
+  cleanupExpiredSessions,
+} from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody(event)
   let { nickname, pin } = body || {}
   nickname = nickname?.trim() ?? ''
@@ -2435,7 +2889,7 @@ import { dbGet, dbRun } from '../../database/db'
 import { createSessionToken, hashPin } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody(event)
   let { nickname, pin } = body || {}
   nickname = nickname?.trim() ?? ''
@@ -2487,6 +2941,7 @@ curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"nickname":"phase2-test","pin":"1234"}'
 ```
+
 Expected: Success with token and profile (verify PIN is NOT in response)
 
 ```bash
@@ -2495,6 +2950,7 @@ curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"nickname":"phase2-test","pin":"1234"}'
 ```
+
 Expected: Success
 
 ```bash
@@ -2503,9 +2959,11 @@ curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"nickname":"phase2-test","pin":"0000"}'
 ```
+
 Expected: 401 error
 
 Check `xuanxue.db` using sqlite3 CLI (or re-read with dev tools):
+
 ```bash
 # Verify PIN is hashed (contains ':')
 node -e "
@@ -2528,6 +2986,7 @@ git commit -m "feat: add PIN hashing (scrypt), session expiry, and legacy migrat
 ### Task 9: Security — Rate limiting + security logging
 
 **Files:**
+
 - Create: `server/utils/rateLimit.ts`
 - Create: `server/utils/securityLog.ts`
 - Modify: `server/api/auth/login.post.ts`
@@ -2618,13 +3077,15 @@ export function logSecurityEvent(
   eventType: SecurityEventType,
   profileId: number | null,
   ip: string,
-  details?: string
+  details?: string,
 ): void {
   try {
-    dbRun(
-      'INSERT INTO security_log (event_type, profile_id, ip, details) VALUES (?, ?, ?, ?)',
-      [eventType, profileId, ip, details || null]
-    )
+    dbRun('INSERT INTO security_log (event_type, profile_id, ip, details) VALUES (?, ?, ?, ?)', [
+      eventType,
+      profileId,
+      ip,
+      details || null,
+    ])
   } catch (err) {
     // Security logging is best-effort — don't throw
     console.error('Security log write failed:', err)
@@ -2642,24 +3103,25 @@ import { logSecurityEvent } from '../../utils/securityLog'
 
 // ... inside the handler, after PIN validation:
 
-  // Rate limiting: 5 attempts per minute per IP
-  const clientIp = getClientIp(event)
-  if (!checkRateLimit(`login:${clientIp}`, 5, 60000)) {
-    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Login rate limit exceeded')
-    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
-  }
+// Rate limiting: 5 attempts per minute per IP
+const clientIp = getClientIp(event)
+if (!checkRateLimit(`login:${clientIp}`, 5, 60000)) {
+  logSecurityEvent('rate_limit_triggered', null, clientIp, 'Login rate limit exceeded')
+  throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
+}
 ```
 
 And before the success return, add:
 
 ```typescript
-  logSecurityEvent('login_success', profile.id as number, clientIp, `User ${nickname} logged in`)
+logSecurityEvent('login_success', profile.id as number, clientIp, `User ${nickname} logged in`)
 ```
 
 Inside the 401 error handler, add:
+
 ```typescript
-  // Before throwing 401
-  logSecurityEvent('login_failed', null, clientIp, `Failed login attempt for ${nickname}`)
+// Before throwing 401
+logSecurityEvent('login_failed', null, clientIp, `Failed login attempt for ${nickname}`)
 ```
 
 - [ ] **Step 4: Apply rate limiting to register.post.ts**
@@ -2672,18 +3134,23 @@ import { logSecurityEvent } from '../../utils/securityLog'
 
 // ... inside the handler:
 
-  // Rate limiting: 3 attempts per minute per IP
-  const clientIp = getClientIp(event)
-  if (!checkRateLimit(`register:${clientIp}`, 3, 60000)) {
-    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Register rate limit exceeded')
-    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
-  }
+// Rate limiting: 3 attempts per minute per IP
+const clientIp = getClientIp(event)
+if (!checkRateLimit(`register:${clientIp}`, 3, 60000)) {
+  logSecurityEvent('rate_limit_triggered', null, clientIp, 'Register rate limit exceeded')
+  throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
+}
 ```
 
 And after successful registration:
 
 ```typescript
-  logSecurityEvent('register', result.lastInsertRowid as number, clientIp, `New user ${nickname} registered`)
+logSecurityEvent(
+  'register',
+  result.lastInsertRowid as number,
+  clientIp,
+  `New user ${nickname} registered`,
+)
 ```
 
 - [ ] **Step 5: Apply rate limiting to profiles/[id].put.ts**
@@ -2695,11 +3162,11 @@ import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 
 // ... inside the handler, after the token/profile auth check:
 
-  // Rate limiting: 10 updates per minute per profile
-  const clientIp = getClientIp(event)
-  if (!checkRateLimit(`profile-update:${id}`, 10, 60000)) {
-    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
-  }
+// Rate limiting: 10 updates per minute per profile
+const clientIp = getClientIp(event)
+if (!checkRateLimit(`profile-update:${id}`, 10, 60000)) {
+  throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
+}
 ```
 
 - [ ] **Step 6: Verify rate limiting**
@@ -2715,6 +3182,7 @@ for i in $(seq 1 6); do
   echo ""
 done
 ```
+
 Expected: First 5 return 401 errors, 6th returns 429 rate limit error.
 
 - [ ] **Step 7: Commit**
@@ -2732,41 +3200,42 @@ git commit -m "feat: add rate limiting and security logging across auth and prof
 
 Check each section/requirement from the design spec and map to a task:
 
-| Spec Section | Requirement | Task(s) |
-|---|---|---|
-| 二、Design tokens | wuxing-* colors | Task 1 Step 1 (tailwind config) |
-| 二、Card styles | compat-great/good bg/text | Task 1 Step 2 (CSS), Task 6 Step 4 (CompatibilityGrid) |
-| 二、yiyi-border | 3px green/gray border | Task 1 Step 2 (CSS yiyi-border) |
-| 三、3.1 Routes | `/tools/shengxiao`, `/tools/constellation` | Task 6, Task 7 |
-| 三、3.2 Navigation | Tool nav bar in top bar | Task 3 Step 1 (layout) |
-| 三、3.2 Locked tools | Gray with `*`, `opacity: 0.6` | Task 3 Step 1 (`nav-link--locked` CSS + layout) |
-| 三、3.3 Breakpoints | >=1024 sidebar, <640 column | Task 2 Step 2 (ToolPageLayout responsive classes) |
-| 四、4.1 Data source | Profile `birth_date` and `birth_calendar` | Task 6 Step 6 (page reads profile) |
-| 四、4.2 Page layout | Hero + WuXing + Personality + Fortune + Compatibility + Nav | Task 6 all steps |
-| 四、4.3 Data structure | `ShengXiaoResult` interface | Task 4 Step 3 (useShengXiao.ts) |
-| 四、4.4 Calculation | Animal = `(year-4)%12`, Stem = `(year-4)%10`, WuXing table, NaYin 60-table, Compatibility rules, Fortune algorithm | Task 4 Step 3 (all lookup tables + compute functions) |
-| 四、4.5 Components | ShengXiaoHero, WuXingGrid, PersonalityCard, FortuneBars, CompatibilityGrid, AnimalNav | Task 6 Steps 1-5 |
-| 五、5.1 Page layout | Horoscope + YiJi + Compatibility + Hero | Task 7 all steps |
-| 五、5.2 Data structure | `ConstellationResult` interface | Task 5 Step 3 (useConstellation.ts) |
-| 五、5.3 Calculation | Zodiac date ranges, deterministic horoscope, Yi/Ji selection, element compatibility | Task 5 Step 3 |
-| 五、5.4 Components | ConstellationHero, HoroscopePanel, YiJiPanel, ConstellationNav | Task 7 Steps 1-4 |
-| 六、Common components | InkDivider, FortuneBars, ToolPageLayout, PageHero | Task 2 Steps 1-4 |
-| 七、7.1 PIN hashing | scrypt hash, verify, legacy migration | Task 8 Steps 2-4 |
-| 七、7.2 Rate limiting | 5/min login, 3/min register, 10/min profile update | Task 9 Steps 1, 3-5 |
-| 七、7.3 CSP | Security headers in nuxt.config | Task 1 Step 6 |
-| 七、7.4 Session expiry | `expires_at`, 7-day expiry, cleanup | Task 8 Steps 1-2 |
-| 七、7.5 Security log | `security_log` table, login/logout/rate-limit events | Task 8 Step 1, Task 9 Steps 2-4 |
-| 八、Skeleton screens | SkeletonCard, SkeletonBars with `animate-pulse` | Task 2 Steps 5-6 |
-| 九、Index page changes | Unlock shengxiao + constellation cards | Task 3 Step 2 |
-| 十、Animation | Staggered fadeIn (50ms-500ms delays), fortune bar animation | Task 2 (fade-in CSS), Task 6/7 components (inline styles with --delay) |
-| 十、Compatibility hover | Hover: translateY, border/color changes | Task 6 Step 4 (hover classes) |
-| 十一、Future tools | Nav placeholders (gray, locked) for bazi/yijing/ziwei | Task 3 Step 1 (navTools array) |
+| Spec Section            | Requirement                                                                                                        | Task(s)                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| 二、Design tokens       | wuxing-\* colors                                                                                                   | Task 1 Step 1 (tailwind config)                                        |
+| 二、Card styles         | compat-great/good bg/text                                                                                          | Task 1 Step 2 (CSS), Task 6 Step 4 (CompatibilityGrid)                 |
+| 二、yiyi-border         | 3px green/gray border                                                                                              | Task 1 Step 2 (CSS yiyi-border)                                        |
+| 三、3.1 Routes          | `/tools/shengxiao`, `/tools/constellation`                                                                         | Task 6, Task 7                                                         |
+| 三、3.2 Navigation      | Tool nav bar in top bar                                                                                            | Task 3 Step 1 (layout)                                                 |
+| 三、3.2 Locked tools    | Gray with `*`, `opacity: 0.6`                                                                                      | Task 3 Step 1 (`nav-link--locked` CSS + layout)                        |
+| 三、3.3 Breakpoints     | >=1024 sidebar, <640 column                                                                                        | Task 2 Step 2 (ToolPageLayout responsive classes)                      |
+| 四、4.1 Data source     | Profile `birth_date` and `birth_calendar`                                                                          | Task 6 Step 6 (page reads profile)                                     |
+| 四、4.2 Page layout     | Hero + WuXing + Personality + Fortune + Compatibility + Nav                                                        | Task 6 all steps                                                       |
+| 四、4.3 Data structure  | `ShengXiaoResult` interface                                                                                        | Task 4 Step 3 (useShengXiao.ts)                                        |
+| 四、4.4 Calculation     | Animal = `(year-4)%12`, Stem = `(year-4)%10`, WuXing table, NaYin 60-table, Compatibility rules, Fortune algorithm | Task 4 Step 3 (all lookup tables + compute functions)                  |
+| 四、4.5 Components      | ShengXiaoHero, WuXingGrid, PersonalityCard, FortuneBars, CompatibilityGrid, AnimalNav                              | Task 6 Steps 1-5                                                       |
+| 五、5.1 Page layout     | Horoscope + YiJi + Compatibility + Hero                                                                            | Task 7 all steps                                                       |
+| 五、5.2 Data structure  | `ConstellationResult` interface                                                                                    | Task 5 Step 3 (useConstellation.ts)                                    |
+| 五、5.3 Calculation     | Zodiac date ranges, deterministic horoscope, Yi/Ji selection, element compatibility                                | Task 5 Step 3                                                          |
+| 五、5.4 Components      | ConstellationHero, HoroscopePanel, YiJiPanel, ConstellationNav                                                     | Task 7 Steps 1-4                                                       |
+| 六、Common components   | InkDivider, FortuneBars, ToolPageLayout, PageHero                                                                  | Task 2 Steps 1-4                                                       |
+| 七、7.1 PIN hashing     | scrypt hash, verify, legacy migration                                                                              | Task 8 Steps 2-4                                                       |
+| 七、7.2 Rate limiting   | 5/min login, 3/min register, 10/min profile update                                                                 | Task 9 Steps 1, 3-5                                                    |
+| 七、7.3 CSP             | Security headers in nuxt.config                                                                                    | Task 1 Step 6                                                          |
+| 七、7.4 Session expiry  | `expires_at`, 7-day expiry, cleanup                                                                                | Task 8 Steps 1-2                                                       |
+| 七、7.5 Security log    | `security_log` table, login/logout/rate-limit events                                                               | Task 8 Step 1, Task 9 Steps 2-4                                        |
+| 八、Skeleton screens    | SkeletonCard, SkeletonBars with `animate-pulse`                                                                    | Task 2 Steps 5-6                                                       |
+| 九、Index page changes  | Unlock shengxiao + constellation cards                                                                             | Task 3 Step 2                                                          |
+| 十、Animation           | Staggered fadeIn (50ms-500ms delays), fortune bar animation                                                        | Task 2 (fade-in CSS), Task 6/7 components (inline styles with --delay) |
+| 十、Compatibility hover | Hover: translateY, border/color changes                                                                            | Task 6 Step 4 (hover classes)                                          |
+| 十一、Future tools      | Nav placeholders (gray, locked) for bazi/yijing/ziwei                                                              | Task 3 Step 1 (navTools array)                                         |
 
 **No gaps found.** Every spec requirement maps to at least one task step.
 
 ### Placeholder Scan
 
 Search the plan for the following forbidden patterns:
+
 - "TBD", "TODO", "implement later" — **none found**
 - "Add appropriate error handling" / "add validation" — **none found**
 - "Write tests for the above" (without actual test code) — **none found** (all tests have complete code)

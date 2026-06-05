@@ -37,28 +37,29 @@
 
 ## 阶段状态
 
-| 阶段 | 名称 | 状态 | 分支 |
-|------|------|------|------|
-| Phase 1 | 基础系统（Auth + SQLite + 登录/注册） | ✅ 完成 | `main` |
-| Phase 2 | 生肖 + 星座工具 | ✅ 完成 | `main` |
-| Phase 3 | 八字排盘 | ✅ 完成 | `main` |
-| Phase 4 | 八字增强（神煞/流年/大运） | ✅ 完成 | `main` |
-| Phase 5 | 六爻占卜 | ✅ 完成 | `main` |
-| Phase 6 | 紫微斗数 | ✅ 完成 | `main` |
-| — | 紫微天星图重设计 | ✅ 完成 | `main` |
-| — | 设计系统落地（玄·道品牌） | ✅ 完成 | `main` |
-| — | 工具页面视觉适配 | ✅ 完成 | `main` |
-| — | 纸纹纹理确认 | ✅ 完成 | `main` |
-| — | Batch 4A（八字增强 + 紫微补齐 + 配对解释） | ✅ 完成 | `main` |
-| — | Batch 4B（星座星盘） | ✅ 完成 | `main` |
-| — | Batch 1（太岁关系 + 月亮星座 + 流年签） | ✅ 完成 | `main` |
-| — | Batch 2（化太岁 + 纳音性格 + 本命佛） | ✅ 完成 | `main` |
-| — | Batch 3（八字合婚 + 姓名测试） | ✅ 完成 | `main` |
-| Phase 7+ | Batch 5（测字/月运/用户系统/导出/择吉日） | ✅ 完成 | `main` |
+| 阶段     | 名称                                       | 状态    | 分支   |
+| -------- | ------------------------------------------ | ------- | ------ |
+| Phase 1  | 基础系统（Auth + SQLite + 登录/注册）      | ✅ 完成 | `main` |
+| Phase 2  | 生肖 + 星座工具                            | ✅ 完成 | `main` |
+| Phase 3  | 八字排盘                                   | ✅ 完成 | `main` |
+| Phase 4  | 八字增强（神煞/流年/大运）                 | ✅ 完成 | `main` |
+| Phase 5  | 六爻占卜                                   | ✅ 完成 | `main` |
+| Phase 6  | 紫微斗数                                   | ✅ 完成 | `main` |
+| —        | 紫微天星图重设计                           | ✅ 完成 | `main` |
+| —        | 设计系统落地（玄·道品牌）                  | ✅ 完成 | `main` |
+| —        | 工具页面视觉适配                           | ✅ 完成 | `main` |
+| —        | 纸纹纹理确认                               | ✅ 完成 | `main` |
+| —        | Batch 4A（八字增强 + 紫微补齐 + 配对解释） | ✅ 完成 | `main` |
+| —        | Batch 4B（星座星盘）                       | ✅ 完成 | `main` |
+| —        | Batch 1（太岁关系 + 月亮星座 + 流年签）    | ✅ 完成 | `main` |
+| —        | Batch 2（化太岁 + 纳音性格 + 本命佛）      | ✅ 完成 | `main` |
+| —        | Batch 3（八字合婚 + 姓名测试）             | ✅ 完成 | `main` |
+| Phase 7+ | Batch 5（测字/月运/用户系统/导出/择吉日）  | ✅ 完成 | `main` |
 
 ## 设计系统落地范围
 
 ### 已实现（feat/design-system-rollout）
+
 - [x] tailwind.config.ts 色板扩展（cinnabar-deeper/deepest, paper-card）
 - [x] main.css 组件类（30+ 新类：btn-cin, seal-icon, card-warm, tool-card--new, anim-rise…）
 - [x] index.vue 重设计（英雄区 + 工具卡片 + 命盘预览 + 运势签 + 命簿卡片 + footer）
@@ -75,18 +76,18 @@
 
 ## 参考文档
 
-| 文档 | 路径 |
-|------|------|
-| 设计系统规范 | [`specs/2026-05-31-xuandao-design-system.md`](specs/2026-05-31-xuandao-design-system.md) |
-| 概念参考稿 | [`concepts/talisman-aesthetic.html`](../concepts/talisman-aesthetic.html) |
-| Phase 1 计划 | [`plans/2026-05-24-phase-1-base-system.md`](plans/2026-05-24-phase-1-base-system.md) |
-| Phase 2 计划 | [`plans/2026-05-25-phase-2-shengxiao-constellation.md`](plans/2026-05-25-phase-2-shengxiao-constellation.md) |
-| Phase 3 计划 | [`plans/2026-05-25-phase-3-bazi.md`](plans/2026-05-25-phase-3-bazi.md) |
-| Phase 4 计划 | [`plans/2026-05-25-phase-4-bazi-enhancement.md`](plans/2026-05-25-phase-4-bazi-enhancement.md) |
-| Phase 5 计划 | [`plans/2026-05-26-phase-5-yijing-divination.md`](plans/2026-05-26-phase-5-yijing-divination.md) |
-| Phase 6 计划 | [`plans/2026-05-26-phase-6-ziwei-implementation.md`](plans/2026-05-26-phase-6-ziwei-implementation.md) |
-| 紫微天星图重设计 | [`plans/2026-05-31-ziwei-celestial-redesign.md`](plans/2026-05-31-ziwei-celestial-redesign.md) |
-| Batch 4A 计划 | [`plans/2026-06-04-batch-4a-bazi-ziwei-pairing.md`](plans/2026-06-04-batch-4a-bazi-ziwei-pairing.md) |
-| Batch 4B 设计 | [`specs/2026-06-04-batch-4b-constellation-natal-chart-design.md`](specs/2026-06-04-batch-4b-constellation-natal-chart-design.md) |
-| Batch 4B 计划 | [`plans/2026-06-04-batch-4b-constellation-natal-chart.md`](plans/2026-06-04-batch-4b-constellation-natal-chart.md) |
-| Phase 7+ 路线图 | [`plans/2026-05-31-xuandao-phase-7-plus-roadmap.md`](plans/2026-05-31-xuandao-phase-7-plus-roadmap.md) |
+| 文档             | 路径                                                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 设计系统规范     | [`specs/2026-05-31-xuandao-design-system.md`](specs/2026-05-31-xuandao-design-system.md)                                         |
+| 概念参考稿       | [`concepts/talisman-aesthetic.html`](../concepts/talisman-aesthetic.html)                                                        |
+| Phase 1 计划     | [`plans/2026-05-24-phase-1-base-system.md`](plans/2026-05-24-phase-1-base-system.md)                                             |
+| Phase 2 计划     | [`plans/2026-05-25-phase-2-shengxiao-constellation.md`](plans/2026-05-25-phase-2-shengxiao-constellation.md)                     |
+| Phase 3 计划     | [`plans/2026-05-25-phase-3-bazi.md`](plans/2026-05-25-phase-3-bazi.md)                                                           |
+| Phase 4 计划     | [`plans/2026-05-25-phase-4-bazi-enhancement.md`](plans/2026-05-25-phase-4-bazi-enhancement.md)                                   |
+| Phase 5 计划     | [`plans/2026-05-26-phase-5-yijing-divination.md`](plans/2026-05-26-phase-5-yijing-divination.md)                                 |
+| Phase 6 计划     | [`plans/2026-05-26-phase-6-ziwei-implementation.md`](plans/2026-05-26-phase-6-ziwei-implementation.md)                           |
+| 紫微天星图重设计 | [`plans/2026-05-31-ziwei-celestial-redesign.md`](plans/2026-05-31-ziwei-celestial-redesign.md)                                   |
+| Batch 4A 计划    | [`plans/2026-06-04-batch-4a-bazi-ziwei-pairing.md`](plans/2026-06-04-batch-4a-bazi-ziwei-pairing.md)                             |
+| Batch 4B 设计    | [`specs/2026-06-04-batch-4b-constellation-natal-chart-design.md`](specs/2026-06-04-batch-4b-constellation-natal-chart-design.md) |
+| Batch 4B 计划    | [`plans/2026-06-04-batch-4b-constellation-natal-chart.md`](plans/2026-06-04-batch-4b-constellation-natal-chart.md)               |
+| Phase 7+ 路线图  | [`plans/2026-05-31-xuandao-phase-7-plus-roadmap.md`](plans/2026-05-31-xuandao-phase-7-plus-roadmap.md)                           |

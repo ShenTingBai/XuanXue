@@ -34,11 +34,14 @@ const hourOptions = [
   { label: '亥时 (21:00-22:59)', value: 21 },
 ]
 
-watch(() => props.show, (val) => {
-  if (val) {
-    resetForm()
-  }
-})
+watch(
+  () => props.show,
+  val => {
+    if (val) {
+      resetForm()
+    }
+  },
+)
 
 function resetForm() {
   nickname.value = ''
@@ -123,19 +126,31 @@ async function handleSubmit() {
           <div class="flex items-center justify-between mb-6">
             <h2 class="font-display text-xl text-ink-dark tracking-[0.15em]">添加档案</h2>
             <button
-              @click="emit('close')"
               class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-cinnabar/10 transition-all"
               aria-label="关闭"
+              @click="emit('close')"
             >
-              <svg aria-hidden="true" class="w-4 h-4 text-ink-medium" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <svg
+                aria-hidden="true"
+                class="w-4 h-4 text-ink-medium"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              >
                 <path d="M5 5l10 10M15 5l-10 10" />
               </svg>
             </button>
           </div>
 
-          <form @submit.prevent="handleSubmit" class="space-y-6">
+          <form class="space-y-6" @submit.prevent="handleSubmit">
             <!-- Error -->
-            <div v-if="error" class="card-warm rounded-lg p-3 border border-cinnabar/15" role="alert">
+            <div
+              v-if="error"
+              class="card-warm rounded-lg p-3 border border-cinnabar/15"
+              role="alert"
+            >
               <p class="text-sm text-cinnabar">{{ error }}</p>
             </div>
 
@@ -160,26 +175,64 @@ async function handleSubmit() {
               <span class="block text-sm text-ink-medium mb-2">性别</span>
               <div class="flex gap-5" role="radiogroup" aria-label="性别">
                 <label class="flex items-center gap-2 cursor-pointer group">
-                  <input v-model="gender" type="radio" name="add-gender" :value="null" class="sr-only" />
-                  <span class="radio-custom" :class="{ 'radio-custom--checked': !gender }" aria-hidden="true" />
-                  <span :class="['text-sm', !gender ? 'text-cinnabar' : 'text-ink-medium']">未设置</span>
+                  <input
+                    v-model="gender"
+                    type="radio"
+                    name="add-gender"
+                    :value="null"
+                    class="sr-only"
+                  />
+                  <span
+                    class="radio-custom"
+                    :class="{ 'radio-custom--checked': !gender }"
+                    aria-hidden="true"
+                  />
+                  <span :class="['text-sm', !gender ? 'text-cinnabar' : 'text-ink-medium']"
+                    >未设置</span
+                  >
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer group">
-                  <input v-model="gender" type="radio" name="add-gender" value="男" class="sr-only" />
-                  <span class="radio-custom" :class="{ 'radio-custom--checked': gender === '男' }" aria-hidden="true" />
-                  <span :class="['text-sm', gender === '男' ? 'text-cinnabar' : 'text-ink-medium']">男</span>
+                  <input
+                    v-model="gender"
+                    type="radio"
+                    name="add-gender"
+                    value="男"
+                    class="sr-only"
+                  />
+                  <span
+                    class="radio-custom"
+                    :class="{ 'radio-custom--checked': gender === '男' }"
+                    aria-hidden="true"
+                  />
+                  <span :class="['text-sm', gender === '男' ? 'text-cinnabar' : 'text-ink-medium']"
+                    >男</span
+                  >
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer group">
-                  <input v-model="gender" type="radio" name="add-gender" value="女" class="sr-only" />
-                  <span class="radio-custom" :class="{ 'radio-custom--checked': gender === '女' }" aria-hidden="true" />
-                  <span :class="['text-sm', gender === '女' ? 'text-cinnabar' : 'text-ink-medium']">女</span>
+                  <input
+                    v-model="gender"
+                    type="radio"
+                    name="add-gender"
+                    value="女"
+                    class="sr-only"
+                  />
+                  <span
+                    class="radio-custom"
+                    :class="{ 'radio-custom--checked': gender === '女' }"
+                    aria-hidden="true"
+                  />
+                  <span :class="['text-sm', gender === '女' ? 'text-cinnabar' : 'text-ink-medium']"
+                    >女</span
+                  >
                 </label>
               </div>
             </div>
 
             <!-- Birth date -->
             <div>
-              <label for="add-profile-birth-date" class="block text-sm text-ink-medium mb-2">出生日期</label>
+              <label for="add-profile-birth-date" class="block text-sm text-ink-medium mb-2"
+                >出生日期</label
+              >
               <div class="flex gap-3">
                 <input
                   id="add-profile-birth-date"
@@ -204,13 +257,11 @@ async function handleSubmit() {
 
             <!-- Birth time -->
             <div>
-              <label for="add-profile-birth-hour" class="block text-sm text-ink-medium mb-2">出生时辰</label>
+              <label for="add-profile-birth-hour" class="block text-sm text-ink-medium mb-2"
+                >出生时辰</label
+              >
               <div class="flex gap-3">
-                <select
-                  id="add-profile-birth-hour"
-                  v-model="birthHour"
-                  class="input-warm flex-1"
-                >
+                <select id="add-profile-birth-hour" v-model="birthHour" class="input-warm flex-1">
                   <option :value="null">— 未知 —</option>
                   <option v-for="opt in hourOptions" :key="opt.value" :value="opt.value">
                     {{ opt.label }}
@@ -233,7 +284,7 @@ async function handleSubmit() {
               <button type="submit" :disabled="saving" class="btn-cin text-sm px-6 py-2.5">
                 {{ saving ? '创建中…' : '创建档案' }}
               </button>
-              <button type="button" @click="emit('close')" class="btn-ink text-sm px-6 py-2.5">
+              <button type="button" class="btn-ink text-sm px-6 py-2.5" @click="emit('close')">
                 取消
               </button>
             </div>
@@ -246,10 +297,13 @@ async function handleSubmit() {
 
 <style scoped>
 .radio-custom {
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 2px solid var(--color-ink-faint);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
 }
 .radio-custom--checked {
@@ -257,7 +311,8 @@ async function handleSubmit() {
 }
 .radio-custom--checked::after {
   content: '';
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--color-cinnabar);
 }

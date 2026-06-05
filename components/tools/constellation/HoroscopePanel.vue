@@ -12,8 +12,11 @@
     </p>
 
     <!-- Scoring basis note -->
-    <p class="mt-3 pt-3 border-t border-ink-faint/15 font-sans text-xs text-ink-medium leading-relaxed">
-      评分依据：日相（太阳过宫方位）提供季节基调，月相（月球黄经位置）驱动每日波动，元素共振调节情感与行动倾向。基准 50 分，相位 ±20 分，元素 ±6 分，压缩至 0-100 区间。
+    <p
+      class="mt-3 pt-3 border-t border-ink-faint/15 font-sans text-xs text-ink-medium leading-relaxed"
+    >
+      评分依据：日相（太阳过宫方位）提供季节基调，月相（月球黄经位置）驱动每日波动，元素共振调节情感与行动倾向。基准
+      50 分，相位 ±20 分，元素 ±6 分，压缩至 0-100 区间。
     </p>
   </div>
 </template>
@@ -58,12 +61,20 @@ const interpretation = computed(() => {
   // Highlight extremes
   const maxScore = Math.max(o, l, c, w, h)
   const minScore = Math.min(o, l, c, w, h)
-  const labels: Record<string, string> = { overall: '综合', love: '爱情', career: '事业', wealth: '财运', health: '健康' }
+  const labels: Record<string, string> = {
+    overall: '综合',
+    love: '爱情',
+    career: '事业',
+    wealth: '财运',
+    health: '健康',
+  }
 
-  const maxLabel = Object.entries({ overall: o, love: l, career: c, wealth: w, health: h })
-    .find(([, v]) => v === maxScore)?.[0]
-  const minLabel = Object.entries({ overall: o, love: l, career: c, wealth: w, health: h })
-    .find(([, v]) => v === minScore)?.[0]
+  const maxLabel = Object.entries({ overall: o, love: l, career: c, wealth: w, health: h }).find(
+    ([, v]) => v === maxScore,
+  )?.[0]
+  const minLabel = Object.entries({ overall: o, love: l, career: c, wealth: w, health: h }).find(
+    ([, v]) => v === minScore,
+  )?.[0]
 
   if (maxScore >= 70 && maxLabel) {
     parts.push(`${labels[maxLabel]}运势最佳，可重点投入此领域。`)

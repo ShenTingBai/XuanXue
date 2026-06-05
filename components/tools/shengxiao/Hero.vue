@@ -1,7 +1,9 @@
 <template>
   <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.05s' }">
     <div class="flex items-start gap-4 sm:gap-6">
-      <span class="flex-shrink-0 text-5xl sm:text-6xl" aria-hidden="true">{{ result.animalEmoji }}</span>
+      <span class="flex-shrink-0 text-5xl sm:text-6xl" aria-hidden="true">{{
+        result.animalEmoji
+      }}</span>
       <div class="min-w-0">
         <h1 class="font-display text-3xl sm:text-4xl text-ink-dark">
           {{ result.animal }}
@@ -36,8 +38,10 @@
                 {{ taiSuiInterpretation(relations.primary) }}
               </p>
               <!-- Secondary positive note when negative dominates -->
-              <p v-if="relations.secondary"
-                class="font-sans text-[0.6875rem] text-jade mt-1.5 leading-relaxed">
+              <p
+                v-if="relations.secondary"
+                class="font-sans text-[0.6875rem] text-jade mt-1.5 leading-relaxed"
+              >
                 另得{{ relations.secondary }}之助
               </p>
             </div>
@@ -58,14 +62,14 @@ const props = defineProps<{
 const AUSPICIOUS_RELATIONS = new Set(['三合', '六合'])
 
 const TAI_SUI_INTERPRETATIONS: Record<string, string> = {
-  '三合': '与太岁三合，贵人运旺，诸事顺遂。宜积极拓展、把握机遇，可望有大成。',
-  '六合': '与太岁六合，人缘佳、合作顺。易得贵人提携，利人际与感情，百事亨通。',
-  '值太岁': '本命年值太岁，所谓"太岁当头坐，无喜必有祸"。运势波动较大，宜守不宜攻，凡事三思后行。',
-  '冲太岁': '与太岁相冲，易生大变——迁居、换职、关系动荡。谨言慎行，方可平稳过渡。',
-  '刑太岁': '与太岁相刑，防口舌是非、合同纠纷。待人宜宽、处事宜稳，莫争一时之气。',
-  '害太岁': '与太岁相害，防小人暗算、误会中伤。重要事务亲自确认，勿轻信他人。',
-  '破太岁': '与太岁相破，有小破财、计划受阻之象。影响较轻，细心谨慎即可化解。',
-  '平': '与太岁平和，无大起大落。按部就班，静水流深，亦是福气。',
+  三合: '与太岁三合，贵人运旺，诸事顺遂。宜积极拓展、把握机遇，可望有大成。',
+  六合: '与太岁六合，人缘佳、合作顺。易得贵人提携，利人际与感情，百事亨通。',
+  值太岁: '本命年值太岁，所谓"太岁当头坐，无喜必有祸"。运势波动较大，宜守不宜攻，凡事三思后行。',
+  冲太岁: '与太岁相冲，易生大变——迁居、换职、关系动荡。谨言慎行，方可平稳过渡。',
+  刑太岁: '与太岁相刑，防口舌是非、合同纠纷。待人宜宽、处事宜稳，莫争一时之气。',
+  害太岁: '与太岁相害，防小人暗算、误会中伤。重要事务亲自确认，勿轻信他人。',
+  破太岁: '与太岁相破，有小破财、计划受阻之象。影响较轻，细心谨慎即可化解。',
+  平: '与太岁平和，无大起大落。按部就班，静水流深，亦是福气。',
 }
 
 /** Derive primary (more impactful) and secondary TaiSui relation labels */
@@ -95,5 +99,4 @@ function taiSuiRelationClass(relation: string): string {
 function taiSuiInterpretation(relation: string): string {
   return TAI_SUI_INTERPRETATIONS[relation] || ''
 }
-
 </script>

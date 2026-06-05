@@ -12,11 +12,20 @@
 // ============================================================
 
 import {
-  TRIGRAM_NAMES, TRIGRAM_WUXING, PALACE_NAMES, PALACE_WUXING,
-  TRIGRAM_TO_PALACE, SHI_POSITIONS, BRANCH_WUXING,
-  HEXAGRAM_NAMES, HEXAGRAM_JUDGMENTS,
-  NA_JIA_INNER, NA_JIA_OUTER,
-  getSixRelation, SIX_SPIRITS, STEM_GROUPS,
+  TRIGRAM_NAMES,
+  TRIGRAM_WUXING,
+  PALACE_NAMES,
+  PALACE_WUXING,
+  TRIGRAM_TO_PALACE,
+  SHI_POSITIONS,
+  BRANCH_WUXING,
+  HEXAGRAM_NAMES,
+  HEXAGRAM_JUDGMENTS,
+  NA_JIA_INNER,
+  NA_JIA_OUTER,
+  getSixRelation,
+  SIX_SPIRITS,
+  STEM_GROUPS,
   LINE_JUDGMENTS,
 } from '~/constants/yijing'
 
@@ -25,15 +34,15 @@ import {
 // ============================
 
 export interface YaoResult {
-  value: number      // 6 (老阴), 7 (少阳), 8 (少阴), 9 (老阳)
+  value: number // 6 (老阴), 7 (少阳), 8 (少阴), 9 (老阳)
   isYang: boolean
   isChanging: boolean
   display: '老阴' | '少阳' | '少阴' | '老阳'
 }
 
 export interface ZhuangGuaLine {
-  position: number       // 1 (bottom) … 6 (top)
-  positionName: string   // 初/二/三/四/五/上 ＋ 九/六
+  position: number // 1 (bottom) … 6 (top)
+  positionName: string // 初/二/三/四/五/上 ＋ 九/六
   yao: YaoResult
   naJiaStem: string
   naJiaBranch: string
@@ -50,13 +59,13 @@ export interface HexagramInfo {
   name: string
   judgment: string
   palaceName: string
-  palaceIndex: number      // 0-7  乾兑离震巽坎艮坤
-  palacePosition: number   // 1-8  within palace
+  palaceIndex: number // 0-7  乾兑离震巽坎艮坤
+  palacePosition: number // 1-8  within palace
   palaceWuxing: string
   shiPosition: number
   yingPosition: number
-  yaoValues: number[]      // 6 numbers [6|7|8|9]
-  binary: string           // 6-char '0'/'1', bit 0 = line 1
+  yaoValues: number[] // 6 numbers [6|7|8|9]
+  binary: string // 6-char '0'/'1', bit 0 = line 1
 }
 
 export interface YijingResult {
@@ -76,7 +85,7 @@ export interface YijingResult {
 
 /** Compute a pseudo day stem index for 六神 assignment. */
 function getDayStemIndex(): number {
-  if (!import.meta.client) return 0  // SSR: return default
+  if (!import.meta.client) return 0 // SSR: return default
   const d = new Date()
   // Simplified: fixed offset from a known reference (2000-01-01 was a Saturday,
   // approximate stem index). For yi-jing divination this is decorative — exact
@@ -92,7 +101,6 @@ function getSixSpirits(startStemIndex: number): string[] {
   const startIdx = STEM_GROUPS[STEM_NAMES[startStemIndex]] ?? 0
   return Array.from({ length: 6 }, (_, i) => SIX_SPIRITS[(startIdx + i) % 6])
 }
-
 
 // ============================
 // Utility
@@ -112,7 +120,7 @@ function linesFromValue(v: number): number[] {
 }
 
 function binaryFromYaoValues(values: number[]): string {
-  return values.map(v => (v === 7 || v === 9) ? '1' : '0').join('')
+  return values.map(v => (v === 7 || v === 9 ? '1' : '0')).join('')
 }
 
 // ============================
@@ -120,7 +128,7 @@ function binaryFromYaoValues(values: number[]): string {
 // ============================
 
 interface PalaceHexagram {
-  upper: number   // trigram index 0-7
+  upper: number // trigram index 0-7
   lower: number
 }
 
@@ -167,7 +175,7 @@ const PALACE_LOOKUP = buildPalaceLookup()
 // ============================
 
 /** Injectable random function for deterministic testing. Defaults to Math.random. */
-export let randomFn = () => Math.random()
+export const randomFn = () => Math.random()
 
 /** Cast by tossing 3 coins 6 times. Returns [line1_value, ..., line6_value]. */
 export function castByCoin(): number[] {
@@ -189,12 +197,16 @@ export function castByCoin(): number[] {
  * @param lowerNum  1-8  -> lower trigram
  * @param movingNum 1-6  -> changing line position
  */
-export function castByNumbers(upperNum: number, lowerNum: number, movingNum: number): { values: number[]; changingLine: number } {
+export function castByNumbers(
+  upperNum: number,
+  lowerNum: number,
+  movingNum: number,
+): { values: number[]; changingLine: number } {
   // Map 1-8 to trigram indices (8=坤=0, 7=艮=4, 6=坎=2, 5=巽=6, 4=震=1, 3=离=5, 2=兑=3, 1=乾=7)
   // Apply Math.abs() before modulo per spec: negative numbers use absolute value
   const numToTrigram = [7, 3, 5, 1, 6, 2, 4, 0]
-  const upperIdx = numToTrigram[((Math.abs(upperNum) - 1) % 8 + 8) % 8]
-  const lowerIdx = numToTrigram[((Math.abs(lowerNum) - 1) % 8 + 8) % 8]
+  const upperIdx = numToTrigram[(((Math.abs(upperNum) - 1) % 8) + 8) % 8]
+  const lowerIdx = numToTrigram[(((Math.abs(lowerNum) - 1) % 8) + 8) % 8]
   const changeLine = Math.round(Math.abs(movingNum)) % 6 || 6
 
   // Convert trigrams to 3-bit values (bit0=bottom of trigram)
@@ -228,7 +240,7 @@ export function convertToYaoResults(values: number[]): YaoResult[] {
 /** Look up hexagram info from 6 yao values. */
 export function getHexagramInfo(values: number[]): HexagramInfo {
   const binary = binaryFromYaoValues(values)
-  const yinYang = values.map(v => (v === 7 || v === 9) ? 1 : 0)
+  const yinYang = values.map(v => (v === 7 || v === 9 ? 1 : 0))
   const lowerLines = [yinYang[0], yinYang[1], yinYang[2]]
   const upperLines = [yinYang[3], yinYang[4], yinYang[5]]
   const lowerTg = trigramFromLines(lowerLines)
@@ -258,14 +270,18 @@ export function getHexagramInfo(values: number[]): HexagramInfo {
 }
 
 /** Compute full Zhuang Gua line data. */
-export function getZhuangGuaLines(values: number[], hex: HexagramInfo, dayStemIndex?: number): ZhuangGuaLine[] {
+export function getZhuangGuaLines(
+  values: number[],
+  hex: HexagramInfo,
+  dayStemIndex?: number,
+): ZhuangGuaLine[] {
   const yaoResults = convertToYaoResults(values)
   const sixSpirits = getSixSpirits(dayStemIndex ?? getDayStemIndex())
   const pw = hex.palaceWuxing
 
   // Compute actual trigram indices from values (not hex.palaceIndex)
   // Na Jia is assigned per-trigram, not per-palace.
-  const yinYang = values.map(v => (v === 7 || v === 9) ? 1 : 0)
+  const yinYang = values.map(v => (v === 7 || v === 9 ? 1 : 0))
   const lowerLines_ = [yinYang[0], yinYang[1], yinYang[2]]
   const upperLines_ = [yinYang[3], yinYang[4], yinYang[5]]
   const lowerTg = trigramFromLines(lowerLines_)
@@ -276,7 +292,9 @@ export function getZhuangGuaLines(values: number[], hex: HexagramInfo, dayStemIn
     const isUpper = pos >= 4
     const naJiaIdx = pos - 1 - (isUpper ? 3 : 0)
     const palaceForNaJia = isUpper ? TRIGRAM_TO_PALACE[upperTg] : TRIGRAM_TO_PALACE[lowerTg]
-    const naJia = isUpper ? NA_JIA_OUTER[palaceForNaJia][naJiaIdx] : NA_JIA_INNER[palaceForNaJia][naJiaIdx]
+    const naJia = isUpper
+      ? NA_JIA_OUTER[palaceForNaJia][naJiaIdx]
+      : NA_JIA_INNER[palaceForNaJia][naJiaIdx]
     const branchWx = BRANCH_WUXING[naJia.branch] || '土'
 
     // Position name: standard Zhouyi format
@@ -317,9 +335,9 @@ export function getDerivedValues(values: number[]): number[] | null {
   const hasChanging = values.some(v => v === 6 || v === 9)
   if (!hasChanging) return null
   return values.map(v => {
-    if (v === 6) return 7  // old yin -> young yang
-    if (v === 9) return 8  // old yang -> young yin
-    return v               // unchanged
+    if (v === 6) return 7 // old yin -> young yang
+    if (v === 9) return 8 // old yang -> young yin
+    return v // unchanged
   })
 }
 
@@ -332,12 +350,16 @@ export function getHuGuaValues(values: number[]): number[] {
   const huUpper = [middle[1], middle[2], middle[3]]
   // Convert yang(7|9)=1, yin(6|8)=0
   const isYang = (v: number) => v === 7 || v === 9
-  const toValue = (v: number) => isYang(v) ? 7 : 8
+  const toValue = (v: number) => (isYang(v) ? 7 : 8)
   return [...huLower.map(toValue), ...huUpper.map(toValue)]
 }
 
 /** Calculate score (0-100) for the hexagram. */
-export function calculateYijingScore(values: number[], hex: HexagramInfo, lines: ZhuangGuaLine[]): number {
+export function calculateYijingScore(
+  values: number[],
+  hex: HexagramInfo,
+  lines: ZhuangGuaLine[],
+): number {
   const numChanging = values.filter(v => v === 6 || v === 9).length
   const numYang = values.filter(v => v === 7 || v === 9).length
 
@@ -345,13 +367,15 @@ export function calculateYijingScore(values: number[], hex: HexagramInfo, lines:
   let base = 50
 
   // Adjust for changing lines
-  if (numChanging === 0) base = 45    // 静卦 — 稳定但有停滞倾向
-  else if (numChanging === 1) base = 65  // 独动 — 变化聚焦
+  if (numChanging === 0)
+    base = 45 // 静卦 — 稳定但有停滞倾向
+  else if (numChanging === 1)
+    base = 65 // 独动 — 变化聚焦
   else if (numChanging === 2) base = 60
   else if (numChanging === 3) base = 50
   else if (numChanging === 4) base = 45
   else if (numChanging === 5) base = 40
-  else base = 35  // 6 changing — 完全改变
+  else base = 35 // 6 changing — 完全改变
 
   // Balance bonus: near 3:3 is ideal
   const balance = 3 - Math.abs(numYang - 3)
@@ -361,11 +385,21 @@ export function calculateYijingScore(values: number[], hex: HexagramInfo, lines:
   const changingLines = lines.filter(l => l.yao.isChanging)
   for (const line of changingLines) {
     switch (line.sixRelation) {
-      case '官鬼': base -= 8; break
-      case '妻财': base += 5; break
-      case '父母': base -= 3; break
-      case '子孙': base += 6; break
-      case '兄弟': base -= 5; break
+      case '官鬼':
+        base -= 8
+        break
+      case '妻财':
+        base += 5
+        break
+      case '父母':
+        base -= 3
+        break
+      case '子孙':
+        base += 6
+        break
+      case '兄弟':
+        base -= 5
+        break
     }
     // 世爻/应爻 adjustment
     if (line.isShi) base -= 10
@@ -374,8 +408,16 @@ export function calculateYijingScore(values: number[], hex: HexagramInfo, lines:
 
   // Shen-sha style adjustment from hexagram nature (rough: 乾=strong, 坤=stable, 屯=hard start, etc.)
   const name = hex.name
-  if (name.includes('泰') || name.includes('益') || name.includes('大有') || name.includes('谦')) base += 10
-  else if (name.includes('否') || name.includes('困') || name.includes('坎') || name.includes('剥') || name.includes('蹇')) base -= 8
+  if (name.includes('泰') || name.includes('益') || name.includes('大有') || name.includes('谦'))
+    base += 10
+  else if (
+    name.includes('否') ||
+    name.includes('困') ||
+    name.includes('坎') ||
+    name.includes('剥') ||
+    name.includes('蹇')
+  )
+    base -= 8
   else if (name.includes('讼') || name.includes('未济') || name.includes('蛊')) base -= 3
 
   // Clamp
@@ -421,7 +463,12 @@ function getTrigramIndices(binary: string): { upper: number; lower: number } {
 }
 
 /** Generate rule-based interpretation text (not AI-generated). */
-export function generateInterpretation(hex: HexagramInfo, score: number, numChanging: number, lines: ZhuangGuaLine[]): string {
+export function generateInterpretation(
+  hex: HexagramInfo,
+  score: number,
+  numChanging: number,
+  lines: ZhuangGuaLine[],
+): string {
   const texts: string[] = []
   const posLabels = ['初', '二', '三', '四', '五', '上']
 
@@ -433,9 +480,9 @@ export function generateInterpretation(hex: HexagramInfo, score: number, numChan
 
   texts.push(
     `本次占得「${hex.name}」。\n` +
-    `上卦为${upperSym.symbol}（${upperSym.character}），${upperSym.meaning}；` +
-    `下卦为${lowerSym.symbol}（${lowerSym.character}），${lowerSym.meaning}。\n` +
-    `此卦属${hex.palaceName}（五行${hex.palaceWuxing}），为${palacePosDesc.name}，${palacePosDesc.desc}。`
+      `上卦为${upperSym.symbol}（${upperSym.character}），${upperSym.meaning}；` +
+      `下卦为${lowerSym.symbol}（${lowerSym.character}），${lowerSym.meaning}。\n` +
+      `此卦属${hex.palaceName}（五行${hex.palaceWuxing}），为${palacePosDesc.name}，${palacePosDesc.desc}。`,
   )
 
   // ── 2. Judgment ──
@@ -446,11 +493,13 @@ export function generateInterpretation(hex: HexagramInfo, score: number, numChan
   // ── 3. Changing line analysis ──
   const changingLines = lines.filter(l => l.yao.isChanging)
   if (numChanging === 0) {
-    texts.push('▎爻动分析\n此卦静而不动，六爻无变。宜静守待时，以不变应万变。所问之事尚无明确变数，宜保持现状，观察事态发展。')
+    texts.push(
+      '▎爻动分析\n此卦静而不动，六爻无变。宜静守待时，以不变应万变。所问之事尚无明确变数，宜保持现状，观察事态发展。',
+    )
   } else {
-    const changeDetail = changingLines.map(l =>
-      `${l.positionName}（${l.sixRelation}·${l.sixSpirit}）：${l.judgment}`
-    ).join('\n')
+    const changeDetail = changingLines
+      .map(l => `${l.positionName}（${l.sixRelation}·${l.sixSpirit}）：${l.judgment}`)
+      .join('\n')
 
     const changeSummary =
       numChanging === 1
@@ -466,19 +515,19 @@ export function generateInterpretation(hex: HexagramInfo, score: number, numChan
   const shiPos = posLabels[hex.shiPosition - 1]
   const yingPos = posLabels[hex.yingPosition - 1]
   const shiYingMeanings: Record<string, string> = {
-    '初': '初爻为事情的开端，代表此事尚在初始阶段',
-    '二': '二爻代表自身和身边之事',
-    '三': '三爻代表家庭和内部事务',
-    '四': '四爻代表外部环境和社交',
-    '五': '五爻代表大事和重要决策',
-    '上': '上爻代表过往和远因',
+    初: '初爻为事情的开端，代表此事尚在初始阶段',
+    二: '二爻代表自身和身边之事',
+    三: '三爻代表家庭和内部事务',
+    四: '四爻代表外部环境和社交',
+    五: '五爻代表大事和重要决策',
+    上: '上爻代表过往和远因',
   }
   const shiMeaning = shiYingMeanings[shiPos] || ''
 
   texts.push(
     `▎世应关系\n` +
-    `「世」为自己（在${shiPos}爻，${shiMeaning}），「应」为对方或外部环境（在${yingPos}爻）。\n` +
-    `世应相${hex.shiPosition === hex.yingPosition ? '同，自相呼应，事在自身' : '对，表里相应，有参照或合作关系'}。`
+      `「世」为自己（在${shiPos}爻，${shiMeaning}），「应」为对方或外部环境（在${yingPos}爻）。\n` +
+      `世应相${hex.shiPosition === hex.yingPosition ? '同，自相呼应，事在自身' : '对，表里相应，有参照或合作关系'}。`,
   )
 
   // ── 5. Six relations dynamics (六亲动向) ──
@@ -487,10 +536,14 @@ export function generateInterpretation(hex: HexagramInfo, score: number, numChan
     const relationTexts: string[] = []
 
     if (sixRelations.includes('官鬼')) {
-      relationTexts.push('官鬼发动：主事业变动、职务升迁或官非之事。若临青龙，则为功名喜事；若临白虎，则需防是非')
+      relationTexts.push(
+        '官鬼发动：主事业变动、职务升迁或官非之事。若临青龙，则为功名喜事；若临白虎，则需防是非',
+      )
     }
     if (sixRelations.includes('妻财')) {
-      relationTexts.push('妻财发动：主财运有动、求财可成。若临青龙，财运顺遂；若临玄武，则防暗财纠纷')
+      relationTexts.push(
+        '妻财发动：主财运有动、求财可成。若临青龙，财运顺遂；若临玄武，则防暗财纠纷',
+      )
     }
     if (sixRelations.includes('父母')) {
       relationTexts.push('父母发动：主文书、契约、长辈之事。若为考试、签约之事，得父母爻动为吉')
@@ -540,23 +593,23 @@ export function generateInterpretation(hex: HexagramInfo, score: number, numChan
   if (score >= 70) {
     texts.push(
       `▎综合建议\n` +
-      `卦象评分 ${score} 分，整体吉顺。\n` +
-      `所求之事多有可为，天地人三才相合，宜顺势而为，积极进取。\n` +
-      `行动建议：把握时机，果断行动。可主动推进计划，机遇多于挑战。注意善待身边贵人，他日或有助益。`
+        `卦象评分 ${score} 分，整体吉顺。\n` +
+        `所求之事多有可为，天地人三才相合，宜顺势而为，积极进取。\n` +
+        `行动建议：把握时机，果断行动。可主动推进计划，机遇多于挑战。注意善待身边贵人，他日或有助益。`,
     )
   } else if (score >= 45) {
     texts.push(
       `▎综合建议\n` +
-      `卦象评分 ${score} 分，势态平缓。\n` +
-      `吉凶参半，宜审时度势，不可冒进亦不宜退缩。此卦多需耐心与等待，静观其变，待机而动。\n` +
-      `行动建议：保持现状，稳健推进。对重要决策可多征询意见，不宜独断专行。待时机明朗后再做定夺。`
+        `卦象评分 ${score} 分，势态平缓。\n` +
+        `吉凶参半，宜审时度势，不可冒进亦不宜退缩。此卦多需耐心与等待，静观其变，待机而动。\n` +
+        `行动建议：保持现状，稳健推进。对重要决策可多征询意见，不宜独断专行。待时机明朗后再做定夺。`,
     )
   } else {
     texts.push(
       `▎综合建议\n` +
-      `卦象评分 ${score} 分，势未顺畅。\n` +
-      `诸事宜谨慎，暂时不宜大举行动。此卦象提示需反思自身，劳心惕厉，方可化险为夷。\n` +
-      `行动建议：暂缓而行，以守为主。修身养性，积累实力。若所问之事非紧急，可待他日再占。`
+        `卦象评分 ${score} 分，势未顺畅。\n` +
+        `诸事宜谨慎，暂时不宜大举行动。此卦象提示需反思自身，劳心惕厉，方可化险为夷。\n` +
+        `行动建议：暂缓而行，以守为主。修身养性，积累实力。若所问之事非紧急，可待他日再占。`,
     )
   }
 
@@ -573,7 +626,8 @@ function getLineJudgment(hex: HexagramInfo, position: number): string {
     return lines[position - 1]
   }
   const posLabels = ['初', '二', '三', '四', '五', '上']
-  const yangYin = (hex.yaoValues[position - 1] === 7 || hex.yaoValues[position - 1] === 9) ? '刚' : '柔'
+  const yangYin =
+    hex.yaoValues[position - 1] === 7 || hex.yaoValues[position - 1] === 9 ? '刚' : '柔'
   return `${posLabels[position - 1]}爻以${yangYin}居位，与时偕行。`
 }
 

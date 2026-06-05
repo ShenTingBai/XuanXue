@@ -45,6 +45,7 @@ tests/composables/
 ### Task A1: Extract shared nayin wuxing function
 
 **Files:**
+
 - Modify: `constants/bazi.ts`
 - Remove from: `constants/hehun.ts`
 
@@ -59,21 +60,66 @@ Copy the complete nayin logic from `constants/hehun.ts`. The hehun version looks
 
 /** 六十甲子纳音五行映射 — key = stem+branch (e.g. "甲乙"), value = 五行 */
 const NAYIN_WUXING_MAP: Record<string, string> = {
-  '甲子': '金', '乙丑': '金', '丙寅': '火', '丁卯': '火',
-  '戊辰': '木', '己巳': '木', '庚午': '土', '辛未': '土',
-  '壬申': '金', '癸酉': '金', '甲戌': '火', '乙亥': '火',
-  '丙子': '水', '丁丑': '水', '戊寅': '土', '己卯': '土',
-  '庚辰': '金', '辛巳': '金', '壬午': '木', '癸未': '木',
-  '甲申': '水', '乙酉': '水', '丙戌': '土', '丁亥': '土',
-  '戊子': '火', '己丑': '火', '庚寅': '木', '辛卯': '木',
-  '壬辰': '水', '癸巳': '水', '甲午': '金', '乙未': '金',
-  '丙申': '火', '丁酉': '火', '戊戌': '木', '己亥': '木',
-  '庚子': '土', '辛丑': '土', '壬寅': '金', '癸卯': '金',
-  '甲辰': '火', '乙巳': '火', '丙午': '水', '丁未': '水',
-  '戊申': '土', '己酉': '土', '庚戌': '金', '辛亥': '金',
-  '壬子': '木', '癸丑': '木', '甲寅': '水', '乙卯': '水',
-  '丙辰': '土', '丁巳': '土', '戊午': '火', '己未': '火',
-  '庚申': '木', '辛酉': '木', '壬戌': '水', '癸亥': '水',
+  甲子: '金',
+  乙丑: '金',
+  丙寅: '火',
+  丁卯: '火',
+  戊辰: '木',
+  己巳: '木',
+  庚午: '土',
+  辛未: '土',
+  壬申: '金',
+  癸酉: '金',
+  甲戌: '火',
+  乙亥: '火',
+  丙子: '水',
+  丁丑: '水',
+  戊寅: '土',
+  己卯: '土',
+  庚辰: '金',
+  辛巳: '金',
+  壬午: '木',
+  癸未: '木',
+  甲申: '水',
+  乙酉: '水',
+  丙戌: '土',
+  丁亥: '土',
+  戊子: '火',
+  己丑: '火',
+  庚寅: '木',
+  辛卯: '木',
+  壬辰: '水',
+  癸巳: '水',
+  甲午: '金',
+  乙未: '金',
+  丙申: '火',
+  丁酉: '火',
+  戊戌: '木',
+  己亥: '木',
+  庚子: '土',
+  辛丑: '土',
+  壬寅: '金',
+  癸卯: '金',
+  甲辰: '火',
+  乙巳: '火',
+  丙午: '水',
+  丁未: '水',
+  戊申: '土',
+  己酉: '土',
+  庚戌: '金',
+  辛亥: '金',
+  壬子: '木',
+  癸丑: '木',
+  甲寅: '水',
+  乙卯: '水',
+  丙辰: '土',
+  丁巳: '土',
+  戊午: '火',
+  己未: '火',
+  庚申: '木',
+  辛酉: '木',
+  壬戌: '水',
+  癸亥: '水',
 }
 
 /** Get the nayin wuxing for a given heavenly stem + earthly branch pair */
@@ -115,6 +161,7 @@ git commit -m "refactor: extract shared getNayinWuxing to constants/bazi.ts"
 ### Task A2: Weighted day master strength
 
 **Files:**
+
 - Modify: `composables/useBaZi.ts`
 - Test: `tests/composables/useBaZi.test.ts`
 
@@ -128,20 +175,101 @@ import type { BaZiPillar } from '~/composables/useBaZi'
 describe('getWeightedDayMasterStrength', () => {
   it('甲木日主 寅月 四柱全木 → 强', () => {
     const pillars: BaZiPillar[] = [
-      { stem: '甲', branch: '寅', stemWuxing: '木', branchWuxing: '木', stemTenGod: '比肩', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '丙', branch: '寅', stemWuxing: '火', branchWuxing: '木', stemTenGod: '食神', hiddenStems: [{ stem: '甲', wuxing: '木' }, { stem: '丙', wuxing: '火' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '比肩', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
-      { stem: '甲', branch: '子', stemWuxing: '木', branchWuxing: '水', stemTenGod: '比肩', hiddenStems: [{ stem: '癸', wuxing: '水' }] },
+      {
+        stem: '甲',
+        branch: '寅',
+        stemWuxing: '木',
+        branchWuxing: '木',
+        stemTenGod: '比肩',
+        hiddenStems: [
+          { stem: '甲', wuxing: '木' },
+          { stem: '丙', wuxing: '火' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '丙',
+        branch: '寅',
+        stemWuxing: '火',
+        branchWuxing: '木',
+        stemTenGod: '食神',
+        hiddenStems: [
+          { stem: '甲', wuxing: '木' },
+          { stem: '丙', wuxing: '火' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '甲',
+        branch: '午',
+        stemWuxing: '木',
+        branchWuxing: '火',
+        stemTenGod: '比肩',
+        hiddenStems: [
+          { stem: '丁', wuxing: '火' },
+          { stem: '己', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '甲',
+        branch: '子',
+        stemWuxing: '木',
+        branchWuxing: '水',
+        stemTenGod: '比肩',
+        hiddenStems: [{ stem: '癸', wuxing: '水' }],
+      },
     ]
     expect(getWeightedDayMasterStrength('木', pillars)).toBe('强')
   })
 
   it('庚金日主 午月 火旺克金 → 弱', () => {
     const pillars: BaZiPillar[] = [
-      { stem: '丙', branch: '午', stemWuxing: '火', branchWuxing: '火', stemTenGod: '七杀', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
-      { stem: '甲', branch: '午', stemWuxing: '木', branchWuxing: '火', stemTenGod: '偏财', hiddenStems: [{ stem: '丁', wuxing: '火' }, { stem: '己', wuxing: '土' }] },
-      { stem: '庚', branch: '申', stemWuxing: '金', branchWuxing: '金', stemTenGod: '日主', hiddenStems: [{ stem: '庚', wuxing: '金' }, { stem: '壬', wuxing: '水' }, { stem: '戊', wuxing: '土' }] },
-      { stem: '丙', branch: '戌', stemWuxing: '火', branchWuxing: '土', stemTenGod: '七杀', hiddenStems: [{ stem: '戊', wuxing: '土' }, { stem: '辛', wuxing: '金' }, { stem: '丁', wuxing: '火' }] },
+      {
+        stem: '丙',
+        branch: '午',
+        stemWuxing: '火',
+        branchWuxing: '火',
+        stemTenGod: '七杀',
+        hiddenStems: [
+          { stem: '丁', wuxing: '火' },
+          { stem: '己', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '甲',
+        branch: '午',
+        stemWuxing: '木',
+        branchWuxing: '火',
+        stemTenGod: '偏财',
+        hiddenStems: [
+          { stem: '丁', wuxing: '火' },
+          { stem: '己', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '庚',
+        branch: '申',
+        stemWuxing: '金',
+        branchWuxing: '金',
+        stemTenGod: '日主',
+        hiddenStems: [
+          { stem: '庚', wuxing: '金' },
+          { stem: '壬', wuxing: '水' },
+          { stem: '戊', wuxing: '土' },
+        ],
+      },
+      {
+        stem: '丙',
+        branch: '戌',
+        stemWuxing: '火',
+        branchWuxing: '土',
+        stemTenGod: '七杀',
+        hiddenStems: [
+          { stem: '戊', wuxing: '土' },
+          { stem: '辛', wuxing: '金' },
+          { stem: '丁', wuxing: '火' },
+        ],
+      },
     ]
     expect(getWeightedDayMasterStrength('金', pillars)).toBe('弱')
   })
@@ -163,10 +291,10 @@ Add to `composables/useBaZi.ts`:
 ```typescript
 /**
  * Calculate day master strength using weighted pillar + hidden stem analysis.
- * 
+ *
  * Weight table:
  *   monthBranch ×2.0, dayBranch ×1.5, other stems ×1.0, other branches ×1.0, hiddenStems ×0.5
- * 
+ *
  * Scoring per factor:
  *   same element as DM → +1, generating DM → +0.5, controlling DM → -0.5
  *   total ≥3 → 强, ≥1 → 偏强, ≥-1 → 中和, ≥-3 → 偏弱, else → 弱
@@ -264,6 +392,7 @@ git commit -m "feat: add weighted day master strength (4 pillars + hidden stems)
 ### Task A3: Seasonal adjustment (调候)
 
 **Files:**
+
 - Modify: `composables/useBaZi.ts`
 - Test: `tests/composables/useBaZi.test.ts`
 
@@ -291,7 +420,7 @@ describe('getSeasonalAdjustment', () => {
 ```typescript
 /**
  * Get seasonal climate adjustment (调候用神) based on month branch.
- * 
+ *
  * Theory: seasonal extremes require balancing elements.
  *   春(寅卯辰) 木旺 → 需金制
  *   夏(巳午未) 火炎 → 需水降
@@ -300,9 +429,9 @@ describe('getSeasonalAdjustment', () => {
  */
 export function getSeasonalAdjustment(monthBranchIndex: number): string {
   // branch index: 子0 丑1 寅2 卯3 辰4 巳5 午6 未7 申8 酉9 戌10 亥11
-  if (monthBranchIndex >= 2 && monthBranchIndex <= 4) return '金'   // 春
-  if (monthBranchIndex >= 5 && monthBranchIndex <= 7) return '水'   // 夏
-  if (monthBranchIndex >= 8 && monthBranchIndex <= 10) return '火'  // 秋
+  if (monthBranchIndex >= 2 && monthBranchIndex <= 4) return '金' // 春
+  if (monthBranchIndex >= 5 && monthBranchIndex <= 7) return '水' // 夏
+  if (monthBranchIndex >= 8 && monthBranchIndex <= 10) return '火' // 秋
   return '火' // 冬 (子丑亥 0,1,11 — 还需火暖)
 }
 ```
@@ -315,7 +444,7 @@ Update the function signature and logic:
 export function getFavorableElements(
   dayMasterWuxing: string,
   strength: string,
-  monthBranchIndex?: number,  // optional for backward compat
+  monthBranchIndex?: number, // optional for backward compat
 ): [string[], string[]] {
   // ... existing logic ...
   const [favorable, unfavorable] = existingResult
@@ -336,7 +465,9 @@ export function getFavorableElements(
 
 ```typescript
 const [favorableElements, unfavorableElements] = getFavorableElements(
-  dayMasterWuxing, dayMasterStrength, monthBranchIndex
+  dayMasterWuxing,
+  dayMasterStrength,
+  monthBranchIndex,
 )
 ```
 
@@ -360,6 +491,7 @@ git commit -m "feat: add seasonal climate adjustment (调候) to favorable eleme
 ### Task A4: Include nayin in element count
 
 **Files:**
+
 - Modify: `composables/useBaZi.ts`
 - Test: `tests/composables/useBaZi.test.ts`
 
@@ -370,7 +502,7 @@ describe('computeElementCounts with nayin', () => {
   it('includes nayin wuxing in total counts', () => {
     // The function already computes from pillars; after modification
     // it factors in nayin from each pillar's stem+branch
-    const r = { '木': 1, '火': 2, '土': 1, '金': 2, '水': 1 }
+    const r = { 木: 1, 火: 2, 土: 1, 金: 2, 水: 1 }
     // Verify the function runs and returns all 5 keys
     const counts = computeElementCounts(mockPillars)
     expect(counts).toHaveProperty('木')
@@ -386,7 +518,7 @@ describe('computeElementCounts with nayin', () => {
 
 ```typescript
 function computeElementCounts(pillars: BaZiPillar[]): Record<string, number> {
-  const counts: Record<string, number> = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 }
+  const counts: Record<string, number> = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 }
   for (const p of pillars) {
     if (!p) continue
     if (counts[p.stemWuxing] !== undefined) counts[p.stemWuxing]++
@@ -424,6 +556,7 @@ git commit -m "feat: include nayin wuxing in element count analysis"
 ### Task A5: Pillar interpretations
 
 **Files:**
+
 - Modify: `composables/useBaZi.ts`
 - Test: `tests/composables/useBaZi.test.ts`
 
@@ -453,42 +586,46 @@ describe('getPillarInterpretation', () => {
 ```typescript
 /** Heavenly stem character traits (from 三命通会) */
 const STEM_TRAITS: Record<string, string> = {
-  '甲': '甲木参天',
-  '乙': '乙木柔韧',
-  '丙': '丙火猛烈',
-  '丁': '丁火柔中',
-  '戊': '戊土厚重',
-  '己': '己土肥沃',
-  '庚': '庚金刚锐',
-  '辛': '辛金秀气',
-  '壬': '壬水汪洋',
-  '癸': '癸水至阴',
+  甲: '甲木参天',
+  乙: '乙木柔韧',
+  丙: '丙火猛烈',
+  丁: '丁火柔中',
+  戊: '戊土厚重',
+  己: '己土肥沃',
+  庚: '庚金刚锐',
+  辛: '辛金秀气',
+  壬: '壬水汪洋',
+  癸: '癸水至阴',
 }
 
 /** Ten god nature descriptions */
 const TEN_GOD_TRAITS: Record<string, string> = {
-  '正官': '正官护身',
-  '七杀': '七杀攻身',
-  '正印': '正印护持',
-  '偏印': '偏印生身',
-  '比肩': '比肩助力',
-  '劫财': '劫财相扶',
-  '食神': '食神泄秀',
-  '伤官': '伤官吐秀',
-  '正财': '正财稳进',
-  '偏财': '偏财横发',
+  正官: '正官护身',
+  七杀: '七杀攻身',
+  正印: '正印护持',
+  偏印: '偏印生身',
+  比肩: '比肩助力',
+  劫财: '劫财相扶',
+  食神: '食神泄秀',
+  伤官: '伤官吐秀',
+  正财: '正财稳进',
+  偏财: '偏财横发',
 }
 
 /** Pillar position significance */
 const PILLAR_CONTEXT: Record<string, string> = {
-  '年柱': '祖上根基',
-  '月柱': '父母荫庇',
-  '日柱': '自身造化',
-  '时柱': '晚年归宿',
+  年柱: '祖上根基',
+  月柱: '父母荫庇',
+  日柱: '自身造化',
+  时柱: '晚年归宿',
 }
 
 export function getPillarInterpretation(
-  stem: string, branch: string, tenGod: string, pillarName: string, branchWuxing: string,
+  stem: string,
+  branch: string,
+  tenGod: string,
+  pillarName: string,
+  branchWuxing: string,
 ): string {
   const stemPart = STEM_TRAITS[stem] || `${stem}干`
   const tenGodPart = TEN_GOD_TRAITS[tenGod] || ''
@@ -502,9 +639,16 @@ export function getPillarInterpretation(
 
   // Add pillar context
   if (pillarPart) {
-    if (pillarName === '年柱') parts.push('早年' + (tenGodPart.includes('攻') ? '多磨砺' : '有根基'))
-    else if (pillarName === '月柱') parts.push('青年得' + (tenGodPart.includes('护') || tenGodPart.includes('生') ? '荫庇' : '机遇'))
-    else if (pillarName === '时柱') parts.push('晚景' + (tenGodPart.includes('福') || tenGodPart.includes('稳') ? '安详' : '有变'))
+    if (pillarName === '年柱')
+      parts.push('早年' + (tenGodPart.includes('攻') ? '多磨砺' : '有根基'))
+    else if (pillarName === '月柱')
+      parts.push(
+        '青年得' + (tenGodPart.includes('护') || tenGodPart.includes('生') ? '荫庇' : '机遇'),
+      )
+    else if (pillarName === '时柱')
+      parts.push(
+        '晚景' + (tenGodPart.includes('福') || tenGodPart.includes('稳') ? '安详' : '有变'),
+      )
   }
 
   return parts.join('，') + '。'
@@ -517,8 +661,11 @@ After building each pillar, add its interpretation:
 
 ```typescript
 pillar.interpretation = getPillarInterpretation(
-  pillar.stem, pillar.branch, pillar.stemTenGod,
-  pillarName, pillar.branchWuxing,
+  pillar.stem,
+  pillar.branch,
+  pillar.stemTenGod,
+  pillarName,
+  pillar.branchWuxing,
 )
 ```
 
@@ -542,6 +689,7 @@ git commit -m "feat: add pillar interpretation generation"
 ### Task A6: Display pillar interpretations in UI
 
 **Files:**
+
 - Modify: `pages/tools/bazi.vue` (or relevant BaZi grid component)
 
 - [ ] **1. Add interpretation display to each pillar card**
@@ -572,6 +720,7 @@ git commit -m "feat: display pillar interpretation in bazi grid"
 ### Task B1: Add minor star interpretations
 
 **Files:**
+
 - Modify: `constants/ziwei.ts`
 
 - [ ] **1. Add `MINOR_STAR_INTERPRETATIONS`**
@@ -579,36 +728,36 @@ git commit -m "feat: display pillar interpretation in bazi grid"
 ```typescript
 /** 14 辅星解读 */
 export const MINOR_STAR_INTERPRETATIONS: Record<string, string> = {
-  '文昌': '文昌入命，文采出众，科甲有望，聪明好学。',
-  '文曲': '文曲入命，才华横溢，口才佳，有艺术天赋。',
-  '左辅': '左辅入命，贵人相助，人缘好，得众望。',
-  '右弼': '右弼入命，得人扶持，行事顺利，福泽深厚。',
-  '天魁': '天魁入命，天乙贵人，逢凶化吉，提携有力。',
-  '天钺': '天钺入命，异性贵人相助，得长辈提携。',
-  '禄存': '禄存入命，财禄丰足，行事稳健，福气深厚。',
-  '擎羊': '擎羊入命，刑伤难免，个性刚强，易有争端。',
-  '陀罗': '陀罗入命，拖延阻碍，暗藏是非，需防小人。',
-  '火星': '火星入命，性急暴躁，突发变故，需修心养性。',
-  '铃星': '铃星入命，暗藏火性，内心急躁，易有隐忧。',
-  '地空': '地空入命，理想主义，钱财易空，宜守不宜攻。',
-  '地劫': '地劫入命，波折较多，计划易变，需稳扎稳打。',
-  '天马': '天马入命，奔波劳碌，动中求财，宜外出发展。',
+  文昌: '文昌入命，文采出众，科甲有望，聪明好学。',
+  文曲: '文曲入命，才华横溢，口才佳，有艺术天赋。',
+  左辅: '左辅入命，贵人相助，人缘好，得众望。',
+  右弼: '右弼入命，得人扶持，行事顺利，福泽深厚。',
+  天魁: '天魁入命，天乙贵人，逢凶化吉，提携有力。',
+  天钺: '天钺入命，异性贵人相助，得长辈提携。',
+  禄存: '禄存入命，财禄丰足，行事稳健，福气深厚。',
+  擎羊: '擎羊入命，刑伤难免，个性刚强，易有争端。',
+  陀罗: '陀罗入命，拖延阻碍，暗藏是非，需防小人。',
+  火星: '火星入命，性急暴躁，突发变故，需修心养性。',
+  铃星: '铃星入命，暗藏火性，内心急躁，易有隐忧。',
+  地空: '地空入命，理想主义，钱财易空，宜守不宜攻。',
+  地劫: '地劫入命，波折较多，计划易变，需稳扎稳打。',
+  天马: '天马入命，奔波劳碌，动中求财，宜外出发展。',
 }
 
 /** 常用杂曜解读（38 杂曜中选最常见者） */
 export const ADJECTIVE_STAR_INTERPRETATIONS: Record<string, string> = {
-  '天刑': '天刑入命，自律甚严，易有官司是非。',
-  '天姚': '天姚入命，桃花缘分，风流多情。',
-  '天月': '天月入命，福荫庇佑，灾祸减轻。',
-  '阴煞': '阴煞入命，易感阴邪之事，需防暗中是非。',
-  '天巫': '天巫入命，与宗教玄学有缘，直觉敏锐。',
-  '三台': '三台入命，步步高升，地位提升。',
-  '八座': '八座入命，得贵人提携，名声远播。',
-  '恩光': '恩光入命，得上级赏识，前途光明。',
-  '天贵': '天贵入命，天生贵气，处事圆满。',
-  '蜚廉': '蜚廉入命，易招口舌是非，谨言慎行。',
-  '旬空': '旬空入命，运气虚空，好事易散。',
-  '解神': '解神入命，逢凶化吉，遇难成祥。',
+  天刑: '天刑入命，自律甚严，易有官司是非。',
+  天姚: '天姚入命，桃花缘分，风流多情。',
+  天月: '天月入命，福荫庇佑，灾祸减轻。',
+  阴煞: '阴煞入命，易感阴邪之事，需防暗中是非。',
+  天巫: '天巫入命，与宗教玄学有缘，直觉敏锐。',
+  三台: '三台入命，步步高升，地位提升。',
+  八座: '八座入命，得贵人提携，名声远播。',
+  恩光: '恩光入命，得上级赏识，前途光明。',
+  天贵: '天贵入命，天生贵气，处事圆满。',
+  蜚廉: '蜚廉入命，易招口舌是非，谨言慎行。',
+  旬空: '旬空入命，运气虚空，好事易散。',
+  解神: '解神入命，逢凶化吉，遇难成祥。',
 }
 ```
 
@@ -624,6 +773,7 @@ git commit -m "feat: add minor star and adjective star interpretations"
 ### Task B2: Complete four transformations (化科/化忌)
 
 **Files:**
+
 - Modify: `constants/ziwei.ts`
 
 - [ ] **1. Add `化科` interpretations for all 14 major stars**
@@ -680,6 +830,7 @@ git commit -m "feat: complete four transformations (化科/化忌) for all major
 ### Task B3: Add star combination interpretations
 
 **Files:**
+
 - Modify: `constants/ziwei.ts`
 - Modify: `composables/useZiwei.ts`
 
@@ -729,13 +880,15 @@ export function getPalaceDetail(palace: IFunctionalPalace): {
   combinationNote: string
 } {
   const palaceSummary = getPalaceInterpretation(palace.name)
-  
+
   // Major star readings
-  const starReadings = palace.majorStars.map(s => {
-    const reading = getStarInterpretation(s.name as string)
-    if (reading) return reading
-    return ''
-  }).filter(Boolean)
+  const starReadings = palace.majorStars
+    .map(s => {
+      const reading = getStarInterpretation(s.name as string)
+      if (reading) return reading
+      return ''
+    })
+    .filter(Boolean)
 
   const starNames: string[] = palace.majorStars.map(s => s.name as string)
 
@@ -773,6 +926,7 @@ git commit -m "feat: add star combination interpretations (20 types) with lookup
 ### Task B4: Dynamic palace interpretation + UI expand
 
 **Files:**
+
 - Modify: `composables/useZiwei.ts`
 - Modify: Zi Wei palace card component (in `components/tools/ziwei/`)
 
@@ -786,13 +940,17 @@ const majorInterpretations = palace.majorStars.map(s => {
   return base
 })
 
-const minorTexts = palace.minorStars.map(s => {
-  return MINOR_STAR_INTERPRETATIONS[s.name as string] || ''
-}).filter(Boolean)
+const minorTexts = palace.minorStars
+  .map(s => {
+    return MINOR_STAR_INTERPRETATIONS[s.name as string] || ''
+  })
+  .filter(Boolean)
 
-const adjTexts = palace.adjectiveStars.map(s => {
-  return ADJECTIVE_STAR_INTERPRETATIONS[s.name as string] || ''
-}).filter(Boolean)
+const adjTexts = palace.adjectiveStars
+  .map(s => {
+    return ADJECTIVE_STAR_INTERPRETATIONS[s.name as string] || ''
+  })
+  .filter(Boolean)
 
 // Build combined interpretation
 let fullInterpretation = palaceSummary
@@ -880,6 +1038,7 @@ git commit -m "feat: dynamic palace interpretation + expand/collapse UI"
 ### Task C1: Add shengxiao pairing explanations
 
 **Files:**
+
 - Create: `constants/shengxiao.ts`
 - Modify: `composables/useShengXiao.ts`
 - Modify: `components/tools/shengxiao/CompatibilityGrid.vue`
@@ -889,22 +1048,22 @@ git commit -m "feat: dynamic palace interpretation + expand/collapse UI"
 ```typescript
 /** 生肖配对解释文本 */
 export const SHENGXIAO_PAIRING_EXPLANATIONS: Record<string, Record<string, string>> = {
-  '三合': {
+  三合: {
     default: '三合贵人，互为生旺，性格互补，合作无间，是最佳搭档。',
   },
-  '六合': {
+  六合: {
     default: '六合贵人，天作之合，彼此吸引，相处和谐，姻缘上佳。',
   },
-  '相冲': {
+  相冲: {
     default: '六冲对冲，性格对立，观念分歧较大，相处需互相包容忍让。',
   },
-  '相害': {
+  相害: {
     default: '六害相侵，互相消耗，易生误会摩擦，需多沟通理解。',
   },
-  '相刑': {
+  相刑: {
     default: '相刑之局，彼此牵制，易生矛盾，需注意情绪管理。',
   },
-  '中吉': {
+  中吉: {
     default: '五行平和，无大冲大合，可和谐相处，日久生情。',
   },
 }
@@ -923,7 +1082,7 @@ export interface Compatibility {
   emoji: string
   relation: string
   level: 'great' | 'good' | 'bad'
-  explanation: string  // ✨ ADD
+  explanation: string // ✨ ADD
 }
 ```
 
@@ -956,15 +1115,8 @@ function toggleExpand(idx: number) {
 </script>
 
 <template>
-  <div
-    v-for="(item, idx) in compatibility"
-    :key="item.animal"
-    class="compatibility-item"
-  >
-    <button
-      @click="toggleExpand(idx)"
-      class="flex items-center gap-2"
-    >
+  <div v-for="(item, idx) in compatibility" :key="item.animal" class="compatibility-item">
+    <button @click="toggleExpand(idx)" class="flex items-center gap-2">
       <!-- existing content -->
     </button>
 
@@ -973,7 +1125,7 @@ function toggleExpand(idx: number) {
         v-if="expandedIdx === idx"
         :class="[
           'ml-6 pl-3 py-1 border-l-2',
-          item.level === 'great' ? 'border-wuxing-wood/40' : 'border-cinnabar/30'
+          item.level === 'great' ? 'border-wuxing-wood/40' : 'border-cinnabar/30',
         ]"
       >
         <p class="font-sans text-[0.65rem] text-ink-light leading-relaxed">
@@ -997,6 +1149,7 @@ git commit -m "feat: add shengxiao pairing explanations with accordion UI"
 ### Task C2: Add constellation pairing explanations
 
 **Files:**
+
 - Create: `constants/constellation.ts`
 - Modify: `composables/useConstellation.ts`
 - Modify: constellation pairing component
@@ -1006,9 +1159,9 @@ git commit -m "feat: add shengxiao pairing explanations with accordion UI"
 ```typescript
 /** 星座配对解释文本 */
 export const CONSTELLATION_PAIRING_EXPLANATIONS: Record<string, string> = {
-  'great': '同元素星座，气质相投，默契十足，相处自然和谐，是天生一对。',
-  'good': '元素相关，性格有差异但可互补，需要互相理解和包容。',
-  'bad': '元素对立，性格差异较大，容易产生摩擦，需要更多包容和沟通。',
+  great: '同元素星座，气质相投，默契十足，相处自然和谐，是天生一对。',
+  good: '元素相关，性格有差异但可互补，需要互相理解和包容。',
+  bad: '元素对立，性格差异较大，容易产生摩擦，需要更多包容和沟通。',
 }
 ```
 
@@ -1038,7 +1191,7 @@ interface CompatibilityEntry {
   symbol: string
   level: 'great' | 'good' | 'bad'
   label: string
-  explanation?: string  // ✨ ADD
+  explanation?: string // ✨ ADD
 }
 ```
 
@@ -1067,6 +1220,7 @@ git commit -m "feat: add constellation pairing explanations with accordion UI"
 ## Self-Review
 
 ### Spec Coverage
+
 - ✅ 1.1 Weighted day master strength → Task A2
 - ✅ 1.2 调候 analysis → Task A3
 - ✅ 1.3 Nayin inclusion → Task A1 + A4
@@ -1082,9 +1236,11 @@ git commit -m "feat: add constellation pairing explanations with accordion UI"
 - ✅ 4.3 UI: 手风琴互斥 → Task C1 + C2
 
 ### No Placeholders
+
 All code blocks are complete. No "TBD", "TODO", or "implement later" patterns found.
 
 ### Type Consistency
+
 - `getNayinWuxing(stem, branch) → string` — consistent across A1 and A4
 - `getWeightedDayMasterStrength(DM, pillars) → strength` — used in calculateBaZi as drop-in
 - `getPalaceDetail()` return shape consistent between B3 and B4

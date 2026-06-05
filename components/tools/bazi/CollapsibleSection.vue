@@ -1,9 +1,5 @@
 <template>
-  <div
-    :id="sectionId"
-    class="card-warm rounded-xl p-8 mb-6 scroll-mt-20"
-    tabindex="-1"
-  >
+  <div :id="sectionId" class="card-warm rounded-xl p-8 mb-6 scroll-mt-20" tabindex="-1">
     <!-- Clickable header bar -->
     <button
       type="button"
@@ -15,7 +11,10 @@
       @keydown.space.prevent="emit('toggle', sectionId)"
     >
       <div class="flex items-center gap-3 min-w-0">
-        <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm flex-shrink-0" aria-hidden="true"></span>
+        <span
+          class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm flex-shrink-0"
+          aria-hidden="true"
+        ></span>
         <h2 class="font-display text-xl text-ink-dark truncate">{{ title }}</h2>
         <span class="text-xs text-ink-light flex-shrink-0">({{ subtitle }})</span>
       </div>
@@ -26,11 +25,15 @@
         fill="currentColor"
         aria-hidden="true"
       >
-        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
       </svg>
     </button>
 
-    <hr class="border-paper-dark/50 my-4" aria-hidden="true">
+    <hr class="border-paper-dark/50 my-4" aria-hidden="true" />
 
     <!-- Collapsible content with smooth grid-rows animation -->
     <div

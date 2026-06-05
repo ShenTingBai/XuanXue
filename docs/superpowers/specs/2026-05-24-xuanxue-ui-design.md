@@ -13,13 +13,13 @@
 
 > 传统文人书房美学 — 宣纸为底、墨汁为字、朱砂为印
 
-| 维度 | 选择 | 理由 |
-|------|------|------|
-| 基调 | 暖白古纸 + 墨色文字 | 呼应传统典籍、书画卷轴质感 |
-| 主色 | 朱砂红 `#C62828` | 中国传统印章色，高辨识度且文化关联强 |
-| 辅色 | 金色 `#B8860B` / 翠绿 `#4A7C59` | 金为点缀（预留给星曜、五行），绿为状态反馈（成功） |
-| 字体 | 马善政 Ma Shan Zheng（书法体）+ Noto Sans SC（正文） | 书法体用于标题营造文人气息，无衬线保证正文可读性 |
-| 核心符号 | 印章（seal stamp） | 交互按钮模仿"盖印"动作，页面装饰烙朱砂印 |
+| 维度     | 选择                                                 | 理由                                               |
+| -------- | ---------------------------------------------------- | -------------------------------------------------- |
+| 基调     | 暖白古纸 + 墨色文字                                  | 呼应传统典籍、书画卷轴质感                         |
+| 主色     | 朱砂红 `#C62828`                                     | 中国传统印章色，高辨识度且文化关联强               |
+| 辅色     | 金色 `#B8860B` / 翠绿 `#4A7C59`                      | 金为点缀（预留给星曜、五行），绿为状态反馈（成功） |
+| 字体     | 马善政 Ma Shan Zheng（书法体）+ Noto Sans SC（正文） | 书法体用于标题营造文人气息，无衬线保证正文可读性   |
+| 核心符号 | 印章（seal stamp）                                   | 交互按钮模仿"盖印"动作，页面装饰烙朱砂印           |
 
 ### 设计原则
 
@@ -61,16 +61,16 @@ jade        #4A7C59  — 成功反馈色
 
 ### Typography
 
-| 用途 | 字体 | 字重 | 尺寸（移动端/桌面端） |
-|------|------|------|-------------------|
-| Logo（登录页） | Ma Shan Zheng | 400 | 2.25rem / 3rem (`text-4xl sm:text-5xl`) |
-| Logo（顶栏） | Ma Shan Zheng | 400 | 1.5rem / 1.875rem (`text-2xl sm:text-3xl`) |
-| 问候语 | Ma Shan Zheng | 400 | 1.875rem / 2.25rem (`text-3xl sm:text-4xl`) |
-| 工具名称 | Ma Shan Zheng | 400 | 1.25rem (`text-xl`) |
-| 正文/表单 | Noto Sans SC | 400/500 | 1rem |
-| 辅助文字 | Noto Sans SC | 400 | 0.75rem-0.875rem |
-| 徽章/标签 | Noto Sans SC | 400 | 0.625rem-0.75rem |
-| 标签/按钮 | Noto Sans SC | 500 | 0.875rem-0.9375rem |
+| 用途           | 字体          | 字重    | 尺寸（移动端/桌面端）                       |
+| -------------- | ------------- | ------- | ------------------------------------------- |
+| Logo（登录页） | Ma Shan Zheng | 400     | 2.25rem / 3rem (`text-4xl sm:text-5xl`)     |
+| Logo（顶栏）   | Ma Shan Zheng | 400     | 1.5rem / 1.875rem (`text-2xl sm:text-3xl`)  |
+| 问候语         | Ma Shan Zheng | 400     | 1.875rem / 2.25rem (`text-3xl sm:text-4xl`) |
+| 工具名称       | Ma Shan Zheng | 400     | 1.25rem (`text-xl`)                         |
+| 正文/表单      | Noto Sans SC  | 400/500 | 1rem                                        |
+| 辅助文字       | Noto Sans SC  | 400     | 0.75rem-0.875rem                            |
+| 徽章/标签      | Noto Sans SC  | 400     | 0.625rem-0.75rem                            |
+| 标签/按钮      | Noto Sans SC  | 500     | 0.875rem-0.9375rem                          |
 
 ### Shadow
 
@@ -84,13 +84,13 @@ jade        #4A7C59  — 成功反馈色
 
 ### Border Radius
 
-| 元素 | 值 |
-|------|----|
+| 元素          | 值                                 |
+| ------------- | ---------------------------------- |
 | 登录/档案卡片 | 16px (`rounded-2xl`)，所有断点一致 |
-| 工具卡片 | 12px (`rounded-xl`)，所有断点一致 |
-| 按钮 | 0（直角，模仿印章方形） |
-| 输入框 | 0（下划线式） |
-| 徽章/标签 | 4px |
+| 工具卡片      | 12px (`rounded-xl`)，所有断点一致  |
+| 按钮          | 0（直角，模仿印章方形）            |
+| 输入框        | 0（下划线式）                      |
+| 徽章/标签     | 4px                                |
 
 ---
 
@@ -103,8 +103,8 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 40;         /* 覆盖 .ink-wash-bg > .relative.z-10（含 header） */
-  pointer-events: none;  /* 不干扰点击交互 */
+  z-index: 40; /* 覆盖 .ink-wash-bg > .relative.z-10（含 header） */
+  pointer-events: none; /* 不干扰点击交互 */
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200'...");
   mix-blend-mode: multiply;
   opacity: 0.3;
@@ -117,9 +117,9 @@ body::after {
 
 ```css
 background:
-  radial-gradient(ellipse 600px 400px at 15% 30%, rgba(44,24,16,0.04), transparent 70%),
-  radial-gradient(ellipse 500px 500px at 85% 70%, rgba(44,24,16,0.03), transparent 70%),
-  radial-gradient(circle 300px at 50% 50%, rgba(180,140,100,0.05), transparent 70%);  /* 暖调点缀 */
+  radial-gradient(ellipse 600px 400px at 15% 30%, rgba(44, 24, 16, 0.04), transparent 70%),
+  radial-gradient(ellipse 500px 500px at 85% 70%, rgba(44, 24, 16, 0.03), transparent 70%),
+  radial-gradient(circle 300px at 50% 50%, rgba(180, 140, 100, 0.05), transparent 70%); /* 暖调点缀 */
 ```
 
 ---
@@ -130,13 +130,13 @@ background:
 
 灵感：在宣纸上盖下朱砂印的动作。
 
-| 状态 | 效果 |
-|------|------|
-| 默认 | 红色边框 + 红色文字，背景透明 |
-| hover | 红色从右到左填充（`scaleX` 动画），文字变白 |
+| 状态           | 效果                                             |
+| -------------- | ------------------------------------------------ |
+| 默认           | 红色边框 + 红色文字，背景透明                    |
+| hover          | 红色从右到左填充（`scaleX` 动画），文字变白      |
 | active (click) | `sealPress` 缩放动画：scale(1) → 0.92 → 1.03 → 1 |
-| focus-visible | 2px 红色轮廓 (`outline: 2px solid #C62828`) |
-| disabled | 50% 透明度，无填充动画 |
+| focus-visible  | 2px 红色轮廓 (`outline: 2px solid #C62828`)      |
+| disabled       | 50% 透明度，无填充动画                           |
 
 ```
 默认:  ┌──────────┐
@@ -152,26 +152,27 @@ hover: ┌██████████┐
 
 灵感：毛笔在宣纸上写字，留下墨迹底线。
 
-| 状态 | 效果 |
-|------|------|
-| 默认 | 底部 2px `ink-faint` 灰线 |
-| focus | 底部线过渡到 `cinnabar` 红色 |
+| 状态          | 效果                                                  |
+| ------------- | ----------------------------------------------------- |
+| 默认          | 底部 2px `ink-faint` 灰线                             |
+| focus         | 底部线过渡到 `cinnabar` 红色                          |
 | focus-visible | 2px 红色底部线 + 阴影 (`box-shadow: 0 1px 0 #C62828`) |
-| placeholder | `ink-light` 灰字 |
+| placeholder   | `ink-light` 灰字                                      |
 
 输入框无边框、无圆角、无背景，只靠底线区分，保持页面清爽。
 
 ### 工具卡片（tool-card）
 
-| 状态 | 效果 |
-|------|------|
-| 默认 | 浅纸色背景（`rgba(251,248,244,0.85)` + `backdrop-filter: blur(8px)` 毛玻璃），`paper-dark` 边框，微阴影 |
-| hover（可用） | 边框变红，阴影加深，上移 3px |
-| hover（锁定） | 无效果，保持 0.6 透明度 |
+| 状态          | 效果                                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| 默认          | 浅纸色背景（`rgba(251,248,244,0.85)` + `backdrop-filter: blur(8px)` 毛玻璃），`paper-dark` 边框，微阴影 |
+| hover（可用） | 边框变红，阴影加深，上移 3px                                                                            |
+| hover（锁定） | 无效果，保持 0.6 透明度                                                                                 |
 
 背景使用 85% 透明度 + `backdrop-filter: blur(8px)`，让背后的墨晕渐变隐约透出，产生宣纸半透明质感。
 
 卡片包含：
+
 - **图标区**：中文单字符（兽/辰/命/卦/斗）在方形底板中，使用毛笔书法风格
 - **名称行**：书法体工具名 + "即将上线"灰底标签（锁定态）
 - **描述行**：简短功能说明
@@ -189,12 +190,12 @@ hover: ┌██████████┐
 
 与 input-ink 同风格的 select 元素，适配底部下划线设计。
 
-| 状态 | 效果 |
-|------|------|
-| 默认 | 底部 2px `ink-faint` 灰线，右侧自定义下拉箭头 SVG |
-| focus | 底部线过渡到 `cinnabar` 红色 |
+| 状态          | 效果                                                  |
+| ------------- | ----------------------------------------------------- |
+| 默认          | 底部 2px `ink-faint` 灰线，右侧自定义下拉箭头 SVG     |
+| focus         | 底部线过渡到 `cinnabar` 红色                          |
 | focus-visible | 2px 红色底部线 + 阴影 (`box-shadow: 0 1px 0 #C62828`) |
-| disabled | 50% 透明度 |
+| disabled      | 50% 透明度                                            |
 
 使用 `appearance: none` 移除原生样式，自定义箭头匹配整体美学。
 
@@ -212,11 +213,11 @@ hover: ┌██████████┐
 
 最小化样式的文字按钮，用于次要操作如"取消"。
 
-| 状态 | 效果 |
-|------|------|
-| 默认 | `ink-medium` 灰色文字 |
-| hover | 过渡到 `cinnabar` 红色 |
-| focus-visible | 2px 红色轮廓 |
+| 状态          | 效果                   |
+| ------------- | ---------------------- |
+| 默认          | `ink-medium` 灰色文字  |
+| hover         | 过渡到 `cinnabar` 红色 |
+| focus-visible | 2px 红色轮廓           |
 
 ### 纸卡片（card-paper-solid）
 
@@ -322,12 +323,12 @@ hover: ┌██████████┐
 
 ## 响应式断点
 
-| 断点 | 目标 | 布局变化 |
-|------|------|---------|
-| <640px | 手机 | 1 列工具网格，工具卡片 padding 24px（表单卡片保持 32px），标题字号降级，form-row 变列 |
-| 640px+ | 平板及以上 | 工具卡片 padding 28px |
-| 640-1024px | 平板 | 2 列工具网格，保持大多数字号 |
-| ≥1024px | 桌面 | 3 列工具网格，内容区域 max-width: 1152px 居中（首页/布局使用）；表单页（如档案编辑）使用 `max-w-2xl`（672px）保持适中宽度 |
+| 断点       | 目标       | 布局变化                                                                                                                  |
+| ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
+| <640px     | 手机       | 1 列工具网格，工具卡片 padding 24px（表单卡片保持 32px），标题字号降级，form-row 变列                                     |
+| 640px+     | 平板及以上 | 工具卡片 padding 28px                                                                                                     |
+| 640-1024px | 平板       | 2 列工具网格，保持大多数字号                                                                                              |
+| ≥1024px    | 桌面       | 3 列工具网格，内容区域 max-width: 1152px 居中（首页/布局使用）；表单页（如档案编辑）使用 `max-w-2xl`（672px）保持适中宽度 |
 
 ---
 
@@ -348,31 +349,31 @@ pages/profile/[id].vue     — 档案编辑页
 
 ## 动画 & 交互
 
-| 元素 | 动画 | 触发 | 时长 |
-|------|------|------|------|
-| 工具卡片 | fadeIn + stagger | 页面加载 | 0.5s each, stagger 0.1s |
-| 印章按钮 | sealPress (scale) | click | 0.4s |
-| 印章按钮 | 填充 (scaleX) | hover | 0.35s |
-| 工具卡片 | 上移 3px + 阴影加深 | hover | 0.35s |
-| 下拉菜单 | opacity + translateY | toggle | 0.2s |
-| 登录/注册 tab | 下划线滑动（CSS transition + translateX） | click | 0.2s |
-| toast（成功/错误） | fade + translateY（偏移: -4px 登录页, -8px 配置页） | 出现/消失 | 0.3s |
-| 输入框焦点 | border-color 过渡 | focus | 0.2s |
+| 元素               | 动画                                                | 触发      | 时长                    |
+| ------------------ | --------------------------------------------------- | --------- | ----------------------- |
+| 工具卡片           | fadeIn + stagger                                    | 页面加载  | 0.5s each, stagger 0.1s |
+| 印章按钮           | sealPress (scale)                                   | click     | 0.4s                    |
+| 印章按钮           | 填充 (scaleX)                                       | hover     | 0.35s                   |
+| 工具卡片           | 上移 3px + 阴影加深                                 | hover     | 0.35s                   |
+| 下拉菜单           | opacity + translateY                                | toggle    | 0.2s                    |
+| 登录/注册 tab      | 下划线滑动（CSS transition + translateX）           | click     | 0.2s                    |
+| toast（成功/错误） | fade + translateY（偏移: -4px 登录页, -8px 配置页） | 出现/消失 | 0.3s                    |
+| 输入框焦点         | border-color 过渡                                   | focus     | 0.2s                    |
 
 ---
 
 ## 可访问性
 
-| 措施 | 实现 |
-|------|------|
-| 视觉焦点 | 输入框用 `box-shadow` 下划线，按钮用 `outline: 2px solid #C62828` |
-| 对比度 | 正文级文字使用 `ink-medium (#6B5B4F)`，符合 WCAG AA 4.5:1；`ink-light (#A69586)` 仅用于占位符（WCAG 豁免）和纯装饰元素 |
-| 语言声明 | `<html lang="zh-CN">` |
-| 表单标签 | 所有输入框通过 `for/id` 与 label 关联 |
-| 自定义 radio | 使用 `sr-only` 保留原生 input 供屏幕阅读器，视觉用 span 替代 |
-| ARIA | 错误提示 `role="alert"`，加载按钮 `aria-busy` |
-| 动画控制 | `@media (prefers-reduced-motion: reduce)` 禁用动画 |
-| 装饰元素 | 纯装饰字符（印章徽章）加 `aria-hidden="true"` |
+| 措施         | 实现                                                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| 视觉焦点     | 输入框用 `box-shadow` 下划线，按钮用 `outline: 2px solid #C62828`                                                      |
+| 对比度       | 正文级文字使用 `ink-medium (#6B5B4F)`，符合 WCAG AA 4.5:1；`ink-light (#A69586)` 仅用于占位符（WCAG 豁免）和纯装饰元素 |
+| 语言声明     | `<html lang="zh-CN">`                                                                                                  |
+| 表单标签     | 所有输入框通过 `for/id` 与 label 关联                                                                                  |
+| 自定义 radio | 使用 `sr-only` 保留原生 input 供屏幕阅读器，视觉用 span 替代                                                           |
+| ARIA         | 错误提示 `role="alert"`，加载按钮 `aria-busy`                                                                          |
+| 动画控制     | `@media (prefers-reduced-motion: reduce)` 禁用动画                                                                     |
+| 装饰元素     | 纯装饰字符（印章徽章）加 `aria-hidden="true"`                                                                          |
 
 ## 组件状态清单
 

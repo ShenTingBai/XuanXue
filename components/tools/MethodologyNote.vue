@@ -75,11 +75,7 @@ function onKeydown(e: KeyboardEvent) {
           <div v-if="classical && classical.length" class="methodology-panel__col">
             <p class="methodology-panel__col-label">经典来源</p>
             <ul class="methodology-panel__list">
-              <li
-                v-for="item in classical"
-                :key="item.method"
-                class="methodology-panel__item"
-              >
+              <li v-for="item in classical" :key="item.method" class="methodology-panel__item">
                 <span class="methodology-panel__method">{{ item.method }}</span>
                 <span class="methodology-panel__source">{{ item.source }}</span>
               </li>
@@ -87,8 +83,13 @@ function onKeydown(e: KeyboardEvent) {
           </div>
 
           <!-- Developer synthesis -->
-          <div v-if="synthesis && synthesis.length" class="methodology-panel__col methodology-panel__col--synth">
-            <p class="methodology-panel__col-label methodology-panel__col-label--synth">开发者合成</p>
+          <div
+            v-if="synthesis && synthesis.length"
+            class="methodology-panel__col methodology-panel__col--synth"
+          >
+            <p class="methodology-panel__col-label methodology-panel__col-label--synth">
+              开发者合成
+            </p>
             <ul class="methodology-panel__list">
               <li
                 v-for="item in synthesis"
@@ -101,9 +102,7 @@ function onKeydown(e: KeyboardEvent) {
           </div>
         </div>
 
-        <p class="methodology-panel__disclaimer">
-          ⚠ 合成部分为工程校准，非经典原文数据
-        </p>
+        <p class="methodology-panel__disclaimer">⚠ 合成部分为工程校准，非经典原文数据</p>
       </div>
     </Transition>
   </div>

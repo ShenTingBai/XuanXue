@@ -37,7 +37,9 @@ const handleGoHome = () => {
             class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
             aria-hidden="true"
           >
-            <span class="font-display text-[12rem] sm:text-[16rem] leading-none opacity-[0.02] text-ink-dark">
+            <span
+              class="font-display text-[12rem] sm:text-[16rem] leading-none opacity-[0.02] text-ink-dark"
+            >
               {{ is404 ? '卷' : '墨' }}
             </span>
           </span>
@@ -77,7 +79,11 @@ const handleGoHome = () => {
           </p>
 
           <!-- Ink branch decoration -->
-          <div class="fade-in mb-10 max-w-[180px] mx-auto" :style="{ '--delay': '0.2s' }" aria-hidden="true">
+          <div
+            class="fade-in mb-10 max-w-[180px] mx-auto"
+            :style="{ '--delay': '0.2s' }"
+            aria-hidden="true"
+          >
             <div class="ink-branch">
               <div class="ink-branch__main" />
               <div class="ink-branch__twig ink-branch__twig--top" />
@@ -90,18 +96,15 @@ const handleGoHome = () => {
           </div>
 
           <!-- Action buttons -->
-          <div class="fade-in flex flex-col sm:flex-row items-center justify-center gap-4" :style="{ '--delay': '0.25s' }">
-            <button
-              class="btn-seal"
-              @click="handleGoHome"
-            >
+          <div
+            class="fade-in flex flex-col sm:flex-row items-center justify-center gap-4"
+            :style="{ '--delay': '0.25s' }"
+          >
+            <button class="btn-seal" @click="handleGoHome">
               <span>回 到 首 页</span>
             </button>
 
-            <NuxtLink
-              to="/"
-              class="btn-ghost font-sans text-sm tracking-wider"
-            >
+            <NuxtLink to="/" class="btn-ghost font-sans text-sm tracking-wider">
               或返回首页
             </NuxtLink>
           </div>

@@ -23,7 +23,9 @@ const monthListId = useId()
 
 // Count summary for collapsed state
 const levelCounts = computed(() => {
-  let wang = 0, ping = 0, ruo = 0
+  let wang = 0,
+    ping = 0,
+    ruo = 0
   for (const m of props.result.months) {
     if (m.level === '旺') wang++
     else if (m.level === '平') ping++
@@ -75,12 +77,12 @@ function barColor(level: '旺' | '平' | '弱'): string {
 /** Brief one-word annotation for each branch relationship type */
 function relationshipAnnotation(rel: string): string {
   const map: Record<string, string> = {
-    '六合': '贵人',
-    '三合': '人缘',
-    '相冲': '变动',
-    '相刑': '是非',
-    '相害': '暗阻',
-    '相破': '破耗',
+    六合: '贵人',
+    三合: '人缘',
+    相冲: '变动',
+    相刑: '是非',
+    相害: '暗阻',
+    相破: '破耗',
   }
   return map[rel] || ''
 }
@@ -90,16 +92,14 @@ function relationshipAnnotation(rel: string): string {
   <div class="card-warm rounded-xl p-8 fade-in" :style="{ '--delay': '0.35s' }">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
-      <h2 class="font-display text-xl text-ink-dark">
-        {{ currentYear }}年 逐月运势
-      </h2>
+      <h2 class="font-display text-xl text-ink-dark">{{ currentYear }}年 逐月运势</h2>
       <button
         :aria-expanded="expanded"
         :aria-controls="monthListId"
+        class="marginal-toggle"
         @click="toggleExpanded"
         @keydown.enter="toggleExpanded"
         @keydown.space.prevent="toggleExpanded"
-        class="marginal-toggle"
       >
         <span class="marginal-toggle__rule" aria-hidden="true"></span>
         <span>{{ expanded ? '收起' : '展开' }}</span>
@@ -110,15 +110,27 @@ function relationshipAnnotation(rel: string): string {
     <!-- Summary bar (always visible) -->
     <div class="flex items-center gap-4 mb-3" aria-live="polite">
       <div class="flex items-center gap-2 text-sm">
-        <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: WUXING_COLORS['木'] }" aria-hidden="true"></span>
+        <span
+          class="inline-block w-3 h-3 rounded-full"
+          :style="{ backgroundColor: WUXING_COLORS['木'] }"
+          aria-hidden="true"
+        ></span>
         <span class="text-ink-medium">旺 {{ levelCounts.wang }}</span>
       </div>
       <div class="flex items-center gap-2 text-sm">
-        <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: WUXING_COLORS['土'] }" aria-hidden="true"></span>
+        <span
+          class="inline-block w-3 h-3 rounded-full"
+          :style="{ backgroundColor: WUXING_COLORS['土'] }"
+          aria-hidden="true"
+        ></span>
         <span class="text-ink-medium">平 {{ levelCounts.ping }}</span>
       </div>
       <div class="flex items-center gap-2 text-sm">
-        <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: WUXING_COLORS['火'] }" aria-hidden="true"></span>
+        <span
+          class="inline-block w-3 h-3 rounded-full"
+          :style="{ backgroundColor: WUXING_COLORS['火'] }"
+          aria-hidden="true"
+        ></span>
         <span class="text-ink-medium">弱 {{ levelCounts.ruo }}</span>
       </div>
     </div>
@@ -142,7 +154,9 @@ function relationshipAnnotation(rel: string): string {
           ]"
           :style="{
             backgroundColor: levelBgStyle(month.level),
-            borderColor: isCurrentMonth(month) ? levelColor(month.level) : levelBorderStyle(month.level),
+            borderColor: isCurrentMonth(month)
+              ? levelColor(month.level)
+              : levelBorderStyle(month.level),
             '--delay': `${0.05 + idx * 0.04}s`,
           }"
         >
@@ -152,13 +166,24 @@ function relationshipAnnotation(rel: string): string {
               <span class="font-sans text-sm font-medium text-ink-dark">
                 {{ month.monthName }}
               </span>
-              <span v-if="isCurrentMonth(month)" class="ml-1.5 px-1.5 py-0.5 text-xs rounded" :style="{ backgroundColor: levelBgStyle(month.level), color: levelColor(month.level) }">
+              <span
+                v-if="isCurrentMonth(month)"
+                class="ml-1.5 px-1.5 py-0.5 text-xs rounded"
+                :style="{
+                  backgroundColor: levelBgStyle(month.level),
+                  color: levelColor(month.level),
+                }"
+              >
                 本月
               </span>
             </div>
             <span
               class="px-1.5 py-0.5 text-xs rounded font-medium"
-              :style="{ backgroundColor: levelBgStyle(month.level), color: levelColor(month.level), border: `1px solid ${levelBorderStyle(month.level)}` }"
+              :style="{
+                backgroundColor: levelBgStyle(month.level),
+                color: levelColor(month.level),
+                border: `1px solid ${levelBorderStyle(month.level)}`,
+              }"
             >
               {{ month.levelLabel }}
             </span>
@@ -166,7 +191,9 @@ function relationshipAnnotation(rel: string): string {
 
           <!-- Stem-branch and date range -->
           <div class="text-xs text-ink-medium mb-2">
-            <span class="font-medium text-ink-dark">{{ month.monthStem }}{{ month.monthBranch }}</span>
+            <span class="font-medium text-ink-dark"
+              >{{ month.monthStem }}{{ month.monthBranch }}</span
+            >
             <span class="mx-1" aria-hidden="true">·</span>
             <span>{{ month.gregorianLabel }}</span>
           </div>
@@ -176,16 +203,22 @@ function relationshipAnnotation(rel: string): string {
             <div class="flex items-center justify-between mb-0.5">
               <span class="text-xs text-ink-medium">
                 {{ month.relationship }}
-                <span v-if="relationshipAnnotation(month.relationship)" class="text-ink-light ml-1">·{{ relationshipAnnotation(month.relationship) }}</span>
+                <span v-if="relationshipAnnotation(month.relationship)" class="text-ink-light ml-1"
+                  >·{{ relationshipAnnotation(month.relationship) }}</span
+                >
               </span>
-              <span
-                class="text-sm font-semibold"
-                :style="{ color: barColor(month.level) }"
-              >
+              <span class="text-sm font-semibold" :style="{ color: barColor(month.level) }">
                 {{ month.score }}
               </span>
             </div>
-            <div class="h-1.5 bg-ink-dark/8 rounded-full overflow-hidden" role="progressbar" :aria-valuenow="month.score" aria-valuemin="0" aria-valuemax="100" :aria-label="`${month.monthName}运势得分${month.score}`">
+            <div
+              class="h-1.5 bg-ink-dark/8 rounded-full overflow-hidden"
+              role="progressbar"
+              :aria-valuenow="month.score"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-label="`${month.monthName}运势得分${month.score}`"
+            >
               <div
                 class="h-full rounded-full transition-all duration-500"
                 :style="{ width: barWidth(month.score), backgroundColor: barColor(month.level) }"

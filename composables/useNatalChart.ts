@@ -1,7 +1,13 @@
 // composables/useNatalChart.ts
 import { GeoVector, Ecliptic, Body } from 'astronomy-engine'
 import { ZODIACS, getRisingSign } from '~/composables/useConstellation'
-import { PLANET_ORDER, PLANET_META, ASPECT_TYPES, ASPECT_INTERPRETATIONS, PLANET_SIGN_INTERPRETATIONS } from '~/constants/planet-data'
+import {
+  PLANET_ORDER,
+  PLANET_META,
+  ASPECT_TYPES,
+  ASPECT_INTERPRETATIONS,
+  PLANET_SIGN_INTERPRETATIONS,
+} from '~/constants/planet-data'
 import type { PlanetMeta } from '~/constants/planet-data'
 
 // ── Types ───────────────────────────────────────────────────────
@@ -39,13 +45,13 @@ export interface NatalChartData {
 // ── Body Mapping ────────────────────────────────────────────────
 
 const BODY_MAP: Array<{ id: string; body: Body; meta: PlanetMeta }> = [
-  { id: 'sun',     body: Body.Sun,     meta: PLANET_META.sun },
-  { id: 'moon',    body: Body.Moon,    meta: PLANET_META.moon },
+  { id: 'sun', body: Body.Sun, meta: PLANET_META.sun },
+  { id: 'moon', body: Body.Moon, meta: PLANET_META.moon },
   { id: 'mercury', body: Body.Mercury, meta: PLANET_META.mercury },
-  { id: 'venus',   body: Body.Venus,   meta: PLANET_META.venus },
-  { id: 'mars',    body: Body.Mars,    meta: PLANET_META.mars },
+  { id: 'venus', body: Body.Venus, meta: PLANET_META.venus },
+  { id: 'mars', body: Body.Mars, meta: PLANET_META.mars },
   { id: 'jupiter', body: Body.Jupiter, meta: PLANET_META.jupiter },
-  { id: 'saturn',  body: Body.Saturn,  meta: PLANET_META.saturn },
+  { id: 'saturn', body: Body.Saturn, meta: PLANET_META.saturn },
 ]
 
 // ── Math Helpers ────────────────────────────────────────────────
@@ -59,7 +65,7 @@ function angularDistance(a: number, b: number): number {
 
 /** Get zodiac sign index (0=Aries..11=Pisces) from ecliptic longitude */
 function getSignIndex(lon: number): number {
-  return Math.floor(((lon % 360) + 360) % 360 / 30)
+  return Math.floor((((lon % 360) + 360) % 360) / 30)
 }
 
 /** Check if longitude is within +/-2 degrees of a sign boundary */
@@ -169,8 +175,10 @@ export function calculateNatalChart(
   birthHour: number | null | undefined,
   birthMinute: number | null | undefined,
 ): NatalChartData | null {
-  if (birthYear === null || birthYear === undefined || birthYear < 1900 || birthYear > 2100) return null
-  if (birthMonth === null || birthMonth === undefined || birthMonth < 1 || birthMonth > 12) return null
+  if (birthYear === null || birthYear === undefined || birthYear < 1900 || birthYear > 2100)
+    return null
+  if (birthMonth === null || birthMonth === undefined || birthMonth < 1 || birthMonth > 12)
+    return null
   if (birthDay === null || birthDay === undefined || birthDay < 1 || birthDay > 31) return null
 
   const hasHouses = birthHour !== null && birthHour !== undefined
@@ -253,7 +261,8 @@ export function serializeNatalChart(data: NatalChartData): string {
     lines.push(parts.join('  '))
 
     // Add planet-in-sign interpretation
-    const interp = PLANET_SIGN_INTERPRETATIONS[p.id as keyof typeof PLANET_SIGN_INTERPRETATIONS]?.[p.signName]
+    const interp =
+      PLANET_SIGN_INTERPRETATIONS[p.id as keyof typeof PLANET_SIGN_INTERPRETATIONS]?.[p.signName]
     if (interp) {
       lines.push(`  ↳ ${interp}`)
     }
@@ -268,16 +277,26 @@ export function serializeNatalChart(data: NatalChartData): string {
       const p1Meta = PLANET_META[a.p1]
       const p2Meta = PLANET_META[a.p2]
       const symbols: Record<string, string> = {
-        conjunction: '☌', sextile: '⚹', square: '□', trine: '△', opposition: '☍',
+        conjunction: '☌',
+        sextile: '⚹',
+        square: '□',
+        trine: '△',
+        opposition: '☍',
       }
       const typeNames: Record<string, string> = {
-        conjunction: '合相', sextile: '六合', square: '刑相', trine: '三合', opposition: '对冲',
+        conjunction: '合相',
+        sextile: '六合',
+        square: '刑相',
+        trine: '三合',
+        opposition: '对冲',
       }
       const symbol = symbols[a.type] ?? ''
       const typeName = typeNames[a.type] ?? a.type
       const interp = ASPECT_INTERPRETATIONS[a.type] ?? ''
 
-      lines.push(`${symbol} ${p1Meta?.name ?? a.p1} — ${p2Meta?.name ?? a.p2}  ${typeName}（${a.angle}°）`)
+      lines.push(
+        `${symbol} ${p1Meta?.name ?? a.p1} — ${p2Meta?.name ?? a.p2}  ${typeName}（${a.angle}°）`,
+      )
       lines.push(`  ↳ ${interp}`)
       lines.push('')
     }
@@ -300,10 +319,18 @@ export function serializeNatalChart(data: NatalChartData): string {
       }
     }
     const houseNames: Record<number, string> = {
-      1: '命宫·自我', 2: '财帛·价值', 3: '兄弟·沟通',
-      4: '田宅·家庭', 5: '子女·恋爱', 6: '奴仆·工作',
-      7: '夫妻·合作', 8: '疾厄·偏财', 9: '迁移·远行',
-      10: '官禄·事业', 11: '福德·交友', 12: '玄秘·潜意识',
+      1: '命宫·自我',
+      2: '财帛·价值',
+      3: '兄弟·沟通',
+      4: '田宅·家庭',
+      5: '子女·恋爱',
+      6: '奴仆·工作',
+      7: '夫妻·合作',
+      8: '疾厄·偏财',
+      9: '迁移·远行',
+      10: '官禄·事业',
+      11: '福德·交友',
+      12: '玄秘·潜意识',
     }
     for (let h = 1; h <= 12; h++) {
       const planets = houseMap.get(h)

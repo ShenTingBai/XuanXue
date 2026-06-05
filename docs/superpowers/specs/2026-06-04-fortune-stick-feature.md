@@ -12,10 +12,10 @@
 
 ```ts
 export interface FortuneStick {
-  id: number        // 签号 1-50
-  title: string     // 签题（如"苏秦不第"）
+  id: number // 签号 1-50
+  title: string // 签题（如"苏秦不第"）
   fortune: '上吉' | '中吉' | '下吉' | '下下'
-  poem: string      // 四句签诗
+  poem: string // 四句签诗
   explanation: string // 解曰
 }
 ```
@@ -43,11 +43,11 @@ index.vue (已登录区，工具网格上方)
 
 ## 改动文件
 
-| 文件 | 操作 |
-|------|------|
-| `constants/fortune-sticks.ts` | **新建** — 50 支关帝灵签数据 + FortuneStick 接口 |
-| `components/home/DailyFortuneStick.vue` | **新建** — 签诗卡片组件 |
-| `pages/index.vue` | **修改** — 已登录区工具网格上方插入组件 |
+| 文件                                    | 操作                                             |
+| --------------------------------------- | ------------------------------------------------ |
+| `constants/fortune-sticks.ts`           | **新建** — 50 支关帝灵签数据 + FortuneStick 接口 |
+| `components/home/DailyFortuneStick.vue` | **新建** — 签诗卡片组件                          |
+| `pages/index.vue`                       | **修改** — 已登录区工具网格上方插入组件          |
 
 ## 不变动
 

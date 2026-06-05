@@ -6,41 +6,51 @@
 
     <div class="card-warm rounded-xl p-8 space-y-4">
       <!-- Empty state -->
-      <p v-if="groupedShenSha.auspicious.length === 0 && groupedShenSha.neutral.length === 0 && groupedShenSha.inauspicious.length === 0"
-        class="font-sans text-sm text-ink-muted">
+      <p
+        v-if="
+          groupedShenSha.auspicious.length === 0 &&
+          groupedShenSha.neutral.length === 0 &&
+          groupedShenSha.inauspicious.length === 0
+        "
+        class="font-sans text-sm text-ink-muted"
+      >
         该命局无特殊神煞标记
       </p>
 
       <!-- Category groups -->
       <template v-for="group in shenShaGroups" :key="group.id">
-        <div v-if="group.items.length > 0"
-          role="group" :aria-labelledby="group.id"
-        >
-        <h4 :id="group.id" class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">{{ group.label }}</h4>
-        <ul class="flex flex-wrap gap-1.5 list-none p-0" @keydown="handleRovingKeydown" :aria-label="group.ariaLabel">
-          <li
-            v-for="(ss, ssIdx) in group.items"
-            :key="ss.name + ss.pillar + ss.position"
+        <div v-if="group.items.length > 0" role="group" :aria-labelledby="group.id">
+          <h4
+            :id="group.id"
+            class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2"
           >
-            <button
-              class="shensha-btn inline-flex items-center px-3 py-3 rounded text-sm font-sans cursor-pointer whitespace-nowrap"
-              :style="buttonCustomProps(group.category)"
-              :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
-              :tabindex="ssIdx === 0 ? 0 : -1"
-              :data-shensha-key="ss.name + ss.pillar + ss.position"
-              @mouseenter="onTooltipEnter($event, ss)"
-              @mouseleave="onTooltipLeave"
-              @focus="onTooltipEnter($event, ss)"
-              @blur="onTooltipLeave"
-              @click="toggleShen(ss)"
-            >
-              {{ ss.name }}
-            </button>
-          </li>
-        </ul>
-          </div>
-        </template>
-      </div>
+            {{ group.label }}
+          </h4>
+          <ul
+            class="flex flex-wrap gap-1.5 list-none p-0"
+            :aria-label="group.ariaLabel"
+            @keydown="handleRovingKeydown"
+          >
+            <li v-for="(ss, ssIdx) in group.items" :key="ss.name + ss.pillar + ss.position">
+              <button
+                class="shensha-btn inline-flex items-center px-3 py-3 rounded text-sm font-sans cursor-pointer whitespace-nowrap"
+                :style="buttonCustomProps(group.category)"
+                :title="ss.description + ' — ' + ss.source + ' · ' + ss.pillar + ss.position"
+                :tabindex="ssIdx === 0 ? 0 : -1"
+                :data-shensha-key="ss.name + ss.pillar + ss.position"
+                @mouseenter="onTooltipEnter($event, ss)"
+                @mouseleave="onTooltipLeave"
+                @focus="onTooltipEnter($event, ss)"
+                @blur="onTooltipLeave"
+                @click="toggleShen(ss)"
+              >
+                {{ ss.name }}
+              </button>
+            </li>
+          </ul>
+        </div>
+      </template>
+    </div>
 
     <!-- Single teleported tooltip — immune to ancestor containing blocks -->
     <Teleport to="body">
@@ -52,7 +62,13 @@
       >
         <div class="px-2.5 py-1.5">
           <p class="leading-relaxed tooltip-desc">{{ activeTooltip.shensha.description }}</p>
-          <p class="mt-2 text-[0.75rem]" :style="{ color: 'color-mix(in srgb, var(--color-paper-medium) 75%, transparent)' }">{{ activeTooltip.shensha.source }} · {{ activeTooltip.shensha.pillar }}{{ activeTooltip.shensha.position }}</p>
+          <p
+            class="mt-2 text-[0.75rem]"
+            :style="{ color: 'color-mix(in srgb, var(--color-paper-medium) 75%, transparent)' }"
+          >
+            {{ activeTooltip.shensha.source }} · {{ activeTooltip.shensha.pillar
+            }}{{ activeTooltip.shensha.position }}
+          </p>
         </div>
       </div>
     </Teleport>
@@ -81,7 +97,7 @@ const props = defineProps<{
   shenSha: ShenSha[]
 }>()
 
-type ShenShaGroup = { auspicious: ShenSha[], neutral: ShenSha[], inauspicious: ShenSha[] }
+type ShenShaGroup = { auspicious: ShenSha[]; neutral: ShenSha[]; inauspicious: ShenSha[] }
 const groupedShenSha = computed<ShenShaGroup>(() => {
   const groups: ShenShaGroup = { auspicious: [], neutral: [], inauspicious: [] }
   for (const s of props.shenSha) {
@@ -93,9 +109,27 @@ const groupedShenSha = computed<ShenShaGroup>(() => {
 })
 
 const shenShaGroups = computed(() => [
-  { id: 'shensha-ji', label: '吉神', ariaLabel: '吉神清单', items: groupedShenSha.value.auspicious, category: '吉' as const },
-  { id: 'shensha-zhongxing', label: '中性', ariaLabel: '中性神煞清单', items: groupedShenSha.value.neutral, category: '中性' as const },
-  { id: 'shensha-xiong', label: '凶煞', ariaLabel: '凶煞清单', items: groupedShenSha.value.inauspicious, category: '凶' as const },
+  {
+    id: 'shensha-ji',
+    label: '吉神',
+    ariaLabel: '吉神清单',
+    items: groupedShenSha.value.auspicious,
+    category: '吉' as const,
+  },
+  {
+    id: 'shensha-zhongxing',
+    label: '中性',
+    ariaLabel: '中性神煞清单',
+    items: groupedShenSha.value.neutral,
+    category: '中性' as const,
+  },
+  {
+    id: 'shensha-xiong',
+    label: '凶煞',
+    ariaLabel: '凶煞清单',
+    items: groupedShenSha.value.inauspicious,
+    category: '凶' as const,
+  },
 ])
 
 // ── Tooltip state (teleported to <body>) ──
@@ -181,7 +215,10 @@ function computePosition(key: string, rect: DOMRect) {
 let hideTimer: ReturnType<typeof setTimeout> | null = null
 
 function onTooltipEnter(event: MouseEvent | FocusEvent, ss: ShenSha) {
-  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
+  if (hideTimer) {
+    clearTimeout(hideTimer)
+    hideTimer = null
+  }
 
   const key = ss.name + ss.pillar + ss.position
   const btn = event.currentTarget as HTMLElement
@@ -211,21 +248,32 @@ function handleRovingKeydown(e: KeyboardEvent) {
   let nextIdx: number
 
   switch (e.key) {
-    case 'ArrowRight': nextIdx = currentIdx < 0 ? 0 : Math.min(currentIdx + 1, buttons.length - 1); break
-    case 'ArrowLeft': nextIdx = currentIdx < 0 ? buttons.length - 1 : Math.max(currentIdx - 1, 0); break
-    case 'Home': nextIdx = 0; break
-    case 'End': nextIdx = buttons.length - 1; break
-    default: return
+    case 'ArrowRight':
+      nextIdx = currentIdx < 0 ? 0 : Math.min(currentIdx + 1, buttons.length - 1)
+      break
+    case 'ArrowLeft':
+      nextIdx = currentIdx < 0 ? buttons.length - 1 : Math.max(currentIdx - 1, 0)
+      break
+    case 'Home':
+      nextIdx = 0
+      break
+    case 'End':
+      nextIdx = buttons.length - 1
+      break
+    default:
+      return
   }
   e.preventDefault()
-  buttons.forEach((b, i) => { b.tabIndex = i === nextIdx ? 0 : -1 })
+  buttons.forEach((b, i) => {
+    b.tabIndex = i === nextIdx ? 0 : -1
+  })
   buttons[nextIdx].focus()
   // Trigger tooltip for keyboard-focused button
   const dataKey = buttons[nextIdx].getAttribute('data-shensha-key')
   if (dataKey) {
     // Look up ShenSha from all groups
     for (const g of shenShaGroups.value) {
-      const found = g.items.find(s => (s.name + s.pillar + s.position) === dataKey)
+      const found = g.items.find(s => s.name + s.pillar + s.position === dataKey)
       if (found) {
         onTooltipEnter({ currentTarget: buttons[nextIdx] } as unknown as MouseEvent, found)
         break
@@ -245,7 +293,10 @@ onUnmounted(() => {
   background: var(--badge-bg);
   color: var(--badge-text);
   border: 1px solid var(--badge-border);
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .shensha-btn:hover,

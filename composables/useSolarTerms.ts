@@ -5,7 +5,7 @@
 
 import { STEMS, BRANCHES } from '~/constants/bazi'
 
-const solarTermCache = new Map<string, { month: number, day: number }>()
+const solarTermCache = new Map<string, { month: number; day: number }>()
 
 /** Check if a year is a Gregorian leap year */
 function isLeapYear(year: number): boolean {
@@ -21,7 +21,7 @@ function daysInYear(year: number): number {
  * Convert Julian Day to Gregorian date in Beijing time (UTC+8).
  * Uses the standard Gregorian calendar reform (Oct 15, 1582).
  */
-function jdToGregorian(jd: number): { month: number, day: number } {
+function jdToGregorian(jd: number): { month: number; day: number } {
   jd += 8 / 24
 
   const Z = Math.floor(jd + 0.5)
@@ -50,7 +50,7 @@ function jdToGregorian(jd: number): { month: number, day: number } {
  * @param termIndex - 0=立春 through 11=小寒
  * @returns { month, day }
  */
-export function getSolarTerm(year: number, termIndex: number): { month: number, day: number } {
+export function getSolarTerm(year: number, termIndex: number): { month: number; day: number } {
   const cacheKey = `${year}-${termIndex}`
   const cached = solarTermCache.get(cacheKey)
   if (cached) return cached
@@ -63,18 +63,18 @@ export function getSolarTerm(year: number, termIndex: number): { month: number, 
 
   // Initial estimate: mean days from J2000.0 to target ecliptic longitude
   const lonOffset = (longitude - L0 + 360) % 360
-  let jd = J2000 + (year - 2000) * 365.2422 + lonOffset * 365.2422 / 360
+  let jd = J2000 + (year - 2000) * 365.2422 + (lonOffset * 365.2422) / 360
 
   // Newton-Raphson with Equation of Center correction
   for (let iter = 0; iter < 5; iter++) {
     const T = (jd - J2000) / 36525
-    const M = ((357.5291 + 35999.0503 * T) % 360 + 360) % 360
-    const Mrad = M * Math.PI / 180
-    const C = 1.9148 * Math.sin(Mrad) + 0.0200 * Math.sin(2 * Mrad) + 0.0003 * Math.sin(3 * Mrad)
-    const trueLon = ((280.4665 + 36000.7698 * T + C) % 360 + 360) % 360
+    const M = (((357.5291 + 35999.0503 * T) % 360) + 360) % 360
+    const Mrad = (M * Math.PI) / 180
+    const C = 1.9148 * Math.sin(Mrad) + 0.02 * Math.sin(2 * Mrad) + 0.0003 * Math.sin(3 * Mrad)
+    const trueLon = (((280.4665 + 36000.7698 * T + C) % 360) + 360) % 360
     let delta = (longitude - trueLon + 360) % 360
     if (delta > 180) delta -= 360
-    const corr = delta * 365.2422 / 360
+    const corr = (delta * 365.2422) / 360
     jd += corr
     if (Math.abs(corr) < 0.00001) break
   }
@@ -96,7 +96,11 @@ function dayOfYear(month: number, day: number, leap: boolean): number {
  * Determine the month earthly branch based on year, solar month, and day.
  * Month boundaries are defined by computed solar terms (节气) for the given year.
  */
-export function getMonthBranch(year: number, month: number, day: number): typeof BRANCHES[number] {
+export function getMonthBranch(
+  year: number,
+  month: number,
+  day: number,
+): (typeof BRANCHES)[number] {
   const liChun = getSolarTerm(year, 0)
 
   // If before 立春, use the previous cycle (子月 or 丑月)
@@ -111,18 +115,18 @@ export function getMonthBranch(year: number, month: number, day: number): typeof
 
   // On or after 立春: use current cycle terms from 立春 through 小寒 (next year)
   const termDates = [
-    getSolarTerm(year, 0),   // 立春
-    getSolarTerm(year, 1),   // 惊蛰
-    getSolarTerm(year, 2),   // 清明
-    getSolarTerm(year, 3),   // 立夏
-    getSolarTerm(year, 4),   // 芒种
-    getSolarTerm(year, 5),   // 小暑
-    getSolarTerm(year, 6),   // 立秋
-    getSolarTerm(year, 7),   // 白露
-    getSolarTerm(year, 8),   // 寒露
-    getSolarTerm(year, 9),   // 立冬
-    getSolarTerm(year, 10),  // 大雪
-    getSolarTerm(year, 11),  // 小寒 (in next year)
+    getSolarTerm(year, 0), // 立春
+    getSolarTerm(year, 1), // 惊蛰
+    getSolarTerm(year, 2), // 清明
+    getSolarTerm(year, 3), // 立夏
+    getSolarTerm(year, 4), // 芒种
+    getSolarTerm(year, 5), // 小暑
+    getSolarTerm(year, 6), // 立秋
+    getSolarTerm(year, 7), // 白露
+    getSolarTerm(year, 8), // 寒露
+    getSolarTerm(year, 9), // 立冬
+    getSolarTerm(year, 10), // 大雪
+    getSolarTerm(year, 11), // 小寒 (in next year)
   ]
 
   const branches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
@@ -166,12 +170,12 @@ export function getMonthPillar(
   year: number,
   month: number,
   day: number,
-): { stem: typeof STEMS[number]; branch: typeof BRANCHES[number] } {
-  const yearStemIndex = ((year - 4) % 10 + 10) % 10
+): { stem: (typeof STEMS)[number]; branch: (typeof BRANCHES)[number] } {
+  const yearStemIndex = (((year - 4) % 10) + 10) % 10
   const monthBranch = getMonthBranch(year, month, day)
 
   const branchIndex = BRANCHES.indexOf(monthBranch)
-  const monthIndex = ((branchIndex - 2) % 12 + 12) % 12 // 寅=0, 卯=1, ..., 丑=11
+  const monthIndex = (((branchIndex - 2) % 12) + 12) % 12 // 寅=0, 卯=1, ..., 丑=11
 
   const stemStart = getMonthStemStart(yearStemIndex)
   const stemIndex = (stemStart + monthIndex) % 10

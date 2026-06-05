@@ -1,5 +1,15 @@
-export const DIVINATION_TYPES = ['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei', 'cezi', 'hehun', 'name-test', 'zeji'] as const
-export type DivinationType = typeof DIVINATION_TYPES[number]
+export const DIVINATION_TYPES = [
+  'shengxiao',
+  'constellation',
+  'bazi',
+  'yijing',
+  'ziwei',
+  'cezi',
+  'hehun',
+  'name-test',
+  'zeji',
+] as const
+export type DivinationType = (typeof DIVINATION_TYPES)[number]
 
 export interface DivinationCreateResponse {
   id: number

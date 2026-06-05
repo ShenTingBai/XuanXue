@@ -20,12 +20,16 @@ const emit = defineEmits<{
 
 <template>
   <div class="flex items-center justify-between mb-6">
-    <button
-      @click="goBack"
-      class="toolbar-btn"
-      aria-label="返回上一页"
-    >
-      <svg aria-hidden="true" class="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <button class="toolbar-btn" aria-label="返回上一页" @click="goBack">
+      <svg
+        aria-hidden="true"
+        class="w-3.5 h-3.5"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      >
         <path d="M7.5 2.5l-4 3.5 4 3.5" />
       </svg>
       <span>返回</span>
@@ -37,12 +41,20 @@ const emit = defineEmits<{
 
     <button
       v-if="showHistory"
-      @click="emit('history')"
       class="toolbar-btn toolbar-btn--right"
       aria-haspopup="dialog"
+      @click="emit('history')"
     >
       <span>历史记录</span>
-      <svg aria-hidden="true" class="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <svg
+        aria-hidden="true"
+        class="w-3.5 h-3.5"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      >
         <path d="M4.5 2.5l4 3.5-4 3.5" />
       </svg>
     </button>

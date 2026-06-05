@@ -1,12 +1,14 @@
 <template>
-  <div v-if="!hexagram" class="text-center py-8 text-ink-light font-sans text-sm">
-    暂无卦象
-  </div>
+  <div v-if="!hexagram" class="text-center py-8 text-ink-light font-sans text-sm">暂无卦象</div>
 
   <div v-else class="hexagram-container" :style="{ '--delay': '0.15s' }">
     <!-- Hexagram name header -->
     <div class="text-center mb-5">
-      <span v-if="label" class="font-sans text-[0.6875rem] tracking-[0.2em] text-ink-muted uppercase">{{ label }}</span>
+      <span
+        v-if="label"
+        class="font-sans text-[0.6875rem] tracking-[0.2em] text-ink-muted uppercase"
+        >{{ label }}</span
+      >
       <div class="flex items-center justify-center gap-2 mt-1">
         <span class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight">
           {{ hexagram.name }}
@@ -14,9 +16,16 @@
       </div>
       <!-- Decorative ink-wash accent -->
       <div class="flex items-center justify-center gap-2 mt-2" aria-hidden="true">
-        <span class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
-        <span class="block w-1.5 h-1.5 rotate-45" :style="{ backgroundColor: `color-mix(in srgb, var(--color-cinnabar) 60%, transparent)` }"></span>
-        <span class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"></span>
+        <span
+          class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"
+        ></span>
+        <span
+          class="block w-1.5 h-1.5 rotate-45"
+          :style="{ backgroundColor: `color-mix(in srgb, var(--color-cinnabar) 60%, transparent)` }"
+        ></span>
+        <span
+          class="block w-8 h-px bg-gradient-to-r from-transparent via-paper-dark to-transparent"
+        ></span>
       </div>
     </div>
 
@@ -24,11 +33,7 @@
     <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
       <!-- Yao lines column -->
       <div class="flex-shrink-0 mx-auto sm:mx-0">
-        <div
-          class="yao-container"
-          role="group"
-          :aria-label="`${hexagram.name}卦象`"
-        >
+        <div class="yao-container" role="group" :aria-label="`${hexagram.name}卦象`">
           <div
             v-for="(yao, idx) in hexagram.lines"
             :key="idx"
@@ -37,14 +42,14 @@
               'yao-line--yang': yao.isYang,
               'yao-line--yin': !yao.isYang,
               'yao-line--changing': yao.isChanging,
-              'yao-line--shi': hexagram.shiPosition === (idx + 1),
-              'yao-line--ying': hexagram.yingPosition === (idx + 1),
+              'yao-line--shi': hexagram.shiPosition === idx + 1,
+              'yao-line--ying': hexagram.yingPosition === idx + 1,
             }"
           >
             <!-- Position + shi/ying label on the left of bar -->
             <span class="yao-pos" aria-hidden="true">
-              <template v-if="hexagram.shiPosition === (idx + 1)">世</template>
-              <template v-else-if="hexagram.yingPosition === (idx + 1)">应</template>
+              <template v-if="hexagram.shiPosition === idx + 1">世</template>
+              <template v-else-if="hexagram.yingPosition === idx + 1">应</template>
               <template v-else>{{ ['初', '二', '三', '四', '五', '上'][idx] }}</template>
             </span>
 
@@ -82,20 +87,36 @@
           <span class="meta-item">
             <span class="meta-label">上</span>
             <span class="meta-value">{{ upperTrigramName }}</span>
-            <span v-if="upperWuxing" class="meta-badge" :style="{ color: wuxingColor(upperWuxing), borderColor: wuxingColor(upperWuxing) + '40' }">{{ upperWuxing }}</span>
+            <span
+              v-if="upperWuxing"
+              class="meta-badge"
+              :style="{
+                color: wuxingColor(upperWuxing),
+                borderColor: wuxingColor(upperWuxing) + '40',
+              }"
+              >{{ upperWuxing }}</span
+            >
           </span>
           <span class="meta-divider" aria-hidden="true">·</span>
           <span class="meta-item">
             <span class="meta-label">下</span>
             <span class="meta-value">{{ lowerTrigramName }}</span>
-            <span v-if="lowerWuxing" class="meta-badge" :style="{ color: wuxingColor(lowerWuxing), borderColor: wuxingColor(lowerWuxing) + '40' }">{{ lowerWuxing }}</span>
+            <span
+              v-if="lowerWuxing"
+              class="meta-badge"
+              :style="{
+                color: wuxingColor(lowerWuxing),
+                borderColor: wuxingColor(lowerWuxing) + '40',
+              }"
+              >{{ lowerWuxing }}</span
+            >
           </span>
           <template v-if="hexagram?.palaceName">
-          <span class="meta-divider" aria-hidden="true">·</span>
-          <span class="meta-item">
-            <span class="meta-label">属</span>
-            <span class="meta-value">{{ palaceDisplay }}</span>
-          </span>
+            <span class="meta-divider" aria-hidden="true">·</span>
+            <span class="meta-item">
+              <span class="meta-label">属</span>
+              <span class="meta-value">{{ palaceDisplay }}</span>
+            </span>
           </template>
           <span v-if="changingCount > 0" class="meta-divider" aria-hidden="true">·</span>
           <span v-if="changingCount > 0" class="meta-item meta-item--changing">
@@ -134,13 +155,13 @@ function trigramIndex(lines: YaoResult[], start: number): number {
   return (bits[2].isYang ? 4 : 0) | (bits[1].isYang ? 2 : 0) | (bits[0].isYang ? 1 : 0)
 }
 
-const lowerIdx = computed(() => props.hexagram ? trigramIndex(props.hexagram.lines, 0) : -1)
-const upperIdx = computed(() => props.hexagram ? trigramIndex(props.hexagram.lines, 3) : -1)
+const lowerIdx = computed(() => (props.hexagram ? trigramIndex(props.hexagram.lines, 0) : -1))
+const upperIdx = computed(() => (props.hexagram ? trigramIndex(props.hexagram.lines, 3) : -1))
 
-const upperTrigramName = computed(() => upperIdx.value >= 0 ? TRIGRAM_NAMES[upperIdx.value] : '')
-const lowerTrigramName = computed(() => lowerIdx.value >= 0 ? TRIGRAM_NAMES[lowerIdx.value] : '')
-const upperWuxing = computed(() => upperIdx.value >= 0 ? TRIGRAM_WUXING[upperIdx.value] : '')
-const lowerWuxing = computed(() => lowerIdx.value >= 0 ? TRIGRAM_WUXING[lowerIdx.value] : '')
+const upperTrigramName = computed(() => (upperIdx.value >= 0 ? TRIGRAM_NAMES[upperIdx.value] : ''))
+const lowerTrigramName = computed(() => (lowerIdx.value >= 0 ? TRIGRAM_NAMES[lowerIdx.value] : ''))
+const upperWuxing = computed(() => (upperIdx.value >= 0 ? TRIGRAM_WUXING[upperIdx.value] : ''))
+const lowerWuxing = computed(() => (lowerIdx.value >= 0 ? TRIGRAM_WUXING[lowerIdx.value] : ''))
 
 const palaceDisplay = computed(() => {
   if (!props.hexagram?.palaceName) return ''
@@ -154,7 +175,7 @@ const changingDisplay = computed(() => {
   if (!props.hexagram || changingCount.value === 0) return ''
   const posLabels = ['初', '二', '三', '四', '五', '上']
   return props.hexagram.lines
-    .map((l, i) => l.isChanging ? posLabels[i] : null)
+    .map((l, i) => (l.isChanging ? posLabels[i] : null))
     .filter(Boolean)
     .join('、')
 })
@@ -163,7 +184,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   const posLabels = ['初', '二', '三', '四', '五', '上']
   const type = yao.isYang ? '阳爻' : '阴爻'
   const changing = yao.isChanging ? '动爻' : ''
-  const shiYing = hex.shiPosition === (idx + 1) ? '世' : hex.yingPosition === (idx + 1) ? '应' : ''
+  const shiYing = hex.shiPosition === idx + 1 ? '世' : hex.yingPosition === idx + 1 ? '应' : ''
   return `${posLabels[idx]}爻 ${type} ${changing} ${shiYing}`.trim()
 }
 </script>
@@ -214,7 +235,9 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   height: 6px;
   border-radius: 3px;
   background: var(--color-ink-dark);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .yao-bar--solid {
@@ -386,15 +409,24 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   }
 }
 
-
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0px var(--color-cinnabar); }
-  50% { box-shadow: 0 0 8px var(--color-cinnabar); }
+  0%,
+  100% {
+    box-shadow: 0 0 0px var(--color-cinnabar);
+  }
+  50% {
+    box-shadow: 0 0 8px var(--color-cinnabar);
+  }
 }
 
 @keyframes pulseDot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 </style>
 
