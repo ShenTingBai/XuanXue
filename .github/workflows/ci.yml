@@ -28,6 +28,7 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
+      - run: npx nuxi prepare
       - run: npm test
 
   lint:
