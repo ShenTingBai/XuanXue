@@ -93,6 +93,24 @@
 
 回退色：`#6B5B4F`（来自 `WUXING_FALLBACK_COLOR` 常量）。
 
+### 2.6 颜色处理硬规：`color-mix()` 替代 opacity/rgba
+
+**禁止**使用以下方式处理颜色：
+
+| ❌ 禁止 | ✅ 正确 |
+|---------|---------|
+| `rgba(198, 40, 40, 0.08)` | `color-mix(in srgb, var(--color-cinnabar) 8%, transparent)` |
+| `bg-cinnabar/10` | scoped CSS: `background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent)` |
+| `opacity-60` 降低文字 | `text-ink-medium` 或 `color-mix(in srgb, var(--color-ink) 60%, transparent)` |
+| `text-cinnabar/80` | `text-cinnabar`（全饱和度）或 scoped CSS color-mix |
+
+**原因**：
+- Tailwind 的 `bg-color/opacity` 用 CSS `opacity` 属性实现，会同时影响文字和子元素
+- `color-mix()` 只降低颜色饱和度，不影响元素整体透明度
+- 在多层叠加卡片（Ink Resonance 的核心视觉特征）中，`opacity` 会导致叠加区域颜色失真
+
+**适用范围**：所有背景色、边框色、阴影色。文字色仅在不适合用现有 ink token 时使用 color-mix。
+
 ---
 
 ## 3. 字体系统
@@ -153,6 +171,7 @@
 
 - 朱砂描边 + 透明底，hover 填充
 - 适用：主要操作（开始分析、开始合婚、开始测字等）
+- **禁止前缀字符**：`<span>` 内只放纯文字（"开始测字"），不放 "⟲"、">" 等前缀。重新操作的按钮用 `btn-ink` + "⟲ 重新X"
 
 #### `btn-ghost` — 幽灵按钮
 
@@ -291,6 +310,61 @@
 - hover：卡片上浮 4px，多层阴影（inset + 外阴影 + 朱砂光环）
 - 锁定态：`opacity-50 cursor-default`，印章变 `ink-light` 灰底
 
+#### `cezi-slip` — 测字符纸卡片
+
+用于测字结果展示，模拟古旧符纸/卷轴质感的专用卡片：
+
+```html
+<div class="cezi-slip">
+  <!-- 内容 -->
+</div>
+```
+
+- 背景：`linear-gradient(175deg, var(--color-scroll-light), var(--color-scroll), var(--color-scroll-dark))`
+- 使用 scroll-* 色阶（比 paper 更暖），三色渐变模拟古卷光泽
+- 内边距 `p-6 sm:p-8`（因卡片本身有文字篇幅需求）
+- 定义在 `pages/tools/cezi.vue` `<style scoped>` 中
+- 适用：测字结果展示。**不**作为通用卡片——其他页面用 `card-warm`
+
+#### `score-banner` — 分数横幅
+
+用于展示总分 + 评级 + 环形图 + 总结，典型的"结果页头牌"模式：
+
+```html
+<div class="score-banner">
+  <div class="score-banner__left">
+    <div class="score-banner__grade">大吉</div>
+    <div class="score-banner__name">{{ fullName }}</div>
+  </div>
+  <div class="score-banner__center">
+    <ScoreRing :score="totalScore" :size="64" />
+  </div>
+  <div class="score-banner__right">
+    <p class="score-banner__summary">{{ summary }}</p>
+  </div>
+</div>
+```
+
+- 左侧朱砂竖线 `border-l-[3px] border-l-cinnabar` 标注重点
+- 三栏 flex 布局：评级+名称 / 环形图 / 摘要
+- 使用 `color-mix(in srgb, var(--color-cinnabar) 5%, transparent)` 浅底
+- 定义在 `pages/tools/name-test.vue` `<style scoped>` 中
+- 适用：姓名测试、合婚等有明确总分的工具页结果首屏
+
+#### `border-left` 朱砂强调卡片
+
+不需要完整 `score-banner` 时的轻量强调模式：
+
+```html
+<div class="card-warm rounded-xl p-8 border-l-[3px] border-l-cinnabar" :style="{ background: `color-mix(in srgb, var(--color-cinnabar) 5%, var(--color-paper-card))` }">
+  <!-- 内容 -->
+</div>
+```
+
+- 左侧 3px 朱砂竖线 + 5% 朱砂 tint 底色
+- 适用：合婚综论卡片、主结论卡片
+- 注意：必须在 `<style>` 中用 `color-mix()` 做背景，不能用 Tailwind 的 `bg-cinnabar/5`（违反 color-mix 规则）
+
 #### `wuxing-card` — 五行属性卡
 
 ```
@@ -366,15 +440,30 @@
 
 #### `section-header` — 分区标题
 
+**独立使用**（全宽朱丝栏横线）：
 ```html
 <div class="section-header">
   <h2>分区标题</h2>
 </div>
 ```
 
-- 顶线（1px 朱砂淡线）+ 底部小朱砂圆点装饰
+- 顶线（1px 朱砂淡线 `::before left:0; right:0`）+ 底部小朱砂圆点装饰
 - h2 字体：`font-display text-xl`
-- 适用：所有结果分区的标题
+- 适用：卡片内的独立分区标题
+
+**与 MethodologyNote 并排**（全宽横线 + 溯源面板居右）：
+```html
+<div class="flex items-center justify-between mb-6">
+  <div class="section-header !mb-0 flex-1 min-w-0">
+    <h2>分区标题</h2>
+  </div>
+  <MethodologyNote :classical="..." :synthesis="..." tool="..." />
+</div>
+```
+
+- `flex-1 min-w-0` 确保 section-header 拓满可用空间，`::before` 朱丝栏横线为全宽
+- `!mb-0` 抵消 section-header 默认的 `margin-bottom: 1.5rem`，间距由外层 flex 容器的 `mb-6` 控制
+- MethodologyNote 占据自然宽度，右对齐
 
 #### `divider-ink` — 墨韵分割线
 
@@ -462,6 +551,53 @@
 | `SkeletonBars` | `components/tools/SkeletonBars.vue` | 骨架屏柱状图 |
 | `InkDivider` | `components/tools/InkDivider.vue` | 墨韵分割线 |
 | `PageHero` | `components/tools/PageHero.vue` | 页面标题区 |
+| `MethodologyNote` | `components/tools/MethodologyNote.vue` | 方法论溯源面板 |
+
+#### `MethodologyNote` — 方法论溯源面板
+
+每个工具页**必须**包含此组件，标注计算方法的古典来源与开发者合成逻辑：
+
+```html
+<script setup lang="ts">
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+
+const classical: ClassicalSource[] = [
+  { method: '方法名', source: '《典籍名》卷次·章节（朝代作者），补充说明' },
+  // 通常 4-5 条
+]
+const synthesis: string[] = [
+  '开发者合成的具体逻辑描述',
+  '评分公式 / 阈值约定 / 工程校准说明',
+]
+</script>
+
+<template>
+  <MethodologyNote
+    :classical="classical"
+    :synthesis="synthesis"
+    tool="工具名"
+  />
+</template>
+```
+
+**Props**：
+| Prop | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `classical` | `ClassicalSource[]` | 是 | `{ method: string, source: string }` 数组，每条对应一个古典方法 |
+| `synthesis` | `string[]` | 是 | 开发者合成逻辑列表 |
+| `tool` | `string` | 是 | 工具名称，显示在面板标题中（如 "八字 · 方法论溯源"） |
+
+**放置规则**：
+| 页面类型 | 放置位置 | 示例 |
+|---------|---------|------|
+| 有输入区的工具（测字、姓名、合婚） | 输入卡片内，与 section-header 并排 | cezi、name-test |
+| 无输入区的工具（八字、生肖、星座、紫微、择吉、易经） | 结果区顶部，与 section-header 并排 | bazi、shengxiao、constellation、ziwei、zeji、yijing |
+
+**数据规范**：
+- `method`：简短的方法名（≤15 字），让读者一眼知道这是什么
+- `source`：完整的文献溯源，包含书名、卷次、朝代、作者
+- `synthesis` 每条以 `→`、`=` 等符号开头表示具体的工程决策
+- `synthesis` 中标注所有**非经典原文直接输出**的内容（评分公式、阈值、权重、模板拼接）
 
 ### 4.8 导航
 
@@ -801,11 +937,14 @@ const prefersReducedMotion = import.meta.client
 3. **禁止** `text-[0.6rem]` 或更小字号。硬底线 0.6875rem，且必须搭配 `ink-medium` 以上的颜色。
 4. **禁止** 在 `WUXING_COLORS` 或 `WUXING_FALLBACK_COLOR` 之外硬编码颜色。
 5. **禁止** 用 `text-opacity-*` 或 `opacity-*` 降低文字对比度。用 `text-ink-medium` / `text-ink-light` 替代。
-6. **禁止** 引入朱砂/金/玉/墨/纸之外的色板。不要用紫色渐变、蓝色链接等。
-7. **禁止** 卡片内边距用 `p-6 sm:p-8`。固定 `p-8`。
-8. **禁止** `@keyframes` 放在 CSS `@layer` 块内。
-9. **禁止** `aria-haspopup="true"`。用 `"menu"` 或 `"dialog"`。
-10. **禁止** 为单次使用创建抽象组件。复用已有的通用组件（FortuneBars、ScoreRing 等）。
+6. **禁止** 用 Tailwind 的 `bg-color/N` 透明度语法（如 `bg-cinnabar/10`）或 `rgba()` 做背景色。用 scoped CSS 中的 `color-mix(in srgb, var(--color-*), N%, transparent)` 替代。详见 §2.6。
+7. **禁止** `btn-seal` 的 `<span>` 内加前缀字符（"⟲"、">" 等）。重新操作的按钮用 `btn-ink`。
+8. **禁止** 引入朱砂/金/玉/墨/纸之外的色板。不要用紫色渐变、蓝色链接等。
+9. **禁止** 卡片内边距用 `p-6 sm:p-8`。固定 `p-8`。
+10. **禁止** `@keyframes` 放在 CSS `@layer` 块内。
+11. **禁止** `aria-haspopup="true"`。用 `"menu"` 或 `"dialog"`。
+12. **禁止** 为单次使用创建抽象组件。复用已有的通用组件（FortuneBars、ScoreRing 等）。
+13. **禁止** 新工具页不加 `MethodologyNote`。所有 12 个工具页必须标注方法论溯源。
 
 ---
 
@@ -945,4 +1084,4 @@ onMounted(() => {
 
 ---
 
-> **最后更新**：2026-06-04（初始版本，归纳自全量代码审计）
+> **最后更新**：2026-06-05（P0 同步审计新增模式：color-mix 硬规 + MethodologyNote + section-header flex 模式 + cezi-slip/score-banner/border-left 卡片变体 + btn-seal 纯文本规则）
