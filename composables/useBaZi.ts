@@ -436,12 +436,15 @@ export function getFavorableElements(
     unfavorable = [controlling[dayMasterWuxing], dayMasterWuxing]
   }
 
-  // Seasonal climate adjustment (调候) — prepend if provided and not already present
+  // Seasonal climate adjustment (调候) — prepend if provided and not already present.
+  // 调候优先: when the seasonal element appears in unfavorable, move it to favorable
+  // instead of leaving it duplicated in both lists.
   if (monthBranchIndex !== undefined) {
     const seasonal = getSeasonalAdjustment(monthBranchIndex)
     if (!favorable.includes(seasonal)) {
       favorable = [seasonal, ...favorable]
     }
+    unfavorable = unfavorable.filter(e => e !== seasonal)
   }
 
   return [favorable, unfavorable]
