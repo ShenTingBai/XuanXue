@@ -212,7 +212,7 @@ async function onHistoryRestore(id: number) {
     if (
       record.result_data &&
       typeof record.result_data === 'object' &&
-      record.result_data.totalScore !== undefined
+      (record.result_data as Record<string, unknown>).totalScore !== undefined
     ) {
       result.value = record.result_data as HeHunResult
       restoreError.value = ''

@@ -156,7 +156,7 @@ async function onHistoryRestore(id: number) {
     if (
       record.result_data &&
       typeof record.result_data === 'object' &&
-      record.result_data.fullName
+      (record.result_data as Record<string, unknown>).fullName
     ) {
       result.value = record.result_data as NameTestResult
       restoreError.value = ''

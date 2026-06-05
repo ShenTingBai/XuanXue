@@ -52,7 +52,7 @@ export default defineEventHandler(async event => {
   // Account lockout: count failed logins in the last 15 minutes
   const recentFailures = dbGet(
     "SELECT COUNT(*) as count FROM security_log WHERE profile_id = ? AND event_type = 'login_failed' AND created_at > datetime('now', '-15 minutes')",
-    [profile.id],
+    [profile.id as number],
   )
 
   if (recentFailures && (recentFailures.count as number) >= 10) {
@@ -69,7 +69,7 @@ export default defineEventHandler(async event => {
       throw createError({ statusCode: 401, statusMessage: '昵称或PIN码错误' })
     }
     const hashed = hashPin(pin)
-    dbRun('UPDATE profiles SET pin = ? WHERE id = ?', [hashed, profile.id])
+    dbRun('UPDATE profiles SET pin = ? WHERE id = ?', [hashed, profile.id as number])
   } else {
     // Verify PIN using hashed comparison
     const pinValid = verifyPin(pin, storedPin)

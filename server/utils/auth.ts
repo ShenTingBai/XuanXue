@@ -55,8 +55,9 @@ export function getProfileIdFromToken(rawToken: string): number | null {
 
   // Check expiry
   if (session.expires_at) {
+    const expiresAtStr = session.expires_at as string
     const expiresAt = new Date(
-      session.expires_at.endsWith('Z') ? session.expires_at : session.expires_at + 'Z',
+      expiresAtStr.endsWith('Z') ? expiresAtStr : expiresAtStr + 'Z',
     ).getTime()
     if (Date.now() > expiresAt) {
       // Delete expired session

@@ -367,9 +367,9 @@ async function restoreFromHistory(id: number) {
 
     // Restore from result_data
     if (record.result_data) {
-      const data = record.result_data as Record<string, unknown>
+      const data = record.result_data as unknown as YijingResult
       if (data.hexagram && data.lines) {
-        result.value = data as YijingResult
+        result.value = data
         score.value = data.score ?? 0
       }
     }

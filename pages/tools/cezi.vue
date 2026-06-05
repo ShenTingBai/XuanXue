@@ -159,7 +159,7 @@ async function onHistoryRestore(id: number) {
     if (
       record.result_data &&
       typeof record.result_data === 'object' &&
-      record.result_data.character
+      (record.result_data as Record<string, unknown>).character
     ) {
       result.value = record.result_data as CeziResult
       restoreError.value = ''

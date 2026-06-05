@@ -89,17 +89,20 @@ function formatHistoryDate(dateStr: string): string {
   }
 }
 
-function formatHistoryLabel(inputData: Record<string, unknown>): string {
+function formatHistoryLabel(input: unknown): string {
+  const inputData = input as Record<string, unknown>
   if (!inputData) return ''
   if (props.type === 'bazi') {
-    const { birthYear, birthMonth, birthDay, gender } = inputData
+    const { birthYear, gender } = inputData
+    const birthMonth = inputData.birthMonth as number | undefined
+    const birthDay = inputData.birthDay as number | undefined
     const pad = (n: number | undefined) => (n ? String(n).padStart(2, '0') : '??')
     let label = `${birthYear || '??'}-${pad(birthMonth)}-${pad(birthDay)}`
     if (gender) label += ` ${gender}`
     return label
   }
   if (props.type === 'shengxiao') {
-    const year = inputData.representativeYear
+    const year = inputData.representativeYear as number | undefined
     if (!year) return ''
     return `${year}年 生肖${getAnimal(year)}`
   }
@@ -107,11 +110,15 @@ function formatHistoryLabel(inputData: Record<string, unknown>): string {
     // Precomputed rich label stored at save time
     if (inputData.historyLabel) return inputData.historyLabel as string
     // Fallback: construct from individual fields
-    const { birthYear, birthMonth, birthDay, birthHour, gender } = inputData
+    const { birthYear, gender } = inputData
+    const birthMonth = inputData.birthMonth as number | undefined
+    const birthDay = inputData.birthDay as number | undefined
+    const birthHour = inputData.birthHour as number | undefined
     if (!birthYear || !birthMonth || !birthDay) return ''
     const pad = (n: number | undefined) => (n ? String(n).padStart(2, '0') : '??')
     const label = `${birthYear}-${pad(birthMonth)}-${pad(birthDay)}`
-    const hourLabel = birthHour !== undefined && birthHour !== null ? ` 第${birthHour + 1}时` : ''
+    const hourLabel =
+      birthHour !== undefined && birthHour !== null ? ` 第${(birthHour as number) + 1}时` : ''
     const genderLabel = gender ? ` ${gender === 'male' ? '男' : '女'}` : ''
     return `${label}${hourLabel}${genderLabel}`
   }
@@ -138,7 +145,8 @@ function formatHistoryLabel(inputData: Record<string, unknown>): string {
     return eventName ? `择吉 · ${eventName}` : '择吉'
   }
   // constellation
-  const { month, day } = inputData
+  const month = inputData.month as number
+  const day = inputData.day as number
   if (!month || !day) return ''
   const idx = getZodiacIndex(month, day)
   return `${month}月${day}日 ${ZODIACS[idx].name}`

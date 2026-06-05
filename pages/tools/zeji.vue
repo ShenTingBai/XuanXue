@@ -234,9 +234,9 @@ async function onHistoryRestore(id: number) {
     if (
       record.result_data &&
       typeof record.result_data === 'object' &&
-      record.result_data.eventType
+      (record.result_data as Record<string, unknown>).eventType
     ) {
-      selectedEvent.value = record.result_data.eventType
+      selectedEvent.value = (record.result_data as Record<string, unknown>).eventType as string
       restoreError.value = ''
     } else {
       restoreError.value = '历史记录数据无效'

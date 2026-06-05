@@ -265,7 +265,7 @@ export function dbRun(
   const isInsert = /^\s*INSERT\b/i.test(sql.trim())
   const idResult = isInsert ? dbGet('SELECT last_insert_rowid() as id') : undefined
   return {
-    lastInsertRowid: idResult?.id ?? 0,
+    lastInsertRowid: (idResult?.id as number) ?? 0,
     changes: database.getRowsModified(),
   }
 }
