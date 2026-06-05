@@ -135,7 +135,7 @@ function evaluateDay(year: number, month: number, day: number, eventType: string
   for (const item of ji) {
     if (itemMatchesKeywords(item, keywords)) {
       matchedJi.push(item)
-      score -= 20
+      score -= 5
       matchReasons.push(`忌「${item}」`)
     }
   }
