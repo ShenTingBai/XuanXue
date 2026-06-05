@@ -20,7 +20,6 @@ import YiJiPanel from '~/components/tools/constellation/YiJiPanel.vue'
 import ConstellationNav from '~/components/tools/constellation/Nav.vue'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -513,8 +512,6 @@ function scrollToConstellationNav() {
             @close="showHistoryModal = false"
             @restore="onHistoryRestore"
           />
-
-          <EntertainmentDisclaimer />
         </div>
       </Transition>
 

@@ -8,7 +8,6 @@ const router = useRouter()
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -524,8 +523,6 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             </div>
           </div>
         </div>
-
-        <EntertainmentDisclaimer />
       </template>
     </div>
 
@@ -547,7 +544,6 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
     </Transition>
 
     <HistoryModal
-      v-if="showHistoryModal"
       :show="showHistoryModal"
       type="name-test"
       @close="showHistoryModal = false"

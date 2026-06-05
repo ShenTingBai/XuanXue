@@ -28,7 +28,6 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
 import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
@@ -493,8 +492,6 @@ async function restoreFromHistory(id: number) {
           </button>
         </div>
       </div>
-
-      <EntertainmentDisclaimer />
 
       <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
     </template>

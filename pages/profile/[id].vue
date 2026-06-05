@@ -668,6 +668,7 @@ const saveProfile = async () => {
       </form>
     </div>
   </div>
+  <PageFooter />
 </template>
 
 <style scoped>

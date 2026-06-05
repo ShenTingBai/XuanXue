@@ -20,7 +20,6 @@ import ZiWeiDetailPanel from '~/components/tools/ziwei/ZiWeiDetailPanel.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
 import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
@@ -467,8 +466,6 @@ function dismissRestoreError() {
             <span>浏览历史</span>
           </button>
         </div>
-
-        <EntertainmentDisclaimer />
       </div>
 
       <ScrollTopButton
