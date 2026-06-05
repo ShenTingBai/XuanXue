@@ -45,7 +45,7 @@ const bYear = ref(defaultYear)
 const bMonth = ref(6)
 const bDay = ref(15)
 const bDateStr = ref(`${defaultYear}-06-15`)
-const bHour = ref<number | null>(12)
+const bHour = ref<string>('12')
 const bGender = ref<'男' | '女'>('男')
 const bCalendar = ref<'solar' | 'lunar'>('solar')
 const bNickname = ref('')
@@ -148,7 +148,7 @@ function computeHeHun() {
       year: bYear.value,
       month: bMonth.value,
       day: bDay.value,
-      hour: bHour.value,
+      hour: bHour.value === '' ? null : parseInt(bHour.value, 10),
       gender: bGender.value,
       calendar: bCalendar.value,
       nickname: bNickname.value.trim() || '对方',
@@ -296,8 +296,15 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 
         <!-- ══ 输入区 ══ -->
         <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-          <div class="section-header">
-            <h2>对方信息</h2>
+          <div class="flex items-center justify-between mb-6">
+            <div class="section-header !mb-0 flex-1 min-w-0">
+              <h2>对方信息</h2>
+            </div>
+            <MethodologyNote
+              tool="八字合婚"
+              :classical="hehunClassical"
+              :synthesis="hehunSynthesis"
+            />
           </div>
           <p class="text-xs text-ink-muted mb-6 tracking-wide">输入对方的出生信息进行合婚分析</p>
 
@@ -348,7 +355,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
             <!-- Hour -->
             <div>
               <label for="b-hour" class="input-label">出生时辰</label>
-              <select id="b-hour" v-model.number="bHour" class="input-ink w-full">
+              <select id="b-hour" v-model="bHour" class="input-ink w-full">
                 <option :value="null">未知</option>
                 <option v-for="h in 12" :key="h" :value="h * 2 - 2">
                   {{ '子丑寅卯辰巳午未申酉戌亥'[h - 1] }}时（{{
@@ -433,17 +440,16 @@ const computedGrade = computed<HeHunGrade | null>(() => {
               />
             </div>
 
-            <!-- Summary -->
-            <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.25s' }">
-              <div class="flex items-center justify-between">
-                <div class="section-header flex-1 min-w-0">
-                  <h2>合婚综论</h2>
-                </div>
-                <MethodologyNote
-                  tool="八字合婚"
-                  :classical="hehunClassical"
-                  :synthesis="hehunSynthesis"
-                />
+            <div
+              class="fade-in mt-6 card-warm rounded-xl p-8 result-summary"
+              :style="{
+                '--delay': '0.25s',
+                borderLeft: '3px solid color-mix(in srgb, var(--color-cinnabar) 30%, transparent)',
+                background: 'color-mix(in srgb, var(--color-cinnabar) 4%, var(--color-paper-card))',
+              }"
+            >
+              <div class="section-header">
+                <h2>合婚综论</h2>
               </div>
               <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4">
                 {{ result.summary }}
@@ -455,7 +461,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
                 <p
                   v-for="(w, i) in result.warnings"
                   :key="i"
-                  class="font-sans text-xs text-ink-light pl-3 border-l-2 border-cinnabar/30"
+                  class="font-sans text-xs text-ink-light pl-3 warning-accent"
                 >
                   {{ w }}
                 </p>
@@ -659,5 +665,9 @@ const computedGrade = computed<HeHunGrade | null>(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.warning-accent {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
 }
 </style>

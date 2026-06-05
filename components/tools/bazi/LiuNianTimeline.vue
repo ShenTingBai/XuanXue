@@ -46,7 +46,7 @@
         <!-- Current year: expanded card -->
         <div
           v-if="year.detail"
-          class="card-warm rounded-xl p-8 border-2 border-cinnabar bg-cinnabar/3"
+          class="card-warm rounded-xl p-8 border-2 border-cinnabar liunian-current-bg"
           :role="'region'"
           :aria-label="`${year.year}年流年详批`"
         >
@@ -115,7 +115,7 @@
                 <div
                   v-for="ms in year.detail.monthlyStems"
                   :key="ms.month"
-                  class="text-center rounded py-1 px-1 bg-paper-lightest/80 border border-paper-dark/30"
+                  class="text-center rounded py-1 px-1 liunian-month-bg border liunian-month-border"
                   role="gridcell"
                 >
                   <div class="font-sans text-xs text-ink-light">{{ monthLabel(ms.month) }}</div>
@@ -188,7 +188,7 @@
               >({{ year.isFavorable ? '喜用神' : year.isUnfavorable ? '忌神' : '中性' }})</span
             >
             <!-- Score bar -->
-            <div class="flex-1 h-1.5 rounded-full bg-paper-dark/40 overflow-hidden">
+            <div class="flex-1 h-1.5 rounded-full liunian-score-track overflow-hidden">
               <div
                 class="h-full rounded-full transition-all"
                 :style="{ width: year.score + '%', background: scoreColor(year.score) }"
@@ -331,3 +331,18 @@ function shenShaBadgeStyleLocal(category: '吉' | '凶' | '中性'): Record<stri
   return { background: s.bg, color: s.text, border: `1px solid ${s.border}` }
 }
 </script>
+
+<style scoped>
+.liunian-current-bg {
+  background: color-mix(in srgb, var(--color-cinnabar) 3%, transparent);
+}
+.liunian-month-bg {
+  background: color-mix(in srgb, var(--color-paper-lightest) 80%, transparent);
+}
+.liunian-score-track {
+  background: color-mix(in srgb, var(--color-paper-dark) 40%, transparent);
+}
+.liunian-month-border {
+  border-color: color-mix(in srgb, var(--color-paper-dark) 30%, transparent);
+}
+</style>

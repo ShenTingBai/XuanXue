@@ -24,17 +24,14 @@ const listRef = ref<HTMLUListElement | null>(null)
 const closeButtonRef = ref<HTMLElement | null>(null)
 const activeOptionIdx = ref(0)
 
-watch(
-  () => props.show,
-  val => {
-    if (val) {
-      fetchHistory()
-      nextTick(() => {
-        closeButtonRef.value?.focus()
-      })
-    }
-  },
-)
+watchEffect(() => {
+  if (props.show && import.meta.client) {
+    fetchHistory()
+    nextTick(() => {
+      closeButtonRef.value?.focus()
+    })
+  }
+})
 
 function trapFocusBack() {
   closeButtonRef.value?.focus()

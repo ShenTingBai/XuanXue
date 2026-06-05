@@ -320,6 +320,7 @@ async function restoreFromHistory(id: number) {
               : 'text-ink-medium hover:bg-paper-medium/50',
           ]"
           @click="selectAnimal(idx)"
+          @keydown.enter="selectAnimal(idx)"
           @keydown.space.prevent="selectAnimal(idx)"
         >
           {{ animal }}
@@ -477,6 +478,7 @@ async function restoreFromHistory(id: number) {
           <button
             class="btn-cin"
             @click="scrollToAnimalNav"
+            @keydown.enter="scrollToAnimalNav"
             @keydown.space.prevent="scrollToAnimalNav"
           >
             <span>切换生肖</span>

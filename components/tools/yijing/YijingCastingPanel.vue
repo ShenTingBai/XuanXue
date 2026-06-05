@@ -99,6 +99,7 @@
         :disabled="currentToss >= 6 || isFlipping"
         :aria-busy="isFlipping ? 'true' : undefined"
         @click="handleTossClick"
+        @keydown.enter="handleTossClick"
         @keydown.space.prevent="handleTossClick"
       >
         <span>{{ currentToss >= 6 ? '卦象已成' : isFlipping ? '摇动中...' : '摇卦' }}</span>

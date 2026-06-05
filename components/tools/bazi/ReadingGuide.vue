@@ -1,7 +1,7 @@
 <template>
   <div
     id="reading-guide"
-    class="mb-8 p-8 rounded-xl card-warm border border-cinnabar/15 scroll-mt-20"
+    class="mb-8 p-8 rounded-xl card-warm border guide-border-accent scroll-mt-20"
     tabindex="-1"
   >
     <div class="section-header">
@@ -40,13 +40,7 @@
             v-for="shen in readingGuideShensha"
             :key="shen.name + shen.pillar"
             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-            :class="{
-              'bg-wuxing-wood/10 text-wuxing-wood border border-wuxing-wood/25':
-                shen.category === '吉',
-              'bg-cinnabar/5 text-cinnabar border border-cinnabar/20': shen.category === '凶',
-              'bg-paper-dark/30 text-ink-medium border border-paper-dark/50':
-                shen.category === '中性',
-            }"
+            :style="shenShaBadgeStyleLocal(shen.category)"
           >
             <span class="font-display text-sm">{{ shen.name }}</span>
             <span
@@ -82,7 +76,7 @@
           <span class="font-display text-lg text-ink-dark"
             >{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span
           >
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{
+          <span class="px-2 py-0.5 rounded text-xs font-medium guide-tag-bg text-ink-medium">{{
             currentYearLiuNian.tenGod
           }}</span>
           <span
@@ -152,8 +146,8 @@
             :key="el"
             class="p-2 rounded-lg border"
             :style="{
-              borderColor: ELEMENT_COLORS[el] + '40',
-              backgroundColor: ELEMENT_COLORS[el] + '08',
+              borderColor: `color-mix(in srgb, ${ELEMENT_COLORS[el]} 25%, transparent)`,
+              backgroundColor: `color-mix(in srgb, ${ELEMENT_COLORS[el]} 5%, transparent)`,
             }"
           >
             <span class="font-medium" :style="{ color: ELEMENT_COLORS[el] }">{{ el }}</span>
@@ -168,8 +162,8 @@
               :key="el"
               class="p-2 rounded-lg border"
               :style="{
-                borderColor: ELEMENT_COLORS[el] + '25',
-                backgroundColor: ELEMENT_COLORS[el] + '05',
+                borderColor: `color-mix(in srgb, ${ELEMENT_COLORS[el]} 15%, transparent)`,
+                backgroundColor: `color-mix(in srgb, ${ELEMENT_COLORS[el]} 2%, transparent)`,
               }"
             >
               <span
@@ -195,7 +189,13 @@ import {
   WUXING_COLORS as ELEMENT_COLORS,
   ELEMENT_LIFE_AREA,
   getDaYunMeaning,
+  shenShaBadgeStyle,
 } from '~/constants/bazi'
+
+function shenShaBadgeStyleLocal(category: '吉' | '凶' | '中性'): Record<string, string> {
+  const s = shenShaBadgeStyle(category)
+  return { background: s.bg, color: s.text, border: `1px solid ${s.border}` }
+}
 
 defineProps<{
   dayMaster: string
@@ -208,3 +208,12 @@ defineProps<{
   currentDaYun: DaYunCycle | null
 }>()
 </script>
+
+<style scoped>
+.guide-border-accent {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+.guide-tag-bg {
+  background: color-mix(in srgb, var(--color-paper-dark) 30%, transparent);
+}
+</style>

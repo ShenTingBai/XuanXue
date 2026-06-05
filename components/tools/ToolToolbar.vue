@@ -35,7 +35,7 @@ const emit = defineEmits<{
       <span>返回</span>
     </button>
 
-    <span class="hidden sm:block h-4 w-px bg-ink-faint/20" aria-hidden="true" />
+    <span class="hidden sm:block h-4 w-px toolbar__divider" aria-hidden="true" />
 
     <slot name="extra" />
 
@@ -75,12 +75,15 @@ const emit = defineEmits<{
 }
 .toolbar-btn:hover {
   color: var(--color-cinnabar);
-  background: rgba(198, 40, 40, 0.04);
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
 }
 .toolbar-btn:active {
   transform: scale(0.97);
 }
 .toolbar-btn--right {
   margin-left: auto;
+}
+.toolbar__divider {
+  background: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
 }
 </style>

@@ -37,11 +37,31 @@ const switchMode = () => {
 }
 
 const handleTabKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'ArrowLeft' || e.key === 'Home') {
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    if (isLogin.value) {
+      // Wrap: login → register
+      isLogin.value = false
+      nextTick(() => document.getElementById('tab-register')?.focus())
+    } else {
+      isLogin.value = true
+      nextTick(() => document.getElementById('tab-login')?.focus())
+    }
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault()
+    if (!isLogin.value) {
+      // Wrap: register → login
+      isLogin.value = true
+      nextTick(() => document.getElementById('tab-login')?.focus())
+    } else {
+      isLogin.value = false
+      nextTick(() => document.getElementById('tab-register')?.focus())
+    }
+  } else if (e.key === 'Home') {
     e.preventDefault()
     isLogin.value = true
     nextTick(() => document.getElementById('tab-login')?.focus())
-  } else if (e.key === 'ArrowRight' || e.key === 'End') {
+  } else if (e.key === 'End') {
     e.preventDefault()
     isLogin.value = false
     nextTick(() => document.getElementById('tab-register')?.focus())
@@ -119,7 +139,8 @@ const submit = async () => {
 
         <!-- Mode Tabs -->
         <div
-          class="flex mb-7 rounded-lg bg-paper-medium/40 p-0.5 relative"
+          class="flex mb-7 rounded-lg p-0.5 relative"
+          :style="{ background: 'color-mix(in srgb, var(--color-paper-medium) 40%, transparent)' }"
           role="tablist"
           aria-label="登录或注册"
           @keydown="handleTabKeydown"
@@ -158,11 +179,16 @@ const submit = async () => {
         <Transition name="fade">
           <div
             v-if="expiredNote"
-            class="mb-6 px-4 py-3 rounded-lg bg-gold/8 border border-gold/20 text-ink-dark text-sm flex items-center gap-2.5"
+            class="mb-6 px-4 py-3 rounded-lg border text-ink-dark text-sm flex items-center gap-2.5"
+            :style="{
+              background: 'color-mix(in srgb, var(--color-gold) 8%, transparent)',
+              borderColor: 'color-mix(in srgb, var(--color-gold) 20%, transparent)',
+            }"
             role="alert"
           >
             <span
-              class="flex-shrink-0 w-5 h-5 rounded-full bg-gold/25 flex items-center justify-center text-gold text-xs font-bold"
+              class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-gold text-xs font-bold"
+              :style="{ background: 'color-mix(in srgb, var(--color-gold) 25%, transparent)' }"
               >!</span
             >
             <span>{{ expiredNote }}</span>
@@ -174,7 +200,11 @@ const submit = async () => {
           <div
             v-if="error"
             id="login-error"
-            class="mb-6 px-4 py-2.5 rounded-lg bg-cinnabar/5 border border-cinnabar/15 text-cinnabar text-sm"
+            class="mb-6 px-4 py-2.5 rounded-lg border text-cinnabar text-sm"
+            :style="{
+              background: 'color-mix(in srgb, var(--color-cinnabar) 5%, transparent)',
+              borderColor: 'color-mix(in srgb, var(--color-cinnabar) 15%, transparent)',
+            }"
             role="alert"
           >
             {{ error }}
@@ -260,6 +290,8 @@ const submit = async () => {
           <button
             class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
             @click="switchMode"
+            @keydown.enter="switchMode"
+            @keydown.space.prevent="switchMode"
           >
             结缘注册
           </button>
@@ -269,13 +301,12 @@ const submit = async () => {
           <button
             class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
             @click="switchMode"
+            @keydown.enter="switchMode"
+            @keydown.space.prevent="switchMode"
           >
             入卷登录
           </button>
         </div>
-
-        <!-- Bottom talisman line -->
-        <div class="talisman-line mt-6" />
       </div>
     </div>
   </div>
@@ -297,9 +328,9 @@ const submit = async () => {
 /* ── Card depth: scroll resting on desk ── */
 .login-card {
   box-shadow:
-    0 2px 8px rgba(44, 26, 14, 0.06),
-    0 8px 32px rgba(44, 26, 14, 0.08),
-    0 1px 0 rgba(44, 26, 14, 0.04) inset;
+    0 2px 8px color-mix(in srgb, #2c1a0e 6%, transparent),
+    0 8px 32px color-mix(in srgb, #2c1a0e 8%, transparent),
+    0 1px 0 color-mix(in srgb, #2c1a0e 4%, transparent) inset;
   animation: card-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -351,5 +382,12 @@ const submit = async () => {
   .login-card .seal-icon {
     animation: none;
   }
+}
+
+/* ── Disabled input ── */
+.input-warm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-bottom-style: dashed;
 }
 </style>

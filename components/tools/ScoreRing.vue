@@ -2,7 +2,14 @@
   <div class="score-ring-wrapper" :style="{ width: size + 'px', height: size + 'px' }">
     <svg class="score-ring-svg" viewBox="0 0 120 120" :aria-label="ariaLabel" role="img">
       <!-- Background circle -->
-      <circle cx="60" cy="60" r="52" fill="none" stroke="#E0D5C0" stroke-width="6" />
+      <circle
+        cx="60"
+        cy="60"
+        r="52"
+        fill="none"
+        stroke="var(--color-paper-dark)"
+        stroke-width="6"
+      />
       <!-- Score circle -->
       <circle
         cx="60"
@@ -119,7 +126,7 @@ const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
   font-family: var(--font-display);
   font-size: 2.25rem;
   line-height: 1;
-  color: #2c1810;
+  color: var(--color-ink);
 }
 
 .score-label {

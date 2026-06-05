@@ -64,6 +64,12 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
+/*
+ * Animation pattern: grid-template-rows transition is an approved alternative to
+ * the expand transition pattern for collapsible content. It uses 0fr → 1fr grid
+ * track sizing with overflow:hidden on the inner wrapper, avoiding the need for
+ * explicit max-height calculations while preserving smooth open/close animation.
+ */
 .collapsible-grid {
   display: grid;
   grid-template-rows: 0fr;
