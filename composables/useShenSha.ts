@@ -242,16 +242,16 @@ export const JIN_YU_MAP: Record<string, string> = {
   癸: '寅',
 }
 export const FU_XING_MAP: Record<string, string> = {
-  甲: '寅',
-  乙: '卯',
-  丙: '巳',
-  丁: '午',
-  戊: '巳',
-  己: '午',
-  庚: '申',
-  辛: '酉',
-  壬: '亥',
-  癸: '子',
+  甲: '丑',
+  乙: '巳',
+  丙: '子',
+  丁: '亥',
+  戊: '申',
+  己: '未',
+  庚: '午',
+  辛: '巳',
+  壬: '辰',
+  癸: '丑',
 }
 
 // 月支-based lookup tables

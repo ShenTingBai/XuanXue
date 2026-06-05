@@ -81,16 +81,15 @@ export interface YijingResult {
 // Day stem & Six Spirits helpers
 // ============================
 
-/** Compute a pseudo day stem index for 六神 assignment. */
+/** Compute day stem index for 六神 assignment.
+ *  Reference: 2000-01-01 was 戊日 (stem index 4).
+ *  Offset +4 corrects the Gregorian day-count modulo to the 60-cycle day stem. */
 function getDayStemIndex(): number {
   if (!import.meta.client) return 0 // SSR: return default
   const d = new Date()
-  // Simplified: fixed offset from a known reference (2000-01-01 was a Saturday,
-  // approximate stem index). For yi-jing divination this is decorative — exact
-  // astronomical day-stem requires a full sexagenary calendar lookup.
-  const ref = new Date(2000, 0, 1) // 2000-01-01 approximate stem=0
+  const ref = new Date(2000, 0, 1) // 2000-01-01
   const diff = Math.floor((d.getTime() - ref.getTime()) / 86400000)
-  return ((diff % 10) + 10) % 10
+  return (((diff + 4) % 10) + 10) % 10
 }
 
 const STEM_NAMES = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
