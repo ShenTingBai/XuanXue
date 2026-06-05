@@ -142,7 +142,6 @@ function generateInterpretation(result: Omit<CeziResult, 'interpretation'>): str
     radicalElement,
     structure,
     structureName,
-    structureDesc,
   } = result
 
   const lines: string[] = []
@@ -210,7 +209,7 @@ function getElementInteractionNote(primary: string, radical: string): string {
 }
 
 /** Generate the closing summary paragraph */
-function generateClosing(category: string, element: string, structureName: string): string {
+function generateClosing(category: string, element: string, _structureName: string): string {
   const elementPhrases: Record<string, string> = {
     木: '木性生发，如同春回大地。',
     火: '火性光明，如同日照中天。',

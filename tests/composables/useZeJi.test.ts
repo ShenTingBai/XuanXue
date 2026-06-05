@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { evaluateDates, type ZejiResult } from '../../composables/useZeJi'
+import { evaluateDates } from '../../composables/useZeJi'
 import { EVENT_TYPES } from '../../constants/zeji'
 
 describe('evaluateDates', () => {

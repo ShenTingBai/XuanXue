@@ -2,6 +2,7 @@
 import { WUXING_COLORS } from '~/constants/bazi'
 import { evaluateDates, type ZejiResult, type ZejiDayResult } from '~/composables/useZeJi'
 import { EVENT_TYPES } from '~/constants/zeji'
+import type { FetchError } from '~/types/errors'
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
@@ -210,7 +211,7 @@ async function saveDivinationResult(res: ZejiResult) {
     })
   } catch (e: unknown) {
     if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as any).statusCode
+      const code = (e as FetchError).statusCode
       if (code === 429) return
       if (code === 401) return
     }
@@ -224,9 +225,12 @@ async function onHistoryRestore(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, {
-      headers,
-    })
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
+      `/api/divinations/${id}`,
+      {
+        headers,
+      },
+    )
     if (
       record.result_data &&
       typeof record.result_data === 'object' &&

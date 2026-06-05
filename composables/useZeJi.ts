@@ -1,6 +1,6 @@
 // 择吉日 — Date evaluation engine powered by lunar-javascript almanac data
 
-import { Solar, Lunar } from 'lunar-javascript'
+import { Solar } from 'lunar-javascript'
 import { EVENT_TYPES, TWELVE_STAR_LEVEL } from '~/constants/zeji'
 
 // === Typed Exports ===
@@ -45,10 +45,6 @@ function pad(n: number): string {
   return n < 10 ? `0${n}` : `${n}`
 }
 
-function matchesKeywords(value: string, keywords: string[]): boolean {
-  return keywords.some(kw => value === kw || value.includes(kw))
-}
-
 /** Check if a specific 宜/忌 item matches any of the event keywords */
 function itemMatchesKeywords(item: string, keywords: string[]): boolean {
   return keywords.some(kw => item === kw || item.includes(kw))
@@ -64,10 +60,6 @@ function evaluateDay(year: number, month: number, day: number, eventType: string
   const lunar = solar.getLunar()
 
   // Lunar date components
-  const lunarYear = lunar.getYear()
-  const lunarMonth = lunar.getMonth()
-  const lunarDay = lunar.getDay()
-
   const lunarMonthName = lunar.getMonthInChinese()
   const lunarDayName = lunar.getDayInChinese()
 

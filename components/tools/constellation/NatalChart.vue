@@ -3,11 +3,7 @@
 import { computed, ref, nextTick } from 'vue'
 import type { NatalChartData, PlanetPosition, AspectLine } from '~/composables/useNatalChart'
 import { ZODIACS, MOON_INTERPRETATIONS } from '~/composables/useConstellation'
-import {
-  PLANET_META,
-  getPlanetInterpretation,
-  getAspectInterpretation,
-} from '~/constants/planet-data'
+import { PLANET_META, getPlanetInterpretation } from '~/constants/planet-data'
 
 // ═══════════════════════════════════════════════════════════════
 // Props & Emits
@@ -26,10 +22,8 @@ const MID_RING = 115
 const OUTER_RING = 155
 const HOUSE_LABEL_R = 190
 const ASPECT_ZONE_INNER = 210
-const ASPECT_ZONE_OUTER = 250
 const SIGN_SYMBOL_R = 265
 const OUTER_DECORATION_R = 285
-const SIGN_SECTOR_DEG = 30
 
 const RING_MAP: Record<string, number> = {
   inner: INNER_RING,

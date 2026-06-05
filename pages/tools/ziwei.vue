@@ -6,6 +6,7 @@ import {
   serializeAstrolabe,
   deserializeAstrolabe,
 } from '~/composables/useZiwei'
+import type { FetchError } from '~/types/errors'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
@@ -220,7 +221,7 @@ async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   } catch (e: unknown) {
     // 401/429: global interceptor handles 401 logout + redirect
     if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as any).statusCode
+      const code = (e as FetchError).statusCode
       if (code === 401) return
       if (code === 429) return // auto-save is best-effort; rate limit is expected
     }

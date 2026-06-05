@@ -126,6 +126,7 @@
 
 <script setup lang="ts">
 import { castByNumbers, computeYijingResult, type YijingResult } from '~/composables/useYijing'
+import type { FetchError } from '~/types/errors'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
@@ -231,7 +232,7 @@ function handleCoinAutoResult() {
 
       // Silent auto-save placeholder
       tryAutoSave(values, yijingResult)
-    } catch (err) {
+    } catch {
       error.value = '解卦出错，请重新尝试。'
     } finally {
       processing.value = false
@@ -262,7 +263,7 @@ function handleCastNumber(data: { first: number; second: number; third: number }
       score.value = yijingResult.score
 
       tryAutoSave(values, yijingResult)
-    } catch (err) {
+    } catch {
       error.value = '解卦出错，请检查输入后重新尝试。'
     } finally {
       processing.value = false
@@ -366,7 +367,7 @@ async function restoreFromHistory(id: number) {
 
     // Restore from result_data
     if (record.result_data) {
-      const data = record.result_data as any
+      const data = record.result_data as Record<string, unknown>
       if (data.hexagram && data.lines) {
         result.value = data as YijingResult
         score.value = data.score ?? 0
@@ -444,7 +445,7 @@ async function tryAutoSave(values: number[], yijingResult: YijingResult) {
   } catch (e: unknown) {
     // 401/429: global interceptor handles 401 logout + redirect
     if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as any).statusCode
+      const code = (e as FetchError).statusCode
       if (code === 401) return
       if (code === 429) return // auto-save is best-effort; rate limit is expected
     }

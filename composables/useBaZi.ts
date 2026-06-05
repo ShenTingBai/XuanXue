@@ -17,21 +17,6 @@ function branchIndex(b: string): number {
   return BRANCHES.indexOf(b as (typeof BRANCHES)[number])
 }
 
-// === Constants ===
-
-const STEM_YIN_YANG: Record<string, '阳' | '阴'> = {
-  甲: '阳',
-  乙: '阴',
-  丙: '阳',
-  丁: '阴',
-  戊: '阳',
-  己: '阴',
-  庚: '阳',
-  辛: '阴',
-  壬: '阳',
-  癸: '阴',
-}
-
 // === Typed Exports ===
 
 export interface HiddenStem {

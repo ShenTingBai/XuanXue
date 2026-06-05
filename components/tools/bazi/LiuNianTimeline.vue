@@ -250,7 +250,7 @@ import type { LiuNianYear } from '~/composables/useLiuNian'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
 import { shenShaBadgeStyle, WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
-const props = defineProps<{
+defineProps<{
   years: LiuNianYear[]
   currentYear: number
   range: number

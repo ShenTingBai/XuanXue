@@ -1,5 +1,5 @@
 import { dbGet, dbRun } from '../../database/db'
-import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
+import { checkRateLimit } from '../../utils/rateLimit'
 
 export default defineEventHandler(async event => {
   const idRaw = getRouterParam(event, 'id')
@@ -26,7 +26,6 @@ export default defineEventHandler(async event => {
   }
 
   // Rate limiting: 5 delete attempts per minute per profile
-  const clientIp = getClientIp(event)
   if (!checkRateLimit(`profile-delete:${id}`, 5, 60000)) {
     throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
@@ -39,7 +38,7 @@ export default defineEventHandler(async event => {
     dbRun('DELETE FROM security_log WHERE profile_id = ?', [id])
     dbRun('DELETE FROM profiles WHERE id = ?', [id])
     dbRun('COMMIT')
-  } catch (err) {
+  } catch {
     dbRun('ROLLBACK')
     throw createError({ statusCode: 500, statusMessage: '删除失败' })
   }

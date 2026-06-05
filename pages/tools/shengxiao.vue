@@ -7,6 +7,7 @@ import {
 } from '~/composables/useShengXiao'
 import { calculateMonthlyFortune, type MonthlyFortuneResult } from '~/composables/useMonthlyFortune'
 import { parseDate } from '~/utils/date'
+import type { FetchError } from '~/types/errors'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
@@ -234,7 +235,7 @@ async function saveDivinationResult(
   } catch (e: unknown) {
     // 429 handled globally by auth-interceptor; 401 redirects there too
     if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as any).statusCode
+      const code = (e as FetchError).statusCode
       if (code === 429) return // auto-save is best-effort; rate limit is expected
       if (code === 401) return // global interceptor handles logout + redirect
     }

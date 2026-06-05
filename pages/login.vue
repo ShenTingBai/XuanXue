@@ -69,8 +69,10 @@ const submit = async () => {
       await register(nickname.value.trim(), pin.value.trim())
       router.push(`/profile/${currentProfile.value?.id}?onboarding=true`)
     }
-  } catch (e: any) {
-    error.value = e?.data?.statusMessage || '登录失败，请检查网络连接后重试'
+  } catch (e: unknown) {
+    error.value =
+      (e as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      '登录失败，请检查网络连接后重试'
   } finally {
     loading.value = false
   }

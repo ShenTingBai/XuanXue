@@ -17,7 +17,7 @@ export interface ClassicalSource {
   source: string
 }
 
-const props = defineProps<{
+defineProps<{
   /** 经典来源列表 */
   classical?: ClassicalSource[]
   /** 开发者合成项 */

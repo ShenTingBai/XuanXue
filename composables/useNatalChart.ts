@@ -2,7 +2,6 @@
 import { GeoVector, Ecliptic, Body } from 'astronomy-engine'
 import { ZODIACS, getRisingSign } from '~/composables/useConstellation'
 import {
-  PLANET_ORDER,
   PLANET_META,
   ASPECT_TYPES,
   ASPECT_INTERPRETATIONS,

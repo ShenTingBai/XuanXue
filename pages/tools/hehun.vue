@@ -5,7 +5,7 @@ import {
   type HeHunResult,
   type PersonInfo,
 } from '~/composables/useHeHun'
-import { parseDate } from '~/utils/date'
+import type { FetchError } from '~/types/errors'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
@@ -189,7 +189,7 @@ async function saveDivinationResult(res: HeHunResult) {
     saveError.value = ''
   } catch (e: unknown) {
     if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as any).statusCode
+      const code = (e as FetchError).statusCode
       if (code === 429) return
       if (code === 401) return
     }
@@ -203,9 +203,12 @@ async function onHistoryRestore(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<{ id: number; result_data: any }>(`/api/divinations/${id}`, {
-      headers,
-    })
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
+      `/api/divinations/${id}`,
+      {
+        headers,
+      },
+    )
     if (
       record.result_data &&
       typeof record.result_data === 'object' &&

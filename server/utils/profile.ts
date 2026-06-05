@@ -14,7 +14,8 @@ export interface SafeProfile {
 
 export function toSafeProfile(row: Record<string, unknown> | undefined): SafeProfile {
   if (!row) throw new Error('Profile row is undefined')
-  const { pin, ...safe } = row
+  const safe = { ...row }
+  delete (safe as Record<string, unknown>).pin
   return {
     id: safe.id as number,
     nickname: safe.nickname as string,

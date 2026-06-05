@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS } from '~/constants/bazi'
 
 const props = withDefaults(
   defineProps<{

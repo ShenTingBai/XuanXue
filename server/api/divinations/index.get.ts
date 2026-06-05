@@ -28,7 +28,7 @@ export default defineEventHandler(async event => {
   }
 
   let sql = 'SELECT id, type, input_data, created_at FROM divination_results WHERE profile_id = ?'
-  const params: any[] = [profileId]
+  const params: (string | number | null)[] = [profileId]
 
   if (type) {
     sql += ' AND type = ?'

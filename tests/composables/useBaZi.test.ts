@@ -869,7 +869,7 @@ describe('getFavorableElements with seasonal adjustment', () => {
   })
 
   it('甲木身强 午月(6) — 调候水 prepended (not in standard favorable)', () => {
-    const [fav, unfav] = getFavorableElements('木', '强', 6)
+    const [fav] = getFavorableElements('木', '强', 6)
     // 身强 prefers 金/火/土; 午月(夏) 调候水
     // 水 is NOT in standard favorable → prepended
     expect(fav[0]).toBe('水')

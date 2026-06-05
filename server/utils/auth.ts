@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync, timingSafeEqual, createHash, createHmac } from 'node:crypto'
+import { randomBytes, scryptSync, timingSafeEqual, createHmac } from 'node:crypto'
 import { dbRun, dbGet } from '../database/db'
 
 const SESSION_SECRET: string = (() => {

@@ -1,6 +1,6 @@
 import { dbGet, dbRun } from '../../database/db'
 import { toSafeProfile } from '../../utils/profile'
-import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
+import { checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
 export default defineEventHandler(async event => {
@@ -10,7 +10,6 @@ export default defineEventHandler(async event => {
   }
 
   // Rate limiting: 5 sub-profile creations per minute
-  const clientIp = getClientIp(event)
   if (!checkRateLimit(`profile-create:${profileId}`, 5, 60000)) {
     throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }

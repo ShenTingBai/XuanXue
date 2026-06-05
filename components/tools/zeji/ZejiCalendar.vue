@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS } from '~/constants/bazi'
 import type { ZejiDayResult } from '~/composables/useZeJi'
 import { TWELVE_STAR_LEVEL } from '~/constants/zeji'
 
@@ -151,7 +151,6 @@ function handleKeydown(e: KeyboardEvent, dateStr: string) {
   }
 
   e.preventDefault()
-  const target = calendarGrid.value[targetIdx]
   // Focus the target cell
   const cells = tableRef.value?.querySelectorAll<HTMLElement>('[role="button"]')
   cells?.[targetIdx]?.focus()

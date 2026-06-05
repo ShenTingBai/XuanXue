@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import type { DaYunCycle } from '~/composables/useBaZi'
 
-const props = defineProps<{
+defineProps<{
   cycles: DaYunCycle[]
   currentCycleIdx?: number
 }>()

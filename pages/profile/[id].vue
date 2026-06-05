@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
+import type { FetchError } from '~/types/errors'
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 
@@ -141,7 +142,9 @@ onMounted(() => {
 
   // Clear onboarding query param to prevent banner on refresh
   if (isOnboarding.value) {
-    const { onboarding, ...rest } = route.query
+    const rest = Object.fromEntries(
+      Object.entries({ ...route.query }).filter(([k]) => k !== 'onboarding'),
+    )
     router.replace({ query: rest })
   }
 })
@@ -259,7 +262,7 @@ const saveProfile = async () => {
       success.value = false
     }, 2500)
   } catch (e: unknown) {
-    error.value = (e as any)?.data?.statusMessage || '保存失败，请稍后再试'
+    error.value = (e as FetchError)?.data?.statusMessage || '保存失败，请稍后再试'
   } finally {
     saving.value = false
   }

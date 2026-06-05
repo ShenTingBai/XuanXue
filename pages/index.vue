@@ -205,8 +205,8 @@ const todayAstro = computed(() => {
   }
   const lunar = Lunar.fromYmd(y, m, d)
   return {
-    lunarMonth: (lunar as any).getMonthInChinese(),
-    lunarDay: (lunar as any).getDayInChinese(),
+    lunarMonth: lunar.getMonthInChinese(),
+    lunarDay: lunar.getDayInChinese(),
     yearGanZhi: STEMS[ys] + BRANCHES[yb],
     monthGanZhi: mp.stem + mp.branch,
     solarTerm: termIdx >= 0 ? SOLAR_TERM_NAMES[termIdx] : null,

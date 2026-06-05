@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { initDb, dbRun, dbGet, dbAll } from '../../server/database/db'
 import {
@@ -6,7 +7,7 @@ import {
   deleteSession,
   hashPin,
 } from '../../server/utils/auth'
-import { checkRateLimit, getClientIp } from '../../server/utils/rateLimit'
+import { checkRateLimit } from '../../server/utils/rateLimit'
 
 describe('Divinations API (unit tests)', () => {
   let profileId: number

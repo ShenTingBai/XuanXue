@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import {
-  calculateBaZi,
-  type BaZiResult,
-  type BaZiPillar,
-  type DaYunCycle,
-} from '~/composables/useBaZi'
+import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
 import { getStemIndex, getAnimal, sectionMap } from '~/constants/bazi'
 import { parseDate } from '~/utils/date'
+import type { FetchError } from '~/types/errors'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
@@ -308,7 +304,7 @@ async function saveDivinationResult(
   } catch (e: unknown) {
     // 429 handled globally by auth-interceptor; 401 redirects there too
     if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as any).statusCode
+      const code = (e as FetchError).statusCode
       if (code === 429) return // auto-save is best-effort; rate limit is expected
       if (code === 401) return // global interceptor handles logout + redirect
     }

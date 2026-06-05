@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'sql.js' {
   interface SqlJsStatic {
     Database: new (data?: ArrayLike<number> | Buffer | null) => Database

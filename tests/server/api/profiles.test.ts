@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // ============================================================================
@@ -18,7 +19,6 @@ const mockCreateErrorFn = vi.hoisted(() =>
     throw Object.assign(new Error(args.statusMessage), { statusCode: args.statusCode })
   }),
 )
-const mockEventContext = vi.hoisted(() => ({}) as any)
 const mockGetRouterParam = vi.hoisted(() => vi.fn())
 
 // Stub Nuxt auto-import globals
@@ -78,7 +78,6 @@ vi.mock('~/server/utils/json', () => ({
 
 vi.mock('~/server/utils/profile', () => ({
   toSafeProfile: vi.fn((row: any) => {
-    const { pin, parent_profile_id, ...safe } = row
     return {
       id: row.id,
       nickname: row.nickname,
@@ -99,7 +98,7 @@ vi.mock('~/server/utils/profile', () => ({
 // Imports (after mocks)
 // ============================================================================
 
-import { dbGet, dbRun, dbAll } from '~/server/database/db'
+import { dbGet, dbAll } from '~/server/database/db'
 import { checkRateLimit } from '~/server/utils/rateLimit'
 
 // ============================================================================

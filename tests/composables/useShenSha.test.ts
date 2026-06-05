@@ -282,7 +282,6 @@ describe('calculateShenSha', () => {
       gender: '男' as const,
     }
     const result = calculateShenSha(input)
-    const kongWang = result.filter(s => s.name === '空亡')
     // Every 旬 has 2 empty branches, but they may not always fall on existing pillars.
     // This test verifies the 空亡 calculation runs without error.
     // If a chart happens to match, great; if not, that's also valid.
@@ -811,7 +810,6 @@ describe('calculateShenSha', () => {
         birthHour: 12,
         gender: '男' as const,
       })
-      const dayStemBranch = bazi.dayPillar.stem + bazi.dayPillar.branch
       const input = {
         yearPillar: bazi.yearPillar,
         monthPillar: bazi.monthPillar,
@@ -868,8 +866,6 @@ describe('calculateShenSha', () => {
         const dayIndex = getStemIndex(bazi.dayPillar.stem) // 0-9 for 天干 index
         if (dayIndex >= 0) {
           // 甲子旬=0, 甲戌旬=1, etc.
-          const xunOffset = Math.floor(dayIndex / 10) * 10
-          const firstStemOfXun = '甲乙丙丁戊己庚辛壬癸'[xunOffset]
           // The empty branches for a given 旬 depend on the 旬's starting 干支
           expect(kw.description.length).toBeGreaterThan(0)
         }

@@ -12,8 +12,6 @@
 // ============================================================
 
 import {
-  TRIGRAM_NAMES,
-  TRIGRAM_WUXING,
   PALACE_NAMES,
   PALACE_WUXING,
   TRIGRAM_TO_PALACE,

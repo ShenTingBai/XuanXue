@@ -5,7 +5,7 @@
  * fortune level badge, and a one-line tip.
  */
 import { getMonthBranch } from '~/composables/useSolarTerms'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS } from '~/constants/bazi'
 import type { MonthlyFortuneResult, MonthlyFortuneItem } from '~/composables/useMonthlyFortune'
 
 const props = defineProps<{

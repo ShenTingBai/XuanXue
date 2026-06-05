@@ -1,6 +1,6 @@
 import { dbGet, dbRun } from '../../database/db'
 import { toSafeProfile } from '../../utils/profile'
-import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
+import { checkRateLimit } from '../../utils/rateLimit'
 import { parseDate } from '../../../utils/date'
 
 export default defineEventHandler(async event => {
@@ -33,14 +33,13 @@ export default defineEventHandler(async event => {
   }
 
   // Rate limiting: 10 updates per minute per profile
-  const clientIp = getClientIp(event)
   if (!checkRateLimit(`profile-update:${id}`, 10, 60000)) {
     throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
   const body = (await readBody(event)) || {}
   const updates: string[] = []
-  const values: any[] = []
+  const values: (string | number | null | undefined)[] = []
 
   if (body.birth_date !== undefined) {
     if (body.birth_date !== null && !/^\d{4}-\d{2}-\d{2}$/.test(body.birth_date)) {

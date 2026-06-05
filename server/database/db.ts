@@ -229,7 +229,10 @@ export function getDb(): SqlJsDatabase {
   return db
 }
 
-export function dbGet(sql: string, params: any[] = []): Record<string, any> | undefined {
+export function dbGet(
+  sql: string,
+  params: (string | number | null | undefined)[] = [],
+): Record<string, unknown> | undefined {
   const stmt = getDb().prepare(sql)
   stmt.bind(params)
   const result = stmt.step() ? stmt.getAsObject() : undefined
@@ -237,10 +240,13 @@ export function dbGet(sql: string, params: any[] = []): Record<string, any> | un
   return result
 }
 
-export function dbAll(sql: string, params: any[] = []): Record<string, any>[] {
+export function dbAll(
+  sql: string,
+  params: (string | number | null | undefined)[] = [],
+): Record<string, unknown>[] {
   const stmt = getDb().prepare(sql)
   stmt.bind(params)
-  const results: Record<string, any>[] = []
+  const results: Record<string, unknown>[] = []
   while (stmt.step()) {
     results.push(stmt.getAsObject())
   }
@@ -250,7 +256,7 @@ export function dbAll(sql: string, params: any[] = []): Record<string, any>[] {
 
 export function dbRun(
   sql: string,
-  params: any[] = [],
+  params: (string | number | null | undefined)[] = [],
 ): { lastInsertRowid: number; changes: number } {
   const database = getDb()
   database.run(sql, params)

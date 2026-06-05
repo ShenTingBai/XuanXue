@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
+import type { FetchError } from '~/types/errors'
 
 const props = defineProps<{ show: boolean }>()
 const emit = defineEmits<{ close: []; added: [] }>()
@@ -98,7 +99,7 @@ async function handleSubmit() {
 
     emit('added')
   } catch (e: unknown) {
-    error.value = (e as any)?.data?.statusMessage || '创建失败，请稍后再试'
+    error.value = (e as FetchError)?.data?.statusMessage || '创建失败，请稍后再试'
   } finally {
     saving.value = false
   }

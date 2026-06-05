@@ -56,8 +56,8 @@ export default defineEventHandler(async event => {
   let result: ReturnType<typeof dbRun>
   try {
     result = dbRun('INSERT INTO profiles (nickname, pin) VALUES (?, ?)', [nickname, hashedPin])
-  } catch (err: any) {
-    if (err?.message?.includes('UNIQUE constraint failed: profiles.nickname')) {
+  } catch (err: unknown) {
+    if ((err as Error)?.message?.includes('UNIQUE constraint failed: profiles.nickname')) {
       throw createError({ statusCode: 409, statusMessage: '该昵称已被使用' })
     }
     throw createError({ statusCode: 500, statusMessage: '注册失败，请稍后再试' })

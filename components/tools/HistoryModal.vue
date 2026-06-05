@@ -15,7 +15,9 @@ const emit = defineEmits<{
 
 const { getAuthHeaders } = useAuth()
 
-const records = ref<Array<{ id: number; type: string; input_data: any; created_at: string }>>([])
+const records = ref<Array<{ id: number; type: string; input_data: unknown; created_at: string }>>(
+  [],
+)
 const loading = ref(false)
 const fetchError = ref('')
 const listRef = ref<HTMLUListElement | null>(null)
@@ -87,7 +89,7 @@ function formatHistoryDate(dateStr: string): string {
   }
 }
 
-function formatHistoryLabel(inputData: any): string {
+function formatHistoryLabel(inputData: Record<string, unknown>): string {
   if (!inputData) return ''
   if (props.type === 'bazi') {
     const { birthYear, birthMonth, birthDay, gender } = inputData

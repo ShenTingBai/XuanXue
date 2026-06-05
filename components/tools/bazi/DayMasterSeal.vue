@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { getAnimal, wuxingColor, strengthColorClass } from '~/constants/bazi'
+import { wuxingColor, strengthColorClass } from '~/constants/bazi'
 
 const props = defineProps<{
   birthYear: number
@@ -78,6 +78,4 @@ const strengthClass = computed(() => strengthColorClass(props.dayMasterStrength)
 function elementColor(el: string): string {
   return wuxingColor(el)
 }
-
-// animalName is pre-computed by the parent using getAnimal()
 </script>

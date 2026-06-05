@@ -222,14 +222,6 @@ function analyzeYearPillar(
     total += 1
   }
 
-  // 3. 生肖三合六合冲害（额外检查）
-  const branchIndexA = '子丑寅卯辰巳午未申酉戌亥'.indexOf(branchA)
-  const branchIndexB = '子丑寅卯辰巳午未申酉戌亥'.indexOf(branchB)
-  const animalSixCombine = ['子丑', '寅亥', '卯戌', '辰酉', '巳申', '午未'] as const
-  const animalPair = `${branchA}${branchB}`
-  const animalPairRev = `${branchB}${branchA}`
-  const isAnimalSixCombine = animalSixCombine.some(p => p === animalPair || p === animalPairRev)
-
   // 生肖已在年支中涵盖，不重复计分
 
   const score = Math.max(-maxScore, Math.min(maxScore, total))
@@ -544,25 +536,6 @@ function analyzeTenGod(
   const details: string[] = []
   let score = 0
 
-  // 配偶星规则：
-  //   男命：我克者为财，日主阳→偏财（同阴阳），日主阴→正财（异阴阳）
-  //   女命：克我者为官杀，日主阳→七杀（同阴阳），日主阴→正官（异阴阳）
-  const getSpouseStar = (gender: '男' | '女', bazi: BaZiResult): string[] => {
-    const dayStem = bazi.dayPillar.stem
-    const dayStemIdx = '甲乙丙丁戊己庚辛壬癸'.indexOf(dayStem)
-    if (dayStemIdx === -1) return []
-    const stemYinYang = ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴']
-    const yy = stemYinYang[dayStemIdx]
-
-    if (gender === '男') {
-      // 偏财（同阴阳）、正财（异阴阳）
-      return yy === '阳' ? ['偏财'] : ['正财']
-    } else {
-      // 七杀（同阴阳）、正官（异阴阳）
-      return yy === '阳' ? ['七杀'] : ['正官']
-    }
-  }
-
   // 简化版：检查四柱中配偶星状况
   const pillarsA = [baziA.yearPillar, baziA.monthPillar, baziA.dayPillar]
   const pillarsB = [baziB.yearPillar, baziB.monthPillar, baziB.dayPillar]
@@ -753,8 +726,8 @@ function generateSummary(
   totalScore: number,
   dimensions: HeHunDimension[],
   grade: HeHunGrade,
-  branchA: string,
-  branchB: string,
+  _branchA: string,
+  _branchB: string,
 ): { summary: string; suggestions: string[]; warnings: string[] } {
   const suggestions: string[] = []
   const warnings: string[] = []
