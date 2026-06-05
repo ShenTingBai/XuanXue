@@ -110,23 +110,102 @@ function detectRadicalElement(char: string): string | null {
 // ── Structure Detection ───────────────────────────────
 
 /**
+ * Radical-range structure hints for CJK Unified Ideographs (U+4E00–U+9FFF).
+ * Characters are ordered by Kangxi radical (1–214); each radical's block is
+ * a contiguous codepoint range. Radicals with consistent positional tendencies
+ * are mapped to their dominant structure type.
+ *
+ * Each entry: [radicalFirstCp, structure]. The range extends to the next
+ * entry's start (or U+9FFF end-of-block). Binary-searched at runtime.
+ * Radicals without a strong position signal are omitted → falls through to 'single'.
+ */
+const RADICAL_STRUCTURE_HINTS: Array<{ start: number; structure: string }> = [
+  // ── LEFT-POSITION radicals → leftRight ──
+  { start: 0x4eba, structure: 'leftRight' }, // rad  9  人/亻
+  { start: 0x5200, structure: 'leftRight' }, // rad 18  刀/刂
+  { start: 0x529b, structure: 'leftRight' }, // rad 19  力 (usually right side)
+  { start: 0x5973, structure: 'leftRight' }, // rad 38  女
+  { start: 0x624b, structure: 'leftRight' }, // rad 64  手/扌
+  { start: 0x6728, structure: 'leftRight' }, // rad 75  木
+  { start: 0x6c34, structure: 'leftRight' }, // rad 85  水/氵
+  { start: 0x72ac, structure: 'leftRight' }, // rad 94  犬/犭
+  { start: 0x7389, structure: 'leftRight' }, // rad 96  玉/王
+  { start: 0x76ee, structure: 'leftRight' }, // rad 109 目
+  { start: 0x77f3, structure: 'leftRight' }, // rad 112 石
+  { start: 0x793a, structure: 'leftRight' }, // rad 113 示/礻
+  { start: 0x79be, structure: 'leftRight' }, // rad 115 禾
+  { start: 0x7c73, structure: 'leftRight' }, // rad 119 米
+  { start: 0x7cf8, structure: 'leftRight' }, // rad 120 糸/纟
+  { start: 0x866b, structure: 'leftRight' }, // rad 142 虫
+  { start: 0x8863, structure: 'leftRight' }, // rad 145 衣/衤
+  { start: 0x8a00, structure: 'leftRight' }, // rad 149 言/讠
+  { start: 0x8c9d, structure: 'leftRight' }, // rad 154 貝/贝
+  { start: 0x8db3, structure: 'leftRight' }, // rad 157 足
+  { start: 0x8eca, structure: 'leftRight' }, // rad 159 車/车
+  { start: 0x91d1, structure: 'leftRight' }, // rad 167 金/钅
+  { start: 0x961d, structure: 'leftRight' }, // rad 170 阜/阝(left)
+  { start: 0x9801, structure: 'leftRight' }, // rad 181 頁/页
+  { start: 0x98df, structure: 'leftRight' }, // rad 184 食/饣
+  { start: 0x99ac, structure: 'leftRight' }, // rad 187 馬/马
+  { start: 0x9b5a, structure: 'leftRight' }, // rad 195 魚/鱼
+  { start: 0x9ce5, structure: 'leftRight' }, // rad 196 鳥/鸟
+
+  // ── TOP-POSITION radicals → topBottom ──
+  { start: 0x5b80, structure: 'topBottom' }, // rad 40  宀
+  { start: 0x7af9, structure: 'topBottom' }, // rad 118 竹/⺮
+  { start: 0x8278, structure: 'topBottom' }, // rad 140 艸/艹
+  { start: 0x96e8, structure: 'topBottom' }, // rad 173 雨
+
+  // ── ENCLOSURE radicals → enclosure ──
+  { start: 0x56d7, structure: 'enclosure' }, // rad 31  囗
+  { start: 0x9580, structure: 'enclosure' }, // rad 169 門/门
+]
+
+// Sorted by codepoint for binary search (ascending)
+RADICAL_STRUCTURE_HINTS.sort((a, b) => a.start - b.start)
+
+/**
+ * Look up a character's structure via its Kangxi radical block.
+ * Returns undefined if the character's radical has no strong position signal,
+ * or if the codepoint is outside the CJK Unified Ideographs block.
+ */
+function radicalStructureHint(cp: number): string | undefined {
+  if (cp < 0x4e00 || cp > 0x9fff) return undefined
+  // Binary search: find last radical with start ≤ cp
+  let lo = 0
+  let hi = RADICAL_STRUCTURE_HINTS.length - 1
+  let found = -1
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1
+    if (RADICAL_STRUCTURE_HINTS[mid].start <= cp) {
+      found = mid
+      lo = mid + 1
+    } else {
+      hi = mid - 1
+    }
+  }
+  return found >= 0 ? RADICAL_STRUCTURE_HINTS[found].structure : undefined
+}
+
+/**
  * Determine the structure type of a CJK character.
- * Uses predefined mapping first, then heuristic checks.
+ * Uses predefined mapping first, then radical-block heuristic.
  */
 function detectStructure(char: string): string {
-  // 1. Predefined mapping
+  // 1. Predefined mapping (~266 entries for exact matches)
   const known = CHAR_STRUCTURE_MAP.get(char)
   if (known) return known
 
-  // 2. Heuristic: check for enclosure patterns
-  // Characters that commonly form enclosures
-  const enclosureFrames = ['口', '囗', '门', '門', '鬥']
-
-  for (const frame of enclosureFrames) {
-    if (char.includes(frame)) return 'enclosure'
+  // 2. Heuristic: Kangxi radical block lookup
+  //    CJK Unified Ideographs (U+4E00–U+9FFF) are ordered by radical →
+  //    characters within a radical's block share its positional tendency.
+  const cp = char.codePointAt(0)
+  if (cp != null) {
+    const hint = radicalStructureHint(cp)
+    if (hint) return hint
   }
 
-  // 3. Default to 'single' for unknown characters
+  // 3. Fallback — no reliable signal available
   return 'single'
 }
 
