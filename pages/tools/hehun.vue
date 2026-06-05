@@ -387,7 +387,6 @@ const computedGrade = computed<HeHunGrade | null>(() => {
               :disabled="loading"
               class="btn-seal"
             >
-              <span class="btn-seal__char" aria-hidden="true">合</span>
               <span>{{ loading ? '正在合婚...' : '开始合婚' }}</span>
             </button>
           </div>

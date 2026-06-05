@@ -249,7 +249,6 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             :disabled="loading"
             class="btn-seal"
           >
-            <span class="btn-seal__char" aria-hidden="true">名</span>
             <span>{{ loading ? '分析中...' : '开始分析' }}</span>
           </button>
           <button
@@ -257,9 +256,9 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             @click="resetToForm"
             @keydown.enter="resetToForm"
             @keydown.space.prevent="resetToForm"
-            class="btn-ghost text-sm"
+            class="btn-ink"
           >
-            ⟲ 重新测算
+            <span>⟲ 重新测算</span>
           </button>
         </div>
       </div>

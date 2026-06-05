@@ -229,7 +229,6 @@ const interpretationParagraphs = computed(() => {
             :disabled="loading"
             class="btn-seal"
           >
-            <span class="btn-seal__char" aria-hidden="true">测</span>
             <span>{{ loading ? '测字中...' : '开始测字' }}</span>
           </button>
         </div>
