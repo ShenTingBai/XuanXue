@@ -98,13 +98,13 @@ export default defineEventHandler(async event => {
     birthLongitude = body.birth_longitude
   }
 
-  // Insert sub-profile (no PIN — sub-profiles don't have their own login)
+  // Insert sub-profile (pin = '' — sub-profiles don't have their own login)
   const result = dbRun(
     `INSERT INTO profiles (nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, birth_place, birth_longitude, parent_profile_id)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       nickname,
-      null,
+      '',
       birthDate,
       birthCalendar,
       birthHour,
