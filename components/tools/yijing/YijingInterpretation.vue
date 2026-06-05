@@ -104,7 +104,11 @@
     </div>
     <div class="card-warm rounded-xl p-8 mb-6">
       <p class="font-sans text-xs text-ink-medium mb-4 leading-relaxed">
-        下表列出每根爻的详细信息。<span class="text-ink-medium font-medium">五行</span>表示此爻的地支所属元素，<span class="text-ink-medium font-medium">六亲</span>是爻与日主的关系（如官鬼主事业、妻财主财运），<span class="text-ink-medium font-medium">六神</span>为当日值日之神（青龙主喜、朱雀主口舌等）。
+        下表列出每根爻的详细信息。<span class="text-ink-medium font-medium">五行</span
+        >表示此爻的地支所属元素，<span class="text-ink-medium font-medium">六亲</span
+        >是爻与日主的关系（如官鬼主事业、妻财主财运），<span class="text-ink-medium font-medium"
+          >六神</span
+        >为当日值日之神（青龙主喜、朱雀主口舌等）。
       </p>
       <ZhuangGuaTable :lines="result.lines" />
 
