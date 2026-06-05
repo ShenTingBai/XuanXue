@@ -260,8 +260,8 @@ function getMutagenClass(transformation: string): string {
 .star-dot.gold     { background: var(--color-cinnabar); border-color: color-mix(in srgb, var(--color-gold) 50%, transparent); }
 .star-dot.cinnabar { background: var(--color-cinnabar-dark); }
 .star-dot.jade     { background: var(--color-jade); }
-.star-dot.ice      { background: #6BA8C8; } /* star palette: celestial ice-blue */
-.star-dot.purple   { background: #7B6FA0; } /* star palette: celestial purple */
+.star-dot.ice      { background: var(--color-star-ice); }
+.star-dot.purple   { background: var(--color-star-purple); }
 .star-dot.gray     { background: var(--color-ink-muted); }
 .star-dot.white    { background: var(--color-ink-light); }
 

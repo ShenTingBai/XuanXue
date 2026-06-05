@@ -69,6 +69,8 @@ html {
     --color-gold-light: #9A7818;
     --color-jade: #3D6B4B;
     --color-jade-light: #4D7A5A;
+    --color-star-ice: #6BA8C8;     /* 紫微天星图：文曜（文昌/文曲/天魁/天钺） */
+    --color-star-purple: #7B6FA0;  /* 紫微天星图：辅曜（武曲/天相） */
     --font-display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
     --font-sans: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', sans-serif;
     --transition-fast: 0.15s ease;
