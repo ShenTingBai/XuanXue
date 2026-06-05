@@ -301,16 +301,6 @@ function dismissRestoreError() {
       <SkeletonCard />
     </div>
 
-    <!-- Error -->
-    <div v-else-if="error" class="text-center py-16">
-      <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
-      <div class="flex justify-center mt-6">
-        <button @click="handleCalculate" class="btn-cin">
-          <span>重新排盘</span>
-        </button>
-      </div>
-    </div>
-
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
       <div class="w-full max-w-full sm:max-w-[48rem] mx-auto">
@@ -357,7 +347,7 @@ function dismissRestoreError() {
           @update:current-view="currentView = $event"
         />
 
-        <p class="text-xs text-ink-light/80 text-center mt-2 mb-1 tracking-wide">
+        <p class="text-xs text-ink-muted text-center mt-2 mb-1 tracking-wide">
           点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
         </p>
 
@@ -418,6 +408,7 @@ function dismissRestoreError() {
         <div class="flex flex-wrap gap-3 justify-center mt-8">
           <button
             @click="handleCalculate"
+            @keydown.enter="handleCalculate"
             @keydown.space.prevent="handleCalculate"
             class="btn-cin"
           >
@@ -442,6 +433,7 @@ function dismissRestoreError() {
         v-if="showScrollTop"
         @click="scrollToTop"
         @keydown.enter="scrollToTop"
+        @keydown.space.prevent="scrollToTop"
       />
     </template>
 

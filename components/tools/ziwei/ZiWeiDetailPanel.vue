@@ -11,8 +11,8 @@
       style="min-height: 360px;"
     >
       <div class="text-center">
-        <div class="text-[2rem] mb-2 font-display text-ink-light/80" aria-hidden="true">✦</div>
-        <p role="status" class="text-xs text-ink-light/80 tracking-[0.12em] font-sans">点击宫位查看详解</p>
+        <div class="text-[2rem] mb-2 font-display text-ink-muted" aria-hidden="true">✦</div>
+        <p role="status" class="text-xs text-ink-muted tracking-[0.12em] font-sans">点击宫位查看详解</p>
       </div>
     </div>
 
@@ -67,7 +67,7 @@
       <div class="detail-section">
         <h4 class="detail-section-title">
           <span class="title-dot"></span>杂曜
-          <span class="text-[10px] text-ink-light/80 font-normal ml-1">（天星图不显）</span>
+          <span class="text-[0.6875rem] text-ink-muted font-normal ml-1">（天星图不显）</span>
         </h4>
         <div v-if="detailView.adjectiveStars.length > 0" class="detail-star-list">
           <div
@@ -119,7 +119,7 @@
       <div class="detail-section">
         <h4 class="detail-section-title">
           <span class="title-dot"></span>综合解读
-          <span class="text-[10px] text-ink-light/80 font-normal ml-1">（全文）</span>
+          <span class="text-[0.6875rem] text-ink-muted font-normal ml-1">（全文）</span>
         </h4>
         <p class="full-interpretation-text">{{ detailView.fullInterpretation }}</p>
       </div>
@@ -186,7 +186,7 @@ function getMutagenClass(transformation: string): string {
 .detail-branch-badge {
   font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
   font-size: 0.75rem;
-  color: rgba(94, 80, 69, 0.6);
+  color: var(--color-ink-muted);
   letter-spacing: 0.08em;
   padding: 0.08rem 0.5rem;
   border: 1px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent);
@@ -204,7 +204,7 @@ function getMutagenClass(transformation: string): string {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.68rem;
+  font-size: 0.6875rem;
   color: var(--color-ink);
   letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
@@ -257,13 +257,13 @@ function getMutagenClass(transformation: string): string {
 }
 .star-dot.major { width: 11px; height: 11px; }
 
-.star-dot.gold     { background: #C62828; border-color: rgba(212,168,75,0.5); }
+.star-dot.gold     { background: var(--color-cinnabar); border-color: color-mix(in srgb, var(--color-gold) 50%, transparent); }
 .star-dot.cinnabar { background: var(--color-cinnabar-dark); }
 .star-dot.jade     { background: var(--color-jade); }
-.star-dot.ice      { background: #6BA8C8; }
-.star-dot.purple   { background: #7B6FA0; }
+.star-dot.ice      { background: #6BA8C8; } /* star palette: celestial ice-blue */
+.star-dot.purple   { background: #7B6FA0; } /* star palette: celestial purple */
 .star-dot.gray     { background: var(--color-ink-muted); }
-.star-dot.white    { background: #8B7D6B; }
+.star-dot.white    { background: var(--color-ink-light); }
 
 .star-name {
   font-size: 0.85rem;
@@ -272,14 +272,14 @@ function getMutagenClass(transformation: string): string {
 }
 
 .star-brightness {
-  font-size: 11px;
-  color: #7A6A5C;
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   margin-left: 0.125rem;
 }
 
 /* ── Mutagen chips ── */
 .mutagen-chip {
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   padding: 0.06rem 0.4rem;
   border-radius: 2px;
   letter-spacing: 0.04em;
@@ -287,8 +287,8 @@ function getMutagenClass(transformation: string): string {
   white-space: nowrap;
 }
 .mutagen-chip.lu   { background: color-mix(in srgb, var(--color-cinnabar) 12%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
-.mutagen-chip.quan { background: rgba(74,140,111,0.12); color: #4A8C6F; border: 0.5px solid rgba(74,140,111,0.15); }
-.mutagen-chip.ke   { background: rgba(107,168,200,0.12); color: #6BA8C8; border: 0.5px solid rgba(107,168,200,0.15); }
+.mutagen-chip.quan { background: color-mix(in srgb, var(--color-jade) 12%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 15%, transparent); }
+.mutagen-chip.ke   { background: color-mix(in srgb, #6BA8C8 12%, transparent); color: #6BA8C8; border: 0.5px solid color-mix(in srgb, #6BA8C8 15%, transparent); }
 .mutagen-chip.ji   { background: color-mix(in srgb, var(--color-ink-muted) 7%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
 
 /* ── Text content ── */
@@ -330,8 +330,7 @@ function getMutagenClass(transformation: string): string {
 
 .detail-empty-text {
   font-size: 0.78rem;
-  color: var(--color-ink-medium);
-  opacity: 0.5;
+  color: var(--color-ink-muted);
   font-style: italic;
 }
 

@@ -73,8 +73,10 @@ function focusNode(idx: number): void {
       <!-- Progress fill -->
       <div
         class="absolute left-0 h-px top-[11px] rounded-sm transition-all duration-700 ease-out"
-        style="background: linear-gradient(90deg, rgba(198,40,40,0.15), rgba(198,40,40,0.4));"
-        :style="{ width: fillPercent + '%' }"
+        :style="{
+          background: `linear-gradient(90deg, color-mix(in srgb, var(--color-cinnabar) 15%, transparent), color-mix(in srgb, var(--color-cinnabar) 40%, transparent))`,
+          width: fillPercent + '%',
+        }"
       />
       <!-- Nodes: horizontal scroll on mobile, `justify-between` on larger screens -->
       <div class="overflow-x-auto pb-2 -mb-2 timeline-scroll">
@@ -98,11 +100,14 @@ function focusNode(idx: number): void {
             <!-- Dot -->
             <div
               class="dot-element rounded-full transition-transform duration-200"
-              :style="{ marginTop: (isActive(period) ? 0 : isPast(period) ? 2 : 3) + 'px' }"
+              :style="{
+                marginTop: (isActive(period) ? 0 : isPast(period) ? 2 : 3) + 'px',
+                boxShadow: isActive(period) ? `0 0 8px color-mix(in srgb, var(--color-cinnabar) 25%, transparent)` : undefined,
+              }"
               :class="{
-                'w-3.5 h-3.5 bg-cinnabar shadow-[0_0_8px_rgba(198,40,40,0.25)] scale-110 ring-1 ring-white/80': isActive(period),
-                'w-2.5 h-2.5 bg-ink-light/35': isPast(period),
-                'w-2 h-2 bg-ink-faint/40': !isActive(period) && !isPast(period),
+                'w-3.5 h-3.5 bg-cinnabar scale-110 ring-1 ring-white/80': isActive(period),
+                'w-2.5 h-2.5 bg-ink-muted/30': isPast(period),
+                'w-2 h-2 bg-ink-faint/30': !isActive(period) && !isPast(period),
               }"
             />
             <!-- Palace name -->
@@ -110,17 +115,17 @@ function focusNode(idx: number): void {
               class="text-[0.72rem] font-medium whitespace-nowrap tracking-[0.05em] transition-colors duration-300 font-display"
               :class="{
                 'text-cinnabar text-[0.78rem]': isActive(period),
-                'text-ink-medium/70': isPast(period),
-                'text-ink-medium/80': !isActive(period) && !isPast(period),
+                'text-ink-muted': isPast(period),
+                'text-ink-light': !isActive(period) && !isPast(period),
               }"
             >{{ period.palaceName }}</span>
             <!-- Age range -->
             <span
-              class="text-[0.65rem] transition-colors duration-300 font-sans tracking-[0.04em]"
+              class="text-[0.6875rem] transition-colors duration-300 font-sans tracking-[0.04em]"
               :class="{
-                'text-cinnabar/70': isActive(period),
-                'text-ink-light/80': isPast(period),
-                'text-ink-medium/80': !isActive(period) && !isPast(period),
+                'text-cinnabar': isActive(period),
+                'text-ink-light': isPast(period),
+                'text-ink-muted': !isActive(period) && !isPast(period),
               }"
             >{{ period.startAge }}-{{ period.endAge }}</span>
           </div>
@@ -143,7 +148,7 @@ function focusNode(idx: number): void {
   transition: background-color 0.2s;
 }
 .timeline-node:hover {
-  background-color: rgba(198, 40, 40, 0.04);
+  background-color: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
 }
 
 .timeline-node:hover .dot-element {

@@ -705,7 +705,7 @@ function focusLabel(idx: number) {
 .st-orb.cls-cinnabar {
   background:
     radial-gradient(circle at 35% 30%, rgba(255, 220, 215, 0.42), transparent 55%),
-    #A02020;
+    var(--color-cinnabar-deeper);
   border: 1px solid color-mix(in srgb, var(--color-cinnabar) 35%, transparent);
   box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
@@ -759,10 +759,8 @@ function focusLabel(idx: number) {
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   color: var(--color-ink-muted);
-  opacity: 0.58;
   line-height: 1;
   transition:
-    opacity 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
     color 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
     text-shadow 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
   pointer-events: none;
@@ -771,7 +769,7 @@ function focusLabel(idx: number) {
 .st-major .st-label {
   font-size: 0.7rem;
   font-weight: 500;
-  opacity: 0.74;
+  color: var(--color-ink-light);
   letter-spacing: 0.08em;
 }
 
@@ -818,7 +816,7 @@ function focusLabel(idx: number) {
 }
 
 .st-mutagen.lu   { background: color-mix(in srgb, var(--color-cinnabar) 16%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 22%, transparent); }
-.st-mutagen.quan { background: rgba(74, 140, 111, 0.16); color: #4A8C6F; border: 0.5px solid rgba(74, 140, 111, 0.22); }
+.st-mutagen.quan { background: color-mix(in srgb, var(--color-jade) 16%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 22%, transparent); }
 .st-mutagen.ke   { background: rgba(107, 168, 200, 0.16); color: #6BA8C8; border: 0.5px solid rgba(107, 168, 200, 0.22); }
 .st-mutagen.ji   { background: color-mix(in srgb, var(--color-ink-muted) 13%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 18%, transparent); }
 
@@ -912,7 +910,7 @@ function focusLabel(idx: number) {
   border-radius: 4px 8px 8px 4px;
   padding: 0.5rem 0.75rem;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-medium);
   max-width: 220px;
   min-width: 110px;
