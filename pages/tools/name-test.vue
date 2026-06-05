@@ -242,7 +242,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
           </div>
         </div>
 
-        <div class="flex justify-center mt-8">
+        <div class="flex justify-center items-center gap-4 mt-8">
           <button
             @click="computeNameTest"
             @keydown.enter="computeNameTest"
@@ -251,6 +251,15 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
           >
             <span class="btn-seal__char" aria-hidden="true">名</span>
             <span>{{ loading ? '分析中...' : '开始分析' }}</span>
+          </button>
+          <button
+            v-if="result"
+            @click="resetToForm"
+            @keydown.enter="resetToForm"
+            @keydown.space.prevent="resetToForm"
+            class="btn-ghost text-sm"
+          >
+            ⟲ 重新测算
           </button>
         </div>
       </div>
@@ -423,19 +432,6 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             <span class="detail-line__text">{{ detail.text }}</span>
           </div>
         </div>
-        </div>
-
-        <!-- 重新测算 -->
-        <div class="fade-in mt-6 text-center" :style="{ '--delay': '0.6s' }">
-          <button
-            @click="resetToForm"
-            @keydown.enter="resetToForm"
-            @keydown.space.prevent="resetToForm"
-            class="btn-seal"
-          >
-            <span class="btn-seal__char" aria-hidden="true">名</span>
-            <span>重新测算</span>
-          </button>
         </div>
 
         <EntertainmentDisclaimer />
