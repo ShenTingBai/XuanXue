@@ -888,6 +888,23 @@ describe('getFavorableElements with seasonal adjustment', () => {
     expect([...unfav].sort()).toEqual(['土', '水', '金'])
   })
 
+  it('丁火 中和 辰月(4) — 调候金 should NOT appear in both lists', () => {
+    const [fav, unfav] = getFavorableElements('火', '中和', 4)
+    // 中和基础: favorable=[水,土], unfavorable=[金,火]
+    // 春月调候金 → prepended to favorable, removed from unfavorable
+    // Result: favorable=[金,水,土], unfavorable=[火]
+    expect(fav).toContain('金')
+    expect(unfav).not.toContain('金')
+  })
+
+  it('庚金 身弱 午月(6) — 调候水 should NOT appear in both lists', () => {
+    const [fav, unfav] = getFavorableElements('金', '弱', 6)
+    // 身弱: favorable=[土,金], unfavorable=[火,水,木]
+    // 夏月调候水 → prepended to favorable=[水,土,金], filtered from unfavorable
+    expect(fav).toContain('水')
+    expect(unfav).not.toContain('水')
+  })
+
   it('backward compatible: 2-arg call still works', () => {
     const [fav, unfav] = getFavorableElements('金', '强')
     expect([...fav].sort()).toEqual(['木', '水', '火'])
