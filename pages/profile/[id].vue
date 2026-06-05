@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Profile } from '~/composables/useAuth'
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
+import InkDivider from '~/components/tools/InkDivider.vue'
 
 interface ProfileUpdateBody {
   gender: string | null
@@ -343,14 +344,14 @@ const saveProfile = async () => {
           to="/tools/bazi"
           class="btn-cin"
         >
-          开始体验
+          <span>开始体验</span>
         </NuxtLink>
         <NuxtLink
           v-if="redirectPath && success && !isOnboarding"
           :to="redirectPath"
           class="btn-cin"
         >
-          返回命理工具
+          <span>返回命理工具</span>
         </NuxtLink>
       </div>
 
@@ -383,10 +384,8 @@ const saveProfile = async () => {
           <span class="doc-corner doc-corner--br" aria-hidden="true"></span>
 
           <!-- Section header -->
-          <div class="section-header-custom">
-            <span class="inline-flex seal-icon text-xs w-8 h-8" aria-hidden="true">籍</span>
+          <div class="section-header">
             <h2>基本信息</h2>
-            <span class="line" aria-hidden="true"></span>
           </div>
 
           <div class="space-y-8">
@@ -395,7 +394,7 @@ const saveProfile = async () => {
               <AvatarCircle :nickname="nickname" size="lg" />
               <div>
                 <p class="font-display text-xl text-ink-dark tracking-[0.15em]">{{ nickname }}</p>
-                <p class="text-[0.65rem] text-ink-light tracking-[0.1em] mt-1">命主</p>
+                <p class="text-[0.6875rem] text-ink-medium tracking-[0.1em] mt-1">命主</p>
               </div>
             </div>
 
@@ -467,15 +466,7 @@ const saveProfile = async () => {
         </section>
 
         <!-- ═══ Decorative divider ═══ -->
-        <div class="divider-custom anim-rise anim-delay-2" aria-hidden="true">
-          <span class="line"></span>
-          <span class="center">
-            <span class="diamond">◇</span>
-            <span class="text">天机</span>
-            <span class="diamond">◇</span>
-          </span>
-          <span class="line"></span>
-        </div>
+        <InkDivider>天机</InkDivider>
 
         <!-- ════════════════════════════════════════════════════════
              Document Card 2: 出生信息
@@ -488,10 +479,8 @@ const saveProfile = async () => {
           <span class="doc-corner doc-corner--br" aria-hidden="true"></span>
 
           <!-- Section header -->
-          <div class="section-header-custom">
-            <span class="inline-flex seal-icon text-xs w-8 h-8" aria-hidden="true">辰</span>
+          <div class="section-header">
             <h2>出生信息</h2>
-            <span class="line" aria-hidden="true"></span>
           </div>
 
           <div class="space-y-8">
@@ -602,7 +591,7 @@ const saveProfile = async () => {
             class="btn-cin"
             :aria-busy="saving"
           >
-            {{ saving ? '保存中…' : '保存命簿' }}
+            <span>{{ saving ? '保存中…' : '保存命簿' }}</span>
           </button>
           <button
             type="button"
@@ -626,11 +615,6 @@ const saveProfile = async () => {
    命簿如卷 — Profile Page Decorative Styling
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Radio focus-visible ring ── */
-.sr-only:focus-visible + span {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
-}
 
 /* ── Background Trigram Corner Marks ── */
 .bg-trigrams {
@@ -642,7 +626,7 @@ const saveProfile = async () => {
 .bg-trigram {
   position: absolute;
   font-size: 6rem;
-  color: rgba(156, 26, 28, 0.018);
+  color: color-mix(in srgb, var(--color-cinnabar-deeper) 1.8%, transparent);
   font-family: var(--font-display);
   line-height: 1;
   user-select: none;
@@ -666,9 +650,9 @@ const saveProfile = async () => {
   transform: rotate(-5deg);
   flex-shrink: 0;
   box-shadow:
-    0 0 0 4px rgba(156,26,28,0.06),
-    0 0 0 10px rgba(156,26,28,0.025),
-    0 12px 48px rgba(156,26,28,0.05);
+    0 0 0 4px color-mix(in srgb, var(--color-cinnabar-deeper) 6%, transparent),
+    0 0 0 10px color-mix(in srgb, var(--color-cinnabar-deeper) 2.5%, transparent),
+    0 12px 48px color-mix(in srgb, var(--color-cinnabar-deeper) 5%, transparent);
 }
 .hero-seal-stack::after {
   content: '';
@@ -701,7 +685,8 @@ const saveProfile = async () => {
   height: 1px;
   background: repeating-linear-gradient(
     90deg,
-    rgba(156,26,28,0.04) 0px, rgba(156,26,28,0.04) 4px,
+    color-mix(in srgb, var(--color-cinnabar-deeper) 4%, transparent) 0px,
+    color-mix(in srgb, var(--color-cinnabar-deeper) 4%, transparent) 4px,
     transparent 4px, transparent 8px
   );
 }
@@ -730,51 +715,8 @@ const saveProfile = async () => {
 .doc-corner--bl { bottom: 10px; left: 10px; border-bottom: 1px solid var(--color-cinnabar-deeper); border-left: 1px solid var(--color-cinnabar-deeper); }
 .doc-corner--br { bottom: 10px; right: 10px; border-bottom: 1px solid var(--color-cinnabar-deeper); border-right: 1px solid var(--color-cinnabar-deeper); }
 
-/* ── Custom Section Header ── */
-.section-header-custom {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 28px;
-}
-.section-header-custom .bar {
-  width: 28px;
-  height: 2px;
-  background: rgba(156,26,28,0.10);
-  flex-shrink: 0;
-}
-.section-header-custom h2 {
-  font-family: var(--font-display);
-  color: var(--color-ink);
-  font-size: 1.375rem;
-  letter-spacing: 0.15em;
-  white-space: nowrap;
-}
-.section-header-custom .line {
-  flex: 1;
-  height: 1px;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(156,26,28,0.025) 0px, rgba(156,26,28,0.025) 3px,
-    transparent 3px, transparent 7px
-  );
-}
 
-/* ── Larger input text inside document cards ── */
-.document-card .input-warm {
-  font-size: 0.95rem;
-  padding: 0.875rem 1rem;
-}
-.document-card .input-warm option {
-  font-size: 0.85rem;
-}
 
-/* Larger button text */
-.btn-cin,
-.btn-ink {
-  font-size: 1rem;
-  padding: 0.875rem 2.5rem;
-}
 
 /* ── Field Labels ── */
 .field-label {
@@ -789,7 +731,7 @@ const saveProfile = async () => {
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: rgba(156,26,28,0.04);
+  background: color-mix(in srgb, var(--color-cinnabar-deeper) 4%, transparent);
   color: var(--color-cinnabar-deeper);
   font-size: 0.75rem;
   font-family: var(--font-display);
@@ -810,36 +752,15 @@ const saveProfile = async () => {
   font-family: var(--font-sans);
 }
 
-/* ── Enhanced Divider ── */
-.divider-custom {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+/* ── Fade transition for Transition components ── */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
 }
-.divider-custom .line {
-  flex: 1;
-  height: 1px;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(156,26,28,0.025) 0px, rgba(156,26,28,0.025) 3px,
-    transparent 3px, transparent 7px
-  );
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
-.divider-custom .center {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-shrink: 0;
-}
-.divider-custom .center .diamond {
-  color: rgba(156,26,28,0.04);
-  font-size: 10px;
-  line-height: 1;
-}
-.divider-custom .center .text {
-  font-size: 1rem;
-  color: rgba(44,26,14,0.08);
-  letter-spacing: 0.4em;
-  font-family: var(--font-display);
-}
+
 </style>
