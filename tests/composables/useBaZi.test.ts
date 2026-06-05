@@ -137,6 +137,8 @@ describe('calculateBaZi', () => {
       expect(cycle.endAge).toBeGreaterThan(cycle.startAge)
       expect(cycle.stemBranch).toBeTruthy()
       expect(cycle.stemTenGod).toBeTruthy()
+      expect(cycle.branchTenGod).toBeTruthy()
+      expect(cycle.branchTenGod).not.toBe('—')
     }
   })
 

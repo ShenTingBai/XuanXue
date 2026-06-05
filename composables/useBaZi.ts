@@ -613,7 +613,9 @@ function patchDaYunTenGods(cycles: DaYunCycle[], dayMasterIndex: number): DaYunC
     const stem = cycle.stemBranch[0]
     const branch = cycle.stemBranch[1]
     const stemTenGod = getTenGod(dayMasterIndex, stem)
-    const branchTenGod = getTenGod(dayMasterIndex, branch)
+    const branchTenGod = HIDDEN_STEMS[branch]
+      ? getTenGod(dayMasterIndex, HIDDEN_STEMS[branch][0])
+      : '—'
     const shortDesc = [stemTenGod, branchTenGod].filter(Boolean).join('/')
     return { ...cycle, stemTenGod, branchTenGod, description: shortDesc }
   })
