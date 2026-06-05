@@ -29,7 +29,7 @@ function scoreLabel(score: number): string {
 </script>
 
 <template>
-  <div class="card-warm rounded-xl p-6 sm:p-8">
+  <div class="card-warm rounded-xl p-8">
     <h2 class="font-display text-lg sm:text-xl text-ink-dark tracking-[0.2em] mb-4">
       推荐{{ eventName }}吉日
     </h2>
@@ -39,8 +39,11 @@ function scoreLabel(score: number): string {
       v-if="recommendedDates.length === 0"
       class="py-10 text-center"
     >
-      <p class="text-sm text-ink-light/70 tracking-[0.08em]">
-        暂无适合{{ eventName }}的吉日，请查看其他月份
+      <p class="text-sm text-ink-medium tracking-[0.08em]">
+        本月暂无{{ eventName }}吉日
+      </p>
+      <p class="text-xs text-ink-light mt-1">
+        可切换月份查看，或点击日历格子查看每日详情
       </p>
     </div>
 
@@ -64,12 +67,12 @@ function scoreLabel(score: number): string {
               <span class="font-sans text-sm text-ink-dark font-medium tracking-[0.05em]">
                 {{ day.lunarMonthName }}{{ day.lunarDayName }}
               </span>
-              <span class="text-[0.6rem] text-ink-light/60">
+              <span class="text-[0.6875rem] text-ink-light">
                 {{ day.solarDate }}
               </span>
             </div>
             <div class="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span class="text-[0.6rem] text-ink-muted tracking-[0.06em]">
+              <span class="text-[0.6875rem] text-ink-muted tracking-[0.06em]">
                 {{ day.lunarYearGanZhi }}年 {{ day.lunarMonthGanZhi }}月 {{ day.lunarDayGanZhi }}日
               </span>
             </div>
@@ -77,7 +80,7 @@ function scoreLabel(score: number): string {
 
           <!-- Score badge -->
           <div
-            class="flex-shrink-0 px-2.5 py-1 rounded-full text-[0.65rem] font-medium"
+            class="flex-shrink-0 px-2.5 py-1 rounded-full text-[0.6875rem] font-medium"
             :style="{
               background: scoreColor(day.score) + '15',
               color: scoreColor(day.score),
@@ -89,10 +92,10 @@ function scoreLabel(score: number): string {
         </div>
 
         <!-- Almanac info -->
-        <div class="flex items-center gap-3 flex-wrap text-[0.6rem] text-ink-light/80 ml-7">
+        <div class="flex items-center gap-3 flex-wrap text-[0.6875rem] text-ink-light ml-7">
           <!-- 十二值星 -->
           <span
-            class="px-1.5 py-0.5 rounded text-[0.55rem] font-medium"
+            class="px-1.5 py-0.5 rounded text-[0.6875rem] font-medium"
             :style="{
               background: (TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土']) + '12',
               color: TWELVE_STAR_COLOR[day.twelveStarLevel] || WUXING_COLORS['土'],
@@ -105,7 +108,7 @@ function scoreLabel(score: number): string {
           <!-- 天神 -->
           <span
             v-if="day.tianShenType"
-            class="px-1.5 py-0.5 rounded text-[0.55rem]"
+            class="px-1.5 py-0.5 rounded text-[0.6875rem]"
             :style="{
               background: day.tianShenType === '黄道' ? 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 10%, transparent)' : 'color-mix(in srgb, ' + WUXING_COLORS['火'] + ' 8%, transparent)',
               color: day.tianShenType === '黄道' ? WUXING_COLORS['木'] : WUXING_COLORS['火'],
@@ -119,7 +122,7 @@ function scoreLabel(score: number): string {
             <span
               v-for="reason in day.matchReasons"
               :key="reason"
-              class="text-[0.55rem] text-ink-light/70 tracking-[0.04em]"
+              class="text-[0.6875rem] text-ink-light tracking-[0.04em]"
             >
               {{ reason }}
               <span class="text-ink-light/30 mx-0.5" v-if="day.matchReasons.indexOf(reason) < day.matchReasons.length - 1">·</span>
@@ -132,7 +135,7 @@ function scoreLabel(score: number): string {
           <span
             v-for="yi in day.matchedYi"
             :key="yi"
-            class="text-[0.5rem] px-1.5 py-0.5 rounded-sm"
+            class="text-[0.6875rem] px-1.5 py-0.5 rounded-sm"
             :style="{ background: 'color-mix(in srgb, ' + WUXING_COLORS['木'] + ' 6%, transparent)', color: WUXING_COLORS['木'] }"
           >宜{{ yi }}</span>
         </div>

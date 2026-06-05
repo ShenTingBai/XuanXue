@@ -154,7 +154,7 @@ function evaluateDay(
   // Clamp to 0-100
   score = Math.max(0, Math.min(100, score))
 
-  const isRecommended = score >= 70
+  const isRecommended = score >= 55
 
   return {
     solarDate: `${year}-${pad(month)}-${pad(day)}`,

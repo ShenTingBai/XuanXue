@@ -9,6 +9,8 @@ import ZejiCalendar from '~/components/tools/zeji/ZejiCalendar.vue'
 import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import { useExportImage } from '~/composables/useExportImage'
 
 useHead({ title: '择吉日 — 玄·道' })
 
@@ -20,6 +22,21 @@ const savedDivinationId = ref<number | null>(null)
 const saveError = ref<string | null>(null)
 const restoreError = ref<string | null>(null)
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const showScrollTop = ref(false)
+const { exportToImage, isExporting } = useExportImage()
+
+function handleScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  const prefersReducedMotion = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  if (!prefersReducedMotion) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    window.scrollTo({ top: 0 })
+  }
+}
 
 onMounted(() => {
   restoreSession()
@@ -27,10 +44,12 @@ onMounted(() => {
     router.push('/login')
     return
   }
+  window.addEventListener('scroll', handleScroll, { passive: true })
   saveDivinationResult(result.value)
 })
 
 onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
   if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
@@ -104,8 +123,16 @@ const selectedDayDetail = computed<ZejiDayResult | null>(() => {
 })
 
 // Get recommended dates for the displayed month
+// Fallback: if no dates reach the threshold, show top 5 by score anyway
 const recommendedForMonth = computed<ZejiDayResult[]>(() => {
-  return daysForMonth.value.filter(d => d.isRecommended).sort((a, b) => b.score - a.score).slice(0, 10)
+  const recommended = daysForMonth.value.filter(d => d.isRecommended)
+  if (recommended.length > 0) {
+    return recommended.sort((a, b) => b.score - a.score).slice(0, 10)
+  }
+  // Fallback: show best-scoring days even if below threshold
+  return [...daysForMonth.value]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
 })
 
 function selectEvent(eventKey: string) {
@@ -192,11 +219,11 @@ function dismissRestoreError() {
       />
 
       <!-- ══ Event Type Selector ══ -->
-      <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
+      <div class="section-enter card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="section-header">
           <h2>选择事项</h2>
         </div>
-        <p class="text-xs text-ink-light/80 mb-5 tracking-wide">
+        <p class="text-xs text-ink-light mb-5 tracking-wide">
           选择您要择吉的事项类型，系统将根据黄历宜忌为您推荐吉日
         </p>
 
@@ -217,7 +244,7 @@ function dismissRestoreError() {
             @keydown.space.prevent="selectEvent(key)"
           >
             <span
-              class="seal-icon text-[0.55rem] w-5 h-5 flex items-center justify-center flex-shrink-0"
+              class="seal-icon text-[0.6875rem] w-5 h-5 flex items-center justify-center flex-shrink-0"
               :style="selectedEvent === key ? { background: 'var(--color-cinnabar)' } : {}"
               aria-hidden="true"
             >{{ info.icon }}</span>
@@ -228,7 +255,7 @@ function dismissRestoreError() {
 
       <!-- ══ Month Tabs ══ -->
       <div
-        class="fade-in mt-6"
+        class="section-enter mt-6"
         :style="{ '--delay': '0.2s' }"
         role="tablist"
         aria-label="月份选择"
@@ -255,7 +282,12 @@ function dismissRestoreError() {
       </div>
 
       <!-- ══ Calendar + Detail Row ══ -->
-      <div class="fade-in grid lg:grid-cols-[1fr_380px] gap-6" :style="{ '--delay': '0.25s' }">
+      <div
+        class="section-enter grid lg:grid-cols-[1fr_380px] gap-6"
+        :style="{ '--delay': '0.25s' }"
+        role="tabpanel"
+        :aria-label="`${displayMonth.year}年${displayMonth.month}月日历`"
+      >
         <!-- Calendar -->
         <ZejiCalendar
           :year="displayMonth.year"
@@ -269,13 +301,14 @@ function dismissRestoreError() {
         <!-- Right side: Selected day detail OR recommendations -->
         <div class="space-y-6">
           <!-- Selected day detail -->
-          <div v-if="selectedDayDetail" class="card-warm rounded-xl p-6 sm:p-8">
+          <div v-if="selectedDayDetail" class="card-warm rounded-xl p-8">
             <div class="flex items-center justify-between mb-4">
               <h2 class="font-display text-base text-ink-dark tracking-[0.15em]">日辰详情</h2>
               <button
-                class="text-[0.6rem] text-ink-light/60 hover:text-cinnabar transition-colors"
+                class="text-[0.6875rem] text-ink-light hover:text-cinnabar transition-colors"
                 @click="selectedDate = null"
                 @keydown.enter="selectedDate = null"
+                @keydown.space.prevent="selectedDate = null"
               >
                 关闭
               </button>
@@ -286,13 +319,13 @@ function dismissRestoreError() {
               <p class="font-display text-xl text-ink-dark tracking-[0.1em] mb-1">
                 {{ selectedDayDetail.lunarMonthName }}{{ selectedDayDetail.lunarDayName }}
               </p>
-              <p class="text-[0.65rem] text-ink-light/70 tracking-[0.08em]">
+              <p class="text-[0.6875rem] text-ink-light tracking-[0.08em]">
                 {{ selectedDayDetail.solarDate }}
               </p>
             </div>
 
             <!-- 干支 -->
-            <div class="flex items-center gap-2 mb-4 text-[0.7rem] text-ink-muted tracking-[0.08em]">
+            <div class="flex items-center gap-2 mb-4 text-xs text-ink-medium tracking-[0.08em]">
               <span>{{ selectedDayDetail.lunarYearGanZhi }}年</span>
               <span>{{ selectedDayDetail.lunarMonthGanZhi }}月</span>
               <span>{{ selectedDayDetail.lunarDayGanZhi }}日</span>
@@ -340,27 +373,27 @@ function dismissRestoreError() {
 
             <!-- 宜 -->
             <div class="mb-3">
-              <p class="text-[0.65rem] text-wuxing-wood font-medium mb-1.5 tracking-[0.06em]">宜</p>
+              <p class="text-[0.6875rem] text-wuxing-wood font-medium mb-1.5 tracking-[0.06em]">宜</p>
               <div class="flex flex-wrap gap-1">
                 <span
                   v-for="(item, i) in selectedDayDetail.yi"
                   :key="i"
                   class="tag-yi"
                 >{{ item }}</span>
-                <span v-if="selectedDayDetail.yi.length === 0" class="text-[0.6rem] text-ink-light/50">无</span>
+                <span v-if="selectedDayDetail.yi.length === 0" class="text-[0.6875rem] text-ink-light">无</span>
               </div>
             </div>
 
             <!-- 忌 -->
             <div>
-              <p class="text-[0.65rem] text-cinnabar font-medium mb-1.5 tracking-[0.06em]">忌</p>
+              <p class="text-[0.6875rem] text-cinnabar font-medium mb-1.5 tracking-[0.06em]">忌</p>
               <div class="flex flex-wrap gap-1">
                 <span
                   v-for="(item, i) in selectedDayDetail.ji"
                   :key="i"
                   class="tag-ji"
                 >{{ item }}</span>
-                <span v-if="selectedDayDetail.ji.length === 0" class="text-[0.6rem] text-ink-light/50">无</span>
+                <span v-if="selectedDayDetail.ji.length === 0" class="text-[0.6875rem] text-ink-light">无</span>
               </div>
             </div>
           </div>
@@ -377,6 +410,11 @@ function dismissRestoreError() {
 
       <EntertainmentDisclaimer />
 
+      <ScrollTopButton
+        v-if="showScrollTop"
+        @click="scrollToTop"
+        @keydown.enter="scrollToTop"
+      />
     </div>
 
     <!-- Restore error toast -->
@@ -471,14 +509,14 @@ function dismissRestoreError() {
 
 .detail-kv__key {
   font-family: var(--font-sans);
-  font-size: 0.55rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   letter-spacing: 0.06em;
 }
 
 .detail-kv__val {
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--color-ink, #2C1810);
   letter-spacing: 0.04em;
 }
@@ -487,7 +525,7 @@ function dismissRestoreError() {
 .tag-yi {
   display: inline-block;
   font-family: var(--font-sans);
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
   background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 6%, transparent);
@@ -499,7 +537,7 @@ function dismissRestoreError() {
 .tag-ji {
   display: inline-block;
   font-family: var(--font-sans);
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
   background: color-mix(in srgb, v-bind('WUXING_COLORS["火"]') 5%, transparent);
@@ -508,7 +546,7 @@ function dismissRestoreError() {
 }
 
 /* ── Animation ── */
-.fade-in {
+.section-enter {
   animation: secIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
 }
