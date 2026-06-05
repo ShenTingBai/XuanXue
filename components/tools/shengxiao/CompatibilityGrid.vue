@@ -3,7 +3,7 @@
     <div class="section-header">
       <h2>生肖配对</h2>
     </div>
-    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+    <div class="compatibility-grid grid grid-cols-3 sm:grid-cols-6 gap-3">
       <div
         v-for="(item, idx) in items"
         :key="item.animal"
@@ -11,6 +11,7 @@
         :class="[borderClass(item.level), expandedIdx === idx ? 'cursor-default' : 'cursor-pointer']"
         @click="toggleExpand(idx)"
         @keydown.enter="toggleExpand(idx)"
+        @keydown.space.prevent="toggleExpand(idx)"
         tabindex="0"
         role="button"
         :aria-expanded="expandedIdx === idx"
@@ -86,7 +87,31 @@ function levelClass(level: string): string {
 }
 .expand-enter-to,
 .expand-leave-from {
-  max-height: 5rem;
+  max-height: 10rem;
   opacity: 1;
+}
+
+/* ── Grid accent ── */
+.compatibility-grid {
+  position: relative;
+  padding-top: 1rem;
+}
+
+.compatibility-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(198, 40, 40, 0.08) 20%,
+    rgba(198, 40, 40, 0.12) 50%,
+    rgba(198, 40, 40, 0.08) 80%,
+    transparent
+  );
 }
 </style>

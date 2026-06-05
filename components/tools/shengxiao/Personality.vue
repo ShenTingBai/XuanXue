@@ -79,7 +79,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 <style scoped>
 /* ══ 纳音性格维度 ══ */
 .nayin-card {
-  background: linear-gradient(135deg, #F7F0E4 0%, #F0E8D8 100%);
+  background: linear-gradient(135deg, var(--color-scroll-light) 0%, var(--color-scroll-dark) 100%);
   border-radius: 0.625rem;
   border: 1px solid rgba(44, 26, 14, 0.03);
   overflow: hidden;
@@ -93,15 +93,15 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 
 .nayin-seal {
   flex-shrink: 0;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-cinnabar, #C62828);
   color: #FAF0E0;
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.1em;
   transform: rotate(-3deg);
   border-radius: 2px;
@@ -133,9 +133,9 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 
 .nayin-core__label {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
-  color: var(--color-ink-faint, #A89888);
-  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
+  letter-spacing: 0.08em;
   flex-shrink: 0;
 }
 
@@ -149,7 +149,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 
 .nayin-desc {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.65;
   letter-spacing: 0.03em;
@@ -165,9 +165,9 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 .nayin-tag {
   display: inline-block;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   color: var(--color-cinnabar, #C62828);
-  padding: 0.05rem 0.45rem;
+  padding: 0.08rem 0.5rem;
   border-radius: 999px;
   background: rgba(198, 40, 40, 0.04);
   border: 1px solid rgba(198, 40, 40, 0.08);

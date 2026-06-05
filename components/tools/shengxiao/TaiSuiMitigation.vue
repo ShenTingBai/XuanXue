@@ -1,5 +1,5 @@
 <template>
-  <div class="mitigation-card fade-in" :style="{ '--delay': delay }">
+  <div class="mitigation-card mitigation-enter" :style="{ '--delay': delay }">
     <!-- ── Decorative top border ── -->
     <div class="mitigation-rule-top" aria-hidden="true" />
 
@@ -160,9 +160,9 @@ const severityClass = computed(() => {
 .mitigation-card {
   position: relative;
   background: linear-gradient(180deg,
-    #FDF6E3 0%,
-    #F9EDD4 40%,
-    #F5E5C8 100%
+    var(--color-scroll-light) 0%,
+    var(--color-scroll) 40%,
+    var(--color-scroll-dark) 100%
   );
   border-radius: 0.75rem;
   overflow: hidden;
@@ -280,10 +280,10 @@ const severityClass = computed(() => {
 
 .mitigation-year-tag {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
-  color: var(--color-ink-faint, #A89888);
-  letter-spacing: 0.1em;
-  padding: 0.1rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
   border: 1px solid rgba(44, 26, 14, 0.06);
   background: rgba(255, 255, 255, 0.4);
@@ -324,10 +324,9 @@ const severityClass = computed(() => {
 .deity-label {
   display: inline-block;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
-  color: var(--color-ink-light, #8A7A6A);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--color-ink-medium);
+  letter-spacing: 0.12em;
   margin-bottom: 0.375rem;
 }
 
@@ -352,7 +351,7 @@ const severityClass = computed(() => {
 
 .deity-bio {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--color-ink-medium, #5A4A3A);
   line-height: 1.6;
   letter-spacing: 0.03em;
@@ -438,8 +437,8 @@ const severityClass = computed(() => {
 
 .relation-severity {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.5);
@@ -523,7 +522,7 @@ const severityClass = computed(() => {
   background: rgba(198, 40, 40, 0.06);
   color: var(--color-cinnabar, #C62828);
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   margin-top: 0.05rem;
 }
 
@@ -668,7 +667,7 @@ const severityClass = computed(() => {
 }
 
 /* ══ Animation ══ */
-.fade-in {
+.mitigation-enter {
   animation: mitigationAppear 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
 }

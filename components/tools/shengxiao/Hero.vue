@@ -28,16 +28,16 @@
                 >
                   {{ relations.primary }}
                 </span>
-                <span class="font-sans text-[11px] text-ink-light/60 tracking-wider">
+                <span class="font-sans text-[0.6875rem] text-ink-light tracking-wider">
                   {{ relations.currentYear }}年 · 太岁批注
                 </span>
               </div>
-              <p class="font-sans text-xs sm:text-sm text-ink-medium/90 mt-1.5 leading-relaxed">
+              <p class="font-sans text-xs sm:text-sm text-ink-medium mt-1.5 leading-relaxed">
                 {{ taiSuiInterpretation(relations.primary) }}
               </p>
               <!-- Secondary positive note when negative dominates -->
               <p v-if="relations.secondary"
-                class="font-sans text-[11px] text-jade/70 mt-1.5 leading-relaxed italic">
+                class="font-sans text-[0.6875rem] text-jade mt-1.5 leading-relaxed">
                 另得{{ relations.secondary }}之助
               </p>
             </div>
