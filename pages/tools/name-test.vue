@@ -262,7 +262,6 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
         <div ref="resultRef">
         <!-- 总分横幅 -->
         <div class="fade-in mt-8 score-banner" :style="{ '--delay': '0.15s' }">
-          <div class="score-banner__accent" aria-hidden="true"></div>
           <div class="score-banner__left">
             <div class="score-banner__grade">
               {{ result.totalScore >= 80 ? '大吉' : result.totalScore >= 60 ? '中吉' : result.totalScore >= 40 ? '末吉' : '凶' }}
@@ -275,7 +274,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             </div>
           </div>
           <div class="score-banner__right">
-            <p class="score-banner__summary line-clamp-2">{{ result.summary }}</p>
+            <p class="score-banner__summary">{{ result.summary }}</p>
           </div>
         </div>
 
@@ -469,18 +468,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
   background: linear-gradient(135deg, var(--color-paper-lightest) 0%, var(--color-paper-light) 100%);
   border-radius: 0.75rem;
   border: 1px solid color-mix(in srgb, var(--color-ink-faint) 12%, transparent);
-  position: relative;
-  overflow: hidden;
-}
-
-.score-banner__accent {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--color-cinnabar);
-  border-radius: 0 1.5px 1.5px 0;
+  border-left: 3px solid var(--color-cinnabar);
 }
 
 @media (max-width: 639px) {
@@ -488,14 +476,8 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
-  }
-  .score-banner__accent {
-    width: 100%;
-    height: 3px;
-    top: 0;
-    bottom: auto;
-    left: 0;
-    border-radius: 0 0 1.5px 1.5px;
+    border-left: 1px solid color-mix(in srgb, var(--color-ink-faint) 12%, transparent);
+    border-top: 3px solid var(--color-cinnabar);
   }
 }
 
@@ -540,6 +522,10 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
   color: var(--color-ink-medium);
   line-height: 1.55;
   letter-spacing: 0.02em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ── Grid table (redesigned — rows without header) ── */
