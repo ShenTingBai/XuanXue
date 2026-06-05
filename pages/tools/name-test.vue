@@ -14,8 +14,23 @@ import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
 useHead({ title: '姓名测试 — 玄·道' })
+
+// ── 方法论溯源数据 ──
+const nameTestClassical: ClassicalSource[] = [
+  { method: '五格剖象法', source: '熊崎健翁《姓名学の極意》（1934），融合易学五行与日本姓名学' },
+  { method: '81 数理吉凶表', source: '同上，熊崎健翁《姓名学》，数理 1-81 吉凶分类与命名' },
+  { method: '三才五行生克', source: '《易经》五行生克原理，天/人/地三才配置吉凶' },
+  { method: '汉字笔画', source: '康熙字典笔画规范，makemeahanzi 开源数据库（~9565 字）' },
+]
+
+const nameTestSynthesis: string[] = [
+  '五格各 20 分 + 人格双倍权重 + 三才 20 分（共 140→压缩至 0-100）',
+  '评分阈值：≥80 大吉 / ≥60 中吉 / ≥40 末吉（工程校准）',
+  '数理分类标签（首领运/财富运等）为现代实用分类整理',
+]
 
 const result = ref<NameTestResult | null>(null)
 const loading = ref(false)
@@ -156,6 +171,12 @@ const scoreItems = computed(() => {
     { label: '综合', score: result.value.totalScore },
   ]
 })
+
+function fortuneColor(f: '吉' | '凶' | '半吉'): string {
+  if (f === '吉') return 'var(--color-jade)'
+  if (f === '凶') return 'var(--color-cinnabar)'
+  return 'var(--color-ink-muted)'
+}
 </script>
 
 <template>
@@ -187,7 +208,7 @@ const scoreItems = computed(() => {
         <div class="section-header">
           <h2>输入姓名</h2>
         </div>
-        <p class="text-xs text-ink-light/80 mb-6 tracking-wide">请输入您的姓名进行五格剖象分析</p>
+        <p class="text-xs text-ink-muted mb-6 tracking-wide">请输入您的姓名进行五格剖象分析</p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
@@ -241,6 +262,7 @@ const scoreItems = computed(() => {
         <div ref="resultRef">
         <!-- 总分横幅 -->
         <div class="fade-in mt-8 score-banner" :style="{ '--delay': '0.15s' }">
+          <div class="score-banner__accent" aria-hidden="true"></div>
           <div class="score-banner__left">
             <div class="score-banner__grade">
               {{ result.totalScore >= 80 ? '大吉' : result.totalScore >= 60 ? '中吉' : result.totalScore >= 40 ? '末吉' : '凶' }}
@@ -253,88 +275,117 @@ const scoreItems = computed(() => {
             </div>
           </div>
           <div class="score-banner__right">
-            <p class="score-banner__summary">{{ result.summary.slice(0, 60) }}...</p>
+            <p class="score-banner__summary line-clamp-2">{{ result.summary }}</p>
           </div>
         </div>
 
         <!-- 五格一览表 -->
         <div class="fade-in mt-6 card-warm rounded-xl overflow-hidden" :style="{ '--delay': '0.25s' }">
-          <div class="section-header px-6 pt-6">
-            <h2>五格剖象</h2>
+          <div class="flex items-center justify-between px-8 pt-8 pb-4">
+            <div class="section-header !pb-0 !mb-0 !border-b-0">
+              <h2>五格剖象</h2>
+            </div>
+            <MethodologyNote
+              :classical="nameTestClassical"
+              :synthesis="nameTestSynthesis"
+              tool="姓名测试"
+            />
           </div>
           <div class="grid-table">
-            <!-- Header -->
-            <div class="grid-table__row grid-table__header">
-              <span>格位</span>
-              <span>笔画</span>
-              <span>五行</span>
-              <span>数理</span>
-              <span>吉凶</span>
-              <span class="hidden sm:block">含义</span>
-            </div>
             <!-- 天格 -->
-            <div class="grid-table__row">
-              <span class="grid-table__label">天格</span>
-              <span>{{ result.grids.tian.strokes }}</span>
-              <span class="wx-badge" :class="`wx-${result.grids.tian.wuxing}`">{{ result.grids.tian.wuxing }}</span>
-              <span>{{ result.grids.tian.name }}</span>
-              <span :class="result.grids.tian.fortune === '吉' ? 'text-wuxing-wood' : result.grids.tian.fortune === '半吉' ? 'text-wuxing-earth' : 'text-cinnabar'">
-                {{ result.grids.tian.fortune === '吉' ? '吉' : result.grids.tian.fortune === '半吉' ? '平' : '凶' }}
-              </span>
-              <span class="hidden sm:block text-ink-light text-[0.6rem]">{{ result.grids.tian.meaning }}</span>
+            <div class="grid-row" :class="{ 'grid-row--alt': true }">
+              <div class="grid-row__top">
+                <span class="grid-row__label">天格</span>
+                <span class="grid-row__fortune" :style="{ color: fortuneColor(result.grids.tian.fortune) }">
+                  {{ result.grids.tian.fortune === '吉' ? '吉' : result.grids.tian.fortune === '半吉' ? '平' : '凶' }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.tian.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.tian.wuxing}`">{{ result.grids.tian.wuxing }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.tian.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.tian.meaning }}</p>
             </div>
-            <!-- 人格 -->
-            <div class="grid-table__row grid-table__row--hl">
-              <span class="grid-table__label">人格 · 主运</span>
-              <span>{{ result.grids.ren.strokes }}</span>
-              <span class="wx-badge" :class="`wx-${result.grids.ren.wuxing}`">{{ result.grids.ren.wuxing }}</span>
-              <span>{{ result.grids.ren.name }}</span>
-              <span :class="result.grids.ren.fortune === '吉' ? 'text-wuxing-wood' : result.grids.ren.fortune === '半吉' ? 'text-wuxing-earth' : 'text-cinnabar'">
-                {{ result.grids.ren.fortune === '吉' ? '吉' : result.grids.ren.fortune === '半吉' ? '平' : '凶' }}
-              </span>
-              <span class="hidden sm:block text-ink-light text-[0.6rem]">{{ result.grids.ren.meaning }}</span>
+            <!-- 人格（主运） -->
+            <div class="grid-row grid-row--primary">
+              <div class="grid-row__accent" aria-hidden="true"></div>
+              <div class="grid-row__top">
+                <span class="grid-row__label">人格<span class="grid-row__subtitle">主运</span></span>
+                <span class="grid-row__fortune" :style="{ color: fortuneColor(result.grids.ren.fortune) }">
+                  {{ result.grids.ren.fortune === '吉' ? '吉' : result.grids.ren.fortune === '半吉' ? '平' : '凶' }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.ren.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.ren.wuxing}`">{{ result.grids.ren.wuxing }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.ren.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.ren.meaning }}</p>
             </div>
-            <!-- 地格 -->
-            <div class="grid-table__row">
-              <span class="grid-table__label">地格 · 前运</span>
-              <span>{{ result.grids.di.strokes }}</span>
-              <span class="wx-badge" :class="`wx-${result.grids.di.wuxing}`">{{ result.grids.di.wuxing }}</span>
-              <span>{{ result.grids.di.name }}</span>
-              <span :class="result.grids.di.fortune === '吉' ? 'text-wuxing-wood' : result.grids.di.fortune === '半吉' ? 'text-wuxing-earth' : 'text-cinnabar'">
-                {{ result.grids.di.fortune === '吉' ? '吉' : result.grids.di.fortune === '半吉' ? '平' : '凶' }}
-              </span>
-              <span class="hidden sm:block text-ink-light text-[0.6rem]">{{ result.grids.di.meaning }}</span>
+            <!-- 地格（前运） -->
+            <div class="grid-row grid-row--alt">
+              <div class="grid-row__top">
+                <span class="grid-row__label">地格<span class="grid-row__subtitle">前运</span></span>
+                <span class="grid-row__fortune" :style="{ color: fortuneColor(result.grids.di.fortune) }">
+                  {{ result.grids.di.fortune === '吉' ? '吉' : result.grids.di.fortune === '半吉' ? '平' : '凶' }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.di.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.di.wuxing}`">{{ result.grids.di.wuxing }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.di.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.di.meaning }}</p>
             </div>
-            <!-- 总格 -->
-            <div class="grid-table__row">
-              <span class="grid-table__label">总格 · 后运</span>
-              <span>{{ result.grids.total.strokes }}</span>
-              <span class="wx-badge" :class="`wx-${result.grids.total.wuxing}`">{{ result.grids.total.wuxing }}</span>
-              <span>{{ result.grids.total.name }}</span>
-              <span :class="result.grids.total.fortune === '吉' ? 'text-wuxing-wood' : result.grids.total.fortune === '半吉' ? 'text-wuxing-earth' : 'text-cinnabar'">
-                {{ result.grids.total.fortune === '吉' ? '吉' : result.grids.total.fortune === '半吉' ? '平' : '凶' }}
-              </span>
-              <span class="hidden sm:block text-ink-light text-[0.6rem]">{{ result.grids.total.meaning }}</span>
+            <!-- 总格（后运） -->
+            <div class="grid-row">
+              <div class="grid-row__top">
+                <span class="grid-row__label">总格<span class="grid-row__subtitle">后运</span></span>
+                <span class="grid-row__fortune" :style="{ color: fortuneColor(result.grids.total.fortune) }">
+                  {{ result.grids.total.fortune === '吉' ? '吉' : result.grids.total.fortune === '半吉' ? '平' : '凶' }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.total.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.total.wuxing}`">{{ result.grids.total.wuxing }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.total.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.total.meaning }}</p>
             </div>
-            <!-- 外格 -->
-            <div class="grid-table__row">
-              <span class="grid-table__label">外格 · 副运</span>
-              <span>{{ result.grids.wai.strokes }}</span>
-              <span class="wx-badge" :class="`wx-${result.grids.wai.wuxing}`">{{ result.grids.wai.wuxing }}</span>
-              <span>{{ result.grids.wai.name }}</span>
-              <span :class="result.grids.wai.fortune === '吉' ? 'text-wuxing-wood' : result.grids.wai.fortune === '半吉' ? 'text-wuxing-earth' : 'text-cinnabar'">
-                {{ result.grids.wai.fortune === '吉' ? '吉' : result.grids.wai.fortune === '半吉' ? '平' : '凶' }}
-              </span>
-              <span class="hidden sm:block text-ink-light text-[0.6rem]">{{ result.grids.wai.meaning }}</span>
+            <!-- 外格（副运） -->
+            <div class="grid-row grid-row--alt">
+              <div class="grid-row__top">
+                <span class="grid-row__label">外格<span class="grid-row__subtitle">副运</span></span>
+                <span class="grid-row__fortune" :style="{ color: fortuneColor(result.grids.wai.fortune) }">
+                  {{ result.grids.wai.fortune === '吉' ? '吉' : result.grids.wai.fortune === '半吉' ? '平' : '凶' }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.wai.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.wai.wuxing}`">{{ result.grids.wai.wuxing }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.wai.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.wai.meaning }}</p>
             </div>
           </div>
 
           <!-- 三才配置 -->
-          <div class="px-6 pb-6 pt-4 border-t border-ink-dark/4 mt-2">
+          <div class="px-8 pb-8 pt-4 border-t" style="border-color: color-mix(in srgb, var(--color-ink-faint) 16%, transparent)">
             <div class="flex items-center gap-2 mb-2">
               <span class="font-sans text-xs text-ink-medium">三才配置</span>
               <span class="text-xs text-ink-light">天格{{ result.sanCai.tian }} → 人格{{ result.sanCai.ren }} → 地格{{ result.sanCai.di }}</span>
-              <span :class="result.sanCai.fortune === '吉' ? 'text-wuxing-wood' : result.sanCai.fortune === '凶' ? 'text-cinnabar' : 'text-wuxing-earth'" class="text-xs font-medium">
+              <span class="text-xs font-medium" :style="{ color: fortuneColor(result.sanCai.fortune) }">
                 · {{ result.sanCai.fortune === '吉' ? '相生大吉' : result.sanCai.fortune === '半吉' ? '半吉' : '相克大凶' }}
               </span>
             </div>
@@ -345,7 +396,7 @@ const scoreItems = computed(() => {
         </div>
 
         <!-- 详解 -->
-        <div class="fade-in mt-6 card-warm rounded-xl p-6" :style="{ '--delay': '0.4s' }">
+        <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.4s' }">
           <div class="section-header">
             <h2>详解</h2>
           </div>
@@ -356,7 +407,7 @@ const scoreItems = computed(() => {
 
         <!-- 各格详解 -->
         <div class="fade-in mt-6 space-y-3" :style="{ '--delay': '0.5s' }">
-          <p class="text-xs text-ink-light/80 tracking-wide text-center">各格详情</p>
+          <p class="text-xs text-ink-muted tracking-wide text-center">各格详情</p>
           <div
             v-for="detail in result.details"
             :key="detail.label"
@@ -403,6 +454,7 @@ const scoreItems = computed(() => {
       v-if="showScrollTop"
       @click="scrollToTop"
       @keydown.enter="scrollToTop"
+      @keydown.space.prevent="scrollToTop"
     />
   </ToolPageLayout>
 </template>
@@ -414,9 +466,21 @@ const scoreItems = computed(() => {
   align-items: center;
   gap: 1rem;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #FBF4E6 0%, #F5EBD6 100%);
+  background: linear-gradient(135deg, var(--color-paper-lightest) 0%, var(--color-paper-light) 100%);
   border-radius: 0.75rem;
-  border: 1px solid rgba(44, 26, 14, 0.04);
+  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 12%, transparent);
+  position: relative;
+  overflow: hidden;
+}
+
+.score-banner__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-cinnabar);
+  border-radius: 0 1.5px 1.5px 0;
 }
 
 @media (max-width: 639px) {
@@ -424,6 +488,14 @@ const scoreItems = computed(() => {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
+  }
+  .score-banner__accent {
+    width: 100%;
+    height: 3px;
+    top: 0;
+    bottom: auto;
+    left: 0;
+    border-radius: 0 0 1.5px 1.5px;
   }
 }
 
@@ -436,15 +508,15 @@ const scoreItems = computed(() => {
 .score-banner__grade {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 1.5rem;
-  color: var(--color-cinnabar, #C62828);
+  color: var(--color-cinnabar);
   letter-spacing: 0.2em;
   line-height: 1.2;
 }
 
 .score-banner__name {
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   letter-spacing: 0.15em;
 }
 
@@ -464,53 +536,106 @@ const scoreItems = computed(() => {
 
 .score-banner__summary {
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   line-height: 1.55;
   letter-spacing: 0.02em;
 }
 
-/* ── Grid table ── */
+/* ── Grid table (redesigned — rows without header) ── */
 .grid-table {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid rgba(44, 26, 14, 0.03);
 }
 
-.grid-table__row {
-  display: grid;
-  grid-template-columns: 1.5fr 0.6fr 0.8fr 1.2fr 0.6fr 2fr;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.45rem 1.25rem;
+.grid-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.625rem 2rem;
+  position: relative;
+}
+
+.grid-row--alt {
+  background: color-mix(in srgb, var(--color-paper-lightest) 40%, transparent);
+}
+
+/* 人格主运 — cinnabar accent + tint */
+.grid-row--primary {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  padding-left: calc(2rem + 3px);
+}
+
+.grid-row__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-cinnabar);
+  border-radius: 0 1.5px 1.5px 0;
+}
+
+.grid-row__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.grid-row__label {
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  border-bottom: 1px solid rgba(44, 26, 14, 0.02);
-  color: var(--color-ink-medium, #5A4A3A);
-}
-
-@media (max-width: 639px) {
-  .grid-table__row {
-    grid-template-columns: 1.2fr 0.6fr 0.7fr 1.2fr 0.6fr;
-  }
-}
-
-.grid-table__header {
-  font-size: 0.55rem;
-  font-weight: 600;
-  color: var(--color-ink-light, #8A7A6A);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: rgba(44, 26, 14, 0.02);
-}
-
-.grid-table__row--hl {
-  background: rgba(198, 40, 40, 0.04);
+  font-size: 0.75rem;
   font-weight: 500;
+  color: var(--color-ink-dark);
+  letter-spacing: 0.04em;
 }
 
-.grid-table__label {
-  color: var(--color-ink-dark, #2C1810);
+.grid-row__subtitle {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--color-ink-muted);
+  margin-left: 0.4em;
+  letter-spacing: 0.02em;
+}
+
+.grid-row__fortune {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.grid-row__mid {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
+}
+
+.grid-row__strokes {
+  color: var(--color-ink-medium);
+}
+
+.grid-row__number-name {
+  color: var(--color-ink-light);
+}
+
+.sept {
+  color: var(--color-ink-faint);
+  font-size: 0.6875rem;
+  user-select: none;
+}
+
+.grid-row__meaning {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  margin: 0;
 }
 
 /* ── Wuxing badges ── */
@@ -518,11 +643,12 @@ const scoreItems = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.4rem;
-  height: 1.1rem;
+  width: 1.5rem;
+  height: 1.25rem;
   border-radius: 2px;
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
   font-weight: 500;
+  flex-shrink: 0;
 }
 .wx-木 {
   background: color-mix(in srgb, v-bind('WUXING_COLORS["木"]') 8%, transparent);
@@ -550,25 +676,25 @@ const scoreItems = computed(() => {
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(250, 240, 224, 0.3);
+  background: color-mix(in srgb, var(--color-paper-lightest) 30%, transparent);
   border-radius: 0.375rem;
-  border: 1px solid rgba(44, 26, 14, 0.02);
+  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 6%, transparent);
 }
 
 .detail-line__label {
   flex-shrink: 0;
   font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--color-ink-dark, #2C1810);
-  min-width: 5rem;
+  color: var(--color-ink-dark);
+  min-width: 5.5rem;
   letter-spacing: 0.03em;
 }
 
 .detail-line__text {
   font-family: var(--font-sans);
-  font-size: 0.6rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   line-height: 1.6;
   letter-spacing: 0.02em;
 }
@@ -576,12 +702,12 @@ const scoreItems = computed(() => {
 .nayin-tag {
   display: inline-block;
   font-family: var(--font-sans);
-  font-size: 0.5rem;
-  color: var(--color-cinnabar, #C62828);
-  padding: 0.05rem 0.45rem;
+  font-size: 0.6875rem;
+  color: var(--color-cinnabar);
+  padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background: rgba(198, 40, 40, 0.04);
-  border: 1px solid rgba(198, 40, 40, 0.08);
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 8%, transparent);
   letter-spacing: 0.06em;
 }
 
@@ -589,8 +715,8 @@ const scoreItems = computed(() => {
 .input-label {
   display: block;
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   letter-spacing: 0.06em;
   margin-bottom: 0.3rem;
 }
