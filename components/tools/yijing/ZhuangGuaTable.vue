@@ -17,8 +17,8 @@
           v-for="(line, idx) in lines"
           :key="line.position"
           :class="[
-            'border-b border-paper-dark/50 transition-colors',
-            line.yao.isChanging ? 'bg-cinnabar/5' : idx % 2 === 0 ? 'bg-paper-lightest/50' : 'bg-transparent',
+            'border-b zgt-row transition-colors',
+            line.yao.isChanging ? 'zgt-row--changing' : idx % 2 === 0 ? 'zgt-row--even' : 'bg-transparent',
           ]"
         >
           <!-- 爻位 -->
@@ -40,8 +40,8 @@
           <!-- 五行 -->
           <td class="px-2 sm:px-3 py-2.5 whitespace-nowrap">
             <span
-              class="inline-block px-1.5 py-0.5 rounded text-xs font-medium"
-              :style="{ color: wuxingTextColor(line.branchWuxing), backgroundColor: wuxingBgColor(line.branchWuxing) }"
+              class="inline-block px-1.5 py-0.5 rounded text-xs font-medium zgt-wx-badge"
+              :style="{ '--_wx': wuxingTextColor(line.branchWuxing) }"
             >
               {{ line.branchWuxing }}
             </span>
@@ -63,8 +63,8 @@
 
           <!-- 世应 -->
           <td class="px-2 sm:px-3 py-2.5 text-center whitespace-nowrap">
-            <span v-if="line.isShi" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cinnabar/10 text-cinnabar text-xs font-medium">世</span>
-            <span v-else-if="line.isYing" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gold/10 text-gold text-xs font-medium">应</span>
+            <span v-if="line.isShi" class="inline-flex items-center justify-center w-6 h-6 rounded-full zgt-badge--shi text-xs font-medium">世</span>
+            <span v-else-if="line.isYing" class="inline-flex items-center justify-center w-6 h-6 rounded-full zgt-badge--ying text-xs font-medium">应</span>
             <span v-else class="text-ink-light text-xs">—</span>
           </td>
 
@@ -80,37 +80,99 @@
 
 <script setup lang="ts">
 import type { ZhuangGuaLine } from '~/composables/useYijing'
-import { wuxingColor as wuxingTextColor, hexToRgba } from '~/constants/bazi'
+import { wuxingColor as wuxingTextColor } from '~/constants/bazi'
 
 defineProps<{
   lines: ZhuangGuaLine[]
 }>()
 
-function wuxingBgColor(wuxing: string): string {
-  const color = wuxingTextColor(wuxing)
-  return hexToRgba(color, 0.08)
-}
-
 function sixRelationClass(relation: string): string {
   const map: Record<string, string> = {
-    '父母': 'bg-jade/10 text-jade',
-    '兄弟': 'bg-ink-faint/10 text-ink-light',
-    '官鬼': 'bg-gold/10 text-gold',
-    '妻财': 'bg-ink-medium/10 text-ink',
-    '子孙': 'bg-cinnabar/10 text-cinnabar',
+    '父母': 'sr--parent',
+    '兄弟': 'sr--sibling',
+    '官鬼': 'sr--official',
+    '妻财': 'sr--wealth',
+    '子孙': 'sr--children',
   }
-  return map[relation] || 'bg-ink-faint/10 text-ink-light'
+  return map[relation] || 'sr--default'
 }
 
 function sixSpiritClass(spirit: string): string {
   const map: Record<string, string> = {
-    '青龙': 'text-jade',
-    '朱雀': 'text-cinnabar',
-    '勾陈': 'text-ink',
-    '螣蛇': 'text-gold',
-    '白虎': 'text-ink-light',
-    '玄武': 'text-ink-dark',
+    '青龙': 'ss--qinglong',
+    '朱雀': 'ss--zhuque',
+    '勾陈': 'ss--gouchen',
+    '螣蛇': 'ss--tengshe',
+    '白虎': 'ss--baihu',
+    '玄武': 'ss--xuanwu',
   }
-  return map[spirit] || 'text-ink-light'
+  return map[spirit] || 'ss--default'
 }
 </script>
+
+<style scoped>
+/* ── Row striping ── */
+.zgt-row {
+  border-bottom-color: color-mix(in srgb, var(--color-paper-dark) 50%, transparent);
+}
+
+.zgt-row--changing {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+}
+
+.zgt-row--even {
+  background: color-mix(in srgb, var(--color-paper-lightest) 50%, transparent);
+}
+
+/* ── Wuxing badge ── */
+.zgt-wx-badge {
+  color: var(--_wx);
+  background: color-mix(in srgb, var(--_wx) 8%, transparent);
+}
+
+/* ── Shi/Ying badges ── */
+.zgt-badge--shi {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  color: var(--color-cinnabar);
+}
+
+.zgt-badge--ying {
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+  color: var(--color-gold);
+}
+
+/* ── Six Relations ── */
+.sr--parent {
+  background: color-mix(in srgb, var(--color-jade) 10%, transparent);
+  color: var(--color-jade);
+}
+.sr--sibling {
+  background: color-mix(in srgb, var(--color-ink-faint) 10%, transparent);
+  color: var(--color-ink-light);
+}
+.sr--official {
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+  color: var(--color-gold);
+}
+.sr--wealth {
+  background: color-mix(in srgb, var(--color-ink-medium) 10%, transparent);
+  color: var(--color-ink);
+}
+.sr--children {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  color: var(--color-cinnabar);
+}
+.sr--default {
+  background: color-mix(in srgb, var(--color-ink-faint) 10%, transparent);
+  color: var(--color-ink-light);
+}
+
+/* ── Six Spirits ── */
+.ss--qinglong { color: var(--color-jade); }
+.ss--zhuque   { color: var(--color-cinnabar); }
+.ss--gouchen  { color: var(--color-ink); }
+.ss--tengshe  { color: var(--color-gold); }
+.ss--baihu    { color: var(--color-ink-light); }
+.ss--xuanwu   { color: var(--color-ink-dark); }
+.ss--default  { color: var(--color-ink-light); }
+</style>

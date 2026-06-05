@@ -39,7 +39,7 @@
     </div>
 
     <!-- Coin casting mode -->
-    <div v-if="mode === 'coin'" class="casting-card rounded-xl p-6 sm:p-8 text-center">
+    <div v-if="mode === 'coin'" class="casting-card rounded-xl p-8 text-center">
 
       <!-- Toss progress indicator -->
       <div class="flex justify-center gap-1.5 mb-6" aria-hidden="true">
@@ -109,7 +109,7 @@
     </div>
 
     <!-- Number casting mode -->
-    <div v-else class="casting-card rounded-xl p-6 sm:p-8">
+    <div v-else class="casting-card rounded-xl p-8">
       <p class="font-sans text-sm text-ink-light mb-6 text-center leading-relaxed">
         心有所想，随即以三个数字起卦。数字分定上卦、下卦与动爻。
       </p>
@@ -119,7 +119,7 @@
         <div class="space-y-5">
           <!-- Upper trigram -->
           <div>
-            <label for="yijing-upper" class="block font-sans text-xs text-ink-light/80 mb-1.5 tracking-wider text-center">上 卦 — 天数</label>
+            <label for="yijing-upper" class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center">上 卦 — 天数</label>
             <input
               id="yijing-upper"
               v-model="upperNum"
@@ -135,7 +135,7 @@
 
           <!-- Lower trigram -->
           <div>
-            <label for="yijing-lower" class="block font-sans text-xs text-ink-light/80 mb-1.5 tracking-wider text-center">下 卦 — 地数</label>
+            <label for="yijing-lower" class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center">下 卦 — 地数</label>
             <input
               id="yijing-lower"
               v-model="lowerNum"
@@ -151,7 +151,7 @@
 
           <!-- Moving line -->
           <div>
-            <label for="yijing-moving" class="block font-sans text-xs text-ink-light/80 mb-1.5 tracking-wider text-center">动 爻 — 变数</label>
+            <label for="yijing-moving" class="block font-sans text-xs text-ink-muted mb-1.5 tracking-wider text-center">动 爻 — 变数</label>
             <input
               id="yijing-moving"
               v-model="movingNum"
@@ -298,23 +298,26 @@ function handleNumberSubmit() {
 
 <style scoped>
 .casting-card {
-  background: rgba(44, 24, 16, 0.03);
-  border: 1px solid rgba(44, 24, 16, 0.08);
-  box-shadow: 0 2px 12px rgba(44, 24, 16, 0.04);
+  background: color-mix(in srgb, var(--color-ink) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--color-ink) 4%, transparent);
 }
 
 .coin-circle {
+  --_coin-base: color-mix(in srgb, var(--color-gold) 70%, var(--color-ink-darkest) 30%);
+  --_coin-dark: color-mix(in srgb, var(--color-gold) 40%, var(--color-ink-darkest) 60%);
+  --_coin-face: color-mix(in srgb, var(--color-gold-light) 40%, var(--color-paper-lightest) 60%);
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6B5B3A, #5A4A2E, #4A3F28, #3D3420, #4A3F28);
-  border: 2px solid #3D3420;
+  background: linear-gradient(135deg, var(--_coin-base), var(--_coin-dark), color-mix(in srgb, var(--_coin-dark) 80%, black 20%), var(--_coin-dark));
+  border: 2px solid var(--_coin-dark);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 3px rgba(180, 160, 120, 0.15);
+    0 2px 8px color-mix(in srgb, var(--color-ink-darkest) 20%, transparent),
+    inset 0 1px 3px color-mix(in srgb, var(--_coin-face) 15%, transparent);
   position: relative;
 }
 
@@ -327,7 +330,7 @@ function handleNumberSubmit() {
   position: absolute;
   inset: 2px;
   border-radius: 50%;
-  border: 1px solid rgba(180, 160, 120, 0.1);
+  border: 1px solid color-mix(in srgb, var(--_coin-face) 10%, transparent);
 }
 
 .coin-circle.coin-tails::after {
@@ -335,14 +338,14 @@ function handleNumberSubmit() {
   position: absolute;
   inset: 2px;
   border-radius: 50%;
-  border: 1px solid rgba(61, 52, 32, 0.2);
+  border: 1px solid color-mix(in srgb, var(--_coin-dark) 20%, transparent);
 }
 
 .coin-face {
   font-family: 'Ma Shan Zheng', cursive;
   font-size: 0.95rem;
-  color: #D4C5B0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  color: var(--_coin-face);
+  text-shadow: 0 1px 3px color-mix(in srgb, var(--color-ink-darkest) 50%, transparent);
   line-height: 1;
   z-index: 1;
 }
@@ -375,7 +378,7 @@ function handleNumberSubmit() {
 
 .tab-active {
   color: var(--color-ink-darkest);
-  background: var(--color-paper);
+  background: var(--color-paper-lightest);
   box-shadow:
     0 1px 3px color-mix(in srgb, var(--color-ink-muted) 10%, transparent),
     0 0 0 1px color-mix(in srgb, var(--color-ink-muted) 6%, transparent);
