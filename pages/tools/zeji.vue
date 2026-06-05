@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS } from '~/constants/bazi'
 import { evaluateDates, type ZejiResult, type ZejiDayResult } from '~/composables/useZeJi'
 import { EVENT_TYPES } from '~/constants/zeji'
 
@@ -10,6 +10,7 @@ import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 
 useHead({ title: '择吉日 — 玄·道' })
@@ -18,12 +19,17 @@ const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
 
 const showHistoryModal = ref(false)
-const savedDivinationId = ref<number | null>(null)
-const saveError = ref<string | null>(null)
 const restoreError = ref<string | null>(null)
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const showScrollTop = ref(false)
 const { exportToImage, isExporting } = useExportImage()
+const resultRef = ref<HTMLElement | null>(null)
+
+function handleExport() {
+  if (resultRef.value) {
+    exportToImage(resultRef.value, '择吉日.png')
+  }
+}
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -79,7 +85,6 @@ const displayMonth = computed(() => {
 const selectedDate = ref<string | null>(null)
 
 // Build month tab labels
-const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二']
 const monthTabs = computed(() => {
   const tabs: { label: string; year: number; month: number }[] = []
   for (let i = 0; i < 3; i++) {
@@ -127,7 +132,7 @@ const selectedDayDetail = computed<ZejiDayResult | null>(() => {
 const recommendedForMonth = computed<ZejiDayResult[]>(() => {
   const recommended = daysForMonth.value.filter(d => d.isRecommended)
   if (recommended.length > 0) {
-    return recommended.sort((a, b) => b.score - a.score).slice(0, 10)
+    return recommended.sort((a, b) => b.score - a.score).slice(0, 15)
   }
   // Fallback: show best-scoring days even if below threshold
   return [...daysForMonth.value]
@@ -153,6 +158,12 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
   } else if (e.key === 'ArrowLeft') {
     e.preventDefault()
     if (index > 0) selectedMonthIndex.value = index - 1
+  } else if (e.key === 'Home') {
+    e.preventDefault()
+    selectedMonthIndex.value = 0
+  } else if (e.key === 'End') {
+    e.preventDefault()
+    selectedMonthIndex.value = 2
   }
 }
 
@@ -161,7 +172,7 @@ async function saveDivinationResult(res: ZejiResult) {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
     const inputData = { eventType: selectedEvent.value, eventName: res.eventName }
-    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
       headers,
       body: {
@@ -170,8 +181,6 @@ async function saveDivinationResult(res: ZejiResult) {
         result_data: JSON.parse(JSON.stringify(res)),
       },
     })
-    savedDivinationId.value = saveRes.id
-    saveError.value = ''
   } catch (e: unknown) {
     if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as any).statusCode
@@ -216,8 +225,18 @@ function dismissRestoreError() {
       <ToolToolbar
         :show-history="true"
         @history="showHistoryModal = true"
-      />
+      >
+        <template #extra>
+          <ExportButton
+            :target-ref="resultRef"
+            filename="择吉日.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </template>
+      </ToolToolbar>
 
+      <div ref="resultRef">
       <!-- ══ Event Type Selector ══ -->
       <div class="section-enter card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="section-header">
@@ -363,11 +382,11 @@ function dismissRestoreError() {
                 <span
                   class="detail-kv__val font-medium"
                   :class="{
-                    'text-wuxing-wood': selectedDayDetail.score >= 70,
-                    'text-wuxing-earth': selectedDayDetail.score >= 40 && selectedDayDetail.score < 70,
-                    'text-cinnabar': selectedDayDetail.score < 40,
+                    'text-wuxing-wood': selectedDayDetail.score >= 65,
+                    'text-wuxing-earth': selectedDayDetail.score >= 45 && selectedDayDetail.score < 65,
+                    'text-cinnabar': selectedDayDetail.score < 45,
                   }"
-                >{{ selectedDayDetail.score }}</span>
+                >{{ selectedDayDetail.score }} {{ selectedDayDetail.score >= 85 ? '上吉' : selectedDayDetail.score >= 65 ? '吉' : selectedDayDetail.score >= 45 ? '平' : '凶' }}</span>
               </div>
             </div>
 
@@ -408,12 +427,15 @@ function dismissRestoreError() {
         </div>
       </div>
 
+      </div><!-- /resultRef -->
+
       <EntertainmentDisclaimer />
 
       <ScrollTopButton
         v-if="showScrollTop"
         @click="scrollToTop"
         @keydown.enter="scrollToTop"
+        @keydown.space.prevent="scrollToTop"
       />
     </div>
 

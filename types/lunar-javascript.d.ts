@@ -18,7 +18,7 @@ declare module 'lunar-javascript' {
     getTimeInGanZhi(): string
     getMonthInChinese(): string
     getDayInChinese(): string
-    getDayTwelveStar(): string
+    getZhiXing(): string
     getXiu(): string
     getDayYi(): string[]
     getDayJi(): string[]
