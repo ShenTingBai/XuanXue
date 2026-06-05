@@ -59,6 +59,11 @@ function handleProfileAdded() {
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value
 }
+
+function openAddModal() {
+  showAddModal.value = true
+  showDropdown.value = false
+}
 </script>
 
 <template>
@@ -139,10 +144,7 @@ function toggleDropdown() {
         <button
           role="menuitem"
           class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors"
-          @click="
-            showAddModal = true
-            showDropdown = false
-          "
+          @click="openAddModal"
         >
           <svg
             aria-hidden="true"
