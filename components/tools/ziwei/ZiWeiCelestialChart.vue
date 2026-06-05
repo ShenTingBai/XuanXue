@@ -16,6 +16,7 @@ import type { ComponentPublicInstance } from 'vue'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import { BRANCH_TO_ANGLE, getStarInterpretation, getStarColorClass } from '~/constants/ziwei'
 import type { StarColorClass } from '~/constants/ziwei'
+import { BRANCHES as ALL_BRANCHES } from '~/constants/bazi'
 
 // ═══════════════════════════════════════════════════════════════
 // Geometry
@@ -29,7 +30,8 @@ const RINGS = [110, 150, 190, 225, 258] as const
 const LABEL_R = 282
 const CENTER_VOID = 76
 
-const BRANCHES = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'] as const
+// 紫微斗数宫位从寅起 (寅卯辰巳午未申酉戌亥子丑)
+const BRANCHES = [...ALL_BRANCHES.slice(2), ...ALL_BRANCHES.slice(0, 2)] as const
 
 // ═══════════════════════════════════════════════════════════════
 // Props & Emits

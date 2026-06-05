@@ -304,7 +304,19 @@ export const COMBINATION_INTERPRETATIONS: Record<string, string> = {
   '天梁-太阴': '天梁太阴同宫，慈爱温婉，有长者风范且心思细腻。',
 }
 
-/** Generate a hyphen-joined key for combination lookup (preserves original order) */
+/** Generate a hyphen-joined key for combination lookup (sorted for deterministic matching) */
 export function getCombinationKey(starNames: string[]): string {
-  return starNames.join('-')
+  return [...starNames].sort().join('-')
+}
+
+/** Normalized lookup — COMBINATION_INTERPRETATIONS keys sorted at init so sorted comboKey always matches */
+let _normalizedCombinations: Record<string, string> | null = null
+export function lookupCombination(starNames: string[]): string {
+  if (!_normalizedCombinations) {
+    _normalizedCombinations = {}
+    for (const [key, value] of Object.entries(COMBINATION_INTERPRETATIONS)) {
+      _normalizedCombinations[key.split('-').sort().join('-')] = value
+    }
+  }
+  return _normalizedCombinations[getCombinationKey(starNames)] || ''
 }
