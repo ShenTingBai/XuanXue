@@ -82,7 +82,7 @@ function evaluateDay(
   const dayGanZhi = lunar.getDayInGanZhi()
 
   // 十二值星
-  const twelveStar = lunar.getDayTwelveStar()
+  const twelveStar = lunar.getZhiXing()
   const starInfo = TWELVE_STAR_LEVEL[twelveStar]
   const twelveStarLevel = starInfo?.level || '平'
 
@@ -97,27 +97,42 @@ function evaluateDay(
   const yi: string[] = lunar.getDayYi() || []
   const ji: string[] = lunar.getDayJi() || []
 
-  // === Scoring ===
+  // ═══════════════════════════════════════════
+  // Scoring — 传统黄历多维度加权量化
+  // 传统无百分制，此为现代量化映射
+  //
+  // 权重依据：
+  //   十二值星（日柱轮转，根基）→ ±20
+  //   十二天神（地支固定，天时）→ ±15
+  //   宜忌匹配（事项相关，最切）→ ±15/项
+  //   二十八宿（次要参考）        → ±5
+  //
+  // 等级对应（传统 → 分数）：
+  //   上吉（双重黄道+宜匹配）→ ≥85
+  //   大吉（双重黄道）        → ≥75
+  //   吉  （任一黄道/宜匹配） → ≥65
+  //   平                     → 45-64
+  //   凶                     → <45
+  // ═══════════════════════════════════════════
 
-  // 1. Base score: 50
+  // 1. Base: neutral
   let score = 50
 
-  // 2. 十二值星 (±20)
+  // 2. 十二值星 — 每日轮转，最根本的吉凶判断
   if (twelveStarLevel === '吉') {
-    score += 15
+    score += 20
   } else if (twelveStarLevel === '凶') {
     score -= 15
   }
-  // 平: 0
 
-  // 3. 黄道/黑道 (±15)
+  // 3. 十二天神 — 地支固定，锦上添花/雪上加霜
   if (tianShenType === '黄道') {
-    score += 12
+    score += 15
   } else if (tianShenType === '黑道') {
-    score -= 12
+    score -= 10
   }
 
-  // 4. 宜忌匹配 (±25 per major)
+  // 4. 宜忌匹配 — 事项驱动，最关键的个人相关性
   const matchReasons: string[] = []
   const matchedYi: string[] = []
   const matchedJi: string[] = []
@@ -125,7 +140,7 @@ function evaluateDay(
   for (const item of yi) {
     if (itemMatchesKeywords(item, keywords)) {
       matchedYi.push(item)
-      score += 20
+      score += 15
       matchReasons.push(`宜「${item}」`)
     }
   }
@@ -133,28 +148,29 @@ function evaluateDay(
   for (const item of ji) {
     if (itemMatchesKeywords(item, keywords)) {
       matchedJi.push(item)
-      score -= 25
+      score -= 20
       matchReasons.push(`忌「${item}」`)
     }
   }
 
-  // 5. Add twelve star / tian shen reasons
+  // 5. Contextual reasons
   if (twelveStarLevel === '吉') {
-    matchReasons.push(`${twelveStar}日${starInfo?.desc || ''}`)
+    matchReasons.push(`${twelveStar}日·${starInfo?.desc || ''}`)
   } else if (twelveStarLevel === '凶') {
-    matchReasons.push(`${twelveStar}日${starInfo?.desc || ''}`)
+    matchReasons.push(`${twelveStar}日·${starInfo?.desc || ''}`)
   }
 
   if (tianShenType === '黄道') {
-    matchReasons.push(`黄道日·${tianShen}`)
+    matchReasons.push(`黄道·${tianShen}`)
   } else if (tianShenType === '黑道') {
-    matchReasons.push(`黑道日·${tianShen}`)
+    matchReasons.push(`黑道·${tianShen}`)
   }
 
-  // Clamp to 0-100
+  // 6. Clamp & classify
   score = Math.max(0, Math.min(100, score))
 
-  const isRecommended = score >= 55
+  // 推荐阈值 = 吉等（≥65）：值星黄道 70 / 天神黄道 65 / 宜匹配 65
+  const isRecommended = score >= 65
 
   return {
     solarDate: `${year}-${pad(month)}-${pad(day)}`,

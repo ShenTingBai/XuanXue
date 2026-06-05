@@ -242,17 +242,17 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
                   {{ dayMap.get(cell.dateStr)?.lunarDayName }}
                 </span>
 
-                <!-- Auspiciousness indicator dot -->
+                <!-- Auspiciousness indicator — shape + color dual encoding (a11y) -->
+                <!-- 吉: circle ● -->
                 <span
                   v-if="getDayLevel(cell.dateStr) === '吉'"
-                  class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
-                  :style="{ backgroundColor: WUXING_COLORS['木'] }"
+                  class="indicator-dot indicator-dot--ji absolute top-0.5 right-0.5"
                   aria-hidden="true"
                 />
+                <!-- 凶: diamond ◆ (distinct shape from circle, not color-dependent) -->
                 <span
                   v-if="getDayLevel(cell.dateStr) === '凶'"
-                  class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
-                  :style="{ backgroundColor: WUXING_COLORS['火'] }"
+                  class="indicator-dot indicator-dot--xiong absolute top-0.5 right-0.5"
                   aria-hidden="true"
                 />
               </button>
@@ -273,19 +273,20 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
     <!-- Legend -->
     <div class="flex items-center gap-4 mt-4 pt-3 border-t border-paper-dark/20">
       <div class="flex items-center gap-1.5">
-        <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: WUXING_COLORS['木'] }" aria-hidden="true" />
-        <span class="text-[0.6875rem] text-ink-light">吉</span>
+        <span class="indicator-dot indicator-dot--ji inline-block relative" style="position:static" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">吉 · 圆点</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: WUXING_COLORS['火'] }" aria-hidden="true" />
-        <span class="text-[0.6875rem] text-ink-light">凶</span>
+        <span class="indicator-dot indicator-dot--xiong inline-block relative" style="position:static" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">凶 · 菱形</span>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="w-2.5 h-2.5 rounded-full border" :style="{ backgroundColor: WUXING_COLORS['土'], borderColor: WUXING_COLORS['土'], opacity: 0.5 }" aria-hidden="true" />
-        <span class="text-[0.6875rem] text-ink-light">平</span>
+        <span class="w-2.5 h-2.5 rounded-full border" :style="{ borderColor: WUXING_COLORS['土'], opacity: 0.5 }" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">平 · 空心</span>
       </div>
       <div class="flex items-center gap-1.5 ml-auto">
-        <span class="text-[0.6875rem] text-ink-light">今日标记 · 红框为选中</span>
+        <span class="w-3 h-3 rounded" :style="{ background: 'rgba(198,40,40,0.12)', border: '1.5px solid ' + 'var(--color-cinnabar)' }" aria-hidden="true" />
+        <span class="text-[0.6875rem] text-ink-light">红底为选中</span>
       </div>
     </div>
   </div>
@@ -315,8 +316,32 @@ const monthNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九
 
 .day-cell--selected {
   border-color: var(--color-cinnabar, #C62828) !important;
-  background: rgba(198, 40, 40, 0.06);
-  box-shadow: 0 0 0 1px rgba(198, 40, 40, 0.08);
+  background: rgba(198, 40, 40, 0.1);
+  box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.12), 0 1px 6px rgba(198, 40, 40, 0.08);
+}
+
+/* ── Accessibility: shape-distinct indicators (not color-only) ── */
+.indicator-dot {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+/* 吉: filled circle */
+.indicator-dot--ji {
+  border-radius: 50%;
+  background: v-bind('WUXING_COLORS["木"]');
+}
+
+/* 凶: diamond — visually distinct from circle for colorblind users */
+.indicator-dot--xiong {
+  border-radius: 1px;
+  background: v-bind('WUXING_COLORS["火"]');
+  transform: rotate(45deg);
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-top: 0.075rem;
+  margin-right: 0.075rem;
 }
 
 .day-cell--ji {
