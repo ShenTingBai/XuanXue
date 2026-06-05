@@ -366,12 +366,14 @@ function getMutagenClass(transformation: string): string {
   font-size: 0.82rem;
   line-height: 1.75;
   color: var(--color-ink-muted);
+  overflow-wrap: break-word;
 }
 
 .summary-line {
   margin-bottom: 0.5rem;
   padding-left: 0.5rem;
   border-left: 2px solid color-mix(in srgb, var(--color-cinnabar) 25%, transparent);
+  overflow-wrap: break-word;
 }
 
 .reading-line {
@@ -379,6 +381,7 @@ function getMutagenClass(transformation: string): string {
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--color-ink-medium);
+  overflow-wrap: break-word;
 }
 
 .combination-note {
@@ -386,6 +389,7 @@ function getMutagenClass(transformation: string): string {
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--color-cinnabar);
+  overflow-wrap: break-word;
 }
 
 .full-interpretation-text {
@@ -396,6 +400,7 @@ function getMutagenClass(transformation: string): string {
   background: color-mix(in srgb, var(--color-ink-faint) 4%, transparent);
   border-radius: 4px;
   border-left: 2px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+  overflow-wrap: break-word;
 }
 
 .detail-empty-text {
