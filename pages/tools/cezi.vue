@@ -9,7 +9,6 @@ const router = useRouter()
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -416,8 +415,6 @@ const interpretationParagraphs = computed(() => {
             <div class="cezi-slip__footer-line" aria-hidden="true"></div>
           </div>
         </div>
-
-        <EntertainmentDisclaimer />
       </template>
     </div>
 

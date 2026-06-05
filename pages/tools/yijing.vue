@@ -104,8 +104,6 @@
             ⟲ 重新占卜
           </button>
         </div>
-
-        <EntertainmentDisclaimer />
       </div>
 
       <HistoryModal
@@ -135,7 +133,6 @@ import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 

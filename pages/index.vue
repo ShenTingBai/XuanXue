@@ -774,20 +774,7 @@ const goToLogin = () => {
     </template>
 
     <!-- ── Footer (shared by both views) ── -->
-    <footer v-if="sessionReady" class="border-t border-ink-faint/10" role="contentinfo">
-      <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <span class="font-display text-base text-ink tracking-[0.3em]">玄·道</span>
-            <span class="text-[0.6875rem] text-ink-light">·</span>
-            <span class="font-sans text-xs text-ink-light">玄天机 · 道命理</span>
-          </div>
-          <p class="font-sans text-xs text-ink-light">
-            &copy; {{ new Date().getFullYear() }} 玄·道 · 仅供娱乐参考
-          </p>
-        </div>
-      </div>
-    </footer>
+    <PageFooter v-if="sessionReady" />
   </div>
 </template>
 

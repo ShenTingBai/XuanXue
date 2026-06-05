@@ -29,9 +29,11 @@
       </aside>
     </div>
   </div>
+  <PageFooter />
 </template>
 
 <script setup lang="ts">
+import PageFooter from '~/components/tools/PageFooter.vue'
 // ToolPageLayout — three-column layout for tool pages
 // Slot 'nav': desktop sidebar navigation (left)
 // Slot 'mobile-nav': horizontal scroll navigation for mobile

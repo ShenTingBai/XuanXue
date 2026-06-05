@@ -2,14 +2,11 @@
 import { WUXING_COLORS } from '~/constants/bazi'
 import { evaluateDates, type ZejiResult, type ZejiDayResult } from '~/composables/useZeJi'
 import { EVENT_TYPES } from '~/constants/zeji'
-import type { FetchError } from '~/types/errors'
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import ZejiCalendar from '~/components/tools/zeji/ZejiCalendar.vue'
 import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
@@ -43,12 +40,9 @@ const zejiSynthesis: string[] = [
 
 useHead({ title: '择吉日 — 玄·道' })
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
-const showHistoryModal = ref(false)
-const restoreError = ref<string | null>(null)
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const showScrollTop = ref(false)
 const { exportToImage, isExporting } = useExportImage()
 const resultRef = ref<HTMLElement | null>(null)
@@ -81,12 +75,10 @@ onMounted(() => {
     return
   }
   window.addEventListener('scroll', handleScroll, { passive: true })
-  saveDivinationResult(result.value)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
 // Event type selection
@@ -171,7 +163,6 @@ const recommendedForMonth = computed<ZejiDayResult[]>(() => {
 function selectEvent(eventKey: string) {
   selectedEvent.value = eventKey
   selectedDate.value = null // Reset selection on event change
-  saveDivinationResult(result.value)
 }
 
 function handleSelectDate(dateStr: string) {
@@ -194,69 +185,6 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
     selectedMonthIndex.value = 2
   }
 }
-
-async function saveDivinationResult(res: ZejiResult) {
-  try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
-    const inputData = { eventType: selectedEvent.value, eventName: res.eventName }
-    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-      method: 'POST',
-      headers,
-      body: {
-        type: 'zeji',
-        input_data: inputData,
-        result_data: JSON.parse(JSON.stringify(res)),
-      },
-    })
-  } catch (e: unknown) {
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 429) return
-      if (code === 401) return
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存择吉日记录失败:', e)
-  }
-}
-
-async function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      `/api/divinations/${id}`,
-      {
-        headers,
-      },
-    )
-    if (
-      record.result_data &&
-      typeof record.result_data === 'object' &&
-      (record.result_data as Record<string, unknown>).eventType
-    ) {
-      selectedEvent.value = (record.result_data as Record<string, unknown>).eventType as string
-      restoreError.value = ''
-    } else {
-      restoreError.value = '历史记录数据无效'
-      if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => {
-        restoreError.value = ''
-      }, 6000)
-    }
-  } catch {
-    restoreError.value = '历史记录加载失败，请稍后重试'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
-}
 </script>
 
 <template>
@@ -264,7 +192,7 @@ function dismissRestoreError() {
     <h1 class="sr-only">择吉日</h1>
 
     <div class="max-w-[56rem] mx-auto">
-      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+      <ToolToolbar>
         <template #extra>
           <ExportButton
             :target-ref="resultRef"
@@ -495,8 +423,6 @@ function dismissRestoreError() {
       </div>
       <!-- /resultRef -->
 
-      <EntertainmentDisclaimer />
-
       <ScrollTopButton
         v-if="showScrollTop"
         @click="scrollToTop"
@@ -504,31 +430,6 @@ function dismissRestoreError() {
         @keydown.space.prevent="scrollToTop"
       />
     </div>
-
-    <!-- Restore error toast -->
-    <Transition name="toast">
-      <div v-if="restoreError" class="toast-notification" role="alert">
-        <span class="toast-notification__mark" aria-hidden="true">!</span>
-        <span class="toast-notification__text">{{ restoreError }}</span>
-        <button
-          class="toast-notification__close"
-          aria-label="关闭提示"
-          @click="dismissRestoreError"
-          @keydown.enter="dismissRestoreError"
-          @keydown.space.prevent="dismissRestoreError"
-        >
-          &times;
-        </button>
-      </div>
-    </Transition>
-
-    <HistoryModal
-      v-if="showHistoryModal"
-      :show="showHistoryModal"
-      type="zeji"
-      @close="showHistoryModal = false"
-      @restore="onHistoryRestore"
-    />
   </ToolPageLayout>
 </template>
 

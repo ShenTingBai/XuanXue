@@ -18,7 +18,6 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ReadingGuide from '~/components/tools/bazi/ReadingGuide.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 import SectionNav from '~/components/tools/bazi/SectionNav.vue'
 import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
@@ -738,8 +737,6 @@ function onSectionNavigate(sectionName: string) {
             <span>浏览历史</span>
           </button>
         </div>
-
-        <EntertainmentDisclaimer />
       </div>
     </template>
   </ToolPageLayout>

@@ -279,6 +279,7 @@ const submit = async () => {
       </div>
     </div>
   </div>
+  <PageFooter />
 </template>
 
 <style scoped>

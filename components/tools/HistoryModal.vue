@@ -138,7 +138,18 @@ function formatHistoryLabel(input: unknown): string {
   }
   if (props.type === 'hehun') {
     const nickname = inputData.personB_nickname
+    const year = inputData.personB_year as number | undefined
+    const month = inputData.personB_month as number | undefined
+    const day = inputData.personB_day as number | undefined
+    const pad = (n: number | undefined) => (n ? String(n).padStart(2, '0') : '??')
+    if (year && month && day) {
+      return `合婚 · ${nickname || '对方'}（${year}-${pad(month)}-${pad(day)}）`
+    }
     return nickname ? `合婚 · ${nickname}` : '合婚'
+  }
+  if (props.type === 'cezi') {
+    const character = inputData.character
+    return character ? `测字 · 「${character}」` : '测字'
   }
   if (props.type === 'zeji') {
     const eventName = inputData.eventName
