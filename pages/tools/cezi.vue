@@ -230,7 +230,7 @@ const interpretationParagraphs = computed(() => {
       <!-- ══ Input Area ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between">
-          <div class="section-header">
+          <div class="section-header flex-1 min-w-0">
             <h2>测字占卜</h2>
           </div>
           <MethodologyNote

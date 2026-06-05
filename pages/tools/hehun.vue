@@ -418,7 +418,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
           <!-- Summary -->
           <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.25s' }">
             <div class="flex items-center justify-between">
-              <div class="section-header">
+              <div class="section-header flex-1 min-w-0">
                 <h2>合婚综论</h2>
               </div>
               <MethodologyNote
