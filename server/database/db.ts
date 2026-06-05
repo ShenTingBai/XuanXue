@@ -191,15 +191,8 @@ export async function initDb(): Promise<void> {
     db.run("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")
 
     const migrations: { version: number; sql: string }[] = [
-      {
-        version: 3,
-        sql: `ALTER TABLE profiles ADD COLUMN birth_place TEXT;
-              ALTER TABLE profiles ADD COLUMN birth_longitude REAL;`,
-      },
-      {
-        version: 4,
-        sql: `ALTER TABLE profiles ADD COLUMN parent_profile_id INTEGER REFERENCES profiles(id) ON DELETE CASCADE;`,
-      },
+      // v3 (birth_place, birth_longitude) and v4 (parent_profile_id) are now
+      // part of the base CREATE_PROFILES_TABLE schema — migrations removed.
     ]
 
     for (const m of migrations) {
