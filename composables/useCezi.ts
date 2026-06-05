@@ -30,7 +30,7 @@ export interface CeziResult {
 
 /** Check if a character is in any CJK ideographs range (unified + all extensions). */
 function isCJKChar(char: string): boolean {
-  if (char.length !== 1) return false
+  if ([...char].length !== 1) return false
   const cp = char.codePointAt(0)
   if (cp == null) return false
   // CJK Unified Ideographs: U+4E00 – U+9FFF

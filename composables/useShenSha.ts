@@ -109,7 +109,7 @@ const SHENSHA_DESC: Record<string, string> = {
   吊客: '主吊丧之事，需防亲戚变故',
   勾绞: '主是非纠缠，口舌官非',
   元辰: '又名大耗，主破财损耗',
-  飞刃: '与羊刃对冲，主意外血光',
+  飞刃: '与禄神对冲，主意外血光',
 }
 
 // === Lookup tables hoisted to module scope (avoid re-allocation per call) ===

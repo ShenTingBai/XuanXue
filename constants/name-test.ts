@@ -121,7 +121,7 @@ export const NUMBERS_81: NumberMeaning[] = [
   { number: 74, fortune: '凶', name: '残菊经霜', meaning: '残菊经霜，秋叶凋零，事不如意。' },
   { number: 75, fortune: '凶', name: '退守之数', meaning: '退守保吉，妄动招灾，宜守静待时。' },
   { number: 76, fortune: '凶', name: '倾覆之数', meaning: '倾覆之数，破产之象，内外不合。' },
-  { number: 77, fortune: '凶', name: '半吉之数', meaning: '家庭有悦，半凶半吉，需防灾厄。' },
+  { number: 77, fortune: '半吉', name: '半吉之数', meaning: '家庭有悦，半凶半吉，需防灾厄。' },
   { number: 78, fortune: '凶', name: '晚境凄凉', meaning: '祸福参半，智能可用，晚境凄凉。' },
   { number: 79, fortune: '凶', name: '云遮半月', meaning: '云遮半月，暗藏凶险，需防小人。' },
   { number: 80, fortune: '凶', name: '遁迹之数', meaning: '遁迹之数，辛苦不绝，一生无成。' },

@@ -184,6 +184,19 @@ const TEN_GOD_YEAR_CAUTIOUS: Record<string, string> = {
   劫财: '劫财年，守成为上，避免大额支出',
 }
 
+const TEN_GOD_YEAR_NEUTRAL: Record<string, string> = {
+  正官: '正官年，稳步前行，保持平常心',
+  偏官: '七杀年，宜守不宜攻，低调行事',
+  正财: '正财年，财运平稳，按部就班',
+  偏财: '偏财年，偏财持平，勿贪意外之喜',
+  正印: '正印年，按部就班，稳步积累',
+  偏印: '偏印年，静观其变，不宜大动',
+  食神: '食神年，平顺安逸，顺其自然',
+  伤官: '伤官年，宜内省自修，少说多做',
+  比肩: '比肩年，独自耕耘，稳扎稳打',
+  劫财: '劫财年，守财为重，避免借贷',
+}
+
 const WUXING_MATCH_TEMPLATES: Record<string, string> = {
   favorable: '五行对你有利，运势向好',
   unfavorable: '五行不太配合，需稳中求进',
@@ -199,9 +212,14 @@ function buildSummary(
   const parts: string[] = []
 
   // Part 1: ten god year phrase
-  const tenGodPhrase = isFavorable
-    ? TEN_GOD_YEAR_POSITIVE[tenGod] || `${tenGod}年`
-    : TEN_GOD_YEAR_CAUTIOUS[tenGod] || `${tenGod}年`
+  let tenGodPhrase: string
+  if (isFavorable) {
+    tenGodPhrase = TEN_GOD_YEAR_POSITIVE[tenGod] || `${tenGod}年`
+  } else if (isUnfavorable) {
+    tenGodPhrase = TEN_GOD_YEAR_CAUTIOUS[tenGod] || `${tenGod}年`
+  } else {
+    tenGodPhrase = TEN_GOD_YEAR_NEUTRAL[tenGod] || `${tenGod}年`
+  }
   parts.push(tenGodPhrase)
 
   // Part 2: wuxing match
@@ -543,6 +561,8 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
       if (!types) continue
       for (const type of types) {
         // type is '合' | '冲' | '害' | '破' | '刑' | '自刑'
+        // 合/冲 precedence: 刑 is subordinate when 合 or 冲 also exists on the same pair
+        if (type === '刑' && (types.includes('合') || types.includes('冲'))) continue
         const templateKey = type
         const relationType = type === '自刑' ? '刑' : (type as EarthRelation['type'])
         earthRelations.push({
