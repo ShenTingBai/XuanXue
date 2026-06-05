@@ -165,18 +165,19 @@ export function getNumberWuxing(num: number): string {
 const WUXING_CYCLE = ['木', '火', '土', '金', '水']
 
 export function getSanCaiFortune(tian: string, ren: string, di: string): '吉' | '凶' | '半吉' {
-  // 相生关系
   const genIdx = (w: string) => WUXING_CYCLE.indexOf(w)
+  // 相生 (ib follows ia in generation cycle) or 被生 (ia follows ib)
   const isGenerate = (a: string, b: string) => {
     const ia = genIdx(a),
       ib = genIdx(b)
-    return ia >= 0 && ib >= 0 && (ib === (ia + 1) % 5 || ib === (ia + 3) % 5) // 生或反生
+    return ia >= 0 && ib >= 0 && (ib === (ia + 1) % 5 || ib === (ia + 4) % 5)
   }
 
-  // 天→人 生则吉，克则凶
-  const tianToRen = isGenerate(tian, ren) ? '吉' : isGenerate(ren, tian) ? '半吉' : '凶'
-  // 人→地 生则吉，克则凶
-  const renToDi = isGenerate(ren, di) ? '吉' : isGenerate(di, ren) ? '半吉' : '凶'
+  // 比和: same element is harmonious
+  const tianToRen =
+    tian === ren ? '吉' : isGenerate(tian, ren) ? '吉' : isGenerate(ren, tian) ? '半吉' : '凶'
+  const renToDi =
+    ren === di ? '吉' : isGenerate(ren, di) ? '吉' : isGenerate(di, ren) ? '半吉' : '凶'
 
   if (tianToRen === '吉' && renToDi === '吉') return '吉'
   if (tianToRen === '凶' || renToDi === '凶') return '凶'
