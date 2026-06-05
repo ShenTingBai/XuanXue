@@ -81,7 +81,7 @@
         </Transition>
 
         <div v-if="result && !processing" class="flex items-center justify-between">
-          <div class="section-header">
+          <div class="section-header flex-1 min-w-0">
             <h2>占卜结果</h2>
           </div>
           <MethodologyNote

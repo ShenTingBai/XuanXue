@@ -215,7 +215,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
       <!-- ══ 输入区 ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between">
-          <div class="section-header">
+          <div class="section-header flex-1 min-w-0">
             <h2>输入姓名</h2>
           </div>
           <MethodologyNote

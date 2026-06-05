@@ -360,7 +360,7 @@ function dismissRestoreError() {
         <div ref="resultRef">
         <!-- ── 方法论溯源 ── -->
         <div class="flex items-center justify-between mb-6">
-          <div class="section-header !mb-0">
+          <div class="section-header !mb-0 flex-1 min-w-0">
             <h2>紫微斗数</h2>
           </div>
           <MethodologyNote
