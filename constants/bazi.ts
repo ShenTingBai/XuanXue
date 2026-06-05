@@ -131,9 +131,9 @@ export function getAnimal(year: number): string {
 
 /** Get badge style for a shensha category (shared between ShenShaPanel and LiuNianTimeline) */
 export function shenShaBadgeStyle(category: '吉' | '中性' | '凶'): { bg: string; text: string; border: string } {
-  if (category === '吉') return { bg: hexToRgba('#3D6B4B', 0.08), text: '#3D6B4B', border: hexToRgba('#3D6B4B', 0.25) }
-  if (category === '凶') return { bg: hexToRgba('#C62828', 0.08), text: '#C62828', border: hexToRgba('#C62828', 0.25) }
-  return { bg: hexToRgba('#6B5B4F', 0.08), text: '#6B5B4F', border: hexToRgba('#6B5B4F', 0.25) }
+  if (category === '吉') return { bg: `color-mix(in srgb, ${WUXING_COLORS['木']} 8%, transparent)`, text: WUXING_COLORS['木'], border: `color-mix(in srgb, ${WUXING_COLORS['木']} 25%, transparent)` }
+  if (category === '凶') return { bg: `color-mix(in srgb, ${WUXING_COLORS['火']} 8%, transparent)`, text: WUXING_COLORS['火'], border: `color-mix(in srgb, ${WUXING_COLORS['火']} 25%, transparent)` }
+  return { bg: `color-mix(in srgb, ${WUXING_FALLBACK_COLOR} 8%, transparent)`, text: WUXING_FALLBACK_COLOR, border: `color-mix(in srgb, ${WUXING_FALLBACK_COLOR} 25%, transparent)` }
 }
 
 // === Nayin Wuxing (纳音五行) — 60 甲子 mapping from 三命通会 ===

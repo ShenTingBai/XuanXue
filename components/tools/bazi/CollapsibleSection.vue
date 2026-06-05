@@ -11,6 +11,8 @@
       :aria-expanded="expanded"
       :aria-controls="`${sectionId}-content`"
       @click="emit('toggle', sectionId)"
+      @keydown.enter="emit('toggle', sectionId)"
+      @keydown.space.prevent="emit('toggle', sectionId)"
     >
       <div class="flex items-center gap-3 min-w-0">
         <span class="inline-block w-1.5 h-5 bg-cinnabar rounded-sm flex-shrink-0" aria-hidden="true"></span>

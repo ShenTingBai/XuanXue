@@ -26,8 +26,25 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
+import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
 useHead({ title: '八字排盘 — 玄·道' })
+
+// ── Methodology data ──
+const baziClassical: ClassicalSource[] = [
+  { method: '四柱推命（子平法）', source: '《渊海子平》卷一（宋代徐大升），天干地支、五行属性基础' },
+  { method: '六十甲子 & 纳音', source: '干支纪年体系（商周起源，汉代定型），京房纳甲纳音体系' },
+  { method: '十神体系', source: '《三命通会》卷三（明代万民英），以日干为中心定十神' },
+  { method: '大运起运', source: '标准子平法：阳男阴女顺排、阴男阳女逆排，节气天数 ÷ 3 = 起运岁数' },
+  { method: '神煞系统', source: '《三命通会》神煞章，《协纪辨方书》，三合/天乙/禄神/羊刃等' },
+]
+const baziSynthesis: string[] = [
+  '日主强弱判定 → 月令 + 通根 + 生扶 + 克泄四维度加权（工程校准）',
+  '喜用神推断 → 扶抑/调候/通关三原则取用（规则引擎，非 AI）',
+  '流年评分：基准 50 + 十神喜忌(±30) + 地支关系(±20) + 神煞(±5)，压缩至 0-100',
+  '解读文本为规则模板拼接（十神短语 + 五行匹配 + 地支关系 + 神煞），非 AI 生成',
+  '节气日期依赖 `lunar-javascript` 库 + `useSolarTerms` 精确计算，不硬编码日期',
+]
 
 const router = useRouter()
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -559,6 +576,13 @@ function onSectionNavigate(sectionName: string) {
             />
 
             <!-- Reading Guide (命理速览) -->
+            <div class="flex items-center justify-end mb-2">
+              <MethodologyNote
+                :classical="baziClassical"
+                :synthesis="baziSynthesis"
+                tool="八字"
+              />
+            </div>
             <ReadingGuide
               :day-master="result.dayMaster"
               :day-master-wuxing="result.dayMasterWuxing"
@@ -674,6 +698,7 @@ function onSectionNavigate(sectionName: string) {
               <!-- Recalculates from profile data -- useful if user updated profile externally -->
               <button
                 @click="computeResult"
+                @keydown.enter="computeResult"
                 @keydown.space.prevent="computeResult"
                 class="btn-cin"
               >

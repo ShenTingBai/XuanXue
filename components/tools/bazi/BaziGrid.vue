@@ -83,7 +83,7 @@
             >
               <p
                 v-if="p.interpretation"
-                class="border-l-2 border-cinnabar/25 pl-2 py-1 font-sans text-[0.6rem] text-ink-light leading-relaxed"
+                class="border-l-2 border-cinnabar/25 pl-2 py-1 font-sans text-[0.6875rem] text-ink-muted leading-relaxed"
               >
                 {{ p.interpretation }}
               </p>
@@ -141,7 +141,7 @@
             </div>
             <!-- Interpretation -->
             <div v-if="p.interpretation" class="px-1 pb-1">
-              <p class="border-l-2 border-cinnabar/25 pl-1.5 font-sans text-[0.55rem] text-ink-light leading-tight">
+              <p class="border-l-2 border-cinnabar/25 pl-1.5 font-sans text-[0.6875rem] text-ink-muted leading-tight">
                 {{ p.interpretation }}
               </p>
             </div>

@@ -60,10 +60,31 @@ const props = defineProps<{
 const strengthColorClass = computed(() => strengthColorClassFn(props.dayMasterStrength))
 
 const ELEMENT_BG: Record<string, string> = {
-  '木': 'bg-wuxing-wood/8', '火': 'bg-wuxing-fire/8', '土': 'bg-wuxing-earth/8',
-  '金': 'bg-wuxing-metal/8', '水': 'bg-wuxing-water/8',
+  '木': 'wuxing-wood', '火': 'wuxing-fire', '土': 'wuxing-earth',
+  '金': 'wuxing-metal', '水': 'wuxing-water',
 }
 
 function elementColor(el: string): string { return wuxingColor(el) }
-function elementBgClass(el: string): string { return ELEMENT_BG[el] || 'bg-paper-medium/50' }
+function elementBgClass(el: string): string { return ELEMENT_BG[el] ? `el-bg--${ELEMENT_BG[el]}` : 'el-bg--fallback' }
 </script>
+
+<style scoped>
+.el-bg--wuxing-wood {
+  background: color-mix(in srgb, var(--color-wuxing-wood) 8%, transparent);
+}
+.el-bg--wuxing-fire {
+  background: color-mix(in srgb, var(--color-cinnabar) 8%, transparent);
+}
+.el-bg--wuxing-earth {
+  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
+}
+.el-bg--wuxing-metal {
+  background: color-mix(in srgb, var(--color-wuxing-metal) 8%, transparent);
+}
+.el-bg--wuxing-water {
+  background: color-mix(in srgb, var(--color-wuxing-water) 8%, transparent);
+}
+.el-bg--fallback {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
+}
+</style>
