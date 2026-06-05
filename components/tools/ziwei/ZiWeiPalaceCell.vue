@@ -33,12 +33,12 @@ defineProps<{
 
     <!-- Top bar: branch + name -->
     <div class="relative z-[1] flex items-baseline gap-1 px-2 pt-1.5 pb-0.5">
-      <span class="text-[0.55rem] text-ink-light/80 font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
+      <span class="text-[0.6875rem] text-ink-muted font-display tracking-[0.06em]">{{ palace.earthlyBranch }}</span>
       <span
         class="font-display text-[0.9rem] leading-tight tracking-[0.05em] font-semibold"
         :class="isMingGong ? 'text-cinnabar' : 'text-ink-deep'"
       >{{ palace.name }}</span>
-      <span v-if="isMingGong" class="text-[0.6rem] text-cinnabar/70 ml-0.5" aria-hidden="true">命</span>
+      <span v-if="isMingGong" class="ming-marker" aria-hidden="true">命</span>
     </div>
 
     <!-- Major stars -->
@@ -46,7 +46,7 @@ defineProps<{
       <div v-if="palace.majorStars.length > 0" class="font-sans text-[0.9rem] text-cinnabar leading-relaxed tracking-[0.05em] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {{ palace.majorStars.map(s => s.name).join(' ') }}
       </div>
-      <div v-else class="font-sans text-[0.65rem] text-ink-light/80 italic tracking-[0.04em]">空宫</div>
+      <div v-else class="font-sans text-[0.6875rem] text-ink-muted italic tracking-[0.04em]">空宫</div>
     </div>
 
     <!-- Minor stars -->
@@ -73,7 +73,7 @@ defineProps<{
 
     <!-- Decadal range -->
     <div v-if="palace.decadal?.range && palace.decadal.range[0] > 0" class="relative z-[1] px-2 pb-1.5 mt-auto">
-      <span class="text-[0.7rem] text-ink-medium/80 tracking-[0.04em] font-medium">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
+      <span class="text-[0.7rem] text-ink-muted tracking-[0.04em] font-medium">{{ palace.decadal.range[0] }}~{{ palace.decadal.range[1] }}岁</span>
     </div>
   </div>
 </template>
@@ -89,7 +89,7 @@ defineProps<{
 }
 
 .mutagen-chip {
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   padding: 0.03rem 0.28rem;
   border-radius: 2px;
   letter-spacing: 0.04em;
@@ -98,8 +98,8 @@ defineProps<{
 }
 
 .mutagen-chip.lu { background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent); color: var(--color-cinnabar); border: 0.5px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent); }
-.mutagen-chip.quan { background: rgba(74,140,111,0.1); color: #3D7A5E; border: 0.5px solid rgba(74,140,111,0.15); }
-.mutagen-chip.ke { background: rgba(107,168,200,0.1); color: #5A94B4; border: 0.5px solid rgba(107,168,200,0.15); }
+.mutagen-chip.quan { background: color-mix(in srgb, var(--color-jade) 10%, transparent); color: var(--color-jade); border: 0.5px solid color-mix(in srgb, var(--color-jade) 15%, transparent); }
+.mutagen-chip.ke { background: color-mix(in srgb, #6BA8C8 10%, transparent); color: #6BA8C8; border: 0.5px solid color-mix(in srgb, #6BA8C8 15%, transparent); }
 .mutagen-chip.ji { background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent); color: var(--color-ink-muted); border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 10%, transparent); }
 
 .cell-ming::before {
@@ -115,5 +115,11 @@ defineProps<{
   opacity: 0.75;
   z-index: 2;
   pointer-events: none;
+}
+
+.ming-marker {
+  font-size: 0.6875rem;
+  color: color-mix(in srgb, var(--color-cinnabar) 65%, transparent);
+  margin-left: 0.125rem;
 }
 </style>

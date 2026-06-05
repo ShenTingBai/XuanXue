@@ -64,7 +64,7 @@ defineProps<{
         ]"
         style="border-color: color-mix(in srgb, var(--color-ink-medium) 10%, transparent);"
       >
-        <div class="text-[0.68rem] tracking-[0.08em] text-ink-light/80 font-sans mb-0.5 font-medium">{{ item.label }}</div>
+        <div class="text-[0.6875rem] tracking-[0.08em] text-ink-muted font-sans mb-0.5 font-medium">{{ item.label }}</div>
         <div class="text-[14px] font-display tracking-[0.08em] font-semibold" style="color: var(--color-ink);">{{ item.value }}</div>
       </div>
     </div>
