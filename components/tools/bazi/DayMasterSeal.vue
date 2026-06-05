@@ -9,15 +9,15 @@
     <div class="flex items-center gap-3">
       <span class="inline-flex items-baseline gap-1.5 px-4 py-1.5 rounded-sm bg-cinnabar shadow-sm">
         <span class="font-display text-2xl sm:text-3xl text-paper-lightest leading-none">{{ dayMaster }}</span>
-        <span class="font-sans text-sm sm:text-base text-paper-lightest/90 font-medium">{{ dayMasterWuxing }}</span>
+        <span class="font-sans text-sm sm:text-base text-paper-lightest font-medium">{{ dayMasterWuxing }}</span>
       </span>
-      <span class="flex-shrink-0 px-2 py-0.5 rounded-sm bg-ink-dark/10 font-sans text-[0.625rem] text-ink-medium tracking-wider"
+      <span class="flex-shrink-0 px-2 py-0.5 rounded-sm font-sans text-[0.6875rem] text-ink-muted tracking-wider" :style="{ background: 'color-mix(in srgb, var(--color-ink-dark) 10%, transparent)' }"
         :class="strengthClass">
         {{ dayMasterStrength }}
       </span>
     </div>
 
-    <span class="mt-1 font-sans text-[0.625rem] text-ink-muted tracking-widest select-none">日 主</span>
+    <span class="mt-1 font-sans text-[0.6875rem] text-ink-muted tracking-widest select-none">日 主</span>
 
     <!-- Element affinities -->
     <p class="mt-3 font-sans text-sm tracking-wide">

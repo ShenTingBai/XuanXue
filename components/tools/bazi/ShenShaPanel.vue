@@ -52,7 +52,7 @@
       >
         <div class="px-2.5 py-1.5">
           <p class="leading-relaxed tooltip-desc">{{ activeTooltip.shensha.description }}</p>
-          <p class="mt-2 opacity-75 text-[0.75rem]">{{ activeTooltip.shensha.source }} · {{ activeTooltip.shensha.pillar }}{{ activeTooltip.shensha.position }}</p>
+          <p class="mt-2 text-[0.75rem]" :style="{ color: 'color-mix(in srgb, var(--color-paper-medium) 75%, transparent)' }">{{ activeTooltip.shensha.source }} · {{ activeTooltip.shensha.pillar }}{{ activeTooltip.shensha.position }}</p>
         </div>
       </div>
     </Teleport>
@@ -65,15 +65,15 @@ import { shenShaBadgeStyle } from '~/constants/bazi'
 
 function buttonCustomProps(category: '吉' | '凶' | '中性'): Record<string, string> {
   const s = shenShaBadgeStyle(category)
-  // Darker hover background — add ~6% more opacity
-  const hoverAlpha = category === '吉' ? '0.14' : category === '凶' ? '0.14' : '0.12'
-  const shadowColor = category === '吉' ? 'rgba(61,107,75,0.15)' : category === '凶' ? 'rgba(198,40,40,0.12)' : 'rgba(107,91,79,0.10)'
+  // Darker hover background — bump from 8% to 14% (吉/凶) or 12% (中性)
+  const hoverPct = category === '吉' || category === '凶' ? '14%' : '12%'
+  const shadowAlpha = category === '吉' ? '15%' : category === '凶' ? '12%' : '10%'
   return {
     '--badge-bg': s.bg,
     '--badge-text': s.text,
     '--badge-border': s.border,
-    '--badge-bg-hover': s.bg.replace(/0\.08\)$/, hoverAlpha + ')'),
-    '--badge-shadow': shadowColor,
+    '--badge-bg-hover': s.bg.replace(/8%/, hoverPct),
+    '--badge-shadow': `color-mix(in srgb, ${s.text} ${shadowAlpha}, transparent)`,
   }
 }
 

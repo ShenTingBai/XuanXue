@@ -11,7 +11,7 @@
       </span>
     </div>
 
-    <p class="font-sans text-base text-ink-light mb-3 leading-relaxed">
+    <p class="font-sans text-base text-ink-medium mb-3 leading-relaxed">
       以今年（{{ currentYear }}年）为中心的{{ years.length }}年运势概述。高亮卡片为今年展开详批，其余年份为紧凑概览。
     </p>
 
@@ -175,7 +175,7 @@
 <script setup lang="ts">
 import type { LiuNianYear } from '~/composables/useLiuNian'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
-import { shenShaBadgeStyle, WUXING_COLORS, WUXING_FALLBACK_COLOR, hexToRgba } from '~/constants/bazi'
+import { shenShaBadgeStyle, WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 
 const props = defineProps<{
   years: LiuNianYear[]
@@ -207,27 +207,28 @@ function scoreColor(score: number): string {
   return WUXING_COLORS['火']
 }
 
-const RELATION_COLORS: Record<string, { bg: string; text: string }> = {
-  '合': { bg: hexToRgba(WUXING_COLORS['木'], 24 / 255), text: WUXING_COLORS['木'] },
-  '冲': { bg: hexToRgba(WUXING_COLORS['火'], 24 / 255), text: WUXING_COLORS['火'] },
-  '刑': { bg: hexToRgba(WUXING_COLORS['土'], 24 / 255), text: WUXING_COLORS['土'] },
-  '害': { bg: hexToRgba(WUXING_COLORS['金'], 24 / 255), text: WUXING_COLORS['金'] },
-  '破': { bg: hexToRgba(WUXING_FALLBACK_COLOR, 24 / 255), text: WUXING_FALLBACK_COLOR },
+const RELATION_COLORS: Record<string, string> = {
+  '合': WUXING_COLORS['木'],
+  '冲': WUXING_COLORS['火'],
+  '刑': WUXING_COLORS['土'],
+  '害': WUXING_COLORS['金'],
+  '破': WUXING_FALLBACK_COLOR,
 }
 
 function relationBadgeStyle(type: string): Record<string, string> {
-  const colors = RELATION_COLORS[type] || { bg: '#6B5B4F18', text: '#6B5B4F' }
-  return { background: colors.bg, color: colors.text }
+  const color = RELATION_COLORS[type]
+  if (!color) return { background: `color-mix(in srgb, ${WUXING_FALLBACK_COLOR} 9%, transparent)`, color: WUXING_FALLBACK_COLOR }
+  return { background: `color-mix(in srgb, ${color} 9%, transparent)`, color }
 }
 
 function tenGodBadgeStyle(isFavorable: boolean, isUnfavorable: boolean): Record<string, string> {
   if (isFavorable) {
-    return { background: hexToRgba(WUXING_COLORS['木'], 24 / 255), color: WUXING_COLORS['木'] }
+    return { background: `color-mix(in srgb, ${WUXING_COLORS['木']} 9%, transparent)`, color: WUXING_COLORS['木'] }
   }
   if (isUnfavorable) {
-    return { background: hexToRgba(WUXING_COLORS['火'], 14 / 255), color: WUXING_COLORS['火'] }
+    return { background: `color-mix(in srgb, ${WUXING_COLORS['火']} 5%, transparent)`, color: WUXING_COLORS['火'] }
   }
-  return { background: hexToRgba(WUXING_FALLBACK_COLOR, 18 / 255), color: WUXING_FALLBACK_COLOR }
+  return { background: `color-mix(in srgb, ${WUXING_FALLBACK_COLOR} 7%, transparent)`, color: WUXING_FALLBACK_COLOR }
 }
 
 function shenShaBadgeStyleLocal(category: '吉' | '凶' | '中性'): Record<string, string> {

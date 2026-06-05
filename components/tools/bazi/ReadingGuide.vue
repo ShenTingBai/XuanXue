@@ -3,7 +3,7 @@
     <div class="section-header">
       <h2>命理速览</h2>
     </div>
-    <p class="font-sans text-xs text-ink-light mb-5">本结果为算法推演，仅供参考，不能替代专业命理师分析。</p>
+    <p class="font-sans text-xs text-ink-medium mb-5">本结果为算法推演，仅供参考，不能替代专业命理师分析。</p>
 
     <div class="space-y-5 font-sans text-base text-ink-medium leading-relaxed">
       <!-- Section 1: 命局总览 -->
@@ -40,12 +40,12 @@
             }"
           >
             <span class="font-display text-sm">{{ shen.name }}</span>
-            <span class="opacity-60 text-xs">{{ shen.pillar }}</span>
+            <span class="text-xs" :style="{ color: 'color-mix(in srgb, var(--color-ink-muted) 60%, transparent)' }">{{ shen.pillar }}</span>
           </span>
         </div>
         <p class="text-sm">
           <template v-for="(shen, i) in readingGuideShensha" :key="shen.name + shen.pillar">
-            <strong :class="shen.category === '吉' ? 'text-wuxing-wood' : shen.category === '凶' ? 'text-cinnabar/80' : 'text-ink-medium'">{{ shen.name }}</strong>（{{ shen.pillar }}）：{{ shen.description }}<template v-if="i < readingGuideShensha.length - 1">；</template>
+            <strong :class="shen.category === '吉' ? 'text-wuxing-wood' : shen.category === '凶' ? 'text-cinnabar' : 'text-ink-medium'">{{ shen.name }}</strong>（{{ shen.pillar }}）：{{ shen.description }}<template v-if="i < readingGuideShensha.length - 1">；</template>
           </template>
         </p>
       </div>
@@ -56,7 +56,7 @@
         <div class="flex items-center gap-3 mb-2">
           <span class="font-display text-lg text-ink-dark">{{ currentYearLiuNian.stem }}{{ currentYearLiuNian.branch }}</span>
           <span class="px-2 py-0.5 rounded text-xs font-medium bg-paper-dark/30 text-ink-medium">{{ currentYearLiuNian.tenGod }}</span>
-          <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar/80' : 'text-ink-medium'">
+          <span class="text-xs" :class="currentYearLiuNian.isFavorable ? 'text-wuxing-wood' : currentYearLiuNian.isUnfavorable ? 'text-cinnabar' : 'text-ink-medium'">
             {{ currentYearLiuNian.isFavorable ? '喜用' : currentYearLiuNian.isUnfavorable ? '忌神' : '中性' }}
           </span>
           <span class="ml-auto font-sans text-xs text-cinnabar font-medium">运势评分 {{ currentYearLiuNian.score }}/100</span>
@@ -102,7 +102,7 @@
             <div v-for="el in unfavorableElements" :key="el"
               class="p-2 rounded-lg border"
               :style="{ borderColor: ELEMENT_COLORS[el] + '25', backgroundColor: ELEMENT_COLORS[el] + '05' }">
-              <span class="font-medium" :style="{ color: ELEMENT_COLORS[el], opacity: 0.7 }">{{ el }}</span>
+              <span class="font-medium" :style="{ color: `color-mix(in srgb, ${ELEMENT_COLORS[el]} 70%, transparent)` }">{{ el }}</span>
               <span class="text-ink-muted ml-1">{{ ELEMENT_LIFE_AREA[el] }}</span>
               <span class="text-ink-muted ml-1">（适度）</span>
             </div>

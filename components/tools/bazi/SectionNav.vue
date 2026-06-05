@@ -15,7 +15,7 @@
       ]"
       :aria-current="activeNavSection === item.anchor ? 'true' : undefined"
       @click.prevent="navigateToSection(item.anchor)"
-    ><span>{{ item.label }}</span><span class="opacity-75 ml-0.5">({{ item.subtitle }})</span></a>
+    ><span>{{ item.label }}</span><span class="ml-0.5 text-ink-muted">({{ item.subtitle }})</span></a>
   </nav>
 </template>
 

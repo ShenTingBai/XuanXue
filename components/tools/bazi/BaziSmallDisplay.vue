@@ -38,9 +38,9 @@
     </div>
     <!-- 用神 -->
     <div class="bazi-compact__extra">
-      <span class="text-[0.5rem] text-ink-light">喜：</span>
+      <span class="text-[0.6875rem] text-ink-muted">喜：</span>
       <span v-for="el in result.favorableElements" :key="el" class="bazi-compact__favorable">{{ el }}</span>
-      <span class="text-[0.5rem] text-ink-light ml-1">忌：</span>
+      <span class="text-[0.6875rem] text-ink-muted ml-1">忌：</span>
       <span v-for="el in result.unfavorableElements" :key="el" class="bazi-compact__unfavorable">{{ el }}</span>
     </div>
   </div>
@@ -68,19 +68,19 @@ defineProps<{
   align-items: center;
   gap: 0.2rem;
   padding: 0.15rem 0;
-  border-bottom: 1px solid rgba(44, 26, 14, 0.03);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink-darkest) 3%, transparent);
 }
 
 .bazi-compact__row--day {
-  background: rgba(198, 40, 40, 0.04);
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
   border-radius: 2px;
   padding: 0.2rem 0.15rem;
 }
 
 .bazi-compact__label {
-  width: 1.2rem;
-  font-size: 0.5rem;
-  color: var(--color-ink-light, #8A7A6A);
+  width: 1.4rem;
+  font-size: 0.6875rem;
+  color: var(--color-ink-muted);
   text-align: center;
   flex-shrink: 0;
 }
@@ -88,7 +88,7 @@ defineProps<{
 .bazi-compact__stem {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.9rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark);
   letter-spacing: 0.1em;
   min-width: 1.2rem;
   text-align: center;
@@ -97,7 +97,7 @@ defineProps<{
 .bazi-compact__branch {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.9rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium);
   letter-spacing: 0.1em;
   min-width: 1.2rem;
   text-align: center;
@@ -108,11 +108,11 @@ defineProps<{
   gap: 0.2rem;
   flex-wrap: wrap;
   padding: 0.2rem 0;
-  border-bottom: 1px solid rgba(44, 26, 14, 0.03);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink-darkest) 3%, transparent);
 }
 
 .bazi-compact__wx-item {
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
   padding: 0.05rem 0.25rem;
   border-radius: 2px;
 }
@@ -148,22 +148,22 @@ defineProps<{
 
 .bazi-compact__daymaster {
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.65rem;
-  color: var(--color-cinnabar, #C62828);
+  font-size: 0.6875rem;
+  color: var(--color-cinnabar);
 }
 
 .bazi-compact__strength {
-  font-size: 0.5rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-muted);
 }
 
 .bazi-compact__favorable {
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
   color: v-bind('WUXING_COLORS["木"]');
 }
 
 .bazi-compact__unfavorable {
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
   color: v-bind('WUXING_COLORS["火"]');
 }
 </style>
