@@ -200,7 +200,7 @@ export function getSanCaiFortune(tian: string, ren: string, di: string): '吉' |
     ren === di ? '吉' : isGenerate(ren, di) ? '吉' : isGenerate(di, ren) ? '半吉' : '凶'
 
   if (tianToRen === '吉' && renToDi === '吉') return '吉'
-  if (tianToRen === '凶' || renToDi === '凶') return '凶'
+  if (tianToRen === '凶' && renToDi === '凶') return '凶'
   return '半吉'
 }
 

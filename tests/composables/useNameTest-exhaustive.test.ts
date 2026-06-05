@@ -142,18 +142,12 @@ describe('San Cai configuration (5³ = 125 exhaustive)', () => {
     }
   })
 
-  /** ⚠ BUG FLAG: the `renToDi === '凶'` check uses `||` (OR), so
-   * 半吉 is DEAD CODE at BOTH the per-pair and final level.
-   * The function is effectively binary: both pairs harmonious → 吉, else → 凶.
-   * Distribution: 吉=45, 凶=80, 半吉=0.
-   * Fix: change `||` to `&&` on the 凶 branch → 半吉=60 becomes reachable.
-   * @see constants/name-test.ts line ~202 */
-  it('total distribution matches expected (currently: binary 吉/凶, 半吉 dead)', () => {
+  it('total distribution: 吉=45, 半吉=60, 凶=20', () => {
     const dist: Record<string, number> = {}
     for (const r of results) dist[r.fortune] = (dist[r.fortune] || 0) + 1
     expect(dist['吉']).toBe(45)
-    expect(dist['凶']).toBe(80)
-    expect(dist['半吉']).toBeUndefined()
+    expect(dist['半吉']).toBe(60)
+    expect(dist['凶']).toBe(20)
   })
 
   // Verify known patterns:
@@ -199,13 +193,10 @@ describe('San Cai configuration (5³ = 125 exhaustive)', () => {
     expect(getSanCaiFortune('水', '金', '水')).toBe('吉') // 吉+吉 = 吉
   })
 
-  /** ⚠ BUG FLAG: mixed combos (one 吉 + one 凶 pair) return 凶 because
-   * the 凶 branch uses `||` instead of `&&`. After fixing to `&&`,
-   * 木-木-土 should return 半吉. Currently returns 凶.
-   * @see constants/name-test.ts line ~202 */
-  it('mixed case currently returns 凶 (due to || bug, should be 半吉)', () => {
-    expect(getSanCaiFortune('木', '木', '土')).toBe('凶') // BUG: should be 半吉
-    expect(getSanCaiFortune('木', '土', '土')).toBe('凶') // BUG: should be 半吉
+  it('mixed case (one 吉 pair + one 凶 pair) returns 半吉', () => {
+    expect(getSanCaiFortune('木', '木', '土')).toBe('半吉') // 吉+凶 = 半吉
+    expect(getSanCaiFortune('木', '土', '土')).toBe('半吉') // 凶+吉 = 半吉
+    expect(getSanCaiFortune('木', '木', '金')).toBe('半吉') // 吉+凶 = 半吉
   })
 })
 
