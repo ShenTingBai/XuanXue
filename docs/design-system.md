@@ -773,6 +773,26 @@ const prefersReducedMotion = import.meta.client
 
 所有动画必须适配 `prefers-reduced-motion: reduce`（见 6.5）。
 
+### 8.4 颜色独立编码
+
+**吉凶/状态等颜色编码的信息必须同时使用形状或文字区分**，禁止纯依赖颜色（红绿色盲影响约 8% 男性用户）。
+
+| 信号 | 颜色 | 形状 | 示例 |
+|------|------|------|------|
+| 吉 | `WUXING_COLORS['木']` `#3D6B4B` | ● 实心圆 `rounded-full` | 日历日格右上角圆点 |
+| 凶 | `WUXING_COLORS['火']` `#C62828` | ◆ 旋转菱形 `rounded-[1px] rotate-45` | 日历日格右上角菱形 |
+| 平 | `WUXING_COLORS['土']` `#7A5E12` | ○ 空心圆 `rounded-full border` | 日历图例 |
+
+**实现：**
+```css
+/* 吉 — 圆 */
+.indicator--ji { border-radius: 50%; background: var(--color-wuxing-wood); }
+/* 凶 — 菱形（视觉上独立于圆形） */
+.indicator--xiong { border-radius: 1px; background: var(--color-wuxing-fire); transform: rotate(45deg); }
+```
+
+**图例** 必须标注形状含义（如「吉 · 圆点」「凶 · 菱形」），不能仅标注颜色。
+
 ---
 
 ## 9. 反模式（禁止事项）
