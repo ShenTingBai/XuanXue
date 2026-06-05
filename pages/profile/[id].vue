@@ -328,7 +328,9 @@ const saveProfile = async () => {
           v-if="isOnboarding"
           class="card-warm rounded-xl p-5 mb-10 flex items-start gap-4 anim-rise"
         >
-          <span class="seal-icon text-[10px] w-7 h-7 flex-shrink-0" aria-hidden="true">启</span>
+          <span class="seal-icon text-[0.6875rem] w-8 h-8 flex-shrink-0" aria-hidden="true"
+            >启</span
+          >
           <p class="text-base text-ink leading-relaxed ui">填写出生信息后即可开始命理推演</p>
         </div>
       </Transition>
@@ -843,6 +845,23 @@ const saveProfile = async () => {
   letter-spacing: 0.04em;
   margin-top: 8px;
   font-family: var(--font-sans);
+}
+
+/* ── Number input spinner suppression ── */
+.input-warm[type='number'] {
+  -moz-appearance: textfield;
+}
+.input-warm[type='number']::-webkit-outer-spin-button,
+.input-warm[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ── Readonly nickname visual distinction ── */
+.input-warm[readonly] {
+  cursor: default;
+  opacity: 0.75;
+  border-bottom-style: dashed;
 }
 
 /* ── Fade transition for Transition components ── */

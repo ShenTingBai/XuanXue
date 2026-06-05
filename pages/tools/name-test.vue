@@ -219,7 +219,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
       <!-- ══ 输入区 ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between">
-          <div class="section-header flex-1 min-w-0">
+          <div class="section-header !mb-0 flex-1 min-w-0">
             <h2>输入姓名</h2>
           </div>
           <MethodologyNote
@@ -504,19 +504,9 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
             </div>
           </div>
 
-          <!-- 详解 -->
-          <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.4s' }">
-            <div class="section-header">
-              <h2>详解</h2>
-            </div>
-            <div class="space-y-3 text-sm text-ink-medium leading-relaxed">
-              <p>{{ result.summary }}</p>
-            </div>
-          </div>
-
           <!-- 各格详解 -->
           <div class="fade-in mt-6 space-y-3" :style="{ '--delay': '0.5s' }">
-            <p class="text-xs text-ink-muted tracking-wide text-center">各格详情</p>
+            <p class="text-xs text-ink-medium tracking-wide text-center">各格详情</p>
             <div v-for="detail in result.details" :key="detail.label" class="detail-line">
               <span class="detail-line__label">{{ detail.label }}</span>
               <span class="detail-line__text">{{ detail.text }}</span>

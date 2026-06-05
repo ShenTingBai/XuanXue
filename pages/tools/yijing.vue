@@ -38,7 +38,12 @@
       <div v-else-if="error" class="text-center py-16">
         <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
         <div class="flex justify-center mt-6">
-          <button class="btn-cin" @click="handleReset">
+          <button
+            class="btn-cin"
+            @click="handleReset"
+            @keydown.enter="handleReset"
+            @keydown.space.prevent="handleReset"
+          >
             <span>重新起卦</span>
           </button>
         </div>
@@ -67,10 +72,20 @@
               当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。
             </p>
             <div class="flex gap-3 justify-end">
-              <button class="btn-ghost text-sm" @click="cancelReset" @keydown.enter="cancelReset">
+              <button
+                class="btn-ghost text-sm"
+                @click="cancelReset"
+                @keydown.enter="cancelReset"
+                @keydown.space.prevent="cancelReset"
+              >
                 继续摇卦
               </button>
-              <button class="btn-cin" @click="confirmReset" @keydown.enter="confirmReset">
+              <button
+                class="btn-cin"
+                @click="confirmReset"
+                @keydown.enter="confirmReset"
+                @keydown.space.prevent="confirmReset"
+              >
                 确定重新起卦
               </button>
             </div>
@@ -117,6 +132,7 @@
         class="right-8"
         @click="scrollToTop"
         @keydown.enter="scrollToTop"
+        @keydown.space.prevent="scrollToTop"
       />
     </div>
   </ToolPageLayout>

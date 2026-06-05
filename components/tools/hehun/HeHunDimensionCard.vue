@@ -117,7 +117,7 @@ const barPercent = computed(() => {
 }
 
 .dim-name {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-ink);
@@ -132,19 +132,19 @@ const barPercent = computed(() => {
 }
 
 .dim-score {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9rem;
   font-weight: 600;
 }
 
 .dim-max {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-light);
 }
 
 .dim-level {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   padding: 0.08rem 0.4rem;
   border-radius: 999px;
@@ -202,7 +202,7 @@ const barPercent = computed(() => {
 }
 
 .dim-item__name {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-ink-medium);
@@ -217,14 +217,14 @@ const barPercent = computed(() => {
 }
 
 .dim-item__score {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   font-weight: 600;
 }
 
 .dim-item__detail {
   width: 100%;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-light);
   line-height: 1.5;
@@ -239,7 +239,7 @@ const barPercent = computed(() => {
 }
 
 .dim-detail-line {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-medium);
   line-height: 1.55;

@@ -80,7 +80,7 @@ const isDisabled = computed(() => props.isExporting || !props.targetRef)
 }
 .export-btn:hover:not(:disabled) {
   color: var(--color-cinnabar);
-  background: rgba(198, 40, 40, 0.04);
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
 }
 .export-btn:active:not(:disabled) {
   transform: scale(0.97);
@@ -93,7 +93,7 @@ const isDisabled = computed(() => props.isExporting || !props.targetRef)
   display: inline-block;
   width: 0.75rem;
   height: 0.75rem;
-  border: 1.5px solid rgba(198, 40, 40, 0.3);
+  border: 1.5px solid color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
   border-top-color: var(--color-cinnabar);
   border-radius: 50%;
   animation: export-spin 0.6s linear infinite;

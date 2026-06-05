@@ -12,37 +12,7 @@
       </div>
 
       <div class="banner-center">
-        <div class="score-ring-wrap">
-          <svg viewBox="0 0 120 120" class="score-ring">
-            <!-- Background circle -->
-            <circle
-              cx="60"
-              cy="60"
-              r="52"
-              fill="none"
-              stroke="color-mix(in srgb, var(--color-ink-faint) 18%, transparent)"
-              stroke-width="8"
-            />
-            <!-- Progress arc -->
-            <circle
-              cx="60"
-              cy="60"
-              r="52"
-              fill="none"
-              :stroke="grade?.color ?? 'var(--color-cinnabar)'"
-              stroke-width="8"
-              stroke-linecap="round"
-              :stroke-dasharray="326.7"
-              :stroke-dashoffset="326.7 - (326.7 * totalScore) / 100"
-              transform="rotate(-90 60 60)"
-              class="score-arc"
-            />
-          </svg>
-          <div class="score-text">
-            <span class="score-num">{{ Math.round(totalScore) }}</span>
-            <span class="score-unit">分</span>
-          </div>
-        </div>
+        <ScoreRing :score="Math.round(totalScore)" :size="64" :stroke-color="grade?.color" />
       </div>
 
       <div class="banner-right">
@@ -54,6 +24,7 @@
 
 <script setup lang="ts">
 import type { HeHunGrade } from '~/constants/hehun'
+import ScoreRing from '~/components/tools/ScoreRing.vue'
 
 defineProps<{
   totalScore: number
@@ -103,7 +74,7 @@ defineProps<{
 }
 
 .banner-label {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium);
   letter-spacing: 0.08em;
@@ -114,51 +85,13 @@ defineProps<{
   flex-shrink: 0;
 }
 
-.score-ring-wrap {
-  position: relative;
-  width: 4.5rem;
-  height: 4.5rem;
-}
-
-.score-ring {
-  width: 100%;
-  height: 100%;
-}
-
-.score-arc {
-  transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.score-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.score-num {
-  font-family: 'Noto Sans SC', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--color-ink);
-  line-height: 1;
-}
-
-.score-unit {
-  font-size: 0.6875rem;
-  color: var(--color-ink-light);
-  letter-spacing: 0.05em;
-}
-
 .banner-right {
   flex: 1;
   min-width: 0;
 }
 
 .banner-desc {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium);
   line-height: 1.65;

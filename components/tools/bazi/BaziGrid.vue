@@ -8,7 +8,7 @@
       <!-- Desktop: full grid -->
       <div class="hidden sm:block">
         <table
-          class="border-2 border-cinnabar/50 rounded-lg overflow-clip w-full table-fixed border-separate"
+          class="border-2 bazi-border-accent rounded-lg overflow-clip w-full table-fixed border-separate"
           style="border-spacing: 0"
           aria-label="四柱排盘"
         >
@@ -18,10 +18,10 @@
                 v-for="(h, idx) in headers"
                 :key="h.label"
                 scope="col"
-                class="py-1.5 px-2 text-center border-b border-cinnabar/50 text-xs text-ink-medium tracking-widest font-sans"
+                class="py-1.5 px-2 text-center border-b bazi-border-accent text-xs text-ink-medium tracking-widest font-sans"
                 :class="[
-                  h.isDay ? 'bg-cinnabar/18' : 'bg-cinnabar/4',
-                  idx < 3 ? 'border-r-2 border-cinnabar/50' : '',
+                  h.isDay ? 'bazi-th-highlight' : 'bazi-th-tint',
+                  idx < 3 ? 'border-r-2 bazi-border-accent' : '',
                 ]"
               >
                 {{ h.label }}
@@ -35,10 +35,10 @@
               <td
                 v-for="(p, idx) in pillars"
                 :key="'stem-' + idx"
-                class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
+                class="py-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b bazi-border-soft"
                 :class="[
-                  idx < 3 ? 'border-r-2 border-cinnabar/30' : '',
-                  idx === 2 ? 'bg-cinnabar/15' : '',
+                  idx < 3 ? 'border-r-2 bazi-border-soft' : '',
+                  idx === 2 ? 'bazi-td-highlight' : '',
                 ]"
                 :style="{ color: wuxingColor(p.stemWuxing) }"
               >
@@ -50,10 +50,10 @@
               <td
                 v-for="(p, idx) in pillars"
                 :key="'branch-' + idx"
-                class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b border-cinnabar/30"
+                class="pb-2.5 px-2 text-center text-2xl sm:text-3xl font-sans font-medium border-b bazi-border-soft"
                 :class="[
-                  idx < 3 ? 'border-r-2 border-cinnabar/30' : '',
-                  idx === 2 ? 'bg-cinnabar/15' : '',
+                  idx < 3 ? 'border-r-2 bazi-border-soft' : '',
+                  idx === 2 ? 'bazi-td-highlight' : '',
                 ]"
                 :style="{ color: wuxingColor(p.branchWuxing) }"
               >
@@ -65,10 +65,10 @@
               <td
                 v-for="(p, idx) in pillars"
                 :key="'tg-' + idx"
-                class="py-1.5 px-2 text-center border-b border-cinnabar/30"
+                class="py-1.5 px-2 text-center border-b bazi-border-soft"
                 :class="[
-                  idx < 3 ? 'border-r-2 border-cinnabar/30' : '',
-                  idx === 2 ? 'bg-cinnabar/15' : '',
+                  idx < 3 ? 'border-r-2 bazi-border-soft' : '',
+                  idx === 2 ? 'bazi-td-highlight' : '',
                 ]"
               >
                 <span
@@ -84,10 +84,10 @@
               <td
                 v-for="(p, idx) in pillars"
                 :key="'hs-' + idx"
-                class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b border-cinnabar/30"
+                class="py-2 px-2 text-center text-sm sm:text-base text-ink-light leading-relaxed border-b bazi-border-soft"
                 :class="[
-                  idx < 3 ? 'border-r-2 border-cinnabar/30' : '',
-                  idx === 2 ? 'bg-cinnabar/15' : '',
+                  idx < 3 ? 'border-r-2 bazi-border-soft' : '',
+                  idx === 2 ? 'bazi-td-highlight' : '',
                 ]"
               >
                 <span
@@ -105,10 +105,10 @@
               <td
                 v-for="(p, idx) in pillars"
                 :key="'ny-' + idx"
-                class="py-1.5 px-2 text-center text-xs text-ink-muted font-sans border-b border-cinnabar/30"
+                class="py-1.5 px-2 text-center text-xs text-ink-muted font-sans border-b bazi-border-soft"
                 :class="[
-                  idx < 3 ? 'border-r-2 border-cinnabar/30' : '',
-                  idx === 2 ? 'bg-cinnabar/15' : '',
+                  idx < 3 ? 'border-r-2 bazi-border-soft' : '',
+                  idx === 2 ? 'bazi-td-highlight' : '',
                 ]"
               >
                 {{ getNaYin(p.stem, p.branch) }}
@@ -121,13 +121,13 @@
                 :key="'interp-' + idx"
                 class="py-1.5 px-2 text-left align-top"
                 :class="[
-                  idx < 3 ? 'border-r-2 border-cinnabar/20' : '',
-                  idx === 2 ? 'bg-cinnabar/15' : '',
+                  idx < 3 ? 'border-r-2 bazi-border-subtle' : '',
+                  idx === 2 ? 'bazi-td-highlight' : '',
                 ]"
               >
                 <p
                   v-if="p.interpretation"
-                  class="border-l-2 border-cinnabar/25 pl-2 py-1 font-sans text-[0.6875rem] text-ink-muted leading-relaxed"
+                  class="border-l-2 bazi-border-faint pl-2 py-1 font-sans text-[0.6875rem] text-ink-muted leading-relaxed"
                 >
                   {{ p.interpretation }}
                 </p>
@@ -147,13 +147,15 @@
               role="listitem"
               class="inline-flex flex-col w-[104px] rounded-lg overflow-hidden flex-shrink-0"
               :class="
-                idx === 2 ? 'border-2 border-cinnabar bg-cinnabar/15' : 'border border-paper-dark'
+                idx === 2
+                  ? 'border-2 border-cinnabar bazi-td-highlight'
+                  : 'border border-paper-dark'
               "
             >
               <!-- Mobile header -->
               <div
                 class="py-1 text-center font-sans"
-                :class="idx === 2 ? 'bg-cinnabar/18' : 'bg-cinnabar/4'"
+                :class="idx === 2 ? 'bazi-th-highlight' : 'bazi-th-tint'"
               >
                 <span class="text-xs text-ink-medium tracking-wider">
                   {{ ['年', '月', '日', '时'][idx] }}柱
@@ -201,7 +203,7 @@
               <!-- Interpretation -->
               <div v-if="p.interpretation" class="px-1 pb-1">
                 <p
-                  class="border-l-2 border-cinnabar/25 pl-1.5 font-sans text-[0.6875rem] text-ink-muted leading-tight"
+                  class="border-l-2 bazi-border-faint pl-1.5 font-sans text-[0.6875rem] text-ink-muted leading-tight"
                 >
                   {{ p.interpretation }}
                 </p>
@@ -258,10 +260,37 @@ const headers = computed(() => {
 function tenGodBadgeClass(tg: string): string {
   if (tg === '日主') return 'bg-ink-dark/10 text-ink-dark'
   if (['正印', '偏印'].includes(tg)) return 'bg-wuxing-wood/10 text-wuxing-wood'
-  if (['正官', '偏官'].includes(tg)) return 'bg-cinnabar/10 text-cinnabar'
+  if (['正官', '偏官'].includes(tg)) return 'bazi-tg-official text-cinnabar'
   if (['正财', '偏财'].includes(tg)) return 'bg-gold/10 text-gold'
   if (['食神', '伤官'].includes(tg)) return 'bg-wuxing-water/10 text-wuxing-water'
   if (['比肩', '劫财'].includes(tg)) return 'bg-wuxing-earth/10 text-wuxing-earth'
   return 'bg-ink-faint/20 text-ink-medium'
 }
 </script>
+
+<style scoped>
+.bazi-th-highlight {
+  background: color-mix(in srgb, var(--color-cinnabar) 18%, transparent);
+}
+.bazi-th-tint {
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
+}
+.bazi-td-highlight {
+  background: color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+.bazi-border-accent {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 50%, transparent);
+}
+.bazi-border-soft {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
+.bazi-border-subtle {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+}
+.bazi-border-faint {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 25%, transparent);
+}
+.bazi-tg-official {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+}
+</style>

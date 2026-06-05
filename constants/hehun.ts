@@ -346,7 +346,7 @@ export const HEHUN_GRADES: HeHunGrade[] = [
     level: '下婚',
     label: '缘浅需慎',
     description: '命局匹配度较低，存在冲克。若坚持结合，需要双方付出更多努力。',
-    color: '#5A4A3A',
+    color: '#6B5B4F',
   },
 ]
 

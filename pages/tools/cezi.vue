@@ -246,8 +246,8 @@ const interpretationParagraphs = computed(() => {
 
       <!-- ══ Input Area ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-        <div class="flex items-center justify-between">
-          <div class="section-header flex-1 min-w-0">
+        <div class="flex items-center justify-between mb-6">
+          <div class="section-header flex-1 min-w-0 !mb-0">
             <h2>测字占卜</h2>
           </div>
           <MethodologyNote :classical="ceziClassical" :synthesis="ceziSynthesis" tool="测字" />
@@ -442,7 +442,12 @@ const interpretationParagraphs = computed(() => {
       @restore="onHistoryRestore"
     />
 
-    <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
+    <ScrollTopButton
+      v-if="showScrollTop"
+      @click="scrollToTop"
+      @keydown.enter="scrollToTop"
+      @keydown.space.prevent="scrollToTop"
+    />
   </ToolPageLayout>
 </template>
 
@@ -474,6 +479,7 @@ const interpretationParagraphs = computed(() => {
   background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
   color: var(--color-cinnabar);
   border: 1px solid color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+  border-radius: 9999px;
 }
 
 .fortune-badge--ji {
@@ -492,6 +498,8 @@ const interpretationParagraphs = computed(() => {
   background: color-mix(in srgb, var(--color-cinnabar) 8%, transparent);
   color: var(--color-cinnabar);
   border: 1px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+  border-radius: 1px;
+  transform: rotate(1deg);
 }
 
 /* ════════════════════════════════════════ */
@@ -626,10 +634,10 @@ const interpretationParagraphs = computed(() => {
 
 .cezi-slip__section-title {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-ink-dark);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   margin-bottom: 0.5rem;
   position: relative;
   padding-left: 0.75rem;
@@ -685,19 +693,29 @@ const interpretationParagraphs = computed(() => {
 }
 
 /* ── Animation ── */
-.fade-in {
-  animation: secIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--delay, 0s);
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes secIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in {
+    animation: secIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--delay, 0s);
+  }
 }
 
-@keyframes secIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    animation: none;
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 </style>

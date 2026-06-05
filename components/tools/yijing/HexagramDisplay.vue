@@ -341,7 +341,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .meta-label {
-  color: color-mix(in srgb, var(--color-ink-medium) 60%, transparent);
+  color: color-mix(in srgb, var(--color-ink-medium) 80%, transparent);
 }
 
 .meta-value {

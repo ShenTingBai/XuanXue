@@ -709,6 +709,7 @@ function onSectionNavigate(sectionName: string) {
           :style="{ right: scrollTopOffset }"
           @click="scrollToTop"
           @keydown.enter="scrollToTop"
+          @keydown.space.prevent="scrollToTop"
         />
 
         <!-- Restored from history notice -->
