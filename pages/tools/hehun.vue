@@ -17,6 +17,16 @@ import { useExportImage } from '~/composables/useExportImage'
 import type { HeHunGrade } from '~/constants/hehun'
 import BaziSmallDisplay from '~/components/tools/bazi/BaziSmallDisplay.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import MethodologyNote from '~/components/tools/MethodologyNote.vue'
+import type { ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+
+const hehunClassical: ClassicalSource[] = [
+  { method: '年柱/日柱法', source: '《三命通会》卷七' },
+  { method: '纳音五行', source: '《六十甲子纳音表》' },
+  { method: '神煞', source: '《协纪辨方书》卷十' },
+  { method: '十神规则', source: '《渊海子平》卷二' },
+]
+const hehunSynthesis = ['维度权重配比', '加减分值', '等级阈值']
 
 useHead({ title: '八字合婚 — 玄·道' })
 
@@ -26,13 +36,25 @@ const missingBirthInfo = ref(false)
 const error = ref('')
 
 // ── Person B input ──
-const bYear = ref(new Date().getFullYear() - 28)
+const defaultYear = new Date().getFullYear() - 28
+const bYear = ref(defaultYear)
 const bMonth = ref(6)
 const bDay = ref(15)
+const bDateStr = ref(`${defaultYear}-06-15`)
 const bHour = ref<number | null>(12)
 const bGender = ref<'男' | '女'>('男')
 const bCalendar = ref<'solar' | 'lunar'>('solar')
 const bNickname = ref('')
+
+// Sync date string ↔ year/month/day
+watch(bDateStr, (val) => {
+  const parts = val.split('-')
+  if (parts.length === 3) {
+    bYear.value = parseInt(parts[0], 10)
+    bMonth.value = parseInt(parts[1], 10)
+    bDay.value = parseInt(parts[2], 10)
+  }
+})
 
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
@@ -255,43 +277,54 @@ const computedGrade = computed<HeHunGrade | null>(() => {
           <div class="section-header">
             <h2>对方信息</h2>
           </div>
-          <p class="text-xs text-ink-light/80 mb-6 tracking-wide">输入对方的出生信息进行合婚分析</p>
+          <p class="text-xs text-ink-muted mb-6 tracking-wide">输入对方的出生信息进行合婚分析</p>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <!-- Year -->
-            <div>
-              <label for="b-year" class="input-label">出生年份</label>
-              <input
-                id="b-year"
-                v-model.number="bYear"
-                type="number"
-                min="1900" max="2100"
-                class="input-ink w-full"
-                placeholder="如 1990"
-              />
-            </div>
-            <!-- Month -->
-            <div>
-              <label for="b-month" class="input-label">出生月份</label>
-              <input
-                id="b-month"
-                v-model.number="bMonth"
-                type="number"
-                min="1" max="12"
-                class="input-ink w-full"
-              />
-            </div>
-            <!-- Day -->
-            <div>
-              <label for="b-day" class="input-label">出生日期</label>
-              <input
-                id="b-day"
-                v-model.number="bDay"
-                type="number"
-                min="1" max="31"
-                class="input-ink w-full"
-              />
-            </div>
+            <!-- Date: solar = date picker, lunar = 3 number fields -->
+            <template v-if="bCalendar === 'solar'">
+              <div class="sm:col-span-2">
+                <label for="b-date" class="input-label">出生日期</label>
+                <input
+                  id="b-date"
+                  v-model="bDateStr"
+                  type="date"
+                  class="input-ink w-full"
+                />
+              </div>
+            </template>
+            <template v-else>
+              <div>
+                <label for="b-year" class="input-label">出生年份</label>
+                <input
+                  id="b-year"
+                  v-model.number="bYear"
+                  type="number"
+                  min="1900" max="2100"
+                  class="input-ink w-full"
+                  placeholder="如 1990"
+                />
+              </div>
+              <div>
+                <label for="b-month" class="input-label">出生月份</label>
+                <input
+                  id="b-month"
+                  v-model.number="bMonth"
+                  type="number"
+                  min="1" max="12"
+                  class="input-ink w-full"
+                />
+              </div>
+              <div>
+                <label for="b-day" class="input-label">出生日期</label>
+                <input
+                  id="b-day"
+                  v-model.number="bDay"
+                  type="number"
+                  min="1" max="31"
+                  class="input-ink w-full"
+                />
+              </div>
+            </template>
             <!-- Hour -->
             <div>
               <label for="b-hour" class="input-label">出生时辰</label>
@@ -384,15 +417,22 @@ const computedGrade = computed<HeHunGrade | null>(() => {
           </div>
 
           <!-- Summary -->
-          <div class="fade-in mt-6 card-warm rounded-xl p-6" :style="{ '--delay': '0.25s' }">
-            <div class="section-header">
-              <h2>合婚综论</h2>
+          <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.25s' }">
+            <div class="flex items-center justify-between">
+              <div class="section-header">
+                <h2>合婚综论</h2>
+              </div>
+              <MethodologyNote
+                tool="八字合婚"
+                :classical="hehunClassical"
+                :synthesis="hehunSynthesis"
+              />
             </div>
             <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4">{{ result.summary }}</p>
 
             <!-- Warnings -->
             <div v-if="result.warnings.length > 0" class="space-y-1.5 mb-4">
-              <p class="font-sans text-xs font-medium text-cinnabar/80 mb-1">⚠ 注意事项</p>
+              <p class="font-sans text-xs font-medium text-cinnabar mb-1">注意事项</p>
               <p
                 v-for="(w, i) in result.warnings"
                 :key="i"
@@ -402,18 +442,19 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 
             <!-- Suggestions -->
             <div class="space-y-1">
-              <p class="font-sans text-xs font-medium text-wuxing-wood/80 mb-1">✦ 建议</p>
+              <p class="font-sans text-xs font-medium mb-1" style="color: var(--color-jade)">建议</p>
               <p
                 v-for="(s, i) in result.suggestions"
                 :key="i"
-                class="font-sans text-xs text-ink-light pl-3 border-l-2 border-wuxing-wood/30"
+                class="font-sans text-xs text-ink-light pl-3"
+                style="border-left: 2px solid color-mix(in srgb, var(--color-jade) 30%, transparent)"
               >{{ s }}</p>
             </div>
           </div>
 
           <!-- Dimensions -->
           <div class="mt-6 space-y-4">
-            <p class="font-sans text-xs text-ink-light/80 tracking-wide text-center">维度分析</p>
+            <p class="font-sans text-xs text-ink-muted tracking-wide text-center">维度分析</p>
             <HeHunDimensionCard
               v-for="(dim, i) in result.dimensions"
               :key="dim.name"
@@ -423,7 +464,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
           </div>
 
           <!-- 八字对比 -->
-          <div class="fade-in mt-6 card-warm rounded-xl p-6" :style="{ '--delay': '0.7s' }">
+          <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.7s' }">
             <div class="section-header">
               <h2>八字对照</h2>
             </div>
@@ -475,6 +516,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
         v-if="showScrollTop"
         @click="scrollToTop"
         @keydown.enter="scrollToTop"
+        @keydown.space.prevent="scrollToTop"
       />
     </template>
   </ToolPageLayout>
@@ -498,10 +540,10 @@ const computedGrade = computed<HeHunGrade | null>(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-cinnabar, #C62828);
-  color: #FAF0E0;
+  background: var(--color-cinnabar);
+  color: var(--color-paper-lightest);
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   transform: rotate(-3deg);
   border-radius: 2px;
   flex-shrink: 0;
@@ -510,7 +552,7 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 .sidebar-title {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.9rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark);
   letter-spacing: 0.15em;
 }
 
@@ -521,15 +563,15 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 .sidebar-name {
   font-family: var(--font-display, 'Ma Shan Zheng');
   font-size: 0.85rem;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink-dark);
   letter-spacing: 0.1em;
   margin-bottom: 0.25rem;
 }
 
 .sidebar-dob {
   font-family: var(--font-sans);
-  font-size: 0.6rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   line-height: 1.6;
 }
 
@@ -547,31 +589,31 @@ const computedGrade = computed<HeHunGrade | null>(() => {
   min-width: 3rem;
   padding: 0.3rem 0.75rem;
   font-family: var(--font-sans);
-  font-size: 0.72rem;
-  color: var(--color-ink-medium, #5A4A3A);
-  border: 1px solid rgba(44, 26, 14, 0.08);
+  font-size: 0.75rem;
+  color: var(--color-ink-medium);
+  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 30%, transparent);
   border-radius: 0.375rem;
-  background: rgba(250, 240, 224, 0.4);
+  background: color-mix(in srgb, var(--color-paper-lightest) 80%, transparent);
   transition: all 0.2s;
 }
 
 .sr-only:focus-visible + .radio-custom {
-  outline: 2px solid var(--color-cinnabar, #C62828);
+  outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
 }
 
 .sr-only:checked + .radio-custom {
-  border-color: var(--color-cinnabar, #C62828);
-  background: rgba(198, 40, 40, 0.06);
-  color: var(--color-cinnabar, #C62828);
+  border-color: var(--color-cinnabar);
+  background: color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
+  color: var(--color-cinnabar);
 }
 
 /* ── Input overrides ── */
 .input-label {
   display: block;
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   letter-spacing: 0.06em;
   margin-bottom: 0.3rem;
 }
