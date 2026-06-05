@@ -1,5 +1,11 @@
 <template>
-  <div class="fade-in dimension-card" :style="{ '--delay': delay }" role="region" :aria-label="dim.name">
+  <div
+    class="fade-in dimension-card"
+    :class="{ 'dim-card--primary': dim.name === '日柱（夫妻宫）' }"
+    :style="{ '--delay': delay }"
+    role="region"
+    :aria-label="dim.name"
+  >
     <!-- Header -->
     <div class="dim-header">
       <h3 class="dim-name">{{ dim.name }}</h3>
@@ -40,7 +46,7 @@
       </div>
     </div>
 
-    <!-- Details text -->
+    <!-- Details text (fallback) -->
     <div v-else class="dim-details">
       <p v-for="(d, i) in dim.details" :key="i" class="dim-detail-line">{{ d }}</p>
     </div>
@@ -48,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
+import { WUXING_COLORS } from '~/constants/bazi'
 import type { HeHunDimension } from '~/composables/useHeHun'
 
 const props = defineProps<{
@@ -85,10 +91,19 @@ const barPercent = computed(() => {
 
 <style scoped>
 .dimension-card {
-  background: linear-gradient(135deg, #FBF4E6 0%, #F5EBD6 100%);
+  background: var(--color-paper-lightest);
   border-radius: 0.625rem;
-  border: 1px solid rgba(44, 26, 14, 0.03);
-  padding: 1rem 1.125rem;
+  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 15%, transparent);
+  padding: 1.125rem 1.25rem;
+}
+
+/* Primary card (日柱) — left cinnabar accent */
+.dim-card--primary {
+  border-left: 3px solid var(--color-cinnabar);
+  padding-left: calc(1.25rem - 3px);
+  box-shadow:
+    0 2px 12px color-mix(in srgb, var(--color-ink-muted) 4%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-cinnabar) 4%, transparent) inset;
 }
 
 .dim-header {
@@ -101,9 +116,9 @@ const barPercent = computed(() => {
 
 .dim-name {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink);
   letter-spacing: 0.05em;
 }
 
@@ -122,37 +137,30 @@ const barPercent = computed(() => {
 
 .dim-max {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.55rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
 }
 
 .dim-level {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.5rem;
-  padding: 0.05rem 0.35rem;
+  font-size: 0.6875rem;
+  padding: 0.08rem 0.4rem;
   border-radius: 999px;
   letter-spacing: 0.05em;
   margin-left: 0.2rem;
+  font-weight: 500;
 }
 
-.dim-level.吉 {
-  color: v-bind('WUXING_COLORS["木"]');
-}
-.dim-level.凶 {
-  color: v-bind('WUXING_COLORS["火"]');
-}
-.dim-level.中 {
-  color: v-bind('WUXING_COLORS["土"]');
-}
+.dim-level.吉 { color: v-bind('WUXING_COLORS["木"]'); }
+.dim-level.凶 { color: v-bind('WUXING_COLORS["火"]'); }
+.dim-level.中 { color: v-bind('WUXING_COLORS["土"]'); }
 
 /* ── Progress bar ── */
-.dim-bar-wrap {
-  margin-bottom: 0.625rem;
-}
+.dim-bar-wrap { margin-bottom: 0.625rem; }
 
 .dim-bar-bg {
   height: 4px;
-  background: rgba(44, 26, 14, 0.06);
+  background: color-mix(in srgb, var(--color-ink-faint) 18%, transparent);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -172,39 +180,41 @@ const barPercent = computed(() => {
 
 .dim-item {
   padding: 0.35rem 0;
-  border-top: 1px solid rgba(44, 26, 14, 0.03);
+  border-top: 1px solid color-mix(in srgb, var(--color-ink-faint) 10%, transparent);
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.3rem 0.5rem;
 }
 
+.dim-item:first-child { border-top: none; }
+
 .dim-item__name {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-ink-medium, #5A4A3A);
+  color: var(--color-ink-medium);
   letter-spacing: 0.03em;
 }
 
 .dim-item__relation {
   font-family: var(--font-display, 'Ma Shan Zheng');
-  font-size: 0.65rem;
-  color: var(--color-ink-dark, #2C1810);
+  font-size: 0.75rem;
+  color: var(--color-ink);
   letter-spacing: 0.08em;
 }
 
 .dim-item__score {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
 .dim-item__detail {
   width: 100%;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
-  color: var(--color-ink-light, #8A7A6A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   line-height: 1.5;
   letter-spacing: 0.02em;
 }
@@ -218,13 +228,15 @@ const barPercent = computed(() => {
 
 .dim-detail-line {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.6rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.6875rem;
+  color: var(--color-ink-medium);
   line-height: 1.55;
   letter-spacing: 0.03em;
   padding: 0.2rem 0;
-  border-top: 1px solid rgba(44, 26, 14, 0.02);
+  border-top: 1px solid color-mix(in srgb, var(--color-ink-faint) 8%, transparent);
 }
+
+.dim-detail-line:first-child { border-top: none; }
 
 /* ── Animation ── */
 .fade-in {

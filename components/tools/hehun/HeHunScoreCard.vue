@@ -1,13 +1,13 @@
 <template>
   <div class="fade-in" :style="{ '--delay': delay }">
-    <!-- ══ 等级横幅 ══ -->
+    <!-- ══ Grade banner ══ -->
     <div
       class="score-banner"
-      :style="{ '--grade-color': grade ? grade.color : '#C62828' }"
-      role="region" aria-label="合婚评分"
+      role="region"
+      aria-label="合婚评分"
     >
       <div class="banner-left">
-        <div class="banner-grade" :style="{ color: grade?.color }">
+        <div class="banner-grade" :style="{ color: grade?.color ?? 'var(--color-cinnabar)' }">
           {{ grade ? grade.level : '--' }}
         </div>
         <div class="banner-label">
@@ -18,12 +18,13 @@
       <div class="banner-center">
         <div class="score-ring-wrap">
           <svg viewBox="0 0 120 120" class="score-ring">
-            <!-- 背景圆 -->
+            <!-- Background circle -->
             <circle cx="60" cy="60" r="52" fill="none"
-              stroke="rgba(44,26,14,0.06)" stroke-width="8" />
-            <!-- 进度弧 -->
+              stroke="color-mix(in srgb, var(--color-ink-faint) 18%, transparent)"
+              stroke-width="8" />
+            <!-- Progress arc -->
             <circle cx="60" cy="60" r="52" fill="none"
-              :stroke="grade ? grade.color : '#C62828'"
+              :stroke="grade?.color ?? 'var(--color-cinnabar)'"
               stroke-width="8"
               stroke-linecap="round"
               :stroke-dasharray="326.7"
@@ -61,18 +62,24 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #FBF4E6 0%, #F5EBD6 100%);
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-paper-lightest) 0%,
+    var(--color-paper-light) 100%
+  );
   border-radius: 0.75rem;
-  border: 1px solid rgba(44, 26, 14, 0.04);
-  box-shadow: 0 2px 12px rgba(44, 26, 14, 0.02);
+  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 15%, transparent);
+  box-shadow:
+    0 2px 12px color-mix(in srgb, var(--color-ink-muted) 4%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-ink-muted) 2%, transparent) inset;
 }
 
 @media (max-width: 639px) {
   .score-banner {
     flex-direction: column;
     text-align: center;
-    padding: 1rem;
+    padding: 1.25rem;
     gap: 0.75rem;
   }
 }
@@ -92,8 +99,8 @@ defineProps<{
 
 .banner-label {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.7rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.75rem;
+  color: var(--color-ink-medium);
   letter-spacing: 0.08em;
   margin-top: 0.125rem;
 }
@@ -130,14 +137,13 @@ defineProps<{
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--color-ink-dark, #2C1810);
+  color: var(--color-ink);
   line-height: 1;
 }
 
 .score-unit {
-  font-size: 0.5rem;
-  color: var(--color-ink-light, #8A7A6A);
-  text-transform: uppercase;
+  font-size: 0.6875rem;
+  color: var(--color-ink-light);
   letter-spacing: 0.05em;
 }
 
@@ -148,8 +154,8 @@ defineProps<{
 
 .banner-desc {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 0.72rem;
-  color: var(--color-ink-medium, #5A4A3A);
+  font-size: 0.75rem;
+  color: var(--color-ink-medium);
   line-height: 1.65;
   letter-spacing: 0.03em;
 }
