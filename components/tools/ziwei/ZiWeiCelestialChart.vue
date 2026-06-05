@@ -719,15 +719,15 @@ function focusLabel(idx: number) {
 .st-orb.cls-ice {
   background:
     radial-gradient(circle at 35% 30%, rgba(225, 240, 250, 0.5), transparent 55%),
-    #6BA8C8;
-  border: 1px solid rgba(107, 168, 200, 0.35);
+    var(--color-star-ice);
+  border: 1px solid color-mix(in srgb, var(--color-star-ice) 35%, transparent);
   box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-purple {
   background:
     radial-gradient(circle at 35% 30%, rgba(230, 225, 245, 0.45), transparent 55%),
-    #7B6FA0;
-  border: 1px solid rgba(123, 111, 160, 0.35);
+    var(--color-star-purple);
+  border: 1px solid color-mix(in srgb, var(--color-star-purple) 35%, transparent);
   box-shadow: 0 0 6px color-mix(in srgb, var(--color-ink-muted) 18%, transparent);
 }
 .st-orb.cls-gray {

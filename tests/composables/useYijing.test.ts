@@ -623,7 +623,7 @@ describe('generateInterpretation structure', () => {
   })
 
   it('interpretation with changing line matches snapshot', () => {
-    const result = computeYijingResult([6, 7, 7, 7, 7, 7])
+    const result = computeYijingResult([6, 7, 7, 7, 7, 7], 0 /* dayStemIndex=甲→青龙 */)
     expect(result.interpretation).toMatchInlineSnapshot(`
       "本次占得「天风姤」。
       上卦为天（乾），刚健不息，自强自立；下卦为风（巽），顺入谦逊，灵活变通。

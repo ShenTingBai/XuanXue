@@ -258,9 +258,9 @@ export function getHexagramInfo(values: number[]): HexagramInfo {
 }
 
 /** Compute full Zhuang Gua line data. */
-export function getZhuangGuaLines(values: number[], hex: HexagramInfo): ZhuangGuaLine[] {
+export function getZhuangGuaLines(values: number[], hex: HexagramInfo, dayStemIndex?: number): ZhuangGuaLine[] {
   const yaoResults = convertToYaoResults(values)
-  const sixSpirits = getSixSpirits(getDayStemIndex())
+  const sixSpirits = getSixSpirits(dayStemIndex ?? getDayStemIndex())
   const pw = hex.palaceWuxing
 
   // Compute actual trigram indices from values (not hex.palaceIndex)
@@ -581,9 +581,9 @@ function getLineJudgment(hex: HexagramInfo, position: number): string {
 // Main entry: compute full YijingResult from yao values
 // ============================
 
-export function computeYijingResult(values: number[]): YijingResult {
+export function computeYijingResult(values: number[], dayStemIndex?: number): YijingResult {
   const hexagram = getHexagramInfo(values)
-  const lines = getZhuangGuaLines(values, hexagram)
+  const lines = getZhuangGuaLines(values, hexagram, dayStemIndex)
   const derivedValues = getDerivedValues(values)
   const huGuaValues = getHuGuaValues(values)
 
@@ -591,11 +591,11 @@ export function computeYijingResult(values: number[]): YijingResult {
   let derivedLines: ZhuangGuaLine[] | null = null
   if (derivedValues) {
     derivedHexagram = getHexagramInfo(derivedValues)
-    derivedLines = getZhuangGuaLines(derivedValues, derivedHexagram)
+    derivedLines = getZhuangGuaLines(derivedValues, derivedHexagram, dayStemIndex)
   }
 
   const huGua = getHexagramInfo(huGuaValues)
-  const huGuaLines = getZhuangGuaLines(huGuaValues, huGua)
+  const huGuaLines = getZhuangGuaLines(huGuaValues, huGua, dayStemIndex)
 
   const numChanging = values.filter(v => v === 6 || v === 9).length
   const score = calculateYijingScore(values, hexagram, lines)

@@ -21,7 +21,7 @@ export interface ZejiDayResult {
   yi: string[]              // 宜
   ji: string[]              // 忌
   score: number             // 0-100 overall score
-  isRecommended: boolean    // score >= 70
+  isRecommended: boolean    // score >= 65（≥85 上吉 / ≥65 吉 / ≥45 平 / <45 凶）
   matchReasons: string[]    // Why this date matches the event
   matchedYi: string[]       // Which 宜 items matched the event keywords
   matchedJi: string[]       // Which 忌 items matched the event keywords

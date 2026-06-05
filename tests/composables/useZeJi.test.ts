@@ -148,11 +148,11 @@ describe('evaluateDates', () => {
     }
   })
 
-  it('isRecommended is true iff score >= 70 (when days available)', () => {
+  it('isRecommended is true iff score >= 65 (when days available)', () => {
     const result = evaluateDates('wedding', makeDate(), 1)
     for (const month of result.months) {
       for (const day of month.days) {
-        expect(day.isRecommended).toBe(day.score >= 70)
+        expect(day.isRecommended).toBe(day.score >= 65)
       }
     }
   })
