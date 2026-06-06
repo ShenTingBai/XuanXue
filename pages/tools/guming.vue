@@ -15,6 +15,8 @@ import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote from '~/components/tools/MethodologyNote.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
+import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 useSeoMeta({
   title: '称骨算命 — 玄·道',
   ogTitle: '称骨算命 — 玄·道',
@@ -47,6 +49,46 @@ const { exportToImage, isExporting } = useExportImage()
 const showHistoryModal = ref(false)
 const restoreError = ref<string | null>(null)
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
+const {
+  showBanner,
+  isFilled,
+  birthData,
+  checkAvailability,
+  applyAutoFill,
+  revokeAutoFill,
+  markEdited,
+} = useProfileAutoFill({ calendarNeeded: 'lunar' })
+
+function handleAutoFill() {
+  const data = applyAutoFill()
+  if (data) {
+    birthYear.value = data.year
+    birthMonth.value = data.month
+    birthDay.value = data.day
+    if (data.hour != null) birthHour.value = data.hour
+    gender.value = data.gender === 'male' ? 'male' : 'female'
+  }
+}
+
+function handleRevoke() {
+  revokeAutoFill()
+  birthYear.value = new Date().getFullYear()
+  birthMonth.value = 1
+  birthDay.value = 1
+  birthHour.value = 0
+  gender.value = 'male'
+}
+
+watch([birthYear, birthMonth, birthDay, birthHour, gender], () => {
+  if (isFilled.value && birthData.value) {
+    const d = birthData.value
+    if (birthYear.value !== d.year || birthMonth.value !== d.month || birthDay.value !== d.day) {
+      markEdited()
+    }
+  }
+})
+
 function handleExport() {
   if (resultRef.value) {
     exportToImage(resultRef.value, '称骨算命.png')
@@ -66,6 +108,7 @@ onMounted(async () => {
     router.push('/login')
     return
   }
+  checkAvailability()
   window.addEventListener('scroll', handleScroll, { passive: true })
 })
 onUnmounted(() => {
@@ -197,6 +240,14 @@ const scalePercent = computed(function () {
           />
         </template>
       </ToolToolbar>
+      <ProfileAutoFillBanner
+        v-if="showBanner"
+        :profile-name="birthData?.profileName || ''"
+        :is-filled="isFilled"
+        :conversion-note="birthData?.conversionNote"
+        @fill="handleAutoFill"
+        @revoke="handleRevoke"
+      />
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between mb-6">
           <div class="section-header flex-1 min-w-0 !mb-0"><h2>称骨算命</h2></div>
