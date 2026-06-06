@@ -102,6 +102,7 @@ const {
   showBanner,
   isFilled,
   birthData,
+  missingBirth,
   checkAvailability,
   applyAutoFill,
   revokeAutoFill,
@@ -144,12 +145,15 @@ const ready = ref(false)
 
 onMounted(async () => {
   await restoreSession()
+  console.log('[auto-fill] ziwei onMounted: restoreSession done, currentProfile:', currentProfile.value?.nickname)
   if (!currentProfile.value) {
     router.push('/login')
     return
   }
   ready.value = true
+  console.log('[auto-fill] ziwei: calling checkAvailability')
   checkAvailability()
+  console.log('[auto-fill] ziwei: showBanner =', showBanner, ', missingBirth =', missingBirth)
 
   // Pre-fill from profile if available
   if (currentProfile.value.birth_date) {
@@ -378,9 +382,11 @@ function dismissRestoreError() {
     <!-- Input form (shown before first calculation) -->
     <div v-else-if="!astrolabe && !loading">
       <ProfileAutoFillBanner
-        v-if="showBanner"
+        v-if="showBanner || missingBirth"
         :profile-name="birthData?.profileName || ''"
         :is-filled="isFilled"
+        :missing-birth="missingBirth"
+        :profile-id="currentProfile?.id"
         :conversion-note="birthData?.conversionNote"
         @fill="handleAutoFill"
         @revoke="handleRevoke"
