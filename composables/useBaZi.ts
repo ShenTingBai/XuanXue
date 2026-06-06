@@ -334,6 +334,7 @@ export function getWeightedDayMasterStrength(
     { idx: 0, field: 'stem', weight: 1.0 }, // year stem
     { idx: 0, field: 'branch', weight: 1.0 }, // year branch
     { idx: 1, field: 'branch', weight: 2.0 }, // month branch
+    { idx: 1, field: 'stem', weight: 1.0 }, // month stem
     { idx: 2, field: 'stem', weight: 1.0 }, // day stem
     { idx: 2, field: 'branch', weight: 1.5 }, // day branch
     { idx: 3, field: 'stem', weight: 1.0 }, // hour stem
