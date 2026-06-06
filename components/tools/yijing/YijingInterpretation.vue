@@ -141,7 +141,7 @@ const interpretationParagraphs = computed(() => {
 
 <style scoped>
 .interpretation-text {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9375rem;
   line-height: 1.75;
   padding-left: 12px;

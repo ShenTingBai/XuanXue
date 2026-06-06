@@ -244,7 +244,7 @@ const stick: FortuneStick = getDailyFortune()
 .slip-number {
   font-size: 0.55rem;
   color: var(--color-ink-light, #8a7a6a);
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   opacity: 0.55;
   letter-spacing: 0.05em;
 }
@@ -268,7 +268,7 @@ const stick: FortuneStick = getDailyFortune()
 }
 
 .slip-poem-line {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   color: var(--color-ink-medium, #5a4a3a);
   letter-spacing: 0.06em;
@@ -306,7 +306,7 @@ const stick: FortuneStick = getDailyFortune()
 }
 
 .slip-explanation-text {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: var(--color-ink-light, #8a7a6a);
   line-height: 1.55;
@@ -388,7 +388,7 @@ const stick: FortuneStick = getDailyFortune()
 
 .slip-poem-line--tall {
   display: block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   color: var(--color-ink-medium, #5a4a3a);
   text-align: center;
@@ -424,7 +424,7 @@ const stick: FortuneStick = getDailyFortune()
 }
 
 .slip-explanation--tall__text {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   color: var(--color-ink-light, #8a7a6a);
   line-height: 1.7;
