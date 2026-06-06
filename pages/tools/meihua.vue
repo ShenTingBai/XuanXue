@@ -640,7 +640,13 @@ onUnmounted(() => {
                 <h3 class="meihua-scroll-slip__title">本卦 — {{ result.benGua.hexagramName }}</h3>
                 <div class="meihua-scroll-slip__divider"></div>
                 <p class="meihua-scroll-slip__judgment">{{ result.benGua.judgment }}</p>
-                <p class="meihua-scroll-slip__interpretation">{{ result.benGua.interpretation }}</p>
+              </div>
+              <div class="meihua-scroll-slip__section">
+                <h3 class="meihua-scroll-slip__title">白话解读</h3>
+                <div class="meihua-scroll-slip__divider"></div>
+                <p class="meihua-scroll-slip__interpretation">
+                  {{ result.benGua.interpretation || '此卦暂无白话解读' }}
+                </p>
               </div>
               <div class="meihua-scroll-slip__section">
                 <h3 class="meihua-scroll-slip__title">
