@@ -12,47 +12,93 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <Transition name="fade">
-    <div
-      v-if="!props.isFilled"
-      class="card-warm p-3 mb-4 flex items-center justify-between text-sm"
-    >
-      <span class="text-ink/60">
-        📂 从「<span class="text-ink/80 font-medium">{{ props.profileName }}</span
-        >」的命簿填入生日
-      </span>
-      <button
-        class="text-cinnabar hover:underline cursor-pointer transition-colors shrink-0 ml-3"
-        @click="emit('fill')"
-      >
-        填入
-      </button>
-    </div>
+  <div v-if="!props.isFilled" class="auto-fill-banner">
+    <span class="banner-label">
+      从命簿「<strong>{{ props.profileName }}</strong
+      >」填入生辰
+    </span>
+    <button class="banner-fill-btn" @click="emit('fill')">填入</button>
+  </div>
 
-    <div v-else class="card-warm p-3 mb-4 flex items-center justify-between text-sm">
-      <span class="text-ink/60">
-        ✓ 已从命簿填入
-        <span v-if="props.conversionNote" class="text-ink/50">
-          （{{ props.conversionNote }}）
-        </span>
-      </span>
-      <button
-        class="text-cinnabar/60 hover:text-cinnabar hover:underline cursor-pointer transition-colors shrink-0 ml-3"
-        @click="emit('revoke')"
-      >
-        撤销
-      </button>
-    </div>
-  </Transition>
+  <div v-else class="auto-fill-banner auto-fill-banner--done">
+    <span class="banner-label">
+      <span class="banner-check">✓</span>
+      已填入{{ props.profileName }}
+      <span v-if="props.conversionNote" class="banner-note"> · {{ props.conversionNote }} </span>
+    </span>
+    <button class="banner-revoke-btn" @click="emit('revoke')">撤销</button>
+  </div>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.auto-fill-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  margin-bottom: 1rem;
+  background: color-mix(in oklch, var(--color-paper-card, #e8dcc6) 80%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-ink, #2c1810) 10%, transparent);
+  border-left: 3px solid color-mix(in oklch, var(--color-cinnabar, #c62828) 25%, transparent);
+  border-radius: 0.125rem 0.25rem 0.25rem 0.125rem;
+  font-size: 0.8125rem;
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+
+.auto-fill-banner--done {
+  border-left-color: color-mix(in oklch, var(--color-jade, #3d6b4b) 30%, transparent);
+}
+
+.banner-label {
+  color: color-mix(in oklch, var(--color-ink, #2c1810) 55%, transparent);
+  line-height: 1.5;
+}
+
+.banner-label strong {
+  color: var(--color-ink-dark, #1e1210);
+  font-weight: 500;
+}
+
+.banner-check {
+  color: var(--color-jade, #3d6b4b);
+  font-weight: 700;
+  margin-right: 0.125rem;
+}
+
+.banner-note {
+  color: color-mix(in oklch, var(--color-ink, #2c1810) 40%, transparent);
+  font-size: 0.75rem;
+}
+
+.banner-fill-btn {
+  flex-shrink: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-cinnabar, #c62828);
+  border: none;
+  border-radius: 0.1875rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.banner-fill-btn:hover {
+  background: var(--color-cinnabar-deeper, #9c1a1c);
+}
+
+.banner-revoke-btn {
+  flex-shrink: 0;
+  padding: 0;
+  font-size: 0.75rem;
+  color: color-mix(in oklch, var(--color-cinnabar, #c62828) 50%, transparent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.banner-revoke-btn:hover {
+  color: var(--color-cinnabar, #c62828);
+  text-decoration: underline;
 }
 </style>
