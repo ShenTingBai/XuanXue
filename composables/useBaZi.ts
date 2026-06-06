@@ -10,6 +10,7 @@ import {
   getNayinWuxing,
 } from '~/constants/bazi'
 import { getTrueSolarHour } from '~/utils/time'
+import { getYearStemIndex, getYearBranchIndex } from '~/utils/stem-branch'
 
 // === Helper ===
 
@@ -213,15 +214,6 @@ function isYangYear(stemIndex: number): boolean {
   return stemIndex % 2 === 0
 }
 
-/** Get the stem index from a year (for year pillar calculation) */
-function getYearStemIndex(year: number): number {
-  return (((year - 4) % 10) + 10) % 10
-}
-
-/** Get the branch index from a year (for year pillar calculation) */
-function getYearBranchIndex(year: number): number {
-  return (((year - 4) % 12) + 12) % 12
-}
 
 /** Check if a date is before 立春 using the computed solar term date for the given year */
 function isBeforeLiChun(year: number, month: number, day: number): boolean {

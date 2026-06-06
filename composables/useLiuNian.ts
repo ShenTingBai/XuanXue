@@ -15,6 +15,7 @@ import {
   type ShenSha,
 } from './useShenSha'
 import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
+import { getYearStemIndex, getYearBranchIndex } from '~/utils/stem-branch'
 
 // === Typed Exports ===
 
@@ -115,16 +116,14 @@ const RELATION_DESC_TEMPLATES: Record<string, string> = {
 
 // === Year stem/branch helper ===
 
-// NOTE: Duplicates getYearStemIndex/getYearBranchIndex from useBaZi.ts.
-// Both are private functions; this is a known dedup opportunity.
 function getYearStemBranch(year: number): {
   stem: string
   stemIdx: number
   branch: string
   branchIdx: number
 } {
-  const stemIdx = (((year - 4) % 10) + 10) % 10
-  const branchIdx = (((year - 4) % 12) + 12) % 12
+  const stemIdx = getYearStemIndex(year)
+  const branchIdx = getYearBranchIndex(year)
   return { stem: STEMS[stemIdx], stemIdx, branch: BRANCHES[branchIdx], branchIdx }
 }
 
