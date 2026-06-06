@@ -28,14 +28,24 @@ describe('calculateMeiHua', () => {
   })
 
   it('handles 1:1:3', () => {
-    const result = calculateMeiHua({ upperNumber: 1, lowerNumber: 1, movingNumber: 3, method: 'manual' })
+    const result = calculateMeiHua({
+      upperNumber: 1,
+      lowerNumber: 1,
+      movingNumber: 3,
+      method: 'manual',
+    })
     expect(result.benGua.hexagramName).toBe('乾为天')
     expect(result.bianGua.movingLine).toBe(3)
     expect(result.tiYong.relation).toBe('比和')
   })
 
   it('handles 8:8:4', () => {
-    const result = calculateMeiHua({ upperNumber: 8, lowerNumber: 8, movingNumber: 4, method: 'manual' })
+    const result = calculateMeiHua({
+      upperNumber: 8,
+      lowerNumber: 8,
+      movingNumber: 4,
+      method: 'manual',
+    })
     expect(result.benGua.hexagramName).toBe('坤为地')
     expect(result.bianGua.movingLine).toBe(4)
     expect(result.tiYong.tiGua).toBe(8)
@@ -44,32 +54,62 @@ describe('calculateMeiHua', () => {
   })
 
   it('produces hu gua', () => {
-    const result = calculateMeiHua({ upperNumber: 3, lowerNumber: 5, movingNumber: 1, method: 'manual' })
+    const result = calculateMeiHua({
+      upperNumber: 3,
+      lowerNumber: 5,
+      movingNumber: 1,
+      method: 'manual',
+    })
     expect(result.huGua.hexagramName).toBeTruthy()
     expect(result.huGua.upperTrigram).toBeGreaterThanOrEqual(1)
     expect(result.huGua.upperTrigram).toBeLessThanOrEqual(8)
   })
 
   it('body-use relation correct for known pairs', () => {
-    const r1 = calculateMeiHua({ upperNumber: 1, lowerNumber: 2, movingNumber: 1, method: 'manual' })
+    const r1 = calculateMeiHua({
+      upperNumber: 1,
+      lowerNumber: 2,
+      movingNumber: 1,
+      method: 'manual',
+    })
     expect(r1.tiYong.relation).toBe('比和')
 
-    const r2 = calculateMeiHua({ upperNumber: 3, lowerNumber: 6, movingNumber: 1, method: 'manual' })
+    const r2 = calculateMeiHua({
+      upperNumber: 3,
+      lowerNumber: 6,
+      movingNumber: 1,
+      method: 'manual',
+    })
     expect(r2.tiYong.relation).toBe('用克体')
 
-    const r3 = calculateMeiHua({ upperNumber: 6, lowerNumber: 3, movingNumber: 1, method: 'manual' })
+    const r3 = calculateMeiHua({
+      upperNumber: 6,
+      lowerNumber: 3,
+      movingNumber: 1,
+      method: 'manual',
+    })
     expect(r3.tiYong.relation).toBe('体克用')
   })
 
   it('handles large numbers via modulo', () => {
-    const result = calculateMeiHua({ upperNumber: 1000, lowerNumber: 2000, movingNumber: 1000, method: 'manual' })
+    const result = calculateMeiHua({
+      upperNumber: 1000,
+      lowerNumber: 2000,
+      movingNumber: 1000,
+      method: 'manual',
+    })
     expect(result.benGua.upperTrigram).toBe(8)
     expect(result.benGua.lowerTrigram).toBe(8)
     expect(result.bianGua.movingLine).toBe(4)
   })
 
   it('handles negative numbers', () => {
-    const result = calculateMeiHua({ upperNumber: -3, lowerNumber: -5, movingNumber: -1, method: 'manual' })
+    const result = calculateMeiHua({
+      upperNumber: -3,
+      lowerNumber: -5,
+      movingNumber: -1,
+      method: 'manual',
+    })
     expect(result.benGua.upperTrigram).toBe(3)
     expect(result.benGua.lowerTrigram).toBe(5)
   })
@@ -77,7 +117,12 @@ describe('calculateMeiHua', () => {
   it('all 64 hexagrams reachable', () => {
     for (let u = 1; u <= 8; u++) {
       for (let l = 1; l <= 8; l++) {
-        const r = calculateMeiHua({ upperNumber: u, lowerNumber: l, movingNumber: 1, method: 'manual' })
+        const r = calculateMeiHua({
+          upperNumber: u,
+          lowerNumber: l,
+          movingNumber: 1,
+          method: 'manual',
+        })
         expect(r.benGua.hexagramName).toBeTruthy()
         expect(r.benGua.judgment).toBeTruthy()
         expect(r.benGua.interpretation).toBeTruthy()
@@ -89,7 +134,12 @@ describe('calculateMeiHua', () => {
     for (let u = 1; u <= 8; u++) {
       for (let l = 1; l <= 8; l++) {
         for (let m = 1; m <= 6; m++) {
-          const r = calculateMeiHua({ upperNumber: u, lowerNumber: l, movingNumber: m, method: 'manual' })
+          const r = calculateMeiHua({
+            upperNumber: u,
+            lowerNumber: l,
+            movingNumber: m,
+            method: 'manual',
+          })
           expect(r.bianGua.lineStatement).toBeTruthy()
         }
       }
@@ -98,7 +148,12 @@ describe('calculateMeiHua', () => {
 
   it('random method valid', () => {
     for (let i = 0; i < 10; i++) {
-      const r = calculateMeiHua({ upperNumber: Math.floor(Math.random()*999)+1, lowerNumber: Math.floor(Math.random()*999)+1, movingNumber: Math.floor(Math.random()*999)+1, method: 'random' })
+      const r = calculateMeiHua({
+        upperNumber: Math.floor(Math.random() * 999) + 1,
+        lowerNumber: Math.floor(Math.random() * 999) + 1,
+        movingNumber: Math.floor(Math.random() * 999) + 1,
+        method: 'random',
+      })
       expect(r.benGua.hexagramName).toBeTruthy()
       expect(r.tiYong.relation).toBeTruthy()
     }

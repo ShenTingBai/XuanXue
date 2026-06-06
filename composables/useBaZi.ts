@@ -214,7 +214,6 @@ function isYangYear(stemIndex: number): boolean {
   return stemIndex % 2 === 0
 }
 
-
 /** Check if a date is before 立春 using the computed solar term date for the given year */
 function isBeforeLiChun(year: number, month: number, day: number): boolean {
   const liChun = getSolarTerm(year, 0)
@@ -807,10 +806,10 @@ export function calculateMingGong(
   hourBranchIndex: number,
   yearStemIndex: number,
 ): BaZiPalace {
-  const branchIndex = ((monthBranchIndex - hourBranchIndex) % 12 + 12) % 12
+  const branchIndex = (((monthBranchIndex - hourBranchIndex) % 12) + 12) % 12
   // 五虎遁：甲己之年丙作首
   const yinStem = [2, 4, 6, 8, 0][yearStemIndex % 5]
-  const stemIndex = (yinStem + (branchIndex - 2 + 12) % 12) % 10
+  const stemIndex = (yinStem + ((branchIndex - 2 + 12) % 12)) % 10
   const stem = STEMS[stemIndex]
   const branch = BRANCHES[branchIndex]
   return {
@@ -831,7 +830,7 @@ export function calculateShenGong(
 ): BaZiPalace {
   const branchIndex = (monthBranchIndex + hourBranchIndex) % 12
   const yinStem = [2, 4, 6, 8, 0][yearStemIndex % 5]
-  const stemIndex = (yinStem + (branchIndex - 2 + 12) % 12) % 10
+  const stemIndex = (yinStem + ((branchIndex - 2 + 12) % 12)) % 10
   const stem = STEMS[stemIndex]
   const branch = BRANCHES[branchIndex]
   return {

@@ -30,11 +30,11 @@ const CONTROLLING_CYCLE = ['木', '土', '水', '火', '金']
 
 // 五行对应推荐颜色（hex + 中文名）
 const WUXING_COLOR_MAP: Record<string, { colors: string[]; names: string[] }> = {
-  '木': { colors: ['#3D6B4B', '#4CAF50'], names: ['绿', '青'] },
-  '火': { colors: ['#C62828', '#E65100'], names: ['红', '朱'] },
-  '土': { colors: ['#7A5E12', '#A1887F'], names: ['黄', '棕'] },
-  '金': { colors: ['#F5F5F5', '#FFD700'], names: ['白', '金'] },
-  '水': { colors: ['#1A237E', '#37474F'], names: ['蓝', '黑'] },
+  木: { colors: ['#3D6B4B', '#4CAF50'], names: ['绿', '青'] },
+  火: { colors: ['#C62828', '#E65100'], names: ['红', '朱'] },
+  土: { colors: ['#7A5E12', '#A1887F'], names: ['黄', '棕'] },
+  金: { colors: ['#F5F5F5', '#FFD700'], names: ['白', '金'] },
+  水: { colors: ['#1A237E', '#37474F'], names: ['蓝', '黑'] },
 }
 
 /**

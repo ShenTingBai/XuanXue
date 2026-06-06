@@ -70,6 +70,7 @@ npm run typecheck
 ## Git 提交规范
 
 使用常规提交格式：
+
 - `feat:` 新功能
 - `fix:` Bug 修复
 - `refactor:` 重构
