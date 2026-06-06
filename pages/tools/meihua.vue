@@ -64,6 +64,12 @@ const dateMonth = ref(new Date().getMonth() + 1)
 const dateDay = ref(new Date().getDate())
 const dateHour = ref(0)
 
+function selectTab(method: InputMethod) {
+  inputMethod.value = method
+  result.value = null
+  error.value = ''
+}
+
 // Hour name mapping
 const HOUR_LABELS = [
   '子时 (23-01)',
@@ -313,16 +319,8 @@ onUnmounted(() => {
             :key="tab.value"
             class="meihua-tab"
             :class="inputMethod === tab.value ? 'meihua-tab--active' : ''"
-            @click="
-              inputMethod = tab.value
-              result = null
-              error = ''
-            "
-            @keydown.enter="
-              inputMethod = tab.value
-              result = null
-              error = ''
-            "
+            @click="selectTab(tab.value)"
+            @keydown.enter="selectTab(tab.value)"
           >
             {{ tab.label }}
           </button>
