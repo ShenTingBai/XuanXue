@@ -53,14 +53,22 @@ function formatLunarDate(year: number, month: number, day: number): string {
 }
 
 /** Convert solar to lunar and return the lunar year/month/day */
-function solarToLunar(year: number, month: number, day: number): { year: number; month: number; day: number } {
+function solarToLunar(
+  year: number,
+  month: number,
+  day: number,
+): { year: number; month: number; day: number } {
   const solar = Solar.fromYmd(year, month, day)
   const lunar = solar.getLunar()
   return { year: lunar.getYear(), month: lunar.getMonth(), day: lunar.getDay() }
 }
 
 /** Convert lunar to solar */
-function lunarToSolar(year: number, month: number, day: number): { year: number; month: number; day: number } {
+function lunarToSolar(
+  year: number,
+  month: number,
+  day: number,
+): { year: number; month: number; day: number } {
   const lunar = Lunar.fromYmd(year, month, day)
   const solar = lunar.getSolar()
   return { year: solar.getYear(), month: solar.getMonth(), day: solar.getDay() }
@@ -103,6 +111,7 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
     }
 
     showBanner.value = true
+    console.debug('[auto-fill] Profile found, banner should show:', profile.nickname)
   }
 
   /** Execute the fill: read profile, optionally convert calendar, return data */
@@ -169,16 +178,6 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
   function markEdited(): void {
     isFilled.value = false
     showBanner.value = false
-  }
-
-  // Watch profile changes to re-check availability
-  watch(() => currentProfile.value?.id, () => {
-    checkAvailability()
-  })
-
-  // Initial check
-  if (import.meta.client) {
-    checkAvailability()
   }
 
   return {
