@@ -28,6 +28,18 @@ export interface AutoFillBirthData {
   profileName: string
 }
 
+
+/**
+ * Convert clock hour (0-23) to 时辰 branch index (0-11).
+ * 子时=23:00-00:59 → index 0
+ * 丑时=01:00-02:59 → index 1
+ * 寅时=03:00-04:59 → index 2
+ * ...etc.
+ */
+function clockHourToShiChenIndex(clockHour: number): number {
+  return Math.floor(((clockHour + 1) % 24) / 2)
+}
+
 /** Parse a YYYY-MM-DD birth_date string into components */
 function parseBirthDate(dateStr: string): { year: number; month: number; day: number } | null {
   const parts = dateStr.split('-')
@@ -154,6 +166,10 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
 
     let { year, month, day } = parsed
     let hour = profile.birth_hour ?? null
+    // Convert clock hour (0-23) to 时辰 index (0-11)
+    if (hour !== null) {
+      hour = clockHourToShiChenIndex(hour)
+    }
     const gender = mapGender(profile.gender)
     const profileCalendar = (profile.birth_calendar as 'solar' | 'lunar') || 'solar'
     let wasConverted = false
