@@ -28,7 +28,6 @@ export interface AutoFillBirthData {
   profileName: string
 }
 
-
 /**
  * Convert clock hour (0-23) to 时辰 branch index (0-11).
  * 子时=23:00-00:59 → index 0
@@ -113,15 +112,6 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
     const parsed = parseBirthDate(profile.birth_date)
     if (!parsed) {
       missingBirth.value = true
-      showBanner.value = false
-      return
-    }
-
-    const profileCalendar = (profile.birth_calendar as 'solar' | 'lunar') || 'solar'
-    const canConvert = true
-
-    if (!canConvert) {
-      missingBirth.value = false
       showBanner.value = false
       return
     }
