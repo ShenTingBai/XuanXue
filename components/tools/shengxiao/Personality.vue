@@ -130,7 +130,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 }
 
 .nayin-core__label {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-light);
   letter-spacing: 0.08em;
@@ -146,7 +146,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 }
 
 .nayin-desc {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.65;
@@ -162,7 +162,7 @@ const nayinInfo = computed(() => getNayinPersonality(props.result.stemBranch))
 
 .nayin-tag {
   display: inline-block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-cinnabar, #c62828);
   padding: 0.08rem 0.5rem;

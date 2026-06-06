@@ -147,7 +147,7 @@ withDefaults(
 
 /* ── Meaning ── */
 .guardian-meaning {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: color-mix(in srgb, var(--accent, #c62828) 55%, #5a4a3a);
   letter-spacing: 0.15em;
@@ -158,7 +158,7 @@ withDefaults(
 
 /* ── Description ── */
 .guardian-desc {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   color: var(--color-ink-dark, #2c1810);
   line-height: 1.7;

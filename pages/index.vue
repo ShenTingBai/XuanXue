@@ -2,6 +2,9 @@
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 import { STEMS, BRANCHES } from '~/constants/bazi'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getStemIndex, getNayinWuxing } from '~/constants/bazi'
+import { calculateBaZi } from '~/composables/useBaZi'
+import { calculateShenSha } from '~/composables/useShenSha'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
 
@@ -215,6 +218,63 @@ const todayAstro = computed(() => {
   }
 })
 
+// ── 命盘预览：示例八字数据 ──
+const sampleInput = {
+  birthYear: 1990,
+  birthMonth: 5,
+  birthDay: 15,
+  birthHour: 11,
+  birthCalendar: 'solar' as const,
+  gender: '男' as const,
+}
+
+const sampleBaZi = computed(() => {
+  try {
+    return calculateBaZi(sampleInput)
+  } catch {
+    return null
+  }
+})
+
+const sampleShenSha = computed(() => {
+  if (!sampleBaZi.value) return []
+  const { yearPillar, monthPillar, dayPillar, hourPillar, dayMaster } = sampleBaZi.value
+  return calculateShenSha({
+    yearPillar,
+    monthPillar,
+    dayPillar,
+    hourPillar: hourPillar ?? null,
+    dayMaster,
+    dayMasterIndex: getStemIndex(dayPillar.stem),
+    gender: '男',
+  })
+})
+
+// Prominent shensha for display (deduplicated, notable ones)
+const prominentShenSha = computed(() => {
+  const notable = ['天乙贵人', '文昌贵人', '福星贵人', '太极贵人', '禄神', '桃花', '华盖']
+  const seen = new Set<string>()
+  return sampleShenSha.value.filter(s => {
+    if (!notable.includes(s.name) || seen.has(s.name)) return false
+    seen.add(s.name)
+    return true
+  })
+})
+
+const samplePillars = computed(() => {
+  if (!sampleBaZi.value) return []
+  const labels = ['年柱', '月柱', '日柱', '时柱']
+  const pillars = [
+    sampleBaZi.value.yearPillar,
+    sampleBaZi.value.monthPillar,
+    sampleBaZi.value.dayPillar,
+    sampleBaZi.value.hourPillar,
+  ]
+  return pillars
+    .map((p, i) => ({ label: labels[i], data: p }))
+    .filter((p): p is { label: string; data: NonNullable<typeof p.data> } => p.data !== null)
+})
+
 onMounted(() => {
   restoreSession()
   sessionReady.value = true
@@ -356,6 +416,99 @@ const goToLogin = () => {
                 输入出生年月日时，即刻生成专属命盘。无需等待，一查便知。
               </p>
             </div>
+          </div>
+        </section>
+
+        <!-- ── 命盘预览 ── -->
+        <section
+          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16"
+          aria-label="命盘预览"
+        >
+          <div class="section-header">
+            <h2>命 盘 预 览</h2>
+          </div>
+
+          <p class="font-sans text-sm text-ink-medium tracking-[0.15em] text-center mt-2 mb-6">
+            示例：1990年5月15日 午时
+          </p>
+
+          <div
+            v-if="sampleBaZi"
+            class="card-warm card-warm--elevated rounded-xl p-8 anim-rise"
+          >
+            <!-- Four pillars -->
+            <div class="grid grid-cols-4 gap-4 sm:gap-6">
+              <div
+                v-for="pillar in samplePillars"
+                :key="pillar.label"
+                class="flex flex-col items-center text-center"
+              >
+                <span class="font-sans text-[0.6875rem] text-ink-light tracking-[0.15em] mb-2">
+                  {{ pillar.label }}
+                </span>
+                <span class="font-display text-2xl text-ink-dark tracking-[0.2em] mb-1">
+                  {{ pillar.data.stem }}{{ pillar.data.branch }}
+                </span>
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span
+                    class="inline-block w-2.5 h-2.5 rounded-full"
+                    :style="{ background: WUXING_COLORS[pillar.data.stemWuxing] || WUXING_FALLBACK_COLOR }"
+                    :aria-label="pillar.data.stemWuxing"
+                  ></span>
+                  <span class="font-sans text-xs text-ink-medium">{{ pillar.data.stemWuxing }}</span>
+                </div>
+                <span class="font-sans text-[0.6875rem] text-ink-light tracking-[0.1em]">
+                  {{ getNayinWuxing(pillar.data.stem, pillar.data.branch) || '—' }}命
+                </span>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div
+              class="my-5 h-px"
+              style="background: color-mix(in srgb, var(--color-ink-faint) 50%, transparent)"
+              aria-hidden="true"
+            ></div>
+
+            <!-- Day master + shensha -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-6">
+              <div class="flex items-center gap-2">
+                <span class="font-sans text-sm text-ink-medium">日主：</span>
+                <span
+                  class="font-display text-lg"
+                  :style="{ color: WUXING_COLORS[sampleBaZi.dayMasterWuxing] || WUXING_FALLBACK_COLOR }"
+                >
+                  {{ sampleBaZi.dayMaster }}{{ sampleBaZi.dayMasterWuxing }}
+                </span>
+                <span class="font-sans text-sm text-ink-medium">（{{ sampleBaZi.dayMasterStrength }}）</span>
+              </div>
+
+              <span
+                class="hidden sm:block w-px h-5"
+                style="background: color-mix(in srgb, var(--color-ink-faint) 50%, transparent)"
+                aria-hidden="true"
+              ></span>
+
+              <div v-if="prominentShenSha.length > 0" class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span class="font-sans text-xs text-ink-light tracking-[0.1em]">神煞：</span>
+                <span
+                  v-for="s in prominentShenSha"
+                  :key="s.name"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm font-sans"
+                  :class="s.category === '吉' ? 'text-jade' : s.category === '凶' ? 'text-cinnabar' : 'text-ink-medium'"
+                  style="font-size: 0.6875rem; letter-spacing: 0.08em; background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent)"
+                >
+                  {{ s.name }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Footer note -->
+            <p class="mt-5 font-sans text-xs text-ink-light tracking-[0.1em]">
+              * 此为示例命盘，
+              <NuxtLink to="/login" class="text-cinnabar no-underline hover:underline">登录</NuxtLink>
+              后可排自己的盘
+            </p>
           </div>
         </section>
 

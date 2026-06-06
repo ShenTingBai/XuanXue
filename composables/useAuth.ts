@@ -60,7 +60,24 @@ export const useAuth = () => {
     return {}
   }
 
-  function restoreSession() {
+  async function restoreSessionFromApi(): Promise<boolean> {
+    try {
+      const data = await $fetch<{ profile: Profile }>("/api/auth/me")
+      currentProfile.value = data.profile
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  async function restoreSession() {
+    if (!import.meta.client) return
+
+    // Try cookie-based auth first (new)
+    const apiSuccess = await restoreSessionFromApi()
+    if (apiSuccess) return
+
+    // Fall back to localStorage (old)
     const session = getStoredSession()
     currentProfile.value = session?.profile ?? null
   }

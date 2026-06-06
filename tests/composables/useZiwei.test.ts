@@ -602,3 +602,24 @@ describe('deserializeAstrolabe', () => {
     ).toBeNull()
   })
 })
+
+describe('true solar time correction', () => {
+  it('longitude correction produces different charts for Beijing vs Urumqi', () => {
+    // Beijing (116.4°E) noon → true solar ~11:46 → still 午时(index ~6)
+    const beijing = calculateZiWei({
+      birthYear: 1990, birthMonth: 5, birthDay: 15,
+      birthHour: 6, gender: 'male', birthLongitude: 116.4,
+    })
+    expect(beijing).not.toBeNull()
+
+    // Urumqi (87.6°E) noon → true solar ~9:50 → 巳时(index ~5)
+    const urumqi = calculateZiWei({
+      birthYear: 1990, birthMonth: 5, birthDay: 15,
+      birthHour: 6, gender: 'male', birthLongitude: 87.6,
+    })
+    expect(urumqi).not.toBeNull()
+
+    // Different longitudes should produce different charts
+    expect(beijing).not.toEqual(urumqi)
+  })
+})

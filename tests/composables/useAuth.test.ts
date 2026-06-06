@@ -177,30 +177,30 @@ describe('useAuth', () => {
   // ========================================================================
 
   describe('restoreSession', () => {
-    it('populates currentProfile from valid localStorage', () => {
+    it('populates currentProfile from valid localStorage', async () => {
       store[SESSION_KEY] = JSON.stringify({ token: 't', profile: mockProfile })
       const auth = useAuth()
-      auth.restoreSession()
+      await auth.restoreSession()
       expect(auth.currentProfile.value).toEqual(mockProfile)
     })
 
-    it('sets currentProfile to null when localStorage is empty', () => {
+    it('sets currentProfile to null when localStorage is empty', async () => {
       const auth = useAuth()
-      auth.restoreSession()
+      await auth.restoreSession()
       expect(auth.currentProfile.value).toBeNull()
     })
 
-    it('sets currentProfile to null when localStorage has corrupted JSON', () => {
+    it('sets currentProfile to null when localStorage has corrupted JSON', async () => {
       store[SESSION_KEY] = 'corrupted{json'
       const auth = useAuth()
-      auth.restoreSession()
+      await auth.restoreSession()
       expect(auth.currentProfile.value).toBeNull()
     })
 
-    it('sets currentProfile to null when session is missing profile.id', () => {
+    it('sets currentProfile to null when session is missing profile.id', async () => {
       store[SESSION_KEY] = JSON.stringify({ token: 't', profile: { nickname: 'foo' } })
       const auth = useAuth()
-      auth.restoreSession()
+      await auth.restoreSession()
       expect(auth.currentProfile.value).toBeNull()
     })
   })

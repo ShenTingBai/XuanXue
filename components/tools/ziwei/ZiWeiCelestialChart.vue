@@ -650,7 +650,7 @@ function focusLabel(idx: number) {
 }
 
 .pl-branch {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.5rem;
   color: var(--color-ink-medium);
   letter-spacing: 0.08em;
@@ -805,7 +805,7 @@ function focusLabel(idx: number) {
 
 /* Star label — 篆書小字 */
 .st-label {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   color: var(--color-ink-muted);
@@ -853,7 +853,7 @@ function focusLabel(idx: number) {
 /* Four-Hua chip — small impressed-seal feel */
 .st-mutagen {
   pointer-events: none;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.5rem;
   font-weight: 500;
   padding: 1px 4px;
@@ -979,7 +979,7 @@ function focusLabel(idx: number) {
   border-left: 2.5px solid var(--color-cinnabar);
   border-radius: 4px 8px 8px 4px;
   padding: 0.5rem 0.75rem;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-medium);
   max-width: 220px;

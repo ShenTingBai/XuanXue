@@ -27,7 +27,8 @@ export function verifyPin(pin: string, stored: string): boolean {
   return timingSafeEqual(derivedBuf, hashBuf)
 }
 
-export function isLegacyPin(stored: string): boolean {
+export function isLegacyPin(stored: string | null): boolean {
+  if (stored === null) return false
   return !stored.includes(':') && stored.length === 4
 }
 

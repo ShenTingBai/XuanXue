@@ -703,7 +703,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 .house-number {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   font-weight: 500;
   color: var(--color-ink-light);
@@ -744,7 +744,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .planet-name {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-muted);
   opacity: 0.7;
@@ -853,7 +853,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .natal-tooltip__title {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--color-ink);
@@ -861,7 +861,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .natal-tooltip__location {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-medium);
   margin-bottom: 4px;
@@ -876,7 +876,7 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .natal-tooltip__interp {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-medium);
   margin-bottom: 4px;
@@ -885,14 +885,14 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .natal-tooltip__aspects {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-light);
   margin-bottom: 2px;
 }
 
 .natal-tooltip__retrograde {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-cinnabar);
   font-weight: 500;

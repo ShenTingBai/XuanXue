@@ -1,3 +1,4 @@
+import { setCookie } from 'h3'
 import { dbGet, dbRun } from '../../database/db'
 import {
   createSessionToken,
@@ -80,6 +81,17 @@ export default defineEventHandler(async event => {
   }
 
   const token = createSessionToken(profile.id as number)
+
+  // Set httpOnly cookie alongside JSON response (gradual migration from localStorage)
+  if (event.node?.res) {
+    setCookie(event, 'xuanxue_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    })
+  }
 
   logSecurityEvent('login_success', profile.id as number, clientIp, 'Login successful')
 

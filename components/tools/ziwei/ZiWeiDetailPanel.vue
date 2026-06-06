@@ -204,7 +204,7 @@ function getMutagenClass(transformation: string): string {
 }
 
 .detail-branch-badge {
-  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.08em;
@@ -231,7 +231,7 @@ function getMutagenClass(transformation: string): string {
   letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .title-dot {
@@ -322,7 +322,7 @@ function getMutagenClass(transformation: string): string {
 .star-name {
   font-size: 0.85rem;
   color: var(--color-ink-muted);
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .star-brightness {

@@ -15,6 +15,7 @@ import {
   type ShenSha,
 } from './useShenSha'
 import { getMonthStemStart, getSolarTerm } from './useSolarTerms'
+import { getYearStemIndex, getYearBranchIndex } from '~/utils/stem-branch'
 
 // === Typed Exports ===
 
@@ -115,16 +116,14 @@ const RELATION_DESC_TEMPLATES: Record<string, string> = {
 
 // === Year stem/branch helper ===
 
-// NOTE: Duplicates getYearStemIndex/getYearBranchIndex from useBaZi.ts.
-// Both are private functions; this is a known dedup opportunity.
 function getYearStemBranch(year: number): {
   stem: string
   stemIdx: number
   branch: string
   branchIdx: number
 } {
-  const stemIdx = (((year - 4) % 10) + 10) % 10
-  const branchIdx = (((year - 4) % 12) + 12) % 12
+  const stemIdx = getYearStemIndex(year)
+  const branchIdx = getYearBranchIndex(year)
   return { stem: STEMS[stemIdx], stemIdx, branch: BRANCHES[branchIdx], branchIdx }
 }
 
@@ -309,13 +308,14 @@ function calculateScore(yearInfo: Omit<LiuNianYear, 'score' | 'summary'>): numbe
 
 // === DaYun lookup ===
 
-function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch: string } {
+function getDaYunForYear(baZi: BaZiResult, year: number): { stem: string; branch: string } | null {
+  if (baZi.daYun.length === 0) return null
   const currentAge = year - baZi.birthYear
   // Direct index: each da yun cycle spans exactly 10 years
-  const cycleIdx = Math.floor((currentAge - (baZi.daYun[0]?.startAge ?? 0)) / 10)
+  const cycleIdx = Math.floor((currentAge - baZi.daYun[0].startAge) / 10)
   const clamped = Math.max(0, Math.min(cycleIdx, baZi.daYun.length - 1))
   const cycle = baZi.daYun[clamped]
-  return { stem: cycle?.stemBranch[0] ?? '甲', branch: cycle?.stemBranch[1] ?? '子' }
+  return { stem: cycle.stemBranch[0], branch: cycle.stemBranch[1] }
 }
 
 // === Year-specific shensha helpers ===
@@ -597,8 +597,8 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
       isUnfavorable,
       earthRelations,
       shenSha: yearShenSha,
-      daYunStem: daYun.stem,
-      daYunBranch: daYun.branch,
+      daYunStem: daYun?.stem ?? '甲',
+      daYunBranch: daYun?.branch ?? '子',
     }
 
     const score = calculateScore(yearInfo)
@@ -612,7 +612,7 @@ export function calculateLiuNian(input: LiuNianInput): LiuNianYear[] {
     // Add detail for current year
     if (offset === 0) {
       const daYunInteraction =
-        `大运${daYun.stem}${daYun.branch}配流年${stem}${branch}，` +
+        `大运${daYun?.stem ?? '甲'}${daYun?.branch ?? '子'}配流年${stem}${branch}，` +
         (isFavorable ? '天地配合有利' : '需注意天地配合')
 
       const pillarsInteraction = earthRelations.map(r => r.description)

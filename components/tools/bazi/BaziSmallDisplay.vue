@@ -64,7 +64,7 @@ defineProps<{
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .bazi-compact__row {

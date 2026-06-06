@@ -234,7 +234,7 @@ const severityClass = computed(() => {
 
 /* ══ Header ══ */
 .mitigation-intro {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium);
   line-height: 1.7;
@@ -283,7 +283,7 @@ const severityClass = computed(() => {
 }
 
 .mitigation-year-tag {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-light);
   letter-spacing: 0.08em;
@@ -327,7 +327,7 @@ const severityClass = computed(() => {
 
 .deity-label {
   display: inline-block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   color: var(--color-ink-medium);
   letter-spacing: 0.12em;
@@ -354,7 +354,7 @@ const severityClass = computed(() => {
 }
 
 .deity-bio {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.6;
@@ -440,7 +440,7 @@ const severityClass = computed(() => {
 }
 
 .relation-severity {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   padding: 0.1rem 0.4rem;
@@ -465,7 +465,7 @@ const severityClass = computed(() => {
 
 .relation-effect {
   width: 100%;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.7;
@@ -545,7 +545,7 @@ const severityClass = computed(() => {
 }
 
 .method-summary {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.5;
@@ -554,7 +554,7 @@ const severityClass = computed(() => {
 }
 
 .method-detail {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   color: var(--color-ink-medium, #5a4a3a);
   line-height: 1.6;
@@ -618,7 +618,7 @@ const severityClass = computed(() => {
 }
 
 .advisory-item {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   line-height: 1.6;
   letter-spacing: 0.03em;

@@ -130,7 +130,7 @@ const labelFontSize = computed(() => Math.max(10, props.size * 0.12) + 'px')
 }
 
 .score-label {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   margin-top: 2px;
   color: var(--color-ink-medium);

@@ -216,7 +216,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   justify-content: center;
   width: 20px;
   flex-shrink: 0;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   line-height: 1;
   color: var(--color-ink-muted);
@@ -264,7 +264,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 
 /* Per-line judgment text */
 .yao-judgment {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   color: var(--color-ink-medium);
   white-space: nowrap;
@@ -315,7 +315,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
 }
 
 .judgment-text {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.85rem;
   line-height: 1.7;
   color: var(--color-ink);
@@ -329,7 +329,7 @@ function getYaoLabel(yao: YaoResult, idx: number, hex: HexagramProp): string {
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 0;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
 }
 

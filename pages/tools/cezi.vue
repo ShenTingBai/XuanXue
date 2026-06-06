@@ -455,7 +455,7 @@ const interpretationParagraphs = computed(() => {
 /* ── Input label ── */
 .input-label {
   display: block;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.06em;
@@ -613,7 +613,7 @@ const interpretationParagraphs = computed(() => {
 }
 
 .cezi-slip__stat-label {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   color: var(--color-ink-light);
   letter-spacing: 0.1em;
@@ -621,7 +621,7 @@ const interpretationParagraphs = computed(() => {
 }
 
 .cezi-slip__stat-value {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-dark);
   letter-spacing: 0.05em;
@@ -633,7 +633,7 @@ const interpretationParagraphs = computed(() => {
 }
 
 .cezi-slip__section-title {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-ink-dark);
@@ -656,7 +656,7 @@ const interpretationParagraphs = computed(() => {
 }
 
 .cezi-slip__text {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium);
   line-height: 1.8;
