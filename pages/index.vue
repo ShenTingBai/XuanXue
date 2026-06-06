@@ -7,6 +7,7 @@ import { calculateBaZi } from '~/composables/useBaZi'
 import { calculateShenSha } from '~/composables/useShenSha'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
+import { getDailyWuxing } from '~/composables/useDailyWuxing'
 
 const SOLAR_TERM_NAMES = [
   '立春',
@@ -274,6 +275,8 @@ const samplePillars = computed(() => {
     .map((p, i) => ({ label: labels[i], data: p }))
     .filter((p): p is { label: string; data: NonNullable<typeof p.data> } => p.data !== null)
 })
+
+const dailyWuxing = computed(() => getDailyWuxing())
 
 onMounted(() => {
   restoreSession()
@@ -778,6 +781,26 @@ const goToLogin = () => {
           <div class="anim-rise" style="--delay: 0.2s">
             <DailyFortuneStick tall class="w-full h-full" />
           </div>
+        </div>
+
+
+        <!-- 五行穿衣指南 -->
+        <div class="daily-wuxing mt-6 card-warm p-6 anim-rise" style="--delay: 0.3s">
+          <div class="section-header">
+            <h2>今 日 穿 衣</h2>
+          </div>
+          <p class="text-sm text-ink/50 mb-3">
+            今日{{ dailyWuxing.dayStem }}日（{{ dailyWuxing.dayWuxing }}），宜着：
+          </p>
+          <div class="flex gap-2 flex-wrap">
+            <span v-for="color in dailyWuxing.luckyColorNames" :key="color"
+              class="px-3 py-1 rounded-full text-sm bg-cinnabar/10 text-cinnabar">
+              {{ color }}
+            </span>
+          </div>
+          <p class="text-xs text-ink/30 mt-2">
+            避：{{ dailyWuxing.avoidColorNames.join('、') }}
+          </p>
         </div>
 
         <!-- Section header -->
