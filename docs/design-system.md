@@ -435,6 +435,75 @@
 - 使用 Ink Resonance 现有令牌，**不**引入新色值
 - 与五行（木火土金水）使用不同的 Tailwind 类名，避免概念混淆
 
+#### `talisman-card` — 黄历灵符卡
+
+Used on homepage (index.vue) for "今日玄机". A warm cream card with cinnabar-tinted border, designed to display lunar calendar data.
+
+```html
+<div class="talisman-card h-full flex items-center justify-center" aria-label="今日黄历">
+  <div class="flex flex-col items-center w-full">
+    <!-- slip-hd header bar -->
+    <!-- slip-divider-h divider -->
+    <!-- lunar date + ganzhi content -->
+  </div>
+</div>
+```
+
+- Background: `#faf0e0` (CSS rule in page `<style scoped>`)
+- Border: `1px solid rgba(198, 40, 40, 0.08)`
+- Padding: `1.75rem 1.5rem` (mobile) / `2rem` (sm+)
+- Internal layout: `flex items-center justify-center` — entire content block vertically and horizontally centered
+- Content pattern: single inner `<div class="flex flex-col items-center w-full">` holding header → divider → date body in natural top-down flow
+- NO `flex-1` or `justify-center` on individual children — avoids overflow bugs
+- Defined in `pages/index.vue` `<style scoped>`
+
+#### `daily-wuxing-card` — 每日穿衣卡片
+
+Compact clothing color guide widget on homepage. Shows lucky colors to wear for the day.
+
+```html
+<div class="daily-wuxing-card shrink-0">
+  <div class="slip-hd slip-hd--sm mb-2">
+    <span class="slip-chop slip-chop--sm" aria-hidden="true">衣</span>
+    <span class="slip-ttl slip-ttl--sm">今 日 穿 衣</span>
+  </div>
+  <div class="daily-wuxing-colors">
+    <span class="daily-wuxing-label">宜着</span>
+    <span v-for="color in luckyColors" :key="color" class="daily-wuxing-pill">{{ color }}</span>
+    <span class="daily-wuxing-sep">·</span>
+    <span class="daily-wuxing-avoid">避 {{ avoidColors }}</span>
+  </div>
+</div>
+```
+
+- Background: `color-mix(in oklch, var(--color-paper-card) 60%, transparent)`
+- Border: `1px solid color-mix(in oklch, var(--color-ink-darkest) 6%, transparent)`
+- Border radius: `0.5rem`, Padding: `0.625rem 0.875rem`
+- `.daily-wuxing-label`: `text-ink-light`, `flex-shrink-0`, font-size 0.6875rem
+- `.daily-wuxing-pill`: cinnabar-tinted pill badges (`rounded-full`, 0.6875rem)
+- `.daily-wuxing-avoid`: `text-ink-light` for avoid colors
+- Defined in `pages/index.vue` `<style scoped>`
+
+#### `gu-slip` — 符纸叙事卷
+
+Used on meihua (梅花易数) tool page for the "白话解读" result card. A scroll/parchment gradient card with structured narrative sections.
+
+```html
+<div class="gu-slip" aria-label="白话解读">
+  <!-- Trigram header ☰/☷ -->
+  <!-- Divider -->
+  <!-- Content sections (本卦/动爻/综合解卦) -->
+  <!-- Divider -->
+  <!-- Footer seal -->
+</div>
+```
+
+- Background: `linear-gradient(175deg, #fdf6e3, #f9edd4, #f5e5c8)` using scroll-\* tokens (see §2.2b)
+- Uses scroll-light/scroll/scroll-dark color stops
+- Structure: 3 content sections with labeled headings, separated by dividers
+- Footer: small seal/mark
+- Defined in `pages/tools/meihua.vue` `<style scoped>`
+
 ### 4.3 表单
 
 #### `input-ink` — 墨线输入框
@@ -573,6 +642,59 @@
 ```
 
 32px 圆，深朱砂底 + 纸色字 + 纹理叠加。有大号 `--lg`（56px）和 `--hero`（100px）变体。
+
+#### `slip-hd` — 命签/灵符标题栏
+
+The shared header bar pattern used in DailyFortuneStick ("今日命签") and 今日玄机 ("今日玄机"). A visual language for talisman/slip headers.
+
+```html
+<div class="slip-hd w-full">
+  <span class="slip-chop" aria-hidden="true">玄</span>
+  <span class="slip-ttl">今 日 玄 机</span>
+  <span class="slip-date-inline">6月7日 · 周日</span>
+  <span class="slip-fortune slip-fortune--吉">芒种</span>
+</div>
+```
+
+**Sub-elements:**
+
+| Class              | Element  | Description                                                                                                                                                         |
+| ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `slip-chop`        | `<span>` | Small cinnabar seal (1.125rem) with display font character, rotated -3°                                                                                             |
+| `slip-ttl`         | `<span>` | Title in display font (0.8125rem), letter-spacing 0.2em, `margin-right: auto` pushes subsequent elements right                                                      |
+| `slip-fortune`     | `<span>` | Fortune badge (0.6rem), rotated -0.5°. Variants: `--吉` (neutral ink), `--上吉` (wood/green), `--中吉` (earth/gold), `--下吉` (fire/red muted), `--下下` (fire/red) |
+| `slip-number`      | `<span>` | Optional number tag (0.55rem, ink-light, 55% opacity)                                                                                                               |
+| `slip-date-inline` | `<span>` | Optional inline date text (font-sans, 0.65rem, ink-light, 70% opacity). Rides between ttl and fortune badge                                                         |
+
+**Small variant (`slip-hd--sm`):**
+
+- `slip-chop--sm`: 20×20px, font-size 10px
+- `slip-ttl--sm`: 0.75rem
+
+**Tall variant (`slip-hd--tall`):**
+
+- `slip-ttl--tall`: 0.75rem, letter-spacing 0.25em, 70% opacity
+- No bottom margin
+
+**CSS source:** Defined in both `components/home/DailyFortuneStick.vue` and `pages/index.vue` `<style scoped>`. The pattern is duplicated (not extracted as a shared component) because each usage context has slightly different needs.
+
+#### `slip-divider-h` — 签文水平分割线
+
+Horizontal divider with gradient fade on both ends and a centered dot.
+
+```html
+<div class="slip-divider-h w-full" aria-hidden="true">
+  <span class="slip-divider-h__dot" />
+</div>
+```
+
+- Flex row, `::before` and `::after` pseudo-elements create 1px gradient lines
+- Line color: `rgba(44, 26, 14, 0.12)` fading to transparent at edges
+- Center dot: 3px circle, `rgba(198, 40, 40, 0.35)`
+- Vertical margin: 0.5rem on each side
+- `flex-shrink: 0` — never collapses
+- Used in DailyFortuneStick (tall mode, 2 instances) and 今日玄机 talisman-card
+- CSS source: duplicated in both `DailyFortuneStick.vue` and `index.vue` `<style scoped>`
 
 ### 4.7 工具页通用组件
 
@@ -751,6 +873,35 @@
 | 40   | `--z-overlay`  | 纸纹纹理（`body::after`） |
 | 50   | `--z-dropdown` | 下拉菜单                  |
 | 60   | `--z-modal`    | 模态框、通知条            |
+
+### 5.4 首页已登录区域布局
+
+The authenticated homepage uses a two-column grid layout with flex-proportioned internal blocks:
+
+```html
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+  <!-- LEFT: greeting (60%) + 今日玄机 (40%) -->
+  <div class="flex flex-col gap-4 sm:gap-6">
+    <div class="anim-rise flex-[3] min-h-0"><!-- greeting --></div>
+    <div class="flex-[2] min-h-0 anim-rise"><!-- talisman-card --></div>
+  </div>
+  <!-- RIGHT: fortune (flex-1) + clothing (shrink-0) -->
+  <div class="flex flex-col gap-5 sm:gap-6 anim-rise">
+    <div class="flex-1 min-h-0"><!-- DailyFortuneStick --></div>
+    <div class="daily-wuxing-card shrink-0"><!-- clothing --></div>
+  </div>
+</div>
+```
+
+**Key rules:**
+
+- Outer grid: `items-stretch` ensures both columns have equal height
+- Left column proportions: greeting `flex-[3]` (≈60%), 今日玄机 `flex-[2]` (≈40%)
+- Right column: fortune stick `flex-1` fills most space, clothing `shrink-0` pins to bottom
+- Both columns use matching gap sizes
+- Greeting content is centered via `items-center justify-center`
+- `min-h-0` on all flex children to allow proper shrinking
+- Pattern defined in `pages/index.vue`
 
 ---
 
@@ -1167,4 +1318,4 @@ const prefersReducedMotion = import.meta.client
 
 ---
 
-> **最后更新**：2026-06-05（P0 同步审计新增模式：color-mix 硬规 + MethodologyNote + section-header flex 模式 + cezi-slip/score-banner/border-left 卡片变体 + btn-seal 纯文本规则）
+> **最后更新**：2026-06-07（首页布局重设计：talisman-card + daily-wuxing-card + slip-hd 标题栏 + slip-divider-h 分割线 + gu-slip 符纸卷 + 首页已登录布局模式）
