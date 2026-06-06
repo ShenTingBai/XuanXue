@@ -34,6 +34,8 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
+import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 
 useSeoMeta({
   title: '八字排盘 — 玄·道',
@@ -77,6 +79,24 @@ const saveError = ref('')
 const showHistoryModal = ref(false)
 const restoreError = ref('')
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
+const {
+  showBanner,
+  isFilled,
+  birthData,
+  checkAvailability,
+  applyAutoFill,
+  revokeAutoFill,
+  markEdited,
+} = useProfileAutoFill({ calendarNeeded: 'both' })
+
+function handleAutoFill() {
+  applyAutoFill()
+}
+
+function handleRevoke() {
+  revokeAutoFill()
+}
 const restoredFromHistory = ref(false)
 const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
@@ -143,6 +163,8 @@ onMounted(async () => {
     router.push('/login')
     return
   }
+
+  checkAvailability()
 
   if (!currentProfile.value.birth_date) {
     missingBirthInfo.value = true
@@ -531,6 +553,15 @@ function onSectionNavigate(sectionName: string) {
     <div role="status" class="sr-only" aria-live="polite">
       {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
     </div>
+
+    <ProfileAutoFillBanner
+      v-if="showBanner"
+      :profile-name="birthData?.profileName || ''"
+      :is-filled="isFilled"
+      :conversion-note="birthData?.conversionNote"
+      @fill="handleAutoFill"
+      @revoke="handleRevoke"
+    />
 
     <!-- Missing birth info -->
     <div v-if="missingBirthInfo" class="text-center py-16">

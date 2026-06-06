@@ -23,6 +23,8 @@ import BaziSmallDisplay from '~/components/tools/bazi/BaziSmallDisplay.vue'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote from '~/components/tools/MethodologyNote.vue'
 import type { ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
+import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 
 const hehunClassical: ClassicalSource[] = [
   { method: '年柱/日柱法', source: '《三命通会》卷七' },
@@ -75,6 +77,24 @@ const saveError = ref<string | null>(null)
 const restoreError = ref<string | null>(null)
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
+const {
+  showBanner,
+  isFilled,
+  birthData,
+  checkAvailability,
+  applyAutoFill,
+  revokeAutoFill,
+  markEdited,
+} = useProfileAutoFill({ calendarNeeded: 'both' })
+
+function handleAutoFill() {
+  applyAutoFill()
+}
+
+function handleRevoke() {
+  revokeAutoFill()
+}
+
 function handleExport() {
   if (resultRef.value) {
     exportToImage(resultRef.value, '八字合婚.png')
@@ -102,6 +122,7 @@ onMounted(async () => {
     router.push('/login')
     return
   }
+  checkAvailability()
   if (!currentProfile.value.birth_date) {
     missingBirthInfo.value = true
     return
@@ -299,6 +320,15 @@ const computedGrade = computed<HeHunGrade | null>(() => {
             />
           </template>
         </ToolToolbar>
+
+        <ProfileAutoFillBanner
+          v-if="showBanner"
+          :profile-name="birthData?.profileName || ''"
+          :is-filled="isFilled"
+          :conversion-note="birthData?.conversionNote"
+          @fill="handleAutoFill"
+          @revoke="handleRevoke"
+        />
 
         <!-- ══ 输入区 ══ -->
         <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
