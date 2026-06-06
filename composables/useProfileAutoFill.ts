@@ -112,11 +112,11 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
     }
 
     const profileCalendar = (profile.birth_calendar as 'solar' | 'lunar') || 'solar'
-    const canConvert = config.calendarNeeded === 'both' || config.calendarNeeded === profileCalendar
+    const canConvert = true
     console.log('[auto-fill] calendarNeeded:', config.calendarNeeded, 'profileCalendar:', profileCalendar, 'canConvert:', canConvert)
 
     if (!canConvert) {
-      console.log('[auto-fill] FAIL: calendar mismatch')
+      console.log('[auto-fill] calendar mismatch — but applyAutoFill will handle conversion')
       missingBirth.value = false
       showBanner.value = false
       return
