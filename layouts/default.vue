@@ -33,8 +33,8 @@ const hamburgerBtnRef = ref<HTMLElement | null>(null)
 const mobileDrawerPanelRef = ref<HTMLElement | null>(null)
 const route = useRoute()
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
 })
 
 watch(

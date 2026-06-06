@@ -96,8 +96,8 @@ function scrollToTop() {
   }
 }
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return

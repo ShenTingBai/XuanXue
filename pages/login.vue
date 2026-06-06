@@ -21,8 +21,8 @@ const isLogin = ref(true)
 const showPin = ref(false)
 const expiredTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   if (currentProfile.value) {
     router.push('/')
     return

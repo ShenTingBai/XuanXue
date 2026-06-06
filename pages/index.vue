@@ -290,8 +290,8 @@ const samplePillars = computed(() => {
 
 const dailyWuxing = computed(() => getDailyWuxing())
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   sessionReady.value = true
   if (currentProfile.value) {
     fetchRecentActivity()
