@@ -3,6 +3,7 @@
 <script setup lang="ts">
 import { calculateGuMing, type GuMingResult } from '~/composables/useGuMing'
 import { HOUR_NAMES } from '~/constants/gu-ming'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import type { Ref } from 'vue'
 import type { FetchError } from '~/types/errors'
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -99,7 +100,9 @@ function handleScroll() {
   showScrollTop.value = window.scrollY > 300
 }
 function scrollToTop() {
-  var p = import.meta.client ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  const p = import.meta.client
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
   if (!p) window.scrollTo({ top: 0, behavior: 'smooth' })
   else window.scrollTo({ top: 0 })
 }
@@ -127,16 +130,15 @@ async function computeGuMing() {
   }
   loading.value = true
   error.value = ''
-  await new Promise(r => setTimeout(r, 300))
   try {
-    var input = {
+    const input = {
       birthYear: birthYear.value,
       birthMonth: birthMonth.value,
       birthDay: birthDay.value,
       birthHour: birthHour.value,
       gender: gender.value as 'male' | 'female',
     }
-    var res = calculateGuMing(input)
+    const res = calculateGuMing(input)
     result.value = res
     saveDivinationResult(res)
   } catch (e) {
@@ -149,7 +151,7 @@ async function computeGuMing() {
 }
 async function saveDivinationResult(res: GuMingResult) {
   try {
-    var h = getAuthHeaders()
+    const h = getAuthHeaders()
     if (!h.Authorization) return
     await $fetch('/api/divinations', {
       method: 'POST',
@@ -175,9 +177,9 @@ async function saveDivinationResult(res: GuMingResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    var h = getAuthHeaders()
+    const h = getAuthHeaders()
     if (!h.Authorization) return
-    var r = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
+    const r = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       '/api/divinations/' + id,
       { headers: h },
     )
@@ -191,14 +193,14 @@ async function onHistoryRestore(id: number) {
     } else {
       restoreError.value = '数据无效'
       if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(function () {
+      restoreErrorTimer.value = setTimeout(() => {
         restoreError.value = ''
       }, 6000)
     }
   } catch {
     restoreError.value = '加载失败'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(function () {
+    restoreErrorTimer.value = setTimeout(() => {
       restoreError.value = ''
     }, 6000)
   }
@@ -263,7 +265,7 @@ const scalePercent = computed(function () {
         <p class="text-xs text-ink-medium mb-6 tracking-wide">
           输入农历出生年月日时，袁天罡称骨法为你推算命格轻重。
         </p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
           <div>
             <label for="guming-year" class="input-label">出生年（农历）</label
             ><input
@@ -312,20 +314,54 @@ const scalePercent = computed(function () {
           </div>
         </div>
         <div class="flex items-center justify-center gap-6 mb-6">
-          <label class="radio-custom"
-            ><input v-model="gender" type="radio" value="male" class="sr-only" /><span
-              class="radio-dot"
-              :class="gender === 'male' ? 'radio-dot--active' : ''"
-            ></span
-            ><span class="text-sm text-ink-dark">男命</span></label
-          >
-          <label class="radio-custom"
-            ><input v-model="gender" type="radio" value="female" class="sr-only" /><span
-              class="radio-dot"
-              :class="gender === 'female' ? 'radio-dot--active' : ''"
-            ></span
-            ><span class="text-sm text-ink-dark">女命</span></label
-          >
+          <label class="flex items-center gap-2.5 cursor-pointer group">
+            <input v-model="gender" type="radio" name="gender" value="male" class="sr-only" />
+            <span
+              :class="[
+                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+                gender === 'male'
+                  ? 'border-cinnabar'
+                  : 'border-ink-faint group-hover:border-ink-light',
+              ]"
+              aria-hidden="true"
+            >
+              <span
+                v-if="gender === 'male'"
+                class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
+              ></span>
+            </span>
+            <span
+              :class="[
+                'text-base transition-colors ui',
+                gender === 'male' ? 'text-cinnabar' : 'text-ink-medium',
+              ]"
+              >男命</span
+            >
+          </label>
+          <label class="flex items-center gap-2.5 cursor-pointer group">
+            <input v-model="gender" type="radio" name="gender" value="female" class="sr-only" />
+            <span
+              :class="[
+                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+                gender === 'female'
+                  ? 'border-cinnabar'
+                  : 'border-ink-faint group-hover:border-ink-light',
+              ]"
+              aria-hidden="true"
+            >
+              <span
+                v-if="gender === 'female'"
+                class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
+              ></span>
+            </span>
+            <span
+              :class="[
+                'text-base transition-colors ui',
+                gender === 'female' ? 'text-cinnabar' : 'text-ink-medium',
+              ]"
+              >女命</span
+            >
+          </label>
         </div>
         <div class="flex justify-center items-center gap-4">
           <button
@@ -425,6 +461,7 @@ const scalePercent = computed(function () {
             </div>
           </div>
         </div>
+        <EntertainmentDisclaimer class="mt-8" />
       </template>
     </div>
     <Transition name="toast">
@@ -457,60 +494,34 @@ const scalePercent = computed(function () {
   </ToolPageLayout>
 </template>
 <style scoped>
-.input-label {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  color: var(--color-ink-muted);
-  letter-spacing: 0.06em;
-  margin-bottom: 0.3rem;
-}
-.radio-custom {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-.radio-dot {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  border: 2px solid var(--color-ink-muted);
-  transition: all 0.2s;
-}
-.radio-dot--active {
-  border-color: var(--color-cinnabar);
-  background: color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
-}
 .level-badge--shangshang {
-  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 10%, transparent);
   color: var(--color-cinnabar);
-  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 20%, transparent);
   border-radius: 9999px;
 }
 .level-badge--zhongshang {
-  background: color-mix(in srgb, var(--color-jade) 8%, transparent);
+  background: color-mix(in oklch, var(--color-jade) 8%, transparent);
   color: var(--color-jade);
-  border: 1px solid color-mix(in srgb, var(--color-jade) 15%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-jade) 15%, transparent);
   border-radius: 9999px;
 }
 .level-badge--zhong {
-  background: color-mix(in srgb, var(--color-ink-light) 8%, transparent);
+  background: color-mix(in oklch, var(--color-ink-light) 8%, transparent);
   color: var(--color-ink-dark);
-  border: 1px solid color-mix(in srgb, var(--color-ink-light) 15%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-ink-light) 15%, transparent);
   border-radius: 9999px;
 }
 .level-badge--zhongxia {
-  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
+  background: color-mix(in oklch, var(--color-gold) 8%, transparent);
   color: var(--color-gold);
-  border: 1px solid color-mix(in srgb, var(--color-gold) 15%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-gold) 15%, transparent);
   border-radius: 9999px;
 }
 .level-badge--xiaxia {
-  background: color-mix(in srgb, var(--color-cinnabar) 8%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 8%, transparent);
   color: var(--color-cinnabar);
-  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 15%, transparent);
   border-radius: 1px;
   transform: rotate(-1deg);
 }
@@ -518,8 +529,8 @@ const scalePercent = computed(function () {
   padding: 1.5rem;
   border-radius: 1rem;
   background: var(--color-paper);
-  border: 1px solid color-mix(in srgb, var(--color-ink-darkest) 4%, transparent);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--color-ink-darkest) 4%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-ink-darkest) 4%, transparent);
+  box-shadow: 0 1px 3px color-mix(in oklch, var(--color-ink-darkest) 4%, transparent);
 }
 @media (min-width: 640px) {
   .scale-card {
@@ -542,8 +553,8 @@ const scalePercent = computed(function () {
   font-size: 0.85rem;
   color: var(--color-cinnabar);
   letter-spacing: 0.15em;
-  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 4%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 10%, transparent);
   transform: rotate(-1deg);
 }
 .scale-card__weight {
@@ -566,7 +577,7 @@ const scalePercent = computed(function () {
 .scale-bar-track {
   position: relative;
   height: 0.75rem;
-  background: color-mix(in srgb, var(--color-ink-darkest) 6%, transparent);
+  background: color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
   border-radius: 9999px;
   overflow: visible;
 }
@@ -593,7 +604,7 @@ const scalePercent = computed(function () {
   border-radius: 50%;
   background: var(--color-cinnabar);
   border: 2px solid var(--color-paper);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-ink-darkest) 20%, transparent);
+  box-shadow: 0 1px 4px color-mix(in oklch, var(--color-ink-darkest) 20%, transparent);
   transform: translate(-50%, -50%);
   transition: left 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 1;
@@ -603,7 +614,7 @@ const scalePercent = computed(function () {
   justify-content: space-between;
   margin-top: 0.4rem;
   font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-muted);
 }
 .weight-table {
@@ -617,7 +628,7 @@ const scalePercent = computed(function () {
   padding: 0.625rem 0.75rem;
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  color: var(--color-ink-medium);
+  color: var(--color-ink);
 }
 @media (min-width: 640px) {
   .weight-row {
@@ -627,16 +638,16 @@ const scalePercent = computed(function () {
 }
 .weight-row--header {
   font-size: 0.6875rem;
-  color: var(--color-ink-light);
+  color: var(--color-ink-medium);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-ink-darkest) 6%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
 }
 .weight-row--alt {
-  background: color-mix(in srgb, var(--color-ink-darkest) 2%, transparent);
+  background: color-mix(in oklch, var(--color-ink-darkest) 2%, transparent);
 }
 .weight-row--total {
-  border-top: 1px solid color-mix(in srgb, var(--color-ink-darkest) 8%, transparent);
+  border-top: 1px solid color-mix(in oklch, var(--color-ink-darkest) 8%, transparent);
   font-weight: 600;
   color: var(--color-ink-darkest);
 }
@@ -658,11 +669,11 @@ const scalePercent = computed(function () {
     var(--color-scroll) 30%,
     var(--color-scroll-dark) 100%
   );
-  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 6%, transparent);
   box-shadow:
-    0 1px 3px color-mix(in srgb, var(--color-ink-darkest) 4%, transparent),
-    0 8px 24px color-mix(in srgb, var(--color-ink-darkest) 3%, transparent),
-    inset 0 0 80px color-mix(in srgb, var(--color-cinnabar) 1.5%, transparent);
+    0 1px 3px color-mix(in oklch, var(--color-ink-darkest) 4%, transparent),
+    0 8px 24px color-mix(in oklch, var(--color-ink-darkest) 3%, transparent),
+    inset 0 0 80px color-mix(in oklch, var(--color-cinnabar) 1.5%, transparent);
 }
 @media (min-width: 640px) {
   .gu-slip {
@@ -678,7 +689,7 @@ const scalePercent = computed(function () {
 }
 .gu-slip__trigram {
   font-size: 1rem;
-  color: color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+  color: color-mix(in oklch, var(--color-cinnabar) 20%, transparent);
 }
 .gu-slip__seal-mark {
   display: inline-flex;
@@ -689,8 +700,8 @@ const scalePercent = computed(function () {
   font-size: 0.85rem;
   color: var(--color-cinnabar);
   letter-spacing: 0.2em;
-  background: color-mix(in srgb, var(--color-cinnabar) 4%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 4%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 10%, transparent);
   transform: rotate(-1deg);
 }
 .gu-slip__divider {
@@ -699,8 +710,8 @@ const scalePercent = computed(function () {
   margin: 0.75rem 0;
   background: repeating-linear-gradient(
     90deg,
-    color-mix(in srgb, var(--color-ink-darkest) 6%, transparent) 0px,
-    color-mix(in srgb, var(--color-ink-darkest) 6%, transparent) 6px,
+    color-mix(in oklch, var(--color-ink-darkest) 6%, transparent) 0px,
+    color-mix(in oklch, var(--color-ink-darkest) 6%, transparent) 6px,
     transparent 6px,
     transparent 12px
   );
@@ -742,7 +753,7 @@ const scalePercent = computed(function () {
   transform: translateY(-50%);
   width: 3px;
   height: 0.75rem;
-  background: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 30%, transparent);
   border-radius: 2px;
 }
 .gu-slip__text {
@@ -763,35 +774,12 @@ const scalePercent = computed(function () {
 .gu-slip__footer-line {
   flex: 1;
   height: 1px;
-  background: color-mix(in srgb, var(--color-ink-darkest) 6%, transparent);
+  background: color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
 }
 .gu-slip__footer-seal {
   font-family: var(--font-display);
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
+  color: color-mix(in oklch, var(--color-cinnabar) 40%, transparent);
   letter-spacing: 0.3em;
-}
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes secIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .fade-in {
-    animation: secIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: var(--delay, 0s);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fade-in {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
 }
 </style>
