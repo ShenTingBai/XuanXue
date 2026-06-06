@@ -204,8 +204,8 @@ const numberTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const router = useRouter()
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return

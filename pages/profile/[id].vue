@@ -108,8 +108,8 @@ const hourOptions = [
   { label: '亥时 (21:00-22:59)', value: 21 },
 ]
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return

@@ -262,8 +262,8 @@ function handleExport() {
   if (exportRef.value) exportToImage(exportRef.value, '梅花易数.png')
 }
 
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return

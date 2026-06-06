@@ -60,8 +60,8 @@ function scrollToTop() {
   if (!p) window.scrollTo({ top: 0, behavior: 'smooth' })
   else window.scrollTo({ top: 0 })
 }
-onMounted(() => {
-  restoreSession()
+onMounted(async () => {
+  await restoreSession()
   if (!currentProfile.value) {
     router.push('/login')
     return
