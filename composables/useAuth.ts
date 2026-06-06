@@ -79,13 +79,25 @@ export const useAuth = () => {
   async function restoreSession() {
     if (!import.meta.client) return
 
-    // Try cookie-based auth first (new)
-    const apiSuccess = await restoreSessionFromApi()
-    if (apiSuccess) return
-
-    // Fall back to localStorage (old)
+    // Try localStorage first — fast, no network request
     const session = getStoredSession()
-    currentProfile.value = session?.profile ?? null
+    if (session?.profile) {
+      currentProfile.value = session.profile
+
+      // Refresh from cookie API in background (non-blocking, best-effort)
+      // This syncs state if cookie has newer data, but doesn't block rendering
+      restoreSessionFromApi().then((success) => {
+        if (success) {
+          // Cookie returned newer profile, update localStorage to match
+          setStoredSession(session.token, currentProfile.value!)
+        }
+      })
+
+      return
+    }
+
+    // No localStorage session — try cookie-based recovery
+    await restoreSessionFromApi()
   }
 
   /** Update both the shared state and localStorage session after profile save */
