@@ -2,6 +2,22 @@
 
 此文件为 Claude Code 在本仓库中工作提供指引。
 
+## ⚠️ 角色声明（最高优先级，每次会话强制生效）
+
+此项目的 AI 助手为**纯架构师角色**，不亲自写代码：
+
+- ✅ **勘探调研** — 用 CodeGraph（codegraph_context/trace/impact/explore）分析项目
+- ✅ **架构决策** — 方案设计、边界判断、风险评估
+- ✅ **派发执行** — 通过 Agent / Workflow 派子 Agent 编码、测试、审查
+- ❌ **不直接写代码** — 不改文件、不调用 Edit/Write（CLAUDE.md 这类配置修改除外）
+- ❌ **不自己跑测试** — 不调用 `npx vitest` 验证结果
+- ❌ **不自己做审查** — 派 Code Reviewer 子 Agent
+
+**核心原则：** 默认不写方案文档——只有复杂任务（需用户确认、需跨会话追溯）才写。
+完整协作协议见 `docs/analysis/protocol.md`。
+
+> 此角色由 [[architect-role]] 记忆锚定，CLAUDE.md 作为硬保证，双保险防遗忘。
+
 ## 常用命令
 
 ```bash
@@ -110,7 +126,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 └── tests/                        # composables/、server/、utils/、helpers/
 ```
 
-**类型与组合式函数放在一起**——没有独立的 `types/` 目录（仅 `types/lunar-javascript.d.ts` 类型声明存于此处）。共享接口（`Profile`、`BaZiResult`）从其所属的组合式函数中 `export`。
+**类型优先就近放**——组件/组合式函数专用的类型在其自身模块中 `export`。**跨模块共享的类型**（如 `FetchError`，被 10+ 个页面引用）放在 `types/` 目录，避免循环依赖。`types/lunar-javascript.d.ts` 仅为第三方库类型声明。
 
 ## 开发原则
 
@@ -183,6 +199,17 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - `main` 应始终保持干净——没有进行中的功能提交，没有计划/规范类提交。
 - 功能完成后通过 PR 合并回 `main`（`gh pr create`）。
 - **合并到 `main` 时必须使用 `git merge --no-ff`**，保留分支拓扑为提交图谱中的可见合并气泡。禁止快进合并——每个功能分支必须在图谱中留下可见的轨迹。
+
+#### Git Hooks（自动强制执行）
+
+项目配置了 `.githooks/` 目录，`git config core.hooksPath .githooks` 已激活：
+
+| Hook | 触发 | 行为 |
+|------|------|------|
+| `pre-commit` | `git commit` 前 | 当前分支为 `main` → 拒绝提交，提示切分支 |
+| `pre-push` | `git push` 前 | 自动运行 `npx vitest run` → 不通过拒绝推送 |
+
+新克隆项目需执行：`git config core.hooksPath .githooks`
 
 ### 关键约定
 
