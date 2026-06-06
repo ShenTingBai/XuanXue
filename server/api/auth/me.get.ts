@@ -14,7 +14,7 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 401, statusMessage: '会话无效' })
   }
 
-  const profile = dbGet('SELECT * FROM profiles WHERE id = ? AND deleted_at IS NULL', [profileId])
+  const profile = dbGet('SELECT * FROM profiles WHERE id = ? ', [profileId])
 
   if (!profile) {
     throw createError({ statusCode: 401, statusMessage: '用户不存在' })
