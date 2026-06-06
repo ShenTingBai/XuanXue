@@ -1,4 +1,4 @@
-<!-- 梅花易数 / Plum Blossom Yi Jing Divination -->
+﻿<!-- 梅花易数 / Plum Blossom Yi Jing Divination -->
 
 <script setup lang="ts">
 import {
@@ -20,7 +20,6 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
@@ -632,64 +631,71 @@ onUnmounted(() => {
             </p>
           </div>
 
-          <!-- Judgment & line statement -->
-          <div class="fade-in card-warm rounded-xl p-6" :style="{ '--delay': '0.5s' }">
-            <div class="section-header !mb-4"><h2>卦辞 · 爻辞</h2></div>
-            <div class="meihua-scroll-slip">
-              <div class="meihua-scroll-slip__section">
-                <h3 class="meihua-scroll-slip__title">本卦 — {{ result.benGua.hexagramName }}</h3>
-                <div class="meihua-scroll-slip__divider"></div>
-                <p class="meihua-scroll-slip__judgment">{{ result.benGua.judgment }}</p>
-              </div>
-              <div class="meihua-scroll-slip__section">
-                <h3 class="meihua-scroll-slip__title">白话解读</h3>
-                <div class="meihua-scroll-slip__divider"></div>
-                <p class="meihua-scroll-slip__interpretation">
-                  {{ result.benGua.interpretation || '此卦暂无白话解读' }}
-                </p>
-              </div>
-              <div class="meihua-scroll-slip__section">
-                <h3 class="meihua-scroll-slip__title">
-                  动爻 — 第{{ result.bianGua.movingLine }}爻
-                </h3>
-                <div class="meihua-scroll-slip__divider"></div>
-                <p class="meihua-scroll-slip__judgment">
-                  {{ result.bianGua.lineStatement || '（无爻辞）' }}
-                </p>
-              </div>
+          <!-- 白话解读 — 符纸叙事卷 -->
+          <div class="fade-in mt-6 meihua-slip" :style="{ '--delay': '0.5s' }">
+            <!-- Header: trigram + title + trigram -->
+            <div class="meihua-slip__header">
+              <span class="meihua-slip__trigram">☰</span>
+              <span class="meihua-slip__seal-mark">白 话 解 读</span>
+              <span class="meihua-slip__trigram">☷</span>
             </div>
-          </div>
 
-          <!-- Comprehensive analysis -->
-          <div class="fade-in card-warm rounded-xl p-6" :style="{ '--delay': '0.6s' }">
-            <div class="section-header !mb-4"><h2>综合解读</h2></div>
-            <div class="text-sm text-ink-medium leading-relaxed space-y-4">
-              <p>
-                <strong>本卦（{{ result.benGua.hexagramName }}）：</strong
-                >{{ result.benGua.interpretation }}
+            <div class="meihua-slip__divider"></div>
+
+            <!-- Section 1: 本卦 -->
+            <div class="meihua-slip__section">
+              <h3 class="meihua-slip__section-title">{{ result.benGua.hexagramName }}</h3>
+              <p class="meihua-slip__poem-text">{{ result.benGua.judgment }}</p>
+              <p class="meihua-slip__text">{{ result.benGua.interpretation }}</p>
+            </div>
+
+            <div class="meihua-slip__divider"></div>
+
+            <!-- Section 2: 动爻 -->
+            <div class="meihua-slip__section">
+              <h3 class="meihua-slip__section-title">动爻 · 第{{ result.bianGua.movingLine }}爻</h3>
+              <p class="meihua-slip__poem-text">
+                {{ result.bianGua.lineStatement || '（无爻辞）' }}
               </p>
-              <p>
-                <strong>互卦（{{ result.huGua.hexagramName }}）：</strong
-                >互卦由本卦中间四爻演化，反映事物发展过程的内部变化与潜在因素。
+            </div>
+
+            <div class="meihua-slip__divider"></div>
+
+            <!-- Section 3: 综合解卦 -->
+            <div class="meihua-slip__section">
+              <h3 class="meihua-slip__section-title">综合解卦</h3>
+              <p class="meihua-slip__text">
+                {{ result.benGua.hexagramName }}之卦，{{ result.benGua.interpretation }}
               </p>
-              <p>
-                <strong>变卦（{{ result.bianGua.hexagramName }}）：</strong>第{{
+              <p class="meihua-slip__text mt-2">
+                互卦{{
+                  result.huGua.hexagramName
+                }}，由本卦中间四爻演化而来，表示事物发展过程中的内在变化。
+              </p>
+              <p class="meihua-slip__text mt-2">
+                变卦{{ result.bianGua.hexagramName }}，因第{{
                   result.bianGua.movingLine
-                }}爻为动爻，爻辞："{{ result.bianGua.lineStatement }}"，反映事物发展的最终趋势。
+                }}爻动而变。{{ result.bianGua.lineStatement || '' }}
               </p>
-              <p>
-                <strong>体用生克（{{ result.tiYong.relation }}）：</strong
-                >{{ result.tiYong.description }}
+              <p class="meihua-slip__text mt-2">
+                体用关系：{{ result.tiYong.relation }}。{{ result.tiYong.description }}
               </p>
             </div>
-          </div>
-        </div>
 
-        <!-- Reset -->
-        <div class="text-center mt-6 pb-8">
-          <button class="btn-ink" @click="resetToForm" @keydown.enter="resetToForm">
-            <span>⟲ 重新起卦</span>
-          </button>
+            <!-- Footer seal -->
+            <div class="meihua-slip__footer">
+              <div class="meihua-slip__footer-line"></div>
+              <span class="meihua-slip__footer-seal">玄·道</span>
+              <div class="meihua-slip__footer-line"></div>
+            </div>
+          </div>
+
+          <!-- Reset -->
+          <div class="text-center mt-6 pb-8">
+            <button class="btn-ink" @click="resetToForm" @keydown.enter="resetToForm">
+              <span>⟲ 重新起卦</span>
+            </button>
+          </div>
         </div>
       </template>
     </div>
@@ -723,7 +729,6 @@ onUnmounted(() => {
       @keydown.enter="scrollToTop"
       @keydown.space.prevent="scrollToTop"
     />
-    <EntertainmentDisclaimer class="mt-8" />
   </ToolPageLayout>
 </template>
 
@@ -915,33 +920,80 @@ onUnmounted(() => {
   font-weight: 600;
   letter-spacing: 0.08em;
 }
-.meihua-scroll-slip {
+/* ── 梅花符纸叙事卷 ── */
+.meihua-slip {
   position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
   background: linear-gradient(
-    180deg,
-    var(--color-paper) 0%,
-    color-mix(in oklch, var(--color-ink-darkest) 4%, var(--color-paper)) 100%
+    175deg,
+    var(--color-scroll-light) 0%,
+    var(--color-scroll) 30%,
+    var(--color-scroll-dark) 100%
   );
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 6%, transparent);
+  box-shadow:
+    0 1px 3px color-mix(in oklch, var(--color-ink-darkest) 4%, transparent),
+    0 8px 24px color-mix(in oklch, var(--color-ink-darkest) 3%, transparent),
+    inset 0 0 80px color-mix(in oklch, var(--color-cinnabar) 1.5%, transparent);
 }
-.meihua-scroll-slip__section {
-  padding: 0.75rem 0;
+.meihua-slip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 15% 85%,
+      color-mix(in oklch, var(--color-ink-darkest) 1.5%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 85% 20%,
+      color-mix(in oklch, var(--color-cinnabar) 1%, transparent) 0%,
+      transparent 50%
+    );
+  opacity: 0.5;
+  z-index: 0;
 }
-.meihua-scroll-slip__section + .meihua-scroll-slip__section {
-  border-top: 1px solid color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
+.meihua-slip > * {
+  position: relative;
+  z-index: 1;
 }
-.meihua-scroll-slip__title {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-ink-dark);
-  letter-spacing: 0.1em;
+@media (min-width: 640px) {
+  .meihua-slip {
+    padding: 2.5rem 2rem;
+  }
 }
-.meihua-scroll-slip__divider {
+.meihua-slip__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.meihua-slip__trigram {
+  font-size: 1rem;
+  color: color-mix(in oklch, var(--color-cinnabar) 20%, transparent);
+}
+.meihua-slip__seal-mark {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 1rem;
+  border-radius: 3px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-cinnabar);
+  letter-spacing: 0.2em;
+  background: color-mix(in oklch, var(--color-cinnabar) 4%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 10%, transparent);
+  transform: rotate(-1deg);
+}
+.meihua-slip__divider {
   width: 100%;
   height: 1px;
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
   background: repeating-linear-gradient(
     90deg,
     color-mix(in oklch, var(--color-ink-darkest) 6%, transparent) 0px,
@@ -950,17 +1002,66 @@ onUnmounted(() => {
     transparent 12px
   );
 }
-.meihua-scroll-slip__judgment {
-  font-family: var(--font-display);
-  font-size: 0.8125rem;
-  color: var(--color-ink-dark);
-  line-height: 1.6;
-  margin-bottom: 0.5rem;
+.meihua-slip__section {
+  padding: 0.75rem 0;
 }
-.meihua-scroll-slip__interpretation {
+.meihua-slip__poem-text {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  line-height: 1.9;
+  color: var(--color-ink-darkest);
+  letter-spacing: 0.08em;
+}
+@media (min-width: 640px) {
+  .meihua-slip__poem-text {
+    font-size: 1.25rem;
+  }
+}
+.meihua-slip__section-title {
   font-family: var(--font-sans);
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink-dark);
+  letter-spacing: 0.12em;
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 0.75rem;
+}
+.meihua-slip__section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0.75rem;
+  background: color-mix(in oklch, var(--color-cinnabar) 30%, transparent);
+  border-radius: 2px;
+}
+.meihua-slip__text {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--color-ink-medium);
-  line-height: 1.7;
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+  white-space: pre-line;
+}
+.meihua-slip__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+}
+.meihua-slip__footer-line {
+  flex: 1;
+  height: 1px;
+  background: color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
+}
+.meihua-slip__footer-seal {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: color-mix(in oklch, var(--color-cinnabar) 40%, transparent);
+  letter-spacing: 0.3em;
 }
 </style>

@@ -3,7 +3,6 @@
 <script setup lang="ts">
 import { calculateGuMing, type GuMingResult } from '~/composables/useGuMing'
 import { HOUR_NAMES } from '~/constants/gu-ming'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 import type { Ref } from 'vue'
 import type { FetchError } from '~/types/errors'
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -472,7 +471,6 @@ const scalePercent = computed(function () {
             </div>
           </div>
         </div>
-        <EntertainmentDisclaimer class="mt-8" />
       </template>
     </div>
     <Transition name="toast">
