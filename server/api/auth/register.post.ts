@@ -1,3 +1,4 @@
+import { setCookie } from 'h3'
 import { dbGet, dbRun } from '../../database/db'
 import { cleanupExpiredSessions, createSessionToken, hashPin } from '../../utils/auth'
 import { toSafeProfile } from '../../utils/profile'
@@ -68,6 +69,17 @@ export default defineEventHandler(async event => {
   cleanupExpiredSessions()
 
   const token = createSessionToken(result.lastInsertRowid)
+
+  // Set httpOnly cookie alongside JSON response (gradual migration from localStorage)
+  if (event.node?.res) {
+    setCookie(event, 'xuanxue_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    })
+  }
 
   logSecurityEvent('register', result.lastInsertRowid as number, clientIp, 'New user registered')
 
