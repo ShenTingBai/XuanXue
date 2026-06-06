@@ -265,6 +265,9 @@ const scalePercent = computed(function () {
         <p class="text-xs text-ink-medium mb-6 tracking-wide">
           输入农历出生年月日时，袁天罡称骨法为你推算命格轻重。
         </p>
+        <p class="text-xs text-ink-light mt-1">
+          ⚠ 称骨以农历为准。若档案为阳历，填入时将自动转换。
+        </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
           <div>
             <label for="guming-year" class="input-label">出生年（农历）</label
@@ -398,6 +401,14 @@ const scalePercent = computed(function () {
                 <div class="scale-bar-fill" :style="{ width: scalePercent + '%' }"></div>
                 <div class="scale-bar-marker" :style="{ left: scalePercent + '%' }"></div>
               </div>
+              <div class="scale-bar-ticks">
+                <span
+                  v-for="t in [2.1, 3.0, 4.0, 5.0, 6.0, 7.2]"
+                  :key="t"
+                  class="scale-bar-tick"
+                  :style="{ left: ((t - 2.1) / (7.2 - 2.1)) * 100 + '%' }"
+                ></span>
+              </div>
               <div class="scale-bar-labels"><span>2.1 两</span><span>7.2 两</span></div>
             </div>
           </div>
@@ -495,35 +506,39 @@ const scalePercent = computed(function () {
 </template>
 <style scoped>
 .level-badge--shangshang {
-  background: color-mix(in oklch, var(--color-cinnabar) 10%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 8%, transparent);
   color: var(--color-cinnabar);
   border: 1px solid color-mix(in oklch, var(--color-cinnabar) 20%, transparent);
-  border-radius: 9999px;
+  border-radius: 3px;
+  transform: rotate(-1deg);
 }
 .level-badge--zhongshang {
   background: color-mix(in oklch, var(--color-jade) 8%, transparent);
   color: var(--color-jade);
-  border: 1px solid color-mix(in oklch, var(--color-jade) 15%, transparent);
-  border-radius: 9999px;
+  border: 1px solid color-mix(in oklch, var(--color-jade) 20%, transparent);
+  border-radius: 3px;
+  transform: rotate(-0.5deg);
 }
 .level-badge--zhong {
   background: color-mix(in oklch, var(--color-ink-light) 8%, transparent);
   color: var(--color-ink-dark);
-  border: 1px solid color-mix(in oklch, var(--color-ink-light) 15%, transparent);
-  border-radius: 9999px;
+  border: 1px solid color-mix(in oklch, var(--color-ink-light) 20%, transparent);
+  border-radius: 3px;
+  transform: none;
 }
 .level-badge--zhongxia {
   background: color-mix(in oklch, var(--color-gold) 8%, transparent);
   color: var(--color-gold);
-  border: 1px solid color-mix(in oklch, var(--color-gold) 15%, transparent);
-  border-radius: 9999px;
+  border: 1px solid color-mix(in oklch, var(--color-gold) 20%, transparent);
+  border-radius: 3px;
+  transform: rotate(0.5deg);
 }
 .level-badge--xiaxia {
-  background: color-mix(in oklch, var(--color-ink-light) 8%, transparent);
+  background: color-mix(in oklch, var(--color-ink-light) 10%, transparent);
   color: var(--color-ink-muted);
-  border: 1px solid color-mix(in oklch, var(--color-ink-light) 20%, transparent);
-  border-radius: 1px;
-  transform: none;
+  border: 1px solid color-mix(in oklch, var(--color-ink-light) 25%, transparent);
+  border-radius: 3px;
+  transform: rotate(1deg);
 }
 .scale-card {
   padding: 1.5rem;
@@ -618,6 +633,19 @@ const scalePercent = computed(function () {
   font-size: 0.6875rem;
   color: var(--color-ink-muted);
 }
+.scale-bar-ticks {
+  position: relative;
+  height: 8px;
+  margin: 2px 0 4px;
+}
+.scale-bar-tick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: color-mix(in oklch, var(--color-ink-darkest) 15%, transparent);
+  transform: translateX(-50%);
+}
 .weight-table {
   width: 100%;
 }
@@ -675,6 +703,29 @@ const scalePercent = computed(function () {
     0 1px 3px color-mix(in oklch, var(--color-ink-darkest) 4%, transparent),
     0 8px 24px color-mix(in oklch, var(--color-ink-darkest) 3%, transparent),
     inset 0 0 80px color-mix(in oklch, var(--color-cinnabar) 1.5%, transparent);
+}
+.gu-slip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 15% 85%,
+      color-mix(in oklch, var(--color-ink-darkest) 1.5%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 85% 20%,
+      color-mix(in oklch, var(--color-cinnabar) 1%, transparent) 0%,
+      transparent 50%
+    );
+  opacity: 0.5;
+  z-index: 0;
+}
+.gu-slip > * {
+  position: relative;
+  z-index: 1;
 }
 @media (min-width: 640px) {
   .gu-slip {

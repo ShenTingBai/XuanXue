@@ -287,6 +287,16 @@ const tiYongResultLabel: Record<string, string> = {
   用克体: '用克体 — 凶',
 }
 
+const tiyongRelationArrow = computed(() => {
+  if (!result.value) return ''
+  const r = result.value.tiYong.relation
+  if (r === '体生用') return '→' // ti generates yong
+  if (r === '用生体') return '←' // yong generates ti
+  if (r === '体克用') return '⇢' // ti controls yong
+  if (r === '用克体') return '⇠' // yong controls ti
+  return '↔' // bi he
+})
+
 // ── Scroll handling ──
 function handleScroll() {
   showScrollTop.value = window.scrollY > 300
@@ -595,6 +605,7 @@ onUnmounted(() => {
                 }}</span>
               </div>
               <div class="tiyong-relation">
+                <div class="tiyong-relation__arrow">{{ tiyongRelationArrow }}</div>
                 <div class="tiyong-relation__label">{{ result.tiYong.relation }}</div>
                 <div
                   class="tiyong-relation__result"
@@ -646,7 +657,7 @@ onUnmounted(() => {
           <!-- Comprehensive analysis -->
           <div class="fade-in card-warm rounded-xl p-6" :style="{ '--delay': '0.6s' }">
             <div class="section-header !mb-4"><h2>综合解读</h2></div>
-            <div class="text-xs text-ink-medium leading-relaxed space-y-3">
+            <div class="text-sm text-ink-medium leading-relaxed space-y-4">
               <p>
                 <strong>本卦（{{ result.benGua.hexagramName }}）：</strong
                 >{{ result.benGua.interpretation }}
@@ -732,21 +743,42 @@ onUnmounted(() => {
   background: color-mix(in oklch, var(--color-cinnabar) 5%, transparent);
 }
 .meihua-hexagrams {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr auto 1fr auto 1fr;
   align-items: center;
   gap: 0.5rem;
+}
+.meihua-hexagrams::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in oklch, var(--color-cinnabar) 12%, transparent);
+  z-index: 0;
 }
 @media (max-width: 640px) {
   .meihua-hexagrams {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
+  .meihua-hexagrams::before {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
   .hexagram-arrow {
     transform: rotate(90deg);
   }
 }
 .hexagram-card {
+  position: relative;
+  z-index: 1;
   text-align: center;
   padding: 1.25rem 0.75rem;
   border-radius: 0.75rem;
@@ -823,6 +855,23 @@ onUnmounted(() => {
   padding: 0.75rem;
   border-radius: 0.5rem;
   background: color-mix(in oklch, var(--color-ink-darkest) 4%, transparent);
+}
+.tiyong-relation__arrow {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-cinnabar);
+  animation: pulse-arrow 2s ease-in-out infinite;
+}
+@keyframes pulse-arrow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
 }
 .tiyong-card__label {
   font-family: var(--font-sans);
