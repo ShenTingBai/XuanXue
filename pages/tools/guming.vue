@@ -67,7 +67,7 @@ function handleAutoFill() {
     birthMonth.value = data.month
     birthDay.value = data.day
     if (data.hour != null) birthHour.value = data.hour
-    gender.value = data.gender === 'male' ? 'male' : 'female'
+    gender.value = data.gender ?? 'male'
   }
 }
 
