@@ -80,38 +80,51 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
   const showBanner = ref(false)
   const isFilled = ref(false)
   const birthData = ref<AutoFillBirthData | null>(null)
+  const missingBirth = ref(false)
 
   /** Check if profile has complete birthday data and prepare the fill data */
   function checkAvailability(): void {
     const profile = currentProfile.value
+    console.log('[auto-fill] checkAvailability called')
+    console.log('[auto-fill] currentProfile:', profile ? { id: profile.id, nickname: profile.nickname, birth_date: profile.birth_date, birth_calendar: profile.birth_calendar } : null)
+
     if (!profile) {
+      console.log('[auto-fill] FAIL: no profile (not logged in)')
       showBanner.value = false
+      missingBirth.value = false
       return
     }
 
-    // Need at minimum: birth_date
     if (!profile.birth_date) {
+      console.log('[auto-fill] FAIL: birth_date is', profile.birth_date)
+      missingBirth.value = true
       showBanner.value = false
       return
     }
 
     const parsed = parseBirthDate(profile.birth_date)
+    console.log('[auto-fill] parseBirthDate result:', parsed)
     if (!parsed) {
+      console.log('[auto-fill] FAIL: could not parse birth_date:', profile.birth_date)
+      missingBirth.value = true
       showBanner.value = false
       return
     }
 
     const profileCalendar = (profile.birth_calendar as 'solar' | 'lunar') || 'solar'
-
-    // Check if the tool needs this calendar type or can convert
     const canConvert = config.calendarNeeded === 'both' || config.calendarNeeded === profileCalendar
+    console.log('[auto-fill] calendarNeeded:', config.calendarNeeded, 'profileCalendar:', profileCalendar, 'canConvert:', canConvert)
+
     if (!canConvert) {
+      console.log('[auto-fill] FAIL: calendar mismatch')
+      missingBirth.value = false
       showBanner.value = false
       return
     }
 
+    console.log('[auto-fill] SUCCESS: showBanner = true')
+    missingBirth.value = false
     showBanner.value = true
-    console.debug('[auto-fill] Profile found, banner should show:', profile.nickname)
   }
 
   /** Execute the fill: read profile, optionally convert calendar, return data */
@@ -184,6 +197,7 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
     showBanner: readonly(showBanner),
     isFilled: readonly(isFilled),
     birthData: readonly(birthData),
+    missingBirth: readonly(missingBirth),
     checkAvailability,
     applyAutoFill,
     revokeAutoFill,

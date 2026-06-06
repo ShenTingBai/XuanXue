@@ -54,6 +54,7 @@ const {
   showBanner,
   isFilled,
   birthData,
+  missingBirth,
   checkAvailability,
   applyAutoFill,
   revokeAutoFill,
@@ -104,11 +105,14 @@ function scrollToTop() {
 }
 onMounted(async () => {
   await restoreSession()
+  console.log('[auto-fill] guming onMounted: restoreSession done, currentProfile:', currentProfile.value?.nickname)
   if (!currentProfile.value) {
     router.push('/login')
     return
   }
+  console.log('[auto-fill] guming: calling checkAvailability')
   checkAvailability()
+  console.log('[auto-fill] guming: showBanner =', showBanner, ', missingBirth =', missingBirth)
   window.addEventListener('scroll', handleScroll, { passive: true })
 })
 onUnmounted(() => {
@@ -241,9 +245,11 @@ const scalePercent = computed(function () {
         </template>
       </ToolToolbar>
       <ProfileAutoFillBanner
-        v-if="showBanner"
+        v-if="showBanner || missingBirth"
         :profile-name="birthData?.profileName || ''"
         :is-filled="isFilled"
+        :missing-birth="missingBirth"
+        :profile-id="currentProfile?.id"
         :conversion-note="birthData?.conversionNote"
         @fill="handleAutoFill"
         @revoke="handleRevoke"

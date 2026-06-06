@@ -3,6 +3,8 @@ const props = defineProps<{
   profileName: string
   isFilled: boolean
   conversionNote?: string
+  missingBirth?: boolean
+  profileId?: number
 }>()
 
 const emit = defineEmits<{
@@ -12,7 +14,16 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div v-if="!props.isFilled" class="auto-fill-banner">
+  <!-- Missing birth date banner -->
+  <div v-if="props.missingBirth" class="auto-fill-banner auto-fill-banner--missing">
+    <span class="banner-label">
+      📝 命簿中尚未填写生日，
+      <NuxtLink :to="'/profile/' + props.profileId" class="banner-link">前往设置</NuxtLink>
+    </span>
+  </div>
+
+  <!-- Normal auto-fill banner -->
+  <div v-else-if="!props.isFilled" class="auto-fill-banner">
     <span class="banner-label">
       从命簿「<strong>{{ props.profileName }}</strong
       >」填入生辰
@@ -100,5 +111,16 @@ const emit = defineEmits<{
 .banner-revoke-btn:hover {
   color: var(--color-cinnabar, #c62828);
   text-decoration: underline;
+}
+.banner-link {
+  color: var(--color-cinnabar, #c62828);
+  text-decoration: underline;
+  font-weight: 500;
+}
+.banner-link:hover {
+  color: var(--color-cinnabar-deeper, #9c1a1c);
+}
+.auto-fill-banner--missing {
+  border-left-color: var(--color-gold, #b8860b);
 }
 </style>
