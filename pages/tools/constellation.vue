@@ -52,7 +52,13 @@ const constellationSynthesis: string[] = [
   '解释文本为现代白话转述（非 Ptolemy 原文）',
 ]
 
-useHead({ title: '星座 — 玄·道' })
+useSeoMeta({
+  title: '星座星盘 — 玄·道',
+  ogTitle: '星座星盘 — 玄·道',
+  description: '探索你的星座特征、今日运势、星盘轨迹和缘分匹配，发现星空下的你。',
+  ogDescription: '探索你的星座特征、今日运势、星盘轨迹和缘分匹配，发现星空下的你。',
+  ogType: 'website',
+})
 
 const result = ref<ConstellationResult | null>(null)
 const loading = ref(true)

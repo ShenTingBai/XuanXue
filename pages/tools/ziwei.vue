@@ -45,7 +45,13 @@ const ziweiSynthesis: string[] = [
   '天星图地支→角度映射为工程定义（经典紫微无"天星图"可视化传统）',
 ]
 
-useHead({ title: '紫微斗数 — 玄·道' })
+useSeoMeta({
+  title: '紫微斗数 — 玄·道',
+  ogTitle: '紫微斗数 — 玄·道',
+  description: '紫微斗数命盘推演，查看你的十二宫星曜、四化飞星和大限流年运势。',
+  ogDescription: '紫微斗数命盘推演，查看你的十二宫星曜、四化飞星和大限流年运势。',
+  ogType: 'website',
+})
 
 const router = useRouter()
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()

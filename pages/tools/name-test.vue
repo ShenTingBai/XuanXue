@@ -16,7 +16,13 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ScoreRing from '~/components/tools/ScoreRing.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-useHead({ title: '姓名测试 — 玄·道' })
+useSeoMeta({
+  title: '姓名测试 — 玄·道',
+  ogTitle: '姓名测试 — 玄·道',
+  description: '姓名三才五格测试，分析你的姓名笔画数理，了解天格/人格/地格的吉凶。',
+  ogDescription: '姓名三才五格测试，分析你的姓名笔画数理，了解天格/人格/地格的吉凶。',
+  ogType: 'website',
+})
 
 // ── 方法论溯源数据 ──
 const nameTestClassical: ClassicalSource[] = [

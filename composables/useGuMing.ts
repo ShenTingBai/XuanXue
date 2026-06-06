@@ -84,7 +84,11 @@ function getLevel(totalWeight: number): GuMingLevel {
 
 // ── 白话解读生成 ──────────────────────────────────
 
-function generateInterpretation(level: GuMingLevel, totalWeight: number, totalWeightText: string): string {
+function generateInterpretation(
+  level: GuMingLevel,
+  totalWeight: number,
+  totalWeightText: string,
+): string {
   const levelInfo = LEVEL_CONFIG[level]
   const levelDesc = levelInfo ? levelInfo.desc : ''
 
@@ -92,7 +96,9 @@ function generateInterpretation(level: GuMingLevel, totalWeight: number, totalWe
   lines.push(`尊驾骨重 ${totalWeightText}，属「${level}」之命。`)
   lines.push(levelDesc)
   lines.push(`此命总骨重 ${totalWeight.toFixed(1)} 两，对应称骨歌断语如上。`)
-  lines.push('称骨算命乃袁天罡先师所传，以出生年月日时四柱各赋骨重，累积而定命格轻重。骨重愈高，命格愈贵。然命运终由己造，此说仅供参详。')
+  lines.push(
+    '称骨算命乃袁天罡先师所传，以出生年月日时四柱各赋骨重，累积而定命格轻重。骨重愈高，命格愈贵。然命运终由己造，此说仅供参详。',
+  )
 
   return lines.join('\n')
 }
@@ -105,7 +111,7 @@ function generateInterpretation(level: GuMingLevel, totalWeight: number, totalWe
  */
 export function calculateGuMing(input: GuMingInput): GuMingResult {
   // 年柱骨重：六十甲子索引
-  const ganzhiIndex = ((input.birthYear - 4) % 60 + 60) % 60
+  const ganzhiIndex = (((input.birthYear - 4) % 60) + 60) % 60
   const yearWeight = YEAR_WEIGHTS[ganzhiIndex]
   const yearGanzhi = SIXTY_JIAZI[ganzhiIndex]
 
@@ -117,9 +123,8 @@ export function calculateGuMing(input: GuMingInput): GuMingResult {
 
   // 找断语
   const fortuneIndex = Math.round((totalWeight - MIN_WEIGHT) * 10)
-  const fortune = fortuneIndex >= 0 && fortuneIndex < FORTUNE_TEXTS.length
-    ? FORTUNE_TEXTS[fortuneIndex]
-    : ''
+  const fortune =
+    fortuneIndex >= 0 && fortuneIndex < FORTUNE_TEXTS.length ? FORTUNE_TEXTS[fortuneIndex] : ''
 
   const level = getLevel(totalWeight)
   const totalWeightText = toChineseWeight(totalWeight)

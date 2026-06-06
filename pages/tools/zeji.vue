@@ -40,7 +40,13 @@ const zejiSynthesis: string[] = [
   '评分权重和阈值为开发者校准（无经典原文量化标准）',
 ]
 
-useHead({ title: '择吉日 — 玄·道' })
+useSeoMeta({
+  title: '择吉日 — 玄·道',
+  ogTitle: '择吉日 — 玄·道',
+  description: '传统择吉日推荐，根据十二值星、黄黑道和二十八宿为你挑选最佳日期。',
+  ogDescription: '传统择吉日推荐，根据十二值星、黄黑道和二十八宿为你挑选最佳日期。',
+  ogType: 'website',
+})
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
@@ -85,7 +91,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll)
+  window.removeEventListener('scroll', handleScroll)
   if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
@@ -184,24 +190,24 @@ async function saveDivinationResult(res: ZejiResult) {
       viewYear: displayMonth.value.year,
       viewMonth: displayMonth.value.month,
     }
-    const saveRes = await $fetch<{ id: number; created_at: string }>("/api/divinations", {
-      method: "POST",
+    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
       headers,
       body: {
-        type: "zeji",
+        type: 'zeji',
         input_data: inputData,
         result_data: JSON.parse(JSON.stringify(res)),
       },
     })
     savedDivinationId.value = saveRes.id
-    saveError.value = ""
+    saveError.value = ''
   } catch (e: unknown) {
-    if (e && typeof e === "object" && "statusCode" in e) {
+    if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as FetchError).statusCode
       if (code === 429) return
       if (code === 401) return
     }
-    console.error("保存择吉记录失败:", e)
+    console.error('保存择吉记录失败:', e)
   }
 }
 
@@ -210,7 +216,7 @@ async function onHistoryRestore(id: number) {
   try {
     const headers = getAuthHeaders()
     if (!headers.Authorization) return
-    const record = await $fetch<import("~/server/api/divinations/shared").DivinationDetailResponse>(
+    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
       {
         headers,
@@ -218,29 +224,29 @@ async function onHistoryRestore(id: number) {
     )
     if (
       record.result_data &&
-      typeof record.result_data === "object" &&
+      typeof record.result_data === 'object' &&
       (record.result_data as Record<string, unknown>).eventType !== undefined
     ) {
       result.value = record.result_data as ZejiResult
-      restoreError.value = ""
+      restoreError.value = ''
     } else {
-      restoreError.value = "历史记录数据无效"
+      restoreError.value = '历史记录数据无效'
       if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
       restoreErrorTimer.value = setTimeout(() => {
-        restoreError.value = ""
+        restoreError.value = ''
       }, 6000)
     }
   } catch {
-    restoreError.value = "历史记录加载失败，请稍后重试"
+    restoreError.value = '历史记录加载失败，请稍后重试'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
     restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ""
+      restoreError.value = ''
     }, 6000)
   }
 }
 
 function dismissRestoreError() {
-  restoreError.value = ""
+  restoreError.value = ''
 }
 
 function handleSelectDate(dateStr: string) {

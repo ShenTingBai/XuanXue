@@ -62,7 +62,7 @@ export const useAuth = () => {
 
   async function restoreSessionFromApi(): Promise<boolean> {
     try {
-      const data = await $fetch<{ profile: Profile }>("/api/auth/me")
+      const data = await $fetch<{ profile: Profile }>('/api/auth/me')
       currentProfile.value = data.profile
       return true
     } catch {

@@ -26,16 +26,8 @@ export default defineConfig({
         functions: 60,
         statements: 60,
       },
-      include: [
-        'composables/**/*.ts',
-        'utils/**/*.ts',
-        'server/utils/**/*.ts',
-      ],
-      exclude: [
-        'constants/**',
-        'tests/**',
-        'node_modules/**',
-      ],
+      include: ['composables/**/*.ts', 'utils/**/*.ts', 'server/utils/**/*.ts'],
+      exclude: ['constants/**', 'tests/**', 'node_modules/**'],
     },
   },
 })

@@ -39,7 +39,7 @@ let errorTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(
   () => props.exportError,
-  (err) => {
+  err => {
     if (err) {
       showExportError.value = true
       showSuccess.value = false

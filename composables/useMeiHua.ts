@@ -14,23 +14,23 @@ import {
   getWuxingControlled,
 } from '~/constants/meihua'
 
-export type InputMethod = "time" | "manual" | "random"
+export type InputMethod = 'time' | 'manual' | 'random'
 
 export interface MeiHuaInput {
-  upperNumber: number    // 1-999
+  upperNumber: number // 1-999
   lowerNumber: number
   movingNumber: number
   method: InputMethod
-  question?: string      // user question (optional)
+  question?: string // user question (optional)
 }
 
 export interface HexagramInfo {
-  upperTrigram: number    // 1-8
+  upperTrigram: number // 1-8
   lowerTrigram: number
   upperName: string
   lowerName: string
-  hexagramName: string    // e.g., "火风鼎"
-  hexagramKey: string     // e.g., "3:5" (upper:lower)
+  hexagramName: string // e.g., "火风鼎"
+  hexagramKey: string // e.g., "3:5" (upper:lower)
   judgment: string
   interpretation: string
 }
@@ -50,16 +50,16 @@ export interface BianGuaInfo {
   lowerName: string
   hexagramName: string
   hexagramKey: string
-  movingLine: number      // 1-6
+  movingLine: number // 1-6
   lineStatement: string
 }
 
 export interface TiYongInfo {
-  tiGua: number           // 体卦 (the gua WITHOUT the moving line)
-  yongGua: number         // 用卦 (the gua WITH the moving line)
-  relation: string        // "体生用" | "用生体" | "体克用" | "用克体" | "比和"
+  tiGua: number // 体卦 (the gua WITHOUT the moving line)
+  yongGua: number // 用卦 (the gua WITH the moving line)
+  relation: string // "体生用" | "用生体" | "体克用" | "用克体" | "比和"
   description: string
-  result: "吉" | "凶" | "平"
+  result: '吉' | '凶' | '平'
 }
 
 export interface MeiHuaResult {
@@ -86,7 +86,7 @@ function linesToTrigram(line1: number, line2: number, line3: number): number {
 
 function getTrigramName(num: number): string {
   const t = TRIGRAMS[num]
-  return t ? t.name : ""
+  return t ? t.name : ''
 }
 
 // ============================
@@ -94,7 +94,7 @@ function getTrigramName(num: number): string {
 // ============================
 
 function getBenGua(upperNum: number, lowerNum: number): HexagramInfo & { allLines: number[] } {
-  const key = upperNum + ":" + lowerNum
+  const key = upperNum + ':' + lowerNum
   const h = HEXAGRAMS[key]
   const upperLines = trigramToLines(upperNum)
   const lowerLines = trigramToLines(lowerNum)
@@ -103,10 +103,10 @@ function getBenGua(upperNum: number, lowerNum: number): HexagramInfo & { allLine
     lowerTrigram: lowerNum,
     upperName: getTrigramName(upperNum),
     lowerName: getTrigramName(lowerNum),
-    hexagramName: h ? h.name : "",
+    hexagramName: h ? h.name : '',
     hexagramKey: key,
-    judgment: h ? h.judgment : "",
-    interpretation: h ? h.interpretation : "",
+    judgment: h ? h.judgment : '',
+    interpretation: h ? h.interpretation : '',
     allLines: lowerLines.concat(upperLines),
   }
 }
@@ -122,14 +122,14 @@ function getHuGua(allLines: number[]): HuGuaInfo {
   // Hu upper trigram = lines 3,4,5 (indices 2,3,4)
   const huLowerNum = linesToTrigram(allLines[1], allLines[2], allLines[3])
   const huUpperNum = linesToTrigram(allLines[2], allLines[3], allLines[4])
-  const key = huUpperNum + ":" + huLowerNum
+  const key = huUpperNum + ':' + huLowerNum
   const h = HEXAGRAMS[key]
   return {
     upperTrigram: huUpperNum,
     lowerTrigram: huLowerNum,
     upperName: getTrigramName(huUpperNum),
     lowerName: getTrigramName(huLowerNum),
-    hexagramName: h ? h.name : "",
+    hexagramName: h ? h.name : '',
   }
 }
 
@@ -150,7 +150,7 @@ function getBianGua(upperNum: number, lowerNum: number, movingLine: number): Bia
   // Reconstruct trigrams
   const newLower = linesToTrigram(allLines[0], allLines[1], allLines[2])
   const newUpper = linesToTrigram(allLines[3], allLines[4], allLines[5])
-  const key = newUpper + ":" + newLower
+  const key = newUpper + ':' + newLower
   const h = HEXAGRAMS[key]
 
   return {
@@ -158,7 +158,7 @@ function getBianGua(upperNum: number, lowerNum: number, movingLine: number): Bia
     lowerTrigram: newLower,
     upperName: getTrigramName(newUpper),
     lowerName: getTrigramName(newLower),
-    hexagramName: h ? h.name : "",
+    hexagramName: h ? h.name : '',
     hexagramKey: key,
     movingLine,
     lineStatement: getLineStatement(key, idx),
@@ -175,28 +175,28 @@ function getTiYong(upperNum: number, lowerNum: number, movingLine: number): TiYo
   let tiGua: number
   let yongGua: number
   if (movingLine >= 1 && movingLine <= 3) {
-    yongGua = lowerNum  // 用卦 = 有动爻的卦 (下卦)
-    tiGua = upperNum    // 体卦 = 无动爻的卦 (上卦)
+    yongGua = lowerNum // 用卦 = 有动爻的卦 (下卦)
+    tiGua = upperNum // 体卦 = 无动爻的卦 (上卦)
   } else {
-    yongGua = upperNum  // 用卦 = 有动爻的卦 (上卦)
-    tiGua = lowerNum    // 体卦 = 无动爻的卦 (下卦)
+    yongGua = upperNum // 用卦 = 有动爻的卦 (上卦)
+    tiGua = lowerNum // 体卦 = 无动爻的卦 (下卦)
   }
 
-  const tiWx = TRIGRAMS[tiGua] ? TRIGRAMS[tiGua].wuxing : ""
-  const yongWx = TRIGRAMS[yongGua] ? TRIGRAMS[yongGua].wuxing : ""
-  const skKey = tiWx + ":" + yongWx
+  const tiWx = TRIGRAMS[tiGua] ? TRIGRAMS[tiGua].wuxing : ''
+  const yongWx = TRIGRAMS[yongGua] ? TRIGRAMS[yongGua].wuxing : ''
+  const skKey = tiWx + ':' + yongWx
   const sk = SHENG_KE_INTERPRETATIONS[skKey]
 
-  const relation = sk ? sk.result : ""
-  const description = sk ? sk.description : ""
+  const relation = sk ? sk.result : ''
+  const description = sk ? sk.description : ''
 
-  let result: "吉" | "凶" | "平"
-  if (relation === "比和" || relation === "用生体" || relation === "体克用") {
-    result = "吉"
-  } else if (relation === "用克体") {
-    result = "凶"
+  let result: '吉' | '凶' | '平'
+  if (relation === '比和' || relation === '用生体' || relation === '体克用') {
+    result = '吉'
+  } else if (relation === '用克体') {
+    result = '凶'
   } else {
-    result = "平"
+    result = '平'
   }
 
   return { tiGua, yongGua, relation, description, result }
@@ -208,9 +208,9 @@ function getTiYong(upperNum: number, lowerNum: number, movingLine: number): TiYo
 
 export function calculateMeiHua(input: MeiHuaInput): MeiHuaResult {
   // Normalize numbers to valid ranges
-  const upperNum = ((Math.abs(input.upperNumber) - 1) % 8 + 8) % 8 + 1
-  const lowerNum = ((Math.abs(input.lowerNumber) - 1) % 8 + 8) % 8 + 1
-  const movingLine = ((Math.abs(input.movingNumber) - 1) % 6 + 6) % 6 + 1
+  const upperNum = ((((Math.abs(input.upperNumber) - 1) % 8) + 8) % 8) + 1
+  const lowerNum = ((((Math.abs(input.lowerNumber) - 1) % 8) + 8) % 8) + 1
+  const movingLine = ((((Math.abs(input.movingNumber) - 1) % 6) + 6) % 6) + 1
 
   const benGua = getBenGua(upperNum, lowerNum)
   const huGua = getHuGua(benGua.allLines)
@@ -234,7 +234,7 @@ export function calculateMeiHuaFromDate(
   year: number,
   month: number,
   day: number,
-  hourBranchIndex?: number
+  hourBranchIndex?: number,
 ): MeiHuaResult {
   const hour = hourBranchIndex !== undefined ? hourBranchIndex : 0
   const sum = year + month + day
@@ -249,6 +249,6 @@ export function calculateMeiHuaFromDate(
     upperNumber,
     lowerNumber,
     movingNumber,
-    method: "time",
+    method: 'time',
   })
 }

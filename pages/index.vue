@@ -2,7 +2,12 @@
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 import { STEMS, BRANCHES } from '~/constants/bazi'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getStemIndex, getNayinWuxing } from '~/constants/bazi'
+import {
+  WUXING_COLORS,
+  WUXING_FALLBACK_COLOR,
+  getStemIndex,
+  getNayinWuxing,
+} from '~/constants/bazi'
 import { calculateBaZi } from '~/composables/useBaZi'
 import { calculateShenSha } from '~/composables/useShenSha'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
@@ -24,7 +29,14 @@ const SOLAR_TERM_NAMES = [
   '小寒',
 ]
 
-useHead({ title: '玄·道 — 玄天机 · 道命理' })
+useSeoMeta({
+  title: '玄·道 — 玄天机 · 道命理',
+  ogTitle: '玄·道 — 玄天机 · 道命理',
+  description: '传统命理推演平台，提供八字排盘、紫微斗数、六爻占卜、生肖运势、星座星盘等术数工具。',
+  ogDescription:
+    '传统命理推演平台，提供八字排盘、紫微斗数、六爻占卜、生肖运势、星座星盘等术数工具。',
+  ogType: 'website',
+})
 
 const { restoreSession, currentProfile } = useAuth()
 const greeting = useGreeting()
@@ -435,10 +447,7 @@ const goToLogin = () => {
             示例：1990年5月15日 午时
           </p>
 
-          <div
-            v-if="sampleBaZi"
-            class="card-warm card-warm--elevated rounded-xl p-8 anim-rise"
-          >
+          <div v-if="sampleBaZi" class="card-warm card-warm--elevated rounded-xl p-8 anim-rise">
             <!-- Four pillars -->
             <div class="grid grid-cols-4 gap-4 sm:gap-6">
               <div
@@ -455,10 +464,14 @@ const goToLogin = () => {
                 <div class="flex items-center gap-1.5 mb-1">
                   <span
                     class="inline-block w-2.5 h-2.5 rounded-full"
-                    :style="{ background: WUXING_COLORS[pillar.data.stemWuxing] || WUXING_FALLBACK_COLOR }"
+                    :style="{
+                      background: WUXING_COLORS[pillar.data.stemWuxing] || WUXING_FALLBACK_COLOR,
+                    }"
                     :aria-label="pillar.data.stemWuxing"
                   ></span>
-                  <span class="font-sans text-xs text-ink-medium">{{ pillar.data.stemWuxing }}</span>
+                  <span class="font-sans text-xs text-ink-medium">{{
+                    pillar.data.stemWuxing
+                  }}</span>
                 </div>
                 <span class="font-sans text-[0.6875rem] text-ink-light tracking-[0.1em]">
                   {{ getNayinWuxing(pillar.data.stem, pillar.data.branch) || '—' }}命
@@ -479,11 +492,15 @@ const goToLogin = () => {
                 <span class="font-sans text-sm text-ink-medium">日主：</span>
                 <span
                   class="font-display text-lg"
-                  :style="{ color: WUXING_COLORS[sampleBaZi.dayMasterWuxing] || WUXING_FALLBACK_COLOR }"
+                  :style="{
+                    color: WUXING_COLORS[sampleBaZi.dayMasterWuxing] || WUXING_FALLBACK_COLOR,
+                  }"
                 >
                   {{ sampleBaZi.dayMaster }}{{ sampleBaZi.dayMasterWuxing }}
                 </span>
-                <span class="font-sans text-sm text-ink-medium">（{{ sampleBaZi.dayMasterStrength }}）</span>
+                <span class="font-sans text-sm text-ink-medium"
+                  >（{{ sampleBaZi.dayMasterStrength }}）</span
+                >
               </div>
 
               <span
@@ -492,14 +509,27 @@ const goToLogin = () => {
                 aria-hidden="true"
               ></span>
 
-              <div v-if="prominentShenSha.length > 0" class="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <div
+                v-if="prominentShenSha.length > 0"
+                class="flex flex-wrap items-center gap-x-3 gap-y-1"
+              >
                 <span class="font-sans text-xs text-ink-light tracking-[0.1em]">神煞：</span>
                 <span
                   v-for="s in prominentShenSha"
                   :key="s.name"
                   class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm font-sans"
-                  :class="s.category === '吉' ? 'text-jade' : s.category === '凶' ? 'text-cinnabar' : 'text-ink-medium'"
-                  style="font-size: 0.6875rem; letter-spacing: 0.08em; background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent)"
+                  :class="
+                    s.category === '吉'
+                      ? 'text-jade'
+                      : s.category === '凶'
+                        ? 'text-cinnabar'
+                        : 'text-ink-medium'
+                  "
+                  style="
+                    font-size: 0.6875rem;
+                    letter-spacing: 0.08em;
+                    background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+                  "
                 >
                   {{ s.name }}
                 </span>
@@ -509,7 +539,9 @@ const goToLogin = () => {
             <!-- Footer note -->
             <p class="mt-5 font-sans text-xs text-ink-light tracking-[0.1em]">
               * 此为示例命盘，
-              <NuxtLink to="/login" class="text-cinnabar no-underline hover:underline">登录</NuxtLink>
+              <NuxtLink to="/login" class="text-cinnabar no-underline hover:underline"
+                >登录</NuxtLink
+              >
               后可排自己的盘
             </p>
           </div>
@@ -783,7 +815,6 @@ const goToLogin = () => {
           </div>
         </div>
 
-
         <!-- 五行穿衣指南 -->
         <div class="daily-wuxing mt-6 card-warm p-6 anim-rise" style="--delay: 0.3s">
           <div class="section-header">
@@ -793,14 +824,15 @@ const goToLogin = () => {
             今日{{ dailyWuxing.dayStem }}日（{{ dailyWuxing.dayWuxing }}），宜着：
           </p>
           <div class="flex gap-2 flex-wrap">
-            <span v-for="color in dailyWuxing.luckyColorNames" :key="color"
-              class="px-3 py-1 rounded-full text-sm bg-cinnabar/10 text-cinnabar">
+            <span
+              v-for="color in dailyWuxing.luckyColorNames"
+              :key="color"
+              class="px-3 py-1 rounded-full text-sm bg-cinnabar/10 text-cinnabar"
+            >
               {{ color }}
             </span>
           </div>
-          <p class="text-xs text-ink/30 mt-2">
-            避：{{ dailyWuxing.avoidColorNames.join('、') }}
-          </p>
+          <p class="text-xs text-ink/30 mt-2">避：{{ dailyWuxing.avoidColorNames.join('、') }}</p>
         </div>
 
         <!-- Section header -->

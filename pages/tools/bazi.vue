@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { calculateBaZi, calculateTaiYuan, calculateMingGong, calculateShenGong, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
+import {
+  calculateBaZi,
+  calculateTaiYuan,
+  calculateMingGong,
+  calculateShenGong,
+  type BaZiResult,
+  type BaZiPillar,
+} from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
 import { getStemIndex, getAnimal, sectionMap, BRANCHES } from '~/constants/bazi'
@@ -28,7 +35,13 @@ import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-useHead({ title: '八字排盘 — 玄·道' })
+useSeoMeta({
+  title: '八字排盘 — 玄·道',
+  ogTitle: '八字排盘 — 玄·道',
+  description: '通过四柱八字排盘，了解你的先天命格、十神格局、大运流年，探索人生轨迹。',
+  ogDescription: '通过四柱八字排盘，了解你的先天命格、十神格局、大运流年，探索人生轨迹。',
+  ogType: 'website',
+})
 
 // ── Methodology data ──
 const baziClassical: ClassicalSource[] = [
@@ -414,8 +427,10 @@ const palaces = computed(() => {
   if (!result.value) return null
   const { monthPillar, hourPillar } = result.value
   const monthStemIdx = getStemIndex(monthPillar.stem)
-  const monthBranchIdx = BRANCHES.indexOf(monthPillar.branch as typeof BRANCHES[number])
-  const hourBranchIdx = hourPillar ? BRANCHES.indexOf(hourPillar.branch as typeof BRANCHES[number]) : 0
+  const monthBranchIdx = BRANCHES.indexOf(monthPillar.branch as (typeof BRANCHES)[number])
+  const hourBranchIdx = hourPillar
+    ? BRANCHES.indexOf(hourPillar.branch as (typeof BRANCHES)[number])
+    : 0
   const yearStemIdx = getStemIndex(result.value.yearPillar.stem)
   return {
     taiYuan: calculateTaiYuan(monthStemIdx, monthBranchIdx),

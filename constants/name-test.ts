@@ -88,7 +88,12 @@ export const NUMBERS_81: NumberMeaning[] = [
     name: '磨铁成针',
     meaning: '意志薄弱，刻意经营，才识不凡。先难后易，终有所成。',
   },
-  { number: 39, fortune: '半吉', name: '富贵荣华', meaning: '云开见月，富贵可期。然女性使用此数恐有孤寡之忧，须配吉祥三才化解。' },
+  {
+    number: 39,
+    fortune: '半吉',
+    name: '富贵荣华',
+    meaning: '云开见月，富贵可期。然女性使用此数恐有孤寡之忧，须配吉祥三才化解。',
+  },
   { number: 40, fortune: '凶', name: '退安之数', meaning: '智谋胆力，冒险投机，沉浮不定。' },
   { number: 41, fortune: '吉', name: '德望高大', meaning: '纯阳独秀，德望高大，和顺畅达。' },
   { number: 42, fortune: '凶', name: '寒蝉在柳', meaning: '博识多能，精通世情，如寒蝉在柳。' },

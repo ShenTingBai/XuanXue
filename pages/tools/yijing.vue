@@ -153,7 +153,13 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
-useHead({ title: '六爻占卜 — 玄·道' })
+useSeoMeta({
+  title: '六爻占卜 — 玄·道',
+  ogTitle: '六爻占卜 — 玄·道',
+  description: '通过六爻起卦占卜，针对事业、感情、决策等问题获得卦象指引和爻辞解读。',
+  ogDescription: '通过六爻起卦占卜，针对事业、感情、决策等问题获得卦象指引和爻辞解读。',
+  ogType: 'website',
+})
 
 // ── Methodology data ──
 const yijingClassical: ClassicalSource[] = [

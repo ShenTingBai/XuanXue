@@ -25,13 +25,13 @@
 
 派发 Agent 时**必须**指定 `model` 参数，根据任务类型选择：
 
-| 任务类型 | 模型 | 示例 |
-|---------|------|------|
-| 代码编写/编辑 | `sonnet` | 修 bug、加功能、写测试 |
-| 测试运行/更新 | `sonnet` | vitest 验证、断言更新 |
-| 代码审查 | `sonnet` | 审查 PR、检查代码质量 |
-| 复杂分析/方案 | `opus` | 深度架构分析、跨模块追踪 |
-| 简单搜索/查找 | `sonnet` | 搜索文件、查找符号 |
+| 任务类型      | 模型     | 示例                     |
+| ------------- | -------- | ------------------------ |
+| 代码编写/编辑 | `sonnet` | 修 bug、加功能、写测试   |
+| 测试运行/更新 | `sonnet` | vitest 验证、断言更新    |
+| 代码审查      | `sonnet` | 审查 PR、检查代码质量    |
+| 复杂分析/方案 | `opus`   | 深度架构分析、跨模块追踪 |
+| 简单搜索/查找 | `sonnet` | 搜索文件、查找符号       |
 
 **`sonnet` 是执行 Agent 的默认选择。** 仅在需要深度推理时用 `opus`。
 
@@ -223,10 +223,10 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 项目配置了 `.githooks/` 目录，`git config core.hooksPath .githooks` 已激活：
 
-| Hook | 触发 | 行为 |
-|------|------|------|
-| `pre-commit` | `git commit` 前 | 当前分支为 `main` → 拒绝提交，提示切分支 |
-| `pre-push` | `git push` 前 | 自动运行 `npx vitest run` → 不通过拒绝推送 |
+| Hook         | 触发            | 行为                                       |
+| ------------ | --------------- | ------------------------------------------ |
+| `pre-commit` | `git commit` 前 | 当前分支为 `main` → 拒绝提交，提示切分支   |
+| `pre-push`   | `git push` 前   | 自动运行 `npx vitest run` → 不通过拒绝推送 |
 
 新克隆项目需执行：`git config core.hooksPath .githooks`
 

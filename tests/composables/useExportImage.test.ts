@@ -52,11 +52,14 @@ describe('useExportImage', () => {
 
     const result = await exportToImage(mockEl, 'output.png')
     expect(result).toBe(true)
-    expect(toPng).toHaveBeenCalledWith(mockEl, expect.objectContaining({
-      quality: 0.95,
-      pixelRatio: 2,
-      backgroundColor: '#F5F0E8',
-    }))
+    expect(toPng).toHaveBeenCalledWith(
+      mockEl,
+      expect.objectContaining({
+        quality: 0.95,
+        pixelRatio: 2,
+        backgroundColor: '#F5F0E8',
+      }),
+    )
   })
 
   it('passes fontEmbedCSS to toPng when available', async () => {
@@ -70,9 +73,12 @@ describe('useExportImage', () => {
     vi.mocked(toPng).mockResolvedValue('data:image/png;base64,fake')
 
     await exportToImage(mockEl, 'output.png')
-    expect(toPng).toHaveBeenCalledWith(mockEl, expect.objectContaining({
-      fontEmbedCSS: fontCss,
-    }))
+    expect(toPng).toHaveBeenCalledWith(
+      mockEl,
+      expect.objectContaining({
+        fontEmbedCSS: fontCss,
+      }),
+    )
   })
 
   it('does not pass fontEmbedCSS when getFontEmbedCSS returns empty', async () => {
@@ -110,14 +116,14 @@ describe('useExportImage', () => {
     const mockEl = document.createElement('div')
 
     const clickSpy = vi.fn()
-    const createElementSpy = vi.spyOn(document, 'createElement').mockImplementation(
-      (tagName: string) => {
+    const createElementSpy = vi
+      .spyOn(document, 'createElement')
+      .mockImplementation((tagName: string) => {
         if (tagName === 'a') {
           return { download: '', href: '', click: clickSpy } as unknown as HTMLAnchorElement
         }
         return document.createElement(tagName)
-      },
-    )
+      })
 
     const { toPng, getFontEmbedCSS } = await import('html-to-image')
     vi.mocked(getFontEmbedCSS).mockResolvedValue('')
