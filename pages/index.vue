@@ -144,6 +144,26 @@ const tools: Tool[] = [
     accent: '#C62828',
     trigram: '☲',
   },
+  {
+    id: 'guming',
+    name: '称骨',
+    char: '骨',
+    description: '袁天罡称骨算命，生辰骨重推演一生命运走向',
+    route: '/tools/guming',
+    available: true,
+    accent: '#7A5E12',
+    trigram: '☶',
+  },
+  {
+    id: 'meihua',
+    name: '梅花',
+    char: '梅',
+    description: '梅花易数占卜，数字起卦推演体用生克吉凶',
+    route: '/tools/meihua',
+    available: true,
+    accent: '#3D6B4B',
+    trigram: '☳',
+  },
 ]
 
 const sessionReady = ref(false)
@@ -170,6 +190,8 @@ const toolTypeMap: Record<string, { icon: string; route: string }> = {
   hehun: { icon: '合', route: '/tools/hehun' },
   'name-test': { icon: '名', route: '/tools/name-test' },
   cezi: { icon: '测', route: '/tools/cezi' },
+  guming: { icon: '骨', route: '/tools/guming' },
+  meihua: { icon: '梅', route: '/tools/meihua' },
   zeji: { icon: '择', route: '/tools/zeji' },
 }
 
