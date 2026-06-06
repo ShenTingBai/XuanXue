@@ -20,7 +20,7 @@ describe('EVENT_TYPES', () => {
   })
 
   it('each event type has name, icon, keywords', () => {
-    for (const [key, info] of Object.entries(EVENT_TYPES)) {
+    for (const [, info] of Object.entries(EVENT_TYPES)) {
       expect(info.name.length).toBeGreaterThan(0)
       expect(info.icon.length).toBeGreaterThan(0)
       expect(info.keywords.length).toBeGreaterThan(0)

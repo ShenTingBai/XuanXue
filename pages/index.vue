@@ -539,9 +539,9 @@ const goToLogin = () => {
             <!-- Footer note -->
             <p class="mt-5 font-sans text-xs text-ink-light tracking-[0.1em]">
               * 此为示例命盘，
-              <NuxtLink to="/login" class="text-cinnabar no-underline hover:underline"
-                >登录</NuxtLink
-              >
+<NuxtLink to="/login" class="text-cinnabar no-underline hover:underline">
+                登录
+              </NuxtLink>
               后可排自己的盘
             </p>
           </div>

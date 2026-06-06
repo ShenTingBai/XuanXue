@@ -180,6 +180,7 @@ async function tryAutoSave(res: MeiHuaResult) {
       const code = (e as FetchError).statusCode
       if (code === 401 || code === 429) return
     }
+    // eslint-disable-next-line no-console
     console.error('保存历史记录失败:', e)
   }
 }
@@ -625,11 +626,11 @@ onUnmounted(() => {
     </div>
 
     <!-- Toast -->
-    <Transition name="toast"
-      ><div v-if="restoreError" class="toast-notification" role="alert">
-        <span class="toast-notification__mark">!</span
-        ><span class="toast-notification__text">{{ restoreError }}</span
-        ><button
+    <Transition name="toast">
+      <div v-if="restoreError" class="toast-notification" role="alert">
+        <span class="toast-notification__mark">!</span>
+        <span class="toast-notification__text">{{ restoreError }}</span>
+        <button
           class="toast-notification__close"
           aria-label="关闭提示"
           @click="dismissRestoreError"
@@ -638,8 +639,8 @@ onUnmounted(() => {
         >
           &times;
         </button>
-      </div></Transition
-    >
+      </div>
+    </Transition>
 
     <HistoryModal
       :show="showHistoryModal"

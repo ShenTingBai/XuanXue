@@ -14,7 +14,7 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
-import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import MethodologyNote from '~/components/tools/MethodologyNote.vue'
 useSeoMeta({
   title: '称骨算命 — 玄·道',
   ogTitle: '称骨算命 — 玄·道',
@@ -96,6 +96,7 @@ async function computeGuMing() {
     result.value = res
     saveDivinationResult(res)
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e)
     error.value = '计算失败'
   } finally {
@@ -123,6 +124,7 @@ async function saveDivinationResult(res: GuMingResult) {
     })
   } catch (e) {
     if ((e as FetchError).statusCode === 429 || (e as FetchError).statusCode === 401) return
+    // eslint-disable-next-line no-console
     console.error('save:', e)
   }
 }
@@ -149,7 +151,7 @@ async function onHistoryRestore(id: number) {
         restoreError.value = ''
       }, 6000)
     }
-  } catch (e) {
+  } catch {
     restoreError.value = '加载失败'
     if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
     restoreErrorTimer.value = setTimeout(function () {
@@ -185,14 +187,15 @@ const scalePercent = computed(function () {
     </div>
     <div class="max-w-[48rem] mx-auto">
       <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-        <template #extra
-          ><ExportButton
+        <template #extra>
+          <ExportButton
             v-if="result"
             :target-ref="resultRef"
             filename="称骨算命.png"
             :is-exporting="isExporting"
             @export="handleExport"
-        /></template>
+          />
+        </template>
       </ToolToolbar>
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between mb-6">
@@ -370,11 +373,11 @@ const scalePercent = computed(function () {
         </div>
       </template>
     </div>
-    <Transition name="toast"
-      ><div v-if="restoreError" class="toast-notification" role="alert">
-        <span class="toast-notification__mark">!</span
-        ><span class="toast-notification__text">{{ restoreError }}</span
-        ><button
+    <Transition name="toast">
+      <div v-if="restoreError" class="toast-notification" role="alert">
+        <span class="toast-notification__mark">!</span>
+        <span class="toast-notification__text">{{ restoreError }}</span>
+        <button
           class="toast-notification__close"
           aria-label="关闭提示"
           @click="dismissRestoreError"
@@ -383,8 +386,8 @@ const scalePercent = computed(function () {
         >
           &times;
         </button>
-      </div></Transition
-    >
+      </div>
+    </Transition>
     <HistoryModal
       :show="showHistoryModal"
       type="guming"

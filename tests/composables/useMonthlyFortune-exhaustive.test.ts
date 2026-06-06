@@ -7,12 +7,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import {
-  calculateMonthlyFortune,
-  type MonthlyFortuneResult,
-} from '../../composables/useMonthlyFortune'
+import { calculateMonthlyFortune } from '../../composables/useMonthlyFortune'
 import { BRANCHES, WUXING_BRANCH } from '../../constants/bazi'
-import { ANIMALS } from '../../constants/bazi'
 
 // ═══════════════════════════════════════════════════════════════
 // 1. Full structure verification for a single year
