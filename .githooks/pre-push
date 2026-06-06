@@ -1,0 +1,14 @@
+#!/bin/bash
+# push 前自动跑全部测试，不通过拒绝推送
+echo ""
+echo "🧪 运行测试套件..."
+npx vitest run --reporter=verbose
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ 测试未通过，拒绝推送。请修复后重试。"
+  exit 1
+fi
+
+echo ""
+echo "✅ 测试全部通过，允许推送。"

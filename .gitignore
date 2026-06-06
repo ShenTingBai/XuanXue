@@ -14,3 +14,7 @@ Thumbs.db
 
 .vscode/
 *.db
+
+.cursor/
+docs/analysis/
+.trae/

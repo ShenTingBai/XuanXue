@@ -1,0 +1,13 @@
+#!/bin/bash
+# 禁止在 main 分支直接提交
+BRANCH=$(git branch --show-current)
+if [ "$BRANCH" = "main" ]; then
+  echo ""
+  echo "❌ 禁止在 main 分支直接提交。"
+  echo "   请先切功能分支："
+  echo "     git checkout -b feat/xxx    (新功能)"
+  echo "     git checkout -b fix/xxx     (Bug 修复)"
+  echo "     git checkout -b refactor/xxx (重构)"
+  echo ""
+  exit 1
+fi
