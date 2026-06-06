@@ -13,6 +13,7 @@ import { calculateShenSha } from '~/composables/useShenSha'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
 import { getDailyWuxing } from '~/composables/useDailyWuxing'
+import PageFooter from '~/components/tools/PageFooter.vue'
 
 const SOLAR_TERM_NAMES = [
   '立春',
@@ -827,6 +828,20 @@ const goToLogin = () => {
                     · {{ todayAstro.solarTerm }} ·
                   </div>
                 </template>
+                <!-- Clothing guide inline -->
+                <div
+                  class="mt-4 pt-3 border-t border-ink/6 flex items-center gap-3 text-xs w-full justify-center"
+                >
+                  <span class="text-ink/40 shrink-0">宜着</span>
+                  <span
+                    v-for="color in dailyWuxing.luckyColorNames"
+                    :key="color"
+                    class="px-2 py-0.5 rounded-full bg-cinnabar/8 text-cinnabar text-xs"
+                    >{{ color }}</span
+                  >
+                  <span class="text-ink/25">·</span>
+                  <span class="text-ink/30">避 {{ dailyWuxing.avoidColorNames.join('、') }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -835,26 +850,6 @@ const goToLogin = () => {
           <div class="anim-rise" style="--delay: 0.2s">
             <DailyFortuneStick tall class="w-full h-full" />
           </div>
-        </div>
-
-        <!-- 五行穿衣指南 -->
-        <div class="daily-wuxing mt-6 card-warm p-6 anim-rise" style="--delay: 0.3s">
-          <div class="section-header">
-            <h2>今 日 穿 衣</h2>
-          </div>
-          <p class="text-sm text-ink/50 mb-3">
-            今日{{ dailyWuxing.dayStem }}日（{{ dailyWuxing.dayWuxing }}），宜着：
-          </p>
-          <div class="flex gap-2 flex-wrap">
-            <span
-              v-for="color in dailyWuxing.luckyColorNames"
-              :key="color"
-              class="px-3 py-1 rounded-full text-sm bg-cinnabar/10 text-cinnabar"
-            >
-              {{ color }}
-            </span>
-          </div>
-          <p class="text-xs text-ink/30 mt-2">避：{{ dailyWuxing.avoidColorNames.join('、') }}</p>
         </div>
 
         <!-- Section header -->
