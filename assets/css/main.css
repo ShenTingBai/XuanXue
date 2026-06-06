@@ -222,7 +222,7 @@ html {
     padding: 0.625rem 1.25rem;
     color: var(--color-ink-medium);
     font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
-    font-size: 0.875rem;
+    font-size: 1rem;
     letter-spacing: 0.05em;
     background: transparent;
     border: none;
@@ -865,7 +865,7 @@ html {
     height: 32px;
     background: var(--color-cinnabar-deeper);
     color: var(--color-paper-card);
-    font-size: 0.875rem;
+    font-size: 1rem;
     transform: rotate(-5deg);
     flex-shrink: 0;
     position: relative;
@@ -1209,7 +1209,7 @@ html {
     background: rgba(232, 220, 198, 0.4);
     border: 1px solid rgba(44, 26, 14, 0.025);
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--color-ink);
     outline: none;
     transition: all 0.3s ease;
