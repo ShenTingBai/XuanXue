@@ -26,8 +26,6 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
-import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
-import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 
 // ── Methodology data ──
 const ziweiClassical: ClassicalSource[] = [
@@ -98,62 +96,15 @@ const birthDate = ref('')
 const birthHour = ref<number | null>(null)
 const gender = ref<'male' | 'female' | null>(null)
 
-const {
-  showBanner,
-  isFilled,
-  birthData,
-  missingBirth,
-  checkAvailability,
-  applyAutoFill,
-  revokeAutoFill,
-  markEdited,
-} = useProfileAutoFill({ calendarNeeded: 'both' })
-
-function handleAutoFill() {
-  const data = applyAutoFill()
-  if (data) {
-    birthDate.value =
-      data.year +
-      '-' +
-      String(data.month).padStart(2, '0') +
-      '-' +
-      String(data.day).padStart(2, '0')
-    if (data.hour != null) birthHour.value = getTimeIndex(data.hour)
-    if (data.gender) gender.value = data.gender
-  }
-}
-
-function handleRevoke() {
-  revokeAutoFill()
-  birthDate.value = ''
-  birthHour.value = null
-  gender.value = null
-}
-
-watch([birthDate, birthHour, gender], () => {
-  if (isFilled.value && birthData.value) {
-    const d = birthData.value
-    const filledDate =
-      d.year + '-' + String(d.month).padStart(2, '0') + '-' + String(d.day).padStart(2, '0')
-    if (birthDate.value !== filledDate) {
-      markEdited()
-    }
-  }
-})
-
 const ready = ref(false)
 
 onMounted(async () => {
   await restoreSession()
-  console.log('[auto-fill] ziwei onMounted: restoreSession done, currentProfile:', currentProfile.value?.nickname)
   if (!currentProfile.value) {
     router.push('/login')
     return
   }
   ready.value = true
-  console.log('[auto-fill] ziwei: calling checkAvailability')
-  checkAvailability()
-  console.log('[auto-fill] ziwei: showBanner =', showBanner, ', missingBirth =', missingBirth)
 
   // Pre-fill from profile if available
   if (currentProfile.value.birth_date) {
@@ -381,16 +332,6 @@ function dismissRestoreError() {
 
     <!-- Input form (shown before first calculation) -->
     <div v-else-if="!astrolabe && !loading">
-      <ProfileAutoFillBanner
-        v-if="showBanner || missingBirth"
-        :profile-name="birthData?.profileName || ''"
-        :is-filled="isFilled"
-        :missing-birth="missingBirth"
-        :profile-id="currentProfile?.id"
-        :conversion-note="birthData?.conversionNote"
-        @fill="handleAutoFill"
-        @revoke="handleRevoke"
-      />
       <ZiWeiInputForm
         :birth-date="birthDate"
         :birth-hour="birthHour"

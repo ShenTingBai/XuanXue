@@ -17,6 +17,8 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
+import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
@@ -63,6 +65,45 @@ const dateYear = ref(new Date().getFullYear())
 const dateMonth = ref(new Date().getMonth() + 1)
 const dateDay = ref(new Date().getDate())
 const dateHour = ref(0)
+
+const {
+  showBanner,
+  isFilled,
+  birthData,
+  missingBirth,
+  checkAvailability,
+  applyAutoFill,
+  revokeAutoFill,
+  markEdited,
+} = useProfileAutoFill({ calendarNeeded: 'both' })
+
+function handleAutoFill() {
+  const data = applyAutoFill()
+  if (data) {
+    dateYear.value = data.year
+    dateMonth.value = data.month
+    dateDay.value = data.day
+    if (data.hour != null) dateHour.value = data.hour
+  }
+}
+
+function handleRevoke() {
+  revokeAutoFill()
+  const now = new Date()
+  dateYear.value = now.getFullYear()
+  dateMonth.value = now.getMonth() + 1
+  dateDay.value = now.getDate()
+  dateHour.value = 0
+}
+
+watch([dateYear, dateMonth, dateDay, dateHour], () => {
+  if (isFilled.value && birthData.value) {
+    const d = birthData.value
+    if (dateYear.value !== d.year || dateMonth.value !== d.month || dateDay.value !== d.day) {
+      markEdited()
+    }
+  }
+})
 
 function selectTab(method: InputMethod) {
   inputMethod.value = method
@@ -264,6 +305,7 @@ function handleExport() {
 
 onMounted(async () => {
   await restoreSession()
+  checkAvailability()
   if (!currentProfile.value) {
     router.push('/login')
     return
@@ -296,6 +338,18 @@ onUnmounted(() => {
       </ToolToolbar>
 
       <!-- Input card -->
+
+      <ProfileAutoFillBanner
+        v-if="showBanner || missingBirth"
+        :profile-name="birthData?.profileName || ''"
+        :is-filled="isFilled"
+        :missing-birth="missingBirth"
+        :profile-id="currentProfile?.id"
+        :conversion-note="birthData?.conversionNote"
+        @fill="handleAutoFill"
+        @revoke="handleRevoke"
+      />
+
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between mb-6">
           <div class="section-header flex-1 min-w-0 !mb-0"><h2>梅花易数</h2></div>

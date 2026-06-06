@@ -86,7 +86,17 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
   function checkAvailability(): void {
     const profile = currentProfile.value
     console.log('[auto-fill] checkAvailability called')
-    console.log('[auto-fill] currentProfile:', profile ? { id: profile.id, nickname: profile.nickname, birth_date: profile.birth_date, birth_calendar: profile.birth_calendar } : null)
+    console.log(
+      '[auto-fill] currentProfile:',
+      profile
+        ? {
+            id: profile.id,
+            nickname: profile.nickname,
+            birth_date: profile.birth_date,
+            birth_calendar: profile.birth_calendar,
+          }
+        : null,
+    )
 
     if (!profile) {
       console.log('[auto-fill] FAIL: no profile (not logged in)')
@@ -113,7 +123,14 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
 
     const profileCalendar = (profile.birth_calendar as 'solar' | 'lunar') || 'solar'
     const canConvert = true
-    console.log('[auto-fill] calendarNeeded:', config.calendarNeeded, 'profileCalendar:', profileCalendar, 'canConvert:', canConvert)
+    console.log(
+      '[auto-fill] calendarNeeded:',
+      config.calendarNeeded,
+      'profileCalendar:',
+      profileCalendar,
+      'canConvert:',
+      canConvert,
+    )
 
     if (!canConvert) {
       console.log('[auto-fill] calendar mismatch — but applyAutoFill will handle conversion')
