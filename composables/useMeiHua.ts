@@ -5,13 +5,13 @@
 import {
   TRIGRAMS,
   HEXAGRAMS,
-  HEXAGRAM_NAMES_BY_KEY,
+
   getLineStatement,
   SHENG_KE_INTERPRETATIONS,
   MEIHUA_TRIGRAM_BINARY,
   BINARY_TO_MEIHUA,
-  getWuxingGenerated,
-  getWuxingControlled,
+
+
 } from '~/constants/meihua'
 
 export type InputMethod = 'time' | 'manual' | 'random'

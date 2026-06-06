@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest'
 import { calculateBaZi, getTenGod } from '../../composables/useBaZi'
 import { getStemIndex } from '../../constants/bazi'
-import { calculateLiuNian, type LiuNianYear } from '../../composables/useLiuNian'
+import { calculateLiuNian } from '../../composables/useLiuNian'
 
 // Use a fixed birth chart with known properties for deterministic testing
 function getFixedBaZi() {

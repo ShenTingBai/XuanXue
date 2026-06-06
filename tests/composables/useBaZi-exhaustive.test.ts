@@ -30,9 +30,7 @@ describe('Ten God matrix (10×10 exhaustive)', () => {
   ])
 
   // Wuxing for each stem index: 木木火火土土金金水水
-  const wuxingByStem = ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水']
   // Yin-yang for each stem index
-  const yinYangByStem = ['阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴', '阳', '阴']
 
   for (let dm = 0; dm < 10; dm++) {
     for (let target = 0; target < 10; target++) {
@@ -191,7 +189,6 @@ describe('Hidden Stems (via calculateBaZi)', () => {
 // ═══════════════════════════════════════════════════════════
 
 describe('Day Master Strength (month pillar enumeration)', () => {
-  const STRENGTHS = ['强', '偏强', '中和', '偏弱', '弱']
 
   // Fixed pillars (non-month) for a neutral baseline
   const basePillars: BaZiPillar[] = [
@@ -304,7 +301,6 @@ describe('Day Master Strength (month pillar enumeration)', () => {
       // Day stem of basePillars[2] is 甲 (wood)
       const strength = getWeightedDayMasterStrength('木', pillars)
 
-      const label = `${monthStem}${monthBranch} → ${strength}`
       distribution[strength] = (distribution[strength] || 0) + 1
     }
   }

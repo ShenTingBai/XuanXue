@@ -17,7 +17,7 @@ import {
   SELF_XING,
   PO_PAIRS,
 } from '../../composables/useShengXiao'
-import { ANIMALS, STEMS, BRANCHES } from '../../constants/bazi'
+import { ANIMALS } from '../../constants/bazi'
 
 // ═══════════════════════════════════════════════════════════════
 // 1. Animal index calculation

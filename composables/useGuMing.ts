@@ -92,7 +92,7 @@ function generateInterpretation(
   const levelInfo = LEVEL_CONFIG[level]
   const levelDesc = levelInfo ? levelInfo.desc : ''
 
-  let lines: string[] = []
+  const lines: string[] = []
   lines.push(`尊驾骨重 ${totalWeightText}，属「${level}」之命。`)
   lines.push(levelDesc)
   lines.push(`此命总骨重 ${totalWeight.toFixed(1)} 两，对应称骨歌断语如上。`)

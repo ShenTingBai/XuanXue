@@ -162,7 +162,7 @@ describe('ZiWei ADJECTIVE_STAR_INTERPRETATIONS', () => {
   })
 
   it('all adjective star interpretations are non-empty', () => {
-    for (const [star, text] of Object.entries(ADJECTIVE_STAR_INTERPRETATIONS)) {
+    for (const [, text] of Object.entries(ADJECTIVE_STAR_INTERPRETATIONS)) {
       expect(text.length).toBeGreaterThan(5)
     }
   })
@@ -257,7 +257,7 @@ describe('calculateZiWei renders without throwing', () => {
   })
 
   it('handles boundary years (1900)', () => {
-    const result = calculateZiWei({
+    calculateZiWei({
       birthYear: 1900,
       birthMonth: 1,
       birthDay: 1,

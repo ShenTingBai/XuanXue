@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PageFooter from '~/components/tools/PageFooter.vue'
 useSeoMeta({
   title: '登录 — 玄·道',
   ogTitle: '登录 — 玄·道',

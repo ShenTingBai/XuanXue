@@ -592,7 +592,7 @@ function _buildShengKe() {
     for (let yo = 0; yo < WX.length; yo++) {
       const t = WX[ti]
       const y = WX[yo]
-      var key = t + ':' + y
+      const key = t + ':' + y
       let r: string
       if (t === y) {
         r = '比和'
