@@ -8,7 +8,7 @@ import {
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import type FunctionalStar from 'iztro/lib/star/FunctionalStar'
-import { getTrueSolarHour } from '~/utils/time'
+import { getTrueSolarHourIndex } from '~/utils/time'
 
 // 重新导出 iztro 原生类型供组件使用
 export type { IFunctionalPalace, IFunctionalAstrolabe }
@@ -40,9 +40,7 @@ export function calculateZiWei(input: ZiWeiInput): IFunctionalAstrolabe | null {
     // timeIndex 12 (晚子, 23:00-24:00) → midpoint 23.5
     // timeIndex 1-11 (丑∼亥) → midpoint = timeIndex * 2 (2, 4, ..., 22)
     const clockMidpoint = birthHour === 0 ? 0.5 : birthHour === 12 ? 23.5 : birthHour * 2
-    const solarHour = getTrueSolarHour(clockMidpoint, birthLongitude)
-    const normalized = ((solarHour % 24) + 24) % 24
-    timeIndex = Math.floor((normalized + 1) / 2)
+    timeIndex = getTrueSolarHourIndex(clockMidpoint, birthLongitude)
   }
 
   try {
