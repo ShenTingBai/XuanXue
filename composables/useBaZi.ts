@@ -773,3 +773,73 @@ export function calculateBaZi(input: BaZiInput): BaZiResult {
     gender,
   }
 }
+
+// === Palace Types and Calculations ===
+
+export interface BaZiPalace {
+  stem: string
+  branch: string
+  stemIndex: number
+  branchIndex: number
+  stemWuxing: string
+  branchWuxing: string
+}
+
+/** 胎元：月干进一，月支进三 */
+export function calculateTaiYuan(monthStemIndex: number, monthBranchIndex: number): BaZiPalace {
+  const stemIndex = (monthStemIndex + 1) % 10
+  const branchIndex = (monthBranchIndex + 3) % 12
+  const stem = STEMS[stemIndex]
+  const branch = BRANCHES[branchIndex]
+  return {
+    stem,
+    branch,
+    stemIndex,
+    branchIndex,
+    stemWuxing: WUXING_STEM[stem],
+    branchWuxing: WUXING_BRANCH[branch],
+  }
+}
+
+/** 命宫：月支起子时，逆数至生时。天干用五虎遁 */
+export function calculateMingGong(
+  monthBranchIndex: number,
+  hourBranchIndex: number,
+  yearStemIndex: number,
+): BaZiPalace {
+  const branchIndex = ((monthBranchIndex - hourBranchIndex) % 12 + 12) % 12
+  // 五虎遁：甲己之年丙作首
+  const yinStem = [2, 4, 6, 8, 0][yearStemIndex % 5]
+  const stemIndex = (yinStem + (branchIndex - 2 + 12) % 12) % 10
+  const stem = STEMS[stemIndex]
+  const branch = BRANCHES[branchIndex]
+  return {
+    stem,
+    branch,
+    stemIndex,
+    branchIndex,
+    stemWuxing: WUXING_STEM[stem],
+    branchWuxing: WUXING_BRANCH[branch],
+  }
+}
+
+/** 身宫：月支起子时，顺数至生时。天干用五虎遁 */
+export function calculateShenGong(
+  monthBranchIndex: number,
+  hourBranchIndex: number,
+  yearStemIndex: number,
+): BaZiPalace {
+  const branchIndex = (monthBranchIndex + hourBranchIndex) % 12
+  const yinStem = [2, 4, 6, 8, 0][yearStemIndex % 5]
+  const stemIndex = (yinStem + (branchIndex - 2 + 12) % 12) % 10
+  const stem = STEMS[stemIndex]
+  const branch = BRANCHES[branchIndex]
+  return {
+    stem,
+    branch,
+    stemIndex,
+    branchIndex,
+    stemWuxing: WUXING_STEM[stem],
+    branchWuxing: WUXING_BRANCH[branch],
+  }
+}

@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
   calculateBaZi,
+  calculateTaiYuan,
+  calculateMingGong,
+  calculateShenGong,
   getTenGod,
   getFavorableElements,
   getWeightedDayMasterStrength,
@@ -909,5 +912,92 @@ describe('getFavorableElements with seasonal adjustment', () => {
     const [fav, unfav] = getFavorableElements('金', '强')
     expect([...fav].sort()).toEqual(['木', '水', '火'])
     expect([...unfav].sort()).toEqual(['土', '金'])
+  })
+})
+
+// ============================================================================
+// B4: TaiYuan / MingGong / ShenGong
+// ============================================================================
+
+describe('calculateTaiYuan', () => {
+  it('calculates TaiYuan correctly: 丙寅月 -> 丁巳', () => {
+    // 丙寅月: 丙=2, 寅=2
+    // 胎元: 月干进一 → 丙(2)+1=3=丁, 月支进三 → 寅(2)+3=5=巳
+    const result = calculateTaiYuan(2, 2)
+    expect(result.stem).toBe('丁')
+    expect(result.branch).toBe('巳')
+    expect(result.stemIndex).toBe(3)
+    expect(result.branchIndex).toBe(5)
+    expect(result.stemWuxing).toBe('火')
+    expect(result.branchWuxing).toBe('火')
+  })
+
+  it('wraps around stem cycle: 癸亥月 -> 甲寅', () => {
+    // 癸亥月: 癸=9, 亥=11
+    // 胎元: 癸(9)+1=10→0=甲, 亥(11)+3=14→2=寅
+    const result = calculateTaiYuan(9, 11)
+    expect(result.stem).toBe('甲')
+    expect(result.branch).toBe('寅')
+    expect(result.stemIndex).toBe(0)
+    expect(result.branchIndex).toBe(2)
+  })
+
+  it('wraps around branch cycle: 戌月 -> 丑', () => {
+    // 戌=10, 戌(10)+3=13→1=丑
+    const result = calculateTaiYuan(0, 10) // 甲戌月
+    expect(result.branch).toBe('丑')
+    expect(result.branchIndex).toBe(1)
+  })
+})
+
+describe('calculateMingGong', () => {
+  it('calculates MingGong branch correctly: 月支寅(2), 时支午(6), 逆数', () => {
+    // 寅(2)起子时, 逆数至午(6): (2 - 6 + 12) % 12 = 8 = 申
+    const result = calculateMingGong(2, 6, 0) // 甲年
+    expect(result.branch).toBe('申')
+    expect(result.branchIndex).toBe(8)
+  })
+
+  it('calculates MingGong stem correctly with 甲年', () => {
+    // 甲年(0): 五虎遁甲己之年丙作首 → 丙(2)起寅
+    // 命宫申(8): stem = 丙(2) + (8-2) = 2+6 = 8 = 壬
+    const result = calculateMingGong(2, 6, 0)
+    expect(result.stem).toBe('壬')
+    expect(result.stemIndex).toBe(8)
+  })
+
+  it('calculates MingGong stem correctly with 乙年', () => {
+    // 乙年(1): 五虎遁乙庚之岁戊为头 → 戊(4)起寅
+    // 命宫申(8): stem = 戊(4) + (8-2) = 4+6 = 10→0 = 甲
+    const result = calculateMingGong(2, 6, 1)
+    expect(result.stem).toBe('甲')
+  })
+
+  it('wraps around: 月支子(0), 时支子(0) -> 命宫子(0)', () => {
+    // 子(0)起子时, 逆数至子(0): (0 - 0 + 12) % 12 = 0 = 子
+    const result = calculateMingGong(0, 0, 0)
+    expect(result.branch).toBe('子')
+    expect(result.branchIndex).toBe(0)
+  })
+})
+
+describe('calculateShenGong', () => {
+  it('calculates ShenGong branch correctly: 月支寅(2), 时支午(6), 顺数', () => {
+    // 寅(2)起子时, 顺数至午(6): (2 + 6) % 12 = 8 = 申
+    const result = calculateShenGong(2, 6, 0) // 甲年
+    expect(result.branch).toBe('申')
+    expect(result.branchIndex).toBe(8)
+  })
+
+  it('calculates ShenGong stem correctly with 甲年', () => {
+    const result = calculateShenGong(2, 6, 0)
+    expect(result.stem).toBe('壬')
+  })
+
+  it('wraps around: 月支戌(10), 时支亥(11) -> 身宫酉(9)', () => {
+    // 戌(10)+亥(11)=21, 21%12=9=酉
+    const result = calculateShenGong(10, 11, 0)
+    expect(result.branch).toBe('酉')
+    expect(result.branchIndex).toBe(9)
   })
 })

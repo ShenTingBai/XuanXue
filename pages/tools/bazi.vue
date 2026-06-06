@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { calculateBaZi, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
+import { calculateBaZi, calculateTaiYuan, calculateMingGong, calculateShenGong, type BaZiResult, type BaZiPillar } from '~/composables/useBaZi'
 import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
-import { getStemIndex, getAnimal, sectionMap } from '~/constants/bazi'
+import { getStemIndex, getAnimal, sectionMap, BRANCHES } from '~/constants/bazi'
 import { parseDate } from '~/utils/date'
 import type { FetchError } from '~/types/errors'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
@@ -410,6 +410,20 @@ const pillars = computed<BaZiPillar[]>(() => {
   return arr
 })
 
+const palaces = computed(() => {
+  if (!result.value) return null
+  const { monthPillar, hourPillar } = result.value
+  const monthStemIdx = getStemIndex(monthPillar.stem)
+  const monthBranchIdx = BRANCHES.indexOf(monthPillar.branch as typeof BRANCHES[number])
+  const hourBranchIdx = hourPillar ? BRANCHES.indexOf(hourPillar.branch as typeof BRANCHES[number]) : 0
+  const yearStemIdx = getStemIndex(result.value.yearPillar.stem)
+  return {
+    taiYuan: calculateTaiYuan(monthStemIdx, monthBranchIdx),
+    mingGong: calculateMingGong(monthBranchIdx, hourBranchIdx, yearStemIdx),
+    shenGong: calculateShenGong(monthBranchIdx, hourBranchIdx, yearStemIdx),
+  }
+})
+
 const animalName = computed(() => {
   if (!result.value) return ''
   return getAnimal(result.value.birthYear)
@@ -625,7 +639,7 @@ function onSectionNavigate(sectionName: string) {
             :expanded="expandedSections['bazi-grid']"
             @toggle="toggleSection"
           >
-            <BaziGrid :pillars="pillars" />
+            <BaziGrid :pillars="pillars" :palaces="palaces" />
           </CollapsibleSection>
 
           <!-- ShenSha Panel — delay 0.15s, shows derived markers after static pillars -->
