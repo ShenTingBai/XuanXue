@@ -60,8 +60,8 @@ function makePillar(stem: string, branch: string, tenGod?: string): BaZiPillar {
   return {
     stem,
     branch,
-    stemWuxing: WX[stem],
-    branchWuxing: BR_WX[branch],
+    stemWuxing: (WX as Record<string, string>)[stem],
+    branchWuxing: (BR_WX as Record<string, string>)[branch],
     hiddenStems: [{ stem: '甲', tenGod: tenGod || '比肩', wuxing: '木' }],
     stemTenGod: tenGod || '比肩',
     branchTenGod: '正印',
@@ -160,7 +160,7 @@ describe('Year-branch San He shensha (6 × 4 groups)', () => {
 
       it(`${c.name}: year ${g.yb} catches month ${targetBranch}`, () => {
         const input = makeInput(g.yb, monthBranch, '辰', {
-          hourlyPillar: undefined,
+          hourPillar: undefined,
         })
         // Override: make sure monthPillar has the target branch
         input.monthPillar = makePillar('丙', targetBranch)
