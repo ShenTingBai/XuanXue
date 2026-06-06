@@ -189,7 +189,6 @@ describe('Hidden Stems (via calculateBaZi)', () => {
 // ═══════════════════════════════════════════════════════════
 
 describe('Day Master Strength (month pillar enumeration)', () => {
-
   // Fixed pillars (non-month) for a neutral baseline
   const basePillars: BaZiPillar[] = [
     {
