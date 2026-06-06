@@ -51,16 +51,19 @@ Workflow (子Agent)    sonnet    多步骤编排默认用 sonnet
 
 | 任务级别 | 用什么 | model |
 |---------|--------|-------|
-| 轻量 | 单一 `Agent` | `haiku`（v4-flash，快） |
-| 标准 | 单一 `Agent` | `sonnet`（v4-flash） |
-| 复杂 | 可能需要 `Workflow`（编码+审查并行） | 子 Agent 默认 v4-flash |
-| 核心引擎改动 | 单一 `Agent` | `opus`（v4-pro，稳） |
+| 轻量改动 | 单一 `Agent` | `sonnet` |
+| 标准改动 | 单一 `Agent` | `sonnet` |
+| 复杂分析 | 单一 `Agent` | `opus` |
+| 多步骤编排 | `Workflow` | 默认 `sonnet` |
+| **提交推送** | **单一 `Agent`** | **`sonnet`** |
+
+> ⚠️ 架构师**不亲自** `git commit/push/merge`。修复完成后派 sonnet Agent 做提交推送。
 
 ### 4. 收尾
 
 Agent 回报后：
-- 轻量/标准 → 看自证材料 → 通过则结束
-- 复杂 → 派审查 Agent → 审查通过 → 结束
+- 轻量/标准 → 看自证材料 → 通过则派 Agent 提交推送
+- 复杂 → 派审查 Agent → 审查通过 → 派 Agent 提交推送
 
 ---
 

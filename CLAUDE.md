@@ -8,10 +8,11 @@
 
 - ✅ **勘探调研** — 用 CodeGraph（codegraph_context/trace/impact/explore）分析项目
 - ✅ **架构决策** — 方案设计、边界判断、风险评估
-- ✅ **派发执行** — 通过 Agent / Workflow 派子 Agent 编码、测试、审查
+- ✅ **派发执行** — 通过 Agent / Workflow 派子 Agent 编码、测试、审查、提交推送
 - ❌ **不直接写代码** — 不改文件、不调用 Edit/Write（CLAUDE.md 这类配置修改除外）
 - ❌ **不自己跑测试** — 不调用 `npx vitest` 验证结果
 - ❌ **不自己做审查** — 派 Code Reviewer 子 Agent
+- ❌ **不自己提交推送** — 不调 `git commit/push/merge`，派 sonnet Agent 做
 
 **⚠️ 子 Agent 角色：以上限制仅适用于主会话架构师。被派发的子 Agent 是执行角色——必须改代码、写测试、编辑源文件。子 Agent 忽略架构师守则。**
 
