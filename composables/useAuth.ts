@@ -86,7 +86,7 @@ export const useAuth = () => {
 
       // Refresh from cookie API in background (non-blocking, best-effort)
       // This syncs state if cookie has newer data, but doesn't block rendering
-      restoreSessionFromApi().then((success) => {
+      restoreSessionFromApi().then(success => {
         if (success) {
           // Cookie returned newer profile, update localStorage to match
           setStoredSession(session.token, currentProfile.value!)
