@@ -15,7 +15,13 @@ import ExportButton from "~/components/tools/ExportButton.vue"
 import { useExportImage } from "~/composables/useExportImage"
 import HistoryModal from "~/components/tools/HistoryModal.vue"
 import MethodologyNote, { type ClassicalSource } from "~/components/tools/MethodologyNote.vue"
-useHead({ title: '称骨算命 — 玄·道' })
+useSeoMeta({
+  title: '称骨算命 — 玄·道',
+  ogTitle: '称骨算命 — 玄·道',
+  description: '袁天罡称骨算命，根据出生年月日时推算骨重，解读一生命运走向。',
+  ogDescription: '袁天罡称骨算命，根据出生年月日时推算骨重，解读一生命运走向。',
+  ogType: 'website',
+})
 const gumingClassical = [
   { method: '称骨歌断语', source: '袁天罡《称骨歌》，唐代命理文献，公共领域经典' },
   { method: '年柱六十甲子', source: '《六十甲子纳音表》，干支纪年与五行属性对应' },

@@ -24,7 +24,13 @@ const SOLAR_TERM_NAMES = [
   '小寒',
 ]
 
-useHead({ title: '玄·道 — 玄天机 · 道命理' })
+useSeoMeta({
+  title: '玄·道 — 玄天机 · 道命理',
+  ogTitle: '玄·道 — 玄天机 · 道命理',
+  description: '传统命理推演平台，提供八字排盘、紫微斗数、六爻占卜、生肖运势、星座星盘等术数工具。',
+  ogDescription: '传统命理推演平台，提供八字排盘、紫微斗数、六爻占卜、生肖运势、星座星盘等术数工具。',
+  ogType: 'website',
+})
 
 const { restoreSession, currentProfile } = useAuth()
 const greeting = useGreeting()

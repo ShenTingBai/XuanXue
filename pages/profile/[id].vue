@@ -14,7 +14,13 @@ interface ProfileUpdateBody {
   birth_longitude: number | null
 }
 
-useHead({ title: '命簿 — 玄·道' })
+useSeoMeta({
+  title: '命簿 — 玄·道',
+  ogTitle: '命簿 — 玄·道',
+  description: '编辑个人命簿信息，管理你的出生资料和档案设置。',
+  ogDescription: '编辑个人命簿信息，管理你的出生资料和档案设置。',
+  ogType: 'website',
+})
 
 const { restoreSession, currentProfile, getAuthHeaders, updateProfile } = useAuth()
 const router = useRouter()

@@ -1,5 +1,11 @@
 <script setup lang="ts">
-useHead({ title: '登录 — 玄·道' })
+useSeoMeta({
+  title: '登录 — 玄·道',
+  ogTitle: '登录 — 玄·道',
+  description: '登录玄·道平台，创建你的个人命簿，记录和回顾每一次命理推演。',
+  ogDescription: '登录玄·道平台，创建你的个人命簿，记录和回顾每一次命理推演。',
+  ogType: 'website',
+})
 
 const { login, register, restoreSession, currentProfile } = useAuth()
 const router = useRouter()

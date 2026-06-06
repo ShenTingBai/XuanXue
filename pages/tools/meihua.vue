@@ -15,7 +15,13 @@ import MethodologyNote, { type ClassicalSource } from '~/components/tools/Method
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
-useHead({ title: '梅花易数 — 玄·道' })
+useSeoMeta({
+  title: '梅花易数 — 玄·道',
+  ogTitle: '梅花易数 — 玄·道',
+  description: '梅花易数占卜，通过数字起卦推演本卦互卦变卦，体用生克断吉凶。',
+  ogDescription: '梅花易数占卜，通过数字起卦推演本卦互卦变卦，体用生克断吉凶。',
+  ogType: 'website',
+})
 
 // ── Methodology data ──
 const meihuaClassical: ClassicalSource[] = [

@@ -28,7 +28,13 @@ import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-useHead({ title: '八字排盘 — 玄·道' })
+useSeoMeta({
+  title: '八字排盘 — 玄·道',
+  ogTitle: '八字排盘 — 玄·道',
+  description: '通过四柱八字排盘，了解你的先天命格、十神格局、大运流年，探索人生轨迹。',
+  ogDescription: '通过四柱八字排盘，了解你的先天命格、十神格局、大运流年，探索人生轨迹。',
+  ogType: 'website',
+})
 
 // ── Methodology data ──
 const baziClassical: ClassicalSource[] = [

@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: false,
   },
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@vite-pwa/nuxt'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@vite-pwa/nuxt', '@nuxtjs/sitemap'],
   css: ['~/assets/css/main.css'],
   pwa: {
     registerType: 'autoUpdate',
@@ -41,6 +41,14 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
+    },
+  },
+  sitemap: {
+    exclude: ['/api/**'],
+  },
+  runtimeConfig: {
+    public: {
+      siteUrl: 'https://xuanxue.example.com',
     },
   },
   app: {

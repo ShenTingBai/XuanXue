@@ -40,7 +40,13 @@ const zejiSynthesis: string[] = [
   '评分权重和阈值为开发者校准（无经典原文量化标准）',
 ]
 
-useHead({ title: '择吉日 — 玄·道' })
+useSeoMeta({
+  title: '择吉日 — 玄·道',
+  ogTitle: '择吉日 — 玄·道',
+  description: '传统择吉日推荐，根据十二值星、黄黑道和二十八宿为你挑选最佳日期。',
+  ogDescription: '传统择吉日推荐，根据十二值星、黄黑道和二十八宿为你挑选最佳日期。',
+  ogType: 'website',
+})
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()

@@ -32,7 +32,13 @@ const hehunClassical: ClassicalSource[] = [
 ]
 const hehunSynthesis = ['维度权重配比', '加减分值', '等级阈值']
 
-useHead({ title: '八字合婚 — 玄·道' })
+useSeoMeta({
+  title: '八字合婚 — 玄·道',
+  ogTitle: '八字合婚 — 玄·道',
+  description: '八字合婚配对分析，从八个维度综合评估双方婚姻匹配度和相处之道。',
+  ogDescription: '八字合婚配对分析，从八个维度综合评估双方婚姻匹配度和相处之道。',
+  ogType: 'website',
+})
 
 const result = ref<HeHunResult | null>(null)
 const loading = ref(false)

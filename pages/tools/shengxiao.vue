@@ -52,7 +52,13 @@ const shengxiaoSynthesis: string[] = [
   '配对评分体现为工程校准值（非《三命通会》直接输出）',
 ]
 
-useHead({ title: '生肖 — 玄·道' })
+useSeoMeta({
+  title: '生肖运势 — 玄·道',
+  ogTitle: '生肖运势 — 玄·道',
+  description: '查看你的生肖性格、五行属性、年度运势和生肖配对，了解你的生肖守护神。',
+  ogDescription: '查看你的生肖性格、五行属性、年度运势和生肖配对，了解你的生肖守护神。',
+  ogType: 'website',
+})
 
 const result = ref<ShengXiaoResult | null>(null)
 const monthlyFortune = ref<MonthlyFortuneResult | null>(null)

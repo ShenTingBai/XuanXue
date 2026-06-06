@@ -16,7 +16,13 @@ import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-useHead({ title: '测字 — 玄·道' })
+useSeoMeta({
+  title: '测字 — 玄·道',
+  ogTitle: '测字 — 玄·道',
+  description: '传统测字占卜，根据汉字笔画五行解读你的运势和事物发展趋势。',
+  ogDescription: '传统测字占卜，根据汉字笔画五行解读你的运势和事物发展趋势。',
+  ogType: 'website',
+})
 
 const result = ref<CeziResult | null>(null)
 const loading = ref(false)
