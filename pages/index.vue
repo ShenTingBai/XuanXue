@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { Lunar } from 'lunar-javascript'
 import { STEMS, BRANCHES } from '~/constants/bazi'
@@ -747,12 +747,14 @@ const goToLogin = () => {
     <template v-if="sessionReady && currentProfile">
       <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10">
         <!-- ═══ Left/Right 50/50: Greeting + 今日玄机 ✦ 今日命签 ═══ -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch mb-12 sm:mb-16">
           <!-- ── Left column: Greeting (top) + Today's Mystery (bottom), equal height ── -->
           <div class="flex flex-col gap-4 sm:gap-6">
             <!-- Top half: Greeting -->
-            <div class="flex-1 min-h-0 anim-rise">
-              <div class="flex flex-col items-start justify-center h-full gap-2 sm:gap-3">
+            <div class="anim-rise flex-[3] min-h-0">
+              <div
+                class="flex flex-col items-center justify-center h-full gap-2 sm:gap-3 text-center"
+              >
                 <div class="flex items-center gap-3 sm:gap-4">
                   <span
                     class="hidden sm:block w-6 h-px flex-shrink-0"
@@ -794,61 +796,72 @@ const goToLogin = () => {
             </div>
 
             <!-- Bottom half: 今日玄机 -->
-            <div class="flex-1 min-h-0 anim-rise" style="--delay: 0.1s">
+            <div class="flex-[2] min-h-0 anim-rise" style="--delay: 0.1s">
               <div
-                class="talisman-card h-full flex flex-col items-center justify-center text-center"
+                class="talisman-card h-full flex items-center justify-center"
                 aria-label="今日黄历"
               >
-                <span
-                  class="absolute top-3 left-3 text-[1rem] opacity-15"
-                  style="color: #c62828"
-                  aria-hidden="true"
-                  >☰</span
-                >
-                <span
-                  class="absolute top-3 right-3 text-[1rem] opacity-15"
-                  style="color: #c62828"
-                  aria-hidden="true"
-                  >☷</span
-                >
-                <template v-if="todayAstro">
-                  <span class="talisman-seal--sm mb-2" aria-hidden="true">玄</span>
-                  <p class="talisman-lunar-date">
-                    {{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}
-                  </p>
-                  <p class="talisman-gregorian">
-                    {{ todayAstro.dateStr }} · 星期{{ todayAstro.weekday }}
-                  </p>
-                  <div class="flex items-center justify-center gap-3 mb-1.5">
-                    <span class="talisman-ganzhi">{{ todayAstro.yearGanZhi }}年</span>
-                    <span class="w-px h-2 bg-ink-faint/20" aria-hidden="true"></span>
-                    <span class="talisman-ganzhi">{{ todayAstro.monthGanZhi }}月</span>
+                <div class="flex flex-col items-center w-full">
+                  <!-- Header bar — matching 今日命签 style -->
+                  <div class="slip-hd mb-3 w-full">
+                    <span class="slip-chop" aria-hidden="true">玄</span>
+                    <span class="slip-ttl">今 日 玄 机</span>
+                    <span v-if="todayAstro" class="slip-date-inline"
+                      >{{ todayAstro.dateStr }} · 周{{ todayAstro.weekday }}</span
+                    >
+                    <span v-if="todayAstro?.solarTerm" class="slip-fortune slip-fortune--吉">{{
+                      todayAstro.solarTerm
+                    }}</span>
                   </div>
-                  <div v-if="todayAstro.solarTerm" class="talisman-term-badge">
-                    · {{ todayAstro.solarTerm }} ·
+
+                  <!-- Divider — visible, directly below header -->
+                  <div class="slip-divider-h mb-3 w-full" aria-hidden="true">
+                    <span class="slip-divider-h__dot" />
                   </div>
-                </template>
-                <!-- Clothing guide inline -->
-                <div
-                  class="mt-4 pt-3 border-t border-ink/6 flex items-center gap-3 text-xs w-full justify-center"
-                >
-                  <span class="text-ink/40 shrink-0">宜着</span>
-                  <span
-                    v-for="color in dailyWuxing.luckyColorNames"
-                    :key="color"
-                    class="px-2 py-0.5 rounded-full bg-cinnabar/8 text-cinnabar text-xs"
-                    >{{ color }}</span
-                  >
-                  <span class="text-ink/25">·</span>
-                  <span class="text-ink/30">避 {{ dailyWuxing.avoidColorNames.join('、') }}</span>
+
+                  <!-- Date content — natural flow, centered by parent items-center -->
+                  <template v-if="todayAstro">
+                    <p class="talisman-lunar-date">
+                      {{ todayAstro.lunarMonth }}月{{ todayAstro.lunarDay }}
+                    </p>
+
+                    <div class="flex items-center justify-center gap-3">
+                      <span class="talisman-ganzhi">{{ todayAstro.yearGanZhi }}年</span>
+                      <span class="w-px h-2 bg-ink-faint/20" aria-hidden="true"></span>
+                      <span class="talisman-ganzhi">{{ todayAstro.monthGanZhi }}月</span>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- ── Right column: Fortune stick, full height ── -->
-          <div class="anim-rise" style="--delay: 0.2s">
-            <DailyFortuneStick tall class="w-full h-full" />
+          <!-- ── Right column: Fortune stick + clothing guide ── -->
+          <div class="flex flex-col gap-5 sm:gap-6 anim-rise" style="--delay: 0.2s">
+            <!-- Fortune stick — fills most of the space -->
+            <div class="flex-1 min-h-0">
+              <DailyFortuneStick tall class="w-full h-full" />
+            </div>
+            <!-- 今日穿衣 — compact, pinned to bottom -->
+            <div class="daily-wuxing-card shrink-0">
+              <div class="slip-hd slip-hd--sm mb-2">
+                <span class="slip-chop slip-chop--sm" aria-hidden="true">衣</span>
+                <span class="slip-ttl slip-ttl--sm">今 日 穿 衣</span>
+              </div>
+              <div class="daily-wuxing-colors">
+                <span class="daily-wuxing-label">宜着</span>
+                <span
+                  v-for="color in dailyWuxing.luckyColorNames"
+                  :key="color"
+                  class="daily-wuxing-pill"
+                  >{{ color }}</span
+                >
+                <span class="daily-wuxing-sep">·</span>
+                <span class="daily-wuxing-avoid"
+                  >避 {{ dailyWuxing.avoidColorNames.join('、') }}</span
+                >
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1067,14 +1080,148 @@ const goToLogin = () => {
   color: var(--color-ink-medium);
   letter-spacing: 0.15em;
 }
-.talisman-term-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
+
+/* ═══ Slip-hd pattern — shared visual language with DailyFortuneStick ═══ */
+
+.slip-hd {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.375rem;
+}
+
+.slip-chop {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-cinnabar-deeper, #9c1a1c);
+  color: var(--color-paper-lightest, #f5f0e8);
+  font-family: var(--font-display, 'Ma Shan Zheng');
+  font-size: 0.5rem;
+  transform: rotate(-3deg);
+  border-radius: 2px;
+}
+
+.slip-ttl {
+  font-family: var(--font-display, 'Ma Shan Zheng');
+  font-size: 0.8125rem;
+  color: var(--color-ink-dark, #2c1810);
+  letter-spacing: 0.2em;
+  font-weight: 400;
+  margin-right: auto;
+}
+
+.slip-date-inline {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  color: var(--color-ink-light);
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+}
+
+.slip-fortune {
+  font-family: var(--font-display, 'Ma Shan Zheng');
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  letter-spacing: 0.08em;
+  transform: rotate(-0.5deg);
+  line-height: 1.3;
+}
+
+.slip-fortune--吉 {
+  background: color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
+  color: var(--color-ink-medium);
+  border: 1px solid color-mix(in oklch, var(--color-ink-darkest) 10%, transparent);
+}
+
+/* ── Horizontal divider ── */
+.slip-divider-h {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin: 0.5rem 0;
+}
+
+.slip-divider-h::before,
+.slip-divider-h::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(44, 26, 14, 0.12) 30%,
+    rgba(44, 26, 14, 0.12) 70%,
+    transparent
+  );
+}
+
+.slip-divider-h__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(198, 40, 40, 0.35);
+  flex-shrink: 0;
+}
+
+/* ═══ Daily Wuxing Card — compact clothing guide ═══ */
+
+.daily-wuxing-card {
+  background: color-mix(in oklch, var(--color-paper-card) 60%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+}
+
+/* Small slip-hd variant */
+.slip-hd--sm {
+  margin-bottom: 0.375rem;
+}
+
+.slip-chop--sm {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+}
+
+.slip-ttl--sm {
+  font-size: 0.75rem;
+}
+
+.daily-wuxing-colors {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
   font-size: 0.6875rem;
-  letter-spacing: 0.15em;
-  background: rgba(198, 40, 40, 0.06);
+}
+
+.daily-wuxing-label {
+  color: var(--color-ink-light);
+  flex-shrink: 0;
+}
+
+.daily-wuxing-pill {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  border-radius: 9999px;
+  background: color-mix(in oklch, var(--color-cinnabar) 8%, transparent);
   color: var(--color-cinnabar);
-  margin-bottom: 1.25rem;
+}
+
+.daily-wuxing-sep {
+  color: var(--color-ink-faint);
+}
+
+.daily-wuxing-avoid {
+  color: var(--color-ink-light);
 }
 </style>
