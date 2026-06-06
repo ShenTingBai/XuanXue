@@ -3,12 +3,51 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: false,
   },
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@vite-pwa/nuxt'],
   css: ['~/assets/css/main.css'],
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: '玄·道 — 玄天机 · 道命理',
+      short_name: '玄·道',
+      description: '传统命理推演平台：八字、紫微斗数、六爻占卜、生肖运势、星座星盘',
+      theme_color: '#F5F0E8',
+      background_color: '#F5F0E8',
+      display: 'standalone',
+      orientation: 'portrait-primary',
+      start_url: '/',
+      icons: [
+        {
+          src: 'pwa-icon.svg',
+          sizes: 'any',
+          type: 'image/svg+xml',
+          purpose: 'any maskable',
+        },
+      ],
+    },
+    workbox: {
+      maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+      runtimeCaching: [
+        {
+          urlPattern: '/api/.*',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'api-cache',
+            expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
+          },
+        },
+      ],
+    },
+    client: {
+      installPrompt: true,
+    },
+  },
   app: {
     head: {
       title: '玄·道 - 命理互动平台',
       htmlAttrs: { lang: 'zh-CN' },
+      meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' }],
       link: [
         {
           rel: 'preload',
@@ -31,6 +70,7 @@ export default defineNuxtConfig({
           type: 'font/woff2',
           crossorigin: 'anonymous',
         },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       ],
     },
   },
