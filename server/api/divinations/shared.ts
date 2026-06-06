@@ -8,6 +8,7 @@ export const DIVINATION_TYPES = [
   'hehun',
   'name-test',
   'zeji',
+  'guming',
 ] as const
 export type DivinationType = (typeof DIVINATION_TYPES)[number]
 
