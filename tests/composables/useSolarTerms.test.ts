@@ -52,6 +52,17 @@ describe('getMonthBranch', () => {
   it('returns 子 for solar date Dec 7', () => {
     expect(getMonthBranch(2000, 12, 7)).toBe('子')
   })
+
+  it('returns 丑 for Jan 5 when monthPillarYear is 2000 and 小寒 boundary is correct', () => {
+    // Birth Jan 5, 2001 → pre-立春, monthPillarYear=2000
+    // getSolarTerm(2000+1, 11) = 小寒 2001 ≈ Jan 5
+    // Jan 5 >= Jan 5 → 丑月 (correct with fix; was 子月 before fix)
+    expect(getMonthBranch(2000, 1, 5)).toBe('丑')
+  })
+
+  it('returns 子 for Jan 4 when monthPillarYear is 2000 (day before 小寒 2001)', () => {
+    expect(getMonthBranch(2000, 1, 4)).toBe('子')
+  })
 })
 
 describe('getMonthStemStart', () => {
