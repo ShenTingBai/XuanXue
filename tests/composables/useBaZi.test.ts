@@ -686,7 +686,7 @@ describe('getWeightedDayMasterStrength', () => {
         ],
       },
     ] as unknown as BaZiPillar[]
-    expect(getWeightedDayMasterStrength('火', pillars)).toBe('偏强')
+    expect(getWeightedDayMasterStrength('火', pillars)).toBe('强')
   })
 })
 
@@ -774,7 +774,7 @@ describe('snapshot tests', () => {
     expect(result.hourPillar!.stem).toMatchInlineSnapshot(`"戊"`)
     expect(result.hourPillar!.branch).toMatchInlineSnapshot(`"午"`)
     expect(result.dayMaster).toMatchInlineSnapshot(`"戊"`)
-    expect(result.dayMasterStrength).toMatchInlineSnapshot(`"偏强"`)
+    expect(result.dayMasterStrength).toMatchInlineSnapshot(`"强"`)
   })
 
   it('1964-07-14 BaZi result matches snapshot', () => {

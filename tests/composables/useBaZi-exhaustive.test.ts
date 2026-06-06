@@ -317,18 +317,20 @@ describe('Day Master Strength (month pillar enumeration)', () => {
 
   it('distribution reflects fixed-baseline constraint (day master 甲 + all-wood/water baseline)', () => {
     // With 甲 day master and fixed baseline pillars all favoring wood,
-    // the month pillar is the ONLY variable. Expected clustering:
-    //   强 = 寅卯子亥 (wood/water branches) — 20 combos
-    //   偏强 = 丑辰巳午未戌 (earth/fire branches) — 30 combos
-    //   中和 = 申酉 (metal branches) — 10 combos
-    //   偏弱/弱 = 0 (no single pillar can overpower the favorable baseline)
+    // the month pillar is the ONLY variable. With month stem (weight 1.0)
+    // now included in strength calculation:
+    //   强 = 30 combos (month stem adds wood/water weight, pushing more over threshold)
+    //   偏强 = 20 combos
+    //   中和 = 8 combos
+    //   偏弱 = 2 combos (month stem creates enough variance to dip below neutral)
+    //   弱 = 0
     expect(distribution['弱'] || 0).toBe(0)
-    expect(distribution['偏弱'] || 0).toBe(0)
+    expect(distribution['偏弱'] || 0).toBe(2)
     expect(distribution['强']).toBeGreaterThan(0)
     expect(distribution['偏强']).toBeGreaterThan(0)
     expect(distribution['中和']).toBeGreaterThan(0)
-    // 偏强 dominates because earth/fire branches are most common (6/12 branches)
-    expect(distribution['偏强']).toBeGreaterThan(distribution['强'])
+    // 强 dominates because month stem pushes wood/water-heavy combos over threshold
+    expect(distribution['强']).toBeGreaterThan(distribution['偏强'])
   })
 })
 
