@@ -20,6 +20,7 @@ import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
 const router = useRouter()
@@ -132,68 +133,66 @@ function compute() {
   if (loading.value) return
   loading.value = true
   error.value = ''
-  setTimeout(() => {
-    try {
-      let input: MeiHuaInput
-      if (inputMethod.value === 'time') {
-        if (dateMonth.value < 1 || dateMonth.value > 12) {
-          throw new Error('月份应在 1-12 之间')
-        }
-        if (dateDay.value < 1 || dateDay.value > 31) {
-          throw new Error('日期应在 1-31 之间')
-        }
-        const res = calculateMeiHuaFromDate(
-          dateYear.value,
-          dateMonth.value,
-          dateDay.value,
-          dateHour.value,
-        )
-        result.value = res
-        tryAutoSave(res)
-      } else if (inputMethod.value === 'manual') {
-        if (manualUpper.value < 1 || manualUpper.value > 999) {
-          throw new Error('上卦数应在 1-999 之间')
-        }
-        if (manualLower.value < 1 || manualLower.value > 999) {
-          throw new Error('下卦数应在 1-999 之间')
-        }
-        if (manualMoving.value < 1 || manualMoving.value > 999) {
-          throw new Error('动爻数应在 1-999 之间')
-        }
-        input = {
-          upperNumber: manualUpper.value,
-          lowerNumber: manualLower.value,
-          movingNumber: manualMoving.value,
-          method: 'manual',
-          question: questionText.value || undefined,
-        }
-        const res = calculateMeiHua(input)
-        result.value = res
-        tryAutoSave(res)
-      } else {
-        const upperNum = Math.floor(Math.random() * 999) + 1
-        const lowerNum = Math.floor(Math.random() * 999) + 1
-        const movingNum = Math.floor(Math.random() * 999) + 1
-        manualUpper.value = upperNum
-        manualLower.value = lowerNum
-        manualMoving.value = movingNum
-        input = {
-          upperNumber: upperNum,
-          lowerNumber: lowerNum,
-          movingNumber: movingNum,
-          method: 'random',
-          question: questionText.value || undefined,
-        }
-        const res = calculateMeiHua(input)
-        result.value = res
-        tryAutoSave(res)
+  try {
+    let input: MeiHuaInput
+    if (inputMethod.value === 'time') {
+      if (dateMonth.value < 1 || dateMonth.value > 12) {
+        throw new Error('月份应在 1-12 之间')
       }
-    } catch (e: unknown) {
-      error.value = e instanceof Error ? e.message : '起卦出错，请重试'
-    } finally {
-      loading.value = false
+      if (dateDay.value < 1 || dateDay.value > 31) {
+        throw new Error('日期应在 1-31 之间')
+      }
+      const res = calculateMeiHuaFromDate(
+        dateYear.value,
+        dateMonth.value,
+        dateDay.value,
+        dateHour.value,
+      )
+      result.value = res
+      tryAutoSave(res)
+    } else if (inputMethod.value === 'manual') {
+      if (manualUpper.value < 1 || manualUpper.value > 999) {
+        throw new Error('上卦数应在 1-999 之间')
+      }
+      if (manualLower.value < 1 || manualLower.value > 999) {
+        throw new Error('下卦数应在 1-999 之间')
+      }
+      if (manualMoving.value < 1 || manualMoving.value > 999) {
+        throw new Error('动爻数应在 1-999 之间')
+      }
+      input = {
+        upperNumber: manualUpper.value,
+        lowerNumber: manualLower.value,
+        movingNumber: manualMoving.value,
+        method: 'manual',
+        question: questionText.value || undefined,
+      }
+      const res = calculateMeiHua(input)
+      result.value = res
+      tryAutoSave(res)
+    } else {
+      const upperNum = Math.floor(Math.random() * 999) + 1
+      const lowerNum = Math.floor(Math.random() * 999) + 1
+      const movingNum = Math.floor(Math.random() * 999) + 1
+      manualUpper.value = upperNum
+      manualLower.value = lowerNum
+      manualMoving.value = movingNum
+      input = {
+        upperNumber: upperNum,
+        lowerNumber: lowerNum,
+        movingNumber: movingNum,
+        method: 'random',
+        question: questionText.value || undefined,
+      }
+      const res = calculateMeiHua(input)
+      result.value = res
+      tryAutoSave(res)
     }
-  }, 300)
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : '起卦出错，请重试'
+  } finally {
+    loading.value = false
+  }
 }
 
 // ── Auto-save ──
@@ -305,11 +304,11 @@ function handleExport() {
 
 onMounted(async () => {
   await restoreSession()
-  checkAvailability()
   if (!currentProfile.value) {
     router.push('/login')
     return
   }
+  checkAvailability()
   window.addEventListener('scroll', handleScroll, { passive: true })
 })
 onUnmounted(() => {
@@ -364,7 +363,7 @@ onUnmounted(() => {
         </p>
 
         <!-- Method tabs -->
-        <div class="flex gap-2 mb-6 border-b border-ink-darkest/6 pb-3">
+        <div class="flex flex-wrap gap-2 mb-6 border-b border-ink-darkest/6 pb-3">
           <button
             v-for="tab in [
               { value: 'time' as InputMethod, label: '时间起卦' },
@@ -384,7 +383,7 @@ onUnmounted(() => {
         <!-- Time input -->
         <div
           v-if="inputMethod === 'time'"
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6"
         >
           <div>
             <label for="mh-year" class="input-label">年</label
@@ -665,7 +664,6 @@ onUnmounted(() => {
                 <strong>体用生克（{{ result.tiYong.relation }}）：</strong
                 >{{ result.tiYong.description }}
               </p>
-              <p class="text-ink-muted italic">此为梅花易数推演结果，仅供传统文化研究参考。</p>
             </div>
           </div>
         </div>
@@ -708,18 +706,11 @@ onUnmounted(() => {
       @keydown.enter="scrollToTop"
       @keydown.space.prevent="scrollToTop"
     />
+    <EntertainmentDisclaimer class="mt-8" />
   </ToolPageLayout>
 </template>
 
 <style scoped>
-.input-label {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  color: var(--color-ink-muted);
-  letter-spacing: 0.06em;
-  margin-bottom: 0.3rem;
-}
 .meihua-tab {
   padding: 0.375rem 1rem;
   font-family: var(--font-sans);
@@ -733,12 +724,12 @@ onUnmounted(() => {
 }
 .meihua-tab:hover {
   color: var(--color-ink-dark);
-  background: color-mix(in srgb, var(--color-ink-darkest) 3%, transparent);
+  background: color-mix(in oklch, var(--color-ink-darkest) 3%, transparent);
 }
 .meihua-tab--active {
   color: var(--color-cinnabar);
-  border-color: color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
-  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  border-color: color-mix(in oklch, var(--color-cinnabar) 20%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 5%, transparent);
 }
 .meihua-hexagrams {
   display: grid;
@@ -760,12 +751,12 @@ onUnmounted(() => {
   padding: 1.25rem 0.75rem;
   border-radius: 0.75rem;
   background: var(--color-paper);
-  border: 1px solid color-mix(in srgb, var(--color-ink-darkest) 6%, transparent);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--color-ink-darkest) 4%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
+  box-shadow: 0 1px 3px color-mix(in oklch, var(--color-ink-darkest) 4%, transparent);
 }
 .hexagram-card--changing {
-  border-color: color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
-  background: color-mix(in srgb, var(--color-cinnabar) 2%, var(--color-paper));
+  border-color: color-mix(in oklch, var(--color-cinnabar) 15%, transparent);
+  background: color-mix(in oklch, var(--color-cinnabar) 2%, var(--color-paper));
 }
 .hexagram-card__label {
   font-family: var(--font-display);
@@ -776,7 +767,7 @@ onUnmounted(() => {
 }
 .hexagram-card__subtitle {
   font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-light);
   margin-bottom: 0.75rem;
 }
@@ -784,6 +775,11 @@ onUnmounted(() => {
   font-size: 2.5rem;
   line-height: 1.2;
   color: var(--color-ink-darkest);
+}
+@media (max-width: 640px) {
+  .hexagram-card__symbols {
+    font-size: 1.75rem;
+  }
 }
 .hexagram-card__trigram {
   display: block;
@@ -797,7 +793,7 @@ onUnmounted(() => {
 }
 .hexagram-card__line {
   font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-cinnabar);
   margin-top: 0.25rem;
 }
@@ -826,11 +822,11 @@ onUnmounted(() => {
   gap: 0.25rem;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--color-ink-darkest) 2%, transparent);
+  background: color-mix(in oklch, var(--color-ink-darkest) 4%, transparent);
 }
 .tiyong-card__label {
   font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-light);
   letter-spacing: 0.1em;
 }
@@ -845,7 +841,7 @@ onUnmounted(() => {
 }
 .tiyong-card__wx {
   font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-medium);
 }
 .tiyong-relation {
@@ -866,12 +862,19 @@ onUnmounted(() => {
 }
 .meihua-scroll-slip {
   position: relative;
+  background: linear-gradient(
+    180deg,
+    var(--color-paper) 0%,
+    color-mix(in oklch, var(--color-ink-darkest) 4%, var(--color-paper)) 100%
+  );
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
 }
 .meihua-scroll-slip__section {
   padding: 0.75rem 0;
 }
 .meihua-scroll-slip__section + .meihua-scroll-slip__section {
-  border-top: 1px solid color-mix(in srgb, var(--color-ink-darkest) 6%, transparent);
+  border-top: 1px solid color-mix(in oklch, var(--color-ink-darkest) 6%, transparent);
 }
 .meihua-scroll-slip__title {
   font-family: var(--font-sans);
@@ -886,8 +889,8 @@ onUnmounted(() => {
   margin: 0.5rem 0;
   background: repeating-linear-gradient(
     90deg,
-    color-mix(in srgb, var(--color-ink-darkest) 6%, transparent) 0px,
-    color-mix(in srgb, var(--color-ink-darkest) 6%, transparent) 6px,
+    color-mix(in oklch, var(--color-ink-darkest) 6%, transparent) 0px,
+    color-mix(in oklch, var(--color-ink-darkest) 6%, transparent) 6px,
     transparent 6px,
     transparent 12px
   );
@@ -904,95 +907,5 @@ onUnmounted(() => {
   font-size: 0.6875rem;
   color: var(--color-ink-medium);
   line-height: 1.7;
-}
-.toast-notification {
-  position: fixed;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: var(--color-cinnabar);
-  color: var(--color-paper);
-  border-radius: 0.5rem;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--color-ink-darkest) 15%, transparent);
-}
-.toast-notification__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--color-paper) 20%, transparent);
-  font-size: 0.625rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.toast-notification__text {
-  flex: 1;
-}
-.toast-notification__close {
-  background: none;
-  border: none;
-  color: var(--color-paper);
-  cursor: pointer;
-  font-size: 1.125rem;
-  line-height: 1;
-  padding: 0;
-  opacity: 0.7;
-}
-.toast-notification__close:hover {
-  opacity: 1;
-}
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes secIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .fade-in {
-    animation: secIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: var(--delay, 0s);
-  }
-  .toast-enter-active {
-    transition:
-      opacity 0.25s ease,
-      transform 0.25s ease;
-  }
-  .toast-leave-active {
-    transition: opacity 0.2s ease;
-  }
-  .toast-enter-from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  .toast-leave-to {
-    opacity: 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fade-in {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-  .toast-enter-active,
-  .toast-leave-active {
-    transition: none;
-  }
-  .toast-enter-from {
-    transform: none;
-  }
 }
 </style>

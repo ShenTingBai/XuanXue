@@ -402,7 +402,7 @@ const scalePercent = computed(function () {
             </div>
           </div>
           <div
-            class="fade-in mt-6 card-warm rounded-xl overflow-hidden"
+            class="fade-in mt-6 card-warm rounded-xl overflow-x-auto"
             :style="{ '--delay': '0.25s' }"
           >
             <div class="section-header px-8 pt-8 pb-4"><h2>骨重详表</h2></div>
@@ -519,11 +519,11 @@ const scalePercent = computed(function () {
   border-radius: 9999px;
 }
 .level-badge--xiaxia {
-  background: color-mix(in oklch, var(--color-cinnabar) 8%, transparent);
-  color: var(--color-cinnabar);
-  border: 1px solid color-mix(in oklch, var(--color-cinnabar) 15%, transparent);
+  background: color-mix(in oklch, var(--color-ink-light) 8%, transparent);
+  color: var(--color-ink-muted);
+  border: 1px solid color-mix(in oklch, var(--color-ink-light) 20%, transparent);
   border-radius: 1px;
-  transform: rotate(-1deg);
+  transform: none;
 }
 .scale-card {
   padding: 1.5rem;
@@ -538,6 +538,7 @@ const scalePercent = computed(function () {
   }
 }
 .scale-card__header {
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -589,7 +590,7 @@ const scalePercent = computed(function () {
   border-radius: 9999px;
   background: linear-gradient(
     90deg,
-    var(--color-ink-muted) 0%,
+    var(--color-ink-faint) 0%,
     var(--color-cinnabar) 50%,
     var(--color-gold) 100%
   );
