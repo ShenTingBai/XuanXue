@@ -13,9 +13,13 @@ const emit = defineEmits<{
 
 <template>
   <Transition name="fade">
-    <div v-if="!props.isFilled" class="card-warm p-3 mb-4 flex items-center justify-between text-sm">
+    <div
+      v-if="!props.isFilled"
+      class="card-warm p-3 mb-4 flex items-center justify-between text-sm"
+    >
       <span class="text-ink/60">
-        📂 从「<span class="text-ink/80 font-medium">{{ props.profileName }}</span>」的命簿填入生日
+        📂 从「<span class="text-ink/80 font-medium">{{ props.profileName }}</span
+        >」的命簿填入生日
       </span>
       <button
         class="text-cinnabar hover:underline cursor-pointer transition-colors shrink-0 ml-3"
