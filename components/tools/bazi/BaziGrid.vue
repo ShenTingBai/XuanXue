@@ -133,6 +133,28 @@
                 </p>
               </td>
             </tr>
+            <!-- Palace row (胎元/命宫/身宫) -->
+            <tr v-if="palaces">
+              <td
+                colspan="4"
+                class="py-2 px-2 text-center border-t-2 bazi-border-accent"
+              >
+                <div class="flex justify-center gap-6 text-sm font-sans">
+                  <div v-if="palaces.taiYuan">
+                    <span class="text-ink-muted mr-1">胎元</span>
+                    <span :style="{ color: wuxingColor(palaces.taiYuan.stemWuxing) }">{{ palaces.taiYuan.stem }}{{ palaces.taiYuan.branch }}</span>
+                  </div>
+                  <div v-if="palaces.mingGong">
+                    <span class="text-ink-muted mr-1">命宫</span>
+                    <span :style="{ color: wuxingColor(palaces.mingGong.stemWuxing) }">{{ palaces.mingGong.stem }}{{ palaces.mingGong.branch }}</span>
+                  </div>
+                  <div v-if="palaces.shenGong">
+                    <span class="text-ink-muted mr-1">身宫</span>
+                    <span :style="{ color: wuxingColor(palaces.shenGong.stemWuxing) }">{{ palaces.shenGong.stem }}{{ palaces.shenGong.branch }}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -211,6 +233,26 @@
             </div>
           </div>
         </div>
+        <!-- Mobile palace display -->
+        <div v-if="palaces" class="sm:hidden mt-3 pt-3 border-t border-paper-dark/50">
+          <div class="flex justify-center gap-4 text-sm font-sans">
+            <div v-if="palaces.taiYuan">
+              <span class="text-ink-muted text-xs mr-0.5">胎</span>
+              <span :style="{ color: wuxingColor(palaces.taiYuan.stemWuxing) }">{{ palaces.taiYuan.stem }}{{ palaces.taiYuan.branch }}</span>
+            </div>
+            <div v-if="palaces.mingGong">
+              <span class="text-ink-muted text-xs mr-0.5">命</span>
+              <span :style="{ color: wuxingColor(palaces.mingGong.stemWuxing) }">{{ palaces.mingGong.stem }}{{ palaces.mingGong.branch }}</span>
+            </div>
+            <div v-if="palaces.shenGong">
+              <span class="text-ink-muted text-xs mr-0.5">身</span>
+              <span :style="{ color: wuxingColor(palaces.shenGong.stemWuxing) }">{{ palaces.shenGong.stem }}{{ palaces.shenGong.branch }}</span>
+            </div>
+          </div>
+          <div class="text-center text-xs text-ink-muted mt-1 font-sans">
+            胎元 · 命宫 · 身宫
+          </div>
+        </div>
       </div>
 
       <!-- Shared legend (below both desktop and mobile views) -->
@@ -239,11 +281,16 @@
 </template>
 
 <script setup lang="ts">
-import type { BaZiPillar } from '~/composables/useBaZi'
+import type { BaZiPillar, BaZiPalace } from '~/composables/useBaZi'
 import { wuxingColor, getNaYin } from '~/constants/bazi'
 
 const props = defineProps<{
   pillars: BaZiPillar[]
+  palaces?: {
+    taiYuan: BaZiPalace | null
+    mingGong: BaZiPalace | null
+    shenGong: BaZiPalace | null
+  } | null
 }>()
 
 const allHeaders = [
