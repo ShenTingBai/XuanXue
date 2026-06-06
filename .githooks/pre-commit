@@ -11,3 +11,6 @@ if [ "$BRANCH" = "main" ]; then
   echo ""
   exit 1
 fi
+
+# Auto-format staged files
+npx lint-staged

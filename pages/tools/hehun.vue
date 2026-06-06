@@ -50,7 +50,21 @@ const bYear = ref(defaultYear)
 const bMonth = ref(6)
 const bDay = ref(15)
 const bDateStr = ref(`${defaultYear}-06-15`)
-const bHour = ref<string>('12')
+const hourOptions = [
+  { label: '子时 (23:00-00:59)', value: 23 },
+  { label: '丑时 (01:00-02:59)', value: 1 },
+  { label: '寅时 (03:00-04:59)', value: 3 },
+  { label: '卯时 (05:00-06:59)', value: 5 },
+  { label: '辰时 (07:00-08:59)', value: 7 },
+  { label: '巳时 (09:00-10:59)', value: 9 },
+  { label: '午时 (11:00-12:59)', value: 11 },
+  { label: '未时 (13:00-14:59)', value: 13 },
+  { label: '申时 (15:00-16:59)', value: 15 },
+  { label: '酉时 (17:00-18:59)', value: 17 },
+  { label: '戌时 (19:00-20:59)', value: 19 },
+  { label: '亥时 (21:00-22:59)', value: 21 },
+]
+const bHour = ref<number | null>(null)
 const bGender = ref<'男' | '女'>('男')
 const bCalendar = ref<'solar' | 'lunar'>('solar')
 const bNickname = ref('')
@@ -153,7 +167,7 @@ function computeHeHun() {
       year: bYear.value,
       month: bMonth.value,
       day: bDay.value,
-      hour: bHour.value === '' ? null : parseInt(bHour.value, 10),
+      hour: bHour.value === null ? null : bHour.value,
       gender: bGender.value,
       calendar: bCalendar.value,
       nickname: bNickname.value.trim() || '对方',
@@ -362,10 +376,8 @@ const computedGrade = computed<HeHunGrade | null>(() => {
               <label for="b-hour" class="input-label">出生时辰</label>
               <select id="b-hour" v-model="bHour" class="input-ink w-full">
                 <option :value="null">未知</option>
-                <option v-for="h in 12" :key="h" :value="h * 2 - 2">
-                  {{ '子丑寅卯辰巳午未申酉戌亥'[h - 1] }}时（{{
-                    String(h * 2 - 2).padStart(2, '0')
-                  }}:00-{{ String(h * 2).padStart(2, '0') }}:00）
+                <option v-for="opt in hourOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
                 </option>
               </select>
             </div>
