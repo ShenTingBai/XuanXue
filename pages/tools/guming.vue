@@ -105,7 +105,10 @@ function scrollToTop() {
 }
 onMounted(async () => {
   await restoreSession()
-  console.log('[auto-fill] guming onMounted: restoreSession done, currentProfile:', currentProfile.value?.nickname)
+  console.log(
+    '[auto-fill] guming onMounted: restoreSession done, currentProfile:',
+    currentProfile.value?.nickname,
+  )
   if (!currentProfile.value) {
     router.push('/login')
     return
