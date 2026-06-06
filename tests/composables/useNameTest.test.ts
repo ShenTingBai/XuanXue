@@ -4,7 +4,7 @@ import { calculateNameTest } from '../../composables/useNameTest'
 describe('calculateNameTest', () => {
   // Well-known test case: 李纲 (Li Gang — single surname + single given name)
   // 李 = 7 strokes, 纲 = 14 strokes (from stroke-dict)
-  // 天格 = 7+1 = 8 (八卦之数, 吉, 金)
+  // 天格 = 7+1 = 8 (八卦之数, 半吉, 金)
   // 人格 = 7+14 = 21 (明月中天, 吉, 木)
   // 地格 = 14+1 = 15 (福寿双全, 吉, 土)
   // 总格 = 7+14 = 21 (明月中天, 吉, 木)
@@ -35,7 +35,7 @@ describe('calculateNameTest', () => {
     // 天格: 7+1=8
     expect(result!.grids.tian.strokes).toBe(8)
     expect(result!.grids.tian.name).toBe('八卦之数')
-    expect(result!.grids.tian.fortune).toBe('吉')
+    expect(result!.grids.tian.fortune).toBe('半吉')
     expect(result!.grids.tian.wuxing).toBe('金')
 
     // 人格: 7+7=14
@@ -47,7 +47,7 @@ describe('calculateNameTest', () => {
     // 地格: 7+1=8
     expect(result!.grids.di.strokes).toBe(8)
     expect(result!.grids.di.name).toBe('八卦之数')
-    expect(result!.grids.di.fortune).toBe('吉')
+    expect(result!.grids.di.fortune).toBe('半吉')
     expect(result!.grids.di.wuxing).toBe('金')
 
     // 总格: 7+7=14
@@ -173,7 +173,7 @@ describe('calculateNameTest', () => {
     // 鑫 = 24, repeated many times
     const result = calculateNameTest('鑫', '鑫鑫')
     expect(result).not.toBeNull()
-    // 天格: 24+1=25 (英俊之数, 吉), 25 <= 81 so no cycling needed
+    // 天格: 24+1=25 (英俊之数, 半吉), 25 <= 81 so no cycling needed
     // 人格: 24+24=48 (德望之数, 吉), 48 <= 81
     // This test verifies the cycling logic exists and doesn't error
     expect(result!.totalScore).toBeGreaterThanOrEqual(0)

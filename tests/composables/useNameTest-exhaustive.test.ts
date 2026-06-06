@@ -62,10 +62,10 @@ describe('81-number fortune table exhaustive', () => {
     }
   })
 
-  // Verify the 9 半吉 entries from the fix session
-  it('has exactly 9 半吉 entries matching cezi.ts NUMBER_FORTUNE_MAP', () => {
+  // Verify the 18 半吉 entries (corrected to standard 熊崎健翁 reference)
+  it('has exactly 18 半吉 entries matching cezi.ts NUMBER_FORTUNE_MAP', () => {
     const banJi = NUMBERS_81.filter(n => n.fortune === '半吉').map(n => n.number)
-    expect(banJi.sort((a, b) => a - b)).toEqual([38, 51, 55, 58, 71, 73, 75, 77, 78])
+    expect(banJi.sort((a, b) => a - b)).toEqual([8, 17, 18, 25, 30, 36, 38, 39, 49, 50, 51, 55, 58, 71, 73, 75, 77, 78])
   })
 })
 

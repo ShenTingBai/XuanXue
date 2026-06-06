@@ -389,7 +389,7 @@ function elementForSign(signIndex: number): ConstellationResult['element'] {
 
 /**
  * Element compatibility boost.
- * 火 compatible with 土, 风 compatible with 水 (opposites in the 4-element cycle match).
+ * 火 compatible with 风, 土 compatible with 水 (complementary pairs: fire-air, earth-water).
  * Same element: strong boost. Compatible: moderate boost. Incompatible: penalty.
  */
 function elementBoost(
@@ -397,13 +397,13 @@ function elementBoost(
   otherElement: ConstellationResult['element'],
 ): number {
   if (myElement === otherElement) return 5
-  // Element compatibility based on zodiac element ordering:
-  // 火 compatible with 土, 风 compatible with 水
+  // Element compatibility based on Western element theory:
+  // 火-风 complementary, 土-水 complementary
   const compatible: Record<string, string[]> = {
-    火: ['土'],
-    土: ['火'],
-    风: ['水'],
-    水: ['风'],
+    火: ['风'],
+    风: ['火'],
+    土: ['水'],
+    水: ['土'],
   }
   if (compatible[myElement]?.includes(otherElement)) return 3
   return -3
