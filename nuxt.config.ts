@@ -17,12 +17,8 @@ export default defineNuxtConfig({
       orientation: 'portrait-primary',
       start_url: '/',
       icons: [
-        {
-          src: 'logo.svg',
-          sizes: 'any',
-          type: 'image/svg+xml',
-          purpose: 'any maskable',
-        },
+        { src: 'pwa-icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'pwa-icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
       ],
     },
     workbox: {
@@ -77,6 +73,7 @@ export default defineNuxtConfig({
           content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
         },
         { name: 'twitter:image', content: 'https://xuanji.me/og-image.png' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
       ],
       link: [
         // Ma Shan Zheng (2.6MB) 不预加载——通过 @font-face font-display: swap 按需加载。
@@ -96,6 +93,7 @@ export default defineNuxtConfig({
           crossorigin: 'anonymous',
         },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg?v=2' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/pwa-icon-180.png' },
       ],
     },
   },
