@@ -48,7 +48,7 @@ useSeoMeta({
   ogType: 'website',
 })
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
 const showScrollTop = ref(false)
@@ -183,8 +183,6 @@ function selectEvent(eventKey: string) {
 
 async function saveDivinationResult(res: ZejiResult) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const inputData = {
       eventType: selectedEvent.value,
       viewYear: displayMonth.value.year,
@@ -192,7 +190,6 @@ async function saveDivinationResult(res: ZejiResult) {
     }
     const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
-      headers,
       body: {
         type: 'zeji',
         input_data: inputData,
@@ -215,13 +212,8 @@ async function saveDivinationResult(res: ZejiResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      {
-        headers,
-      },
     )
     if (
       record.result_data &&

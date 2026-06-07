@@ -5,7 +5,7 @@ import { calculateGuMing, type GuMingResult } from '~/composables/useGuMing'
 import { HOUR_NAMES } from '~/constants/gu-ming'
 import type { Ref } from 'vue'
 import type { FetchError } from '~/types/errors'
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
@@ -150,11 +150,8 @@ async function computeGuMing() {
 }
 async function saveDivinationResult(res: GuMingResult) {
   try {
-    const h = getAuthHeaders()
-    if (!h.Authorization) return
     await $fetch('/api/divinations', {
       method: 'POST',
-      headers: h,
       body: {
         type: 'guming',
         input_data: {
@@ -176,11 +173,8 @@ async function saveDivinationResult(res: GuMingResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    const h = getAuthHeaders()
-    if (!h.Authorization) return
     const r = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       '/api/divinations/' + id,
-      { headers: h },
     )
     if (
       r.result_data &&

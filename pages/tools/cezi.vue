@@ -4,7 +4,7 @@ import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { ELEMENT_INTERPRETATIONS } from '~/constants/cezi'
 import type { FetchError } from '~/types/errors'
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
@@ -124,21 +124,17 @@ async function computeCezi() {
 
 async function saveDivinationResult(res: CeziResult) {
   try {
-    const headers = getAuthHeaders()
-    if (headers.Authorization) {
-      const inputData = { character: res.character }
-      const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-        method: 'POST',
-        headers,
-        body: {
-          type: 'cezi',
-          input_data: inputData,
-          result_data: JSON.parse(JSON.stringify(res)),
-        },
-      })
-      savedDivinationId.value = saveRes.id
-      saveError.value = ''
-    }
+    const inputData = { character: res.character }
+    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
+      body: {
+        type: 'cezi',
+        input_data: inputData,
+        result_data: JSON.parse(JSON.stringify(res)),
+      },
+    })
+    savedDivinationId.value = saveRes.id
+    saveError.value = ''
   } catch (e: unknown) {
     if (e && typeof e === 'object' && 'statusCode' in e) {
       const code = (e as FetchError).statusCode
@@ -153,13 +149,8 @@ async function saveDivinationResult(res: CeziResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      {
-        headers,
-      },
     )
     if (
       record.result_data &&

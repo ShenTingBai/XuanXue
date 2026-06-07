@@ -3,7 +3,7 @@ import type { ProfileWithFlag } from '~/composables/useAuth'
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
 import AddProfileModal from '~/components/tools/AddProfileModal.vue'
 
-const { currentProfile, subProfiles, loadSubProfiles, switchProfile, getAuthHeaders } = useAuth()
+const { currentProfile, subProfiles, loadSubProfiles, switchProfile } = useAuth()
 
 const showDropdown = ref(false)
 const showAddModal = ref(false)
@@ -43,7 +43,6 @@ async function handleDelete(profile: ProfileWithFlag) {
   try {
     await $fetch(`/api/profiles/${profile.id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(),
     })
     await loadSubProfiles()
   } catch {

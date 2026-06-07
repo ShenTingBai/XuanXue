@@ -3,7 +3,7 @@ import { WUXING_COLORS } from '~/constants/bazi'
 import { calculateNameTest, type NameTestResult } from '~/composables/useNameTest'
 import type { FetchError } from '~/types/errors'
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
@@ -122,12 +122,9 @@ async function computeNameTest() {
 
 async function saveDivinationResult(res: NameTestResult) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const inputData = { surname: surname.value, givenName: givenName.value }
     const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
-      headers,
       body: {
         type: 'name-test',
         input_data: inputData,
@@ -150,13 +147,8 @@ async function saveDivinationResult(res: NameTestResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      {
-        headers,
-      },
     )
     if (
       record.result_data &&

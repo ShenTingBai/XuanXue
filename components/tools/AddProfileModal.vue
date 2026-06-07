@@ -5,8 +5,6 @@ import type { FetchError } from '~/types/errors'
 const props = defineProps<{ show: boolean }>()
 const emit = defineEmits<{ close: []; added: [] }>()
 
-const { getAuthHeaders } = useAuth()
-
 const nickname = ref('')
 const gender = ref<string | null>(null)
 const birthDate = ref('')
@@ -93,7 +91,7 @@ async function handleSubmit() {
 
     await $fetch<Profile>('/api/profiles', {
       method: 'POST',
-      headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body,
     })
 

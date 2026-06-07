@@ -13,8 +13,6 @@ const emit = defineEmits<{
   restore: [recordId: number]
 }>()
 
-const { getAuthHeaders } = useAuth()
-
 const records = ref<Array<{ id: number; type: string; input_data: unknown; created_at: string }>>(
   [],
 )
@@ -53,11 +51,8 @@ async function fetchHistory() {
   records.value = []
   fetchError.value = ''
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const data = await $fetch<Array<import('~/server/api/divinations/shared').DivinationListItem>>(
       `/api/divinations?type=${props.type}`,
-      { headers },
     )
     records.value = data.slice(0, 5)
   } catch {

@@ -7,7 +7,7 @@ import {
 } from '~/composables/useHeHun'
 import type { FetchError } from '~/types/errors'
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
@@ -187,8 +187,6 @@ function computeHeHun() {
 
 async function saveDivinationResult(res: HeHunResult) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const inputData = {
       personB_year: bYear.value,
       personB_month: bMonth.value,
@@ -197,7 +195,6 @@ async function saveDivinationResult(res: HeHunResult) {
     }
     const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
-      headers,
       body: {
         type: 'hehun',
         input_data: inputData,
@@ -220,13 +217,8 @@ async function saveDivinationResult(res: HeHunResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      {
-        headers,
-      },
     )
     if (
       record.result_data &&
