@@ -2,7 +2,7 @@
   <div role="region" aria-label="命盘摘要" class="card-warm rounded-xl px-5 py-4">
     <!-- Title -->
     <div class="flex items-center gap-2 mb-3">
-      <span class="w-1.5 h-1.5 rounded-full bg-cinnabar/50 flex-shrink-0" aria-hidden="true" />
+      <span class="w-1.5 h-1.5 rounded-full sidebar-dot flex-shrink-0" aria-hidden="true" />
       <h4 class="font-display text-base tracking-[0.1em] text-ink-dark">命盘</h4>
     </div>
 
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Divider -->
-    <div class="h-px bg-ink-faint/20 my-3" aria-hidden="true" />
+    <div class="h-px sidebar-divider my-3" aria-hidden="true" />
 
     <!-- Section 2: Ming Palace — Hero -->
     <div class="mb-3">
@@ -68,7 +68,7 @@
     </div>
 
     <!-- Divider -->
-    <div v-if="transformations.length" class="h-px bg-ink-faint/20 my-3" aria-hidden="true" />
+    <div v-if="transformations.length" class="h-px sidebar-divider my-3" aria-hidden="true" />
 
     <!-- Section 4: Transformations -->
     <div v-if="transformations.length">
@@ -193,5 +193,15 @@ const transformations = computed(() => {
   background: color-mix(in srgb, var(--color-ink-muted) 8%, transparent);
   color: var(--color-ink-muted);
   border: 0.5px solid color-mix(in srgb, var(--color-ink-muted) 12%, transparent);
+}
+
+/* ── Sidebar title dot ── */
+.sidebar-dot {
+  background: color-mix(in srgb, var(--color-cinnabar) 50%, transparent);
+}
+
+/* ── Sidebar divider ── */
+.sidebar-divider {
+  background: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
 }
 </style>

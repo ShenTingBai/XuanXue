@@ -94,11 +94,7 @@ defineProps<{
             />
             <span
               class="px-4 py-2 text-sm rounded-lg border transition-all duration-300"
-              :class="
-                gender === opt.value
-                  ? 'border-cinnabar/40 bg-cinnabar/5 text-cinnabar font-medium'
-                  : 'border-ink-faint/20 text-ink-light hover:border-ink-faint/40 hover:text-ink-dark'
-              "
+              :class="gender === opt.value ? 'gender-radio--selected' : 'gender-radio--unselected'"
               :style="
                 gender === opt.value
                   ? {
@@ -143,5 +139,20 @@ defineProps<{
   background-size: 0.85rem;
   padding-right: 2rem;
   cursor: pointer;
+}
+
+.gender-radio--selected {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  color: var(--color-cinnabar);
+  font-weight: 500;
+}
+.gender-radio--unselected {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
+  color: var(--color-ink-light);
+}
+.gender-radio--unselected:hover {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 40%, transparent);
+  color: var(--color-ink-dark);
 }
 </style>

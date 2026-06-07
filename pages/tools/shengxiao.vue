@@ -316,8 +316,8 @@ async function restoreFromHistory(id: number) {
           :class="[
             'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
             idx === selectedAnimal
-              ? 'bg-cinnabar/10 text-cinnabar'
-              : 'text-ink-medium hover:bg-paper-medium/50',
+              ? 'mobile-nav-active text-cinnabar'
+              : 'text-ink-medium mobile-nav-inactive',
           ]"
           @click="selectAnimal(idx)"
           @keydown.enter="selectAnimal(idx)"
@@ -419,7 +419,7 @@ async function restoreFromHistory(id: number) {
             <FortuneBars :items="fortuneItems" />
             <!-- Scoring basis note -->
             <p
-              class="mt-4 pt-3 border-t border-ink-faint/15 font-sans text-[0.72rem] text-ink-medium leading-relaxed"
+              class="mt-4 pt-3 border-t fortune-scoring-note font-sans text-[0.72rem] text-ink-medium leading-relaxed"
             >
               评分依据：本年太岁关系<span class="font-medium text-ink-dark">{{ taiSuiLabel }}</span
               >，结合命理维度调节。基准 65 分，吉凶关系 ±15~20 分，维度浮动 ±8 分，压缩至 0-100
@@ -507,3 +507,15 @@ async function restoreFromHistory(id: number) {
     @restore="onHistoryRestore"
   />
 </template>
+
+<style scoped>
+.mobile-nav-active {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+}
+.mobile-nav-inactive:hover {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
+}
+.fortune-scoring-note {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 15%, transparent);
+}
+</style>

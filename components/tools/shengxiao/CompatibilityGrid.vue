@@ -32,11 +32,15 @@
         <Transition name="expand">
           <div
             v-if="expandedIdx === idx && item.explanation"
-            class="mt-2 pt-2 border-t border-paper-dark/30"
+            class="mt-2 pt-2 border-t shengxiao-accordion-divider"
           >
             <p
               class="text-left font-sans text-[0.72rem] text-ink-medium leading-relaxed pl-2 border-l-2"
-              :class="item.level === 'great' ? 'border-wuxing-wood/40' : 'border-cinnabar/30'"
+              :class="
+                item.level === 'great'
+                  ? 'shengxiao-explain-border--great'
+                  : 'shengxiao-explain-border--bad'
+              "
             >
               {{ item.explanation }}
             </p>
@@ -62,18 +66,18 @@ function toggleExpand(idx: number) {
 
 function borderClass(level: string): string {
   return level === 'great'
-    ? 'hover:border-jade'
+    ? 'shengxiao-compat-card--great'
     : level === 'good'
-      ? 'hover:border-gold'
-      : 'hover:border-cinnabar/30'
+      ? 'shengxiao-compat-card--good'
+      : 'shengxiao-compat-card--bad'
 }
 
 function levelClass(level: string): string {
   return level === 'great'
-    ? 'bg-wuxing-wood/10 text-wuxing-wood'
+    ? 'shengxiao-compat-badge--great'
     : level === 'good'
-      ? 'bg-gold/10 text-gold'
-      : 'bg-cinnabar/5 text-cinnabar/80'
+      ? 'shengxiao-compat-badge--good'
+      : 'shengxiao-compat-badge--bad'
 }
 </script>
 
@@ -116,5 +120,43 @@ function levelClass(level: string): string {
     rgba(198, 40, 40, 0.08) 80%,
     transparent
   );
+}
+
+/* ── Compatibility card hover borders ── */
+.shengxiao-compat-card--great:hover {
+  border-color: var(--color-jade);
+}
+.shengxiao-compat-card--good:hover {
+  border-color: var(--color-gold);
+}
+.shengxiao-compat-card--bad:hover {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
+
+/* ── Level badges ── */
+.shengxiao-compat-badge--great {
+  background: color-mix(in srgb, var(--color-wuxing-wood) 10%, transparent);
+  color: var(--color-wuxing-wood);
+}
+.shengxiao-compat-badge--good {
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+  color: var(--color-gold);
+}
+.shengxiao-compat-badge--bad {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  color: color-mix(in srgb, var(--color-cinnabar) 80%, transparent);
+}
+
+/* ── Explanation border colors ── */
+.shengxiao-explain-border--great {
+  border-color: color-mix(in srgb, var(--color-wuxing-wood) 40%, transparent);
+}
+.shengxiao-explain-border--bad {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
+
+/* ── Accordion divider ── */
+.shengxiao-accordion-divider {
+  border-color: color-mix(in srgb, var(--color-paper-dark) 30%, transparent);
 }
 </style>

@@ -8,7 +8,7 @@
       @keydown.home.prevent="focusCoinTab"
       @keydown.end.prevent="focusNumberTab"
     >
-      <div class="inline-flex rounded-lg border border-ink-faint/25 bg-paper-dark/60 p-0.5">
+      <div class="inline-flex rounded-lg border tab-switcher p-0.5">
         <button
           ref="coinTabRef"
           role="tab"
@@ -46,7 +46,7 @@
           v-for="n in 6"
           :key="n"
           class="w-2.5 h-2.5 rounded-full transition-all duration-500"
-          :class="n <= currentToss ? 'bg-cinnabar/70' : 'bg-ink-dark/10'"
+          :class="n <= currentToss ? 'toss-dot--filled' : 'toss-dot--empty'"
         ></span>
       </div>
 
@@ -331,6 +331,11 @@ function handleNumberSubmit() {
 </script>
 
 <style scoped>
+.tab-switcher {
+  background: color-mix(in srgb, var(--color-paper-dark) 60%, transparent);
+  border-color: color-mix(in srgb, var(--color-ink-faint) 25%, transparent);
+}
+
 .casting-card {
   background: color-mix(in srgb, var(--color-ink) 3%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
@@ -447,5 +452,13 @@ function handleNumberSubmit() {
   .coin-face {
     font-size: 1.1rem;
   }
+}
+
+/* ── Toss progress dots ── */
+.toss-dot--filled {
+  background: color-mix(in srgb, var(--color-cinnabar) 70%, transparent);
+}
+.toss-dot--empty {
+  background: color-mix(in srgb, var(--color-ink-dark) 10%, transparent);
 }
 </style>

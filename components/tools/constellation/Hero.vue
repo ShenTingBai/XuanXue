@@ -40,11 +40,39 @@ function elementLabel(element: string): string {
 
 function elementBadgeClass(element: string): string {
   const map: Record<string, string> = {
-    火: 'border-cinnabar/30 text-cinnabar bg-cinnabar/5',
-    土: 'border-gold/30 text-gold bg-gold/5',
-    风: 'border-jade/30 text-jade bg-jade/5',
-    水: 'border-wuxing-water/30 text-wuxing-water bg-wuxing-water/5',
+    火: 'element-badge--fire',
+    土: 'element-badge--earth',
+    风: 'element-badge--wind',
+    水: 'element-badge--water',
   }
-  return map[element] || 'border-ink-faint/30 text-ink-medium bg-ink-faint/10'
+  return map[element] || 'element-badge--default'
 }
 </script>
+
+<style scoped>
+.element-badge--fire {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+  color: var(--color-cinnabar);
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+}
+.element-badge--earth {
+  border-color: color-mix(in srgb, var(--color-gold) 30%, transparent);
+  color: var(--color-gold);
+  background: color-mix(in srgb, var(--color-gold) 5%, transparent);
+}
+.element-badge--wind {
+  border-color: color-mix(in srgb, var(--color-jade) 30%, transparent);
+  color: var(--color-jade);
+  background: color-mix(in srgb, var(--color-jade) 5%, transparent);
+}
+.element-badge--water {
+  border-color: color-mix(in srgb, var(--color-wuxing-water) 30%, transparent);
+  color: var(--color-wuxing-water);
+  background: color-mix(in srgb, var(--color-wuxing-water) 5%, transparent);
+}
+.element-badge--default {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 30%, transparent);
+  color: var(--color-ink-medium);
+  background: color-mix(in srgb, var(--color-ink-faint) 10%, transparent);
+}
+</style>

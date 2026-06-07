@@ -31,16 +31,16 @@
         <Transition name="expand">
           <div
             v-if="expandedIdx === idx && item.explanation"
-            class="mt-2 pt-2 border-t border-paper-dark/30"
+            class="mt-2 pt-2 border-t compat-accordion-divider"
           >
             <p
               class="text-left font-sans text-xs text-ink-medium leading-relaxed pl-2 border-l-2"
               :class="
                 item.level === 'great'
-                  ? 'border-wuxing-wood/40'
+                  ? 'explain-border--great'
                   : item.level === 'bad'
-                    ? 'border-cinnabar/30'
-                    : 'border-ink-faint/40'
+                    ? 'explain-border--bad'
+                    : 'explain-border--neutral'
               "
             >
               {{ item.explanation }}
@@ -67,18 +67,18 @@ function toggleExpand(idx: number) {
 
 function borderClass(level: string): string {
   return level === 'great'
-    ? 'hover:border-jade'
+    ? 'compat-card--great'
     : level === 'good'
-      ? 'hover:border-gold'
-      : 'hover:border-cinnabar/30'
+      ? 'compat-card--good'
+      : 'compat-card--bad'
 }
 
 function badgeClass(level: string): string {
   return level === 'great'
-    ? 'bg-wuxing-wood/10 text-wuxing-wood'
+    ? 'compat-badge--great'
     : level === 'good'
-      ? 'bg-gold/10 text-gold'
-      : 'bg-cinnabar/5 text-cinnabar/80'
+      ? 'compat-badge--good'
+      : 'compat-badge--bad'
 }
 </script>
 
@@ -97,5 +97,46 @@ function badgeClass(level: string): string {
 .expand-leave-from {
   max-height: 5rem;
   opacity: 1;
+}
+
+/* ── Compatibility card hover borders ── */
+.compat-card--great:hover {
+  border-color: var(--color-jade);
+}
+.compat-card--good:hover {
+  border-color: var(--color-gold);
+}
+.compat-card--bad:hover {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
+
+/* ── Level badges ── */
+.compat-badge--great {
+  background: color-mix(in srgb, var(--color-wuxing-wood) 10%, transparent);
+  color: var(--color-wuxing-wood);
+}
+.compat-badge--good {
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+  color: var(--color-gold);
+}
+.compat-badge--bad {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  color: color-mix(in srgb, var(--color-cinnabar) 80%, transparent);
+}
+
+/* ── Explanation border colors ── */
+.explain-border--great {
+  border-color: color-mix(in srgb, var(--color-wuxing-wood) 40%, transparent);
+}
+.explain-border--bad {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
+.explain-border--neutral {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 40%, transparent);
+}
+
+/* ── Accordion divider ── */
+.compat-accordion-divider {
+  border-color: color-mix(in srgb, var(--color-paper-dark) 30%, transparent);
 }
 </style>

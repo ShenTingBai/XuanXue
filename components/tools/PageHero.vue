@@ -3,7 +3,7 @@
     <div class="flex items-start gap-4 sm:gap-5">
       <!-- Emoji / Symbol icon -->
       <span
-        class="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-cinnabar/5 border border-cinnabar/20 text-2xl sm:text-3xl"
+        class="hero-emoji flex-shrink-0 inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl border text-2xl sm:text-3xl"
         aria-hidden="true"
       >
         {{ emoji }}
@@ -34,3 +34,10 @@ defineProps<{
   subtitle: string
 }>()
 </script>
+
+<style scoped>
+.hero-emoji {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  border-color: color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+}
+</style>

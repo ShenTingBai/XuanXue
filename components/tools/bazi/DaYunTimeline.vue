@@ -15,8 +15,8 @@
           class="flex-shrink-0 w-[110px] rounded-lg p-3 text-center transition-all duration-300"
           :class="
             idx === currentCycleIdx
-              ? 'border-2 border-cinnabar bg-cinnabar/5 shadow-sm'
-              : 'border border-paper-dark bg-paper-lightest/80 hover:border-ink-faint transition-colors'
+              ? 'border-2 border-cinnabar dayun-active shadow-sm'
+              : 'border border-paper-dark dayun-inactive hover:border-ink-faint transition-colors'
           "
         >
           <div class="font-sans text-xs text-ink-light tracking-wider mb-1">
@@ -40,8 +40,8 @@
             class="inline-flex flex-col w-[72px] rounded-lg py-1.5 px-1 text-center flex-shrink-0"
             :class="
               idx === currentCycleIdx
-                ? 'border border-cinnabar bg-cinnabar/5'
-                : 'border border-paper-dark bg-paper-lightest/80 hover:border-ink-faint transition-colors'
+                ? 'border border-cinnabar dayun-active'
+                : 'border border-paper-dark dayun-inactive hover:border-ink-faint transition-colors'
             "
           >
             <div class="font-sans text-xs text-ink-light">
@@ -64,3 +64,12 @@ defineProps<{
   currentCycleIdx?: number
 }>()
 </script>
+
+<style scoped>
+.dayun-active {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+}
+.dayun-inactive {
+  background: color-mix(in srgb, var(--color-paper-lightest) 80%, transparent);
+}
+</style>

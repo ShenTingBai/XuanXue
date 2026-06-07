@@ -38,10 +38,7 @@
             :key="item"
             class="font-sans text-sm text-ink-medium flex items-start gap-2"
           >
-            <span
-              class="w-1.5 h-1.5 rounded-full bg-cinnabar/60 mt-1 flex-shrink-0"
-              aria-hidden="true"
-            />
+            <span class="w-1.5 h-1.5 rounded-full ji-dot mt-1 flex-shrink-0" aria-hidden="true" />
             {{ item }}
           </li>
         </ul>
@@ -56,3 +53,9 @@ defineProps<{
   ji: string[]
 }>()
 </script>
+
+<style scoped>
+.ji-dot {
+  background: color-mix(in srgb, var(--color-cinnabar) 60%, transparent);
+}
+</style>

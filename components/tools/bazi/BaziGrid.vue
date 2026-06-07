@@ -237,7 +237,7 @@
           </div>
         </div>
         <!-- Mobile palace display -->
-        <div v-if="palaces" class="sm:hidden mt-3 pt-3 border-t border-paper-dark/50">
+        <div v-if="palaces" class="sm:hidden mt-3 pt-3 border-t bazi-divider">
           <div class="flex justify-center gap-4 text-sm font-sans">
             <div v-if="palaces.taiYuan">
               <span class="text-ink-muted text-xs mr-0.5">胎</span>
@@ -264,7 +264,7 @@
 
       <!-- Shared legend (below both desktop and mobile views) -->
       <div
-        class="mt-4 pt-3 border-t border-paper-dark/50 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-muted font-sans"
+        class="mt-4 pt-3 border-t bazi-divider grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-ink-muted font-sans"
       >
         <div>天干 — 外在表现，他人可见的特质</div>
         <div>地支 — 内在根基，潜藏的能量与倾向</div>
@@ -274,7 +274,7 @@
         <div>批注 — 四柱解读参考</div>
         <!-- Ten god color legend -->
         <div
-          class="col-span-2 sm:col-span-3 grid grid-cols-5 gap-x-2 gap-y-0.5 text-xs mt-1 pt-1.5 border-t border-paper-dark/30"
+          class="col-span-2 sm:col-span-3 grid grid-cols-5 gap-x-2 gap-y-0.5 text-xs mt-1 pt-1.5 border-t bazi-legend-divider"
         >
           <span class="text-wuxing-wood">印—学识</span>
           <span class="text-cinnabar">官—事业</span>
@@ -312,13 +312,13 @@ const headers = computed(() => {
 })
 
 function tenGodBadgeClass(tg: string): string {
-  if (tg === '日主') return 'bg-ink-dark/10 text-ink-dark'
-  if (['正印', '偏印'].includes(tg)) return 'bg-wuxing-wood/10 text-wuxing-wood'
+  if (tg === '日主') return 'bazi-tg-rikishin text-ink-dark'
+  if (['正印', '偏印'].includes(tg)) return 'bazi-tg-wood text-wuxing-wood'
   if (['正官', '偏官'].includes(tg)) return 'bazi-tg-official text-cinnabar'
-  if (['正财', '偏财'].includes(tg)) return 'bg-gold/10 text-gold'
-  if (['食神', '伤官'].includes(tg)) return 'bg-wuxing-water/10 text-wuxing-water'
-  if (['比肩', '劫财'].includes(tg)) return 'bg-wuxing-earth/10 text-wuxing-earth'
-  return 'bg-ink-faint/20 text-ink-medium'
+  if (['正财', '偏财'].includes(tg)) return 'bazi-tg-gold text-gold'
+  if (['食神', '伤官'].includes(tg)) return 'bazi-tg-water text-wuxing-water'
+  if (['比肩', '劫财'].includes(tg)) return 'bazi-tg-earth text-wuxing-earth'
+  return 'bazi-tg-fallback text-ink-medium'
 }
 </script>
 
@@ -346,5 +346,29 @@ function tenGodBadgeClass(tg: string): string {
 }
 .bazi-tg-official {
   background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+}
+.bazi-tg-rikishin {
+  background: color-mix(in srgb, var(--color-ink-dark) 10%, transparent);
+}
+.bazi-tg-wood {
+  background: color-mix(in srgb, var(--color-wuxing-wood) 10%, transparent);
+}
+.bazi-tg-gold {
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+}
+.bazi-tg-water {
+  background: color-mix(in srgb, var(--color-wuxing-water) 10%, transparent);
+}
+.bazi-tg-earth {
+  background: color-mix(in srgb, var(--color-wuxing-earth) 10%, transparent);
+}
+.bazi-tg-fallback {
+  background: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
+}
+.bazi-divider {
+  border-color: color-mix(in srgb, var(--color-paper-dark) 50%, transparent);
+}
+.bazi-legend-divider {
+  border-color: color-mix(in srgb, var(--color-paper-dark) 30%, transparent);
 }
 </style>

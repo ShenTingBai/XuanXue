@@ -25,7 +25,7 @@
             <!-- ═══ Left: Symbol Legend ═══ -->
             <div>
               <h4
-                class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b border-ink-faint/20"
+                class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b guide-section-header"
               >
                 符号图例
               </h4>
@@ -99,7 +99,7 @@
             <!-- ═══ Right: Your Chart Summary ═══ -->
             <div>
               <h4
-                class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b border-ink-faint/20"
+                class="font-sans text-sm font-medium text-ink-dark mb-3 pb-2 border-b guide-section-header"
               >
                 你的星盘速览
               </h4>
@@ -142,7 +142,7 @@
                     class="flex items-center gap-2"
                   >
                     <span class="font-sans text-xs text-ink-medium w-8">{{ eb.element }}象</span>
-                    <div class="flex-1 h-1.5 bg-ink-dark/6 rounded-full overflow-hidden">
+                    <div class="flex-1 h-1.5 element-bar-track rounded-full overflow-hidden">
                       <div
                         class="h-full rounded-full transition-all duration-500"
                         :style="{ width: eb.pct + '%', backgroundColor: eb.color }"
@@ -166,11 +166,7 @@
                     v-for="hf in houseFocus"
                     :key="hf.house"
                     class="inline-flex items-center px-2 py-1 rounded text-xs font-sans"
-                    :class="
-                      hf.dominant
-                        ? 'bg-cinnabar/10 text-cinnabar border border-cinnabar/20'
-                        : 'bg-ink-faint/10 text-ink-medium border border-ink-faint/15'
-                    "
+                    :class="hf.dominant ? 'house-badge--dominant' : 'house-badge--normal'"
                   >
                     第{{ hf.house }}宫 · {{ hf.count }}颗
                   </span>
@@ -178,10 +174,7 @@
               </div>
 
               <!-- Stellium alert -->
-              <div
-                v-if="stelliums.length > 0"
-                class="mb-4 p-3 rounded-lg bg-cinnabar/5 border border-cinnabar/15"
-              >
+              <div v-if="stelliums.length > 0" class="mb-4 p-3 rounded-lg stellium-alert">
                 <p class="font-sans text-xs text-ink-dark font-medium mb-1">⚠ 群星汇聚</p>
                 <p class="font-sans text-xs text-ink-medium leading-relaxed">
                   <template v-for="(s, i) in stelliums" :key="s.label">
@@ -196,19 +189,13 @@
                 <p class="font-sans text-xs text-ink-medium mb-2 tracking-wider">相位类型</p>
                 <div class="flex items-center gap-4">
                   <div class="flex items-center gap-1.5">
-                    <span
-                      class="w-3 h-3 rounded-full bg-jade-light/40 border border-jade-light/60"
-                      aria-hidden="true"
-                    />
+                    <span class="w-3 h-3 rounded-full aspect-dot--harmonious" aria-hidden="true" />
                     <span class="font-sans text-xs text-ink-medium"
                       >和谐 {{ aspectCounts.harmonious }}</span
                     >
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <span
-                      class="w-3 h-3 rounded-full bg-cinnabar/30 border border-cinnabar/40"
-                      aria-hidden="true"
-                    />
+                    <span class="w-3 h-3 rounded-full aspect-dot--challenging" aria-hidden="true" />
                     <span class="font-sans text-xs text-ink-medium"
                       >紧张 {{ aspectCounts.challenging }}</span
                     >
@@ -450,5 +437,43 @@ const aspectConclusion = computed(() => {
 .guide-expand-leave-from {
   max-height: 2000px;
   opacity: 1;
+}
+
+/* ── House focus badges ── */
+.house-badge--dominant {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  color: var(--color-cinnabar);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+}
+.house-badge--normal {
+  background: color-mix(in srgb, var(--color-ink-faint) 10%, transparent);
+  color: var(--color-ink-medium);
+  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 15%, transparent);
+}
+
+/* ── Stellium alert ── */
+.stellium-alert {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+
+/* ── Aspect dots ── */
+.aspect-dot--harmonious {
+  background: color-mix(in srgb, var(--color-jade-light) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-jade-light) 60%, transparent);
+}
+.aspect-dot--challenging {
+  background: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
+}
+
+/* ── Element progress bar track ── */
+.element-bar-track {
+  background: color-mix(in srgb, var(--color-ink-dark) 6%, transparent);
+}
+
+/* ── Section header underline ── */
+.guide-section-header {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
 }
 </style>

@@ -330,8 +330,8 @@ function scrollToConstellationNav() {
           :class="[
             'flex-shrink-0 px-3 py-2.5 min-h-[44px] rounded-lg text-sm transition-colors',
             idx === selectedZodiac
-              ? 'bg-cinnabar/10 text-cinnabar'
-              : 'text-ink-medium hover:bg-paper-medium/50',
+              ? 'constellation-mobile-nav-active text-cinnabar'
+              : 'text-ink-medium constellation-mobile-nav-inactive',
           ]"
           @click="selectZodiac(idx)"
           @keydown.space.prevent="selectZodiac(idx)"
@@ -450,7 +450,7 @@ function scrollToConstellationNav() {
               </p>
               <div class="flex justify-center mt-2">
                 <button
-                  class="text-sm text-ink-medium border border-ink-faint/20 rounded px-3 py-1.5 hover:border-cinnabar/30 hover:text-cinnabar transition-colors"
+                  class="text-sm text-ink-medium border chart-copy-btn rounded px-3 py-1.5 hover:text-cinnabar transition-colors"
                   :aria-label="chartTextCopied ? '已复制' : '复制星盘文本，可粘贴给 AI 解读'"
                   @click="copyChartText"
                   @keydown.enter="copyChartText"
@@ -546,5 +546,18 @@ function scrollToConstellationNav() {
 .content-fade-enter-from,
 .content-fade-leave-to {
   opacity: 0;
+}
+
+.constellation-mobile-nav-active {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+}
+.constellation-mobile-nav-inactive:hover {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
+}
+.chart-copy-btn {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
+}
+.chart-copy-btn:hover {
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
 }
 </style>

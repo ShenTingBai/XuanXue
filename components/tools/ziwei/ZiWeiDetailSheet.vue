@@ -8,7 +8,7 @@
       >
         <!-- Backdrop: dark ink wash -->
         <div
-          class="absolute inset-0 bg-ink-dark/40 backdrop-blur-[2px]"
+          class="absolute inset-0 sheet-backdrop backdrop-blur-[2px]"
           aria-hidden="true"
           @click="emit('close')"
         />
@@ -36,23 +36,23 @@
               );
             "
           />
-          <div class="h-px bg-ink-faint/10 flex-shrink-0" />
+          <div class="h-px sheet-divider-thin flex-shrink-0" />
 
           <!-- Drag handle -->
           <div class="flex justify-center pt-2.5 pb-1 flex-shrink-0">
-            <div class="w-9 h-1 rounded-full bg-ink-faint/30" aria-hidden="true" />
+            <div class="w-9 h-1 rounded-full sheet-drag-handle" aria-hidden="true" />
           </div>
 
           <!-- Header row -->
           <div class="flex items-center justify-between px-5 py-1.5 flex-shrink-0">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="w-2 h-2 rounded-full bg-cinnabar/40 flex-shrink-0" aria-hidden="true" />
+              <span class="w-2 h-2 rounded-full sheet-dot flex-shrink-0" aria-hidden="true" />
               <h3 class="font-display text-lg tracking-[0.12em] text-ink-dark truncate">
                 {{ palace?.name ?? '' }}解读
               </h3>
               <span
                 v-if="palace"
-                class="font-sans text-[0.6875rem] text-ink-muted tracking-[0.06em] flex-shrink-0 border border-ink-faint/15 rounded px-1.5 py-0.5"
+                class="font-sans text-[0.6875rem] text-ink-muted tracking-[0.06em] flex-shrink-0 border sheet-stem-badge rounded px-1.5 py-0.5"
               >
                 {{ palace.heavenlyStem }}{{ palace.earthlyBranch }}
               </span>
@@ -79,7 +79,7 @@
           </div>
 
           <!-- Divider -->
-          <div class="mx-5 h-px bg-ink-faint/15 flex-shrink-0" />
+          <div class="mx-5 h-px sheet-divider flex-shrink-0" />
 
           <!-- Scrollable content area -->
           <div class="flex-1 overflow-y-auto px-0 pt-0.5 pb-5">
@@ -238,5 +238,33 @@ function handleKeydown(e: KeyboardEvent) {
   .sheet-leave-to > .relative {
     transform: none;
   }
+}
+
+/* ── Header dot ── */
+.sheet-dot {
+  background: color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
+}
+
+/* ── Backdrop ── */
+.sheet-backdrop {
+  background: color-mix(in srgb, var(--color-ink-dark) 40%, transparent);
+}
+
+/* ── Dividers ── */
+.sheet-divider-thin {
+  background: color-mix(in srgb, var(--color-ink-faint) 10%, transparent);
+}
+.sheet-divider {
+  background: color-mix(in srgb, var(--color-ink-faint) 15%, transparent);
+}
+
+/* ── Drag handle ── */
+.sheet-drag-handle {
+  background: color-mix(in srgb, var(--color-ink-faint) 30%, transparent);
+}
+
+/* ── Stem badge ── */
+.sheet-stem-badge {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 15%, transparent);
 }
 </style>
