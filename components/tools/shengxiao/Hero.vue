@@ -5,7 +5,7 @@
         result.animalEmoji
       }}</span>
       <div class="min-w-0">
-        <h1 class="font-display text-3xl sm:text-4xl text-ink-dark">
+        <h1 class="font-display text-2xl sm:text-3xl text-ink-dark leading-tight break-words">
           {{ result.animal }}
         </h1>
         <p class="font-sans text-sm sm:text-base text-ink-medium mt-1">
