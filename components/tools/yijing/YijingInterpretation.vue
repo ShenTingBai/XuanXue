@@ -18,7 +18,7 @@
     <div class="section-header">
       <h2>本卦</h2>
     </div>
-    <div class="card-warm rounded-xl p-8 mb-6">
+    <div class="card-warm rounded-xl p-6 sm:p-8 mb-6">
       <HexagramDisplay
         :hexagram="{
           name: result.hexagram.name,
@@ -39,7 +39,7 @@
       <div class="section-header">
         <h2>变卦</h2>
       </div>
-      <div class="card-warm rounded-xl p-8 mb-6">
+      <div class="card-warm rounded-xl p-6 sm:p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.derivedHexagram.name,
@@ -61,7 +61,7 @@
       <div class="section-header">
         <h2>互卦</h2>
       </div>
-      <div class="card-warm rounded-xl p-8 mb-6">
+      <div class="card-warm rounded-xl p-6 sm:p-8 mb-6">
         <HexagramDisplay
           :hexagram="{
             name: result.huGua.name,
@@ -82,7 +82,7 @@
     <div class="section-header">
       <h2>卦象解读</h2>
     </div>
-    <div class="card-warm rounded-xl p-8 mb-6">
+    <div class="card-warm rounded-xl p-6 sm:p-8 mb-6">
       <div class="interpretation-text">
         <div
           v-for="(paragraph, idx) in interpretationParagraphs"
@@ -102,7 +102,7 @@
     <div class="section-header">
       <h2>六爻详解</h2>
     </div>
-    <div class="card-warm rounded-xl p-8 mb-6">
+    <div class="card-warm rounded-xl p-6 sm:p-8 mb-6">
       <p class="font-sans text-xs text-ink-medium mb-4 leading-relaxed">
         下表列出每根爻的详细信息。<span class="text-ink-medium font-medium">五行</span
         >表示此爻的地支所属元素，<span class="text-ink-medium font-medium">六亲</span
