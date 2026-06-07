@@ -35,7 +35,7 @@ export default defineEventHandler(async event => {
     dbRun('BEGIN')
     dbRun('DELETE FROM divination_results WHERE profile_id = ?', [id])
     dbRun('DELETE FROM sessions WHERE profile_id = ?', [id])
-    dbRun('DELETE FROM security_log WHERE profile_id = ?', [id])
+    dbRun('UPDATE security_log SET profile_id = NULL WHERE profile_id = ?', [id])
     dbRun('DELETE FROM profiles WHERE id = ?', [id])
     dbRun('COMMIT')
   } catch {
