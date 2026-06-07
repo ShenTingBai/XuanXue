@@ -26,6 +26,8 @@ import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
+import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 
 // ── Methodology data ──
 const ziweiClassical: ClassicalSource[] = [
@@ -69,6 +71,7 @@ const { exportToImage, isExporting } = useExportImage()
 const restoreError = ref('')
 const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const restoredFromHistory = ref(false)
+const { missingBirth: profileMissingBirth, checkAvailability } = useProfileAutoFill()
 
 function handleExport() {
   if (resultRef.value) {
@@ -105,6 +108,7 @@ onMounted(async () => {
     return
   }
   ready.value = true
+  checkAvailability()
 
   // Pre-fill from profile if available
   if (currentProfile.value.birth_date) {
@@ -116,6 +120,7 @@ onMounted(async () => {
   if (currentProfile.value.gender) {
     gender.value = currentProfile.value.gender === '男' ? 'male' : 'female'
   }
+  if (profileMissingBirth.value) return
 
   // Auto-calculate if profile has complete birth info
   if (birthDate.value && birthHour.value !== null && gender.value) {
@@ -328,6 +333,16 @@ function dismissRestoreError() {
           <span>重新排盘</span>
         </button>
       </div>
+    </div>
+
+    <!-- Missing birth info -->
+    <div v-else-if="profileMissingBirth" class="max-w-[48rem] mx-auto">
+      <ProfileAutoFillBanner
+        :profile-name="currentProfile?.nickname || ''"
+        :is-filled="false"
+        :missing-birth="true"
+        :profile-id="currentProfile?.id"
+      />
     </div>
 
     <!-- Input form (shown before first calculation) -->

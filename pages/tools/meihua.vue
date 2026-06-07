@@ -333,7 +333,7 @@ onUnmounted(() => {
       {{ loading ? '正在起卦...' : result ? '卦象已就绪' : '' }}
     </div>
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+      <ToolToolbar v-if="!missingBirth" :show-history="true" @history="showHistoryModal = true">
         <template #extra>
           <ExportButton
             v-if="result"
@@ -358,7 +358,11 @@ onUnmounted(() => {
         @revoke="handleRevoke"
       />
 
-      <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
+      <div
+        v-if="!missingBirth"
+        class="fade-in card-paper-solid rounded-xl p-8"
+        :style="{ '--delay': '0.1s' }"
+      >
         <div class="flex items-center justify-between mb-6">
           <div class="section-header flex-1 min-w-0 !mb-0"><h2>梅花易数</h2></div>
           <MethodologyNote

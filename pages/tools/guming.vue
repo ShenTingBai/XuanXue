@@ -231,7 +231,7 @@ const scalePercent = computed(function () {
       {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
     </div>
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
+      <ToolToolbar v-if="!missingBirth" :show-history="true" @history="showHistoryModal = true">
         <template #extra>
           <ExportButton
             v-if="result"
@@ -252,7 +252,11 @@ const scalePercent = computed(function () {
         @fill="handleAutoFill"
         @revoke="handleRevoke"
       />
-      <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
+      <div
+        v-if="!missingBirth"
+        class="fade-in card-paper-solid rounded-xl p-8"
+        :style="{ '--delay': '0.1s' }"
+      >
         <div class="flex items-center justify-between mb-6">
           <div class="section-header flex-1 min-w-0 !mb-0"><h2>称骨算命</h2></div>
           <MethodologyNote
