@@ -391,7 +391,7 @@ describe('Auth API handlers', () => {
 
     beforeEach(async () => {
       vi.clearAllMocks()
-      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: '1234' })
+      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: 'abc123' })
       vi.mocked(checkRateLimit).mockReturnValue(true)
       vi.mocked(getClientIp).mockReturnValue('127.0.0.1')
       vi.mocked(dbGet).mockImplementation((sql: string) => {
@@ -434,8 +434,8 @@ describe('Auth API handlers', () => {
       })
     })
 
-    it('throws 400 when pin is not 4 digits', async () => {
-      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: '12345' })
+    it('throws 400 when pin exceeds 20 characters', async () => {
+      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: 'a'.repeat(21) })
       await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
         statusCode: 400,
       })
@@ -472,7 +472,7 @@ describe('Auth API handlers', () => {
 
     beforeEach(async () => {
       vi.clearAllMocks()
-      mockReadBody.mockResolvedValue({ nickname: 'newuser', pin: '1234' })
+      mockReadBody.mockResolvedValue({ nickname: 'newuser', pin: 'abc123' })
       vi.mocked(checkRateLimit).mockReturnValue(true)
       vi.mocked(getClientIp).mockReturnValue('127.0.0.1')
       vi.mocked(dbGet).mockImplementation((sql: string) => {
@@ -498,7 +498,7 @@ describe('Auth API handlers', () => {
     })
 
     it('throws 400 when nickname is empty', async () => {
-      mockReadBody.mockResolvedValue({ nickname: '', pin: '1234' })
+      mockReadBody.mockResolvedValue({ nickname: '', pin: 'abc123' })
       await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
         statusCode: 400,
       })
@@ -520,7 +520,7 @@ describe('Auth API handlers', () => {
     })
 
     it('throws 400 when nickname exceeds 20 characters', async () => {
-      mockReadBody.mockResolvedValue({ nickname: 'a'.repeat(21), pin: '1234' })
+      mockReadBody.mockResolvedValue({ nickname: 'a'.repeat(21), pin: 'abc123' })
       await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
         statusCode: 400,
       })
