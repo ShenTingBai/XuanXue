@@ -7,17 +7,18 @@ interface NavTool {
   available: boolean
 }
 
+// 按使用门槛从低到高排列：快速入门 → 核心命理 → 深度推演
 const navTools: NavTool[] = [
-  { id: 'bazi', name: '八字', char: '命', route: '/tools/bazi', available: true },
-  { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: true },
   { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
   { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
-  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
-  { id: 'hehun', name: '合婚', char: '合', route: '/tools/hehun', available: true },
+  { id: 'zeji', name: '择日', char: '择', route: '/tools/zeji', available: true },
+  { id: 'bazi', name: '八字', char: '命', route: '/tools/bazi', available: true },
   { id: 'name-test', name: '姓名', char: '名', route: '/tools/name-test', available: true },
   { id: 'cezi', name: '测字', char: '测', route: '/tools/cezi', available: true },
-  { id: 'zeji', name: '择日', char: '择', route: '/tools/zeji', available: true },
   { id: 'guming', name: '称骨', char: '骨', route: '/tools/guming', available: true },
+  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
+  { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: true },
+  { id: 'hehun', name: '合婚', char: '合', route: '/tools/hehun', available: true },
   { id: 'meihua', name: '梅花', char: '梅', route: '/tools/meihua', available: true },
 ]
 </script>
