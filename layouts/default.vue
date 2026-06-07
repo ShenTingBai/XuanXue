@@ -189,7 +189,7 @@ const handleLogout = async () => {
             <!-- Mobile Hamburger Button -->
             <button
               ref="hamburgerBtnRef"
-              class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors hover:bg-paper-medium/50"
+              class="md:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg transition-colors hover:bg-paper-medium/50"
               aria-label="打开导航菜单"
               aria-haspopup="dialog"
               :aria-expanded="showMobileNav"
@@ -350,7 +350,7 @@ const handleLogout = async () => {
                 </div>
                 <button
                   ref="mobileNavCloseRef"
-                  class="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-cinnabar/10 active:scale-95"
+                  class="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-all duration-200 hover:bg-cinnabar/10 active:scale-95"
                   aria-label="关闭菜单"
                   @click="showMobileNav = false"
                 >

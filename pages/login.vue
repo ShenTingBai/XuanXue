@@ -19,6 +19,7 @@ const expiredNote = ref('')
 const loading = ref(false)
 const isLogin = ref(true)
 const showPin = ref(false)
+const privacyConsent = ref(false)
 const expiredTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 onMounted(async () => {
@@ -41,6 +42,7 @@ onUnmounted(() => {
 const switchMode = () => {
   isLogin.value = !isLogin.value
   error.value = ''
+  privacyConsent.value = false
 }
 
 const handleTabKeydown = (e: KeyboardEvent) => {
@@ -86,12 +88,20 @@ const submit = async () => {
     error.value = '请输入密令'
     return
   }
+  if (pin.value.trim().length < 4) {
+    error.value = '密令至少需要4位'
+    return
+  }
   if (pin.value.trim().length > 20) {
     error.value = '密令不能超过20位'
     return
   }
   if (!isLogin.value && !/^[a-zA-Z0-9]{6,}$/.test(pin.value)) {
     error.value = '注册密令需6位以上字母或数字'
+    return
+  }
+  if (!isLogin.value && !privacyConsent.value) {
+    error.value = '请先阅读并同意隐私政策'
     return
   }
 
@@ -169,7 +179,7 @@ const submit = async () => {
             role="tab"
             :aria-selected="isLogin"
             :tabindex="isLogin ? 0 : -1"
-            aria-controls="tabpanel-auth"
+            aria-controls="panel-login"
             class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
             :class="isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
             @click="isLogin = true"
@@ -181,7 +191,7 @@ const submit = async () => {
             role="tab"
             :aria-selected="!isLogin"
             :tabindex="!isLogin ? 0 : -1"
-            aria-controls="tabpanel-auth"
+            aria-controls="panel-register"
             class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
             :class="!isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
             @click="isLogin = false"
@@ -228,7 +238,7 @@ const submit = async () => {
 
         <!-- Form -->
         <div
-          id="tabpanel-auth"
+          :id="isLogin ? 'panel-login' : 'panel-register'"
           role="tabpanel"
           :aria-labelledby="isLogin ? 'tab-login' : 'tab-register'"
         >
@@ -267,6 +277,7 @@ const submit = async () => {
                   :type="showPin ? 'text' : 'password'"
                   class="input-warm pr-10"
                   :placeholder="isLogin ? '输入密令' : '6位以上字母或数字'"
+                  minlength="4"
                   maxlength="20"
                   autocomplete="off"
                   required
@@ -287,9 +298,47 @@ const submit = async () => {
               </div>
             </div>
 
+            <!-- Privacy consent (register only) -->
+            <div v-if="!isLogin" class="flex items-start gap-2">
+              <label class="relative flex items-start gap-2 cursor-pointer select-none">
+                <input
+                  v-model="privacyConsent"
+                  type="checkbox"
+                  class="sr-only peer"
+                  required
+                  aria-required="true"
+                  :disabled="loading"
+                />
+                <span
+                  class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border border-ink-lighter bg-paper-lightest/80 transition-all peer-checked:bg-cinnabar peer-checked:border-cinnabar peer-focus-visible:ring-2 peer-focus-visible:ring-cinnabar/40"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="w-4 h-4 text-white opacity-0 transition-opacity"
+                    :class="privacyConsent ? 'opacity-100' : 'opacity-0'"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <span class="text-xs text-ink-medium leading-relaxed">
+                  我已阅读并同意<NuxtLink
+                    to="/privacy"
+                    class="text-cinnabar hover:text-cinnabar-light underline-offset-2 hover:underline"
+                    target="_blank"
+                    @click.stop
+                    >《隐私政策》</NuxtLink
+                  >
+                </span>
+              </label>
+            </div>
+
             <button
               type="submit"
-              :disabled="loading"
+              :disabled="loading || (!isLogin && !privacyConsent)"
               class="btn-cin w-full mt-2"
               :aria-busy="loading"
             >
