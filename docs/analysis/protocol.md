@@ -92,10 +92,12 @@ Workflow (子Agent)    sonnet    多步骤编排默认用 sonnet
 
 ### 阶段五：提交
 
-**仅当用户审核通过后**，派子 Agent：
-1. 切分支 → 提交 → `git merge --no-ff` 到 main → 推送 origin
+**仅当用户审核通过后**，架构师直接执行：
+1. 切分支 → `git commit` → `git merge --no-ff` 到 main → `git push` origin
 2. 更新相关 memory 文件
 3. 清理临时分支
+
+> 简单 git 操作（commit/merge/push）架构师直接执行——用户权限审批即防线。复杂操作（冲突解决、rebase）才派 Agent。
 
 ---
 
