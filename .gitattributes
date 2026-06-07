@@ -1,0 +1,9 @@
+# Force LF line endings for all text files (prevents CRLF/LF mismatch between Windows dev and Linux CI)
+* text=auto eol=lf
+
+# Explicit binary files
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
