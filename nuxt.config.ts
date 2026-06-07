@@ -55,7 +55,29 @@ export default defineNuxtConfig({
     head: {
       title: '玄·道 - 命理互动平台',
       htmlAttrs: { lang: 'zh-CN' },
-      meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' }],
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
+        {
+          name: 'description',
+          content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。中式命理推演平台。',
+        },
+        { property: 'og:title', content: '玄·道 — 中式命理推演平台' },
+        {
+          property: 'og:description',
+          content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
+        },
+        { property: 'og:image', content: '/og-image.png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:type', content: 'website' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: '玄·道 — 中式命理推演平台' },
+        {
+          name: 'twitter:description',
+          content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
+        },
+        { name: 'twitter:image', content: '/og-image.png' },
+      ],
       link: [
         // Ma Shan Zheng (2.6MB) 不预加载——通过 @font-face font-display: swap 按需加载。
         // 子集化后（~50KB）可恢复 preload。见 public/fonts/README-SUBSET.md
