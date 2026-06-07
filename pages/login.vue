@@ -82,8 +82,16 @@ const submit = async () => {
     error.value = '请输入昵称'
     return
   }
-  if (!pin.value.trim() || !/^\d{4}$/.test(pin.value)) {
-    error.value = '请输入4位数字PIN'
+  if (!pin.value.trim()) {
+    error.value = '请输入密令'
+    return
+  }
+  if (pin.value.trim().length > 20) {
+    error.value = '密令不能超过20位'
+    return
+  }
+  if (!isLogin.value && !/^[a-zA-Z0-9]{6,}$/.test(pin.value)) {
+    error.value = '注册密令需6位以上字母或数字'
     return
   }
 
@@ -258,9 +266,8 @@ const submit = async () => {
                   v-model="pin"
                   :type="showPin ? 'text' : 'password'"
                   class="input-warm pr-10"
-                  placeholder="4位数字密令"
-                  maxlength="4"
-                  inputmode="numeric"
+                  :placeholder="isLogin ? '输入密令' : '6位以上字母或数字'"
+                  maxlength="20"
                   autocomplete="off"
                   required
                   aria-required="true"

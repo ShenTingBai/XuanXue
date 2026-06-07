@@ -118,7 +118,7 @@ describe('useAuth', () => {
         profile: mockProfile,
       })
       const auth = useAuth()
-      await auth.login('testuser', '1234')
+      await auth.login('testuser', 'abc123')
 
       const stored = JSON.parse(store[SESSION_KEY])
       expect(stored.token).toBe('login-token-xyz')
@@ -143,7 +143,7 @@ describe('useAuth', () => {
     it('does NOT write to localStorage when login fails', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
       const auth = useAuth()
-      await expect(auth.login('testuser', '1234')).rejects.toThrow()
+      await expect(auth.login('testuser', 'abc123')).rejects.toThrow()
       expect(store[SESSION_KEY]).toBeUndefined()
     })
   })
@@ -213,7 +213,7 @@ describe('useAuth', () => {
     it('sets token in localStorage and updates currentProfile on success', async () => {
       mockFetch.mockResolvedValueOnce({ token: 'login-token', profile: mockProfile })
       const auth = useAuth()
-      await auth.login('testuser', '1234')
+      await auth.login('testuser', 'abc123')
 
       const stored = JSON.parse(store[SESSION_KEY])
       expect(stored.token).toBe('login-token')
@@ -223,7 +223,7 @@ describe('useAuth', () => {
     it('rejects and does not update state on network error', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
       const auth = useAuth()
-      await expect(auth.login('testuser', '1234')).rejects.toThrow('Network error')
+      await expect(auth.login('testuser', 'abc123')).rejects.toThrow('Network error')
       expect(auth.currentProfile.value).toBeNull()
       expect(store[SESSION_KEY]).toBeUndefined()
     })
@@ -238,11 +238,11 @@ describe('useAuth', () => {
     it('passes nickname and pin as body to $fetch', async () => {
       mockFetch.mockResolvedValueOnce({ token: 't', profile: mockProfile })
       const auth = useAuth()
-      await auth.login('myuser', '9999')
+      await auth.login('myuser', 'abc999')
 
       expect(mockFetch).toHaveBeenCalledWith('/api/auth/login', {
         method: 'POST',
-        body: { nickname: 'myuser', pin: '9999' },
+        body: { nickname: 'myuser', pin: 'abc999' },
       })
     })
   })
@@ -255,7 +255,7 @@ describe('useAuth', () => {
     it('sets session and profile on successful registration', async () => {
       mockFetch.mockResolvedValueOnce({ token: 'reg-token', profile: mockProfile })
       const auth = useAuth()
-      await auth.register('newuser', '1234')
+      await auth.register('newuser', 'abc123')
 
       const stored = JSON.parse(store[SESSION_KEY])
       expect(stored.token).toBe('reg-token')
@@ -265,24 +265,24 @@ describe('useAuth', () => {
     it('rejects on duplicate nickname (409)', async () => {
       mockFetch.mockRejectedValueOnce(Object.assign(new Error('Conflict'), { statusCode: 409 }))
       const auth = useAuth()
-      await expect(auth.register('existing', '1234')).rejects.toThrow()
+      await expect(auth.register('existing', 'abc123')).rejects.toThrow()
       expect(store[SESSION_KEY]).toBeUndefined()
     })
 
     it('rejects on invalid PIN format (400)', async () => {
       mockFetch.mockRejectedValueOnce(Object.assign(new Error('Bad request'), { statusCode: 400 }))
       const auth = useAuth()
-      await expect(auth.register('newuser', '12')).rejects.toThrow()
+      await expect(auth.register('newuser', '1234')).rejects.toThrow()
     })
 
     it('passes nickname and pin as body to $fetch', async () => {
       mockFetch.mockResolvedValueOnce({ token: 't', profile: mockProfile })
       const auth = useAuth()
-      await auth.register('brandnew', '4321')
+      await auth.register('brandnew', 'xyz321')
 
       expect(mockFetch).toHaveBeenCalledWith('/api/auth/register', {
         method: 'POST',
-        body: { nickname: 'brandnew', pin: '4321' },
+        body: { nickname: 'brandnew', pin: 'xyz321' },
       })
     })
   })

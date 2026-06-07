@@ -21,8 +21,8 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 400, statusMessage: '昵称和PIN码不能为空' })
   }
 
-  if (!/^\d{4}$/.test(pin)) {
-    throw createError({ statusCode: 400, statusMessage: 'PIN码必须为4位数字' })
+  if (!/^[a-zA-Z0-9]{6,20}$/.test(pin)) {
+    throw createError({ statusCode: 400, statusMessage: '密令需6位以上字母或数字' })
   }
 
   // Rate limiting: 3 attempts per minute per IP
