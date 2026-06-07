@@ -84,12 +84,29 @@ const { exportToImage, isExporting } = useExportImage()
 async function copyChartText() {
   if (!natalChartData.value) return
   const text = serializeNatalChart(natalChartData.value)
-  await navigator.clipboard.writeText(text)
-  chartTextCopied.value = true
-  if (chartTextTimer.value) clearTimeout(chartTextTimer.value)
-  chartTextTimer.value = setTimeout(() => {
-    chartTextCopied.value = false
-  }, 2000)
+  try {
+    await navigator.clipboard.writeText(text)
+    chartTextCopied.value = true
+    if (chartTextTimer.value) clearTimeout(chartTextTimer.value)
+    chartTextTimer.value = setTimeout(() => {
+      chartTextCopied.value = false
+    }, 2000)
+  } catch {
+    // Fallback: select text in a temporary textarea
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    chartTextCopied.value = true
+    if (chartTextTimer.value) clearTimeout(chartTextTimer.value)
+    chartTextTimer.value = setTimeout(() => {
+      chartTextCopied.value = false
+    }, 2000)
+  }
 }
 
 function handleExport() {

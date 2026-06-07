@@ -58,9 +58,13 @@ function mapGender(g: string | null | undefined): 'male' | 'female' | null {
 }
 
 /** Convert solar date to lunar date string for display */
-function formatLunarDate(year: number, month: number, day: number): string {
-  const lunar = Lunar.fromYmd(year, month, day)
-  return `农历 ${lunar.getMonthInChinese()}${lunar.getDayInChinese()}`
+function formatLunarDate(year: number, month: number, day: number): string | null {
+  try {
+    const lunar = Lunar.fromYmd(year, month, day)
+    return `农历 ${lunar.getMonthInChinese()}${lunar.getDayInChinese()}`
+  } catch {
+    return null
+  }
 }
 
 /** Convert solar to lunar and return the lunar year/month/day */
@@ -79,10 +83,14 @@ function lunarToSolar(
   year: number,
   month: number,
   day: number,
-): { year: number; month: number; day: number } {
-  const lunar = Lunar.fromYmd(year, month, day)
-  const solar = lunar.getSolar()
-  return { year: solar.getYear(), month: solar.getMonth(), day: solar.getDay() }
+): { year: number; month: number; day: number } | null {
+  try {
+    const lunar = Lunar.fromYmd(year, month, day)
+    const solar = lunar.getSolar()
+    return { year: solar.getYear(), month: solar.getMonth(), day: solar.getDay() }
+  } catch {
+    return null
+  }
 }
 
 export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'both' }) {
@@ -144,16 +152,17 @@ export function useProfileAutoFill(config: AutoFillConfig = { calendarNeeded: 'b
       const lunar = solarToLunar(year, month, day)
       const solarDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
       const lunarStr = formatLunarDate(lunar.year, lunar.month, lunar.day)
-      conversionNote = `阳历 ${solarDate} → ${lunarStr}`
+      conversionNote = lunarStr ? `阳历 ${solarDate} → ${lunarStr}` : `阳历 ${solarDate}`
       year = lunar.year
       month = lunar.month
       day = lunar.day
       wasConverted = true
     } else if (config.calendarNeeded === 'solar' && profileCalendar === 'lunar') {
       const solar = lunarToSolar(year, month, day)
+      if (!solar) return null
       const lunarStr = formatLunarDate(year, month, day)
       const solarDate = `${solar.year}-${String(solar.month).padStart(2, '0')}-${String(solar.day).padStart(2, '0')}`
-      conversionNote = `${lunarStr} → 阳历 ${solarDate}`
+      conversionNote = lunarStr ? `${lunarStr} → 阳历 ${solarDate}` : `阳历 ${solarDate}`
       year = solar.year
       month = solar.month
       day = solar.day

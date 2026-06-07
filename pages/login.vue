@@ -157,10 +157,10 @@ const submit = async () => {
             >
           </div>
           <h2 class="text-xl font-display text-ink-dark tracking-[0.15em] mb-2">
-            {{ isLogin ? '已有命卷' : '结缘立卷' }}
+            {{ isLogin ? '已有命卷' : '创建账号' }}
           </h2>
           <p class="font-sans text-ink-medium text-xs tracking-[0.25em]">
-            {{ isLogin ? '入卷推演 · 以窥天机' : '以道为凭 · 以问天机' }}
+            {{ isLogin ? '入卷推演 · 以窥天机' : '开启你的命理之旅' }}
           </p>
         </div>
 
@@ -250,7 +250,7 @@ const submit = async () => {
                 for="login-nickname"
                 class="block text-xs text-ink-light tracking-[0.15em] mb-1.5"
               >
-                {{ isLogin ? '号令' : '道号'
+                {{ isLogin ? '号令' : '昵称'
                 }}<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
               </label>
               <input
@@ -258,7 +258,7 @@ const submit = async () => {
                 v-model="nickname"
                 type="text"
                 class="input-warm"
-                :placeholder="isLogin ? '输入你的道号' : '取一道号（昵称）'"
+                :placeholder="isLogin ? '输入你的道号' : '取一个昵称'"
                 maxlength="20"
                 autocomplete="off"
                 required
@@ -344,25 +344,25 @@ const submit = async () => {
               class="btn-cin w-full mt-2"
               :aria-busy="loading"
             >
-              <span>{{ loading ? '请稍候...' : isLogin ? '入 卷' : '立 卷' }}</span>
+              <span>{{ loading ? '请稍候...' : isLogin ? '入 卷' : '注 册' }}</span>
             </button>
           </form>
         </div>
 
         <!-- Switch hint -->
         <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
-          尚未立卷？
+          尚未有账号？
           <button
             class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
             @click="switchMode"
             @keydown.enter="switchMode"
             @keydown.space.prevent="switchMode"
           >
-            结缘注册
+            立即注册
           </button>
         </div>
         <div v-else class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
-          已有命卷？
+          已有账号？
           <button
             class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
             @click="switchMode"
