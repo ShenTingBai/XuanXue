@@ -95,7 +95,7 @@ export default defineNuxtConfig({
           type: 'font/woff2',
           crossorigin: 'anonymous',
         },
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg?v=2' },
       ],
     },
   },
