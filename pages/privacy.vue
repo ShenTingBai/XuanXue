@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import PageFooter from '~/components/tools/PageFooter.vue'
-import EntertainmentDisclaimer from '~/components/tools/EntertainmentDisclaimer.vue'
 
 useSeoMeta({
   title: '隐私政策 — 玄·道',
@@ -223,9 +222,6 @@ useSeoMeta({
           </div>
         </section>
       </div>
-
-      <!-- Disclaimer -->
-      <EntertainmentDisclaimer />
     </div>
 
     <PageFooter />
