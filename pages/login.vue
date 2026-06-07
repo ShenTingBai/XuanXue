@@ -125,7 +125,9 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
+  <div
+    class="min-h-[calc(100dvh-4rem)] min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12"
+  >
     <div class="w-full max-w-sm">
       <!-- Card -->
       <div class="card-warm rounded-xl p-8 relative overflow-hidden login-card">
