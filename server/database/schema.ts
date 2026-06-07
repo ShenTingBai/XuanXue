@@ -30,7 +30,7 @@ export const CREATE_DIVINATION_TABLE = `
 CREATE TABLE IF NOT EXISTS divination_results (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   profile_id INTEGER NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  type TEXT NOT NULL CHECK(type IN ('shengxiao','constellation','bazi','yijing','ziwei','cezi','hehun','name-test','zeji')),
+  type TEXT NOT NULL CHECK(type IN ('shengxiao','constellation','bazi','yijing','ziwei','cezi','hehun','name-test','zeji','guming','meihua')),
   input_data TEXT NOT NULL,
   result_data TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
