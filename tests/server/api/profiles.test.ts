@@ -98,7 +98,7 @@ vi.mock('~/server/utils/profile', () => ({
 // Imports (after mocks)
 // ============================================================================
 
-import { dbGet, dbAll } from '~/server/database/db'
+import { dbGet } from '~/server/database/db'
 import { checkRateLimit } from '~/server/utils/rateLimit'
 
 // ============================================================================
@@ -121,51 +121,30 @@ describe('Profiles API handlers', () => {
       handler = (await import('~/server/api/profiles/index.get')).default
     })
 
-    it('returns main profile with subs array', async () => {
+    it('returns current profile', async () => {
       vi.mocked(dbGet).mockReturnValue({
         id: 1,
         nickname: 'testuser',
         created_at: '2025-01-01T00:00:00.000Z',
         updated_at: '2025-01-01T00:00:00.000Z',
       })
-      vi.mocked(dbAll).mockReturnValue([])
 
       const result = await handler({ context: { profileId: 1 } } as any)
-      expect(result).toHaveProperty('main')
-      expect(result).toHaveProperty('subs')
-      expect(result.main.isMain).toBe(true)
-      expect(Array.isArray(result.subs)).toBe(true)
-      expect(result.main.nickname).toBe('testuser')
+      expect(result).toHaveProperty('profile')
+      expect(result.profile.nickname).toBe('testuser')
     })
 
-    it('returns subs as an array of profiles with isMain=false', async () => {
+    it('returns profile without pin', async () => {
       vi.mocked(dbGet).mockReturnValue({
         id: 1,
         nickname: 'mainuser',
         created_at: '2025-01-01T00:00:00.000Z',
         updated_at: '2025-01-01T00:00:00.000Z',
       })
-      vi.mocked(dbAll).mockReturnValue([
-        {
-          id: 2,
-          nickname: 'sub1',
-          created_at: '2025-01-02T00:00:00.000Z',
-          updated_at: '2025-01-02T00:00:00.000Z',
-        },
-        {
-          id: 3,
-          nickname: 'sub2',
-          created_at: '2025-01-03T00:00:00.000Z',
-          updated_at: '2025-01-03T00:00:00.000Z',
-        },
-      ])
 
       const result = await handler({ context: { profileId: 1 } } as any)
-      expect(result.subs).toHaveLength(2)
-      for (const sub of result.subs) {
-        expect(sub.isMain).toBe(false)
-        expect(sub).not.toHaveProperty('pin')
-      }
+      expect(result).toHaveProperty('profile')
+      expect(result.profile).not.toHaveProperty('pin')
     })
 
     it('throws 401 without auth header', async () => {

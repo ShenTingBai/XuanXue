@@ -13,13 +13,8 @@ export interface Profile {
   parent_profile_id?: number | null
 }
 
-export interface ProfileWithFlag extends Profile {
-  isMain: boolean
-}
-
 export const useAuth = () => {
   const currentProfile = useState<Profile | null>('auth:profile', () => null)
-  const subProfiles = useState<ProfileWithFlag[]>('auth:subProfiles', () => [])
 
   function getAuthHeaders(): Record<string, string> {
     return {}
@@ -43,6 +38,7 @@ export const useAuth = () => {
 
   async function restoreSession() {
     if (!import.meta.client) return
+    if (currentProfile.value) return // 已有档案，不覆盖
     await restoreSessionFromApi()
   }
 
@@ -74,36 +70,15 @@ export const useAuth = () => {
       // best-effort logout
     }
     currentProfile.value = null
-    subProfiles.value = []
-  }
-
-  /** Load sub-profiles from the API */
-  async function loadSubProfiles() {
-    if (!import.meta.client) return
-    try {
-      const res = await $fetch<{ main: ProfileWithFlag; subs: ProfileWithFlag[] }>('/api/profiles')
-      currentProfile.value = res.main
-      subProfiles.value = [res.main, ...res.subs]
-    } catch {
-      // Best-effort — if sub-profiles can't be loaded, keep current state
-    }
-  }
-
-  /** Switch to a different profile (main or sub) */
-  function switchProfile(profile: Profile) {
-    currentProfile.value = profile
   }
 
   return {
     currentProfile,
-    subProfiles,
     getAuthHeaders,
     restoreSession,
     login,
     register,
     logout,
     updateProfile,
-    loadSubProfiles,
-    switchProfile,
   }
 }
