@@ -158,8 +158,7 @@ const handleLogout = async () => {
           <div class="flex items-center justify-between h-14 sm:h-16">
             <!-- Logo -->
             <NuxtLink to="/" class="flex items-center gap-2 no-underline flex-shrink-0">
-              <span class="font-display text-2xl sm:text-3xl text-ink-dark">玄·道</span>
-              <span class="seal-icon text-[10px] hidden sm:flex" aria-hidden="true">玄</span>
+              <img src="/logo.svg" alt="玄·道" class="h-7 sm:h-8 w-auto" loading="eager" />
             </NuxtLink>
 
             <!-- Tool Navigation (desktop) -->
