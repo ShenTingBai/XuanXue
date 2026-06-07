@@ -147,9 +147,7 @@ const handleLogout = async () => {
     <!-- Paper texture layer -->
     <div class="relative z-10">
       <!-- Top Bar -->
-      <header
-        class="sticky top-0 z-50 backdrop-blur-md bg-paper-light/80 border-b border-paper-dark"
-      >
+      <header class="sticky top-0 z-50 backdrop-blur-md site-header border-b border-paper-dark">
         <a
           href="#main-content"
           class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-paper-lightest focus:text-cinnabar focus:rounded focus:border-2 focus:border-cinnabar"
@@ -189,7 +187,7 @@ const handleLogout = async () => {
             <!-- Mobile Hamburger Button -->
             <button
               ref="hamburgerBtnRef"
-              class="md:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg transition-colors hover:bg-paper-medium/50"
+              class="md:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg transition-colors hamburger-btn"
               aria-label="打开导航菜单"
               aria-haspopup="dialog"
               :aria-expanded="showMobileNav"
@@ -216,7 +214,7 @@ const handleLogout = async () => {
               <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
               <div ref="dropdownRef" class="relative">
                 <button
-                  class="flex items-center gap-1 px-1.5 py-1 rounded-lg hover:bg-paper-medium/50 transition-colors"
+                  class="flex items-center gap-1 px-1.5 py-1 rounded-lg dropdown-trigger transition-colors"
                   aria-haspopup="menu"
                   :aria-expanded="showProfileDropdown"
                   @click="showProfileDropdown = !showProfileDropdown"
@@ -237,7 +235,7 @@ const handleLogout = async () => {
                 <Transition name="dropdown">
                   <div
                     v-if="showProfileDropdown"
-                    class="absolute right-0 mt-2 w-40 bg-paper-lightest/95 backdrop-blur-md rounded-xl border border-paper-dark shadow-xl z-50 py-1.5"
+                    class="absolute right-0 mt-2 w-40 dropdown-panel backdrop-blur-md rounded-xl border border-paper-dark shadow-xl z-50 py-1.5"
                     role="menu"
                     @keydown.escape="showProfileDropdown = false"
                     @keydown.up.prevent="handleMenuKeydown"
@@ -249,7 +247,7 @@ const handleLogout = async () => {
                       :to="`/profile/${currentProfile.id}`"
                       role="menuitem"
                       :tabindex="menuActiveIndex === 0 ? '0' : '-1'"
-                      class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
+                      class="dropdown-menu-item flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline"
                       @click="showProfileDropdown = false"
                     >
                       <svg
@@ -271,7 +269,7 @@ const handleLogout = async () => {
                       role="menuitem"
                       :tabindex="menuActiveIndex === 1 ? '0' : '-1'"
                       :disabled="loggingOut"
-                      class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="dropdown-menu-item flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       @click="handleLogout"
                     >
                       <svg
@@ -311,7 +309,7 @@ const handleLogout = async () => {
         >
           <!-- Backdrop -->
           <div
-            class="fixed inset-0 bg-ink-dark/50 backdrop-blur-sm"
+            class="fixed inset-0 drawer-backdrop backdrop-blur-sm"
             @click="showMobileNav = false"
           />
 
@@ -350,7 +348,7 @@ const handleLogout = async () => {
                 </div>
                 <button
                   ref="mobileNavCloseRef"
-                  class="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-all duration-200 hover:bg-cinnabar/10 active:scale-95"
+                  class="mobile-close-btn flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-all duration-200 active:scale-95"
                   aria-label="关闭菜单"
                   @click="showMobileNav = false"
                 >
@@ -403,7 +401,7 @@ const handleLogout = async () => {
                 <span class="font-sans text-sm">{{ navItem.name }}</span>
                 <svg
                   aria-hidden="true"
-                  class="w-3 h-3 ml-auto text-ink-medium/80 group-hover:text-cinnabar/40 transition-colors"
+                  class="w-3 h-3 ml-auto nav-arrow transition-colors"
                   viewBox="0 0 12 12"
                   fill="none"
                   stroke="currentColor"
@@ -425,7 +423,7 @@ const handleLogout = async () => {
                   class="mobile-nav-item mobile-nav-item--locked"
                   :aria-label="navItem.name + '（即将上线）'"
                 >
-                  <span class="font-sans text-sm text-ink-light/50">{{ navItem.name }}</span>
+                  <span class="font-sans text-sm nav-locked-text">{{ navItem.name }}</span>
                   <span class="text-[0.6875rem] text-ink-medium ml-auto">即将</span>
                 </span>
               </div>
@@ -573,5 +571,53 @@ const handleLogout = async () => {
 .drawer-enter-from .drawer-panel,
 .drawer-leave-to .drawer-panel {
   transform: translateX(100%);
+}
+
+/* ── Dropdown menu item hover ── */
+.dropdown-menu-item:hover {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+}
+
+/* ── Mobile drawer close button hover ── */
+.mobile-close-btn:hover {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+}
+
+/* ── Site header ── */
+.site-header {
+  background: color-mix(in srgb, var(--color-paper-light) 80%, transparent);
+}
+
+/* ── Hamburger button ── */
+.hamburger-btn:hover {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
+}
+
+/* ── Dropdown trigger ── */
+.dropdown-trigger:hover {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
+}
+
+/* ── Dropdown panel ── */
+.dropdown-panel {
+  background: color-mix(in srgb, var(--color-paper-lightest) 95%, transparent);
+}
+
+/* ── Mobile drawer backdrop ── */
+.drawer-backdrop {
+  background: color-mix(in srgb, var(--color-ink-dark) 50%, transparent);
+}
+
+/* ── Nav arrow ── */
+.nav-arrow {
+  color: color-mix(in srgb, var(--color-ink-medium) 80%, transparent);
+}
+.mobile-nav-item:hover .nav-arrow {
+  color: color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
+}
+
+/* ── Locked nav text ── */
+.nav-locked-text {
+  color: color-mix(in srgb, var(--color-ink-light) 50%, transparent);
 }
 </style>

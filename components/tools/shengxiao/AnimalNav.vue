@@ -7,8 +7,8 @@
       :class="[
         'flex items-center gap-3 px-5 py-3.5 rounded-r-lg text-base transition-colors w-full text-left border-l-2',
         idx === currentIndex
-          ? 'border-l-cinnabar bg-cinnabar/6 text-cinnabar font-medium'
-          : 'border-l-transparent text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
+          ? 'animal-nav-active border-l-cinnabar text-cinnabar font-medium'
+          : 'animal-nav-inactive border-l-transparent text-ink-medium hover:text-ink-dark',
       ]"
       :aria-current="idx === currentIndex ? 'true' : undefined"
       @click="$emit('select', idx)"
@@ -68,5 +68,12 @@ const animals = ANIMALS.map((name, i) => ({
 button:hover .branch-seal:not(.branch-seal--active) {
   border-color: rgba(44, 26, 14, 0.2);
   background: rgba(44, 26, 14, 0.04);
+}
+
+.animal-nav-active {
+  background: color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
+}
+.animal-nav-inactive:hover {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
 }
 </style>

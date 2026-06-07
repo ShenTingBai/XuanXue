@@ -1,5 +1,5 @@
 <template>
-  <div class="fade-in card-warm rounded-xl p-8 mb-6" :style="{ '--delay': '0.05s' }">
+  <div class="fade-in card-warm rounded-xl p-6 sm:p-8 mb-6" :style="{ '--delay': '0.05s' }">
     <div class="flex items-start gap-4 sm:gap-6">
       <span class="flex-shrink-0 text-5xl sm:text-6xl" aria-hidden="true">{{
         result.animalEmoji
@@ -13,7 +13,7 @@
         </p>
         <!-- TaiSui annotation — almanac-style seal + commentary -->
         <div class="mt-5 pt-4 border-t border-ink-faint/15">
-          <div class="flex items-start gap-3 sm:gap-4">
+          <div class="flex flex-col sm:flex-row items-start gap-2 sm:gap-4">
             <!-- Seal stamp -->
             <div
               class="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-sm flex items-center justify-center font-display text-[10px] sm:text-xs leading-none tracking-[0.15em] select-none"
@@ -22,7 +22,7 @@
               太岁
             </div>
             <!-- Annotation body -->
-            <div class="min-w-0 pt-0.5">
+            <div class="min-w-0 pt-0.5 sm:pt-0">
               <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span
                   class="font-display text-lg sm:text-xl leading-none"

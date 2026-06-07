@@ -7,8 +7,8 @@
       :class="[
         'flex items-center gap-3 px-5 py-3.5 rounded-r-lg text-base transition-colors w-full text-left border-l-2',
         idx === currentIndex
-          ? 'border-l-cinnabar bg-cinnabar/6 text-cinnabar font-medium'
-          : 'border-l-transparent text-ink-medium hover:text-ink-dark hover:bg-paper-medium/50',
+          ? 'constellation-nav-active border-l-cinnabar text-cinnabar font-medium'
+          : 'constellation-nav-inactive border-l-transparent text-ink-medium hover:text-ink-dark',
       ]"
       :aria-current="idx === currentIndex ? 'true' : undefined"
       @click="$emit('select', idx)"
@@ -56,5 +56,12 @@ defineEmits<{
 
 button:hover .symbol-seal:not(.symbol-seal--active) {
   color: var(--color-ink);
+}
+
+.constellation-nav-active {
+  background: color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
+}
+.constellation-nav-inactive:hover {
+  background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
 }
 </style>

@@ -605,7 +605,7 @@ function onSectionNavigate(sectionName: string) {
           <!-- Hour missing notice - promoted warning -->
           <div
             v-if="missingHour"
-            class="mb-6 p-4 rounded-xl bg-cinnabar/10 border-2 border-cinnabar/30 text-center font-sans"
+            class="mb-6 p-4 rounded-xl missing-hour-notice border-2 text-center font-sans"
           >
             <p class="text-sm text-ink-dark">
               出生时辰未设置，时柱暂不显示。缺少时柱会影响四柱排盘完整度、神煞匹配、五行统计及流年分析。
@@ -772,3 +772,10 @@ function onSectionNavigate(sectionName: string) {
     @restore="onHistoryRestore"
   />
 </template>
+
+<style scoped>
+.missing-hour-notice {
+  background: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-cinnabar) 30%, transparent);
+}
+</style>

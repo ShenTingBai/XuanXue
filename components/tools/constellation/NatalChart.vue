@@ -544,6 +544,12 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
    Container
    ═══════════════════════════════════════════════════════════════ */
 .natal-chart {
+  --natal-gold: #d4a84b;
+  --natal-ice: #6ba8c8;
+  --natal-jade: #4a8c6f;
+  --natal-purple: #7b6fa0;
+  --natal-cinnabar-highlight: #dd4848;
+
   position: relative;
   width: 100%;
   max-width: 600px;
@@ -640,24 +646,24 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 }
 
 .planet-orb--gold {
-  fill: #d4a84b;
-  stroke: rgba(212, 168, 75, 0.5);
+  fill: var(--natal-gold);
+  stroke: color-mix(in srgb, var(--natal-gold) 50%, transparent);
 }
 .planet-orb--ice {
-  fill: #6ba8c8;
-  stroke: rgba(107, 168, 200, 0.5);
+  fill: var(--natal-ice);
+  stroke: color-mix(in srgb, var(--natal-ice) 50%, transparent);
 }
 .planet-orb--jade {
-  fill: #4a8c6f;
-  stroke: rgba(74, 140, 111, 0.5);
+  fill: var(--natal-jade);
+  stroke: color-mix(in srgb, var(--natal-jade) 50%, transparent);
 }
 .planet-orb--cinnabar {
   fill: var(--color-cinnabar);
   stroke: color-mix(in srgb, var(--color-cinnabar) 50%, transparent);
 }
 .planet-orb--purple {
-  fill: #7b6fa0;
-  stroke: rgba(123, 111, 160, 0.5);
+  fill: var(--natal-purple);
+  stroke: color-mix(in srgb, var(--natal-purple) 50%, transparent);
 }
 .planet-orb--gray {
   fill: var(--color-ink-muted);
@@ -798,11 +804,11 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
   border-radius: 50%;
   background: radial-gradient(
     circle at 38% 32%,
-    #dd4848 0%,
+    var(--natal-cinnabar-highlight) 0%,
     var(--color-cinnabar) 48%,
     var(--color-cinnabar-dark) 100%
   );
-  border: 1.5px solid #d4a84b;
+  border: 1.5px solid var(--natal-gold);
   box-shadow:
     0 0 14px color-mix(in srgb, var(--color-ink-muted) 20%, transparent),
     0 0 32px color-mix(in srgb, var(--color-ink-muted) 8%, transparent),
@@ -815,8 +821,8 @@ function onPlanetKeydown(e: KeyboardEvent, index: number) {
 .center-seal__char {
   font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
   font-size: 1.25rem;
-  color: #d4a84b;
-  text-shadow: 0 0 4px rgba(212, 168, 75, 0.3);
+  color: var(--natal-gold);
+  text-shadow: 0 0 4px color-mix(in srgb, var(--natal-gold) 30%, transparent);
   line-height: 1;
 }
 

@@ -11,7 +11,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       <!-- ☀ 太阳 — 外在性格 -->
       <div
-        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-jade/15 fade-in"
+        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 luminary-sun fade-in"
         :style="{ '--delay': '0.2s' }"
       >
         <div class="flex items-center gap-2 mb-1.5">
@@ -31,7 +31,7 @@
       <!-- ☽ 月亮 — 内在情感（有数据） -->
       <div
         v-if="result.moonSign"
-        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-cinnabar/15 fade-in"
+        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 luminary-moon fade-in"
         :style="{ '--delay': '0.25s' }"
       >
         <div class="flex items-center gap-2 mb-1.5">
@@ -40,7 +40,7 @@
             >月亮 · {{ result.moonSign.name }}</span
           >
           <span
-            class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-sans tracking-wider border border-cinnabar/20 text-cinnabar/70 bg-cinnabar/5 ml-auto"
+            class="luminary-badge--moon inline-flex items-center px-1.5 py-0.5 rounded text-xs font-sans tracking-wider ml-auto"
             >本命盘</span
           >
         </div>
@@ -51,7 +51,7 @@
           {{ result.moonSign.interpretation }}
         </p>
         <p
-          class="text-xs text-ink-medium font-sans mt-1.5 leading-relaxed border-t border-ink-faint/20 pt-1.5"
+          class="text-xs text-ink-medium font-sans mt-1.5 leading-relaxed border-t luminary-info-divider pt-1.5"
         >
           ⓘ 基于月球平黄经（±5°精度），边界日期可能偏移
         </p>
@@ -59,7 +59,7 @@
       <!-- ☽ 月亮（缺数据） -->
       <div
         v-else
-        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 border-cinnabar/10 fade-in"
+        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 luminary-moon-missing fade-in"
         :style="{ '--delay': '0.25s' }"
       >
         <span class="text-xl mb-1" aria-hidden="true">☽</span>
@@ -75,7 +75,7 @@
       <!-- ↑ 上升 — 社交面具（有数据） -->
       <div
         v-if="result.risingSign"
-        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 border-gold/20 fade-in"
+        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col border-t-2 luminary-rising fade-in"
         :style="{ '--delay': '0.3s' }"
       >
         <div class="flex items-center gap-2 mb-1.5">
@@ -84,7 +84,7 @@
             >上升 · {{ result.risingSign.name }}</span
           >
           <span
-            class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-sans tracking-wider border border-gold/20 text-gold/70 bg-gold/5 ml-auto"
+            class="luminary-badge--rising inline-flex items-center px-1.5 py-0.5 rounded text-xs font-sans tracking-wider ml-auto"
             >本命盘</span
           >
         </div>
@@ -95,7 +95,7 @@
           {{ result.risingSign.interpretation }}
         </p>
         <p
-          class="text-xs text-ink-medium font-sans mt-1.5 leading-relaxed border-t border-ink-faint/20 pt-1.5"
+          class="text-xs text-ink-medium font-sans mt-1.5 leading-relaxed border-t luminary-info-divider pt-1.5"
         >
           ⓘ 假定中国时区（UTC+8/北纬35°），结果近似
         </p>
@@ -103,7 +103,7 @@
       <!-- ↑ 上升（缺数据） -->
       <div
         v-else
-        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 border-gold/15 fade-in"
+        class="card-warm rounded-xl p-5 min-h-[140px] flex flex-col items-center justify-center text-center opacity-55 border-t-2 luminary-rising-missing fade-in"
         :style="{ '--delay': '0.3s' }"
       >
         <span class="text-xl mb-1" aria-hidden="true">↑</span>
@@ -137,3 +137,38 @@ defineProps<{
 
 const { currentProfile } = useAuth()
 </script>
+
+<style scoped>
+.luminary-badge--moon {
+  border: 1px solid color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
+  color: color-mix(in srgb, var(--color-cinnabar) 70%, transparent);
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+}
+.luminary-badge--rising {
+  border: 1px solid color-mix(in srgb, var(--color-gold) 20%, transparent);
+  color: color-mix(in srgb, var(--color-gold) 70%, transparent);
+  background: color-mix(in srgb, var(--color-gold) 5%, transparent);
+}
+
+/* ── Card top borders ── */
+.luminary-sun {
+  border-top-color: color-mix(in srgb, var(--color-jade) 15%, transparent);
+}
+.luminary-moon {
+  border-top-color: color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
+}
+.luminary-moon-missing {
+  border-top-color: color-mix(in srgb, var(--color-cinnabar) 10%, transparent);
+}
+.luminary-rising {
+  border-top-color: color-mix(in srgb, var(--color-gold) 20%, transparent);
+}
+.luminary-rising-missing {
+  border-top-color: color-mix(in srgb, var(--color-gold) 15%, transparent);
+}
+
+/* ── Info note divider ── */
+.luminary-info-divider {
+  border-color: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
+}
+</style>

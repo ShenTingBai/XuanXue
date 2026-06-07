@@ -210,7 +210,7 @@ function onListboxFocus() {
       <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <!-- Backdrop: dark ink wash with subtle blur -->
         <div
-          class="absolute inset-0 bg-ink-dark/40 backdrop-blur-[2px]"
+          class="absolute inset-0 history-backdrop backdrop-blur-[2px]"
           aria-hidden="true"
           @click="emit('close')"
         />
@@ -229,7 +229,7 @@ function onListboxFocus() {
           <!-- ── Header ── -->
           <div class="px-8 pt-8 pb-4 flex-shrink-0">
             <!-- Top ink line -->
-            <div class="h-px bg-ink-dark/15 mb-5" aria-hidden="true" />
+            <div class="h-px history-top-line mb-5" aria-hidden="true" />
 
             <!-- Title row -->
             <div class="flex items-center justify-between">
@@ -239,7 +239,7 @@ function onListboxFocus() {
                 </h2>
                 <!-- Mini seal mark -->
                 <span
-                  class="inline-block w-2.5 h-2.5 bg-cinnabar/50 rounded-sm flex-shrink-0"
+                  class="inline-block w-2.5 h-2.5 history-seal-mark rounded-sm flex-shrink-0"
                   aria-hidden="true"
                 />
               </div>
@@ -256,7 +256,7 @@ function onListboxFocus() {
                 <span>闭</span>
               </button>
             </div>
-            <p class="font-sans text-[10px] text-ink-light/80 text-right mt-2 select-none">
+            <p class="font-sans text-[10px] history-subtitle text-right mt-2 select-none">
               最近 5 条
             </p>
           </div>
@@ -267,19 +267,19 @@ function onListboxFocus() {
             <div v-if="loading" class="py-10 space-y-6" role="status" aria-label="加载中">
               <div v-for="i in 3" :key="i" class="flex items-center gap-3">
                 <div
-                  class="w-0.5 h-10 bg-ink-dark/10 flex-shrink-0 rounded-full"
+                  class="w-0.5 h-10 history-skeleton-bar flex-shrink-0 rounded-full"
                   aria-hidden="true"
                 />
                 <div class="flex-1 space-y-2">
-                  <div class="h-3 bg-ink-dark/8 rounded w-20 animate-pulse" />
-                  <div class="h-4 bg-ink-dark/8 rounded w-36 animate-pulse" />
+                  <div class="h-3 history-skeleton-pulse rounded w-20 animate-pulse" />
+                  <div class="h-4 history-skeleton-pulse rounded w-36 animate-pulse" />
                 </div>
               </div>
             </div>
 
             <!-- Error: failed to load -->
             <template v-if="fetchError">
-              <div class="text-ink-light/70 text-sm text-center py-8">
+              <div class="history-error-text text-sm text-center py-8">
                 <p>{{ fetchError }}</p>
                 <button class="btn-seal mt-4" @click="fetchHistory">重试</button>
               </div>
@@ -315,7 +315,7 @@ function onListboxFocus() {
                 <span class="history-record-bar flex-shrink-0" aria-hidden="true" />
 
                 <!-- Entry content -->
-                <div class="flex-1 min-w-0 py-3 border-b border-paper-dark/30">
+                <div class="flex-1 min-w-0 py-3 border-b history-record-divider">
                   <div class="flex items-center justify-between gap-2">
                     <div class="min-w-0">
                       <p class="font-sans text-xs text-ink-light mb-1">
@@ -483,5 +483,41 @@ function onListboxFocus() {
   .history-record {
     animation: none;
   }
+}
+
+/* ── Mini seal mark ── */
+.history-seal-mark {
+  background: color-mix(in srgb, var(--color-cinnabar) 50%, transparent);
+}
+
+/* ── Backdrop ── */
+.history-backdrop {
+  background: color-mix(in srgb, var(--color-ink-dark) 40%, transparent);
+}
+
+/* ── Header top line ── */
+.history-top-line {
+  background: color-mix(in srgb, var(--color-ink-dark) 15%, transparent);
+}
+
+/* ── Skeleton elements ── */
+.history-skeleton-bar {
+  background: color-mix(in srgb, var(--color-ink-dark) 10%, transparent);
+}
+.history-skeleton-pulse {
+  background: color-mix(in srgb, var(--color-ink-dark) 8%, transparent);
+}
+
+/* ── Text colors ── */
+.history-subtitle {
+  color: color-mix(in srgb, var(--color-ink-light) 80%, transparent);
+}
+.history-error-text {
+  color: color-mix(in srgb, var(--color-ink-light) 70%, transparent);
+}
+
+/* ── Record divider ── */
+.history-record-divider {
+  border-color: color-mix(in srgb, var(--color-paper-dark) 30%, transparent);
 }
 </style>

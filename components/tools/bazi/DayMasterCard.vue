@@ -8,7 +8,7 @@
     <div class="card-warm rounded-xl p-8">
       <div class="flex items-center gap-4 mb-4">
         <div
-          class="flex-shrink-0 w-14 h-14 rounded-xl bg-cinnabar/5 border border-cinnabar/20 flex items-center justify-center"
+          class="day-master-icon flex-shrink-0 w-14 h-14 rounded-xl border flex items-center justify-center"
         >
           <span class="font-display text-2xl text-cinnabar">{{ dayMaster }}</span>
         </div>
@@ -25,7 +25,7 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <h4 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">喜用神</h4>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <span
               v-for="el in favorableElements"
               :key="el"
@@ -39,7 +39,7 @@
         </div>
         <div>
           <h4 class="font-sans text-xs font-medium text-ink-dark tracking-wider mb-2">忌神</h4>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <span
               v-for="el in unfavorableElements"
               :key="el"
@@ -103,5 +103,9 @@ function elementBgClass(el: string): string {
 }
 .el-bg--fallback {
   background: color-mix(in srgb, var(--color-paper-medium) 50%, transparent);
+}
+.day-master-icon {
+  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
+  border-color: color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
 }
 </style>
