@@ -31,6 +31,7 @@ import NatalChart from '~/components/tools/constellation/NatalChart.vue'
 import NatalChartGuide from '~/components/tools/constellation/NatalChartGuide.vue'
 import type { NatalChartData } from '~/composables/useNatalChart'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 
 // ── Methodology data ──
 const constellationClassical: ClassicalSource[] = [
@@ -307,7 +308,7 @@ function scrollToConstellationNav() {
 
 <template>
   <ToolPageLayout>
-    <template #nav>
+    <template v-if="!missingBirthInfo" #nav>
       <ConstellationNav :current-index="selectedZodiac" @select="selectZodiac" />
     </template>
     <template #mobile-nav>
@@ -338,12 +339,13 @@ function scrollToConstellationNav() {
     </div>
 
     <!-- Missing birth info -->
-    <div v-if="missingBirthInfo" class="text-center py-16">
-      <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-      <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算星座运势</p>
-      <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
-        <span>前往编辑档案</span>
-      </NuxtLink>
+    <div v-if="missingBirthInfo" class="max-w-[48rem] mx-auto">
+      <ProfileAutoFillBanner
+        :profile-name="currentProfile?.nickname || ''"
+        :is-filled="false"
+        :missing-birth="true"
+        :profile-id="currentProfile?.id"
+      />
     </div>
 
     <!-- Loading skeleton -->

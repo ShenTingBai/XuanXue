@@ -25,6 +25,7 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ReadingGuide from '~/components/tools/bazi/ReadingGuide.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 
 import SectionNav from '~/components/tools/bazi/SectionNav.vue'
 import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
@@ -511,9 +512,8 @@ function onSectionNavigate(sectionName: string) {
 <template>
   <ToolPageLayout>
     <!-- Sidebar: quick reference for basic info on desktop -->
-    <template #nav-right>
+    <template v-if="!missingBirthInfo && result" #nav-right>
       <BaziInfoSidebar
-        v-if="result"
         :birth-year="result.birthYear"
         :birth-calendar="result.birthCalendar"
         :animal="animalName"
@@ -533,12 +533,13 @@ function onSectionNavigate(sectionName: string) {
     </div>
 
     <!-- Missing birth info -->
-    <div v-if="missingBirthInfo" class="text-center py-16">
-      <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-      <p class="font-sans text-base text-ink-light mb-6">需要填写出生日期以进行八字排盘</p>
-      <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
-        <span>前往编辑档案</span>
-      </NuxtLink>
+    <div v-if="missingBirthInfo" class="max-w-[48rem] mx-auto">
+      <ProfileAutoFillBanner
+        :profile-name="currentProfile?.nickname || ''"
+        :is-filled="false"
+        :missing-birth="true"
+        :profile-id="currentProfile?.id"
+      />
     </div>
 
     <!-- Loading -->

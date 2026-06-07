@@ -32,6 +32,7 @@ import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
 import GuardianBuddha from '~/components/tools/shengxiao/GuardianBuddha.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
+import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import type { TaiSuiRelation } from '~/constants/tai-sui'
 import { getGuardianBuddha } from '~/constants/guardian-buddha'
 
@@ -306,7 +307,7 @@ async function restoreFromHistory(id: number) {
 
 <template>
   <ToolPageLayout>
-    <template #nav>
+    <template v-if="!missingBirthInfo" #nav>
       <AnimalNav
         v-if="selectedAnimal !== null"
         :current-index="selectedAnimal"
@@ -342,12 +343,13 @@ async function restoreFromHistory(id: number) {
     </div>
 
     <!-- Missing birth info -->
-    <div v-if="missingBirthInfo" class="text-center py-16">
-      <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-      <p class="font-sans text-sm text-ink-light mb-6">需要填写出生日期以计算生肖排盘</p>
-      <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
-        <span>前往编辑档案</span>
-      </NuxtLink>
+    <div v-if="missingBirthInfo" class="max-w-[48rem] mx-auto">
+      <ProfileAutoFillBanner
+        :profile-name="currentProfile?.nickname || ''"
+        :is-filled="false"
+        :missing-birth="true"
+        :profile-id="currentProfile?.id"
+      />
     </div>
 
     <!-- Loading skeleton -->
