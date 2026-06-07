@@ -314,7 +314,7 @@ async function restoreFromHistory(id: number) {
         @select="selectAnimal"
       />
     </template>
-    <template #mobile-nav>
+    <template v-if="!missingBirthInfo" #mobile-nav>
       <div data-animal-nav class="flex gap-2 overflow-x-auto px-4 py-2 scroll-hint-x">
         <button
           v-for="(animal, idx) in ANIMALS"
