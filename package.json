@@ -13,7 +13,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",
@@ -37,7 +37,6 @@
     "eslint-plugin-vue": "^10.9.2",
     "globals": "^17.6.0",
     "happy-dom": "^20.10.1",
-    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.7",
     "nuxt": "^3.16.0",
