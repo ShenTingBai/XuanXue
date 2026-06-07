@@ -1,3 +1,4 @@
+import { deleteCookie } from 'h3'
 import { deleteSession } from '../../utils/auth'
 import { getClientIp } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
@@ -12,5 +13,6 @@ export default defineEventHandler(async event => {
 
   logSecurityEvent('logout', profileId, getClientIp(event))
   deleteSession(token)
+  deleteCookie(event, 'xuanxue_token', { path: '/' })
   return { success: true }
 })

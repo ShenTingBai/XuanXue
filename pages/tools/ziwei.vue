@@ -56,7 +56,7 @@ useSeoMeta({
 })
 
 const router = useRouter()
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 
 const loading = ref(false)
 const error = ref('')
@@ -202,8 +202,6 @@ const sortedPeriods = computed(() => {
 })
 
 async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
-  const headers = getAuthHeaders()
-  if (!headers.Authorization) return
   // Build a rich label for the history list so entries are distinguishable
   const mingGongIdx = getMingGongIndex(astroData.palaces)
   const mingGong = astroData.palaces[mingGongIdx]
@@ -215,7 +213,6 @@ async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
   try {
     await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
-      headers,
       body: {
         type: 'ziwei',
         input_data: {
@@ -248,11 +245,8 @@ function onHistoryRestore(id: number) {
 
 async function restoreFromHistory(id: number) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      { headers },
     )
 
     // Restore form fields from input_data

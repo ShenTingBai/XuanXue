@@ -198,17 +198,10 @@ const toolTypeMap: Record<string, { icon: string; route: string }> = {
 
 async function fetchRecentActivity() {
   if (!import.meta.client) return
-  const { getAuthHeaders } = useAuth()
-  const headers = getAuthHeaders()
-  if (!headers.Authorization) return
   recentLoading.value = true
   try {
-    const data = await $fetch<{ id: number; type: string; created_at: string }[]>(
-      '/api/divinations',
-      {
-        headers,
-      },
-    )
+    const data =
+      await $fetch<{ id: number; type: string; created_at: string }[]>('/api/divinations')
     recentActivity.value = data.slice(0, 5).map(item => {
       const mapped = toolTypeMap[item.type]
       return {

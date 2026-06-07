@@ -8,7 +8,7 @@ import {
 import { parseDate } from '~/utils/date'
 import type { FetchError } from '~/types/errors'
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
 import ConstellationHero from '~/components/tools/constellation/Hero.vue'
@@ -232,21 +232,17 @@ const zodiacShortNames = ZODIACS.map(z => z.name.slice(0, 2))
 
 async function saveDivinationResult(result: ConstellationResult, month: number, day: number) {
   try {
-    const headers = getAuthHeaders()
-    if (headers.Authorization) {
-      const inputData = { month, day }
-      const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-        method: 'POST',
-        headers,
-        body: {
-          type: 'constellation',
-          input_data: inputData,
-          result_data: JSON.parse(JSON.stringify(result)),
-        },
-      })
-      savedDivinationId.value = saveRes.id
-      saveError.value = ''
-    }
+    const inputData = { month, day }
+    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
+      body: {
+        type: 'constellation',
+        input_data: inputData,
+        result_data: JSON.parse(JSON.stringify(result)),
+      },
+    })
+    savedDivinationId.value = saveRes.id
+    saveError.value = ''
   } catch (e: unknown) {
     // 429 handled globally by auth-interceptor; 401 redirects there too
     if (e && typeof e === 'object' && 'statusCode' in e) {
@@ -266,11 +262,8 @@ function onHistoryRestore(id: number) {
 
 async function restoreFromHistory(id: number) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      { headers },
     )
     if (record.result_data) {
       const data = record.result_data

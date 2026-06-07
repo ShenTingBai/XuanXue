@@ -63,7 +63,7 @@ const baziSynthesis: string[] = [
 ]
 
 const router = useRouter()
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 
 const result = ref<BaZiResult | null>(null)
 const loading = ref(true)
@@ -292,28 +292,24 @@ async function saveDivinationResult(
   gender: string | null,
 ) {
   try {
-    const headers = getAuthHeaders()
-    if (headers.Authorization) {
-      const inputData = {
-        birthYear: year,
-        birthMonth: month,
-        birthDay: day,
-        birthCalendar: calendar,
-        birthHour: hour,
-        gender,
-      }
-      const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-        method: 'POST',
-        headers,
-        body: {
-          type: 'bazi',
-          input_data: inputData,
-          result_data: JSON.parse(JSON.stringify(baziResult)),
-        },
-      })
-      savedDivinationId.value = saveRes.id
-      saveError.value = ''
+    const inputData = {
+      birthYear: year,
+      birthMonth: month,
+      birthDay: day,
+      birthCalendar: calendar,
+      birthHour: hour,
+      gender,
     }
+    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
+      method: 'POST',
+      body: {
+        type: 'bazi',
+        input_data: inputData,
+        result_data: JSON.parse(JSON.stringify(baziResult)),
+      },
+    })
+    savedDivinationId.value = saveRes.id
+    saveError.value = ''
   } catch (e: unknown) {
     // 429 handled globally by auth-interceptor; 401 redirects there too
     if (e && typeof e === 'object' && 'statusCode' in e) {
@@ -347,11 +343,8 @@ function isBaZiResult(data: unknown): data is BaZiResult {
 
 async function restoreFromHistory(id: number) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      { headers },
     )
     if (record.result_data) {
       const data = record.result_data

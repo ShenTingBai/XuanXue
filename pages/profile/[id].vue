@@ -22,7 +22,7 @@ useSeoMeta({
   ogType: 'website',
 })
 
-const { restoreSession, currentProfile, getAuthHeaders, updateProfile } = useAuth()
+const { restoreSession, currentProfile, updateProfile } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
@@ -233,7 +233,7 @@ const saveProfile = async () => {
 
     const updated = await $fetch<Profile>(`/api/profiles/${currentProfile.value.id}`, {
       method: 'PUT',
-      headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body,
     })
 

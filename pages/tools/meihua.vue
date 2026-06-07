@@ -21,7 +21,7 @@ import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 useSeoMeta({
   title: '梅花易数 — 玄·道',
@@ -197,11 +197,8 @@ function compute() {
 // ── Auto-save ──
 async function tryAutoSave(res: MeiHuaResult) {
   try {
-    const h = getAuthHeaders()
-    if (!h.Authorization) return
     await $fetch('/api/divinations', {
       method: 'POST',
-      headers: h,
       body: {
         type: 'meihua',
         input_data: {
@@ -228,11 +225,8 @@ async function tryAutoSave(res: MeiHuaResult) {
 async function onHistoryRestore(id: number) {
   showHistoryModal.value = false
   try {
-    const h = getAuthHeaders()
-    if (!h.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       '/api/divinations/' + id,
-      { headers: h },
     )
     if (
       record.result_data &&

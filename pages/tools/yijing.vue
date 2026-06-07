@@ -152,7 +152,7 @@ import { useExportImage } from '~/composables/useExportImage'
 import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
-const { currentProfile, restoreSession, getAuthHeaders } = useAuth()
+const { currentProfile, restoreSession } = useAuth()
 useSeoMeta({
   title: '六爻占卜 — 玄·道',
   ogTitle: '六爻占卜 — 玄·道',
@@ -377,11 +377,8 @@ function onHistoryRestore(id: number) {
 
 async function restoreFromHistory(id: number) {
   try {
-    const headers = getAuthHeaders()
-    if (!headers.Authorization) return
     const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
       `/api/divinations/${id}`,
-      { headers },
     )
 
     // Restore from result_data
@@ -444,13 +441,12 @@ onUnmounted(() => {
 
 async function tryAutoSave(values: number[], yijingResult: YijingResult) {
   try {
-    const { currentProfile, getAuthHeaders } = useAuth()
+    const { currentProfile } = useAuth()
 
     if (!currentProfile?.value?.id) return
 
     await $fetch<{ id: number; created_at: string }>('/api/divinations', {
       method: 'POST',
-      headers: getAuthHeaders(),
       body: {
         type: 'yijing',
         input_data: {
