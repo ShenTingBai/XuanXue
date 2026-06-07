@@ -24,8 +24,6 @@ const navTools: NavTool[] = [
 
 <script setup lang="ts">
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
-import ProfileSwitcher from '~/components/tools/ProfileSwitcher.vue'
-
 const { currentProfile, restoreSession, logout } = useAuth()
 const router = useRouter()
 const showMobileNav = ref(false)
@@ -34,9 +32,22 @@ const mobileNavCloseRef = ref<HTMLElement | null>(null)
 const hamburgerBtnRef = ref<HTMLElement | null>(null)
 const mobileDrawerPanelRef = ref<HTMLElement | null>(null)
 const route = useRoute()
+const showProfileDropdown = ref(false)
+const dropdownRef = ref<HTMLElement | null>(null)
+
+function handleClickOutside(event: MouseEvent) {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    showProfileDropdown.value = false
+  }
+}
 
 onMounted(async () => {
   await restoreSession()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 watch(
@@ -159,55 +170,83 @@ const handleLogout = async () => {
             </button>
 
             <!-- Profile Section (desktop only — mobile is in the drawer) -->
-            <div v-if="currentProfile" class="hidden md:block flex-shrink-0">
-              <ProfileSwitcher>
-                <template #dropdown-extra>
-                  <div class="h-px bg-paper-dark mx-3" role="separator" />
-                  <NuxtLink
-                    :to="`/profile/${currentProfile.id}`"
-                    role="menuitem"
-                    tabindex="0"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
+            <div v-if="currentProfile" class="hidden md:flex items-center gap-3 flex-shrink-0">
+              <AvatarCircle :nickname="currentProfile.nickname" size="sm" />
+              <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
+              <div ref="dropdownRef" class="relative">
+                <button
+                  class="flex items-center gap-1 px-1.5 py-1 rounded-lg hover:bg-paper-medium/50 transition-colors"
+                  aria-haspopup="menu"
+                  :aria-expanded="showProfileDropdown"
+                  @click="showProfileDropdown = !showProfileDropdown"
+                  @keydown.escape="showProfileDropdown = false"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="w-3.5 h-3.5 text-ink-light"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
                   >
-                    <svg
-                      aria-hidden="true"
-                      class="w-4 h-4"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    >
-                      <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
-                      <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
-                    </svg>
-                    编辑档案
-                  </NuxtLink>
-                  <div class="h-px bg-paper-dark mx-3" role="separator" />
-                  <button
-                    role="menuitem"
-                    tabindex="-1"
-                    :disabled="loggingOut"
-                    class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    @click="handleLogout"
+                    <path d="M4 6l4 4 4-4" />
+                  </svg>
+                </button>
+                <Transition name="dropdown">
+                  <div
+                    v-if="showProfileDropdown"
+                    class="absolute right-0 mt-2 w-40 bg-paper-lightest/95 backdrop-blur-md rounded-xl border border-paper-dark shadow-xl z-50 py-1.5"
+                    role="menu"
+                    @keydown.escape="showProfileDropdown = false"
                   >
-                    <svg
-                      aria-hidden="true"
-                      class="w-4 h-4"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                    <NuxtLink
+                      :to="`/profile/${currentProfile.id}`"
+                      role="menuitem"
+                      tabindex="0"
+                      class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
+                      @click="showProfileDropdown = false"
                     >
-                      <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3" />
-                      <path d="M11 11l3-3-3-3" />
-                      <path d="M14 8H6" />
-                    </svg>
-                    {{ loggingOut ? '退出中...' : '退出' }}
-                  </button>
-                </template>
-              </ProfileSwitcher>
+                      <svg
+                        aria-hidden="true"
+                        class="w-4 h-4"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      >
+                        <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
+                        <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
+                      </svg>
+                      编辑档案
+                    </NuxtLink>
+                    <div class="h-px bg-paper-dark mx-3" role="separator" />
+                    <button
+                      role="menuitem"
+                      tabindex="-1"
+                      :disabled="loggingOut"
+                      class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      @click="handleLogout"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="w-4 h-4"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      >
+                        <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3" />
+                        <path d="M11 11l3-3-3-3" />
+                        <path d="M14 8H6" />
+                      </svg>
+                      {{ loggingOut ? '退出中...' : '退出' }}
+                    </button>
+                  </div>
+                </Transition>
+              </div>
             </div>
           </div>
         </div>
