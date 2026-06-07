@@ -3,6 +3,7 @@ import type { Profile } from '~/composables/useAuth'
 import type { FetchError } from '~/types/errors'
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
 import InkDivider from '~/components/tools/InkDivider.vue'
+import PageFooter from '~/components/tools/PageFooter.vue'
 
 interface ProfileUpdateBody {
   gender: string | null
