@@ -784,7 +784,7 @@ const goToLogin = () => {
           <!-- ── Left column: Greeting (top) + Today's Mystery (bottom), equal height ── -->
           <div class="flex flex-col gap-4 sm:gap-6">
             <!-- Top half: Greeting -->
-            <div class="anim-rise flex-[3] min-h-0">
+            <div class="anim-rise flex-1 sm:flex-[3] min-h-0">
               <div
                 class="flex flex-col items-center justify-center h-full gap-2 sm:gap-3 text-center"
               >
@@ -829,7 +829,7 @@ const goToLogin = () => {
             </div>
 
             <!-- Bottom half: 今日玄机 -->
-            <div class="flex-[2] min-h-0 anim-rise" style="--delay: 0.1s">
+            <div class="flex-[3] sm:flex-[2] min-h-0 anim-rise" style="--delay: 0.1s">
               <div
                 class="talisman-card h-full flex items-center justify-center"
                 aria-label="今日黄历"
@@ -1066,7 +1066,6 @@ const goToLogin = () => {
 
 .talisman-card {
   position: relative;
-  overflow: hidden;
   border-radius: 1rem;
   padding: 1.75rem 1.5rem;
   text-align: center;
@@ -1258,5 +1257,15 @@ const goToLogin = () => {
 
 .daily-wuxing-avoid {
   color: var(--color-ink-light);
+}
+
+@media (max-width: 639px) {
+  .talisman-ganzhi {
+    font-size: 0.8125rem;
+  }
+  .talisman-lunar-date {
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+  }
 }
 </style>

@@ -449,4 +449,25 @@ const stick: FortuneStick = getDailyFortune()
     transform: translateY(0) scale(1);
   }
 }
+
+@media (max-width: 639px) {
+  .slip-card--tall {
+    padding: 1rem 1.25rem;
+  }
+  .slip-title--tall {
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+  }
+  .slip-poem-line--tall {
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+  .slip-explanation--tall {
+    padding: 0.375rem 0 0;
+  }
+  .slip-explanation--tall__text {
+    font-size: 0.6875rem;
+    line-height: 1.75;
+  }
+}
 </style>
