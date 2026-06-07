@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       start_url: '/',
       icons: [
         {
-          src: 'pwa-icon.svg',
+          src: 'logo.svg',
           sizes: 'any',
           type: 'image/svg+xml',
           purpose: 'any maskable',
@@ -48,7 +48,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      siteUrl: 'https://xuanxue.example.com',
+      siteUrl: 'https://xuanji.me',
     },
   },
   app: {
@@ -66,7 +66,7 @@ export default defineNuxtConfig({
           property: 'og:description',
           content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
         },
-        { property: 'og:image', content: '/og-image.png' },
+        { property: 'og:image', content: 'https://xuanji.me/og-image.png' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { property: 'og:type', content: 'website' },
@@ -76,7 +76,7 @@ export default defineNuxtConfig({
           name: 'twitter:description',
           content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
         },
-        { name: 'twitter:image', content: '/og-image.png' },
+        { name: 'twitter:image', content: 'https://xuanji.me/og-image.png' },
       ],
       link: [
         // Ma Shan Zheng (2.6MB) 不预加载——通过 @font-face font-display: swap 按需加载。
