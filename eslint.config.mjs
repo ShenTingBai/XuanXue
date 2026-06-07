@@ -64,7 +64,7 @@ const nuxtGlobals = {
 export default [
   // Global ignores
   {
-    ignores: ['.nuxt/**', '.output/**', 'node_modules/**', 'dist/**'],
+    ignores: ['.nuxt/**', '.output/**', 'node_modules/**', 'dist/**', 'deploy/**', '.claude/**'],
   },
 
   // Base JS/TS recommended
@@ -157,7 +157,7 @@ export default [
 
   // Config files
   {
-    files: ['*.config.{js,mjs,ts}', 'nuxt.config.ts'],
+    files: ['*.config.{js,mjs,cjs,ts}', 'nuxt.config.ts'],
     languageOptions: {
       globals: {
         ...globals.node,
