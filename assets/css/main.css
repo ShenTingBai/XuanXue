@@ -91,7 +91,9 @@ html {
   }
 
   body {
-    @apply min-h-screen bg-paper-light text-ink;
+    @apply bg-paper-light text-ink;
+    min-height: 100vh;
+    min-height: 100dvh;
     font-family: var(--font-sans); /* Noto Sans SC for body text */
   }
 
@@ -1331,6 +1333,17 @@ a:focus-visible {
   .scroll-hint-x {
     -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
     mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  }
+
+  /* ── Full viewport height with iOS Safari dvh fix ── */
+  .full-viewport {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* ── Safe area inset for notched phones (iPhone home indicator) ── */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 

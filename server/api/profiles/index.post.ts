@@ -20,7 +20,7 @@ export default defineEventHandler(async event => {
   if (!body.nickname || typeof body.nickname !== 'string') {
     throw createError({ statusCode: 400, statusMessage: '请提供昵称' })
   }
-  const nickname = body.nickname.trim()
+  const nickname = body.nickname.trim().normalize('NFC')
   if (nickname.length < 2 || nickname.length > 20) {
     throw createError({ statusCode: 400, statusMessage: '昵称长度应为 2-20 个字符' })
   }

@@ -277,7 +277,7 @@ const saveProfile = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen relative ink-wash-bg">
+  <div class="full-viewport relative ink-wash-bg">
     <!-- ═══ Background trigram corner marks ═══ -->
     <div class="bg-trigrams" aria-hidden="true">
       <span class="bg-trigram bg-trigram--tl">☰</span>

@@ -343,7 +343,7 @@ const goToLogin = () => {
 </script>
 
 <template>
-  <div class="min-h-screen relative">
+  <div class="full-viewport relative">
     <!-- ═══ Loading Skeleton ═══ -->
     <div
       v-if="!sessionReady"

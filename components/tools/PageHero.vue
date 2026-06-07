@@ -11,7 +11,7 @@
 
       <div class="min-w-0">
         <!-- Main title (Ma Shan Zheng display font) -->
-        <h1 class="font-display text-3xl sm:text-4xl text-ink-dark leading-tight mb-1">
+        <h1 class="font-display text-2xl sm:text-3xl text-ink-dark leading-tight break-words mb-1">
           {{ title }}
         </h1>
         <!-- Subtitle / year -->

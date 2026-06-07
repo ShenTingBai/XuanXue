@@ -19,6 +19,7 @@ const expiredNote = ref('')
 const loading = ref(false)
 const isLogin = ref(true)
 const showPin = ref(false)
+const privacyConsent = ref(false)
 const expiredTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 onMounted(async () => {
@@ -41,6 +42,7 @@ onUnmounted(() => {
 const switchMode = () => {
   isLogin.value = !isLogin.value
   error.value = ''
+  privacyConsent.value = false
 }
 
 const handleTabKeydown = (e: KeyboardEvent) => {
@@ -86,12 +88,20 @@ const submit = async () => {
     error.value = '请输入密令'
     return
   }
+  if (pin.value.trim().length < 4) {
+    error.value = '密令至少需要4位'
+    return
+  }
   if (pin.value.trim().length > 20) {
     error.value = '密令不能超过20位'
     return
   }
   if (!isLogin.value && !/^[a-zA-Z0-9]{6,}$/.test(pin.value)) {
     error.value = '注册密令需6位以上字母或数字'
+    return
+  }
+  if (!isLogin.value && !privacyConsent.value) {
+    error.value = '请先阅读并同意隐私政策'
     return
   }
 
@@ -115,7 +125,9 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
+  <div
+    class="min-h-[calc(100dvh-4rem)] min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12"
+  >
     <div class="w-full max-w-sm">
       <!-- Card -->
       <div class="card-warm rounded-xl p-8 relative overflow-hidden login-card">
@@ -145,10 +157,10 @@ const submit = async () => {
             >
           </div>
           <h2 class="text-xl font-display text-ink-dark tracking-[0.15em] mb-2">
-            {{ isLogin ? '已有命卷' : '结缘立卷' }}
+            {{ isLogin ? '已有命卷' : '创建账号' }}
           </h2>
           <p class="font-sans text-ink-medium text-xs tracking-[0.25em]">
-            {{ isLogin ? '入卷推演 · 以窥天机' : '以道为凭 · 以问天机' }}
+            {{ isLogin ? '入卷推演 · 以窥天机' : '开启你的命理之旅' }}
           </p>
         </div>
 
@@ -169,7 +181,7 @@ const submit = async () => {
             role="tab"
             :aria-selected="isLogin"
             :tabindex="isLogin ? 0 : -1"
-            aria-controls="tabpanel-auth"
+            aria-controls="panel-login"
             class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
             :class="isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
             @click="isLogin = true"
@@ -181,7 +193,7 @@ const submit = async () => {
             role="tab"
             :aria-selected="!isLogin"
             :tabindex="!isLogin ? 0 : -1"
-            aria-controls="tabpanel-auth"
+            aria-controls="panel-register"
             class="relative z-10 flex-1 py-2 text-sm tracking-wider transition-colors rounded-md"
             :class="!isLogin ? 'text-cinnabar font-medium' : 'text-ink-light hover:text-ink-medium'"
             @click="isLogin = false"
@@ -228,7 +240,7 @@ const submit = async () => {
 
         <!-- Form -->
         <div
-          id="tabpanel-auth"
+          :id="isLogin ? 'panel-login' : 'panel-register'"
           role="tabpanel"
           :aria-labelledby="isLogin ? 'tab-login' : 'tab-register'"
         >
@@ -238,7 +250,7 @@ const submit = async () => {
                 for="login-nickname"
                 class="block text-xs text-ink-light tracking-[0.15em] mb-1.5"
               >
-                {{ isLogin ? '号令' : '道号'
+                {{ isLogin ? '号令' : '昵称'
                 }}<span class="text-cinnabar ml-0.5" aria-hidden="true">*</span>
               </label>
               <input
@@ -246,7 +258,7 @@ const submit = async () => {
                 v-model="nickname"
                 type="text"
                 class="input-warm"
-                :placeholder="isLogin ? '输入你的道号' : '取一道号（昵称）'"
+                :placeholder="isLogin ? '输入你的道号' : '取一个昵称'"
                 maxlength="20"
                 autocomplete="off"
                 required
@@ -267,6 +279,7 @@ const submit = async () => {
                   :type="showPin ? 'text' : 'password'"
                   class="input-warm pr-10"
                   :placeholder="isLogin ? '输入密令' : '6位以上字母或数字'"
+                  minlength="4"
                   maxlength="20"
                   autocomplete="off"
                   required
@@ -287,31 +300,69 @@ const submit = async () => {
               </div>
             </div>
 
+            <!-- Privacy consent (register only) -->
+            <div v-if="!isLogin" class="flex items-start gap-2">
+              <label class="relative flex items-start gap-2 cursor-pointer select-none">
+                <input
+                  v-model="privacyConsent"
+                  type="checkbox"
+                  class="sr-only peer"
+                  required
+                  aria-required="true"
+                  :disabled="loading"
+                />
+                <span
+                  class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border border-ink-lighter bg-paper-lightest/80 transition-all peer-checked:bg-cinnabar peer-checked:border-cinnabar peer-focus-visible:ring-2 peer-focus-visible:ring-cinnabar/40"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="w-4 h-4 text-white opacity-0 transition-opacity"
+                    :class="privacyConsent ? 'opacity-100' : 'opacity-0'"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <span class="text-xs text-ink-medium leading-relaxed">
+                  我已阅读并同意<NuxtLink
+                    to="/privacy"
+                    class="text-cinnabar hover:text-cinnabar-light underline-offset-2 hover:underline"
+                    target="_blank"
+                    @click.stop
+                    >《隐私政策》</NuxtLink
+                  >
+                </span>
+              </label>
+            </div>
+
             <button
               type="submit"
-              :disabled="loading"
+              :disabled="loading || (!isLogin && !privacyConsent)"
               class="btn-cin w-full mt-2"
               :aria-busy="loading"
             >
-              <span>{{ loading ? '请稍候...' : isLogin ? '入 卷' : '立 卷' }}</span>
+              <span>{{ loading ? '请稍候...' : isLogin ? '入 卷' : '注 册' }}</span>
             </button>
           </form>
         </div>
 
         <!-- Switch hint -->
         <div v-if="isLogin" class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
-          尚未立卷？
+          尚未有账号？
           <button
             class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
             @click="switchMode"
             @keydown.enter="switchMode"
             @keydown.space.prevent="switchMode"
           >
-            结缘注册
+            立即注册
           </button>
         </div>
         <div v-else class="mt-6 text-center text-xs text-ink-medium tracking-[0.1em]">
-          已有命卷？
+          已有账号？
           <button
             class="text-cinnabar hover:text-cinnabar-light transition-colors underline-offset-2 hover:underline"
             @click="switchMode"

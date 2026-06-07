@@ -20,6 +20,7 @@
     "html-to-image": "^1.11.13",
     "iztro": "^2.5.8",
     "lunar-javascript": "^1.7.7",
+    "potrace": "^2.1.8",
     "sql.js": "^1.11.0"
   },
   "devDependencies": {
@@ -53,5 +54,8 @@
     "*.{css,json,md,yaml,yml}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

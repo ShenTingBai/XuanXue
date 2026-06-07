@@ -1130,7 +1130,7 @@ function focusLabel(idx: number) {
     letter-spacing: 0.1em;
   }
   .pl-branch {
-    font-size: 0.45rem;
+    font-size: 0.5rem;
   }
   .palace-label.pl-sel .pl-name {
     letter-spacing: 0.13em;
@@ -1144,13 +1144,13 @@ function focusLabel(idx: number) {
     height: 12px;
   }
   .st-label {
-    font-size: 0.52rem;
+    font-size: 0.5625rem;
   }
   .st-major .st-label {
-    font-size: 0.6rem;
+    font-size: 0.625rem;
   }
   .st-mutagen {
-    font-size: 0.46rem;
+    font-size: 0.5rem;
     padding: 1px 3px;
   }
   .polaris-seal {

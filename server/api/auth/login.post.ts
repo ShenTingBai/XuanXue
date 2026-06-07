@@ -27,6 +27,10 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 400, statusMessage: '昵称和PIN码不能为空' })
   }
 
+  if (pin.length < 4) {
+    throw createError({ statusCode: 400, statusMessage: '密令至少需要4位' })
+  }
+
   if (pin.length > 20) {
     throw createError({ statusCode: 400, statusMessage: '密令不能超过20位' })
   }

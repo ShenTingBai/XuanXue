@@ -9,7 +9,9 @@
       <p class="footer-text">
         <span class="footer-brand">玄·道</span>
         <span class="footer-dot" aria-hidden="true">·</span>
-        <span>本结果为算法推演，仅供娱乐参考，不代表实际情况。</span>
+        <span
+          >本结果为算法推演，仅供娱乐参考，不代表实际情况。本服务不构成医疗、投资、法律或其他专业建议。如有需要，请咨询相关专业人士。</span
+        >
         <span class="footer-dot" aria-hidden="true">·</span>
         <NuxtLink to="/privacy" class="footer-link">隐私政策</NuxtLink>
       </p>

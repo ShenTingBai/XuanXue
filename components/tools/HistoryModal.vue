@@ -147,6 +147,22 @@ function formatHistoryLabel(input: unknown): string {
     const eventName = inputData.eventName
     return eventName ? `择吉 · ${eventName}` : '择吉'
   }
+  if (props.type === 'guming') {
+    const { birthYear, gender } = inputData
+    const birthMonth = inputData.birthMonth as number | undefined
+    const birthDay = inputData.birthDay as number | undefined
+    const pad = (n: number | undefined) => (n ? String(n).padStart(2, '0') : '??')
+    const label = `${birthYear || '??'}-${pad(birthMonth)}-${pad(birthDay)}`
+    const genderLabel = gender ? ` ${gender}` : ''
+    return `称骨 · ${label}${genderLabel}`
+  }
+  if (props.type === 'meihua') {
+    const question = inputData.question as string | undefined
+    const method = inputData.method as string | undefined
+    const methodLabel = method === 'number' ? '数字起卦' : '时间起卦'
+    if (question) return `梅花 · ${question}（${methodLabel}）`
+    return `梅花易数（${methodLabel}）`
+  }
   // constellation
   const month = inputData.month as number
   const day = inputData.day as number

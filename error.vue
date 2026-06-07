@@ -24,7 +24,7 @@ const handleGoHome = () => {
 </script>
 
 <template>
-  <div class="ink-wash-bg min-h-screen flex flex-col">
+  <div class="ink-wash-bg full-viewport flex flex-col">
     <!-- Paper grain is already applied by body::after in the global CSS -->
     <div class="relative z-10 flex-1 flex flex-col">
       <!-- ══════════════════════════════════════ -->
