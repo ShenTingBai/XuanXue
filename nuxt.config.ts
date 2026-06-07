@@ -57,13 +57,8 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'zh-CN' },
       meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' }],
       link: [
-        {
-          rel: 'preload',
-          href: '/fonts/ma-shan-zheng-v17-chinese-simplified-regular.woff2',
-          as: 'font',
-          type: 'font/woff2',
-          crossorigin: 'anonymous',
-        },
+        // Ma Shan Zheng (2.6MB) 不预加载——通过 @font-face font-display: swap 按需加载。
+        // 子集化后（~50KB）可恢复 preload。见 public/fonts/README-SUBSET.md
         {
           rel: 'preload',
           href: '/fonts/noto-sans-sc-v40-chinese-simplified-regular.woff2',

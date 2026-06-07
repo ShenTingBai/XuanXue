@@ -21,7 +21,9 @@ html {
     font-family: 'Ma Shan Zheng';
     font-style: normal;
     font-weight: 400;
-    font-display: optional;
+    /* TODO: 字体子集化后可改回 optional。当前 2.6MB 全量字体用 swap 避免阻塞渲染。
+       子集化指南见 public/fonts/README-SUBSET.md */
+    font-display: swap;
     src: url('/fonts/ma-shan-zheng-v17-chinese-simplified-regular.woff2') format('woff2');
   }
 

@@ -60,14 +60,20 @@
           v-if="showResetConfirm"
           ref="confirmDialogRef"
           class="fixed inset-0 z-50 flex items-center justify-center bg-ink-dark/20 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="确认重新起卦"
-          @keydown.escape="cancelReset"
+          @click="cancelReset"
           @keydown.tab="handleDialogTab"
         >
-          <div class="card-warm rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark">
-            <p class="font-sans text-base text-ink-dark mb-2">确定要重新起卦吗？</p>
+          <div
+            class="card-warm rounded-xl p-8 max-w-sm mx-4 shadow-xl border border-paper-dark"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reset-dialog-title"
+            @click.stop
+            @keydown.escape="cancelReset"
+          >
+            <p id="reset-dialog-title" class="font-sans text-base text-ink-dark mb-2">
+              确定要重新起卦吗？
+            </p>
             <p class="font-sans text-sm text-ink-medium mb-6">
               当前已完成 {{ currentToss }}/6 次摇卦，重新起卦将丢失已有结果。
             </p>
