@@ -196,7 +196,43 @@ function detectStructure(char: string): string {
   const known = CHAR_STRUCTURE_MAP.get(char)
   if (known) return known
 
-  // 2. Heuristic: Kangxi radical block lookup
+  // 2. 品字 heuristic: character formed by three identical components
+  //    e.g. 品(口口口), 森(木木木), 晶(日日日), 淼(水水水), 焱(火火火)
+  if (!known && char.length === 1) {
+    const cp = char.codePointAt(0)
+    if (cp != null) {
+      // 品字: three identical components stacked in triangular formation
+      // These characters have a distinct code point pattern in CJK
+      const PINZI_MAP: Record<string, string> = {
+        品: '品字',
+        森: '品字',
+        晶: '品字',
+        淼: '品字',
+        焱: '品字',
+        垚: '品字',
+        鑫: '品字',
+        芔: '品字',
+        轟: '品字',
+        麤: '品字',
+        龘: '品字',
+        鱻: '品字',
+        猋: '品字',
+        毳: '品字',
+        畾: '品字',
+        厽: '品字',
+        劦: '品字',
+        姦: '品字',
+        赑: '品字',
+        蟲: '品字',
+        聶: '品字',
+        羴: '品字',
+      }
+      const pinzi = PINZI_MAP[char]
+      if (pinzi) return pinzi
+    }
+  }
+
+  // 3. Heuristic: Kangxi radical block lookup
   //    CJK Unified Ideographs (U+4E00–U+9FFF) are ordered by radical →
   //    characters within a radical's block share its positional tendency.
   const cp = char.codePointAt(0)
@@ -205,7 +241,7 @@ function detectStructure(char: string): string {
     if (hint) return hint
   }
 
-  // 3. Fallback — no reliable signal available
+  // 4. Fallback — no reliable signal available
   return 'single'
 }
 

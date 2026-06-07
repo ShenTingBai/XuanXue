@@ -221,7 +221,7 @@ export interface CategoryInfo {
 export const NUMBER_CATEGORIES: CategoryInfo[] = [
   { label: '首领运', numbers: [3, 13, 16, 21, 23, 29, 31, 37, 39, 41, 45, 47] },
   { label: '财富运', numbers: [15, 16, 24, 29, 32, 33, 41, 52] },
-  { label: '才能运', numbers: [13, 14, 18, 26, 29, 33, 35, 38, 48] },
+  { label: '才能运', numbers: [13, 18, 26, 29, 33, 35, 38, 48] },
   { label: '温和运', numbers: [5, 6, 11, 15, 16, 24, 31, 32, 35] },
   { label: '女德运', numbers: [5, 6, 11, 13, 15, 16, 24, 32, 35] },
   { label: '孤寡运', numbers: [21, 23, 26, 28, 29, 33, 39] },
