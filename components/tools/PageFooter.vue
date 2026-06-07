@@ -10,6 +10,8 @@
         <span class="footer-brand">玄·道</span>
         <span class="footer-dot" aria-hidden="true">·</span>
         <span>本结果为算法推演，仅供娱乐参考，不代表实际情况。</span>
+        <span class="footer-dot" aria-hidden="true">·</span>
+        <NuxtLink to="/privacy" class="footer-link">隐私政策</NuxtLink>
       </p>
     </div>
   </footer>
@@ -71,5 +73,15 @@
 .footer-dot {
   margin: 0 0.375rem;
   color: var(--color-ink-faint);
+}
+
+.footer-link {
+  color: var(--color-ink-light);
+  text-decoration: none;
+  transition: color var(--transition-fast, 0.15s ease);
+}
+
+.footer-link:hover {
+  color: var(--color-cinnabar);
 }
 </style>

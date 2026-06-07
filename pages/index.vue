@@ -1,18 +1,10 @@
 ﻿<script setup lang="ts">
 import { getMonthPillar } from '~/composables/useSolarTerms'
-import { Lunar } from 'lunar-javascript'
 import { STEMS, BRANCHES } from '~/constants/bazi'
-import {
-  WUXING_COLORS,
-  WUXING_FALLBACK_COLOR,
-  getStemIndex,
-  getNayinWuxing,
-} from '~/constants/bazi'
-import { calculateBaZi } from '~/composables/useBaZi'
-import { calculateShenSha } from '~/composables/useShenSha'
+import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getNayinWuxing } from '~/constants/bazi'
+import { SAMPLE_BAZI, SAMPLE_PROMINENT_SHENSHA } from '~/constants/sample-bazi'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
-import { getDailyWuxing } from '~/composables/useDailyWuxing'
 import PageFooter from '~/components/tools/PageFooter.vue'
 
 const SOLAR_TERM_NAMES = [
@@ -250,97 +242,87 @@ async function fetchRecentActivity() {
   }
 }
 
-// ── 今日玄机：实时天文信息 ──
-const todayAstro = computed(() => {
-  if (!import.meta.client) return null
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = now.getMonth() + 1
-  const d = now.getDate()
-  const ys = (((y - 4) % 10) + 10) % 10
-  const yb = (((y - 4) % 12) + 12) % 12
-  const mp = getMonthPillar(y, m, d)
-  let termIdx = -1
-  for (let i = 0; i < 12; i++) {
-    const t = getSolarTerm(y, i)
-    if (t.month === m && d >= t.day - 2) termIdx = i
-  }
-  const lunar = Lunar.fromYmd(y, m, d)
-  return {
-    lunarMonth: lunar.getMonthInChinese(),
-    lunarDay: lunar.getDayInChinese(),
-    yearGanZhi: STEMS[ys] + BRANCHES[yb],
-    monthGanZhi: mp.stem + mp.branch,
-    solarTerm: termIdx >= 0 ? SOLAR_TERM_NAMES[termIdx] : null,
-    weekday: ['日', '一', '二', '三', '四', '五', '六'][now.getDay()],
-    dateStr: `${y}年${m}月${d}日`,
-  }
-})
-
-// ── 命盘预览：示例八字数据 ──
-const sampleInput = {
-  birthYear: 1990,
-  birthMonth: 5,
-  birthDay: 15,
-  birthHour: 11,
-  birthCalendar: 'solar' as const,
-  gender: '男' as const,
+// ── 今日玄机：懒加载天文信息（避免急切导入 lunar-javascript ~200KB）──
+interface TodayAstroData {
+  lunarMonth: string
+  lunarDay: string
+  yearGanZhi: string
+  monthGanZhi: string
+  solarTerm: string | null
+  weekday: string
+  dateStr: string
 }
+const todayAstro = ref<TodayAstroData | null>(null)
 
-const sampleBaZi = computed(() => {
-  try {
-    return calculateBaZi(sampleInput)
-  } catch {
-    return null
-  }
-})
-
-const sampleShenSha = computed(() => {
-  if (!sampleBaZi.value) return []
-  const { yearPillar, monthPillar, dayPillar, hourPillar, dayMaster } = sampleBaZi.value
-  return calculateShenSha({
-    yearPillar,
-    monthPillar,
-    dayPillar,
-    hourPillar: hourPillar ?? null,
-    dayMaster,
-    dayMasterIndex: getStemIndex(dayPillar.stem),
-    gender: '男',
-  })
-})
-
-// Prominent shensha for display (deduplicated, notable ones)
-const prominentShenSha = computed(() => {
-  const notable = ['天乙贵人', '文昌贵人', '福星贵人', '太极贵人', '禄神', '桃花', '华盖']
-  const seen = new Set<string>()
-  return sampleShenSha.value.filter(s => {
-    if (!notable.includes(s.name) || seen.has(s.name)) return false
-    seen.add(s.name)
-    return true
-  })
-})
+// ── 命盘预览：预计算的静态示例数据 ──
+const sampleBaZi = SAMPLE_BAZI
+const prominentShenSha = SAMPLE_PROMINENT_SHENSHA
 
 const samplePillars = computed(() => {
-  if (!sampleBaZi.value) return []
   const labels = ['年柱', '月柱', '日柱', '时柱']
   const pillars = [
-    sampleBaZi.value.yearPillar,
-    sampleBaZi.value.monthPillar,
-    sampleBaZi.value.dayPillar,
-    sampleBaZi.value.hourPillar,
+    sampleBaZi.yearPillar,
+    sampleBaZi.monthPillar,
+    sampleBaZi.dayPillar,
+    sampleBaZi.hourPillar,
   ]
   return pillars
     .map((p, i) => ({ label: labels[i], data: p }))
     .filter((p): p is { label: string; data: NonNullable<typeof p.data> } => p.data !== null)
 })
 
-const dailyWuxing = computed(() => getDailyWuxing())
+interface DailyWuxingData {
+  luckyColorNames: string[]
+  avoidColorNames: string[]
+}
+const dailyWuxing = ref<DailyWuxingData>({ luckyColorNames: [], avoidColorNames: [] })
 
 onMounted(async () => {
   await restoreSession()
   sessionReady.value = true
   if (currentProfile.value) {
     fetchRecentActivity()
+  }
+
+  // 懒加载 lunar-javascript（约 200KB），仅在客户端需要时加载
+  if (import.meta.client) {
+    try {
+      const [{ Lunar }, { getDailyWuxing }] = await Promise.all([
+        import('lunar-javascript'),
+        import('~/composables/useDailyWuxing'),
+      ])
+
+      const now = new Date()
+      const y = now.getFullYear()
+      const m = now.getMonth() + 1
+      const d = now.getDate()
+      const ys = (((y - 4) % 10) + 10) % 10
+      const yb = (((y - 4) % 12) + 12) % 12
+      const mp = getMonthPillar(y, m, d)
+      let termIdx = -1
+      for (let i = 0; i < 12; i++) {
+        const t = getSolarTerm(y, i)
+        if (t.month === m && d >= t.day - 2) termIdx = i
+      }
+      const lunar = Lunar.fromYmd(y, m, d)
+      todayAstro.value = {
+        lunarMonth: lunar.getMonthInChinese(),
+        lunarDay: lunar.getDayInChinese(),
+        yearGanZhi: STEMS[ys] + BRANCHES[yb],
+        monthGanZhi: mp.stem + mp.branch,
+        solarTerm: termIdx >= 0 ? SOLAR_TERM_NAMES[termIdx] : null,
+        weekday: ['日', '一', '二', '三', '四', '五', '六'][now.getDay()],
+        dateStr: `${y}年${m}月${d}日`,
+      }
+
+      const wuxingResult = getDailyWuxing()
+      dailyWuxing.value = {
+        luckyColorNames: wuxingResult.luckyColorNames,
+        avoidColorNames: wuxingResult.avoidColorNames,
+      }
+    } catch {
+      // Best-effort — todayAstro and dailyWuxing stay at defaults
+    }
   }
 })
 
@@ -607,27 +589,48 @@ const goToLogin = () => {
               <h2>{{ group.category }}</h2>
             </div>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              <div
-                v-for="tool in group.tools"
+              <NuxtLink
+                v-for="tool in group.tools.filter(t => t.available)"
                 :key="tool.id"
-                :class="['tool-card--new', tool.available ? '' : 'opacity-50 cursor-default']"
-                :aria-label="tool.available ? tool.name : tool.name + '（即将推出）'"
-                :aria-disabled="tool.available ? undefined : 'true'"
+                :to="tool.route"
+                :aria-label="'打开' + tool.name + '工具'"
+                class="tool-card--new block no-underline"
+              >
+                <span class="tool-card__trigram" aria-hidden="true">{{
+                  tool.trigram || '☰'
+                }}</span>
+                <span class="seal-icon seal-icon--lg" style="margin-bottom: 20px">{{
+                  tool.char
+                }}</span>
+                <div
+                  class="tool-card__name"
+                  style="
+                    font-size: 19px;
+                    color: var(--color-ink);
+                    letter-spacing: 0.25em;
+                    margin-bottom: 8px;
+                  "
+                >
+                  {{ tool.name }}
+                </div>
+                <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
+                  {{ tool.description }}
+                </p>
+              </NuxtLink>
+              <div
+                v-for="tool in group.tools.filter(t => !t.available)"
+                :key="tool.id"
+                role="link"
+                aria-disabled="true"
+                :aria-label="tool.name + '（即将推出）'"
+                class="tool-card--new opacity-50 cursor-default"
               >
                 <span class="tool-card__trigram" aria-hidden="true">{{
                   tool.trigram || '☰'
                 }}</span>
                 <span
                   class="seal-icon seal-icon--lg"
-                  :style="
-                    tool.available
-                      ? { marginBottom: '20px' }
-                      : {
-                          marginBottom: '20px',
-                          background: 'var(--color-ink-light)',
-                          boxShadow: 'none',
-                        }
-                  "
+                  style="margin-bottom: 20px; background: var(--color-ink-light); box-shadow: none"
                   >{{ tool.char }}</span
                 >
                 <div

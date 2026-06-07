@@ -87,6 +87,46 @@ function trapFocusBack() {
   mobileNavCloseRef.value?.focus()
 }
 
+// Profile dropdown menu keyboard navigation (WAI-ARIA menu pattern)
+const menuActiveIndex = ref(0)
+
+watch(showProfileDropdown, open => {
+  if (open) {
+    menuActiveIndex.value = 0
+    nextTick(() => {
+      const items = dropdownRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]')
+      items?.[0]?.focus()
+    })
+  }
+})
+
+function handleMenuKeydown(e: KeyboardEvent) {
+  const items = dropdownRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]')
+  if (!items || items.length === 0) return
+
+  let newIndex = menuActiveIndex.value
+
+  switch (e.key) {
+    case 'ArrowDown':
+      newIndex = (menuActiveIndex.value + 1) % items.length
+      break
+    case 'ArrowUp':
+      newIndex = (menuActiveIndex.value - 1 + items.length) % items.length
+      break
+    case 'Home':
+      newIndex = 0
+      break
+    case 'End':
+      newIndex = items.length - 1
+      break
+    default:
+      return
+  }
+
+  menuActiveIndex.value = newIndex
+  items[newIndex]?.focus()
+}
+
 const loggingOut = ref(false)
 
 const handleLogout = async () => {
@@ -200,11 +240,15 @@ const handleLogout = async () => {
                     class="absolute right-0 mt-2 w-40 bg-paper-lightest/95 backdrop-blur-md rounded-xl border border-paper-dark shadow-xl z-50 py-1.5"
                     role="menu"
                     @keydown.escape="showProfileDropdown = false"
+                    @keydown.up.prevent="handleMenuKeydown"
+                    @keydown.down.prevent="handleMenuKeydown"
+                    @keydown.home.prevent="handleMenuKeydown"
+                    @keydown.end.prevent="handleMenuKeydown"
                   >
                     <NuxtLink
                       :to="`/profile/${currentProfile.id}`"
                       role="menuitem"
-                      tabindex="0"
+                      :tabindex="menuActiveIndex === 0 ? '0' : '-1'"
                       class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors no-underline"
                       @click="showProfileDropdown = false"
                     >
@@ -225,7 +269,7 @@ const handleLogout = async () => {
                     <div class="h-px bg-paper-dark mx-3" role="separator" />
                     <button
                       role="menuitem"
-                      tabindex="-1"
+                      :tabindex="menuActiveIndex === 1 ? '0' : '-1'"
                       :disabled="loggingOut"
                       class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar hover:bg-cinnabar/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       @click="handleLogout"
