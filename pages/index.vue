@@ -47,6 +47,7 @@ interface Tool {
   id: string
   name: string
   char: string
+  category: string
   description: string
   route: string
   available: boolean
@@ -54,31 +55,14 @@ interface Tool {
   trigram?: string
 }
 
+// 按使用门槛从低到高排列：快速入门 → 核心命理 → 深度推演
 const tools: Tool[] = [
-  {
-    id: 'bazi',
-    name: '八字',
-    char: '命',
-    description: '了解你的先天命格、性格特质和人生大运',
-    route: '/tools/bazi',
-    available: true,
-    accent: '#C62828',
-    trigram: '☰',
-  },
-  {
-    id: 'yijing',
-    name: '六爻',
-    char: '卦',
-    description: '针对具体问题（事业、感情、决策）获得卦象指引',
-    route: '/tools/yijing',
-    available: true,
-    accent: '#2C5F7C',
-    trigram: '☵',
-  },
+  // ── 快速入门：零学习成本，所见即所得 ──
   {
     id: 'shengxiao',
     name: '生肖',
     char: '肖',
+    category: '快速入门',
     description: '查看你的生肖性格、幸运元素和年度运势',
     route: '/tools/shengxiao',
     available: true,
@@ -89,6 +73,7 @@ const tools: Tool[] = [
     id: 'constellation',
     name: '星座',
     char: '星',
+    category: '快速入门',
     description: '查看你的星座特征、今日宜忌和配对分析',
     route: '/tools/constellation',
     available: true,
@@ -96,29 +81,33 @@ const tools: Tool[] = [
     trigram: '☲',
   },
   {
-    id: 'ziwei',
-    name: '紫微斗数',
-    char: '斗',
-    description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
-    route: '/tools/ziwei',
-    available: true,
-    accent: '#6B5B4F',
-    trigram: '☴',
-  },
-  {
-    id: 'hehun',
-    name: '合婚',
-    char: '合',
-    description: '双方八字合婚匹配分析，了解姻缘深浅',
-    route: '/tools/hehun',
+    id: 'zeji',
+    name: '择日',
+    char: '择',
+    category: '快速入门',
+    description: '黄历择吉，结合建除十二星与二十八宿，为重要事项挑选良辰吉日',
+    route: '/tools/zeji',
     available: true,
     accent: '#C62828',
-    trigram: '⚢',
+    trigram: '☲',
+  },
+  // ── 核心命理：需要输入生辰或汉字，有深度解读 ──
+  {
+    id: 'bazi',
+    name: '八字',
+    char: '命',
+    category: '核心命理',
+    description: '了解你的先天命格、性格特质和人生大运',
+    route: '/tools/bazi',
+    available: true,
+    accent: '#C62828',
+    trigram: '☰',
   },
   {
     id: 'name-test',
     name: '姓名',
     char: '名',
+    category: '核心命理',
     description: '五格剖象姓名分析，了解名字的吉凶数理',
     route: '/tools/name-test',
     available: true,
@@ -129,6 +118,7 @@ const tools: Tool[] = [
     id: 'cezi',
     name: '测字',
     char: '测',
+    category: '核心命理',
     description: '一字一世界，拆解字形探玄机，笔画之间见乾坤',
     route: '/tools/cezi',
     available: true,
@@ -136,29 +126,55 @@ const tools: Tool[] = [
     trigram: '☰',
   },
   {
-    id: 'zeji',
-    name: '择日',
-    char: '择',
-    description: '黄历择吉，结合建除十二星与二十八宿，为重要事项挑选良辰吉日',
-    route: '/tools/zeji',
-    available: true,
-    accent: '#C62828',
-    trigram: '☲',
-  },
-  {
     id: 'guming',
     name: '称骨',
     char: '骨',
+    category: '核心命理',
     description: '袁天罡称骨算命，生辰骨重推演一生命运走向',
     route: '/tools/guming',
     available: true,
     accent: '#7A5E12',
     trigram: '☶',
   },
+  // ── 深度推演：结果丰富，需要一定命理知识 ──
+  {
+    id: 'ziwei',
+    name: '紫微斗数',
+    char: '斗',
+    category: '深度推演',
+    description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
+    route: '/tools/ziwei',
+    available: true,
+    accent: '#6B5B4F',
+    trigram: '☴',
+  },
+  {
+    id: 'yijing',
+    name: '六爻',
+    char: '卦',
+    category: '深度推演',
+    description: '针对具体问题（事业、感情、决策）获得卦象指引',
+    route: '/tools/yijing',
+    available: true,
+    accent: '#2C5F7C',
+    trigram: '☵',
+  },
+  {
+    id: 'hehun',
+    name: '合婚',
+    char: '合',
+    category: '深度推演',
+    description: '双方八字合婚匹配分析，了解姻缘深浅',
+    route: '/tools/hehun',
+    available: true,
+    accent: '#C62828',
+    trigram: '⚢',
+  },
   {
     id: 'meihua',
     name: '梅花',
     char: '梅',
+    category: '深度推演',
     description: '梅花易数占卜，数字起卦推演体用生克吉凶',
     route: '/tools/meihua',
     available: true,
@@ -168,6 +184,20 @@ const tools: Tool[] = [
 ]
 
 const sessionReady = ref(false)
+
+// Group tools by category, preserving array order
+const groupedTools = computed(() => {
+  const groups: { category: string; tools: Tool[] }[] = []
+  for (const tool of tools) {
+    const last = groups[groups.length - 1]
+    if (last && last.category === tool.category) {
+      last.tools.push(tool)
+    } else {
+      groups.push({ category: tool.category, tools: [tool] })
+    }
+  }
+  return groups
+})
 
 // ── Recent Activity ──
 interface RecentItem {
@@ -572,42 +602,49 @@ const goToLogin = () => {
             <h2>术 数 工 具</h2>
           </div>
 
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            <div
-              v-for="tool in tools"
-              :key="tool.id"
-              :class="['tool-card--new', tool.available ? '' : 'opacity-50 cursor-default']"
-              :aria-label="tool.available ? tool.name : tool.name + '（即将推出）'"
-              :aria-disabled="tool.available ? undefined : 'true'"
-            >
-              <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-              <span
-                class="seal-icon seal-icon--lg"
-                :style="
-                  tool.available
-                    ? { marginBottom: '20px' }
-                    : {
-                        marginBottom: '20px',
-                        background: 'var(--color-ink-light)',
-                        boxShadow: 'none',
-                      }
-                "
-                >{{ tool.char }}</span
-              >
+          <div v-for="(group, gi) in groupedTools" :key="gi" class="mb-8 sm:mb-10">
+            <div class="section-header mb-4 sm:mb-5">
+              <h2>{{ group.category }}</h2>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               <div
-                class="tool-card__name"
-                style="
-                  font-size: 19px;
-                  color: var(--color-ink);
-                  letter-spacing: 0.25em;
-                  margin-bottom: 8px;
-                "
+                v-for="tool in group.tools"
+                :key="tool.id"
+                :class="['tool-card--new', tool.available ? '' : 'opacity-50 cursor-default']"
+                :aria-label="tool.available ? tool.name : tool.name + '（即将推出）'"
+                :aria-disabled="tool.available ? undefined : 'true'"
               >
-                {{ tool.name }}
+                <span class="tool-card__trigram" aria-hidden="true">{{
+                  tool.trigram || '☰'
+                }}</span>
+                <span
+                  class="seal-icon seal-icon--lg"
+                  :style="
+                    tool.available
+                      ? { marginBottom: '20px' }
+                      : {
+                          marginBottom: '20px',
+                          background: 'var(--color-ink-light)',
+                          boxShadow: 'none',
+                        }
+                  "
+                  >{{ tool.char }}</span
+                >
+                <div
+                  class="tool-card__name"
+                  style="
+                    font-size: 19px;
+                    color: var(--color-ink);
+                    letter-spacing: 0.25em;
+                    margin-bottom: 8px;
+                  "
+                >
+                  {{ tool.name }}
+                </div>
+                <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
+                  {{ tool.description }}
+                </p>
               </div>
-              <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
-                {{ tool.description }}
-              </p>
             </div>
           </div>
 
@@ -858,97 +895,99 @@ const goToLogin = () => {
           </div>
         </div>
 
-        <!-- Section header -->
-        <div class="section-header anim-rise anim-delay-1">
-          <h2>推 演 工 具</h2>
-        </div>
-
         <!-- Tool grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          <NuxtLink
-            v-for="(tool, index) in tools.filter(t => t.available)"
-            :key="tool.id"
-            :to="tool.route"
-            :aria-label="'打开' + tool.name + '工具'"
-            class="tool-card--new block no-underline group anim-rise"
-            :class="'anim-delay-' + (index + 1)"
-          >
-            <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-            <span class="seal-icon seal-icon--lg" style="margin-bottom: 16px">{{ tool.char }}</span>
-            <div
-              class="tool-card__name"
-              style="
-                font-size: 19px;
-                color: var(--color-ink);
-                letter-spacing: 0.25em;
-                margin-bottom: 4px;
-              "
+        <div v-for="(group, gi) in groupedTools" :key="gi" class="mb-8 sm:mb-10">
+          <div class="section-header mb-4 sm:mb-5">
+            <h2>{{ group.category }}</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <NuxtLink
+              v-for="(tool, ti) in group.tools.filter(t => t.available)"
+              :key="tool.id"
+              :to="tool.route"
+              :aria-label="'打开' + tool.name + '工具'"
+              class="tool-card--new block no-underline group anim-rise"
+              :class="'anim-delay-' + (ti + 1)"
             >
-              {{ tool.name }}
-            </div>
-            <p
-              class="ui"
-              style="
-                font-size: 12px;
-                color: var(--color-ink-light);
-                letter-spacing: 0.08em;
-                line-height: 1.6;
-              "
-            >
-              {{ tool.description }}
-            </p>
-          </NuxtLink>
+              <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+              <span class="seal-icon seal-icon--lg" style="margin-bottom: 16px">{{
+                tool.char
+              }}</span>
+              <div
+                class="tool-card__name"
+                style="
+                  font-size: 19px;
+                  color: var(--color-ink);
+                  letter-spacing: 0.25em;
+                  margin-bottom: 4px;
+                "
+              >
+                {{ tool.name }}
+              </div>
+              <p
+                class="ui"
+                style="
+                  font-size: 12px;
+                  color: var(--color-ink-light);
+                  letter-spacing: 0.08em;
+                  line-height: 1.6;
+                "
+              >
+                {{ tool.description }}
+              </p>
+            </NuxtLink>
 
-          <div
-            v-for="(tool, index) in tools.filter(t => !t.available)"
-            :key="tool.id"
-            :aria-label="tool.name + '（即将上线）'"
-            aria-disabled="true"
-            class="tool-card--new opacity-50 cursor-default anim-rise"
-            :class="'anim-delay-' + (tools.filter(t => t.available).length + index + 1)"
-          >
-            <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-            <span
-              class="seal-icon seal-icon--lg"
-              style="margin-bottom: 16px; background: var(--color-ink-light); box-shadow: none"
-              >{{ tool.char }}</span
-            >
             <div
-              class="tool-card__name"
-              style="
-                font-size: 19px;
-                color: var(--color-ink);
-                letter-spacing: 0.25em;
-                margin-bottom: 4px;
-              "
+              v-for="(tool, ti) in group.tools.filter(t => !t.available)"
+              :key="tool.id"
+              :aria-label="tool.name + '（即将上线）'"
+              aria-disabled="true"
+              class="tool-card--new opacity-50 cursor-default anim-rise"
+              :class="'anim-delay-' + (group.tools.filter(t => t.available).length + ti + 1)"
             >
-              {{ tool.name }}
+              <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
+              <span
+                class="seal-icon seal-icon--lg"
+                style="margin-bottom: 16px; background: var(--color-ink-light); box-shadow: none"
+                >{{ tool.char }}</span
+              >
+              <div
+                class="tool-card__name"
+                style="
+                  font-size: 19px;
+                  color: var(--color-ink);
+                  letter-spacing: 0.25em;
+                  margin-bottom: 4px;
+                "
+              >
+                {{ tool.name }}
+              </div>
+              <p
+                class="ui"
+                style="
+                  font-size: 12px;
+                  color: var(--color-ink-light);
+                  letter-spacing: 0.08em;
+                  line-height: 1.6;
+                "
+              >
+                {{ tool.description }}
+              </p>
+              <span
+                class="ui"
+                style="
+                  position: absolute;
+                  top: 12px;
+                  right: 12px;
+                  padding: 2px 8px;
+                  border-radius: 999px;
+                  font-size: 9px;
+                  border: 1px solid rgba(44, 26, 14, 0.08);
+                  color: var(--color-ink-light);
+                "
+                >即将推出</span
+              >
             </div>
-            <p
-              class="ui"
-              style="
-                font-size: 12px;
-                color: var(--color-ink-light);
-                letter-spacing: 0.08em;
-                line-height: 1.6;
-              "
-            >
-              {{ tool.description }}
-            </p>
-            <span
-              class="ui"
-              style="
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                padding: 2px 8px;
-                border-radius: 999px;
-                font-size: 9px;
-                border: 1px solid rgba(44, 26, 14, 0.08);
-                color: var(--color-ink-light);
-              "
-              >即将推出</span
-            >
           </div>
         </div>
 
