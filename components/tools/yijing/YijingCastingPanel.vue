@@ -39,7 +39,7 @@
     </div>
 
     <!-- Coin casting mode -->
-    <div v-if="mode === 'coin'" class="casting-card rounded-xl p-8 text-center">
+    <div v-if="mode === 'coin'" class="casting-card rounded-xl p-6 sm:p-8 text-center">
       <!-- Toss progress indicator -->
       <div class="flex justify-center gap-1.5 mb-6" aria-hidden="true">
         <span
@@ -120,7 +120,7 @@
     </div>
 
     <!-- Number casting mode -->
-    <div v-else class="casting-card rounded-xl p-8">
+    <div v-else class="casting-card rounded-xl p-6 sm:p-8">
       <p class="font-sans text-sm text-ink-light mb-6 text-center leading-relaxed">
         心有所想，随即以三个数字起卦。数字分定上卦、下卦与动爻。
       </p>

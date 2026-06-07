@@ -5,48 +5,48 @@
         <tr class="bg-paper-dark">
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
           >
             爻位
           </th>
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
             title="天干地支配卦"
           >
             纳甲
           </th>
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
             title="此爻地支所属五行"
           >
             五行
           </th>
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
             title="爻与日主的关系：父母主文书、兄弟主竞争、官鬼主事业、妻财主财运、子孙主福神"
           >
             六亲
           </th>
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
             title="当日值日之神：青龙主喜、朱雀主口舌、勾陈主田土、螣蛇主虚惊、白虎主刑伤、玄武主暗昧"
           >
             六神
           </th>
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-center text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-center text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
             title="世为自己，应为对方"
           >
             世应
           </th>
           <th
             scope="col"
-            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap"
+            class="px-2 sm:px-3 py-2 text-left text-xs text-ink tracking-wider whitespace-nowrap leading-snug"
           >
             爻辞
           </th>
@@ -121,7 +121,9 @@
           </td>
 
           <!-- 爻辞 -->
-          <td class="px-2 sm:px-3 py-2.5 text-ink-light text-xs leading-relaxed min-w-[8rem]">
+          <td
+            class="px-2 sm:px-3 py-2.5 text-ink-light text-xs leading-relaxed min-w-[10rem] sm:min-w-[8rem]"
+          >
             {{ line.judgment }}
           </td>
         </tr>
