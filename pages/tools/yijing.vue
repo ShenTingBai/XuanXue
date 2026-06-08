@@ -137,8 +137,14 @@
         v-if="showScrollTop"
         class="right-8"
         @click="scrollToTop"
-        @keydown.enter="scrollToTop"
-        @keydown.space.prevent="scrollToTop"
+        @keydown="
+          (e: KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              scrollToTop()
+            }
+          }
+        "
       />
     </div>
   </ToolPageLayout>
