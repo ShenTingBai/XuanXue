@@ -711,6 +711,9 @@ Horizontal divider with gradient fade on both ends and a centered dot.
 | `SkeletonCard`            | `components/tools/SkeletonCard.vue`            | 骨架屏卡片                                  |
 | `SkeletonBars`            | `components/tools/SkeletonBars.vue`            | 骨架屏柱状图                                |
 | `InkDivider`              | `components/tools/InkDivider.vue`              | 墨韵分割线                                  |
+| `AvatarCircle`            | `components/tools/AvatarCircle.vue`            | 头像圈                                      |
+| `PageFooter`              | `components/tools/PageFooter.vue`              | 页面底部 colophon                           |
+| `ProfileAutoFillBanner`   | `components/tools/ProfileAutoFillBanner.vue`   | 档案自动填充横幅                            |
 | `PageHero`                | `components/tools/PageHero.vue`                | 页面标题区                                  |
 | `MethodologyNote`         | `components/tools/MethodologyNote.vue`         | 方法论溯源面板                              |
 
@@ -1161,7 +1164,7 @@ const prefersReducedMotion = import.meta.client
 10. **禁止** `@keyframes` 放在 CSS `@layer` 块内。
 11. **禁止** `aria-haspopup="true"`。用 `"menu"` 或 `"dialog"`。
 12. **禁止** 为单次使用创建抽象组件。复用已有的通用组件（FortuneBars、ScoreRing 等）。
-13. **禁止** 新工具页不加 `MethodologyNote`。所有 12 个工具页必须标注方法论溯源。
+13. **禁止** 新工具页不加 `MethodologyNote`。所有工具页必须标注方法论溯源。
 
 ---
 
@@ -1318,4 +1321,4 @@ const prefersReducedMotion = import.meta.client
 
 ---
 
-> **最后更新**：2026-06-07（首页布局重设计：talisman-card + daily-wuxing-card + slip-hd 标题栏 + slip-divider-h 分割线 + gu-slip 符纸卷 + 首页已登录布局模式）
+> **最后更新**：2026-06-08（新增 AvatarCircle/PageFooter/ProfileAutoFillBanner 到组件表；首页布局重设计：talisman-card + daily-wuxing-card + slip-hd 标题栏 + slip-divider-h 分割线 + gu-slip 符纸卷 + 首页已登录布局模式）
