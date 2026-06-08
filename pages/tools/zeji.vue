@@ -503,8 +503,14 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
       <ScrollTopButton
         v-if="showScrollTop"
         @click="scrollToTop"
-        @keydown.enter="scrollToTop"
-        @keydown.space.prevent="scrollToTop"
+        @keydown="
+          (e: KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              scrollToTop()
+            }
+          }
+        "
       />
 
       <!-- Restore error toast -->

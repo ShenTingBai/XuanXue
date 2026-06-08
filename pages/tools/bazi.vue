@@ -731,8 +731,14 @@ function onSectionNavigate(sectionName: string) {
           v-if="showScrollTop"
           :style="{ right: scrollTopOffset }"
           @click="scrollToTop"
-          @keydown.enter="scrollToTop"
-          @keydown.space.prevent="scrollToTop"
+          @keydown="
+            (e: KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                scrollToTop()
+              }
+            }
+          "
         />
 
         <!-- Restored from history notice -->
