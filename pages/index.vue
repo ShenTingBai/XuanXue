@@ -3,6 +3,7 @@ import { getMonthPillar } from '~/composables/useSolarTerms'
 import { STEMS, BRANCHES } from '~/constants/bazi'
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getNayinWuxing } from '~/constants/bazi'
 import { SAMPLE_BAZI, SAMPLE_PROMINENT_SHENSHA } from '~/constants/sample-bazi'
+import { filterListedToolRecords, shouldListTool, type ToolId } from '~/constants/tool-catalog'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import { formatRelativeTime } from '~/utils/date'
 import PageFooter from '~/components/tools/PageFooter.vue'
@@ -25,9 +26,8 @@ const SOLAR_TERM_NAMES = [
 useSeoMeta({
   title: '玄·道 — 玄天机 · 道命理',
   ogTitle: '玄·道 — 玄天机 · 道命理',
-  description: '传统命理推演平台，提供八字排盘、紫微斗数、六爻占卜、生肖运势、星座星盘等术数工具。',
-  ogDescription:
-    '传统命理推演平台，提供八字排盘、紫微斗数、六爻占卜、生肖运势、星座星盘等术数工具。',
+  description: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
+  ogDescription: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
   ogType: 'website',
 })
 
@@ -36,13 +36,12 @@ const greeting = useGreeting()
 const router = useRouter()
 
 interface Tool {
-  id: string
+  id: ToolId
   name: string
   char: string
   category: string
   description: string
   route: string
-  available: boolean
   accent?: string
   trigram?: string
 }
@@ -57,7 +56,6 @@ const tools: Tool[] = [
     category: '快速入门',
     description: '查看你的生肖性格、幸运元素和年度运势',
     route: '/tools/shengxiao',
-    available: true,
     accent: '#3D6B4B',
     trigram: '☷',
   },
@@ -68,7 +66,6 @@ const tools: Tool[] = [
     category: '快速入门',
     description: '查看你的星座特征、今日宜忌和配对分析',
     route: '/tools/constellation',
-    available: true,
     accent: '#7A5E12',
     trigram: '☲',
   },
@@ -79,7 +76,6 @@ const tools: Tool[] = [
     category: '快速入门',
     description: '黄历择吉，结合建除十二星与二十八宿，为重要事项挑选良辰吉日',
     route: '/tools/zeji',
-    available: true,
     accent: '#C62828',
     trigram: '☲',
   },
@@ -91,7 +87,6 @@ const tools: Tool[] = [
     category: '核心命理',
     description: '了解你的先天命格、性格特质和人生大运',
     route: '/tools/bazi',
-    available: true,
     accent: '#C62828',
     trigram: '☰',
   },
@@ -102,7 +97,6 @@ const tools: Tool[] = [
     category: '核心命理',
     description: '五格剖象姓名分析，了解名字的吉凶数理',
     route: '/tools/name-test',
-    available: true,
     accent: '#2C5F7C',
     trigram: '⚣',
   },
@@ -113,7 +107,6 @@ const tools: Tool[] = [
     category: '核心命理',
     description: '一字一世界，拆解字形探玄机，笔画之间见乾坤',
     route: '/tools/cezi',
-    available: true,
     accent: '#5E5E5E',
     trigram: '☰',
   },
@@ -124,7 +117,6 @@ const tools: Tool[] = [
     category: '核心命理',
     description: '袁天罡称骨算命，生辰骨重推演一生命运走向',
     route: '/tools/guming',
-    available: true,
     accent: '#7A5E12',
     trigram: '☶',
   },
@@ -136,7 +128,6 @@ const tools: Tool[] = [
     category: '深度推演',
     description: '天星回宫 ・ 十二宫精批 ・ 星曜解读 ・ 大限流年',
     route: '/tools/ziwei',
-    available: true,
     accent: '#6B5B4F',
     trigram: '☴',
   },
@@ -147,7 +138,6 @@ const tools: Tool[] = [
     category: '深度推演',
     description: '针对具体问题（事业、感情、决策）获得卦象指引',
     route: '/tools/yijing',
-    available: true,
     accent: '#2C5F7C',
     trigram: '☵',
   },
@@ -158,7 +148,6 @@ const tools: Tool[] = [
     category: '深度推演',
     description: '双方八字合婚匹配分析，了解姻缘深浅',
     route: '/tools/hehun',
-    available: true,
     accent: '#C62828',
     trigram: '⚢',
   },
@@ -169,7 +158,6 @@ const tools: Tool[] = [
     category: '深度推演',
     description: '梅花易数占卜，数字起卦推演体用生克吉凶',
     route: '/tools/meihua',
-    available: true,
     accent: '#3D6B4B',
     trigram: '☳',
   },
@@ -180,7 +168,7 @@ const sessionReady = ref(false)
 // Group tools by category, preserving array order
 const groupedTools = computed(() => {
   const groups: { category: string; tools: Tool[] }[] = []
-  for (const tool of tools) {
+  for (const tool of tools.filter(tool => shouldListTool(tool.id))) {
     const last = groups[groups.length - 1]
     if (last && last.category === tool.category) {
       last.tools.push(tool)
@@ -224,17 +212,19 @@ async function fetchRecentActivity() {
   try {
     const data =
       await $fetch<{ id: number; type: string; created_at: string }[]>('/api/divinations')
-    recentActivity.value = data.slice(0, 5).map(item => {
-      const mapped = toolTypeMap[item.type]
-      return {
-        id: item.id,
-        type: item.type,
-        created_at: item.created_at,
-        relativeTime: formatRelativeTime(item.created_at),
-        icon: mapped?.icon || '玄',
-        route: mapped?.route || '/',
-      }
-    })
+    recentActivity.value = filterListedToolRecords(data)
+      .slice(0, 5)
+      .map(item => {
+        const mapped = toolTypeMap[item.type]
+        return {
+          id: item.id,
+          type: item.type,
+          created_at: item.created_at,
+          relativeTime: formatRelativeTime(item.created_at),
+          icon: mapped?.icon || '玄',
+          route: mapped?.route || '/',
+        }
+      })
   } catch {
     // Best-effort — don't show the section if fetch fails
   } finally {
@@ -409,7 +399,7 @@ const goToLogin = () => {
                 <div class="hero-incant anim-rise anim-delay-2">
                   <span class="hero-incant__line">{{
                     tools
-                      .filter(t => t.available)
+                      .filter(tool => shouldListTool(tool.id))
                       .slice(0, 5)
                       .map(t => t.name)
                       .join(' · ')
@@ -447,9 +437,9 @@ const goToLogin = () => {
             </div>
             <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay: 0.15s">
               <span class="seal-icon seal-icon--lg mb-4" aria-hidden="true">全</span>
-              <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">一应俱全</h3>
+              <h3 class="font-display text-lg text-ink-dark mb-3 tracking-[0.15em]">多种探索</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
-                四柱八字、紫微斗数、六爻占卜、生肖星座、姓名测字——命理之术，尽汇于此。
+                八字、易经、生肖、星座、姓名与测字等传统文化工具，可按你的兴趣逐一探索。
               </p>
             </div>
             <div class="card-warm rounded-xl p-8 text-center anim-rise" style="--delay: 0.25s">
@@ -590,7 +580,7 @@ const goToLogin = () => {
             </div>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               <NuxtLink
-                v-for="tool in group.tools.filter(t => t.available)"
+                v-for="tool in group.tools"
                 :key="tool.id"
                 :to="tool.route"
                 :aria-label="'打开' + tool.name + '工具'"
@@ -617,37 +607,6 @@ const goToLogin = () => {
                   {{ tool.description }}
                 </p>
               </NuxtLink>
-              <div
-                v-for="tool in group.tools.filter(t => !t.available)"
-                :key="tool.id"
-                role="link"
-                aria-disabled="true"
-                :aria-label="tool.name + '（即将推出）'"
-                class="tool-card--new opacity-50 cursor-default"
-              >
-                <span class="tool-card__trigram" aria-hidden="true">{{
-                  tool.trigram || '☰'
-                }}</span>
-                <span
-                  class="seal-icon seal-icon--lg"
-                  style="margin-bottom: 20px; background: var(--color-ink-light); box-shadow: none"
-                  >{{ tool.char }}</span
-                >
-                <div
-                  class="tool-card__name"
-                  style="
-                    font-size: 19px;
-                    color: var(--color-ink);
-                    letter-spacing: 0.25em;
-                    margin-bottom: 8px;
-                  "
-                >
-                  {{ tool.name }}
-                </div>
-                <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
-                  {{ tool.description }}
-                </p>
-              </div>
             </div>
           </div>
 
@@ -709,9 +668,9 @@ const goToLogin = () => {
                 style="font-family: var(--font-display)"
                 >贰</span
               >
-              <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">即刻排盘</h3>
+              <h3 class="font-display text-base text-ink-dark mb-2 tracking-[0.15em]">填写信息</h3>
               <p class="font-sans text-sm text-ink-medium leading-relaxed">
-                系统自动推算四柱八字、紫微命盘、星盘轨迹。
+                填写基础信息后，可使用与你的输入相匹配的探索工具。
               </p>
             </div>
 
@@ -905,7 +864,7 @@ const goToLogin = () => {
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             <NuxtLink
-              v-for="(tool, ti) in group.tools.filter(t => t.available)"
+              v-for="(tool, ti) in group.tools"
               :key="tool.id"
               :to="tool.route"
               :aria-label="'打开' + tool.name + '工具'"
@@ -939,58 +898,6 @@ const goToLogin = () => {
                 {{ tool.description }}
               </p>
             </NuxtLink>
-
-            <div
-              v-for="(tool, ti) in group.tools.filter(t => !t.available)"
-              :key="tool.id"
-              :aria-label="tool.name + '（即将上线）'"
-              aria-disabled="true"
-              class="tool-card--new opacity-50 cursor-default anim-rise"
-              :class="'anim-delay-' + (group.tools.filter(t => t.available).length + ti + 1)"
-            >
-              <span class="tool-card__trigram" aria-hidden="true">{{ tool.trigram || '☰' }}</span>
-              <span
-                class="seal-icon seal-icon--lg"
-                style="margin-bottom: 16px; background: var(--color-ink-light); box-shadow: none"
-                >{{ tool.char }}</span
-              >
-              <div
-                class="tool-card__name"
-                style="
-                  font-size: 19px;
-                  color: var(--color-ink);
-                  letter-spacing: 0.25em;
-                  margin-bottom: 4px;
-                "
-              >
-                {{ tool.name }}
-              </div>
-              <p
-                class="ui"
-                style="
-                  font-size: 12px;
-                  color: var(--color-ink-light);
-                  letter-spacing: 0.08em;
-                  line-height: 1.6;
-                "
-              >
-                {{ tool.description }}
-              </p>
-              <span
-                class="ui"
-                style="
-                  position: absolute;
-                  top: 12px;
-                  right: 12px;
-                  padding: 2px 8px;
-                  border-radius: 999px;
-                  font-size: 9px;
-                  border: 1px solid rgba(44, 26, 14, 0.08);
-                  color: var(--color-ink-light);
-                "
-                >即将推出</span
-              >
-            </div>
           </div>
         </div>
 

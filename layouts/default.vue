@@ -1,26 +1,8 @@
 <script lang="ts">
-interface NavTool {
-  id: string
-  name: string
-  char: string
-  route: string
-  available: boolean
-}
+import { TOOL_CATALOG } from '~/constants/tool-catalog'
 
-// 按使用门槛从低到高排列：快速入门 → 核心命理 → 深度推演
-const navTools: NavTool[] = [
-  { id: 'shengxiao', name: '生肖', char: '肖', route: '/tools/shengxiao', available: true },
-  { id: 'constellation', name: '星座', char: '星', route: '/tools/constellation', available: true },
-  { id: 'zeji', name: '择日', char: '择', route: '/tools/zeji', available: true },
-  { id: 'bazi', name: '八字', char: '命', route: '/tools/bazi', available: true },
-  { id: 'name-test', name: '姓名', char: '名', route: '/tools/name-test', available: true },
-  { id: 'cezi', name: '测字', char: '测', route: '/tools/cezi', available: true },
-  { id: 'guming', name: '称骨', char: '骨', route: '/tools/guming', available: true },
-  { id: 'ziwei', name: '紫微斗数', char: '斗', route: '/tools/ziwei', available: true },
-  { id: 'yijing', name: '六爻', char: '卦', route: '/tools/yijing', available: true },
-  { id: 'hehun', name: '合婚', char: '合', route: '/tools/hehun', available: true },
-  { id: 'meihua', name: '梅花', char: '梅', route: '/tools/meihua', available: true },
-]
+// 导航只消费目录已列出的工具，避免页面自行维护另一份可见性状态。
+const navTools = TOOL_CATALOG.filter(tool => tool.exposure === 'listed')
 </script>
 
 <script setup lang="ts">
@@ -164,7 +146,7 @@ const handleLogout = async () => {
             <!-- Tool Navigation (desktop) -->
             <nav class="hidden md:flex items-center gap-1.5" aria-label="命理工具导航">
               <NuxtLink
-                v-for="navItem in navTools.filter(t => t.available)"
+                v-for="navItem in navTools"
                 :key="navItem.id"
                 :to="navItem.route"
                 :class="['nav-link', { 'nav-link--active': route.path === navItem.route }]"
@@ -172,15 +154,6 @@ const handleLogout = async () => {
               >
                 <span>{{ navItem.name }}</span>
               </NuxtLink>
-              <span
-                v-for="navItem in navTools.filter(t => !t.available)"
-                :key="navItem.id"
-                class="nav-link nav-link--locked"
-                :aria-label="navItem.name + '（即将上线）'"
-              >
-                <span>{{ navItem.name }}</span>
-                <span class="text-[0.6875rem] text-ink-medium ml-0.5">*</span>
-              </span>
             </nav>
 
             <!-- Mobile Hamburger Button -->
@@ -387,7 +360,7 @@ const handleLogout = async () => {
                 工具
               </p>
               <NuxtLink
-                v-for="navItem in navTools.filter(t => t.available)"
+                v-for="navItem in navTools"
                 :key="navItem.id"
                 :to="navItem.route"
                 :class="[
@@ -410,22 +383,6 @@ const handleLogout = async () => {
                   <path d="M4 2l4 4-4 4" />
                 </svg>
               </NuxtLink>
-              <div v-if="navTools.filter(t => !t.available).length > 0" class="mt-2">
-                <p
-                  class="px-3 pt-2 pb-1 text-xs font-sans text-ink-medium tracking-[0.12em] uppercase"
-                >
-                  即将上线
-                </p>
-                <span
-                  v-for="navItem in navTools.filter(t => !t.available)"
-                  :key="navItem.id"
-                  class="mobile-nav-item mobile-nav-item--locked"
-                  :aria-label="navItem.name + '（即将上线）'"
-                >
-                  <span class="font-sans text-sm nav-locked-text">{{ navItem.name }}</span>
-                  <span class="text-[0.6875rem] text-ink-medium ml-auto">即将</span>
-                </span>
-              </div>
             </nav>
 
             <!-- Spacer -->

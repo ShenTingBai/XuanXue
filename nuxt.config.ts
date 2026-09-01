@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     manifest: {
       name: '玄·道 — 玄天机 · 道命理',
       short_name: '玄·道',
-      description: '传统命理推演平台：八字、紫微斗数、六爻占卜、生肖运势、星座星盘',
+      description: '传统文化自我探索：八字、易经、生肖、星座、择日等探索工具',
       theme_color: '#F5F0E8',
       background_color: '#F5F0E8',
       display: 'standalone',
@@ -55,12 +55,12 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
         {
           name: 'description',
-          content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。中式命理推演平台。',
+          content: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
         },
         { property: 'og:title', content: '玄·道 — 中式命理推演平台' },
         {
           property: 'og:description',
-          content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
+          content: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
         },
         { property: 'og:image', content: 'https://xuanji.me/og-image.png' },
         { property: 'og:image:width', content: '1200' },
@@ -70,7 +70,7 @@ export default defineNuxtConfig({
         { name: 'twitter:title', content: '玄·道 — 中式命理推演平台' },
         {
           name: 'twitter:description',
-          content: '八字、紫微斗数、六爻、生肖、星座——输入生辰，即刻排盘。',
+          content: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
         },
         { name: 'twitter:image', content: 'https://xuanji.me/og-image.png' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
