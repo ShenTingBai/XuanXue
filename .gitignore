@@ -16,7 +16,11 @@ Thumbs.db
 *.db
 
 .cursor/
-docs/analysis/
+.Codex/project-config.md
+docs/analysis/*
+!docs/analysis/project-stage-ledger.md
+!docs/analysis/approved/
+!docs/analysis/approved/**
 .trae/
 docs/assets/
 docs/superpowers/
