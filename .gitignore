@@ -17,10 +17,7 @@ Thumbs.db
 
 .cursor/
 .Codex/project-config.md
-docs/analysis/*
-!docs/analysis/project-stage-ledger.md
-!docs/analysis/approved/
-!docs/analysis/approved/**
+docs/analysis/
 .trae/
 docs/assets/
 docs/superpowers/

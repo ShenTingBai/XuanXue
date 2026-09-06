@@ -1,7 +1,12 @@
 # 墨韵 · Ink Resonance — 设计系统
 
-> XuanXue（玄·道）前端设计规范。所有 UI 决策以此文档为准。
-> 新增组件前先查阅，避免凭感觉做设计。
+> 状态：Active — 墨韵视觉语言与基础样式规范
+>
+> 版本：1.2.2 | 最后更新：2026-09-06
+>
+> XuanXue（玄·道）前端设计规范。本文负责颜色、字体、空间、组件外观和响应式视觉约束；产品行为、内容真实性、数据生命周期与公开状态以 [产品规范索引](product/README.md) 及其引用规范为准。
+>
+> 新增组件前先查阅，避免凭感觉做设计。当前代码仍含待整改旧组件，记录在本文不表示允许继续公开使用。
 
 ---
 
@@ -137,7 +142,7 @@
 
 | 场景                         | 字号   | 理由                                                                                               |
 | ---------------------------- | ------ | -------------------------------------------------------------------------------------------------- |
-| 紫微天星图星曜标签（SVG 内） | 0.6rem | SVG 坐标空间紧凑，文字过多无法容纳；每个星曜同时有颜色（`StarColorClass`）和形状（SVG 圆）双重编码 |
+| 紫微星曜分布图标签（SVG 内） | 0.6rem | SVG 坐标空间紧凑，文字过多无法容纳；每个星曜同时有颜色（`StarColorClass`）和形状（SVG 圆）双重编码 |
 | 八字排盘表地支小字           | 0.6rem | 表格式数据展示，每格空间有限；信息同时以颜色（五行色）和文字（天干地支）双重传达                   |
 
 - 数据可视化例外**仅限**不能合理缩放的小型 SVG/Canvas 图表或高密度表格
@@ -185,8 +190,8 @@
 ```
 
 - 朱砂描边 + 透明底，hover 填充
-- 适用：主要操作（开始分析、开始合婚、开始测字等）
-- **禁止前缀字符**：`<span>` 内只放纯文字（"开始测字"），不放 "⟲"、">" 等前缀。重新操作的按钮用 `btn-ink` + "⟲ 重新X"
+- 适用：对应产品契约允许的主要操作（例如“生成结果”）
+- **禁止前缀字符**：`<span>` 内只放纯文字，不放 "⟲"、">" 等前缀。重新操作的按钮使用准确的动作文字，不以装饰符号代替标签
 
 #### `btn-ghost` — 幽灵按钮
 
@@ -202,7 +207,7 @@
 #### `btn-ink` — 墨线按钮
 
 ```
-<button class="btn-ink">探索全部工具</button>
+<button class="btn-ink">浏览工具目录</button>
 <NuxtLink to="/path" class="btn-ink no-underline">已有档案</NuxtLink>
 ```
 
@@ -287,17 +292,17 @@
 #### `card-warm` — 暖纸卡（默认卡片）
 
 ```
-<div class="card-warm rounded-xl p-8">...</div>
+<div class="card-warm rounded-xl p-6 sm:p-8">...</div>
 ```
 
 - 底色 `paper-card`（#E8DCC6），微弱内阴影
-- **标准内边距 `p-8`**（32px），移动端不缩（不要用 `p-6 sm:p-8`）
+- 标准内边距为 `p-6 sm:p-8`：窄屏 24px，`sm` 起 32px；高密度或特殊卡片需要更小间距时必须由对应页面验收说明
 - 适用：结果区域、信息面板、90% 的卡片场景
 
 #### `card-paper-solid` — 浅纸卡
 
 ```
-<div class="card-paper-solid p-8">...</div>
+<div class="card-paper-solid p-6 sm:p-8">...</div>
 ```
 
 - 底色 `paper-lightest`，有边框和 card 阴影
@@ -308,7 +313,7 @@
 在 `card-warm` 基础上叠加更明显的阴影，用于需要从页面中"抬起"的卡片：
 
 ```
-<div class="card-warm card-warm--elevated p-8">...</div>
+<div class="card-warm card-warm--elevated p-6 sm:p-8">...</div>
 ```
 
 - 额外阴影：`0 4px 24px rgba(44,26,14,0.04)` + inset 边框
@@ -351,9 +356,9 @@
 - 定义在 `pages/tools/cezi.vue` `<style scoped>` 中
 - 适用：测字结果展示。**不**作为通用卡片——其他页面用 `card-warm`
 
-#### `score-banner` — 分数横幅
+#### `score-banner` — 旧分数横幅（公开产品禁用）
 
-用于展示总分 + 评级 + 环形图 + 总结，典型的"结果页头牌"模式：
+该模式是现有姓名测试、合婚等页面的待整改遗留资产，不再作为新页面或公开结果的设计模式。以下代码只用于识别旧实现，不构成复用示例：
 
 ```html
 <div class="score-banner">
@@ -374,7 +379,7 @@
 - 三栏 flex 布局：评级+名称 / 环形图 / 摘要
 - 使用 `color-mix(in srgb, var(--color-cinnabar) 5%, transparent)` 浅底
 - 定义在 `pages/tools/name-test.vue` `<style scoped>` 中
-- 适用：姓名测试、合婚等有明确总分的工具页结果首屏
+- 处置：不得用于用户可见的运势、人格、关系或吉凶评分；对应工具完成契约后按批准的信息结构退出或改造
 
 #### `border-left` 朱砂强调卡片
 
@@ -435,9 +440,11 @@
 - 使用 Ink Resonance 现有令牌，**不**引入新色值
 - 与五行（木火土金水）使用不同的 Tailwind 类名，避免概念混淆
 
-#### `talisman-card` — 黄历灵符卡
+#### `talisman-card` — 旧“今日玄机”视觉卡（语义待替换）
 
 Used on homepage (index.vue) for "今日玄机". A warm cream card with cinnabar-tinted border, designed to display lunar calendar data.
+
+该条目只记录当前代码中的视觉资产，不批准继续使用“今日玄机”语义或旧日期规则。目标首页可以在通过移动端验收后复用其纸张、边框和自然文档流特征，但内容必须改为《首页与每日内容产品契约》规定的“今日事实”，且不得加入黄历宜忌或个人运势。
 
 ```html
 <div class="talisman-card h-full flex items-center justify-center" aria-label="今日黄历">
@@ -457,9 +464,11 @@ Used on homepage (index.vue) for "今日玄机". A warm cream card with cinnabar
 - NO `flex-1` or `justify-center` on individual children — avoids overflow bugs
 - Defined in `pages/index.vue` `<style scoped>`
 
-#### `daily-wuxing-card` — 每日穿衣卡片
+#### `daily-wuxing-card` — 旧每日穿衣卡片（第一版退出）
 
 Compact clothing color guide widget on homepage. Shows lucky colors to wear for the day.
+
+该模式只用于识别当前待整改实现。第一版首页删除“今日穿衣”；不得复用其宜着、避、幸运色或五行行动建议。未来如讨论节气配色，只能按独立产品契约作为审美文化材料重新设计。
 
 ```html
 <div class="daily-wuxing-card shrink-0">
@@ -486,7 +495,7 @@ Compact clothing color guide widget on homepage. Shows lucky colors to wear for 
 
 #### `gu-slip` — 符纸叙事卷
 
-Used on meihua (梅花易数) tool page for the "白话解读" result card. A scroll/parchment gradient card with structured narrative sections.
+当前梅花旧页面用此纸张渐变卡承载“白话解读”。这里只保留视觉资产记录，不批准继续输出综合解卦或未来预测。目标内容遵守[梅花易数·起卦演示契约](product/meihua-tool-contract.md)：默认展示推导过程，本卦与变卦窄屏纵向排列，原文和项目解释分层，互卦/体用为次级展开资料，来源进入正常阅读流。现有 UI 尚未按此整改。
 
 ```html
 <div class="gu-slip" aria-label="白话解读">
@@ -549,20 +558,7 @@ Used on meihua (梅花易数) tool page for the "白话解读" result card. A sc
 - h2 字体：`font-display text-xl`
 - 适用：卡片内的独立分区标题
 
-**与 MethodologyNote 并排**（全宽横线 + 溯源面板居右）：
-
-```html
-<div class="flex items-center justify-between mb-6">
-  <div class="section-header !mb-0 flex-1 min-w-0">
-    <h2>分区标题</h2>
-  </div>
-  <MethodologyNote :classical="..." :synthesis="..." tool="..." />
-</div>
-```
-
-- `flex-1 min-w-0` 确保 section-header 拓满可用空间，`::before` 朱丝栏横线为全宽
-- `!mb-0` 抵消 section-header 默认的 `margin-bottom: 1.5rem`，间距由外层 flex 容器的 `mb-6` 控制
-- MethodologyNote 占据自然宽度，右对齐
+旧版“与 MethodologyNote 并排”模式退出公开产品。分区标题保持独立使用；已经核验的规则、来源和边界放入页面正常阅读流中的“依据与范围”，不再压缩到标题行、浮层或弹窗。
 
 #### `divider-ink` — 墨韵分割线
 
@@ -608,7 +604,7 @@ Used on meihua (梅花易数) tool page for the "白话解读" result card. A sc
 - 左侧朱砂竖条 + 圆形感叹号
 - 用 Vue `<Transition name="toast">` 包裹
 
-#### `fortune-bar` — 运势进度条
+#### `fortune-bar` — 旧运势进度条（公开产品禁用）
 
 ```html
 <div
@@ -623,7 +619,7 @@ Used on meihua (梅花易数) tool page for the "白话解读" result card. A sc
 ```
 
 - `--great`（≥75，玉色）、`--good`（≥60，金色）、`--normal`（≥45，墨中）、`--low`（<45，朱砂）
-- 使用 `FortuneBars` 组件：`<FortuneBars :items="[...{ label, score }]" />`
+- 该样式与 `FortuneBars` 组件只用于识别待整改旧代码，不得继续表达用户可见的运势、人格、关系或吉凶分数
 
 ### 4.6 装饰
 
@@ -646,6 +642,8 @@ Used on meihua (梅花易数) tool page for the "白话解读" result card. A sc
 #### `slip-hd` — 命签/灵符标题栏
 
 The shared header bar pattern used in DailyFortuneStick ("今日命签") and 今日玄机 ("今日玄机"). A visual language for talisman/slip headers.
+
+以下示例记录当前视觉实现，不批准“今日命签”“今日玄机”继续作为第一版首页内容。印章、细线和排版语言可以复用；吉凶徽章、自动命签及旧内容语义按《首页与每日内容产品契约》退出。
 
 ```html
 <div class="slip-hd w-full">
@@ -698,64 +696,34 @@ Horizontal divider with gradient fade on both ends and a centered dot.
 
 ### 4.7 工具页通用组件
 
-| 组件                      | 路径                                           | 用途                                        |
-| ------------------------- | ---------------------------------------------- | ------------------------------------------- |
-| `ToolPageLayout`          | `components/tools/ToolPageLayout.vue`          | 三栏布局（#nav / #mobile-nav / #nav-right） |
-| `ToolToolbar`             | `components/tools/ToolToolbar.vue`             | 顶部工具栏（历史 + 导出）                   |
-| `ExportButton`            | `components/tools/ExportButton.vue`            | 导出图片按钮                                |
-| `HistoryModal`            | `components/tools/HistoryModal.vue`            | 历史记录弹窗                                |
-| `ScrollTopButton`         | `components/tools/ScrollTopButton.vue`         | 回到顶部                                    |
-| `EntertainmentDisclaimer` | `components/tools/EntertainmentDisclaimer.vue` | 娱乐免责声明                                |
-| `FortuneBars`             | `components/tools/FortuneBars.vue`             | 多维度运势柱状图                            |
-| `ScoreRing`               | `components/tools/ScoreRing.vue`               | 评分环形图                                  |
-| `SkeletonCard`            | `components/tools/SkeletonCard.vue`            | 骨架屏卡片                                  |
-| `SkeletonBars`            | `components/tools/SkeletonBars.vue`            | 骨架屏柱状图                                |
-| `InkDivider`              | `components/tools/InkDivider.vue`              | 墨韵分割线                                  |
-| `AvatarCircle`            | `components/tools/AvatarCircle.vue`            | 头像圈                                      |
-| `PageFooter`              | `components/tools/PageFooter.vue`              | 页面底部 colophon                           |
-| `ProfileAutoFillBanner`   | `components/tools/ProfileAutoFillBanner.vue`   | 档案自动填充横幅                            |
-| `PageHero`                | `components/tools/PageHero.vue`                | 页面标题区                                  |
-| `MethodologyNote`         | `components/tools/MethodologyNote.vue`         | 方法论溯源面板                              |
+| 组件                      | 路径                                           | 用途                                           |
+| ------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| `ToolPageLayout`          | `components/tools/ToolPageLayout.vue`          | 三栏布局（#nav / #mobile-nav / #nav-right）    |
+| `ToolToolbar`             | `components/tools/ToolToolbar.vue`             | 顶部工具栏（历史 + 导出）                      |
+| `ExportButton`            | `components/tools/ExportButton.vue`            | 导出图片按钮                                   |
+| `HistoryModal`            | `components/tools/HistoryModal.vue`            | 历史记录弹窗                                   |
+| `ScrollTopButton`         | `components/tools/ScrollTopButton.vue`         | 回到顶部                                       |
+| `EntertainmentDisclaimer` | `components/tools/EntertainmentDisclaimer.vue` | 娱乐免责声明                                   |
+| `FortuneBars`             | `components/tools/FortuneBars.vue`             | 旧运势评分展示；公开产品禁用，等待对应工具整改 |
+| `ScoreRing`               | `components/tools/ScoreRing.vue`               | 旧评分环；公开产品禁用，等待对应工具整改       |
+| `SkeletonCard`            | `components/tools/SkeletonCard.vue`            | 骨架屏卡片                                     |
+| `SkeletonBars`            | `components/tools/SkeletonBars.vue`            | 骨架屏柱状图                                   |
+| `InkDivider`              | `components/tools/InkDivider.vue`              | 墨韵分割线                                     |
+| `AvatarCircle`            | `components/tools/AvatarCircle.vue`            | 头像圈                                         |
+| `PageFooter`              | `components/tools/PageFooter.vue`              | 页面底部 colophon                              |
+| `ProfileAutoFillBanner`   | `components/tools/ProfileAutoFillBanner.vue`   | 档案自动填充横幅                               |
+| `PageHero`                | `components/tools/PageHero.vue`                | 页面标题区                                     |
+| `MethodologyNote`         | `components/tools/MethodologyNote.vue`         | 旧悬浮“注”面板；退出公开产品                   |
 
 #### `MethodologyNote` — 方法论溯源面板
 
-每个工具页**必须**包含此组件，标注计算方法的古典来源与开发者合成逻辑：
+该组件因固定最小宽度、展开裁剪、键盘关闭路径和未核验来源展示问题，已经由 P1 决策退出公开产品：
 
-```html
-<script setup lang="ts">
-  import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
-
-  const classical: ClassicalSource[] = [
-    { method: '方法名', source: '《典籍名》卷次·章节（朝代作者），补充说明' },
-    // 通常 4-5 条
-  ]
-  const synthesis: string[] = ['开发者合成的具体逻辑描述', '评分公式 / 阈值约定 / 工程校准说明']
-</script>
-
-<template>
-  <MethodologyNote :classical="classical" :synthesis="synthesis" tool="工具名" />
-</template>
-```
-
-**Props**：
-| Prop | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `classical` | `ClassicalSource[]` | 是 | `{ method: string, source: string }` 数组，每条对应一个古典方法 |
-| `synthesis` | `string[]` | 是 | 开发者合成逻辑列表 |
-| `tool` | `string` | 是 | 工具名称，显示在面板标题中（如 "八字 · 方法论溯源"） |
-
-**放置规则**：
-| 页面类型 | 放置位置 | 示例 |
-|---------|---------|------|
-| 有输入区的工具（测字、姓名、合婚） | 输入卡片内，与 section-header 并排 | cezi、name-test |
-| 无输入区的工具（八字、生肖、星座、紫微、择吉、易经） | 结果区顶部，与 section-header 并排 | bazi、shengxiao、constellation、ziwei、zeji、yijing |
-
-**数据规范**：
-
-- `method`：简短的方法名（≤15 字），让读者一眼知道这是什么
-- `source`：完整的文献溯源，包含书名、卷次、朝代、作者
-- `synthesis` 每条以 `→`、`=` 等符号开头表示具体的工程决策
-- `synthesis` 中标注所有**非经典原文直接输出**的内容（评分公式、阈值、权重、模板拼接）
+- 不通过 CSS 修补、信息图标、抽屉或弹窗恢复；
+- 不要求新工具页引用；
+- 现有引用只作为待整改代码保留，不能成为新实现范例；
+- 已核验来源、项目规则和限制使用页面正常阅读流中的“依据与范围”；
+- 未核验来源不因移入普通页面而获得公开资格。
 
 ### 4.8 导航
 
@@ -862,7 +830,7 @@ Horizontal divider with gradient fade on both ends and a centered dot.
 
 | 场景       | 间距                                                    |
 | ---------- | ------------------------------------------------------- |
-| 卡片内边距 | `p-8`（32px），必须固定，不随断点变化                   |
+| 卡片内边距 | 默认 `p-6 sm:p-8`（窄屏 24px，`sm` 起 32px）            |
 | 卡片之间   | `mb-6`                                                  |
 | 分区之间   | `mt-8 mb-6`                                             |
 | Grid 间距  | `gap-3 sm:gap-4`（小卡片 grid）、`gap-6`（大区块 grid） |
@@ -877,9 +845,11 @@ Horizontal divider with gradient fade on both ends and a centered dot.
 | 50   | `--z-dropdown` | 下拉菜单                  |
 | 60   | `--z-modal`    | 模态框、通知条            |
 
-### 5.4 首页已登录区域布局
+### 5.4 旧首页已登录区域布局（待退出）
 
 The authenticated homepage uses a two-column grid layout with flex-proportioned internal blocks:
+
+下列结构只记录当前代码，不再是目标规范。其登录问候、今日玄机、自动命签和每日穿衣组合已经由《首页与每日内容产品契约》替代；后续实现不得为了保持旧双栏比例而继续保留已退出内容。
 
 ```html
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
@@ -905,6 +875,8 @@ The authenticated homepage uses a two-column grid layout with flex-proportioned 
 - Greeting content is centered via `items-center justify-center`
 - `min-h-0` on all flex children to allow proper shrinking
 - Pattern defined in `pages/index.vue`
+
+目标首页的语义顺序固定为“产品第一屏 → 有真实记录时继续探索 → 今日一页 → 按目标探索 → 直接选择方法 → 透明性与版本入口”。登录前后使用同一骨架，移动端按该顺序单列回流；具体视觉布局仍应复用墨韵资产并在实施后完成浏览器验收。
 
 ---
 
@@ -1160,11 +1132,11 @@ const prefersReducedMotion = import.meta.client
 6. **禁止** 用 Tailwind 的 `bg-color/N` 透明度语法（如 `bg-cinnabar/10`）或 `rgba()` 做背景色。用 scoped CSS 中的 `color-mix(in srgb, var(--color-*), N%, transparent)` 替代。详见 §2.6。
 7. **禁止** `btn-seal` 的 `<span>` 内加前缀字符（"⟲"、">" 等）。重新操作的按钮用 `btn-ink`。
 8. **禁止** 引入朱砂/金/玉/墨/纸之外的色板。不要用紫色渐变、蓝色链接等。
-9. **禁止** 卡片内边距用 `p-6 sm:p-8`。固定 `p-8`。
+9. **禁止** 为保持固定 `p-8` 而挤压 320px 窄屏正文；通用卡片默认使用 `p-6 sm:p-8`，特殊值必须通过对应页面验收。
 10. **禁止** `@keyframes` 放在 CSS `@layer` 块内。
 11. **禁止** `aria-haspopup="true"`。用 `"menu"` 或 `"dialog"`。
-12. **禁止** 为单次使用创建抽象组件。复用已有的通用组件（FortuneBars、ScoreRing 等）。
-13. **禁止** 新工具页不加 `MethodologyNote`。所有工具页必须标注方法论溯源。
+12. **禁止** 为单次使用创建抽象组件。优先复用仍处于 Active 状态且符合对应产品契约的通用组件；不得因为组件已经存在就复用 `FortuneBars`、`ScoreRing` 等禁用模式。
+13. **禁止** 在公开工具页继续新增 `MethodologyNote`、“注”按钮或等价浮层。已核验的依据和范围进入正常阅读流。
 
 ---
 
@@ -1172,94 +1144,33 @@ const prefersReducedMotion = import.meta.client
 
 ### 新建工具页模板
 
+旧模板包含强制登录、自动读取档案、挂载后自动计算、默认历史和统一免责声明，已经与产品规范冲突，不再作为复制模板。新工具页只能复用下列视觉骨架；输入、状态、保存、历史、导出和公开能力必须由对应工具契约决定：
+
 ```html
-<script setup lang="ts">
-  const { currentProfile, restoreSession } = useAuth()
-  const router = useRouter()
-  const result = ref<ResultType | null>(null)
-  const loading = ref(true)
-  const missingBirthInfo = ref(false)
-  const error = ref('')
-  const showHistoryModal = ref(false)
-  const resultRef = ref<HTMLElement | null>(null)
-  const { exportToImage, isExporting } = useExportImage()
-
-  onMounted(() => {
-    restoreSession()
-    if (!currentProfile.value) {
-      router.push('/login')
-      return
-    }
-    if (!currentProfile.value.birth_date) {
-      missingBirthInfo.value = true
-      loading.value = false
-      return
-    }
-    computeResult()
-  })
-</script>
-
 <template>
   <ToolPageLayout>
     <template #nav><!-- 导航 --></template>
     <template #mobile-nav><!-- 移动端导航 --></template>
 
     <h1 class="sr-only">工具名</h1>
-    <div role="status" class="sr-only" aria-live="polite">
-      {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
-    </div>
+    <main class="max-w-[48rem] mx-auto space-y-6">
+      <section class="card-warm rounded-xl p-6 sm:p-8">
+        <!-- 工具说明和当次输入；不得在挂载时自动生成 -->
+      </section>
 
-    <div v-if="missingBirthInfo" class="text-center py-16">
-      <p class="font-sans text-lg text-ink-medium mb-4">请先完善出生信息</p>
-      <NuxtLink :to="`/profile/${currentProfile?.id}`" class="btn-cin inline-flex">
-        <span>前往编辑档案</span>
-      </NuxtLink>
-    </div>
+      <section aria-live="polite">
+        <!-- 按统一状态模型展示处理状态、错误或结果 -->
+      </section>
 
-    <div v-else-if="loading" class="space-y-6" aria-busy="true">
-      <SkeletonCard /><SkeletonBars />
-    </div>
-
-    <div v-else-if="error" class="text-center py-16">
-      <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
-    </div>
-
-    <template v-else-if="result">
-      <div class="max-w-[48rem] mx-auto">
-        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-          <template #extra>
-            <ExportButton
-              :target-ref="resultRef"
-              filename="工具名.png"
-              :is-exporting="isExporting"
-              @export="handleExport"
-            />
-          </template>
-        </ToolToolbar>
-
-        <div ref="resultRef">
-          <!-- 结果内容 -->
-        </div>
-
-        <div class="flex flex-wrap gap-3 justify-center my-8">
-          <button @click="showHistoryModal = true" class="btn-cin" aria-haspopup="dialog">
-            <span>浏览历史</span>
-          </button>
-        </div>
-      </div>
-
-      <HistoryModal
-        :show="showHistoryModal"
-        type="tooltype"
-        @close="showHistoryModal = false"
-        @restore="onHistoryRestore"
-      />
-      <EntertainmentDisclaimer />
-      <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" />
-    </template>
+      <section class="card-warm rounded-xl p-6 sm:p-8">
+        <!-- 已核验的依据与范围，处于正常文档流 -->
+      </section>
+    </main>
   </ToolPageLayout>
 </template>
 ```
+
+是否显示档案带入、保存、历史、导出、免责声明或状态页，必须从对应产品契约和工具四维状态得出，不得在视觉模板中默认开启。
 
 ---
 
@@ -1311,14 +1222,14 @@ const prefersReducedMotion = import.meta.client
 
 - **每次更新设计系统**，在提交信息中使用 `docs(design-system):` 前缀
 - **每 3–5 个功能分支合并后**，快速检查一次文档是否与代码同步——重点查色板表、Token 表、组件路径表
-- **发现文档与代码不一致** 时，优先修代码（除非代码是有意偏离的，此时更新文档）
+- **发现文档与代码不一致** 时，先判断产品规范是否已经批准。代码偏离批准规范时进入后续实施整改；规范只记录旧实现时才按真实代码更新，不能用旧代码覆盖新决策。
 
 ### 11.5 所有权
 
-- **文档由代码生成**，不是凭空设计。文档里的每一条规则都必须在代码中有**至少一处实际使用**。
+- **视觉资产以真实代码为基础，目标约束以批准规范为准**。尚未实施的批准规则必须明确标注为目标状态，不得伪装成当前代码已经使用。
 - **PR Review 检查项**：如果 PR 新增了全局 CSS 类、修改了色板/字体配置、或改变了多个页面共用的交互模式，Review 者必须确认设计系统文档已同步更新。
 - **强行约定**：`main.css` 中新增的 CSS 类，如果没有写入设计系统文档，视为**未完成**——不允许合并。
 
 ---
 
-> **最后更新**：2026-06-08（新增 AvatarCircle/PageFooter/ProfileAutoFillBanner 到组件表；首页布局重设计：talisman-card + daily-wuxing-card + slip-hd 标题栏 + slip-divider-h 分割线 + gu-slip 符纸卷 + 首页已登录布局模式）
+> **最后更新**：2026-09-06（在既有首页治理基础上同步梅花易数契约：符纸卡仅保留视觉资产，推导、原文、进阶结构与来源分层；未修改现有 UI 代码）

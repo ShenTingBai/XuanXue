@@ -2,39 +2,25 @@
 
 此文件为 Claude Code 在本仓库中工作提供指引。
 
-## ⚠️ 角色声明（最高优先级，每次会话强制生效）
+## 当前权威与角色分工
 
-此项目的**主会话 AI 助手为纯架构师角色**，不亲自写代码：
+本文件主要记录项目结构和既有代码行为。发生冲突时，依次服从：
 
-- ✅ **勘探调研** — 用 CodeGraph（codegraph_context/trace/impact/explore）分析项目
-- ✅ **架构决策** — 方案设计、边界判断、风险评估
-- ✅ **Git 提交推送** — 简单 git 操作（commit/merge/push）直接执行，无需派 Agent。用户权限审批即防线。
-- ❌ **不直接写代码** — 不改文件、不调用 Edit/Write（CLAUDE.md 这类配置修改除外）
-- ❌ **不自己跑测试** — 不调用 `npx vitest` 验证结果
-- ❌ **不自己做审查** — 派 Code Reviewer 子 Agent
+1. 根目录 `AGENTS.md`；
+2. `.Codex/project-config.md`；
+3. `docs/product/README.md` 及其正式产品规范；
+4. `docs/analysis/protocol.md`；
+5. 本文件中的既有实现说明。
 
-**⚠️ 子 Agent 角色：以上限制仅适用于主会话架构师。被派发的子 Agent 是执行角色——必须改代码、写测试、编辑源文件。子 Agent 忽略架构师守则。**
+当前协作分工：
 
-**核心原则：** 默认不写方案文档——只有复杂任务（需用户确认、需跨会话追溯）才写。
-完整协作协议见 `docs/analysis/protocol.md`。
+- 用户批准产品边界、实施阶段、最终验收和 Git 操作；
+- Codex 负责产品与架构判断、计划生成、result/diff 独立审查和验收组织；
+- Claude 只执行已经由用户授权且通过门禁的 v2.2 计划，默认不提交；
+- 文档纠正等经用户明确授权的限定任务可以由 Codex 直接完成，不存在“Codex 永远不能改文件”的规则；
+- 尚未形成契约的功能继续讨论，不从当前代码臆造目标规则。
 
-> 此角色由 [[architect-role]] 记忆锚定，CLAUDE.md 作为硬保证，双保险防遗忘。
-
-## ⚠️ 子 Agent 模型分配（强制）
-
-派发 Agent 时**必须**指定 `model` 参数，根据任务类型选择：
-
-| 任务类型      | 模型     | 示例                     |
-| ------------- | -------- | ------------------------ |
-| 代码编写/编辑 | `sonnet` | 修 bug、加功能、写测试   |
-| 测试运行/更新 | `sonnet` | vitest 验证、断言更新    |
-| 代码审查      | `sonnet` | 审查 PR、检查代码质量    |
-| 复杂分析/方案 | `opus`   | 深度架构分析、跨模块追踪 |
-| 简单搜索/查找 | `sonnet` | 搜索文件、查找符号       |
-
-**`sonnet` 是执行 Agent 的默认选择。** 仅在需要深度推理时用 `opus`。
-
-> ⚠️ 此规则由 PreToolUse hook 强制检查——不指定 model 的 Agent 调用将被拒绝。
+完整协作协议见 `docs/analysis/protocol.md`，当前产品状态见 `docs/product/README.md`。
 
 ## 常用命令
 
@@ -58,7 +44,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 ├── assets/css/main.css           # 全局 CSS（组件类、keyframes、纸纹）
 ├── docs/                         # 项目文档 + 设计系统规范
 ├── public/fonts/                 # 自托管 woff2 字体
-├── constants/                    # 17 个常量文件
+├── constants/                    # 干支、卦象、星曜、笔画字典等领域数据
 │   ├── bazi.ts                   # STEMS、BRANCHES、WUXING_COLORS（唯一数据源）
 │   ├── yijing.ts / yijing-data.ts / yijing-hexagrams.ts  # 易经六十四卦
 │   ├── shengxiao.ts              # 生肖性格、婚配数据
@@ -73,13 +59,15 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │   ├── cezi.ts                   # 测字五行分类
 │   ├── stroke-dict.ts            # 汉字笔画字典
 │   ├── zeji.ts                   # 择吉规则数据
+│   ├── gu-ming.ts / meihua.ts     # 称骨、梅花旧规则数据
+│   ├── tool-catalog.ts           # 当前 listed/hidden 工具目录
 │   └── planet-data.ts            # 行星符号/守护关系
 ├── types/
 │   └── lunar-javascript.d.ts     # lunar-javascript 库类型声明
 ├── utils/
 │   ├── date.ts                   # 日期解析工具（parseDate 等）
 │   └── time.ts                   # 时辰计算工具
-├── composables/                  # 计算引擎 + 共享状态（18 个）
+├── composables/                  # 计算引擎 + 共享状态
 │   ├── useAuth.ts                # 认证状态（基于 useState）
 │   ├── useSolarTerms.ts          # 节气日期、月柱、五虎遁
 │   ├── useBaZi.ts                # 四柱、十神、大运
@@ -94,6 +82,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │   ├── useCezi.ts                # 汉字测字解读
 │   ├── useNameTest.ts            # 姓名三才五格测试
 │   ├── useZeJi.ts                # 择吉日推荐
+│   ├── useGuMing.ts / useMeiHua.ts # 称骨、梅花旧计算
 │   ├── useMonthlyFortune.ts      # 月运势计算
 │   ├── useNatalChart.ts          # 星座本命星盘（依赖 astronomy-engine）
 │   └── useExportImage.ts         # html-to-image 导出图片
@@ -122,20 +111,21 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │       ├── AddProfileModal.vue   # 新增档案弹窗
 │       ├── AvatarCircle.vue      # 头像圈
 │       └── ProfileSwitcher.vue   # 档案切换器
-├── pages/                        # 12 个页面
+├── pages/                        # 首页、账号、档案、工具与状态页
 │   ├── index.vue                 # 首页（独立布局，非 ToolPageLayout）
 │   ├── login.vue                 # 登录/注册
 │   ├── profile/[id].vue          # 档案编辑
-│   └── tools/                    # 9 个工具页：bazi、shengxiao、constellation、
-│       │                         #   yijing、ziwei、cezi、hehun、name-test、zeji
+│   └── tools/                    # 工具页含 bazi、shengxiao、constellation、zeji、guming、
+│                                 # yijing、ziwei、cezi、hehun、name-test、meihua；另有 status.vue
+├── middleware/tool-availability.global.ts # 隐藏工具页面挂载前拦截
 ├── server/
-│   ├── api/auth/                 # login.post、register.post、logout.delete
-│   ├── api/divinations/          # CRUD：index.post、index.get、[id].get
+│   ├── api/auth/                 # login.post、register.post、me.get、logout.delete
+│   ├── api/divinations/          # 保存与查询：index.post、index.get、[id].get
 │   ├── api/profiles/             # index.get、index.post、[id].get、[id].put、[id].delete
 │   ├── database/
 │   │   ├── db.ts                 # sql.js SQLite 连接
 │   │   └── schema.ts             # 建表 DDL + 索引
-│   ├── middleware/auth.ts        # Bearer token 提取 → event.context.profileId
+│   ├── middleware/auth.ts        # Bearer 优先、Cookie 回退 → event.context.profileId
 │   ├── plugins/
 │   │   ├── database.ts           # Nitro 插件：数据库初始化
 │   │   └── csp.ts                # CSP nonce 注入插件
@@ -155,45 +145,16 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ## 工作流规范
 
-Karpathy 四原则的落地执行机制——每一阶段产出一项可审计的决策或产出物。
+当前采用 Plan Protocol v2.2：
 
-### 五阶段工作流
+1. Codex 先调查代码和现行规范，能查证的事实不让用户猜；
+2. 产品规则逐项讨论并由用户批准，尚未成文的范围保持 `Pending`；
+3. 只有用户明确要求进入实施阶段时，Codex 才输出歧义与假设并生成单阶段 YAML；
+4. Claude 按 `/plan-execute` 执行，通过路径门禁并记录 `plan_amendments`，默认不提交；
+5. Codex 独立审查 result、diff、测试和浏览器证据；
+6. 用户确认接受后，再单独决定提交、推送或后续阶段。
 
-| 阶段        | 负责人 | 动作                                                                                | 产出                     |
-| ----------- | ------ | ----------------------------------------------------------------------------------- | ------------------------ |
-| **1. 分析** | 架构师 | CodeGraph 全链路追踪 + 读参考代码 + 读设计文档 → 列出不确定项问用户                 | 方案（口头/文档）        |
-| **2. 派发** | 架构师 | 给子 Agent 完整上下文：精确范围 + 参考资源 + 验收标准 + **"不提交"指令**            | Agent prompt             |
-| **3. 审计** | 架构师 | diff 审查越界 + 派 Agent 跑测试 + 文档同步检查 + 回归检查                           | 审计报告                 |
-| **4. 报告** | 架构师 | 结构化报告给用户，标注需视觉确认项 → 等待用户审核                                   | 审核决策                 |
-| **5. 提交** | 架构师 | 用户审核通过后 → 直接 `git commit` + `git merge --no-ff` + `git push` + 更新 Memory | Git commit + Memory 同步 |
-
-### 核心铁律
-
-1. **不懂就问，不猜。** 凡不确定（视觉偏好、业务规则、设计意图）→ 列清单问用户。代码能自行查证的不问。
-2. **子 Agent 永不提交。** 子 Agent 只改代码、跑测试、自审回报。git commit/push/merge 由架构师在用户审核通过后派发。
-3. **文档同步是验收标准。** UI 改动 → 检查 `design-system.md` 是否需同步。流程/架构改动 → 检查 `CLAUDE.md` + `protocol.md`。审计阶段检查，不事后补。
-4. **无报告不提交。** 任何代码改动在用户确认审计报告前，不得提交。
-
-### 任务等比缩放
-
-铁律不打折，报告深度按任务量级缩放：
-
-| 任务                        | 分析深度                     | 审计报告            | 提交流程      |
-| --------------------------- | ---------------------------- | ------------------- | ------------- |
-| **轻量**（单行/typo/配置）  | 一句话                       | 一句话              | 你点头 → 提交 |
-| **标准**（2-4 文件）        | 口头方案                     | 结构化报告          | 你审核 → 提交 |
-| **复杂**（核心引擎/跨模块） | 方案文档（`docs/analysis/`） | 完整报告 + 回归验证 | 你审核 → 提交 |
-
-### Karpathy 原则 → 工作流映射
-
-| Karpathy 原则                                      | 工作流如何落地                                           |
-| -------------------------------------------------- | -------------------------------------------------------- |
-| **Think Before Coding** — 不假设、不藏疑           | 阶段一：CodeGraph 全链路 + 读参考实现 + 不确定清单问用户 |
-| **Simplicity First** — 最少代码、不加臆测          | 阶段二约束："最少代码，不建抽象" + 阶段三目测代码量      |
-| **Surgical Changes** — 精准改、不顺手重构          | 阶段二精确范围（文件+行号） + 阶段三 diff 逐行审计越界   |
-| **Goal-Driven Execution** — 可验证目标、循环到通过 | 阶段二附验收标准 + 阶段三逐项 ✅/❌ 验证                 |
-
-> 完整协作协议、子 Agent 回报格式、审计报告模板见 `docs/analysis/protocol.md`。
+核心原则仍是先想再写、简单优先、精准修改和目标驱动。完整边界、返工收敛和文档同步规则见 `docs/analysis/protocol.md`。
 
 ## 架构
 
@@ -201,28 +162,28 @@ Karpathy 四原则的落地执行机制——每一阶段产出一项可审计�
 
 - 组合式函数使用 `useState()`（而非 `ref()`）管理共享状态。`useAuth` 使用 `useState<Profile | null>('auth:profile', ...)` 使 layout 和页面共享同一响应式实例。
 - 同步组合式函数**禁止**声明为 `async`。仅在需要 `await` 时才使用 `async`。
-- 纯计算型组合式函数（如 `useBaZi.ts`、`useSolarTerms.ts`）导出类型化函数，不导出 Vue 响应式——它们是零依赖的计算引擎，由页面/组件的 setup 调用。
+- 纯计算型组合式函数（如 `useBaZi.ts`、`useSolarTerms.ts`）导出类型化函数，不导出 Vue 响应式；它们仍可能依赖项目常量和历法库，不能概括为零依赖。
 
 ### 持久化
 
-- **Session**：`localStorage` 键 `xuanxue:session`，存储 `{ token, profile }`。（公开上线前需改为 httpOnly cookie——localStorage 在 XSS 下可被窃取。）
+- **Session**：当前客户端使用服务端设置的 `xuanxue_token` HttpOnly Cookie，不将 token/profile 写入 localStorage。API 仍返回 token 且服务端保留 Bearer 兼容，不能据此宣称认证接口已完成全部治理。
 - **Greeting**：`localStorage` 键 `xuanxue:greeting`，存储 `{ prefix, subtitle }`——自包含，不依赖 API。
-- `restoreSession()` 从 localStorage 读取；**必须**在 `layouts/default.vue` **和**每个页面的 `onMounted` 中都调用。
-- 保存 profile 后，调用 `updateProfile(response)`（而非 `restoreSession()`）来同步 `useState` 和 localStorage。
+- `restoreSession()` 是异步函数，在客户端且共享档案为空时请求 `/api/auth/me`；需要登录状态的页面必须正确处理恢复完成与失败，不把旧页面的重复调用方式作为新模板。
+- 保存 profile 后，`updateProfile(response)` 只同步 `useState`，不会写入 localStorage。
 
 ### 认证流程
 
-1. 页面加载 → `restoreSession()` 读取 localStorage → `currentProfile` 填充。
-2. 无 session → 重定向到 `/login`。
-3. 登录/注册 → API 返回 `{ token, profile }` → 写入 localStorage + `useState`。（PIN 当前为 4 位数字，公开上线前需扩展为 6+ 位字母数字。）
-4. 登出 → DELETE `/api/auth/logout`（尽力而为）→ 清除 localStorage + `useState`。
+1. 客户端调用 `restoreSession()`，在共享档案为空时通过 Cookie 请求 `/api/auth/me`，成功后填充 `currentProfile`。
+2. 认证限制按实际路由和功能判断；旧工具页仍有登录跳转，新规范允许已准入工具的游客当次查询，不能强制所有页面登录。
+3. 登录/注册由服务端设置 Cookie，客户端只更新共享档案。新注册 PIN 校验为 6–20 位字母或数字；登录仍兼容旧长度和旧明文 PIN 升级路径，旧库退出前不得宣称兼容已移除。
+4. 登出请求 `DELETE /api/auth/logout` 后清空共享状态；当前客户端会忽略请求失败，因此服务端会话是否真正失效不能仅凭界面退出判断。
 
 ### Server API
 
-- **Auth** (`server/api/auth/`): `login.post`、`register.post`、`logout.delete`
+- **Auth** (`server/api/auth/`): `login.post`、`register.post`、`me.get`、`logout.delete`
 - **Profiles** (`server/api/profiles/`): `index.get`（列表）、`index.post`（创建）、`[id].get`（详情）、`[id].put`（更新）、`[id].delete`（软删除，级联清理 sessions + divinations）
 - **Divinations** (`server/api/divinations/`): `index.post`（保存）、`index.get`（列表，按 type 过滤）、`[id].get`（详情，校验归属）
-- **Middleware** (`server/middleware/auth.ts`): 提取 `Authorization: Bearer <token>` → 查找 session → 注入 `event.context.profileId` 和 `event.context.token`。所有需要认证的 API 从此读取，不自行解析 token。
+- **Middleware** (`server/middleware/auth.ts`): 优先提取 `Authorization: Bearer <token>`，没有该 token 时回退到 `xuanxue_token` Cookie，再查找 session 并注入 `event.context.profileId` 和 `event.context.token`。需要认证的 API 从此读取上下文。
 - **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 profile + endpoint 键控，默认 10 req/min。
 
 ### Session 安全
@@ -255,10 +216,8 @@ Karpathy 四原则的落地执行机制——每一阶段产出一项可审计�
 
 ### Git 工作流
 
-- 功能开发在专用分支（`phase-*`、`feat/*`、`fix/*`）上进行，**永远不要在 `main` 上直接开发**。
-- `main` 应始终保持干净——没有进行中的功能提交，没有计划/规范类提交。
-- 功能完成后通过 PR 合并回 `main`（`gh pr create`）。
-- **合并到 `main` 时必须使用 `git merge --no-ff`**，保留分支拓扑为提交图谱中的可见合并气泡。禁止快进合并——每个功能分支必须在图谱中留下可见的轨迹。
+- 功能开发在短期 `feat/*`、`fix/*`、`docs/*` 分支上进行；稳定的 `main` 只接受经过审查的阶段成果。
+- 个人开发不强制复杂 GitFlow 或每次走 PR；提交、合并和推送必须与用户授权和阶段证据一致。
 
 #### Git Hooks（自动强制执行）
 
@@ -281,7 +240,7 @@ Karpathy 四原则的落地执行机制——每一阶段产出一项可审计�
 - 问候语字段**禁止**出现在 profile 编辑页（`profile/[id].vue`）。
 - 所有输入框必须有 `<label for="id">` 关联。
 - 自定义 radio 使用 `sr-only` input + 样式化的 `<span>`，通过 `.sr-only:focus-visible + span` 实现 focus-visible 环。
-- 表单卡片（`card-paper-solid`）**必须**使用 `p-8`（不能用 `p-6 sm:p-8`），以在移动端保持 32px 内边距。
+- 表单卡片（`card-paper-solid`）默认遵循设计系统的 `p-6 sm:p-8`：窄屏 24px，`sm` 起 32px；特殊间距必须通过对应页面验收。
 - `aria-haspopup` 应使用 `"menu"` 而非 `"true"`（ARIA 1.1+）。
 - `@keyframes` 规则**必须**放在 CSS `@layer` 块**之外**（Tailwind PostCSS 可能会丢弃或错排它们）。
 - `role="tablist"` 的元素必须支持左右方向键导航。
@@ -294,16 +253,18 @@ Karpathy 四原则的落地执行机制——每一阶段产出一项可审计�
 - `constants/bazi.ts` 是 `STEMS`、`BRANCHES`、`WUXING_COLORS` 和 `WUXING_FALLBACK_COLOR` 的唯一数据源。从这里导入——**禁止**在组件或组合式函数中重新定义。
 - `WUXING_COLORS` 将元素名映射到十六进制颜色：`'{ '木': '#3D6B4B', '火': '#C62828', '土': '#7A5E12', '金': '#5E5E5E', '水': '#2C5F7C' }'`。回退色使用 `WUXING_FALLBACK_COLOR`（`#6B5B4F`），不要硬编码。
 
-### BaZi 引擎约定
+### BaZi 既有实现与整改边界
+
+以下用于定位旧实现，不替代 [八字工具契约](docs/product/bazi-tool-contract.md)。历法锚点、输入精度、传统规则和来源仍待按契约整改，不能仅凭已有函数和测试认定可信。
 
 - **`getTenGod` 永远不能返回 `'日主'`。**`'日主'` 标签是展示概念，不是十神。仅在日柱天干构建后手动赋值：`dayPillar.stemTenGod = '日主'`。十神矩阵对相同天干正确返回 `'比肩'`。
-- **节气边界**：使用 `useSolarTerms.ts` 中的 `getSolarTerm()` 做节气判定。**禁止**硬编码日期如 `day < 4` 判断立春——节气日期每年不同。
+- **节气边界**：当前 `getSolarTerm()` 只返回月、日，八字契约已记录其缺少精确节气时刻；不得把它描述为精确时刻规则，也不应以固定日期如 `day < 4` 替代。
 - **纳音公式**：天干和地支索引必须同奇偶（同偶或同奇）才构成有效甲子对。加入奇偶校验：`if ((stemIdx - branchIdx) % 2 !== 0) return ''`。
-- **大运起运年龄**使用标准子平法：阳男阴女顺排、阴男阳女逆排，计算出生日期到最近节气（节）的天数差 ÷ 3 = 起运岁数。12 个"节"通过 `getSolarTerm()` 精确计算。
+- **大运起运年龄**：当前按性别方向计算出生日期与相邻节气的整日差 ÷ 3，并向下取整生成周期；八字契约已记录其精度和来源缺口，不得称为已核验的“标准子平法”。
 - **日期解析**：使用显式的 `parseDate(str)`（按 `-` 分割后 `parseInt`），**禁止**使用 `new Date(str)`——它依赖时区，对 YYYY-MM-DD 字符串不可靠。
 - **农历**：通过 `lunar-javascript` 库的 `Lunar.fromYmd().getSolar()` 将农历转换为公历后再计算。所有 BaZi 计算（年柱/月柱/日柱/时柱/大运/神煞/流年）均基于转换后的公历日期。
 
-### ShenSha / LiuNian / Divinations 约定
+### ShenSha / LiuNian / Divinations 既有实现
 
 #### ShenSha
 
@@ -313,23 +274,25 @@ Karpathy 四原则的落地执行机制——每一阶段产出一项可审计�
 - `ShenSha.pillar` 可为：`'年柱'` | `'月柱'` | `'日柱'` | `'时柱'` | `'流年'` | `'命宫'` | `'大运'`。
 - `ShenSha.position` 为：`'天干'` | `'地支'` | `'本柱'`。
 - LiuNian 的流年神煞在 `useLiuNian.ts` 中通过 `computeYearShensha()` 计算，覆盖三个维度：年支→流年地支（6 种三合模式）、日干→流年地支（禄神/羊刃/天乙/太极/文昌/学堂/词馆/金舆/福星共 9 类）、月支→流年（天德贵人/月德贵人）。
-- 神煞查找表是权威来源——未经核对文献**禁止修改**映射。
+- 神煞查找表只证明当前项目如何实现，不是权威来源。未经对应工具契约和来源核验，不得把映射写成已验证规则；修改时必须保留规则版本和审计证据。
 
 #### LiuNian
+
+本节仅描述旧引擎。工程评分、喜忌及现实断言不能作为新实现模板，是否保留字段以八字契约为准。
 
 - `calculateLiuNian()` 计算当前年份 ±range 年（默认 5，共 11 年）。
 - 仅当前年份获得 `detail` 对象，包含 `daYunInteraction`、`pillarsInteraction` 和 12 个 `monthlyStems`。
 - 评分算法：基准 50 + 喜用神(+30) / 中性(0) / 忌神(-20) + 地支关系（+10 到 -22.5，加权：日柱=1.5x，其他柱=1.0x）+ 神煞（±5），压缩到 0-100。
 - 地支关系覆盖全部 5 种：六合(+10)、六冲(-15)、三刑(-12)、六害(-8)、六破(-6)。每种关系对每个柱都检查。
 - 总结文本是纯规则模板拼接——**不是 AI 生成**。模板顺序：十神流年短语 + 五行匹配 + 地支关系结论 + 神煞提及。
-- 月干使用五虎遁（年上起月法）通过 `useSolarTerms.ts` 中的 `getMonthStemStart()` 计算。月份边界通过 `getSolarTerm()` 获取精确的节气日期（立春→寅月...小寒→丑月）。
+- 月干通过 `useSolarTerms.ts` 中的 `getMonthStemStart()` 计算；月份边界仍使用 `getSolarTerm()` 的日级输出，没有实现契约要求的精确节气时刻。
 - 大运查找使用 `getDaYunForYear()`，将年龄匹配到周期范围；无匹配时回退到第一个周期。
 
 #### Divinations API
 
 - 三个端点：`POST /api/divinations`（保存）、`GET /api/divinations?type=bazi`（列表）、`GET /api/divinations/[id]`（详情）。
-- POST 校验：需要认证令牌、每 profile 每分钟限流 10 次、校验 type 必须在 `DIVINATION_TYPES = ['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei', 'cezi', 'hehun', 'name-test', 'zeji']`（共 9 种）中。
-- 自动保存是静默的 fire-and-forget——保存失败不阻塞用户查看结果。
+- POST 校验：需要认证令牌、每 profile 每分钟限流 10 次、校验 type 必须在 `server/api/divinations/shared.ts` 的 `DIVINATION_TYPES`（当前 11 种）中。
+- 当前遗留实现会以 fire-and-forget 自动保存；这是已确认待整改行为。目标规范要求生成与保存分离，只有用户主动确认后才能创建历史。
 - GET 列表排除 `result_data`（仅元数据以节省带宽），GET 详情包含 `result_data` 并校验归属（`profile_id` 不匹配返回 403）。
 - `input_data` 和 `result_data` 在 SQLite 中以 JSON 字符串存储；读取时通过 `safeJsonParse()` 反序列化。
 - HistoryModal（通用历史弹窗）展示最近 **5 条**记录，服务器返回 LIMIT 20，客户端 `slice(0, 5)`。
@@ -337,7 +300,7 @@ Karpathy 四原则的落地执行机制——每一阶段产出一项可审计�
 
 ### 新工具约定（ZiWei、HeHun、CeZi、NameTest、ZeJi）
 
-以上工具均复用 `ToolPageLayout` + `ToolToolbar` + `HistoryModal` + `EntertainmentDisclaimer` 标准模板。
+以上页面当前复用了 `ToolPageLayout`、`ToolToolbar`、`HistoryModal` 和 `EntertainmentDisclaimer` 等组件，但这只是既有实现记录。后续是否保留历史、导出、免责声明或其他能力由通用规范和单项工具契约决定，不得继续套用统一旧模板。
 
 #### ZiWei（紫微斗数）
 
