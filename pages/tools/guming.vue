@@ -4,16 +4,13 @@
 import { calculateGuMing, type GuMingResult } from '~/composables/useGuMing'
 import { HOUR_NAMES } from '~/constants/gu-ming'
 import type { Ref } from 'vue'
-import type { FetchError } from '~/types/errors'
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote from '~/components/tools/MethodologyNote.vue'
 import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
@@ -46,9 +43,6 @@ const gender = ref('male')
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
 const { exportToImage, isExporting } = useExportImage()
-const showHistoryModal = ref(false)
-const restoreError = ref<string | null>(null)
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const {
   showBanner,
@@ -116,7 +110,6 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 async function computeGuMing() {
   if (birthMonth.value < 1 || birthMonth.value > 12) {
@@ -139,7 +132,6 @@ async function computeGuMing() {
     }
     const res = calculateGuMing(input)
     result.value = res
-    saveDivinationResult(res)
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
@@ -147,59 +139,6 @@ async function computeGuMing() {
   } finally {
     loading.value = false
   }
-}
-async function saveDivinationResult(res: GuMingResult) {
-  try {
-    await $fetch('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'guming',
-        input_data: {
-          birthYear: birthYear.value,
-          birthMonth: birthMonth.value,
-          birthDay: birthDay.value,
-          birthHour: birthHour.value,
-          gender: gender.value,
-        },
-        result_data: JSON.parse(JSON.stringify(res)),
-      },
-    })
-  } catch (e) {
-    if ((e as FetchError).statusCode === 429 || (e as FetchError).statusCode === 401) return
-    // eslint-disable-next-line no-console
-    console.error('save:', e)
-  }
-}
-async function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  try {
-    const r = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      '/api/divinations/' + id,
-    )
-    if (
-      r.result_data &&
-      typeof r.result_data === 'object' &&
-      typeof (r.result_data as Record<string, unknown>).totalWeight === 'number'
-    ) {
-      result.value = r.result_data as GuMingResult
-      restoreError.value = ''
-    } else {
-      restoreError.value = '数据无效'
-      if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => {
-        restoreError.value = ''
-      }, 6000)
-    }
-  } catch {
-    restoreError.value = '加载失败'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
-}
-function dismissRestoreError() {
-  restoreError.value = ''
 }
 function resetToForm() {
   result.value = null
@@ -225,17 +164,17 @@ const scalePercent = computed(function () {
       {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
     </div>
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar v-if="!missingBirth" :show-history="true" @history="showHistoryModal = true">
-        <template #extra>
-          <ExportButton
-            v-if="result"
-            :target-ref="resultRef"
-            filename="称骨算命.png"
-            :is-exporting="isExporting"
-            @export="handleExport"
-          />
-        </template>
-      </ToolToolbar>
+      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+      <div v-if="!missingBirth" class="flex items-center justify-between mb-6">
+        <span></span>
+        <ExportButton
+          v-if="result"
+          :target-ref="resultRef"
+          filename="称骨算命.png"
+          :is-exporting="isExporting"
+          @export="handleExport"
+        />
+      </div>
       <ProfileAutoFillBanner
         v-if="showBanner || missingBirth"
         :profile-name="birthData?.profileName || ''"
@@ -471,27 +410,6 @@ const scalePercent = computed(function () {
         </div>
       </template>
     </div>
-    <Transition name="toast">
-      <div v-if="restoreError" class="toast-notification" role="alert">
-        <span class="toast-notification__mark">!</span>
-        <span class="toast-notification__text">{{ restoreError }}</span>
-        <button
-          class="toast-notification__close"
-          aria-label="关闭提示"
-          @click="dismissRestoreError"
-          @keydown.enter="dismissRestoreError"
-          @keydown.space.prevent="dismissRestoreError"
-        >
-          &times;
-        </button>
-      </div>
-    </Transition>
-    <HistoryModal
-      :show="showHistoryModal"
-      type="guming"
-      @close="showHistoryModal = false"
-      @restore="onHistoryRestore"
-    />
     <ScrollTopButton
       v-if="showScrollTop"
       @click="scrollToTop"

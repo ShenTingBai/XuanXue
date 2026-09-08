@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { resolve, sep } from 'node:path'
+import { tmpdir } from 'node:os'
 import { initDb, dbRun, dbGet, dbAll } from '../../server/database/db'
 import {
   createSessionToken,
@@ -16,6 +18,19 @@ describe('Divinations API (unit tests)', () => {
   let otherToken: string
 
   beforeAll(async () => {
+    // 数据安全前置断言：必须在使用真实/不安全路径初始化数据库之前失败。
+    // db.ts 在模块加载时固定 DB_PATH，因此这里必须位于 await initDb() 之前；
+    // 断言失败时 initDb 不会执行，预期失败回归也不能写真实数据库。
+    const dbPath = process.env.DB_PATH
+    expect(dbPath, 'DB_PATH 必须在测试初始化前被注入（由 globalSetup 提供）').toBeDefined()
+    const resolvedDbPath = resolve(dbPath as string)
+    const projectDbPath = resolve(process.cwd(), 'xuanxue.db')
+    const tmpRoot = resolve(tmpdir())
+    expect(resolvedDbPath, 'DB_PATH 不得指向项目真实数据库 xuanxue.db').not.toBe(projectDbPath)
+    expect(resolvedDbPath.startsWith(tmpRoot + sep), 'DB_PATH 必须位于操作系统临时目录之下').toBe(
+      true,
+    )
+
     await initDb()
 
     // Clean up any leftover test data

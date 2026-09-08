@@ -2,14 +2,11 @@
 import { WUXING_COLORS } from '~/constants/bazi'
 import { evaluateDates, type ZejiResult, type ZejiDayResult } from '~/composables/useZeJi'
 import { EVENT_TYPES } from '~/constants/zeji'
-import type { FetchError } from '~/types/errors'
 
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import ZejiCalendar from '~/components/tools/zeji/ZejiCalendar.vue'
 import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
@@ -53,11 +50,6 @@ const router = useRouter()
 
 const showScrollTop = ref(false)
 const { exportToImage, isExporting } = useExportImage()
-const showHistoryModal = ref(false)
-const savedDivinationId = ref<number | null>(null)
-const saveError = ref('')
-const restoreError = ref('')
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const resultRef = ref<HTMLElement | null>(null)
 
 function handleExport() {
@@ -92,7 +84,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
 // Event type selection
@@ -178,68 +169,6 @@ const recommendedForMonth = computed<ZejiDayResult[]>(() => {
 function selectEvent(eventKey: string) {
   selectedEvent.value = eventKey
   selectedDate.value = null // Reset selection on event change
-  saveDivinationResult(result.value)
-}
-
-async function saveDivinationResult(res: ZejiResult) {
-  try {
-    const inputData = {
-      eventType: selectedEvent.value,
-      viewYear: displayMonth.value.year,
-      viewMonth: displayMonth.value.month,
-    }
-    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'zeji',
-        input_data: inputData,
-        result_data: JSON.parse(JSON.stringify(res)),
-      },
-    })
-    savedDivinationId.value = saveRes.id
-    saveError.value = ''
-  } catch (e: unknown) {
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 429) return
-      if (code === 401) return
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存择吉记录失败:', e)
-  }
-}
-
-async function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  try {
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      `/api/divinations/${id}`,
-    )
-    if (
-      record.result_data &&
-      typeof record.result_data === 'object' &&
-      (record.result_data as Record<string, unknown>).eventType !== undefined
-    ) {
-      result.value = record.result_data as ZejiResult
-      restoreError.value = ''
-    } else {
-      restoreError.value = '历史记录数据无效'
-      if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => {
-        restoreError.value = ''
-      }, 6000)
-    }
-  } catch {
-    restoreError.value = '历史记录加载失败，请稍后重试'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
 }
 
 function handleSelectDate(dateStr: string) {
@@ -269,16 +198,16 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
     <h1 class="sr-only">择吉日</h1>
 
     <div class="max-w-[56rem] mx-auto">
-      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-        <template #extra>
-          <ExportButton
-            :target-ref="resultRef"
-            filename="择吉日.png"
-            :is-exporting="isExporting"
-            @export="handleExport"
-          />
-        </template>
-      </ToolToolbar>
+      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+      <div class="flex items-center justify-between mb-6">
+        <span></span>
+        <ExportButton
+          :target-ref="resultRef"
+          filename="择吉日.png"
+          :is-exporting="isExporting"
+          @export="handleExport"
+        />
+      </div>
 
       <div ref="resultRef">
         <!-- ── 方法论溯源 ── -->
@@ -511,30 +440,6 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
             }
           }
         "
-      />
-
-      <!-- Restore error toast -->
-      <Transition name="toast">
-        <div v-if="restoreError" class="toast-notification" role="alert">
-          <span class="toast-notification__mark" aria-hidden="true">!</span>
-          <span class="toast-notification__text">{{ restoreError }}</span>
-          <button
-            class="toast-notification__close"
-            aria-label="关闭提示"
-            @click="dismissRestoreError"
-            @keydown.enter="dismissRestoreError"
-            @keydown.space.prevent="dismissRestoreError"
-          >
-            &times;
-          </button>
-        </div>
-      </Transition>
-
-      <HistoryModal
-        :show="showHistoryModal"
-        type="zeji"
-        @close="showHistoryModal = false"
-        @restore="onHistoryRestore"
       />
     </div>
   </ToolPageLayout>

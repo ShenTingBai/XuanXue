@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { getHiddenToolFromQuery } from '~/constants/tool-catalog'
+import { getStatusOnlyToolFromQuery } from '~/constants/tool-catalog'
+import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import PageHero from '~/components/tools/PageHero.vue'
 
 const route = useRoute()
 
-const hiddenTool = computed(() => getHiddenToolFromQuery(route.query.tool))
+const statusOnlyTool = computed(() => getStatusOnlyToolFromQuery(route.query.tool))
 
 useHead({
   title: '功能整理中 · 玄·道',
 })
 
 watch(
-  hiddenTool,
+  statusOnlyTool,
   tool => {
     if (!tool) {
       void navigateTo('/')
@@ -22,8 +24,12 @@ watch(
 
 <template>
   <ToolPageLayout>
-    <section v-if="hiddenTool" class="max-w-[48rem] mx-auto" aria-labelledby="tool-status-heading">
-      <PageHero emoji="整" :title="hiddenTool.name" subtitle="功能状态说明" />
+    <section
+      v-if="statusOnlyTool"
+      class="max-w-[48rem] mx-auto"
+      aria-labelledby="tool-status-heading"
+    >
+      <PageHero emoji="整" :title="statusOnlyTool.name" subtitle="功能状态说明" />
 
       <section aria-labelledby="tool-status-heading" class="card-warm rounded-xl p-8">
         <h2 id="tool-status-heading" class="font-display text-xl text-ink-dark mb-4">功能整理中</h2>

@@ -1,12 +1,6 @@
 <!-- pages/tools/ziwei.vue -->
 <script setup lang="ts">
-import {
-  calculateZiWei,
-  getMingGongIndex,
-  serializeAstrolabe,
-  deserializeAstrolabe,
-} from '~/composables/useZiwei'
-import type { FetchError } from '~/types/errors'
+import { calculateZiWei, getMingGongIndex } from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
@@ -17,12 +11,10 @@ import ZiWeiCelestialChart from '~/components/tools/ziwei/ZiWeiCelestialChart.vu
 import ZiWeiPalaceGrid from '~/components/tools/ziwei/ZiWeiPalaceGrid.vue'
 import ZiWeiDaXianTimeline from '~/components/tools/ziwei/ZiWeiDaXianTimeline.vue'
 import ZiWeiDetailPanel from '~/components/tools/ziwei/ZiWeiDetailPanel.vue'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ZiWeiInfoSidebar from '~/components/tools/ziwei/ZiWeiInfoSidebar.vue'
 import ZiWeiDetailSheet from '~/components/tools/ziwei/ZiWeiDetailSheet.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
@@ -64,13 +56,9 @@ const astrolabe = ref<IFunctionalAstrolabe | null>(null)
 const selectedPalace = ref<IFunctionalPalace | null>(null)
 const selectedIndex = ref(0)
 const currentView = ref<'celestial' | 'grid'>('celestial')
-const showHistoryModal = ref(false)
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
 const { exportToImage, isExporting } = useExportImage()
-const restoreError = ref('')
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-const restoredFromHistory = ref(false)
 const { missingBirth: profileMissingBirth, checkAvailability } = useProfileAutoFill()
 
 function handleExport() {
@@ -132,7 +120,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
 function handleCalculate() {
@@ -147,7 +134,6 @@ function handleCalculate() {
 
   loading.value = true
   error.value = ''
-  restoredFromHistory.value = false
 
   try {
     const ziweiResult = calculateZiWei({
@@ -167,7 +153,6 @@ function handleCalculate() {
     astrolabe.value = ziweiResult
     selectedIndex.value = getMingGongIndex(ziweiResult.palaces)
     selectedPalace.value = ziweiResult.palaces[selectedIndex.value] || null
-    saveDivinationResult(ziweiResult)
   } catch {
     error.value = '排盘计算出错，请检查出生信息'
   }
@@ -200,98 +185,6 @@ const sortedPeriods = computed(() => {
     }))
     .sort((a, b) => a.startAge - b.startAge)
 })
-
-async function saveDivinationResult(astroData: IFunctionalAstrolabe) {
-  // Build a rich label for the history list so entries are distinguishable
-  const mingGongIdx = getMingGongIndex(astroData.palaces)
-  const mingGong = astroData.palaces[mingGongIdx]
-  const mingStars = mingGong?.majorStars.map(s => s.name).join('、') || '无主星'
-  const mingLabel = `命${mingGong?.earthlyBranch ?? ''}宫(${mingStars})`
-  const hourLabel = birthHour.value !== null ? `第${birthHour.value + 1}时` : ''
-  const genderLabel = gender.value === 'male' ? '男' : '女'
-  const historyLabel = `${birthDate.value} ${hourLabel} ${genderLabel} | ${mingLabel} | ${astroData.fiveElementsClass}`
-  try {
-    await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'ziwei',
-        input_data: {
-          birthYear: parseInt(birthDate.value.split('-')[0], 10),
-          birthMonth: parseInt(birthDate.value.split('-')[1], 10),
-          birthDay: parseInt(birthDate.value.split('-')[2], 10),
-          birthHour: birthHour.value,
-          gender: gender.value,
-          historyLabel,
-        },
-        result_data: serializeAstrolabe(astroData),
-      },
-    })
-  } catch (e: unknown) {
-    // 401/429: global interceptor handles 401 logout + redirect
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 401) return
-      if (code === 429) return // auto-save is best-effort; rate limit is expected
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存历史记录失败:', e)
-  }
-}
-
-function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  restoreFromHistory(id)
-}
-
-async function restoreFromHistory(id: number) {
-  try {
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      `/api/divinations/${id}`,
-    )
-
-    // Restore form fields from input_data
-    if (record.input_data) {
-      const input = record.input_data as {
-        birthYear: number
-        birthMonth: number
-        birthDay: number
-        birthHour: number | null
-        gender: 'male' | 'female' | null
-      }
-      birthDate.value = `${input.birthYear}-${String(input.birthMonth).padStart(2, '0')}-${String(input.birthDay).padStart(2, '0')}`
-      birthHour.value = input.birthHour ?? null
-      gender.value = input.gender ?? null
-    }
-
-    // Reset error state on successful restore
-    restoreError.value = ''
-    restoredFromHistory.value = true
-
-    // Try snapshot restore from result_data
-    if (record.result_data) {
-      const deserialized = deserializeAstrolabe(record.result_data as Record<string, unknown>)
-      if (deserialized) {
-        astrolabe.value = deserialized
-        selectedIndex.value = getMingGongIndex(deserialized.palaces)
-        selectedPalace.value = deserialized.palaces[selectedIndex.value] || null
-        return
-      }
-    }
-
-    // Fallback: re-calculate from input_data
-    handleCalculate()
-  } catch {
-    restoreError.value = '历史记录加载失败，请稍后重试'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
-}
 </script>
 
 <template>
@@ -362,37 +255,18 @@ function dismissRestoreError() {
     <!-- Result with dual views -->
     <template v-else-if="astrolabe">
       <div class="w-full max-w-full sm:max-w-[48rem] mx-auto">
-        <!-- Top toolbar -->
-        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-          <template #extra>
-            <ExportButton
-              v-if="astrolabe"
-              :target-ref="resultRef"
-              filename="紫微斗数.png"
-              :is-exporting="isExporting"
-              @export="handleExport"
-            />
-          </template>
-        </ToolToolbar>
+        <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+        <div class="flex items-center justify-between mb-6">
+          <span></span>
+          <ExportButton
+            v-if="astrolabe"
+            :target-ref="resultRef"
+            filename="紫微斗数.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </div>
 
-        <!-- Save error is handled silently (fire-and-forget) -->
-
-        <!-- Restore error toast -->
-        <Transition name="toast">
-          <div v-if="restoreError" class="toast-notification" role="alert">
-            <span class="toast-notification__mark" aria-hidden="true">!</span>
-            <span class="toast-notification__text">{{ restoreError }}</span>
-            <button
-              class="toast-notification__close"
-              aria-label="关闭提示"
-              @click="dismissRestoreError"
-              @keydown.enter="dismissRestoreError"
-              @keydown.space.prevent="dismissRestoreError"
-            >
-              &times;
-            </button>
-          </div>
-        </Transition>
         <div ref="resultRef">
           <!-- ── 方法论溯源 ── -->
           <div class="flex items-center justify-between mb-6">
@@ -457,11 +331,6 @@ function dismissRestoreError() {
           </div>
         </div>
 
-        <!-- Restored from history notice -->
-        <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
-          <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
-        </div>
-
         <!-- Action buttons -->
         <div class="flex flex-wrap gap-3 justify-center mt-8">
           <button
@@ -471,15 +340,6 @@ function dismissRestoreError() {
             @keydown.space.prevent="handleCalculate"
           >
             <span>重新排盘</span>
-          </button>
-          <button
-            class="btn-cin"
-            aria-haspopup="dialog"
-            @click="showHistoryModal = true"
-            @keydown.enter="showHistoryModal = true"
-            @keydown.space.prevent="showHistoryModal = true"
-          >
-            <span>浏览历史</span>
           </button>
         </div>
       </div>
@@ -506,13 +366,6 @@ function dismissRestoreError() {
       </div>
     </template>
   </ToolPageLayout>
-
-  <HistoryModal
-    :show="showHistoryModal"
-    type="ziwei"
-    @close="showHistoryModal = false"
-    @restore="onHistoryRestore"
-  />
 
   <ZiWeiDetailSheet
     :show="selectedPalace !== null"

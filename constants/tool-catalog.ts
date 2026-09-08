@@ -1,7 +1,9 @@
 /**
- * 工具入口状态目录。
+ * 工具入口状态目录（四维）。
  *
- * P0 只约束入口曝光，不评价工具规则、结果质量或保存策略；后续专项审核会独立处理。
+ * 客户端与服务端共用唯一状态来源，统一控制审核、访问、计算、历史与导出；
+ * 不在此目录外另写绕过规则。R1 围栏期矩阵来自已批准的产品索引，
+ * 阶段条件文本不得写入运行枚举。
  *
  * @author LiXinwen
  */
@@ -18,55 +20,178 @@ export type ToolId =
   | 'hehun'
   | 'meihua'
 
-export type ToolExposure = 'listed' | 'hidden'
+export type ToolReviewStatus = 'unreviewed' | 'in_review' | 'approved' | 'suspended' | 'retired'
+export type ToolExposure = 'public' | 'internal' | 'status_only'
+export type ToolComputePolicy = 'enabled' | 'blocked'
+export type ToolHistoryPolicy = 'create_allowed' | 'read_only' | 'disabled'
 
 export interface ToolCatalogEntry {
   id: ToolId
   name: string
   route: string
+  reviewStatus: ToolReviewStatus
   exposure: ToolExposure
+  computePolicy: ToolComputePolicy
+  historyPolicy: ToolHistoryPolicy
 }
 
 export const TOOL_CATALOG: readonly ToolCatalogEntry[] = [
-  { id: 'shengxiao', name: '生肖', route: '/tools/shengxiao', exposure: 'listed' },
-  { id: 'constellation', name: '星座', route: '/tools/constellation', exposure: 'listed' },
-  { id: 'zeji', name: '择日', route: '/tools/zeji', exposure: 'listed' },
-  { id: 'bazi', name: '八字', route: '/tools/bazi', exposure: 'listed' },
-  { id: 'name-test', name: '姓名', route: '/tools/name-test', exposure: 'listed' },
-  { id: 'cezi', name: '测字', route: '/tools/cezi', exposure: 'listed' },
-  { id: 'guming', name: '称骨', route: '/tools/guming', exposure: 'listed' },
-  // 隐藏工具保留既有路由和数据，P0 仅阻止新的入口曝光与计算生命周期。
-  { id: 'ziwei', name: '紫微斗数', route: '/tools/ziwei', exposure: 'hidden' },
-  { id: 'yijing', name: '六爻', route: '/tools/yijing', exposure: 'listed' },
-  { id: 'hehun', name: '合婚', route: '/tools/hehun', exposure: 'hidden' },
-  { id: 'meihua', name: '梅花', route: '/tools/meihua', exposure: 'hidden' },
+  // 围栏期：11 项全部 in_review / internal / disabled；
+  // 仅 zeji 的 computePolicy 为 enabled（只允许受控内部验证，不放行普通访客）。
+  {
+    id: 'shengxiao',
+    name: '生肖',
+    route: '/tools/shengxiao',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'constellation',
+    name: '星座',
+    route: '/tools/constellation',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'zeji',
+    name: '择日',
+    route: '/tools/zeji',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'enabled',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'bazi',
+    name: '八字',
+    route: '/tools/bazi',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'name-test',
+    name: '姓名',
+    route: '/tools/name-test',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'cezi',
+    name: '测字',
+    route: '/tools/cezi',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'guming',
+    name: '称骨',
+    route: '/tools/guming',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'ziwei',
+    name: '紫微斗数',
+    route: '/tools/ziwei',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'yijing',
+    name: '六爻',
+    route: '/tools/yijing',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'hehun',
+    name: '合婚',
+    route: '/tools/hehun',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
+  {
+    id: 'meihua',
+    name: '梅花',
+    route: '/tools/meihua',
+    reviewStatus: 'in_review',
+    exposure: 'internal',
+    computePolicy: 'blocked',
+    historyPolicy: 'disabled',
+  },
 ]
 
 export function getToolById(id: string): ToolCatalogEntry | undefined {
   return TOOL_CATALOG.find(tool => tool.id === id)
 }
 
+/** 移除路径末尾一个或多个斜杠；根路径（'/' 或 ''）保持不变，避免把子路径或相似前缀映射成工具。 */
+function normalizeTrailingSlash(route: string): string {
+  if (route === '/' || route === '') return route
+  return route.replace(/\/+$/, '')
+}
+
 export function getToolByRoute(route: string): ToolCatalogEntry | undefined {
-  return TOOL_CATALOG.find(tool => tool.route === route)
+  return TOOL_CATALOG.find(tool => tool.route === normalizeTrailingSlash(route))
 }
 
-export function shouldListTool(id: string): boolean {
-  return getToolById(id)?.exposure === 'listed'
+/** 普通访客公开判断：同时满足 approved、public、enabled。 */
+export function isToolPubliclyAvailable(id: string): boolean {
+  const tool = getToolById(id)
+  return (
+    tool?.reviewStatus === 'approved' &&
+    tool.exposure === 'public' &&
+    tool.computePolicy === 'enabled'
+  )
+}
+
+/** 公开计算：只有已获准公开且计算启用才允许。 */
+export function canPubliclyCompute(id: string): boolean {
+  return isToolPubliclyAvailable(id)
+}
+
+/** 历史读取：只在 read_only 或 create_allowed 时允许。 */
+export function canReadHistory(id: string): boolean {
+  const policy = getToolById(id)?.historyPolicy
+  return policy === 'read_only' || policy === 'create_allowed'
+}
+
+/** 历史创建：只在 create_allowed 时允许。 */
+export function canCreateHistory(id: string): boolean {
+  return getToolById(id)?.historyPolicy === 'create_allowed'
+}
+
+/** 导出：只在 approved/public/enabled 时允许。 */
+export function canExportTool(id: string): boolean {
+  return isToolPubliclyAvailable(id)
 }
 
 /**
- * 历史数据不应绕过工具入口围栏，保留可见项原有的时间排序。
+ * 状态页只接受单值的不可公开工具参数，避免 query 被伪造成任意功能状态。
+ * internal + enabled 不等于普通访客可访问，因此统一进入状态页；
+ * 已公开工具不显示整理中，显式依赖 isToolPubliclyAvailable 排除。
  */
-export function filterListedToolRecords<T extends { type: string }>(records: readonly T[]): T[] {
-  return records.filter(record => shouldListTool(record.type))
-}
-
-/**
- * 状态页只接受单值的隐藏工具参数，避免 query 被伪造成任意功能状态。
- */
-export function getHiddenToolFromQuery(value: unknown): ToolCatalogEntry | undefined {
+export function getStatusOnlyToolFromQuery(value: unknown): ToolCatalogEntry | undefined {
   if (typeof value !== 'string') return undefined
-
   const tool = getToolById(value)
-  return tool?.exposure === 'hidden' ? tool : undefined
+  if (!tool || isToolPubliclyAvailable(tool.id)) return undefined
+  return tool
 }

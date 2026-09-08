@@ -3,53 +3,76 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const indexPageSource = readFileSync(resolve(process.cwd(), 'pages/index.vue'), 'utf-8')
-const hiddenToolNames = ['紫微斗数', '紫微命盘', '合婚', '梅花易数', '梅花']
+const toolNames = [
+  '生肖',
+  '星座',
+  '择日',
+  '八字',
+  '姓名',
+  '测字',
+  '称骨',
+  '紫微斗数',
+  '六爻',
+  '合婚',
+  '梅花',
+]
 
-function getSeoBlock(source: string): string {
-  const start = source.indexOf('useSeoMeta({')
-  const end = source.indexOf('\n})', start)
-
-  expect(start).toBeGreaterThanOrEqual(0)
-  expect(end).toBeGreaterThan(start)
-
-  return source.slice(start, end + 3)
-}
-
-function getGuestTemplate(source: string): string {
-  const startMarker = '<template v-if="sessionReady && !currentProfile">'
-  const endMarker = '<template v-if="sessionReady && currentProfile">'
-  const start = source.indexOf(startMarker)
-  const end = source.indexOf(endMarker, start)
-
-  expect(start).toBeGreaterThanOrEqual(0)
-  expect(end).toBeGreaterThan(start)
-
-  return source.slice(start, end)
-}
-
-describe('首页访客公开文案', () => {
-  it('SEO 仅介绍当前可见的探索工具', () => {
-    const seoBlock = getSeoBlock(indexPageSource)
-
-    for (const hiddenToolName of hiddenToolNames) {
-      expect(seoBlock).not.toContain(hiddenToolName)
-    }
-
-    const listedToolNames = ['八字', '易经', '生肖', '星座', '择日']
-    expect(listedToolNames.filter(toolName => seoBlock.includes(toolName))).toHaveLength(5)
+describe('首页访客公开文案（R1 收敛）', () => {
+  it('首页不请求旧历史列表接口', () => {
+    expect(indexPageSource).not.toContain('/api/divinations')
+    expect(indexPageSource).not.toContain('filterListedToolRecords')
   })
 
-  it('未登录访客模板不宣传隐藏工具', () => {
-    const guestTemplate = getGuestTemplate(indexPageSource)
+  it('不渲染旧“最近使用”列表或“暂无记录”历史文案', () => {
+    expect(indexPageSource).not.toContain('最近使用')
+    expect(indexPageSource).not.toContain('暂无记录')
+    expect(indexPageSource).not.toContain('recentActivity')
+    expect(indexPageSource).not.toContain('fetchRecentActivity')
+  })
 
-    for (const hiddenToolName of hiddenToolNames) {
-      expect(guestTemplate).not.toContain(hiddenToolName)
+  it('当前无公开工具时不出现工具名称宣传清单', () => {
+    for (const toolName of toolNames) {
+      expect(indexPageSource).not.toContain(toolName)
     }
   })
 
-  it('仍保留隐藏工具的兼容目录元数据', () => {
-    expect(indexPageSource).toContain("id: 'ziwei'")
-    expect(indexPageSource).toContain("id: 'hehun'")
-    expect(indexPageSource).toContain("id: 'meihua'")
+  it('不出现可用性承诺文案', () => {
+    expect(indexPageSource).not.toContain('中式命理，一应俱全')
+    expect(indexPageSource).not.toContain('登录探索全部工具')
+    expect(indexPageSource).not.toContain('开始推演')
+    expect(indexPageSource).not.toContain('浏览命盘')
+    expect(indexPageSource).not.toContain('登录后可排自己的盘')
+  })
+
+  it('保留中性说明与定位', () => {
+    expect(indexPageSource).toContain('传统文化自我探索')
+    expect(indexPageSource).toContain('相关工具正在逐项核验')
+  })
+
+  it('不保留 11 个工具入口卡片（按路由渲染的入口已移除）', () => {
+    expect(indexPageSource).not.toContain('groupedTools')
+    for (const toolPath of [
+      '/tools/shengxiao',
+      '/tools/constellation',
+      '/tools/zeji',
+      '/tools/bazi',
+      '/tools/name-test',
+      '/tools/cezi',
+      '/tools/guming',
+      '/tools/ziwei',
+      '/tools/yijing',
+      '/tools/hehun',
+      '/tools/meihua',
+    ]) {
+      expect(indexPageSource).not.toContain(`to="${toolPath}"`)
+    }
+  })
+
+  it('页面级 SEO 使用中性定位', () => {
+    expect(indexPageSource).toContain('传统文化自我探索')
+    // 页面级 useSeoMeta 不得列出当前非公开工具
+    for (const toolName of toolNames) {
+      expect(indexPageSource).not.toContain(toolName)
+    }
   })
 })

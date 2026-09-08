@@ -7,7 +7,6 @@ import {
 } from '~/composables/useShengXiao'
 import { calculateMonthlyFortune, type MonthlyFortuneResult } from '~/composables/useMonthlyFortune'
 import { parseDate } from '~/utils/date'
-import type { FetchError } from '~/types/errors'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -24,8 +23,6 @@ import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import SkeletonBars from '~/components/tools/SkeletonBars.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import FortuneBars from '~/components/tools/FortuneBars.vue'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import TaiSuiMitigation from '~/components/tools/shengxiao/TaiSuiMitigation.vue'
@@ -67,12 +64,6 @@ const loading = ref(true)
 const missingBirthInfo = ref(false)
 const error = ref('')
 const selectedAnimal = ref<number | null>(null)
-const savedDivinationId = ref<number | null>(null)
-const saveError = ref('')
-const showHistoryModal = ref(false)
-const restoreError = ref('')
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-const restoredFromHistory = ref(false)
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
 const { exportToImage, isExporting } = useExportImage()
@@ -117,7 +108,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
 function computeResult() {
@@ -132,12 +122,6 @@ function computeResult() {
     return
   }
   const year = parsed.year
-  const calendar = currentProfile.value.birth_calendar || 'solar'
-
-  savedDivinationId.value = null
-  saveError.value = ''
-  restoredFromHistory.value = false
-  restoreError.value = ''
 
   result.value = calculateShengXiao(year, new Date())
   selectedAnimal.value = getAnimalIndex(year)
@@ -147,7 +131,6 @@ function computeResult() {
     result.value.earthlyBranch,
     result.value.wuXing,
   )
-  saveDivinationResult(result.value, year, calendar)
   loading.value = false
 }
 
@@ -160,12 +143,6 @@ function selectAnimal(index: number) {
   const currentAnimalIdx = getAnimalIndex(currentYear.value)
   const diff = (((currentAnimalIdx - index) % 12) + 12) % 12
   const representativeYear = currentYear.value - diff
-  const calendar = currentProfile.value?.birth_calendar || 'solar'
-
-  savedDivinationId.value = null
-  saveError.value = ''
-  restoredFromHistory.value = false
-  restoreError.value = ''
 
   result.value = calculateShengXiao(representativeYear, new Date())
   monthlyFortune.value = calculateMonthlyFortune(
@@ -174,7 +151,6 @@ function selectAnimal(index: number) {
     result.value.earthlyBranch,
     result.value.wuXing,
   )
-  saveDivinationResult(result.value, representativeYear, calendar)
   loading.value = false
 }
 
@@ -213,88 +189,6 @@ const fortuneItems = computed(() => {
 function scrollToAnimalNav() {
   const el = document.querySelector('[data-animal-nav]')
   el?.scrollIntoView({ behavior: 'smooth' })
-}
-
-// ── Auto-save ────────────────────────────────────────
-
-async function saveDivinationResult(
-  result: ShengXiaoResult,
-  representativeYear: number,
-  calendar: string,
-) {
-  try {
-    const inputData = { representativeYear, calendar }
-    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'shengxiao',
-        input_data: inputData,
-        result_data: JSON.parse(JSON.stringify(result)),
-      },
-    })
-    savedDivinationId.value = saveRes.id
-    saveError.value = ''
-  } catch (e: unknown) {
-    // 429 handled globally by auth-interceptor; 401 redirects there too
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 429) return // auto-save is best-effort; rate limit is expected
-      if (code === 401) return // global interceptor handles logout + redirect
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存历史记录失败:', e)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
-}
-
-function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  restoreFromHistory(id)
-}
-
-async function restoreFromHistory(id: number) {
-  try {
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      `/api/divinations/${id}`,
-    )
-    if (record.result_data) {
-      const data = record.result_data
-      if (
-        data &&
-        typeof data === 'object' &&
-        'animal' in data &&
-        'wuXing' in data &&
-        'fortune' in data
-      ) {
-        const typedData = data as ShengXiaoResult
-        result.value = typedData
-        selectedAnimal.value = getAnimalIndex(typedData.year)
-        monthlyFortune.value = calculateMonthlyFortune(
-          typedData.year,
-          currentYear.value,
-          typedData.earthlyBranch,
-          typedData.wuXing,
-        )
-        restoreError.value = ''
-        restoredFromHistory.value = true
-        return
-      }
-    }
-    restoreError.value = '历史记录数据无效'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  } catch {
-    restoreError.value = '历史记录加载失败，请稍后重试'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
 }
 </script>
 
@@ -365,35 +259,17 @@ async function restoreFromHistory(id: number) {
     <!-- Result -->
     <template v-else-if="result">
       <div class="max-w-[48rem] mx-auto" aria-live="polite" aria-atomic="true">
-        <!-- Top toolbar -->
-        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-          <template #extra>
-            <ExportButton
-              v-if="result"
-              :target-ref="resultRef"
-              filename="生肖运势.png"
-              :is-exporting="isExporting"
-              @export="handleExport"
-            />
-          </template>
-        </ToolToolbar>
-
-        <!-- Restore error toast -->
-        <Transition name="toast">
-          <div v-if="restoreError" class="toast-notification" role="alert">
-            <span class="toast-notification__mark" aria-hidden="true">!</span>
-            <span class="toast-notification__text">{{ restoreError }}</span>
-            <button
-              class="toast-notification__close"
-              aria-label="关闭提示"
-              @click="dismissRestoreError"
-              @keydown.enter="dismissRestoreError"
-              @keydown.space.prevent="dismissRestoreError"
-            >
-              &times;
-            </button>
-          </div>
-        </Transition>
+        <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+        <div class="flex items-center justify-between mb-6">
+          <span></span>
+          <ExportButton
+            v-if="result"
+            :target-ref="resultRef"
+            filename="生肖运势.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </div>
 
         <div ref="resultRef">
           <!-- ── 方法论溯源 ── -->
@@ -462,19 +338,6 @@ async function restoreFromHistory(id: number) {
           </div>
         </div>
 
-        <!-- Restored from history notice -->
-        <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-8">
-          <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
-          <button
-            class="btn-cin"
-            @click="computeResult"
-            @keydown.enter="computeResult"
-            @keydown.space.prevent="computeResult"
-          >
-            <span>刷新结果</span>
-          </button>
-        </div>
-
         <div class="flex flex-wrap gap-3 justify-center mt-8">
           <button
             class="btn-cin"
@@ -484,28 +347,12 @@ async function restoreFromHistory(id: number) {
           >
             <span>切换生肖</span>
           </button>
-          <button
-            class="btn-cin"
-            aria-haspopup="dialog"
-            @click="showHistoryModal = true"
-            @keydown.enter="showHistoryModal = true"
-            @keydown.space.prevent="showHistoryModal = true"
-          >
-            <span>浏览历史</span>
-          </button>
         </div>
       </div>
 
       <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
     </template>
   </ToolPageLayout>
-
-  <HistoryModal
-    :show="showHistoryModal"
-    type="shengxiao"
-    @close="showHistoryModal = false"
-    @restore="onHistoryRestore"
-  />
 </template>
 
 <style scoped>

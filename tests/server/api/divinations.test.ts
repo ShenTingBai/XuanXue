@@ -90,9 +90,10 @@ vi.mock('~/server/utils/profile', () => ({
 
 import { dbGet, dbRun, dbAll } from '~/server/database/db'
 import { checkRateLimit, getClientIp } from '~/server/utils/rateLimit'
+import { TOOL_CATALOG, canCreateHistory, canReadHistory } from '~/constants/tool-catalog'
 
 // ============================================================================
-// Divinations API tests
+// Divinations API tests (R1 围栏期)
 // ============================================================================
 
 describe('Divinations API handlers', () => {
@@ -118,17 +119,25 @@ describe('Divinations API handlers', () => {
       handler = (await import('~/server/api/divinations/index.post')).default
     })
 
-    it('creates a divination record and returns { id, created_at }', async () => {
-      const result = await handler({ context: { profileId: 1 } } as any)
-      expect(result).toHaveProperty('id', 42)
-      expect(result).toHaveProperty('created_at')
+    it('当前围栏期所有合法已登录类型都返回 403 且不执行 dbRun', async () => {
+      const nonCreateableTypes = TOOL_CATALOG.filter(tool => !canCreateHistory(tool.id))
+      expect(nonCreateableTypes).toHaveLength(11)
+
+      for (const tool of nonCreateableTypes) {
+        mockReadBody.mockResolvedValue({
+          type: tool.id,
+          input_data: { test: true },
+          result_data: { result: tool.id },
+        })
+        await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
+          statusCode: 403,
+        })
+      }
+
+      expect(dbRun).not.toHaveBeenCalled()
     })
 
     it('throws 401 when no auth header', async () => {
-      await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
-    })
-
-    it('throws 401 when token is invalid', async () => {
       await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
     })
 
@@ -159,63 +168,6 @@ describe('Divinations API handlers', () => {
         statusCode: 400,
       })
     })
-
-    it('throws 400 when input_data is missing', async () => {
-      mockReadBody.mockResolvedValue({
-        type: 'bazi',
-        result_data: { dayMaster: '甲' },
-      })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 400 when result_data is missing', async () => {
-      mockReadBody.mockResolvedValue({
-        type: 'bazi',
-        input_data: { birthYear: 2000 },
-      })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 413 when result_data exceeds size limit', async () => {
-      mockReadBody.mockResolvedValue({
-        type: 'bazi',
-        input_data: { x: 'small' },
-        result_data: { data: 'x'.repeat(200_000) },
-      })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 413,
-      })
-    })
-
-    it('throws 413 when input_data exceeds size limit', async () => {
-      mockReadBody.mockResolvedValue({
-        type: 'bazi',
-        input_data: { data: 'x'.repeat(200_000) },
-        result_data: { x: 'small' },
-      })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 413,
-      })
-    })
-
-    it('accepts all valid type values', async () => {
-      const validTypes = ['shengxiao', 'constellation', 'bazi', 'yijing', 'ziwei']
-      for (const t of validTypes) {
-        mockReadBody.mockResolvedValue({
-          type: t,
-          input_data: { test: true },
-          result_data: { result: t },
-        })
-        vi.mocked(dbRun).mockReturnValue({ lastInsertRowid: 1, changes: 1 })
-        vi.mocked(dbGet).mockReturnValue({ created_at: '2025-01-01T00:00:00.000Z' })
-        const result = await handler({ context: { profileId: 1 } } as any)
-        expect(result.id).toBeGreaterThan(0)
-      }
-    })
   })
 
   // --------------------------------------------------------------------------
@@ -234,31 +186,24 @@ describe('Divinations API handlers', () => {
       handler = (await import('~/server/api/divinations/index.get')).default
     })
 
-    it('returns list of records without result_data', async () => {
-      vi.mocked(dbAll).mockReturnValue([
-        {
-          id: 1,
-          type: 'bazi',
-          input_data: '{"birthYear":2000}',
-          created_at: '2025-01-01T00:00:00.000Z',
-        },
-        {
-          id: 2,
-          type: 'yijing',
-          input_data: '{"coins":[7,7,7,7,7,7]}',
-          created_at: '2025-01-02T00:00:00.000Z',
-        },
-      ])
+    it('显式 type 为 disabled 时返回 403 且不查询列表', async () => {
+      const disabledType = TOOL_CATALOG.find(tool => !canReadHistory(tool.id))
+      expect(disabledType).toBeDefined()
+      mockGetQuery.mockReturnValue({ type: disabledType!.id })
+
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
+        statusCode: 403,
+      })
+      expect(dbAll).not.toHaveBeenCalled()
+    })
+
+    it('无 type 且当前没有可读类型时直接返回空数组且不查询数据库', async () => {
+      const readableTypes = TOOL_CATALOG.filter(tool => canReadHistory(tool.id))
+      expect(readableTypes).toHaveLength(0)
+
       const result = await handler({ context: { profileId: 1 } } as any)
-      expect(Array.isArray(result)).toBe(true)
-      expect(result).toHaveLength(2)
-      for (const record of result) {
-        expect(record).toHaveProperty('id')
-        expect(record).toHaveProperty('type')
-        expect(record).toHaveProperty('input_data')
-        expect(record).toHaveProperty('created_at')
-        expect(record).not.toHaveProperty('result_data')
-      }
+      expect(result).toEqual([])
+      expect(dbAll).not.toHaveBeenCalled()
     })
 
     it('throws 401 without auth header', async () => {
@@ -272,27 +217,11 @@ describe('Divinations API handlers', () => {
       })
     })
 
-    it('filters by type when query param is provided', async () => {
-      mockGetQuery.mockReturnValue({ type: 'bazi' })
-      vi.mocked(dbAll).mockReturnValue([
-        { id: 1, type: 'bazi', input_data: '{}', created_at: '2025-01-01T00:00:00.000Z' },
-      ])
-      const result = await handler({ context: { profileId: 1 } } as any)
-      expect(result).toHaveLength(1)
-      expect(result[0].type).toBe('bazi')
-    })
-
     it('throws 400 for invalid type filter', async () => {
       mockGetQuery.mockReturnValue({ type: 'invalid_type' })
       await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
         statusCode: 400,
       })
-    })
-
-    it('returns empty array when no records exist', async () => {
-      vi.mocked(dbAll).mockReturnValue([])
-      const result = await handler({ context: { profileId: 1 } } as any)
-      expect(result).toEqual([])
     })
   })
 
@@ -311,22 +240,6 @@ describe('Divinations API handlers', () => {
 
       const mod = await import('~/server/api/divinations/[id].get')
       handler = mod.default
-    })
-
-    it('returns full record with result_data and input_data', async () => {
-      vi.mocked(dbGet).mockReturnValue({
-        id: 42,
-        profile_id: 1,
-        type: 'bazi',
-        input_data: '{"birthYear":2000}',
-        result_data: '{"dayMaster":"甲"}',
-        created_at: '2025-01-01T00:00:00.000Z',
-      })
-      const result = await handler({ context: { profileId: 1 } } as any)
-      expect(result.id).toBe(42)
-      expect(result.type).toBe('bazi')
-      expect(result.input_data).toEqual({ birthYear: 2000 })
-      expect(result.result_data).toEqual({ dayMaster: '甲' })
     })
 
     it('throws 400 for non-numeric id', async () => {
@@ -368,6 +281,21 @@ describe('Divinations API handlers', () => {
         type: 'bazi',
         input_data: '{}',
         result_data: '{}',
+        created_at: '2025-01-01T00:00:00.000Z',
+      })
+      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
+        statusCode: 403,
+      })
+    })
+
+    it('归属通过后 disabled 类型返回 403 且不返回 input/result 正文', async () => {
+      const disabledType = TOOL_CATALOG.find(tool => !canReadHistory(tool.id))
+      vi.mocked(dbGet).mockReturnValue({
+        id: 42,
+        profile_id: 1,
+        type: disabledType!.id,
+        input_data: '{"birthYear":2000}',
+        result_data: '{"dayMaster":"甲"}',
         created_at: '2025-01-01T00:00:00.000Z',
       })
       await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({

@@ -2,7 +2,6 @@
 import { analyzeCharacter, type CeziResult } from '~/composables/useCezi'
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import { ELEMENT_INTERPRETATIONS } from '~/constants/cezi'
-import type { FetchError } from '~/types/errors'
 
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
@@ -10,10 +9,8 @@ const router = useRouter()
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
 
 useSeoMeta({
@@ -31,11 +28,6 @@ const inputChar = ref('')
 const showScrollTop = ref(false)
 const resultRef = ref<HTMLElement | null>(null)
 const { exportToImage, isExporting } = useExportImage()
-const saveError = ref('')
-const savedDivinationId = ref<number | null>(null)
-const showHistoryModal = ref(false)
-const restoreError = ref('')
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // ── Methodology data ──
 const ceziClassical: ClassicalSource[] = [
@@ -86,7 +78,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 
 async function computeCezi() {
@@ -98,7 +89,6 @@ async function computeCezi() {
 
   loading.value = true
   error.value = ''
-  saveError.value = ''
 
   // Brief delay for UX
   await new Promise(r => setTimeout(r, 300))
@@ -110,9 +100,6 @@ async function computeCezi() {
       return
     }
     result.value = res
-
-    // Auto-save
-    saveDivinationResult(res)
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error('测字分析失败:', e)
@@ -120,63 +107,6 @@ async function computeCezi() {
   } finally {
     loading.value = false
   }
-}
-
-async function saveDivinationResult(res: CeziResult) {
-  try {
-    const inputData = { character: res.character }
-    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'cezi',
-        input_data: inputData,
-        result_data: JSON.parse(JSON.stringify(res)),
-      },
-    })
-    savedDivinationId.value = saveRes.id
-    saveError.value = ''
-  } catch (e: unknown) {
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 429) return
-      if (code === 401) return
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存测字记录失败:', e)
-  }
-}
-
-async function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  try {
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      `/api/divinations/${id}`,
-    )
-    if (
-      record.result_data &&
-      typeof record.result_data === 'object' &&
-      (record.result_data as Record<string, unknown>).character
-    ) {
-      result.value = record.result_data as CeziResult
-      restoreError.value = ''
-    } else {
-      restoreError.value = '历史记录数据无效'
-      if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => {
-        restoreError.value = ''
-      }, 6000)
-    }
-  } catch {
-    restoreError.value = '历史记录加载失败，请稍后重试'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
 }
 
 function resetToForm() {
@@ -229,17 +159,17 @@ const interpretationParagraphs = computed(() => {
     </div>
 
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-        <template #extra>
-          <ExportButton
-            v-if="result"
-            :target-ref="resultRef"
-            filename="测字占卜.png"
-            :is-exporting="isExporting"
-            @export="handleExport"
-          />
-        </template>
-      </ToolToolbar>
+      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+      <div class="flex items-center justify-between mb-6">
+        <span></span>
+        <ExportButton
+          v-if="result"
+          :target-ref="resultRef"
+          filename="测字占卜.png"
+          :is-exporting="isExporting"
+          @export="handleExport"
+        />
+      </div>
 
       <!-- ══ Input Area ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
@@ -414,30 +344,6 @@ const interpretationParagraphs = computed(() => {
         </div>
       </template>
     </div>
-
-    <!-- Restore error toast -->
-    <Transition name="toast">
-      <div v-if="restoreError" class="toast-notification" role="alert">
-        <span class="toast-notification__mark" aria-hidden="true">!</span>
-        <span class="toast-notification__text">{{ restoreError }}</span>
-        <button
-          class="toast-notification__close"
-          aria-label="关闭提示"
-          @click="dismissRestoreError"
-          @keydown.enter="dismissRestoreError"
-          @keydown.space.prevent="dismissRestoreError"
-        >
-          &times;
-        </button>
-      </div>
-    </Transition>
-
-    <HistoryModal
-      :show="showHistoryModal"
-      type="cezi"
-      @close="showHistoryModal = false"
-      @restore="onHistoryRestore"
-    />
 
     <ScrollTopButton
       v-if="showScrollTop"

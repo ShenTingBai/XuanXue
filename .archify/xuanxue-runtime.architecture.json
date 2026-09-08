@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "玄·道（XuanXue）运行时架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1260, 540],
+    "repository": {
+      "url": "https://github.com/ShenTingBai/XuanXue.git",
+      "revision": "5928952730ed467fdf7758c665a94d7e1f034053"
+    },
+    "views": [
+      {
+        "id": "main-journey",
+        "label": "主要路径：测算 → 保存",
+        "focus": [
+          "browser",
+          "composables",
+          "calc-libs",
+          "nitro",
+          "auth-middleware",
+          "security-utils",
+          "sqlite"
+        ],
+        "note": "一次占卜的完整旅程：输入生辰 → 计算 → 渲染 → 确认保存 → 鉴权 → 落库"
+      },
+      {
+        "id": "trust-boundary",
+        "label": "信任边界与安全",
+        "focus": ["browser", "csp", "nitro", "auth-middleware", "security-utils", "sqlite"],
+        "note": "浏览器侧不可信；服务端全部落在信任域内"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "用户浏览器",
+      "sublabel": "Vue 页面/组件 · localStorage 会话",
+      "pos": [70, 260],
+      "size": [200, 72],
+      "sources": [
+        { "path": "nuxt.config.ts", "line": 102, "label": "tools 页 ssr:false" },
+        { "path": "composables/useAuth.ts", "label": "localStorage 会话" }
+      ]
+    },
+    {
+      "id": "composables",
+      "type": "frontend",
+      "label": "Composables 计算引擎",
+      "sublabel": "useBaZi · useShenSha · useLiuNian…",
+      "pos": [70, 90],
+      "size": [200, 64],
+      "sources": [{ "path": "composables/useBaZi.ts", "label": "四柱 · 十神 · 大运" }]
+    },
+    {
+      "id": "calc-libs",
+      "type": "external",
+      "label": "玄学计算库（npm）",
+      "sublabel": "八字 · 紫微 · 星座计算",
+      "pos": [360, 90],
+      "size": [190, 64],
+      "sources": [{ "path": "package.json", "line": 19, "label": "astronomy-engine 等依赖" }]
+    },
+    {
+      "id": "nitro",
+      "type": "backend",
+      "label": "Nitro 服务器",
+      "sublabel": "/api/auth · profiles · divinations",
+      "pos": [640, 90],
+      "size": [200, 72],
+      "sources": [{ "path": "server/api/divinations/index.post.ts", "label": "保存占卜结果" }]
+    },
+    {
+      "id": "auth-middleware",
+      "type": "security",
+      "label": "认证中间件",
+      "sublabel": "Bearer token → profileId",
+      "pos": [930, 90],
+      "size": [200, 72],
+      "sources": [{ "path": "server/middleware/auth.ts", "line": 4, "label": "Bearer 提取" }]
+    },
+    {
+      "id": "sqlite",
+      "type": "database",
+      "label": "SQLite（sql.js）",
+      "sublabel": "profiles · sessions · divinations",
+      "pos": [640, 260],
+      "size": [200, 64],
+      "sources": [{ "path": "server/database/schema.ts", "line": 1, "label": "建表 DDL" }]
+    },
+    {
+      "id": "security-utils",
+      "type": "security",
+      "label": "安全工具层",
+      "sublabel": "scrypt · HMAC-SHA256 · 限流",
+      "pos": [930, 260],
+      "size": [200, 64],
+      "sources": [
+        { "path": "server/utils/auth.ts", "line": 12, "label": "scrypt PIN" },
+        { "path": "server/utils/rateLimit.ts", "label": "限流" }
+      ]
+    },
+    {
+      "id": "csp",
+      "type": "security",
+      "label": "安全头插件",
+      "sublabel": "CSP nonce 替换 · HSTS",
+      "pos": [640, 420],
+      "size": [200, 56],
+      "sources": [{ "path": "server/plugins/csp.ts", "label": "每请求 nonce 替换" }]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "浏览器 · 不可信",
+      "wraps": ["browser", "composables", "calc-libs"],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "Nitro 服务端 · 信任域",
+      "wraps": ["nitro", "auth-middleware", "sqlite", "security-utils", "csp"],
+      "pad": 28
+    }
+  ],
+  "connections": [
+    {
+      "id": "input",
+      "from": "browser",
+      "to": "composables",
+      "label": "输入生辰 · 起卦",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -17
+    },
+    {
+      "id": "invoke-libs",
+      "from": "composables",
+      "to": "calc-libs",
+      "label": "调用计算",
+      "variant": "emphasis"
+    },
+    {
+      "id": "render",
+      "from": "composables",
+      "to": "browser",
+      "label": "渲染命盘结果",
+      "variant": "emphasis",
+      "fromSide": "left",
+      "toSide": "left",
+      "via": [
+        [50, 122],
+        [50, 296]
+      ],
+      "labelDy": -19,
+      "labelDx": 30
+    },
+    {
+      "id": "save",
+      "from": "browser",
+      "to": "nitro",
+      "label": "确认保存 POST /api/divinations",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [
+        [315, 296],
+        [315, 200],
+        [630, 200],
+        [630, 126]
+      ]
+    },
+    {
+      "id": "bearer",
+      "from": "nitro",
+      "to": "auth-middleware",
+      "label": "Bearer 鉴权",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sql",
+      "from": "nitro",
+      "to": "sqlite",
+      "label": "档案 · 占卜 SQL",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [740, 211]
+    },
+    {
+      "id": "hmac",
+      "from": "auth-middleware",
+      "to": "security-utils",
+      "label": "HMAC 会话校验",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [1030, 211]
+    },
+    {
+      "id": "sessions-io",
+      "from": "security-utils",
+      "to": "sqlite",
+      "label": "sessions 读写",
+      "variant": "emphasis"
+    },
+    {
+      "id": "headers",
+      "from": "csp",
+      "to": "browser",
+      "label": "注入 nonce · 安全头",
+      "fromSide": "left",
+      "toSide": "bottom",
+      "via": [[170, 448]]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "客户端计算",
+      "items": [
+        "18 个组合式函数是纯计算引擎，零服务端执行",
+        "tools / profile 页 ssr:false，命盘计算全在浏览器",
+        "结果用 html-to-image（+ potrace 描边）导出图片"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "外部依赖（npm）",
+      "items": [
+        "lunar-javascript：农历 · 八字四柱",
+        "iztro：紫微斗数星盘",
+        "astronomy-engine：星座本命盘"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "服务端信任域",
+      "items": [
+        "PIN：scrypt + 16 字节盐 + timingSafeEqual",
+        "令牌 HMAC-SHA256 哈希存储，单会话 + 7 天过期",
+        "限流 10 req/min；SESSION_SECRET 缺失即崩溃"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "已知待整改",
+      "items": [
+        "divinations fire-and-forget 自动保存，待改用户确认制",
+        "PIN 4 位数字待扩展；localStorage 会话待迁移 cookie",
+        "security_log 保留 90 天"
+      ]
+    }
+  ]
+}

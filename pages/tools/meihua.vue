@@ -9,14 +9,11 @@ import {
   type InputMethod,
 } from '~/composables/useMeiHua'
 import { TRIGRAMS } from '~/constants/meihua'
-import type { FetchError } from '~/types/errors'
 import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
 import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import { useProfileAutoFill } from '~/composables/useProfileAutoFill'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
@@ -51,9 +48,6 @@ const error = ref('')
 const showScrollTop = ref(false)
 const exportRef = ref<HTMLElement | null>(null)
 const { exportToImage, isExporting } = useExportImage()
-const showHistoryModal = ref(false)
-const restoreError = ref<string | null>(null)
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // Input state
 const inputMethod = ref<InputMethod>('time')
@@ -148,7 +142,6 @@ function compute() {
         dateHour.value,
       )
       result.value = res
-      tryAutoSave(res)
     } else if (inputMethod.value === 'manual') {
       if (manualUpper.value < 1 || manualUpper.value > 999) {
         throw new Error('上卦数应在 1-999 之间')
@@ -168,7 +161,6 @@ function compute() {
       }
       const res = calculateMeiHua(input)
       result.value = res
-      tryAutoSave(res)
     } else {
       const upperNum = Math.floor(Math.random() * 999) + 1
       const lowerNum = Math.floor(Math.random() * 999) + 1
@@ -185,7 +177,6 @@ function compute() {
       }
       const res = calculateMeiHua(input)
       result.value = res
-      tryAutoSave(res)
     }
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : '起卦出错，请重试'
@@ -194,66 +185,6 @@ function compute() {
   }
 }
 
-// ── Auto-save ──
-async function tryAutoSave(res: MeiHuaResult) {
-  try {
-    await $fetch('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'meihua',
-        input_data: {
-          method: res.input.method,
-          upperNumber: res.input.upperNumber,
-          lowerNumber: res.input.lowerNumber,
-          movingNumber: res.input.movingNumber,
-          question: res.input.question,
-        },
-        result_data: JSON.parse(JSON.stringify(res)),
-      },
-    })
-  } catch (e: unknown) {
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 401 || code === 429) return
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存历史记录失败:', e)
-  }
-}
-
-// ── History restore ──
-async function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  try {
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      '/api/divinations/' + id,
-    )
-    if (
-      record.result_data &&
-      typeof record.result_data === 'object' &&
-      'benGua' in (record.result_data as Record<string, unknown>)
-    ) {
-      result.value = record.result_data as MeiHuaResult
-      restoreError.value = ''
-    } else {
-      restoreError.value = '数据无效'
-      if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-      restoreErrorTimer.value = setTimeout(() => {
-        restoreError.value = ''
-      }, 6000)
-    }
-  } catch {
-    restoreError.value = '加载失败'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
-}
 function resetToForm() {
   result.value = null
   error.value = ''
@@ -316,7 +247,6 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
 })
 </script>
 
@@ -327,17 +257,17 @@ onUnmounted(() => {
       {{ loading ? '正在起卦...' : result ? '卦象已就绪' : '' }}
     </div>
     <div class="max-w-[48rem] mx-auto">
-      <ToolToolbar v-if="!missingBirth" :show-history="true" @history="showHistoryModal = true">
-        <template #extra>
-          <ExportButton
-            v-if="result"
-            :target-ref="exportRef"
-            filename="梅花易数.png"
-            :is-exporting="isExporting"
-            @export="handleExport"
-          />
-        </template>
-      </ToolToolbar>
+      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+      <div v-if="!missingBirth" class="flex items-center justify-between mb-6">
+        <span></span>
+        <ExportButton
+          v-if="result"
+          :target-ref="exportRef"
+          filename="梅花易数.png"
+          :is-exporting="isExporting"
+          @export="handleExport"
+        />
+      </div>
 
       <!-- Input card -->
 
@@ -698,29 +628,6 @@ onUnmounted(() => {
       </template>
     </div>
 
-    <!-- Toast -->
-    <Transition name="toast">
-      <div v-if="restoreError" class="toast-notification" role="alert">
-        <span class="toast-notification__mark">!</span>
-        <span class="toast-notification__text">{{ restoreError }}</span>
-        <button
-          class="toast-notification__close"
-          aria-label="关闭提示"
-          @click="dismissRestoreError"
-          @keydown.enter="dismissRestoreError"
-          @keydown.space.prevent="dismissRestoreError"
-        >
-          &times;
-        </button>
-      </div>
-    </Transition>
-
-    <HistoryModal
-      :show="showHistoryModal"
-      type="meihua"
-      @close="showHistoryModal = false"
-      @restore="onHistoryRestore"
-    />
     <ScrollTopButton
       v-if="showScrollTop"
       @click="scrollToTop"

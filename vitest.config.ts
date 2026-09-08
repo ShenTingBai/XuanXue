@@ -16,6 +16,7 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
     setupFiles: ['tests/helpers/vitest-setup.ts'],
+    globalSetup: ['tests/helpers/vitest-global-setup.ts'],
     passWithNoTests: process.env.CI ? false : true,
     coverage: {
       provider: 'v8',

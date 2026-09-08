@@ -1,3 +1,36 @@
+import { copyFileSync, mkdirSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { isToolPubliclyAvailable, TOOL_CATALOG } from './constants/tool-catalog'
+
+// 基于配置文件自身位置解析项目根，避免硬编码本机绝对路径。
+const configDir = dirname(fileURLToPath(import.meta.url))
+
+// 从四维工具目录派生公开范围：PWA、默认 SEO、Open Graph、Twitter 与 sitemap 共用同一来源。
+const publicTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
+const publicToolNames = publicTools.map(tool => tool.name)
+const nonPublicToolRoutes = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(tool.id)).map(
+  tool => tool.route,
+)
+
+// 当前没有 approved/public/enabled 工具时，只保留中性定位，不列工具名称。
+const publicDescription =
+  publicToolNames.length > 0
+    ? `传统文化自我探索：${publicToolNames.join('、')}等探索工具`
+    : '传统文化自我探索'
+
+// 敏感接口的 Service Worker 旁路：认证、档案与结果历史必须 NetworkOnly 且先于通用 API 规则匹配。
+const sensitiveApiPatterns = [
+  /^\/api\/auth(\/|$)/,
+  /^\/api\/profiles(\/|$)/,
+  /^\/api\/divinations(\/|$)/,
+]
+const sensitiveRuntimeCaching = sensitiveApiPatterns.map(pattern => ({
+  urlPattern: pattern,
+  handler: 'NetworkOnly' as const,
+  method: 'GET' as const,
+}))
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-05-24',
   experimental: {
@@ -5,12 +38,27 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@vite-pwa/nuxt', '@nuxtjs/sitemap'],
   css: ['~/assets/css/main.css'],
+  nitro: {
+    hooks: {
+      // 生产构建后把 sql.js 的 WASM 复制到与 sql-wasm.js 同目录的服务端输出，
+      // 使 initSqlJs 默认 locateFile（__dirname 相对定位）即可加载，无需改数据库接口。
+      compiled(nitro) {
+        const wasmSrc = resolve(configDir, 'node_modules/sql.js/dist/sql-wasm.wasm')
+        const wasmDest = join(
+          nitro.options.output.serverDir,
+          'node_modules/sql.js/dist/sql-wasm.wasm',
+        )
+        mkdirSync(dirname(wasmDest), { recursive: true })
+        copyFileSync(wasmSrc, wasmDest)
+      },
+    },
+  },
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: '玄·道 — 玄天机 · 道命理',
+      name: '玄·道 — 传统文化自我探索',
       short_name: '玄·道',
-      description: '传统文化自我探索：八字、易经、生肖、星座、择日等探索工具',
+      description: publicDescription,
       theme_color: '#F5F0E8',
       background_color: '#F5F0E8',
       display: 'standalone',
@@ -25,6 +73,8 @@ export default defineNuxtConfig({
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
       runtimeCaching: [
+        // 敏感 API 先匹配，NetworkOnly：不进入持久缓存。
+        ...sensitiveRuntimeCaching,
         {
           urlPattern: '/api/.*',
           handler: 'NetworkFirst',
@@ -40,7 +90,7 @@ export default defineNuxtConfig({
     },
   },
   sitemap: {
-    exclude: ['/api/**'],
+    exclude: ['/api/**', ...nonPublicToolRoutes],
   },
   runtimeConfig: {
     public: {
@@ -49,28 +99,28 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: '玄·道 - 命理互动平台',
+      title: '玄·道 - 传统文化自我探索',
       htmlAttrs: { lang: 'zh-CN' },
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
         {
           name: 'description',
-          content: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
+          content: publicDescription,
         },
-        { property: 'og:title', content: '玄·道 — 中式命理推演平台' },
+        { property: 'og:title', content: '玄·道 — 传统文化自我探索' },
         {
           property: 'og:description',
-          content: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
+          content: publicDescription,
         },
         { property: 'og:image', content: 'https://xuanji.me/og-image.png' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { property: 'og:type', content: 'website' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: '玄·道 — 中式命理推演平台' },
+        { name: 'twitter:title', content: '玄·道 — 传统文化自我探索' },
         {
           name: 'twitter:description',
-          content: '传统文化自我探索平台，提供八字、易经、生肖、星座、择日等探索工具。',
+          content: publicDescription,
         },
         { name: 'twitter:image', content: 'https://xuanji.me/og-image.png' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },

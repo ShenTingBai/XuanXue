@@ -1,6 +1,7 @@
 import { dbAll } from '../../database/db'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
+import { canReadHistory } from '../../../constants/tool-catalog'
 import { DIVINATION_TYPES } from './shared'
 
 const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
@@ -27,12 +28,27 @@ export default defineEventHandler(async event => {
     })
   }
 
+  // 历史读取策略：显式 type 为 disabled 时返回 403，不查询列表。
+  if (type && !canReadHistory(type)) {
+    throw createError({ statusCode: 403, statusMessage: '当前工具暂不支持读取历史' })
+  }
+
+  // 未指定 type 时只查询允许读取的类型；当前允许集合为空则直接返回 []，不执行 dbAll。
+  const readableTypes = DIVINATION_TYPES.filter(t => canReadHistory(t))
+  if (!type && readableTypes.length === 0) {
+    return []
+  }
+
   let sql = 'SELECT id, type, input_data, created_at FROM divination_results WHERE profile_id = ?'
   const params: (string | number | null)[] = [profileId]
 
   if (type) {
     sql += ' AND type = ?'
     params.push(type)
+  } else {
+    const placeholders = readableTypes.map(() => '?').join(', ')
+    sql += ` AND type IN (${placeholders})`
+    params.push(...readableTypes)
   }
 
   sql += ' ORDER BY created_at DESC LIMIT 20'

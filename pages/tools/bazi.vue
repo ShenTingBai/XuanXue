@@ -11,7 +11,6 @@ import { calculateShenSha, type ShenSha } from '~/composables/useShenSha'
 import { calculateLiuNian, type LiuNianYear } from '~/composables/useLiuNian'
 import { getStemIndex, getAnimal, sectionMap, BRANCHES } from '~/constants/bazi'
 import { parseDate } from '~/utils/date'
-import type { FetchError } from '~/types/errors'
 import BaziGrid from '~/components/tools/bazi/BaziGrid.vue'
 
 import ElementAnalysis from '~/components/tools/bazi/ElementAnalysis.vue'
@@ -30,8 +29,6 @@ import ProfileAutoFillBanner from '~/components/tools/ProfileAutoFillBanner.vue'
 import SectionNav from '~/components/tools/bazi/SectionNav.vue'
 import CollapsibleSection from '~/components/tools/bazi/CollapsibleSection.vue'
 import DayMasterSeal from '~/components/tools/bazi/DayMasterSeal.vue'
-import HistoryModal from '~/components/tools/HistoryModal.vue'
-import ToolToolbar from '~/components/tools/ToolToolbar.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
 import MethodologyNote, { type ClassicalSource } from '~/components/tools/MethodologyNote.vue'
@@ -72,13 +69,6 @@ const missingHour = ref(false)
 const error = ref('')
 const shenShaList = ref<ShenSha[]>([])
 const liuNianYears = ref<LiuNianYear[]>([])
-const savedDivinationId = ref<number | null>(null)
-const saveError = ref('')
-const showHistoryModal = ref(false)
-const restoreError = ref('')
-const restoreErrorTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
-const restoredFromHistory = ref(false)
 const currentYear = new Date().getFullYear()
 const showScrollTop = ref(false)
 const scrollTopOffset = ref('1rem')
@@ -132,7 +122,6 @@ let observeTimer: ReturnType<typeof setTimeout> | null = null
 
 onUnmounted(() => {
   if (observeTimer) clearTimeout(observeTimer)
-  if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
   if (sectionObserver) sectionObserver.disconnect()
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', updateScrollTopOffset)
@@ -216,13 +205,9 @@ function computeResult() {
   loading.value = true
   error.value = ''
 
-  // Reset shensha, liunian, and save state
+  // Reset shensha and liunian state
   shenShaList.value = []
   liuNianYears.value = []
-  savedDivinationId.value = null
-  saveError.value = ''
-  restoredFromHistory.value = false
-  restoreError.value = ''
 
   const parsed = parseDate(currentProfile.value.birth_date)
   if (!parsed) {
@@ -273,124 +258,10 @@ function computeResult() {
       currentYear,
       range: 5,
     })
-
-    // Auto-save divination result (fire-and-forget, does not block result display)
-    saveDivinationResult(baziResult, year, month, day, calendar, hour, gender)
   } catch {
     error.value = '排盘计算出错，请检查出生信息'
   }
   loading.value = false
-}
-
-async function saveDivinationResult(
-  baziResult: BaZiResult,
-  year: number,
-  month: number,
-  day: number,
-  calendar: string,
-  hour: number | null,
-  gender: string | null,
-) {
-  try {
-    const inputData = {
-      birthYear: year,
-      birthMonth: month,
-      birthDay: day,
-      birthCalendar: calendar,
-      birthHour: hour,
-      gender,
-    }
-    const saveRes = await $fetch<{ id: number; created_at: string }>('/api/divinations', {
-      method: 'POST',
-      body: {
-        type: 'bazi',
-        input_data: inputData,
-        result_data: JSON.parse(JSON.stringify(baziResult)),
-      },
-    })
-    savedDivinationId.value = saveRes.id
-    saveError.value = ''
-  } catch (e: unknown) {
-    // 429 handled globally by auth-interceptor; 401 redirects there too
-    if (e && typeof e === 'object' && 'statusCode' in e) {
-      const code = (e as FetchError).statusCode
-      if (code === 429) return // auto-save is best-effort; rate limit is expected
-      if (code === 401) return // global interceptor handles logout + redirect
-    }
-    // eslint-disable-next-line no-console
-    console.error('保存历史记录失败:', e)
-  }
-}
-
-function dismissRestoreError() {
-  restoreError.value = ''
-}
-
-function onHistoryRestore(id: number) {
-  showHistoryModal.value = false
-  restoreFromHistory(id)
-}
-
-function isBaZiResult(data: unknown): data is BaZiResult {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    'dayMaster' in data &&
-    'yearPillar' in data &&
-    'daYun' in data
-  )
-}
-
-async function restoreFromHistory(id: number) {
-  try {
-    const record = await $fetch<import('~/server/api/divinations/shared').DivinationDetailResponse>(
-      `/api/divinations/${id}`,
-    )
-    if (record.result_data) {
-      const data = record.result_data
-      if (isBaZiResult(data)) {
-        const baziResult: BaZiResult = data
-        result.value = baziResult
-        cachedAge.value = getCurrentAge()
-
-        // Recalculate shensha
-        const dayMasterIndex = getStemIndex(baziResult.dayMaster)
-        shenShaList.value = calculateShenSha({
-          yearPillar: baziResult.yearPillar,
-          monthPillar: baziResult.monthPillar,
-          dayPillar: baziResult.dayPillar,
-          hourPillar: baziResult.hourPillar,
-          dayMaster: baziResult.dayMaster,
-          dayMasterIndex,
-          yearStemIndex: getStemIndex(baziResult.yearPillar.stem),
-          gender: baziResult.gender,
-        })
-
-        // Recalculate liunian
-        liuNianYears.value = calculateLiuNian({
-          baZi: baziResult,
-          currentYear,
-          range: 5,
-        })
-
-        restoreError.value = ''
-        restoredFromHistory.value = true
-        missingHour.value = baziResult.birthHour === null
-        return
-      }
-    }
-    restoreError.value = '历史记录数据无效'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  } catch {
-    restoreError.value = '历史记录加载失败，请稍后重试'
-    if (restoreErrorTimer.value) clearTimeout(restoreErrorTimer.value)
-    restoreErrorTimer.value = setTimeout(() => {
-      restoreError.value = ''
-    }, 6000)
-  }
 }
 
 function handleExport() {
@@ -555,37 +426,17 @@ function onSectionNavigate(sectionName: string) {
     <!-- Result -->
     <template v-else-if="result">
       <div ref="mainContainer" class="max-w-[48rem] mx-auto relative">
-        <!-- Top toolbar -->
-        <ToolToolbar :show-history="true" @history="showHistoryModal = true">
-          <template #extra>
-            <ExportButton
-              v-if="result"
-              :target-ref="resultRef"
-              filename="八字命盘.png"
-              :is-exporting="isExporting"
-              @export="handleExport"
-            />
-          </template>
-        </ToolToolbar>
-
-        <!-- Save error toast — auto-save is fire-and-forget, failures are silent -->
-
-        <!-- Restore error toast -->
-        <Transition name="toast">
-          <div v-if="restoreError" class="toast-notification" role="alert">
-            <span class="toast-notification__mark" aria-hidden="true">!</span>
-            <span class="toast-notification__text">{{ restoreError }}</span>
-            <button
-              class="toast-notification__close"
-              aria-label="关闭提示"
-              @click="dismissRestoreError"
-              @keydown.enter="dismissRestoreError"
-              @keydown.space.prevent="dismissRestoreError"
-            >
-              &times;
-            </button>
-          </div>
-        </Transition>
+        <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+        <div class="flex items-center justify-between mb-6">
+          <span></span>
+          <ExportButton
+            v-if="result"
+            :target-ref="resultRef"
+            filename="八字命盘.png"
+            :is-exporting="isExporting"
+            @export="handleExport"
+          />
+        </div>
 
         <!-- Export target: result content -->
         <div ref="resultRef">
@@ -741,11 +592,6 @@ function onSectionNavigate(sectionName: string) {
           "
         />
 
-        <!-- Restored from history notice -->
-        <div v-if="restoredFromHistory" class="flex flex-col items-center gap-2 mt-6">
-          <p class="font-sans text-xs text-ink-light">当前显示的是历史记录</p>
-        </div>
-
         <!-- Action buttons -->
         <div class="flex flex-wrap gap-3 justify-center mt-8">
           <!-- Recalculates from profile data -- useful if user updated profile externally -->
@@ -757,26 +603,10 @@ function onSectionNavigate(sectionName: string) {
           >
             <span>重新排盘</span>
           </button>
-          <button
-            class="btn-cin"
-            aria-haspopup="dialog"
-            @click="showHistoryModal = true"
-            @keydown.enter="showHistoryModal = true"
-            @keydown.space.prevent="showHistoryModal = true"
-          >
-            <span>浏览历史</span>
-          </button>
         </div>
       </div>
     </template>
   </ToolPageLayout>
-
-  <HistoryModal
-    :show="showHistoryModal"
-    type="bazi"
-    @close="showHistoryModal = false"
-    @restore="onHistoryRestore"
-  />
 </template>
 
 <style scoped>

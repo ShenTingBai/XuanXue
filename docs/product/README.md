@@ -2,9 +2,9 @@
 
 > 状态：Active — 当前产品文档入口与状态单一事实来源
 >
-> 版本：1.10.1
+> 版本：1.11.0
 >
-> 最后更新：2026-09-06
+> 最后更新：2026-09-07
 >
 > 适用范围：XuanXue 现有产品打磨、后续单项功能讨论、实施计划生成和验收
 
@@ -38,9 +38,11 @@
 1. [产品总纲](product-charter.md)与项目级产品、内容硬约束；
 2. [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)；
 3. [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)；
-4. 对应单项工具契约；
+4. 对应单项工具契约负责该工具的输入、规则、来源和输出事实；[基础重建与首批工具交付规范](foundation-rebuild-and-first-tools-delivery-spec.md)负责跨模块阶段顺序和首批缩小范围；
 5. 经用户批准的单阶段实施计划；
 6. 当前代码、测试和旧页面文案。
+
+单项工具契约与首批交付规范职责不同，不能用其中一份静默覆盖另一份。两者在同一事项上出现实质冲突时，先同步产品文档，再生成实施计划。
 
 设计系统负责墨韵视觉语言和基础组件样式，不得覆盖产品规范中的真实性、隐私、公开准入和内容边界。Raw、审计历史和项目故事用于说明决策如何形成，不是当前产品规则的替代品。
 
@@ -57,22 +59,23 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 
 ## 5. 已批准的产品规范
 
-| 规范                                                                      | 决策状态 | 实施状态               | 来源/规则状态                                                                         | 当前结论                                                                                                                                            |
-| ------------------------------------------------------------------------- | -------- | ---------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [产品总纲](product-charter.md)                                            | Approved | 不适用；各能力独立判断 | 不适用                                                                                | 定位、用户、成功标准、三层结构、准入、第一版范围和轻量版本治理已批准                                                                                |
-| [首页与每日内容](homepage-and-daily-content-contract.md)                  | Approved | Not started            | 历法规则映射、24 节气内容目录和观照题库待建立与核验                                   | 首页结构、每日三层内容、发现入口、登录边界、透明性和三层验收已经批准                                                                                |
-| [用户档案与数据生命周期](profile-and-data-lifecycle-spec.md)              | Approved | Not started            | 不适用；安全边界仍需公网专项验收                                                      | 决策已固定，不代表现有档案代码合格                                                                                                                  |
-| [工具统一体验与内容治理](tool-experience-and-content-governance-spec.md)  | Approved | Not started            | 治理模型已批准，来源数据尚未建立                                                      | 所有工具后续共同遵守                                                                                                                                |
-| [八字工具](bazi-tool-contract.md)                                         | Approved | Not started            | 多项历法、神煞和时间规则待核验                                                        | 未满足合同清单前不得标记第一版完成                                                                                                                  |
-| [生肖与太阳星座](shengxiao-and-constellation-tool-contract.md)            | Approved | Not started            | 传统关系、日期表和文化资料待核验                                                      | 两个轻量工具共用一份契约，但领域模型保持分离                                                                                                        |
-| [日期对照（内部标识 `zeji`）](zeji-tool-contract.md)                      | Approved | Not started            | 日期事实范围、八类事项、传统背景和首批名单待专项核验                                  | 双入口、三层独立准入、首批两至三类、零服务器历史、本地 PNG 和五组验收门已批准；目标为 `in_review / internal / enabled / disabled`，尚未落地到旧目录 |
-| [八字关系对照（现有合婚退役）](hehun-tool-contract.md)                    | Approved | Not started            | 第一批干支关系只批准进入审计池，来源与实现均待核验                                    | 现有评分式合婚退役；候选继续封存，采用第三方当次草稿、浏览器本地计算、零服务器历史和十二项重新开放门禁                                              |
-| [称骨表对照（现有称骨算命下线）](guming-tool-contract.md)                 | Approved | Not started            | 具体底本、四项记值表、歌诀、权利和内容风险均未核验                                    | 下线决定已批准，旧页面下线尚未实施；后续只保留次级文化查表候选，底本无法确认时不得重建或公开                                                        |
-| [周易卦象阅读（现有易经/六爻混合功能退役）](yijing-tool-contract.md)      | Approved | Not started            | 武英殿《周易正义》基础账本、异文、解释和起卦规则均待专项核验                          | 浏览六十四卦为主、实体硬币记录/浏览器安全模拟为辅；六爻排盘独立封存，候选通过十七项门禁前保持内部隐藏                                               |
-| [姓名笔画与五格对照（现有姓名测试退役）](name-five-grid-tool-contract.md) | Approved | Not started            | 1931 年候选底本、1929/1933 年交叉核对、81 数理和一级 3500 字账本均待专项核验          | 现有评分式姓名测试退役；后续只保留近现代方法资料对照候选，通过十八项门禁前保持内部隐藏和计算禁用                                                    |
-| [测字双轨候选（现有测字占卜退役）](cezi-tool-contract.md)                 | Approved | Not started            | 规范字、汉字资料、历史案例、内容与权利均待专项核验                                    | 总入口保留“测字”，分为“了解一个字／一字观照”；旧五行、81 数理和吉凶预测退役，按能力门禁开放，目标为内部隐藏、计算阻断、历史禁用                     |
-| [紫微斗数基础命盘（现有紫微预测功能退役）](ziwei-tool-contract.md)        | Approved | Not started            | 固定 `iztro 2.5.8` 规则已有工程证据；宫位、星曜、四化、亮度和五行局传统来源待专项核验 | 只保留基础命盘候选；大限流年、现实预测、错误作者归因和原生对象直存退役，通过二十项门禁前保持内部隐藏、计算阻断与历史禁用                            |
-| [梅花易数·起卦演示](meihua-tool-contract.md)                              | Approved | Not started            | 取数、历法、互卦例外、体用和共享周易内容均待专项核验                                  | 只保留年月日时演示候选；手动/随机三数、问题输入、自动保存和预测模板退出，通过契约验收前保持内部隐藏、计算阻断与历史禁用                             |
+| 规范                                                                          | 决策状态 | 实施状态               | 来源/规则状态                                                                         | 当前结论                                                                                                                                            |
+| ----------------------------------------------------------------------------- | -------- | ---------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [产品总纲](product-charter.md)                                                | Approved | 不适用；各能力独立判断 | 不适用                                                                                | 定位、用户、成功标准、三层结构、准入、第一版范围和轻量版本治理已批准                                                                                |
+| [首页与每日内容](homepage-and-daily-content-contract.md)                      | Approved | Not started            | 历法规则映射、24 节气内容目录和观照题库待建立与核验                                   | 首页结构、每日三层内容、发现入口、登录边界、透明性和三层验收已经批准                                                                                |
+| [用户档案与数据生命周期](profile-and-data-lifecycle-spec.md)                  | Approved | Not started            | 不适用；安全边界仍需公网专项验收                                                      | 决策已固定，不代表现有档案代码合格                                                                                                                  |
+| [基础重建与首批工具交付](foundation-rebuild-and-first-tools-delivery-spec.md) | Approved | Not started            | 生肖与八字的来源、规则及黄金样例仍待专项核验                                          | 固定安全、账号、游客生肖、本人档案、八字历史和全链路验收六阶段顺序                                                                                  |
+| [工具统一体验与内容治理](tool-experience-and-content-governance-spec.md)      | Approved | Not started            | 治理模型已批准，来源数据尚未建立                                                      | 所有工具后续共同遵守                                                                                                                                |
+| [八字工具](bazi-tool-contract.md)                                             | Approved | Not started            | 多项历法、神煞和时间规则待核验                                                        | 未满足合同清单前不得标记第一版完成                                                                                                                  |
+| [生肖与太阳星座](shengxiao-and-constellation-tool-contract.md)                | Approved | Not started            | 传统关系、日期表和文化资料待核验                                                      | 两个轻量工具共用一份契约，但领域模型保持分离                                                                                                        |
+| [日期对照（内部标识 `zeji`）](zeji-tool-contract.md)                          | Approved | Not started            | 日期事实范围、八类事项、传统背景和首批名单待专项核验                                  | 双入口、三层独立准入、首批两至三类、零服务器历史、本地 PNG 和五组验收门已批准；目标为 `in_review / internal / enabled / disabled`，尚未落地到旧目录 |
+| [八字关系对照（现有合婚退役）](hehun-tool-contract.md)                        | Approved | Not started            | 第一批干支关系只批准进入审计池，来源与实现均待核验                                    | 现有评分式合婚退役；候选继续封存，采用第三方当次草稿、浏览器本地计算、零服务器历史和十二项重新开放门禁                                              |
+| [称骨表对照（现有称骨算命下线）](guming-tool-contract.md)                     | Approved | Not started            | 具体底本、四项记值表、歌诀、权利和内容风险均未核验                                    | 下线决定已批准，旧页面下线尚未实施；后续只保留次级文化查表候选，底本无法确认时不得重建或公开                                                        |
+| [周易卦象阅读（现有易经/六爻混合功能退役）](yijing-tool-contract.md)          | Approved | Not started            | 武英殿《周易正义》基础账本、异文、解释和起卦规则均待专项核验                          | 浏览六十四卦为主、实体硬币记录/浏览器安全模拟为辅；六爻排盘独立封存，候选通过十七项门禁前保持内部隐藏                                               |
+| [姓名笔画与五格对照（现有姓名测试退役）](name-five-grid-tool-contract.md)     | Approved | Not started            | 1931 年候选底本、1929/1933 年交叉核对、81 数理和一级 3500 字账本均待专项核验          | 现有评分式姓名测试退役；后续只保留近现代方法资料对照候选，通过十八项门禁前保持内部隐藏和计算禁用                                                    |
+| [测字双轨候选（现有测字占卜退役）](cezi-tool-contract.md)                     | Approved | Not started            | 规范字、汉字资料、历史案例、内容与权利均待专项核验                                    | 总入口保留“测字”，分为“了解一个字／一字观照”；旧五行、81 数理和吉凶预测退役，按能力门禁开放，目标为内部隐藏、计算阻断、历史禁用                     |
+| [紫微斗数基础命盘（现有紫微预测功能退役）](ziwei-tool-contract.md)            | Approved | Not started            | 固定 `iztro 2.5.8` 规则已有工程证据；宫位、星曜、四化、亮度和五行局传统来源待专项核验 | 只保留基础命盘候选；大限流年、现实预测、错误作者归因和原生对象直存退役，通过二十项门禁前保持内部隐藏、计算阻断与历史禁用                            |
+| [梅花易数·起卦演示](meihua-tool-contract.md)                                  | Approved | Not started            | 取数、历法、互卦例外、体用和共享周易内容均待专项核验                                  | 只保留年月日时演示候选；手动/随机三数、问题输入、自动保存和预测模板退出，通过契约验收前保持内部隐藏、计算阻断与历史禁用                             |
 
 以上各行的“退役、下线、隐藏、阻断”表示已批准的治理要求，是否已经实现以代码和验证证据另行判断。“Not started”表示尚未按整份新规范开始系统性整改；已有页面、引擎、测试和 P0 局部成果不等于新契约已经实施。实际开始整改后应改记 In progress，而不是等到全部验收才更新状态。
 
@@ -82,21 +85,21 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 
 决策、实施和来源状态沿用第 5 章；下表只登记运行治理四维，不建立第二套产品状态。代码快照核对日期为 2026-09-06，依据 [工具目录](../../constants/tool-catalog.ts)及[路由中间件](../../middleware/tool-availability.global.ts)，不是线上实测。
 
-| 工具 ID         | 第一版角色               | 旧目录 exposure | 目标 reviewStatus | 目标 exposure | 目标 computePolicy | 围栏期 historyPolicy |
-| --------------- | ------------------------ | --------------- | ----------------- | ------------- | ------------------ | -------------------- |
-| `shengxiao`     | 核心：生肖               | listed          | 阶段前确认        | 阶段前确认    | 阶段前确认         | disabled             |
-| `constellation` | 核心：太阳星座           | listed          | 阶段前确认        | 阶段前确认    | 阶段前确认         | disabled             |
-| `bazi`          | 核心：八字基础排盘       | listed          | 阶段前确认        | 阶段前确认    | 阶段前确认         | 阶段前确认           |
-| `zeji`          | 候选：日期对照           | listed          | in_review         | internal      | enabled            | disabled             |
-| `guming`        | 候选：称骨表对照         | listed          | in_review         | internal      | blocked            | disabled             |
-| `yijing`        | 候选：周易卦象阅读       | listed          | in_review         | internal      | blocked            | disabled             |
-| `name-test`     | 候选：姓名笔画与五格对照 | listed          | in_review         | internal      | blocked            | disabled             |
-| `cezi`          | 候选：测字双轨           | listed          | in_review         | internal      | blocked            | disabled             |
-| `ziwei`         | 封存候选：紫微基础命盘   | hidden          | in_review         | internal      | blocked            | disabled             |
-| `hehun`         | 封存候选：八字关系对照   | hidden          | in_review         | internal      | blocked            | disabled             |
-| `meihua`        | 封存候选：梅花起卦演示   | hidden          | in_review         | internal      | blocked            | disabled             |
+| 工具 ID         | 第一版角色               | 旧目录 exposure | 目标 reviewStatus     | 目标 exposure       | 目标 computePolicy   | 围栏期 historyPolicy        |
+| --------------- | ------------------------ | --------------- | --------------------- | ------------------- | -------------------- | --------------------------- |
+| `shengxiao`     | 首批核心：生肖           | listed          | R3 验收后 approved    | R3 验收后 public    | R3 验收后 enabled    | disabled                    |
+| `constellation` | 后续核心：太阳星座       | listed          | in_review             | internal            | blocked              | disabled                    |
+| `bazi`          | 首批核心：八字基础排盘   | listed          | R5/R6 验收后 approved | R5/R6 验收后 public | R5/R6 验收后 enabled | R5/R6 验收后 create_allowed |
+| `zeji`          | 候选：日期对照           | listed          | in_review             | internal            | enabled              | disabled                    |
+| `guming`        | 候选：称骨表对照         | listed          | in_review             | internal            | blocked              | disabled                    |
+| `yijing`        | 候选：周易卦象阅读       | listed          | in_review             | internal            | blocked              | disabled                    |
+| `name-test`     | 候选：姓名笔画与五格对照 | listed          | in_review             | internal            | blocked              | disabled                    |
+| `cezi`          | 候选：测字双轨           | listed          | in_review             | internal            | blocked              | disabled                    |
+| `ziwei`         | 封存候选：紫微基础命盘   | hidden          | in_review             | internal            | blocked              | disabled                    |
+| `hehun`         | 封存候选：八字关系对照   | hidden          | in_review             | internal            | blocked              | disabled                    |
+| `meihua`        | 封存候选：梅花起卦演示   | hidden          | in_review             | internal            | blocked              | disabled                    |
 
-“阶段前确认”是文档待确认标记，不是合法运行枚举。核心三工具已批准功能边界，但契约未单列当前围栏过渡组合；本轮不替用户新增一次状态切换。未来涉及目录改造的阶段必须结合实际发布范围确认这些字段，不能照抄占位表达进入配置，更不能从 listed 推断 approved/public/enabled。
+生肖和八字的目标状态只在对应阶段完成来源、实现、自动化、浏览器和用户验收后生效；表中“R3 验收后”和“R5/R6 验收后”不是可写入代码的枚举值。验收前保持围栏，不能从旧目录的 `listed` 推断已经 `approved/public/enabled`。太阳星座不属于 R1–R6 首批交付，继续保持内部阻断。
 
 日期对照的 `internal + enabled` 仅允许授权内部验证，不放行普通访客。其余候选的阻断策略按既有契约登记。独立六爻排盘不在上述 11 个工具外新增一个公开入口，不能借 yijing 或 meihua 恢复。
 
@@ -125,6 +128,8 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 本轮横向审计和文档修订记录在[2026-09-06 产品规范横向审计与收口记录](../audits/2026-09-06-product-document-closure-audit.md)。该记录只证明文档对账已经完成，不证明代码围栏、来源核验、数据安全或浏览器验收已经完成。
 
 用户已接受该文档基线说明。本次待提交文件分类、过时说明修订及排除范围见该记录第 8 章；这批追加修订待审阅，不改变各工具的 Not started、来源或公开状态，也不构成 Git 操作授权。
+
+2026-09-07，用户进一步逐项批准[基础重建与首批工具交付规范](foundation-rebuild-and-first-tools-delivery-spec.md)，固定 R1–R6 交付顺序并替代旧 P2–P7 路线。该批准仍只表示产品决策完成，不表示已经生成实施计划、修改代码或通过验收。
 
 ## 9. 已完成的审计与历史证据
 

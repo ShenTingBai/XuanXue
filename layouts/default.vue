@@ -1,8 +1,8 @@
 <script lang="ts">
-import { TOOL_CATALOG } from '~/constants/tool-catalog'
+import { isToolPubliclyAvailable, TOOL_CATALOG } from '~/constants/tool-catalog'
 
-// 导航只消费目录已列出的工具，避免页面自行维护另一份可见性状态。
-const navTools = TOOL_CATALOG.filter(tool => tool.exposure === 'listed')
+// 导航只消费目录的公开可用判断，避免页面自行维护另一份可见性状态。
+const navTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
 </script>
 
 <script setup lang="ts">

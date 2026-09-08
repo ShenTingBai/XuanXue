@@ -1,5 +1,6 @@
 import { dbGet, dbRun } from '../../database/db'
 import { checkRateLimit } from '../../utils/rateLimit'
+import { canCreateHistory } from '../../../constants/tool-catalog'
 import { DIVINATION_TYPES } from './shared'
 
 const VALID_TYPES = new Set<string>(DIVINATION_TYPES)
@@ -27,6 +28,12 @@ export default defineEventHandler(async event => {
       statusCode: 400,
       statusMessage: `无效的测算类型，支持: ${DIVINATION_TYPES.join(', ')}`,
     })
+  }
+
+  // 历史创建策略在解析 input/result 和 dbRun 之前执行：当前所有工具均为 disabled，
+  // 合法类型统一返回 403，不写入数据库。R5 切换 create_allowed 后再补服务端复算。
+  if (!canCreateHistory(type)) {
+    throw createError({ statusCode: 403, statusMessage: '当前工具暂不支持保存历史' })
   }
 
   if (!input_data) {

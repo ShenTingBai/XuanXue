@@ -1,6 +1,7 @@
 import { dbGet } from '../../database/db'
 import { checkRateLimit } from '../../utils/rateLimit'
 import { safeJsonParse } from '../../utils/json'
+import { canReadHistory } from '../../../constants/tool-catalog'
 
 export default defineEventHandler(async event => {
   const idParam = getRouterParam(event, 'id')
@@ -33,9 +34,16 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 403, statusMessage: '无权访问此记录' })
   }
 
+  // 归属通过后再按记录 type 检查历史读取策略；disabled 或未知工具类型返回 403，
+  // 不解析、不返回输入与结果正文，避免通过错误顺序泄露其他账号记录内容。
+  const recordType = record.type as string
+  if (!canReadHistory(recordType)) {
+    throw createError({ statusCode: 403, statusMessage: '当前工具暂不支持读取历史' })
+  }
+
   return {
     id: record.id,
-    type: record.type,
+    type: recordType,
     input_data: safeJsonParse(record.input_data),
     result_data: safeJsonParse(record.result_data),
     created_at: record.created_at,
