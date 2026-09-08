@@ -75,4 +75,23 @@ describe('首页访客公开文案（R1 收敛）', () => {
       expect(indexPageSource).not.toContain(toolName)
     }
   })
+
+  // ── R2 账号语义 ──
+
+  it('首页只使用 Account 语义，不再出现旧档案语义', () => {
+    expect(indexPageSource).not.toContain('currentProfile')
+    expect(indexPageSource).not.toContain('已有档案')
+    expect(indexPageSource).not.toContain('出生资料')
+    expect(indexPageSource).not.toContain('/profile/')
+  })
+
+  it('首页使用 currentAccount 与 authStatus', () => {
+    expect(indexPageSource).toContain('currentAccount')
+    expect(indexPageSource).toContain('authStatus')
+  })
+
+  it('首页 CTA 指向统一登录页与账号入口', () => {
+    expect(indexPageSource).toContain('to="/login"')
+    expect(indexPageSource).toContain('to="/account"')
+  })
 })

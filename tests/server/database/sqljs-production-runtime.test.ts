@@ -37,4 +37,18 @@ describe('sql.js 生产运行时 WASM 定位', () => {
     expect(dbSource).toContain('DB_PATH = process.env.DB_PATH')
     expect(dbSource).toContain('initSqlJs')
   })
+
+  it('R2 默认新库为 xuanxue-r2.db', () => {
+    const dbSource = readFileSync(resolve(root, 'server/database/db.ts'), 'utf-8')
+    expect(dbSource).toContain("path.resolve(process.cwd(), 'xuanxue-r2.db')")
+  })
+
+  it('db.ts 不含读取、复制或迁移旧 xuanxue.db 的逻辑', () => {
+    const dbSource = readFileSync(resolve(root, 'server/database/db.ts'), 'utf-8')
+    // 默认路径必须是新库，不能回退到旧库
+    expect(dbSource).not.toContain("path.resolve(process.cwd(), 'xuanxue.db')")
+    // 不引用旧表结构或旧迁移
+    expect(dbSource).not.toContain('CREATE_PROFILES_TABLE')
+    expect(dbSource).not.toContain('CREATE_DIVINATION_TABLE')
+  })
 })

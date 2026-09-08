@@ -108,28 +108,28 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │       ├── SkeletonBars.vue      # 骨架屏柱状图
 │       ├── ScrollTopButton.vue   # 回到顶部按钮
 │       ├── EntertainmentDisclaimer.vue  # 娱乐免责声明
-│       ├── AddProfileModal.vue   # 新增档案弹窗
 │       ├── AvatarCircle.vue      # 头像圈
-│       └── ProfileSwitcher.vue   # 档案切换器
-├── pages/                        # 首页、账号、档案、工具与状态页
+│       └── auth/                 # AuthForm、AuthDialog（统一认证表单与页内弹层）
+├── pages/                        # 首页、登录、账号、工具与状态页
 │   ├── index.vue                 # 首页（独立布局，非 ToolPageLayout）
-│   ├── login.vue                 # 登录/注册
-│   ├── profile/[id].vue          # 档案编辑
+│   ├── login.vue                 # 登录/注册（复用 AuthForm）
+│   ├── account.vue               # 账号设置：退出当前设备、退出所有设备、注销
+│   ├── profile/[id].vue          # 旧档案页：R4 前重定向 /account，不读取旧数据
 │   └── tools/                    # 工具页含 bazi、shengxiao、constellation、zeji、guming、
 │                                 # yijing、ziwei、cezi、hehun、name-test、meihua；另有 status.vue
 ├── middleware/tool-availability.global.ts # 隐藏工具页面挂载前拦截
 ├── server/
-│   ├── api/auth/                 # login.post、register.post、me.get、logout.delete
+│   ├── api/auth/                 # register.post、login.post、me.get、logout.delete、logout-all.delete、account.delete
 │   ├── api/divinations/          # 保存与查询：index.post、index.get、[id].get
-│   ├── api/profiles/             # index.get、index.post、[id].get、[id].put、[id].delete
+│   ├── api/profiles/             # R4 前统一返回 410，不访问数据库
 │   ├── database/
 │   │   ├── db.ts                 # sql.js SQLite 连接
 │   │   └── schema.ts             # 建表 DDL + 索引
-│   ├── middleware/auth.ts        # Bearer 优先、Cookie 回退 → event.context.profileId
+│   ├── middleware/auth.ts        # 只从 xuanxue_token Cookie 恢复 → event.context.accountId
 │   ├── plugins/
 │   │   ├── database.ts           # Nitro 插件：数据库初始化
 │   │   └── csp.ts                # CSP nonce 注入插件
-│   ├── types/h3.d.ts             # H3 event context 扩展（profileId、token）
+│   ├── types/h3.d.ts             # H3 event context 扩展（accountId、sessionId、sessionToken）
 │   └── utils/                    # auth、rateLimit、json、profile、securityLog
 └── tests/                        # composables/、server/、utils/、helpers/
 ```
@@ -160,40 +160,41 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ### 状态管理
 
-- 组合式函数使用 `useState()`（而非 `ref()`）管理共享状态。`useAuth` 使用 `useState<Profile | null>('auth:profile', ...)` 使 layout 和页面共享同一响应式实例。
+- 组合式函数使用 `useState()`（而非 `ref()`）管理共享状态。`useAuth` 使用 `useState<AuthStatus>('auth:status', ...)` 与 `useState<Account | null>('auth:account', ...)` 使 layout 和页面共享同一响应式实例；`currentProfile` 仅为已封存旧工具的只读恒 null 兼容出口。
 - 同步组合式函数**禁止**声明为 `async`。仅在需要 `await` 时才使用 `async`。
 - 纯计算型组合式函数（如 `useBaZi.ts`、`useSolarTerms.ts`）导出类型化函数，不导出 Vue 响应式；它们仍可能依赖项目常量和历法库，不能概括为零依赖。
 
 ### 持久化
 
-- **Session**：当前客户端使用服务端设置的 `xuanxue_token` HttpOnly Cookie，不将 token/profile 写入 localStorage。API 仍返回 token 且服务端保留 Bearer 兼容，不能据此宣称认证接口已完成全部治理。
+- **Session**：客户端只使用服务端设置的 `xuanxue_token` HttpOnly Cookie，认证响应不再返回原始会话令牌，服务端不再接受 Bearer 凭证头。
 - **Greeting**：`localStorage` 键 `xuanxue:greeting`，存储 `{ prefix, subtitle }`——自包含，不依赖 API。
-- `restoreSession()` 是异步函数，在客户端且共享档案为空时请求 `/api/auth/me`；需要登录状态的页面必须正确处理恢复完成与失败，不把旧页面的重复调用方式作为新模板。
-- 保存 profile 后，`updateProfile(response)` 只同步 `useState`，不会写入 localStorage。
+- `restoreSession()` 是异步函数，在客户端通过 Cookie 请求 `/api/auth/me`；需要登录状态的页面必须正确处理恢复完成与失败，不把旧页面的重复调用方式作为新模板。
+- R2 默认新库为 `xuanxue-r2.db`，Account 与未来 SelfProfile 分离；旧 `xuanxue.db` 仅作离线只读备份，不读取、不迁移、不删除。
 
 ### 认证流程
 
-1. 客户端调用 `restoreSession()`，在共享档案为空时通过 Cookie 请求 `/api/auth/me`，成功后填充 `currentProfile`。
-2. 认证限制按实际路由和功能判断；旧工具页仍有登录跳转，新规范允许已准入工具的游客当次查询，不能强制所有页面登录。
-3. 登录/注册由服务端设置 Cookie，客户端只更新共享档案。新注册 PIN 校验为 6–20 位字母或数字；登录仍兼容旧长度和旧明文 PIN 升级路径，旧库退出前不得宣称兼容已移除。
-4. 登出请求 `DELETE /api/auth/logout` 后清空共享状态；当前客户端会忽略请求失败，因此服务端会话是否真正失效不能仅凭界面退出判断。
+1. 客户端调用 `restoreSession()`，通过 Cookie 请求 `/api/auth/me`，成功后填充 `currentAccount` 并进入 `authenticated`；401 或网络错误进入 `guest`，恢复结束前不闪现游客入口。
+2. 认证状态三态为 `restoring | guest | authenticated`。
+3. 注册只创建 Account 与当前 Session，不隐式建档；请求提交昵称、密码、已满十四周岁确认与两个固定规则版本（2026-09-08）。
+4. 登录新增独立 Session 不互踢；当前退出只删除当前会话，全部退出删除该账号全部会话；退出失败客户端保持登录状态并明确提示。
+5. 注销要求当前昵称与密码复核，在单一事务中删除账号与可识别安全日志并使全部会话失效。
 
 ### Server API
 
-- **Auth** (`server/api/auth/`): `login.post`、`register.post`、`me.get`、`logout.delete`
-- **Profiles** (`server/api/profiles/`): `index.get`（列表）、`index.post`（创建）、`[id].get`（详情）、`[id].put`（更新）、`[id].delete`（软删除，级联清理 sessions + divinations）
+- **Auth** (`server/api/auth/`): `register.post`、`login.post`、`me.get`、`logout.delete`、`logout-all.delete`、`account.delete`
+- **Profiles** (`server/api/profiles/`): 全部旧档案接口在 R4 前统一返回 410，不访问数据库
 - **Divinations** (`server/api/divinations/`): `index.post`（保存）、`index.get`（列表，按 type 过滤）、`[id].get`（详情，校验归属）
-- **Middleware** (`server/middleware/auth.ts`): 优先提取 `Authorization: Bearer <token>`，没有该 token 时回退到 `xuanxue_token` Cookie，再查找 session 并注入 `event.context.profileId` 和 `event.context.token`。需要认证的 API 从此读取上下文。
-- **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 profile + endpoint 键控，默认 10 req/min。
+- **Middleware** (`server/middleware/auth.ts`): 只从 `xuanxue_token` HttpOnly Cookie 恢复会话，注入 `event.context.accountId`、`sessionId` 与仅供当前请求删除会话使用的 `sessionToken`；不再接受 Bearer。
+- **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 key（IP/account）键控。
 
 ### Session 安全
 
 - **令牌**：`randomBytes(24).toString('hex')` → HMAC-SHA256 哈希存储，**永不存明文**
-- **PIN**：scrypt + 16 字节随机盐，验证使用 `timingSafeEqual` 防时序攻击
-- **单会话强制**：创建新 token 前 `DELETE FROM sessions WHERE profile_id = ?`，同一 profile 只能有一个活跃 session
+- **凭证**：scrypt + 每次随机盐，验证使用 `timingSafeEqual` 防时序攻击，密码长度 8–64 且不 trim
+- **多会话并存**：新登录不删除其他会话；当前退出只删当前会话，全部退出删该账号全部会话
 - **7 天过期**：`expires_at` 列，查找时自动清理过期 session
 - **`SESSION_SECRET`** 环境变量**必须**设置（`server/utils/auth.ts` 启动时读取，缺失则 throw 崩溃）
-- **过期 session 清理**：`cleanupExpiredSessions()` 同时清理 90 天前的 security_log
+- **过期 session 清理**：`cleanupExpiredSessions()` 清理过期会话
 
 ### UI 设计：墨韵 · Ink Resonance
 

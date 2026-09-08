@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useAuth } from '../../composables/useAuth'
-import type { Profile } from '../../composables/useAuth'
+import type { Account } from '../../types/account'
 
 // ============================================================================
-// Global mocks: Nuxt useState, Nuxt $fetch
+// Global mocks: Nuxt useState, Nuxt $fetch, import.meta.client
 // ============================================================================
 
 const stateMap = new Map<string, { value: any }>()
@@ -21,24 +21,22 @@ vi.stubGlobal(
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
-// Mock global fetch for restoreSessionFromApi
-const mockGlobalFetch = vi.fn()
-vi.stubGlobal('fetch', mockGlobalFetch)
+// 覆盖 vitest.config 的 define，保证客户端分支执行
+vi.stubGlobal('importMetaClient', true)
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const mockProfile: Profile = {
+const mockAccount: Account = {
   id: 1,
   nickname: 'testuser',
-  created_at: '2025-01-01T00:00:00.000Z',
-  updated_at: '2025-01-01T00:00:00.000Z',
-  gender: null,
-  birth_date: null,
-  birth_calendar: null,
-  birth_hour: null,
-  birth_minute: null,
+  status: 'active',
+  ageConfirmedAt: '2026-09-08T00:00:00.000Z',
+  privacyPolicyVersion: '2026-09-08',
+  serviceTermsVersion: '2026-09-08',
+  createdAt: '2026-09-08T00:00:00.000Z',
+  updatedAt: '2026-09-08T00:00:00.000Z',
 }
 
 // ============================================================================
@@ -49,184 +47,251 @@ describe('useAuth', () => {
   beforeEach(() => {
     stateMap.clear()
     mockFetch.mockReset()
-    mockGlobalFetch.mockReset()
   })
 
   // ========================================================================
-  // getAuthHeaders
+  // 三态恢复
   // ========================================================================
 
-  describe('getAuthHeaders', () => {
-    it('returns empty object (cookie-based auth)', () => {
+  describe('restoreSession / authStatus 三态', () => {
+    it('初始状态为 restoring', () => {
       const auth = useAuth()
-      expect(auth.getAuthHeaders()).toEqual({})
+      expect(auth.authStatus.value).toBe('restoring')
+    })
+
+    it('恢复成功进入 authenticated', async () => {
+      mockFetch.mockResolvedValueOnce({ account: mockAccount })
+      const auth = useAuth()
+      await auth.restoreSession()
+      expect(auth.authStatus.value).toBe('authenticated')
+      expect(auth.currentAccount.value).toEqual(mockAccount)
+    })
+
+    it('401 进入 guest 且不设置网络错误', async () => {
+      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Unauthorized'), { statusCode: 401 }))
+      const auth = useAuth()
+      await auth.restoreSession()
+      expect(auth.authStatus.value).toBe('guest')
+      expect(auth.currentAccount.value).toBeNull()
+      expect(auth.restoreError.value).toBeNull()
+    })
+
+    it('网络错误进入 guest 并保留可见错误', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      const auth = useAuth()
+      await auth.restoreSession()
+      expect(auth.authStatus.value).toBe('guest')
+      expect(auth.currentAccount.value).toBeNull()
+      expect(auth.restoreError.value).toContain('网络')
+    })
+
+    it('restoreSession 去重：并发调用只发一次请求', async () => {
+      mockFetch.mockResolvedValue({ account: mockAccount })
+      const auth = useAuth()
+      await Promise.all([auth.restoreSession(), auth.restoreSession(), auth.restoreSession()])
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('两个独立 useAuth 实例并发恢复只请求一次（模块级共享）', async () => {
+      mockFetch.mockResolvedValue({ account: mockAccount })
+      const authA = useAuth()
+      const authB = useAuth()
+      await Promise.all([authA.restoreSession(), authB.restoreSession()])
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(authA.authStatus.value).toBe('authenticated')
+      expect(authB.authStatus.value).toBe('authenticated')
+    })
+
+    it('网络失败后显式重试可成功恢复', async () => {
+      mockFetch
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce({ account: mockAccount })
+      const auth = useAuth()
+      await auth.restoreSession()
+      expect(auth.restoreError.value).toContain('网络')
+      expect(auth.authStatus.value).toBe('guest')
+
+      // 存在 restoreError 时允许显式重试；重试期间回到 restoring，成功后清理错误
+      await auth.restoreSession()
+      expect(auth.authStatus.value).toBe('authenticated')
+      expect(auth.currentAccount.value).toEqual(mockAccount)
+      expect(auth.restoreError.value).toBeNull()
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('网络失败后重试仍失败则留在 guest 并保留错误', async () => {
+      mockFetch.mockRejectedValue(new Error('Network error'))
+      const auth = useAuth()
+      await auth.restoreSession()
+      await auth.restoreSession()
+      expect(auth.authStatus.value).toBe('guest')
+      expect(auth.restoreError.value).toContain('网络')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('登录成功清理旧的恢复错误', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      const auth = useAuth()
+      await auth.restoreSession()
+      expect(auth.restoreError.value).toContain('网络')
+      // 登录成功
+      mockFetch.mockResolvedValueOnce({ account: mockAccount })
+      await auth.login('testuser', 'password123')
+      expect(auth.restoreError.value).toBeNull()
     })
   })
 
   // ========================================================================
-  // restoreSession
-  // ========================================================================
-
-  describe('restoreSession', () => {
-    it('populates currentProfile via API on success', async () => {
-      mockGlobalFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ profile: mockProfile }),
-      })
-      const auth = useAuth()
-      await auth.restoreSession()
-      expect(auth.currentProfile.value).toEqual(mockProfile)
-    })
-
-    it('sets currentProfile to null when API returns non-ok', async () => {
-      mockGlobalFetch.mockResolvedValueOnce({ ok: false })
-      const auth = useAuth()
-      await auth.restoreSession()
-      expect(auth.currentProfile.value).toBeNull()
-    })
-
-    it('sets currentProfile to null when API throws (network error)', async () => {
-      mockGlobalFetch.mockRejectedValueOnce(new Error('Network error'))
-      const auth = useAuth()
-      await auth.restoreSession()
-      expect(auth.currentProfile.value).toBeNull()
-    })
-  })
-
-  // ========================================================================
-  // login
+  // login / register
   // ========================================================================
 
   describe('login', () => {
-    it('updates currentProfile on success', async () => {
-      mockFetch.mockResolvedValueOnce({ token: 'login-token', profile: mockProfile })
+    it('登录成功更新 currentAccount 并进入 authenticated', async () => {
+      mockFetch.mockResolvedValueOnce({ account: mockAccount })
       const auth = useAuth()
-      await auth.login('testuser', 'abc123')
-      expect(auth.currentProfile.value).toEqual(mockProfile)
+      await auth.login('testuser', 'password123')
+      expect(auth.currentAccount.value).toEqual(mockAccount)
+      expect(auth.authStatus.value).toBe('authenticated')
     })
 
-    it('rejects and does not update state on network error', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+    it('发送新字段 nickname/password，不发送 pin/token', async () => {
+      mockFetch.mockResolvedValueOnce({ account: mockAccount })
       const auth = useAuth()
-      await expect(auth.login('testuser', 'abc123')).rejects.toThrow('Network error')
-      expect(auth.currentProfile.value).toBeNull()
-    })
-
-    it('rejects on invalid credentials (401)', async () => {
-      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Unauthorized'), { statusCode: 401 }))
-      const auth = useAuth()
-      await expect(auth.login('wronguser', '0000')).rejects.toThrow()
-      expect(auth.currentProfile.value).toBeNull()
-    })
-
-    it('passes nickname and pin as body to $fetch', async () => {
-      mockFetch.mockResolvedValueOnce({ token: 't', profile: mockProfile })
-      const auth = useAuth()
-      await auth.login('myuser', 'abc999')
-
+      await auth.login('myuser', 'password123')
       expect(mockFetch).toHaveBeenCalledWith('/api/auth/login', {
         method: 'POST',
-        body: { nickname: 'myuser', pin: 'abc999' },
+        body: { nickname: 'myuser', password: 'password123' },
       })
+      const body = mockFetch.mock.calls[0][1].body
+      expect(body).not.toHaveProperty('pin')
+      expect(body).not.toHaveProperty('token')
+    })
+
+    it('失败不更新状态', async () => {
+      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Unauthorized'), { statusCode: 401 }))
+      const auth = useAuth()
+      await expect(auth.login('baduser', 'password123')).rejects.toThrow()
+      expect(auth.currentAccount.value).toBeNull()
+      expect(auth.authStatus.value).toBe('restoring')
     })
   })
-
-  // ========================================================================
-  // register
-  // ========================================================================
 
   describe('register', () => {
-    it('updates currentProfile on successful registration', async () => {
-      mockFetch.mockResolvedValueOnce({ token: 'reg-token', profile: mockProfile })
+    it('注册成功更新 currentAccount', async () => {
+      mockFetch.mockResolvedValueOnce({ account: mockAccount })
       const auth = useAuth()
-      await auth.register('newuser', 'abc123')
-      expect(auth.currentProfile.value).toEqual(mockProfile)
+      await auth.register('newuser', 'password123', true, '2026-09-08', '2026-09-08')
+      expect(auth.currentAccount.value).toEqual(mockAccount)
     })
 
-    it('rejects on duplicate nickname (409)', async () => {
-      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Conflict'), { statusCode: 409 }))
+    it('发送注册请求体包含年龄与规则版本', async () => {
+      mockFetch.mockResolvedValueOnce({ account: mockAccount })
       const auth = useAuth()
-      await expect(auth.register('existing', 'abc123')).rejects.toThrow()
-    })
-
-    it('rejects on invalid PIN format (400)', async () => {
-      mockFetch.mockRejectedValueOnce(Object.assign(new Error('Bad request'), { statusCode: 400 }))
-      const auth = useAuth()
-      await expect(auth.register('newuser', '1234')).rejects.toThrow()
-    })
-
-    it('passes nickname and pin as body to $fetch', async () => {
-      mockFetch.mockResolvedValueOnce({ token: 't', profile: mockProfile })
-      const auth = useAuth()
-      await auth.register('brandnew', 'xyz321')
-
+      await auth.register('newuser', 'password123', true, '2026-09-08', '2026-09-08')
       expect(mockFetch).toHaveBeenCalledWith('/api/auth/register', {
         method: 'POST',
-        body: { nickname: 'brandnew', pin: 'xyz321' },
+        body: {
+          nickname: 'newuser',
+          password: 'password123',
+          ageConfirmed: true,
+          privacyPolicyVersion: '2026-09-08',
+          serviceTermsVersion: '2026-09-08',
+        },
       })
     })
   })
 
   // ========================================================================
-  // logout
+  // logout / logoutAll / deleteAccount
   // ========================================================================
 
   describe('logout', () => {
-    it('clears state on successful logout', async () => {
+    it('成功清空状态', async () => {
       mockFetch.mockResolvedValueOnce({ success: true })
       const auth = useAuth()
-      // Set initial profile
-      auth.currentProfile.value = mockProfile
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
       await auth.logout()
-      expect(auth.currentProfile.value).toBeNull()
+      expect(auth.currentAccount.value).toBeNull()
+      expect(auth.authStatus.value).toBe('guest')
     })
 
-    it('still clears state when API call fails (best-effort)', async () => {
+    it('失败保留状态并重新抛出', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
       const auth = useAuth()
-      auth.currentProfile.value = mockProfile
-      await auth.logout()
-      expect(auth.currentProfile.value).toBeNull()
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
+      await expect(auth.logout()).rejects.toThrow()
+      expect(auth.currentAccount.value).toEqual(mockAccount)
+      expect(auth.authStatus.value).toBe('authenticated')
     })
+  })
 
-    it('handles logout when no session exists', async () => {
-      const auth = useAuth()
-      mockFetch.mockRejectedValueOnce(new Error('No session'))
-      await expect(auth.logout()).resolves.toBeUndefined()
-      expect(auth.currentProfile.value).toBeNull()
-    })
-
-    it('calls $fetch DELETE without custom auth headers', async () => {
+  describe('logoutAll', () => {
+    it('成功清空状态', async () => {
       mockFetch.mockResolvedValueOnce({ success: true })
       const auth = useAuth()
-      await auth.logout()
-      expect(mockFetch).toHaveBeenCalledWith('/api/auth/logout', {
-        method: 'DELETE',
-      })
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
+      await auth.logoutAll()
+      expect(auth.currentAccount.value).toBeNull()
+      expect(auth.authStatus.value).toBe('guest')
+    })
+
+    it('失败保留状态', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      const auth = useAuth()
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
+      await expect(auth.logoutAll()).rejects.toThrow()
+      expect(auth.currentAccount.value).toEqual(mockAccount)
+    })
+  })
+
+  describe('deleteAccount', () => {
+    it('成功清空状态', async () => {
+      mockFetch.mockResolvedValueOnce({ success: true })
+      const auth = useAuth()
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
+      await auth.deleteAccount('testuser', 'password123')
+      expect(auth.currentAccount.value).toBeNull()
+      expect(auth.authStatus.value).toBe('guest')
+    })
+
+    it('失败保留状态', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      const auth = useAuth()
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
+      await expect(auth.deleteAccount('testuser', 'password123')).rejects.toThrow()
+      expect(auth.currentAccount.value).toEqual(mockAccount)
     })
   })
 
   // ========================================================================
-  // updateProfile
+  // markSessionExpired 与 deprecated currentProfile
   // ========================================================================
 
-  describe('updateProfile', () => {
-    it('updates currentProfile state', () => {
-      const updatedProfile: Profile = {
-        ...mockProfile,
-        nickname: 'updateduser',
-        gender: '男',
-        birth_date: '2000-01-15',
-      }
+  describe('markSessionExpired', () => {
+    it('把 authenticated 置为 guest 并清空账号', () => {
       const auth = useAuth()
-      auth.updateProfile(updatedProfile)
-      expect(auth.currentProfile.value).toEqual(updatedProfile)
+      auth.currentAccount.value = mockAccount
+      auth.authStatus.value = 'authenticated'
+      auth.markSessionExpired()
+      expect(auth.authStatus.value).toBe('guest')
+      expect(auth.currentAccount.value).toBeNull()
     })
+  })
 
-    it('updates state with new profile data', () => {
+  describe('deprecated currentProfile', () => {
+    it('恒为 null，不提供 updateProfile', () => {
       const auth = useAuth()
-      auth.updateProfile(mockProfile)
-      expect(auth.currentProfile.value).toEqual(mockProfile)
+      expect(auth.currentProfile.value).toBeNull()
+      expect((auth as any).updateProfile).toBeUndefined()
+      // 即使认证后也保持 null（不冒充 SelfProfile）
+      auth.currentAccount.value = mockAccount
+      expect(auth.currentProfile.value).toBeNull()
     })
   })
 })

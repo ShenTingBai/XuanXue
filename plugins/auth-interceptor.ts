@@ -1,8 +1,8 @@
 /**
  * 全局认证拦截器
  *
- * 拦截所有 $fetch 请求的 401 响应，自动清除本地会话并跳转到登录页。
- * 排除登录/注册接口（这些接口的 401 是正常业务流程）。
+ * 非认证接口返回 401 时调用 markSessionExpired 并跳转到登录页，不再发起 logout 请求。
+ * 认证接口自身的错误不递归处理；恢复中和游客状态不重复跳转；普通网络失败不误判为会话过期。
  */
 export default defineNuxtPlugin(() => {
   if (!import.meta.client) return
@@ -10,15 +10,23 @@ export default defineNuxtPlugin(() => {
   // 延迟到 next tick 执行，确保 Nuxt app 已初始化完成
   nextTick(() => {
     try {
-      const { currentProfile, logout } = useAuth()
+      const { authStatus, markSessionExpired } = useAuth()
       const router = useRouter()
+
+      // 认证接口自身的 401 是正常业务流程，不触发会话过期处理
+      const authEndpoints = new Set([
+        '/api/auth/login',
+        '/api/auth/register',
+        '/api/auth/logout',
+        '/api/auth/logout-all',
+        '/api/auth/account',
+      ])
 
       // Create an intercepted fetch instance
       const intercepted = globalThis.$fetch.create({
         onResponseError({ request, response }) {
           if (response.status !== 401) return
 
-          // Skip auth endpoints — login/register 401 is normal business logic
           const url =
             typeof request === 'string'
               ? request
@@ -26,18 +34,14 @@ export default defineNuxtPlugin(() => {
                 ? request.href
                 : request.url
           const path = new URL(url, 'http://localhost').pathname
-          if (
-            path === '/api/auth/login' ||
-            path === '/api/auth/register' ||
-            path === '/api/auth/logout'
-          ) {
-            return
-          }
 
-          // Only act if user is currently logged in
-          if (!currentProfile.value) return
+          // 认证接口自身错误不递归处理
+          if (authEndpoints.has(path)) return
 
-          logout()
+          // 只在已登录状态下处理会话过期；恢复中和游客状态不重复跳转
+          if (authStatus.value !== 'authenticated') return
+
+          markSessionExpired()
           router.push('/login?expired=1')
         },
       })

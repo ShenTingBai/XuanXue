@@ -1,21 +1,23 @@
-import { createHash } from 'node:crypto'
 import initSqlJs, { type SqlJsStatic, type Database as SqlJsDatabase } from 'sql.js'
 import fs from 'fs'
 import path from 'path'
 import {
-  CREATE_PROFILES_TABLE,
+  CREATE_ACCOUNTS_TABLE,
   CREATE_SESSIONS_TABLE,
-  CREATE_DIVINATION_TABLE,
   CREATE_SECURITY_LOG_TABLE,
-  INDEX_SESSIONS_PROFILE,
+  CREATE_MIGRATIONS_TABLE,
+  INDEX_SESSIONS_ACCOUNT,
   INDEX_SESSIONS_TOKEN_HASH,
-  INDEX_DIVINATION_PROFILE,
-  INDEX_DIVINATION_PROFILE_TYPE_CREATED,
   INDEX_SESSIONS_EXPIRES_AT,
-  INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED,
+  INDEX_SECURITY_LOG_ACCOUNT_TYPE_CREATED,
 } from './schema'
 
-const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue.db')
+/**
+ * R2 默认数据库文件为独立新库（见下方 DB_PATH）。
+ * 旧 xuanxue.db 继续作为离线只读备份保留，本模块不做任何读取、导入或迁移。
+ * 显式 process.env.DB_PATH 仍然优先，供部署与测试覆盖。
+ */
+const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue-r2.db')
 
 let SQL: SqlJsStatic | null = null
 let db: SqlJsDatabase | null = null
@@ -117,90 +119,19 @@ export async function initDb(): Promise<void> {
     db.run('PRAGMA synchronous = NORMAL')
     db.run('PRAGMA foreign_keys = ON')
 
-    db.run(CREATE_PROFILES_TABLE)
+    // 只创建 R2 三张表和迁移记录，不读取、导入或探测 xuanxue.db。
+    db.run(CREATE_ACCOUNTS_TABLE)
     db.run(CREATE_SESSIONS_TABLE)
+    db.run(CREATE_SECURITY_LOG_TABLE)
+    db.run(CREATE_MIGRATIONS_TABLE)
 
-    // Migration version tracking — create early to gate all migrations
-    db.run(`CREATE TABLE IF NOT EXISTS _migrations (
-      version INTEGER PRIMARY KEY,
-      applied_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )`)
-
-    const appliedMigrations = new Set(
-      dbAll('SELECT version FROM _migrations').map(r => r.version as number),
-    )
-
-    // Migration v1: Hash any existing plaintext tokens in token_hash (48 hex chars = old randomBytes(24).toString('hex'))
-    if (!appliedMigrations.has(1)) {
-      try {
-        const rows = dbAll('SELECT id, token_hash FROM sessions') as {
-          id: number
-          token_hash: string
-        }[]
-        for (const row of rows) {
-          const token = row.token_hash
-          if (token && token.length === 48) {
-            const hashed = createHash('sha256').update(token).digest('hex')
-            dbRun('UPDATE sessions SET token_hash = ? WHERE id = ?', [hashed, row.id])
-          }
-        }
-        dbRun('INSERT INTO _migrations (version) VALUES (1)')
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Migration v1 failed (hash existing tokens):', e)
-      }
-    }
-
-    db.run(CREATE_DIVINATION_TABLE)
-    db.run(INDEX_SESSIONS_PROFILE)
+    db.run(INDEX_SESSIONS_ACCOUNT)
     db.run(INDEX_SESSIONS_TOKEN_HASH)
     db.run(INDEX_SESSIONS_EXPIRES_AT)
-    db.run(INDEX_DIVINATION_PROFILE)
-    db.run(INDEX_DIVINATION_PROFILE_TYPE_CREATED)
+    db.run(INDEX_SECURITY_LOG_ACCOUNT_TYPE_CREATED)
 
-    // Migration v2: remove pin CHECK(length(pin)=4) constraint for hashed PIN support
-    if (!appliedMigrations.has(2)) {
-      try {
-        const tableInfo = dbGet(
-          "SELECT sql FROM sqlite_master WHERE type='table' AND name='profiles'",
-        )
-        if (tableInfo && (tableInfo.sql as string).includes('CHECK(length(pin) = 4)')) {
-          db.run('BEGIN')
-          db.run('ALTER TABLE profiles RENAME TO profiles_old')
-          db.run(CREATE_PROFILES_TABLE)
-          db.run(
-            `INSERT INTO profiles (id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at) SELECT id, nickname, pin, birth_date, birth_calendar, birth_hour, birth_minute, gender, created_at, updated_at FROM profiles_old`,
-          )
-          db.run('DROP TABLE profiles_old')
-          db.run('COMMIT')
-        }
-        dbRun('INSERT INTO _migrations (version) VALUES (2)')
-      } catch (e) {
-        try {
-          db.run('ROLLBACK')
-        } catch {
-          // Intentionally empty: rollback failure is non-recoverable
-        }
-        // eslint-disable-next-line no-console
-        console.error('Migration v2 failed (profiles CHECK constraint):', e)
-      }
-    }
-
-    db.run(CREATE_SECURITY_LOG_TABLE)
-    db.run(INDEX_SECURITY_LOG_PROFILE_TYPE_CREATED)
+    // 清理 90 天前的过期安全日志，保持最小留存。
     db.run("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")
-
-    const migrations: { version: number; sql: string }[] = [
-      // v3 (birth_place, birth_longitude) and v4 (parent_profile_id) are now
-      // part of the base CREATE_PROFILES_TABLE schema — migrations removed.
-    ]
-
-    for (const m of migrations) {
-      if (!appliedMigrations.has(m.version)) {
-        db.run(m.sql)
-        db.run('INSERT INTO _migrations (version) VALUES (?)', [m.version])
-      }
-    }
 
     process.on('SIGINT', () => {
       flushSave()
@@ -228,6 +159,48 @@ export function getDb(): SqlJsDatabase {
   }
   return db
 }
+
+/**
+ * 在单个事务中执行回调：BEGIN 后运行，成功 COMMIT，失败 ROLLBACK 并重新抛出。
+ * 持久化调度只发生在成功提交之后，避免回滚状态落盘。
+ * 只接受同步回调：返回 Promise 会在提交前被拒绝并回滚，保持同步事务语义。
+ */
+export function withTransaction<T>(fn: () => T): T {
+  const database = getDb()
+  database.run('BEGIN')
+  transactionDepth++
+  let committed = false
+  try {
+    const result = fn()
+    // 泛型 T 未知具体形态，先转 unknown 再探测 then，避免 TS2352 误报；不改变运行时行为
+    if (
+      result !== null &&
+      typeof result === 'object' &&
+      typeof (result as unknown as Promise<unknown>).then === 'function'
+    ) {
+      throw new Error('withTransaction 回调必须同步完成，禁止返回 Promise')
+    }
+    database.run('COMMIT')
+    committed = true
+    return result
+  } catch (err) {
+    try {
+      database.run('ROLLBACK')
+    } catch {
+      // ROLLBACK 失败不可恢复，保持抛出原错误
+    }
+    throw err
+  } finally {
+    transactionDepth--
+    // 只有成功提交后才调度持久化；任何失败路径都在 finally 恢复深度。
+    if (committed) {
+      scheduleSave()
+    }
+  }
+}
+
+// 事务嵌套深度：大于 0 时 dbRun 不调度持久化，防止回滚状态落盘。
+let transactionDepth = 0
 
 export function dbGet(
   sql: string,
@@ -260,7 +233,10 @@ export function dbRun(
 ): { lastInsertRowid: number; changes: number } {
   const database = getDb()
   database.run(sql, params)
-  scheduleSave()
+  // 事务内不调度持久化：由 withTransaction 在成功 COMMIT 后统一调度。
+  if (transactionDepth === 0) {
+    scheduleSave()
+  }
 
   const isInsert = /^\s*INSERT\b/i.test(sql.trim())
   const idResult = isInsert ? dbGet('SELECT last_insert_rowid() as id') : undefined

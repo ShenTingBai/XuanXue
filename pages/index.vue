@@ -30,7 +30,7 @@ useSeoMeta({
   ogType: 'website',
 })
 
-const { restoreSession, currentProfile } = useAuth()
+const { restoreSession, authStatus, currentAccount } = useAuth()
 const greeting = useGreeting()
 
 // 首页工具入口只从四维目录推导公开可用项；当前围栏期没有任何普通访客可用工具。
@@ -151,7 +151,7 @@ onMounted(async () => {
     <!-- ════════════════════════════════════ -->
     <!--  LANDING PAGE — Unauthenticated    -->
     <!-- ════════════════════════════════════ -->
-    <template v-if="sessionReady && !currentProfile">
+    <template v-if="sessionReady && authStatus !== 'authenticated'">
       <div class="relative z-10">
         <!-- ── Hero ── -->
         <section class="relative overflow-hidden" aria-labelledby="hero-heading">
@@ -201,7 +201,7 @@ onMounted(async () => {
                   <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
                     <span>登录查看状态</span>
                   </NuxtLink>
-                  <NuxtLink to="/login" class="btn-ink no-underline"> 已有档案 </NuxtLink>
+                  <NuxtLink to="/login" class="btn-ink no-underline"> 登录/注册 </NuxtLink>
                 </div>
               </div>
             </div>
@@ -517,7 +517,7 @@ onMounted(async () => {
             <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
               <span>查看工具状态</span>
             </NuxtLink>
-            <NuxtLink to="/login" class="btn-ink no-underline">已有档案</NuxtLink>
+            <NuxtLink to="/account" class="btn-ink no-underline">账号设置</NuxtLink>
           </div>
         </section>
       </div>
@@ -526,7 +526,7 @@ onMounted(async () => {
     <!-- ════════════════════════════════════ -->
     <!--  AUTHENTICATED                      -->
     <!-- ════════════════════════════════════ -->
-    <template v-if="sessionReady && currentProfile">
+    <template v-if="sessionReady && currentAccount">
       <div class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative z-10">
         <!-- ═══ Left/Right 50/50: Greeting + 今日玄机 ✦ 今日命签 ═══ -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch mb-12 sm:mb-16">
@@ -550,7 +550,7 @@ onMounted(async () => {
                     style="color: var(--color-ink); letter-spacing: 0.05em"
                   >
                     {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{
-                      currentProfile.nickname
+                      currentAccount.nickname
                     }}</span>
                   </h1>
                   <!-- 岁次 seal -->

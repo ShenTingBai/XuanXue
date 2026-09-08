@@ -7,7 +7,7 @@ const navTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
 
 <script setup lang="ts">
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
-const { currentProfile, restoreSession, logout } = useAuth()
+const { authStatus, currentAccount, restoreSession, logout } = useAuth()
 const router = useRouter()
 const showMobileNav = ref(false)
 const mobileNavRef = ref<HTMLElement | null>(null)
@@ -17,6 +17,7 @@ const mobileDrawerPanelRef = ref<HTMLElement | null>(null)
 const route = useRoute()
 const showProfileDropdown = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
+const actionError = ref('')
 
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
@@ -115,9 +116,13 @@ const handleLogout = async () => {
   if (loggingOut.value) return
   showMobileNav.value = false
   loggingOut.value = true
+  actionError.value = ''
   try {
     await logout()
-    router.push('/login')
+    router.push('/')
+  } catch (e: unknown) {
+    // 退出失败：保留菜单与登录状态并显示可访问错误提示，不跳转登录页
+    actionError.value = (e as Error)?.message || '退出失败，请稍后再试'
   } finally {
     loggingOut.value = false
   }
@@ -180,10 +185,19 @@ const handleLogout = async () => {
               </svg>
             </button>
 
-            <!-- Profile Section (desktop only — mobile is in the drawer) -->
-            <div v-if="currentProfile" class="hidden md:flex items-center gap-3 flex-shrink-0">
-              <AvatarCircle :nickname="currentProfile.nickname" size="sm" />
-              <span class="font-sans text-sm text-ink-medium">{{ currentProfile.nickname }}</span>
+            <!-- Guest login (desktop) — 恢复中不显示，避免闪现错误入口 -->
+            <NuxtLink
+              v-if="authStatus === 'guest'"
+              to="/login"
+              class="hidden md:inline-flex items-center px-4 py-2 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline flex-shrink-0"
+            >
+              登录
+            </NuxtLink>
+
+            <!-- Account Section (desktop only — mobile is in the drawer) -->
+            <div v-if="currentAccount" class="hidden md:flex items-center gap-3 flex-shrink-0">
+              <AvatarCircle :nickname="currentAccount.nickname" size="sm" />
+              <span class="font-sans text-sm text-ink-medium">{{ currentAccount.nickname }}</span>
               <div ref="dropdownRef" class="relative">
                 <button
                   class="flex items-center gap-1 px-1.5 py-1 rounded-lg dropdown-trigger transition-colors"
@@ -216,7 +230,7 @@ const handleLogout = async () => {
                     @keydown.end.prevent="handleMenuKeydown"
                   >
                     <NuxtLink
-                      :to="`/profile/${currentProfile.id}`"
+                      to="/account"
                       role="menuitem"
                       :tabindex="menuActiveIndex === 0 ? '0' : '-1'"
                       class="dropdown-menu-item flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline"
@@ -234,8 +248,11 @@ const handleLogout = async () => {
                         <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
                         <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                       </svg>
-                      编辑档案
+                      账号设置
                     </NuxtLink>
+                    <div v-if="actionError" class="px-4 py-2 text-xs text-cinnabar" role="alert">
+                      {{ actionError }}
+                    </div>
                     <div class="h-px bg-paper-dark mx-3" role="separator" />
                     <button
                       role="menuitem"
@@ -385,11 +402,21 @@ const handleLogout = async () => {
               </NuxtLink>
             </nav>
 
+            <!-- Guest login (mobile) — 恢复中不显示 -->
+            <NuxtLink
+              v-if="authStatus === 'guest'"
+              to="/login"
+              class="mobile-nav-item !rounded-lg"
+              @click="showMobileNav = false"
+            >
+              <span class="font-sans text-sm text-ink-medium">登录</span>
+            </NuxtLink>
+
             <!-- Spacer -->
             <div class="flex-1" />
 
-            <!-- Profile section — anchored at bottom -->
-            <template v-if="currentProfile">
+            <!-- Account section — anchored at bottom -->
+            <template v-if="currentAccount">
               <div
                 class="mx-5 h-px"
                 style="
@@ -403,13 +430,13 @@ const handleLogout = async () => {
               />
               <div class="flex flex-col px-3 py-3 gap-1">
                 <div class="flex items-center gap-3 px-3 py-2">
-                  <AvatarCircle :nickname="currentProfile.nickname" size="sm" />
+                  <AvatarCircle :nickname="currentAccount.nickname" size="sm" />
                   <span class="font-sans text-sm text-ink-medium">{{
-                    currentProfile.nickname
+                    currentAccount.nickname
                   }}</span>
                 </div>
                 <NuxtLink
-                  :to="`/profile/${currentProfile.id}`"
+                  to="/account"
                   class="mobile-nav-item !rounded-lg"
                   @click="showMobileNav = false"
                 >
@@ -425,8 +452,11 @@ const handleLogout = async () => {
                     <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
                     <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                   </svg>
-                  <span class="font-sans text-sm text-ink-medium">编辑档案</span>
+                  <span class="font-sans text-sm text-ink-medium">账号设置</span>
                 </NuxtLink>
+                <div v-if="actionError" class="mx-3 px-3 py-2 text-xs text-cinnabar" role="alert">
+                  {{ actionError }}
+                </div>
                 <button
                   :disabled="loggingOut"
                   class="mobile-nav-item !rounded-lg"

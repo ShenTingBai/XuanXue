@@ -1,20 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { resolve, sep } from 'node:path'
 import { tmpdir } from 'node:os'
-import { initDb, dbRun, dbGet, dbAll } from '../../server/database/db'
+import { initDb, dbRun, dbAll } from '../../server/database/db'
 import {
+  hashPassword,
   createSessionToken,
-  getProfileIdFromToken,
+  resolveSession,
   deleteSession,
-  hashPin,
 } from '../../server/utils/auth'
 import { checkRateLimit } from '../../server/utils/rateLimit'
 
-describe('Divinations API (unit tests)', () => {
-  let profileId: number
+describe('R2 账号与会话最小集成（真实临时数据库）', () => {
+  let accountId: number
   let token: string
-  let otherProfileId: number
+  let otherAccountId: number
   let otherToken: string
 
   beforeAll(async () => {
@@ -33,170 +32,98 @@ describe('Divinations API (unit tests)', () => {
 
     await initDb()
 
-    // Clean up any leftover test data
+    // 清理遗留测试数据
     dbRun(
-      "DELETE FROM divination_results WHERE profile_id IN (SELECT id FROM profiles WHERE nickname LIKE 'test_div_%')",
+      "DELETE FROM sessions WHERE account_id IN (SELECT id FROM accounts WHERE nickname LIKE 'test_r2_%')",
     )
     dbRun(
-      "DELETE FROM sessions WHERE profile_id IN (SELECT id FROM profiles WHERE nickname LIKE 'test_div_%')",
+      "DELETE FROM security_log WHERE account_id IN (SELECT id FROM accounts WHERE nickname LIKE 'test_r2_%')",
     )
-    dbRun("DELETE FROM profiles WHERE nickname LIKE 'test_div_%'")
+    dbRun("DELETE FROM accounts WHERE nickname LIKE 'test_r2_%'")
 
-    // Create test profile 1
-    const pin = hashPin('1234')
-    const { lastInsertRowid: pid1 } = dbRun('INSERT INTO profiles (nickname, pin) VALUES (?, ?)', [
-      'test_div_user1',
-      pin,
-    ])
-    profileId = pid1
-    token = createSessionToken(profileId)
+    // 创建测试账号 1
+    const credential = hashPassword('password123')
+    const { lastInsertRowid: acc1 } = dbRun(
+      "INSERT INTO accounts (nickname, credential_hash, status, age_confirmed_at, privacy_policy_version, service_terms_version) VALUES (?, ?, 'active', ?, ?, ?)",
+      [
+        `test_r2_user1_${Date.now()}`,
+        credential,
+        new Date().toISOString(),
+        '2026-09-08',
+        '2026-09-08',
+      ],
+    )
+    accountId = acc1
+    token = createSessionToken(accountId)
 
-    // Create test profile 2 (different owner)
-    const { lastInsertRowid: pid2 } = dbRun('INSERT INTO profiles (nickname, pin) VALUES (?, ?)', [
-      'test_div_user2',
-      pin,
-    ])
-    otherProfileId = pid2
-    otherToken = createSessionToken(otherProfileId)
+    // 创建测试账号 2（不同所有者）
+    const { lastInsertRowid: acc2 } = dbRun(
+      "INSERT INTO accounts (nickname, credential_hash, status, age_confirmed_at, privacy_policy_version, service_terms_version) VALUES (?, ?, 'active', ?, ?, ?)",
+      [
+        `test_r2_user2_${Date.now()}`,
+        credential,
+        new Date().toISOString(),
+        '2026-09-08',
+        '2026-09-08',
+      ],
+    )
+    otherAccountId = acc2
+    otherToken = createSessionToken(otherAccountId)
   })
 
   afterAll(() => {
-    // Cleanup
+    // 清理测试数据
     deleteSession(token)
     deleteSession(otherToken)
-    dbRun('DELETE FROM divination_results WHERE profile_id IN (?, ?)', [profileId, otherProfileId])
-    dbRun('DELETE FROM sessions WHERE profile_id IN (?, ?)', [profileId, otherProfileId])
-    dbRun('DELETE FROM profiles WHERE id IN (?, ?)', [profileId, otherProfileId])
+    dbRun('DELETE FROM sessions WHERE account_id IN (?, ?)', [accountId, otherAccountId])
+    dbRun('DELETE FROM security_log WHERE account_id IN (?, ?)', [accountId, otherAccountId])
+    dbRun('DELETE FROM accounts WHERE id IN (?, ?)', [accountId, otherAccountId])
   })
 
-  // === Auth utility tests ===
-
-  describe('Authentication', () => {
-    it('getProfileIdFromToken returns profile ID for valid token', () => {
-      const id = getProfileIdFromToken(token)
-      expect(id).toBe(profileId)
+  describe('多会话与账号隔离', () => {
+    it('同一账号可并存多个会话', () => {
+      const t2 = createSessionToken(accountId)
+      expect(resolveSession(token)).not.toBeNull()
+      expect(resolveSession(t2)).not.toBeNull()
+      deleteSession(t2)
     })
 
-    it('getProfileIdFromToken returns null for invalid token', () => {
-      expect(getProfileIdFromToken('')).toBeNull()
-      expect(getProfileIdFromToken('nonexistent-token-12345')).toBeNull()
+    it('不同账号的会话互不关联', () => {
+      const a = resolveSession(token)!
+      const b = resolveSession(otherToken)!
+      expect(a.accountId).toBe(accountId)
+      expect(b.accountId).toBe(otherAccountId)
+      expect(a.accountId).not.toBe(b.accountId)
     })
 
-    it('getProfileIdFromToken returns null for null token', () => {
-      expect(getProfileIdFromToken(null as unknown as string)).toBeNull()
+    it('删除一个会话不影响另一账号会话', () => {
+      deleteSession(token)
+      expect(resolveSession(token)).toBeNull()
+      expect(resolveSession(otherToken)).not.toBeNull()
+      // 重建 token 供后续使用
+      token = createSessionToken(accountId)
     })
   })
 
-  // === Rate limit utility tests ===
-
-  describe('Rate limiting', () => {
-    it('checkRateLimit allows first request', () => {
-      const key = `test-rate-${Date.now()}`
+  describe('限流工具', () => {
+    it('checkRateLimit 允许首次请求', () => {
+      const key = `test-rate-r2-${Date.now()}`
       expect(checkRateLimit(key, 5, 60000)).toBe(true)
     })
 
-    it('checkRateLimit blocks after exceeding max attempts', () => {
-      const key = `test-rate-block-${Date.now()}`
-      for (let i = 0; i < 5; i++) {
-        expect(checkRateLimit(key, 5, 60000)).toBe(true)
-      }
+    it('checkRateLimit 超过上限后拒绝', () => {
+      const key = `test-rate-block-r2-${Date.now()}`
+      for (let i = 0; i < 5; i++) checkRateLimit(key, 5, 60000)
       expect(checkRateLimit(key, 5, 60000)).toBe(false)
     })
-
-    it('checkRateLimit uses separate keys independently', () => {
-      const keyA = `test-rate-indep-a-${Date.now()}`
-      const keyB = `test-rate-indep-b-${Date.now()}`
-      // Exhaust keyA
-      for (let i = 0; i < 3; i++) checkRateLimit(keyA, 3, 60000)
-      expect(checkRateLimit(keyA, 3, 60000)).toBe(false)
-      // keyB should still be allowed
-      expect(checkRateLimit(keyB, 3, 60000)).toBe(true)
-    })
   })
 
-  // === Divination CRUD tests (testing database operations directly) ===
-
-  describe('Divination CRUD', () => {
-    let divinationId: number
-
-    it('POST: creates a divination record', () => {
-      const inputData = JSON.stringify({ birthYear: 2000, birthMonth: 1, birthDay: 1 })
-      const resultData = JSON.stringify({ dayMaster: '甲' })
-
-      const { lastInsertRowid, changes } = dbRun(
-        'INSERT INTO divination_results (profile_id, type, input_data, result_data) VALUES (?, ?, ?, ?)',
-        [profileId, 'bazi', inputData, resultData],
+  describe('R2 schema 无旧表', () => {
+    it('临时库不含 profiles 或 divination_results 表', () => {
+      const tables = dbAll(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('profiles', 'divination_results')",
       )
-
-      expect(changes).toBe(1)
-      expect(lastInsertRowid).toBeGreaterThan(0)
-      divinationId = lastInsertRowid
-    })
-
-    it('GET list: returns records without result_data', () => {
-      const rows = dbAll(
-        'SELECT id, type, input_data, created_at FROM divination_results WHERE profile_id = ? AND type = ? ORDER BY created_at DESC LIMIT 20',
-        [profileId, 'bazi'],
-      )
-
-      expect(rows.length).toBeGreaterThan(0)
-      const record = rows.find(r => r.id === divinationId)
-      expect(record).toBeDefined()
-      expect(record!.type).toBe('bazi')
-      // result_data should NOT be in the SELECT columns (verified by the query itself)
-      expect(record as any).not.toHaveProperty('result_data')
-    })
-
-    it('GET detail: returns full record with result_data', () => {
-      const record = dbGet(
-        'SELECT id, profile_id, type, input_data, result_data, created_at FROM divination_results WHERE id = ?',
-        [divinationId],
-      )
-
-      expect(record).toBeDefined()
-      expect(record!.type).toBe('bazi')
-      expect(record!.result_data).toBeDefined()
-      expect(record!.profile_id).toBe(profileId)
-    })
-
-    it('GET detail: returns undefined for non-existent record', () => {
-      const record = dbGet(
-        'SELECT id, profile_id, type, input_data, result_data, created_at FROM divination_results WHERE id = ?',
-        [999999],
-      )
-      expect(record).toBeUndefined()
-    })
-
-    it('ownership check: other user cannot see records they do not own', () => {
-      // Query records with the OTHER user's profileId — should not find our record
-      const rows = dbAll('SELECT id FROM divination_results WHERE profile_id = ? AND id = ?', [
-        otherProfileId,
-        divinationId,
-      ])
-      expect(rows.length).toBe(0)
-    })
-
-    it('ownership check: owner can see their own records', () => {
-      const rows = dbAll('SELECT id FROM divination_results WHERE profile_id = ? AND id = ?', [
-        profileId,
-        divinationId,
-      ])
-      expect(rows.length).toBe(1)
-      expect(rows[0].id).toBe(divinationId)
-    })
-  })
-
-  // === Size limits ===
-
-  describe('Payload size validation', () => {
-    it('accepts payloads under 100KB', () => {
-      const data = JSON.stringify({ data: 'x'.repeat(1000) })
-      expect(Buffer.byteLength(data)).toBeLessThan(100_000)
-    })
-
-    it('rejects payloads over 100KB', () => {
-      const data = JSON.stringify({ data: 'x'.repeat(100_000) })
-      expect(Buffer.byteLength(data)).toBeGreaterThan(100_000)
+      expect(tables).toHaveLength(0)
     })
   })
 })

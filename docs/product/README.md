@@ -2,9 +2,9 @@
 
 > 状态：Active — 当前产品文档入口与状态单一事实来源
 >
-> 版本：1.11.0
+> 版本：1.12.0
 >
-> 最后更新：2026-09-07
+> 最后更新：2026-09-08
 >
 > 适用范围：XuanXue 现有产品打磨、后续单项功能讨论、实施计划生成和验收
 
@@ -130,6 +130,18 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 用户已接受该文档基线说明。本次待提交文件分类、过时说明修订及排除范围见该记录第 8 章；这批追加修订待审阅，不改变各工具的 Not started、来源或公开状态，也不构成 Git 操作授权。
 
 2026-09-07，用户进一步逐项批准[基础重建与首批工具交付规范](foundation-rebuild-and-first-tools-delivery-spec.md)，固定 R1–R6 交付顺序并替代旧 P2–P7 路线。该批准仍只表示产品决策完成，不表示已经生成实施计划、修改代码或通过验收。
+
+### 8.1 R1 安全收口与 R2 账号会话状态
+
+R1 安全收口（停止自动历史写入、工具目录客户端与服务端围栏、排除认证/档案/历史接口持久缓存）已于 2026-09-07 实施并由用户接受，接受证据与提交见 [阶段路线图](../project/stage-roadmap.md#r1-安全收口)。相关提交 `2c61039` 已推送。
+
+R2 账号与会话（独立 Account、多设备会话、HttpOnly Cookie 认证、同源校验、旧档案 410 封存）已完成实施，状态为 **Implemented, verification pending**：尚未运行 typecheck、测试、构建与浏览器验收，未写成 Accepted。默认新库为 `xuanxue-r2.db`，旧 `xuanxue.db` 仅作离线只读备份。本段不改变任何工具的公开状态（当前仍无普通访客可用工具）。
+
+R2 收敛修复（convergence v2：事务/畸形凭证/IP 提示边界、跨组件恢复去重与网络错误重试、认证与注销弹层焦点闭环）已完成实施，同样为 **verification pending**；计划 `.claude/plans/plan-20260908-r2-account-and-session-convergence-v2.yaml`，结果 `.claude/results/20260908-r2-account-and-session-convergence-v2-result.yaml`。本轮未运行任何构建、测试、类型检查或浏览器验收。
+
+R2 最终静态收敛（convergence v3：账号页重试后的游客跳转、AuthDialog 两种打开方式的初始焦点、事务测试表述与实际覆盖对齐）已完成实施，仍为 **Implemented, verification pending**；计划 `.claude/plans/plan-20260908-r2-account-and-session-convergence-v3.yaml`，结果 `.claude/results/20260908-r2-account-and-session-convergence-v3-result.yaml`。本轮同样未运行任何构建、测试、类型检查或浏览器验收。
+
+R2 已于 2026-09-08 通过完整自动化与浏览器验收，状态更新为 **Accepted**。验收返修（convergence v4：恢复安全日志写入契约、修复注册依赖与事务类型、修复测试路径/自动导入环境/断言真实性）修复了此前 typecheck（securityLog 缺失导出、register 缺 dbRun 导入、事务泛型转换）、test（26 用例失败，含组件自动导入、mock 串扰、路径错误、陈旧构建产物）与 build（Nitro MISSING_EXPORT）的失败证据；修复后全套验收全绿：typecheck 0 错误、完整测试 53 文件 / 2133 用例通过、lint 0 error、build 成功。浏览器验收（生产 preview + os.tmpdir 独立临时库）覆盖游客跳转、注册、登录、两会话并存、当前设备退出、退出所有设备、防枚举错误文案、注销弹层焦点循环与注销、320/360/390/414 CSS px 与 320px + 200% 根字号无横向溢出、敏感 API `Cache-Control: no-store`；xuanxue.db SHA256 验收前后保持 `DCC92D73…8AAC` 不变。计划 `.claude/plans/plan-20260908-r2-account-and-session-acceptance-convergence-v4.yaml`，结果 `.claude/results/20260908-r2-account-and-session-acceptance-convergence-v4-result.yaml`。R3 进入门槛（R2 Accepted）已满足，但尚未实施，未发起 R3 计划。
 
 ## 9. 已完成的审计与历史证据
 

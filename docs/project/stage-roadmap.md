@@ -111,22 +111,37 @@
 
 ## 3. 当前批准路线与阶段进入门槛
 
-2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/foundation-rebuild-and-first-tools-delivery-spec.md)为准。当前六个阶段均为 `Approved`，尚未生成 v2.2 实施计划，也未开始代码实施。
+2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/foundation-rebuild-and-first-tools-delivery-spec.md)为准。R1 与 R2 均为 `Accepted`；R3–R6 仍为 `Approved`，尚未进入实施（R3 进入门槛已满足但尚未发起）。
 
 ### R1：安全收口
 
-- 状态：`Approved`。
+- 状态：`Accepted`。
 - 目标：停止自动历史写入，建立工具目录的客户端与服务端围栏，排除认证、档案和历史接口的持久缓存。
 - 非目标：不迁移或删除旧数据库，不重做页面，不恢复候选工具。
 - 完成门槛：页面、直接路由和直接接口均不能自动创建历史或绕过计算、历史与缓存边界。
+- 执行结果：
+  - `.claude/plans/plan-20260907-r1-safety-containment-v2.yaml` → `.claude/results/20260907-r1-safety-containment-v2-result.yaml`；
+  - 收敛修复 `.claude/plans/plan-20260907-r1-safety-containment-convergence-v3.yaml` → `.claude/results/20260907-r1-safety-containment-convergence-v3-result.yaml`；
+  - 测试数据库隔离 `.claude/plans/plan-20260907-r1-test-database-isolation-v4.yaml` → `.claude/results/20260907-r1-test-database-isolation-v4-result.yaml`。
+- 接受依据：用户已接受当前旧数据库哈希（DCC92D73…）为业务基线；提交 `2c61039` 已推送。原 905e5b40… 内容无法从仓库恢复。
 
 ### R2：账号与会话
 
-- 状态：`Approved`。
+- 状态：`Accepted`。
 - 目标：建立与本人档案分离的账号模型、完整注册确认、独立设备会话和页内认证流程。
 - 非目标：不在注册时建档，不绑定邮箱或手机号，不建设凭证找回和设备会话列表。
-- 进入门槛：R1 `Accepted`。
+- 进入门槛：R1 `Accepted`（已满足）。
 - 完成门槛：注册、登录、恢复、当前会话退出、退出失败、会话过期、全部会话失效和注销路径均符合数据与安全契约。
+- 执行结果：
+  - `.claude/plans/plan-20260908-r2-account-and-session-v1.yaml` → `.claude/results/20260908-r2-account-and-session-v1-result.yaml`；
+  - 收敛修复 `.claude/plans/plan-20260908-r2-account-and-session-convergence-v2.yaml` → `.claude/results/20260908-r2-account-and-session-convergence-v2-result.yaml`；
+  - 最终静态收敛 `.claude/plans/plan-20260908-r2-account-and-session-convergence-v3.yaml` → `.claude/results/20260908-r2-account-and-session-convergence-v3-result.yaml`；
+  - 验收返修 `.claude/plans/plan-20260908-r2-account-and-session-acceptance-convergence-v4.yaml` → `.claude/results/20260908-r2-account-and-session-acceptance-convergence-v4-result.yaml`。
+- 验证状态：2026-09-08 convergence v4 完成验收返修并通过全套验证，状态更新为 `Accepted`：
+  - 自动化验收全绿：typecheck 0 错误；完整测试 53 文件 / 2133 用例通过；lint 0 error / 1 warning（`layouts/default.vue` 的 no-useless-assignment，不在计划修改范围）；`npm run build` 成功（修复 securityLog 缺失导出导致的 Nitro MISSING_EXPORT）；`git diff --check` 通过；改动文件乱码检测 0 命中。
+  - 浏览器验收（生产 `node .output/server/index.mjs` preview，DB_PATH 指向 os.tmpdir 下独立临时库、独立 SESSION_SECRET）：游客访问 /account 正确 replace /login；唯一昵称注册进入 /account 且响应只含 account 不暴露 token/profile；两个独立会话并存；当前设备退出只使当前会话失效（另一会话仍可恢复）；退出所有设备使两个会话均失效；错误密码与不存在账号返回同一 401 文案（防枚举）；一次性账号注销弹层的初始焦点、Tab/Shift+Tab 循环、Escape 关闭与焦点返回触发按钮均验证通过，正确凭证注销后账号删除、昵称可重新注册；320/360/390/414 CSS px 下登录、注册、账号页与注销弹层均无横向溢出、控件可达；320 CSS px + 200% 根字号重复关键流程无溢出；auth/me、profiles、divinations、logout 敏感 API 响应均含 `Cache-Control: no-store`。
+  - 数据库安全：验收前后 xuanxue.db SHA256 保持 `DCC92D73…8AAC` 不变；项目根未生成 xuanxue-r2.db；本轮 preview 临时数据库目录在验收后已精确删除；R1 提交 `2c61039` 未变。
+- 后续：R3 进入门槛（R2 `Accepted`）已满足，但 R3 尚未实施、未发起计划，本段不构成 R3 已开始的记录。
 
 ### R3：游客草稿与生肖
 

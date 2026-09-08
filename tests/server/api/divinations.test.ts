@@ -38,19 +38,8 @@ vi.mock('~/server/database/db', () => ({
   dbAll: vi.fn(() => []),
 }))
 
-vi.mock('~/server/utils/auth', () => ({
-  getProfileIdFromToken: vi.fn(() => 1),
-  createSessionToken: vi.fn(() => 'mock-session-token'),
-  hashPin: vi.fn((pin: string) => `salt:${pin}:hash`),
-  verifyPin: vi.fn(() => true),
-  isLegacyPin: vi.fn(() => false),
-  deleteSession: vi.fn(),
-  cleanupExpiredSessions: vi.fn(),
-}))
-
 vi.mock('~/server/utils/rateLimit', () => ({
   checkRateLimit: vi.fn(() => true),
-  getClientIp: vi.fn(() => '127.0.0.1'),
 }))
 
 vi.mock('~/server/utils/securityLog', () => ({
@@ -70,26 +59,12 @@ vi.mock('~/server/utils/json', () => ({
   }),
 }))
 
-vi.mock('~/server/utils/profile', () => ({
-  toSafeProfile: vi.fn((row: any) => ({
-    id: row.id,
-    nickname: row.nickname,
-    gender: null,
-    birth_date: null,
-    birth_calendar: null,
-    birth_hour: null,
-    birth_minute: null,
-    created_at: '2025-01-01T00:00:00.000Z',
-    updated_at: '2025-01-01T00:00:00.000Z',
-  })),
-}))
-
 // ============================================================================
 // Imports (after mocks)
 // ============================================================================
 
 import { dbGet, dbRun, dbAll } from '~/server/database/db'
-import { checkRateLimit, getClientIp } from '~/server/utils/rateLimit'
+import { checkRateLimit } from '~/server/utils/rateLimit'
 import { TOOL_CATALOG, canCreateHistory, canReadHistory } from '~/constants/tool-catalog'
 
 // ============================================================================
@@ -300,164 +275,6 @@ describe('Divinations API handlers', () => {
       })
       await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
         statusCode: 403,
-      })
-    })
-  })
-})
-
-// ============================================================================
-// Auth API tests
-// ============================================================================
-
-describe('Auth API handlers', () => {
-  // --------------------------------------------------------------------------
-  // POST /api/auth/login
-  // --------------------------------------------------------------------------
-
-  describe('POST /api/auth/login', () => {
-    let handler: (...args: any[]) => any
-
-    beforeEach(async () => {
-      vi.clearAllMocks()
-      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: 'abc123' })
-      vi.mocked(checkRateLimit).mockReturnValue(true)
-      vi.mocked(getClientIp).mockReturnValue('127.0.0.1')
-      vi.mocked(dbGet).mockImplementation((sql: string) => {
-        if (sql.includes('SELECT * FROM profiles WHERE nickname =')) {
-          return { id: 1, nickname: 'testuser', pin: 'salt:hashvalue' }
-        }
-        if (sql.includes('SELECT COUNT(*) as count FROM security_log')) {
-          return { count: 0 }
-        }
-        return undefined
-      })
-
-      const { verifyPin, createSessionToken, cleanupExpiredSessions } =
-        await import('~/server/utils/auth')
-      vi.mocked(verifyPin).mockReturnValue(true)
-      vi.mocked(createSessionToken).mockReturnValue('session-token-abc')
-      vi.mocked(cleanupExpiredSessions).mockReturnValue()
-
-      handler = (await import('~/server/api/auth/login.post')).default
-    })
-
-    it('returns { token, profile } on successful login', async () => {
-      const result = await handler({} as any)
-      expect(result).toHaveProperty('token', 'session-token-abc')
-      expect(result).toHaveProperty('profile')
-      expect(result.profile.nickname).toBe('testuser')
-    })
-
-    it('throws 400 when nickname or pin is missing', async () => {
-      mockReadBody.mockResolvedValue({})
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 400 when pin is empty', async () => {
-      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: '' })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 400 when pin exceeds 20 characters', async () => {
-      mockReadBody.mockResolvedValue({ nickname: 'testuser', pin: 'a'.repeat(21) })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 429 when rate limited', async () => {
-      vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 429,
-      })
-    })
-
-    it('throws 401 when profile not found', async () => {
-      vi.mocked(dbGet).mockImplementation((sql: string) => {
-        if (sql.includes('SELECT * FROM profiles WHERE nickname =')) return undefined
-        return undefined
-      })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 401 })
-    })
-
-    it('throws 401 when PIN verification fails', async () => {
-      const { verifyPin } = await import('~/server/utils/auth')
-      vi.mocked(verifyPin).mockReturnValue(false)
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 401 })
-    })
-  })
-
-  // --------------------------------------------------------------------------
-  // POST /api/auth/register
-  // --------------------------------------------------------------------------
-
-  describe('POST /api/auth/register', () => {
-    let handler: (...args: any[]) => any
-
-    beforeEach(async () => {
-      vi.clearAllMocks()
-      mockReadBody.mockResolvedValue({ nickname: 'newuser', pin: 'abc123' })
-      vi.mocked(checkRateLimit).mockReturnValue(true)
-      vi.mocked(getClientIp).mockReturnValue('127.0.0.1')
-      vi.mocked(dbGet).mockImplementation((sql: string) => {
-        if (sql.includes('SELECT id FROM profiles WHERE nickname =')) return undefined
-        if (sql.includes('SELECT * FROM profiles WHERE id =')) return { id: 2, nickname: 'newuser' }
-        return undefined
-      })
-      vi.mocked(dbRun).mockReturnValue({ lastInsertRowid: 2, changes: 1 })
-
-      const { hashPin, createSessionToken, cleanupExpiredSessions } =
-        await import('~/server/utils/auth')
-      vi.mocked(hashPin).mockReturnValue('salt:hashedpin')
-      vi.mocked(createSessionToken).mockReturnValue('session-token-xyz')
-      vi.mocked(cleanupExpiredSessions).mockReturnValue()
-
-      handler = (await import('~/server/api/auth/register.post')).default
-    })
-
-    it('returns { token, profile } on successful registration', async () => {
-      const result = await handler({} as any)
-      expect(result).toHaveProperty('token', 'session-token-xyz')
-      expect(result).toHaveProperty('profile')
-    })
-
-    it('throws 400 when nickname is empty', async () => {
-      mockReadBody.mockResolvedValue({ nickname: '', pin: 'abc123' })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 400 when pin is not 4 digits', async () => {
-      mockReadBody.mockResolvedValue({ nickname: 'newuser', pin: 'abc' })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 409 when nickname already exists', async () => {
-      vi.mocked(dbGet).mockImplementation((sql: string) => {
-        if (sql.includes('SELECT id FROM profiles WHERE nickname =')) return { id: 1 }
-        return undefined
-      })
-      await expect(handler({} as any)).rejects.toMatchObject({ statusCode: 409 })
-    })
-
-    it('throws 400 when nickname exceeds 20 characters', async () => {
-      mockReadBody.mockResolvedValue({ nickname: 'a'.repeat(21), pin: 'abc123' })
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 400,
-      })
-    })
-
-    it('throws 429 when rate limited', async () => {
-      vi.mocked(checkRateLimit).mockReturnValue(false)
-      await expect(handler({ context: { profileId: 1 } } as any)).rejects.toMatchObject({
-        statusCode: 429,
       })
     })
   })

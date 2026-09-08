@@ -1,26 +1,4 @@
-import { dbGet } from '../../database/db'
-import { toSafeProfile } from '../../utils/profile'
-
-export default defineEventHandler(async event => {
-  const idRaw = event.context.params!.id
-  if (!/^\d+$/.test(idRaw)) {
-    throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
-  }
-  const id = parseInt(idRaw)
-  if (isNaN(id)) {
-    throw createError({ statusCode: 400, statusMessage: '无效的档案ID' })
-  }
-
-  const profileIdFromToken = event.context.profileId
-  if (!profileIdFromToken)
-    throw createError({ statusCode: 401, statusMessage: '会话已失效，请重新登录' })
-  if (profileIdFromToken !== id)
-    throw createError({ statusCode: 403, statusMessage: '无权访问此档案' })
-
-  const profile = dbGet('SELECT * FROM profiles WHERE id = ?', [id])
-  if (!profile) {
-    throw createError({ statusCode: 404, statusMessage: '档案不存在' })
-  }
-
-  return toSafeProfile(profile)
+// 旧档案兼容读取在 R4 前统一返回 410，不读取路由参数也不访问数据库。
+export default defineEventHandler(async () => {
+  throw createError({ statusCode: 410, statusMessage: '本人档案将在后续阶段开放' })
 })
