@@ -8,7 +8,7 @@
 >
 > 适用范围：XuanXue 第一版首页、每日公共内容、发现入口、个人延续入口、透明性展示及首页验收
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档职责
 
@@ -32,12 +32,12 @@
 
 ## 2. 规范关系
 
-本文服从 [产品总纲](product-charter.md)，并与以下规范共同使用：
+本文服从 [产品总纲](../governance/product-charter.md)，并与以下规范共同使用：
 
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)：内容性质、来源状态、时间上下文、工具状态和公开门槛；
-- [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)：游客、账号、本人资料、主动保存、历史和删除；
-- [墨韵设计系统](../design-system.md)：颜色、字体、视觉资产和基础交互样式；
-- [项目阶段路线图](../project/stage-roadmap.md)：实施状态、验收证据和阶段门禁。
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)：内容性质、来源状态、时间上下文、工具状态和公开门槛；
+- [用户档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md)：游客、账号、本人资料、主动保存、历史和删除；
+- [墨韵设计系统](../../design/design-system.md)：颜色、字体、视觉资产和基础交互样式；
+- [项目阶段路线图](../../project/stage-roadmap.md)：实施状态、验收证据和阶段门禁。
 
 发生冲突时，采用不突破产品总纲、真实性、隐私、移动端和可访问性底线的更严格规则。现有首页代码、旧文案和旧组件不能覆盖本文。
 

@@ -10,7 +10,7 @@
 >
 > 文档性质：产品、领域、内容、状态与结果契约；不是实施计划，也不表示当前代码已经符合本文
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -891,7 +891,7 @@ capabilities:
     exposure: internal
 ```
 
-上述治理状态是契约目标，不是旧代码或线上部署快照。现有目录仍只有 `listed / hidden`；`internal + enabled` 只允许经过授权的内部验证，不允许普通访客调用。现状、目标与尚未批准的状态切换见[产品规范索引](README.md)。
+上述治理状态是契约目标，不是旧代码或线上部署快照。现有目录仍只有 `listed / hidden`；`internal + enabled` 只允许经过授权的内部验证，不允许普通访客调用。现状、目标与尚未批准的状态切换见[产品规范索引](../README.md)。
 
 联合含义：
 
@@ -1328,10 +1328,10 @@ Codex 浏览器已通过
 ### 29.1 正式产品规范
 
 - `docs/product/README.md`
-- `docs/product/tool-experience-and-content-governance-spec.md`
-- `docs/product/profile-and-data-lifecycle-spec.md`
-- `docs/product/bazi-tool-contract.md`
-- `docs/product/shengxiao-and-constellation-tool-contract.md`
+- `docs/product/governance/tool-experience-and-content-governance-spec.md`
+- `docs/product/governance/profile-and-data-lifecycle-spec.md`
+- `docs/product/contracts/bazi-tool-contract.md`
+- `docs/product/contracts/shengxiao-and-constellation-tool-contract.md`
 
 ### 29.2 历法核验入口
 

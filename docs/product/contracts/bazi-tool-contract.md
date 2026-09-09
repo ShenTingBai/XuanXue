@@ -10,7 +10,7 @@
 >
 > 文档性质：产品、领域与结果契约；不是实施计划，也不表示当前代码已经符合本文
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -770,8 +770,8 @@ created_at
 ### 30.1 正式产品规范
 
 - `docs/product/README.md`
-- `docs/product/tool-experience-and-content-governance-spec.md`
-- `docs/product/profile-and-data-lifecycle-spec.md`
+- `docs/product/governance/tool-experience-and-content-governance-spec.md`
+- `docs/product/governance/profile-and-data-lifecycle-spec.md`
 
 ### 30.2 来源候选与核验材料
 

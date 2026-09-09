@@ -51,7 +51,7 @@
 
 ### 1.5 2026-09-07 基础重建路线
 
-- 2026-09-07 用户逐项批准[基础重建与首批工具交付规范](../product/foundation-rebuild-and-first-tools-delivery-spec.md)，固定 R1–R6 顺序；首批只打通生肖和八字基础排盘，太阳星座及其他候选不随本路线扩展；
+- 2026-09-07 用户逐项批准[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)，固定 R1–R6 顺序；首批只打通生肖和八字基础排盘，太阳星座及其他候选不随本路线扩展；
 - 未实施的代码问题以审计记录中的 GAP 条目和新交付规范承接。用户明确要求开始实施阶段后，才为 R1 准备单阶段计划；不要求先核验封存候选的全部来源；
 
 ## 2. 已完成阶段
@@ -111,7 +111,7 @@
 
 ## 3. 当前批准路线与阶段进入门槛
 
-2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/foundation-rebuild-and-first-tools-delivery-spec.md)为准。R1 与 R2 均为 `Accepted`；R3–R6 仍为 `Approved`，尚未进入实施（R3 进入门槛已满足但尚未发起）。
+2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)为准。R1 与 R2 均为 `Accepted`；R3 为 `Approved` 且已发起证据准备、收敛与收口子步骤（存在必需证据缺口，代码计划尚未发起）；R4–R6 仍为 `Approved`，尚未进入实施。
 
 ### R1：安全收口
 
@@ -145,11 +145,17 @@
 
 ### R3：游客草稿与生肖
 
-- 状态：`Approved`。
+- 状态：`Approved`（限定范围证据包已审阅，代码计划已编写，实施未开始）。
 - 目标：以生肖验证游客优先、页面内草稿、浏览器本地计算和零服务器历史。
 - 非目标：不实现生肖历史，不收集时间、地点、性别或现实状态，不扩展太阳星座。
-- 进入门槛：R2 `Accepted`。
+- 进入门槛：R2 `Accepted`（已满足）。
 - 完成门槛：游客可完成“查我的生肖”和“认识十二生肖”，输入修改、刷新清除、农历新年边界及 1901 年至查询当日范围均通过验收；生肖来源台账和独立黄金样例满足公开准入。
+- 历史过程：v1 证据准备后，Codex 判定 `evidence_incomplete`，经 v2/v3 修正日期预期、来源语义、字段结构及引用定位；历史计划和 result 保留，不回改为成功。
+- Codex 补证同步（2026-09-09）：[历法附录](../audits/2026-09-09-r3-calendar-evidence-addendum.md)补齐国标目标条款扫描页及1900年首独立同期记录；[来源台账](../product/evidence/shengxiao/shengxiao-source-ledger.md)明确电子转录采用版本、卷次及疑字边界；[规则台账](../product/evidence/shengxiao/shengxiao-rule-ledger.md)和[R3 实施映射](../audits/2026-09-09-r3-shengxiao-implementation-map.md)同步引用与结论。
+- 资料缺口 BLK-001/004/007/008 已关闭；BLK-005/006 是未核验的可选扩展，第一版不展示。基础公共文化浏览保留生肖次序、地支对应与干支循环；不因可选资料未取得阻塞第一版。
+- [黄金样例](../product/evidence/shengxiao/shengxiao-golden-cases.yaml)：26个日期预期（18 success、6 invalid_input、2 unsupported_input），成功预期的传统分类四字段及版本/时区已补齐；新增60条六十甲子分类预期，合计86条，0 unresolved、1 optional。覆盖60干支、12生肖/地支、10天干、30纳音组；未运行，计数不代表测试通过，也不代表全部支持年份的日期换算已覆盖。
+- 证据包已[通过限定范围的实施前资料审阅](../audits/2026-09-09-r3-evidence-package-review.md)，采用来源的限定主张已批准，运行与公开验收未完成。v4 补证计划已由用户作废，Codex 直接取得的证据保留；不再交执行器重复补证。
+- 剩余门槛：先提交证据文档基线，再执行 `.claude/plans/plan-20260909-r3-shengxiao-implementation-v1.yaml`（已编写，未执行）；代码、自动化、浏览器与用户验收全部通过，且工具目录达到公开可用条件后才完成 R3。本次文档分类已通过现有项目构建、类型检查及53文件/2133用例测试（[记录](../validation/2026-09-09-document-reorganization-validation.md)），R3新实现尚未开始，公开围栏保持 `in_review/internal/blocked/disabled`。
 
 ### R4：本人档案
 
@@ -206,7 +212,7 @@
 ### P5：首页与每日内容
 
 - 状态：`Superseded`；首页与每日内容不属于当前 R1–R6 首批路线，产品契约继续有效。
-- 产品契约：`docs/product/homepage-and-daily-content-contract.md`。
+- 产品契约：`docs/product/contracts/homepage-and-daily-content-contract.md`。
 - 目标：将首页重组为稳定公共发现空间和真实个人延续入口；以北京时间统一快照提供“今日事实、节气一读、今日观照”，同时提供“按目标探索 + 直接选择方法”双入口。
 - 非目标：不虚构个人“今日运势”，不读取档案生成每日内容，不猜测关系、职业或学习状态，不保留自动命签和今日穿衣，不催促建档，不进行未经用户确认的整体视觉重设计。
 - 必须验收：游客无需登录即可完成公开探索；只有真实历史存在时展示“继续探索”；三层每日内容共享日期上下文并分层失败；来源与限制处于正常阅读流；未批准工具不出现；工程验证通过；Codex 使用内置浏览器完成登录状态、交互、320/360/390/414、200% 文字缩放、400% 回流与 500% 压力复验；用户在真实手机完成手动验收并明确接受。

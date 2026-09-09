@@ -572,7 +572,7 @@ notes
 - 不删除、覆盖、清洗旧记录，也不向新页面提供旧记录入口；
 - 新模型使用干净的新数据库结构。
 
-该规则继承 [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md) 已批准的“旧数据库不迁移”决定。
+该规则继承 [用户档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md) 已批准的“旧数据库不迁移”决定。
 
 ## 26. 版本与结果数据契约
 
@@ -831,11 +831,11 @@ generatedAt
 
 ## 36. 与其他规范的关系
 
-- [产品规范索引](README.md)负责文档状态和入口；
-- [产品总纲](product-charter.md)负责产品定位、三层结构、第一版范围和功能准入；
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)负责内容分类、状态、来源、移动端和通用交互底线；
-- [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)负责账号、同意、保存、旧数据库分离和删除；本候选采用更严格的零持久化；
-- [设计系统](../design-system.md)负责墨韵视觉语言和 Active 组件约束；
-- [阶段路线图](../project/stage-roadmap.md)负责记录决策、实施、核验和公开状态。
+- [产品规范索引](../README.md)负责文档状态和入口；
+- [产品总纲](../governance/product-charter.md)负责产品定位、三层结构、第一版范围和功能准入；
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)负责内容分类、状态、来源、移动端和通用交互底线；
+- [用户档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md)负责账号、同意、保存、旧数据库分离和删除；本候选采用更严格的零持久化；
+- [设计系统](../../design/design-system.md)负责墨韵视觉语言和 Active 组件约束；
+- [阶段路线图](../../project/stage-roadmap.md)负责记录决策、实施、核验和公开状态。
 
 本文比旧测字页面、旧常量、旧测试、旧 SEO 文案和旧来源注释具有更高的产品决策优先级。出现冲突时，旧行为不得继续作为默认需求。

@@ -10,7 +10,7 @@
 >
 > 文档性质：跨工具产品、内容、交互与工程契约；不是实施计划，也不表示当前代码已经符合本文
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -62,13 +62,13 @@ XuanXue 已有可运行代码、页面、组件、数据库和测试。本文不
 
 ### 2.3 与设计系统的关系
 
-现有 docs/design-system.md 继续作为墨韵视觉语言、颜色、字体和基础样式参考。若其固定间距、评分组件、MethodologyNote、历史自动保存模板或其他规定与本文冲突，以本文的产品和交互合同为准，后续必须通过专门实施同步设计系统。
+现有 docs/design/design-system.md 继续作为墨韵视觉语言、颜色、字体和基础样式参考。若其固定间距、评分组件、MethodologyNote、历史自动保存模板或其他规定与本文冲突，以本文的产品和交互合同为准，后续必须通过专门实施同步设计系统。
 
 本文不授权本轮讨论直接修改现有 UI。信息层级和组件职责确定后，具体视觉实现仍须在相应实施计划中复用现有设计资产并完成浏览器验收。
 
 ### 2.4 当前运行环境
 
-XuanXue 当前运行环境统一分类为 `public_preview`。它只表示系统客观上可由互联网访问，不表示已经满足正式生产、安全、隐私、来源或内容验收资格。运行环境事实与文档边界见 [ADR-2026-09-04-002](../decisions/ADR-2026-09-04-002-public-preview-runtime-and-document-boundary.md)。
+XuanXue 当前运行环境统一分类为 `public_preview`。它只表示系统客观上可由互联网访问，不表示已经满足正式生产、安全、隐私、来源或内容验收资格。运行环境事实与文档边界见 [ADR-2026-09-04-002](../../decisions/ADR-2026-09-04-002-public-preview-runtime-and-document-boundary.md)。
 
 公开试运行中的未审核工具必须同时受页面和服务端围栏约束；“未主动宣传”不能作为降低公开准入要求的理由。
 
@@ -884,7 +884,7 @@ verified_primary 和 verified_secondary 可以作为公开来源；disputed 必�
 - 导出；
 - 示例和推荐。
 
-本章描述目标实现；当前代码仍只有 `listed / hidden`，两者不能自动等同于 `public / internal`，也不能推断计算或历史策略已生效。[产品规范索引](README.md)集中记录已批准的目标组合与实际目录快照。`internal + enabled` 只允许授权内部验证，exposure 不能被 computePolicy 绕过；产品契约 Approved 也不能直接映射为工具 reviewStatus approved。
+本章描述目标实现；当前代码仍只有 `listed / hidden`，两者不能自动等同于 `public / internal`，也不能推断计算或历史策略已生效。[产品规范索引](../README.md)集中记录已批准的目标组合与实际目录快照。`internal + enabled` 只允许授权内部验证，exposure 不能被 computePolicy 绕过；产品契约 Approved 也不能直接映射为工具 reviewStatus approved。
 
 ### 20.3 退出流程
 
@@ -1062,7 +1062,7 @@ verified_primary 和 verified_secondary 可以作为公开来源；disputed 必�
 
 ### 25.5 后续工具合同
 
-称骨、合婚、易经/六爻混合功能、姓名测试、测字占卜和紫微预测功能的退役及后续候选边界已经分别由 [称骨表对照工具产品与领域契约](guming-tool-contract.md)、[八字关系对照工具产品与领域契约](hehun-tool-contract.md)、[周易卦象阅读工具产品与领域契约](yijing-tool-contract.md)、[姓名笔画与五格对照工具产品与领域契约](name-five-grid-tool-contract.md)、[测字工具产品、内容与领域契约](cezi-tool-contract.md) 和 [紫微斗数基础命盘产品、内容与领域契约](ziwei-tool-contract.md) 固定；其实施和来源仍未完成。[梅花易数·起卦演示契约](meihua-tool-contract.md)已经固定单一时间法、共享周易内容、游客本地计算、零历史、PNG 导出和五层验收边界，仍保持内部隐藏与计算阻断。独立六爻排盘等其余候选仍必须逐项建立领域合同。本文不能替代对任何工具具体计算规则和来源的审查。
+称骨、合婚、易经/六爻混合功能、姓名测试、测字占卜和紫微预测功能的退役及后续候选边界已经分别由 [称骨表对照工具产品与领域契约](../contracts/guming-tool-contract.md)、[八字关系对照工具产品与领域契约](../contracts/hehun-tool-contract.md)、[周易卦象阅读工具产品与领域契约](../contracts/yijing-tool-contract.md)、[姓名笔画与五格对照工具产品与领域契约](../contracts/name-five-grid-tool-contract.md)、[测字工具产品、内容与领域契约](../contracts/cezi-tool-contract.md) 和 [紫微斗数基础命盘产品、内容与领域契约](../contracts/ziwei-tool-contract.md) 固定；其实施和来源仍未完成。[梅花易数·起卦演示契约](../contracts/meihua-tool-contract.md)已经固定单一时间法、共享周易内容、游客本地计算、零历史、PNG 导出和五层验收边界，仍保持内部隐藏与计算阻断。独立六爻排盘等其余候选仍必须逐项建立领域合同。本文不能替代对任何工具具体计算规则和来源的审查。
 
 ## 26. 后续顺序
 

@@ -1155,12 +1155,12 @@
 
 ### 29.1 正式产品规范
 
-- [XuanXue 产品规范索引](README.md)
-- [XuanXue 产品方向与第一版范围总纲](product-charter.md)
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)
-- [用户档案与数据生命周期产品规范](profile-and-data-lifecycle-spec.md)
-- [XuanXue 设计系统](../design-system.md)
-- [项目阶段路线图](../project/stage-roadmap.md)
+- [XuanXue 产品规范索引](../README.md)
+- [XuanXue 产品方向与第一版范围总纲](../governance/product-charter.md)
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)
+- [用户档案与数据生命周期产品规范](../governance/profile-and-data-lifecycle-spec.md)
+- [XuanXue 设计系统](../../design/design-system.md)
+- [项目阶段路线图](../../project/stage-roadmap.md)
 
 ### 29.2 原典与版本调查入口
 
@@ -1184,7 +1184,7 @@
 
 ### 29.4 历史审计与当前实现
 
-- [P1 真实性与移动端审计](../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)
+- [P1 真实性与移动端审计](../../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)
 - `pages/tools/yijing.vue`
 - `components/tools/yijing/YijingCastingPanel.vue`
 - `components/tools/yijing/YijingInterpretation.vue`
@@ -1199,11 +1199,11 @@
 
 ## 30. 与其他规范的关系
 
-- 本文继承[产品总纲](product-charter.md)的定位、三层结构和候选准入规则；
-- 本文继承[工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)的统一信息结构、状态、来源、导出、移动端、可访问性和验收要求；
-- 本候选不使用本人档案，但仍继承[用户档案与数据生命周期产品规范](profile-and-data-lifecycle-spec.md)的最小必要和主动保存原则；
-- 视觉实现继承[设计系统](../design-system.md)，本文不授权整体重设计；
-- 当前状态由[产品规范索引](README.md)和[阶段路线图](../project/stage-roadmap.md)同步记录；
+- 本文继承[产品总纲](../governance/product-charter.md)的定位、三层结构和候选准入规则；
+- 本文继承[工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)的统一信息结构、状态、来源、导出、移动端、可访问性和验收要求；
+- 本候选不使用本人档案，但仍继承[用户档案与数据生命周期产品规范](../governance/profile-and-data-lifecycle-spec.md)的最小必要和主动保存原则；
+- 视觉实现继承[设计系统](../../design/design-system.md)，本文不授权整体重设计；
+- 当前状态由[产品规范索引](../README.md)和[阶段路线图](../../project/stage-roadmap.md)同步记录；
 - 本文不能替代六爻排盘的独立产品、来源和规则合同。
 
 发生冲突时，按仓库 `AGENTS.md`、项目配置和正式产品规范的权威顺序处理；不得使用现有遗留代码反向覆盖本文已经批准的产品边界。

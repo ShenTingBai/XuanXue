@@ -125,10 +125,10 @@
 
 本文继承：
 
-- [XuanXue 产品方向与第一版范围总纲](product-charter.md)的透明、分层、自我探索和非确定性预测边界；
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)的状态、结果信封、保存、历史、导出、来源、移动端和公开门禁；
-- [用户档案与数据生命周期产品规范](profile-and-data-lifecycle-spec.md)的渐进式档案、最小必要、当次草稿、主动保存和删除规则；
-- [墨韵设计系统](../design-system.md)的既有视觉语言和可访问性要求。
+- [XuanXue 产品方向与第一版范围总纲](../governance/product-charter.md)的透明、分层、自我探索和非确定性预测边界；
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)的状态、结果信封、保存、历史、导出、来源、移动端和公开门禁；
+- [用户档案与数据生命周期产品规范](../governance/profile-and-data-lifecycle-spec.md)的渐进式档案、最小必要、当次草稿、主动保存和删除规则；
+- [墨韵设计系统](../../design/design-system.md)的既有视觉语言和可访问性要求。
 
 本文只补充紫微斗数领域细节，不重新定义公共状态枚举。发生冲突时按仓库规定的文档权威顺序处理。
 
@@ -1126,12 +1126,12 @@ Codex 必须：
 
 ### 29.1 正式产品规范
 
-- [XuanXue 产品规范索引](README.md)
-- [XuanXue 产品方向与第一版范围总纲](product-charter.md)
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)
-- [用户档案与数据生命周期产品规范](profile-and-data-lifecycle-spec.md)
-- [XuanXue 设计系统](../design-system.md)
-- [项目阶段路线图](../project/stage-roadmap.md)
+- [XuanXue 产品规范索引](../README.md)
+- [XuanXue 产品方向与第一版范围总纲](../governance/product-charter.md)
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)
+- [用户档案与数据生命周期产品规范](../governance/profile-and-data-lifecycle-spec.md)
+- [XuanXue 设计系统](../../design/design-system.md)
+- [项目阶段路线图](../../project/stage-roadmap.md)
 
 ### 29.2 当前实现与工程证据
 
@@ -1146,7 +1146,7 @@ Codex 必须：
 - `constants/ziwei.ts`；
 - `tests/composables/useZiwei.test.ts`；
 - `tests/composables/useZiwei-exhaustive.test.ts`；
-- [P1 真实性与移动端审计](../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)。
+- [P1 真实性与移动端审计](../../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)。
 
 `node_modules` 文件只作为当前安装版本的审计证据，不是允许修改依赖目录，也不是传统来源。
 
@@ -1169,4 +1169,4 @@ Codex 必须：
 - **实施计划**：未生成；
 - **用户验收**：未开始。
 
-本文完成和批准不等于紫微工具已经开放、实现或验收。后续状态变化必须同步更新 [产品规范索引](README.md) 和 [项目阶段路线图](../project/stage-roadmap.md)。
+本文完成和批准不等于紫微工具已经开放、实现或验收。后续状态变化必须同步更新 [产品规范索引](../README.md) 和 [项目阶段路线图](../../project/stage-roadmap.md)。

@@ -10,7 +10,7 @@
 >
 > 文档性质：产品、领域、内容与结果契约；不是实施计划，也不表示当前代码已经符合本文
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -922,7 +922,7 @@ interface SourceRecord {
 ## 29. 与其他正式规范的关系
 
 - 本规范的状态和维护入口服从 `docs/product/README.md`；
-- 页面状态、来源枚举、工具四维状态和公开准入服从 `docs/product/tool-experience-and-content-governance-spec.md`；
+- 页面状态、来源枚举、工具四维状态和公开准入服从 `docs/product/governance/tool-experience-and-content-governance-spec.md`；
 - 本人档案带入、临时修改、主动保存、授权和删除，服从《用户档案与数据生命周期产品规范》；
 - 八字的年柱、出生时刻、地点和精度问题，服从《BaZi 工具产品与数据契约》；
 - 本规范只定义生肖与第一版太阳星座，不能反向削弱八字工具的精确输入要求；

@@ -10,7 +10,7 @@
 >
 > 文档性质：产品、领域、内容、数据与结果契约；不是实施计划，也不表示当前代码、底本、来源或公开状态已经符合本文
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -616,11 +616,11 @@ XuanXue 已有可运行的称骨页面、常量表、计算函数和服务器历
 
 ### 28.1 正式产品规范
 
-- [产品总纲](product-charter.md)
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)
-- [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)
-- [墨韵设计系统](../design-system.md)
-- [项目阶段路线图](../project/stage-roadmap.md)
+- [产品总纲](../governance/product-charter.md)
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)
+- [用户档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md)
+- [墨韵设计系统](../../design/design-system.md)
+- [项目阶段路线图](../../project/stage-roadmap.md)
 
 ### 28.2 书目和原典调查入口
 
@@ -630,15 +630,15 @@ XuanXue 已有可运行的称骨页面、常量表、计算函数和服务器历
 
 ### 28.3 历史审计
 
-- [P1真实性与移动端审计](../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)
-- [P1移动端浏览器验证](../validation/2026-09-01-p1-mobile-browser-validation.md)
+- [P1真实性与移动端审计](../../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)
+- [P1移动端浏览器验证](../../validation/2026-09-01-p1-mobile-browser-validation.md)
 
 ### 28.4 当前实现定位
 
-- [`pages/tools/guming.vue`](../../pages/tools/guming.vue)
-- [`composables/useGuMing.ts`](../../composables/useGuMing.ts)
-- [`constants/gu-ming.ts`](../../constants/gu-ming.ts)
-- [`server/api/divinations`](../../server/api/divinations)
+- [`pages/tools/guming.vue`](../../../pages/tools/guming.vue)
+- [`composables/useGuMing.ts`](../../../composables/useGuMing.ts)
+- [`constants/gu-ming.ts`](../../../constants/gu-ming.ts)
+- [`server/api/divinations`](../../../server/api/divinations)
 
 以上当前代码和常量只用于定位现状，不是历史底本或公开来源。
 

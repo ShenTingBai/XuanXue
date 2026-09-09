@@ -153,7 +153,7 @@ XuanXue/
 
 ## 设计系统
 
-项目遵循 **墨韵 · Ink Resonance** 设计规范，完整文档见 [`docs/design-system.md`](docs/design-system.md)。
+项目遵循 **墨韵 · Ink Resonance** 设计规范，完整文档见 [`docs/design/design-system.md`](docs/design/design-system.md)。
 
 核心约束：
 
@@ -176,9 +176,10 @@ XuanXue/
 
 开发前请阅读：
 
+- [`docs/README.md`](docs/README.md) — 文档分类与完整导航
 - [`docs/product/README.md`](docs/product/README.md) — 产品规范、状态和当前决策入口
 - [`CLAUDE.md`](CLAUDE.md) — 开发约定、Git 工作流、架构细节
-- [`docs/design-system.md`](docs/design-system.md) — UI 设计规范
+- [`docs/design/design-system.md`](docs/design/design-system.md) — UI 设计规范
 
 ### 分支策略
 

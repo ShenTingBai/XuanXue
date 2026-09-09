@@ -52,7 +52,7 @@ npm run typecheck
 
 ## 项目架构
 
-详见 [CLAUDE.md](CLAUDE.md) 和 [docs/design-system.md](docs/design-system.md)
+详见 [CLAUDE.md](CLAUDE.md) 和 [docs/design/design-system.md](docs/design/design-system.md)
 
 ## 分支策略
 

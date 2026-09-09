@@ -17,7 +17,7 @@
 5. 经用户批准的单阶段 v2.2 计划；
 6. 执行器临时判断、旧文档和当前遗留代码。
 
-旧 `docs/project-story.md`、外部 Raw、P1 审计历史用于追溯决策形成过程，不能覆盖现行规范。
+旧 `docs/archive/project-story.md`、外部 Raw、P1 审计历史用于追溯决策形成过程，不能覆盖现行规范。
 
 ## 2. 角色与责任
 
@@ -110,14 +110,14 @@ Codex 提交审查报告并等待用户确认。只有用户明确批准后才�
 
 ## 6. 文档同步
 
-| 变更类型 | 必须检查 |
-|---|---|
-| 产品方向、输入、输出或边界 | `docs/product/README.md` 与对应产品契约 |
-| UI 组件或响应式规则 | `docs/design-system.md` |
-| 架构或运行环境 | `.Codex/project-config.md`、必要的 ADR 与阶段路线图 |
-| 阶段状态 | `docs/project/stage-roadmap.md` |
-| 协作流程 | `AGENTS.md`、本协议和项目配置 |
-| 公开功能状态 | 工具状态目录、README、首页/导航/SEO/PWA/API/历史/导出的一致性证据 |
+| 变更类型                   | 必须检查                                                          |
+| -------------------------- | ----------------------------------------------------------------- |
+| 产品方向、输入、输出或边界 | `docs/product/README.md` 与对应产品契约                           |
+| UI 组件或响应式规则        | `docs/design/design-system.md`                                    |
+| 架构或运行环境             | `.Codex/project-config.md`、必要的 ADR 与阶段路线图               |
+| 阶段状态                   | `docs/project/stage-roadmap.md`                                   |
+| 协作流程                   | `AGENTS.md`、本协议和项目配置                                     |
+| 公开功能状态               | 工具状态目录、README、首页/导航/SEO/PWA/API/历史/导出的一致性证据 |
 
 文档同步是对应任务的验收条件，但不能在代码尚未实施时把目标规范写成当前完成状态。
 
@@ -131,7 +131,7 @@ Codex 提交审查报告并等待用户确认。只有用户明确批准后才�
 
 ## 8. 当前阶段约束
 
-2026-09-07，用户已审核并批准[基础重建与首批工具交付规范](../product/foundation-rebuild-and-first-tools-delivery-spec.md)，并授权继续准备 R1“安全收口”的单阶段 v2.2 计划。当前边界为：
+2026-09-07，用户已审核并批准[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)，并授权继续准备 R1“安全收口”的单阶段 v2.2 计划。当前边界为：
 
 - 可以生成并校验 R1 单阶段实施计划；计划通过用户审核前不执行产品代码；
 - 旧 P2–P7 已由 R1–R6 替代并标记为 `Superseded`，不得恢复执行旧计划；

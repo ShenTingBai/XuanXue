@@ -10,7 +10,7 @@
 >
 > 文档性质：产品、领域、内容、数据与结果契约；不是实施计划，也不表示当前代码、来源或公开状态已经符合本文
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -658,25 +658,25 @@ XuanXue 已有可运行的合婚页面、计算代码、组件和服务器历史
 
 ### 27.1 正式产品规范
 
-- [产品总纲](product-charter.md)
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)
-- [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)
+- [产品总纲](../governance/product-charter.md)
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)
+- [用户档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md)
 - [八字工具产品与数据契约](bazi-tool-contract.md)
-- [墨韵设计系统](../design-system.md)
-- [项目阶段路线图](../project/stage-roadmap.md)
+- [墨韵设计系统](../../design/design-system.md)
+- [项目阶段路线图](../../project/stage-roadmap.md)
 
 ### 27.2 历史审计
 
-- [P1真实性与移动端审计](../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)
-- [P1移动端浏览器验证](../validation/2026-09-01-p1-mobile-browser-validation.md)
+- [P1真实性与移动端审计](../../audits/2026-09-01-p1-truthfulness-and-mobile-audit.md)
+- [P1移动端浏览器验证](../../validation/2026-09-01-p1-mobile-browser-validation.md)
 
 ### 27.3 当前实现定位
 
-- [`pages/tools/hehun.vue`](../../pages/tools/hehun.vue)
-- [`composables/useHeHun.ts`](../../composables/useHeHun.ts)
-- [`components/tools/hehun/HeHunScoreCard.vue`](../../components/tools/hehun/HeHunScoreCard.vue)
-- [`components/tools/hehun/HeHunDimensionCard.vue`](../../components/tools/hehun/HeHunDimensionCard.vue)
-- [`server/api/divinations`](../../server/api/divinations)
+- [`pages/tools/hehun.vue`](../../../pages/tools/hehun.vue)
+- [`composables/useHeHun.ts`](../../../composables/useHeHun.ts)
+- [`components/tools/hehun/HeHunScoreCard.vue`](../../../components/tools/hehun/HeHunScoreCard.vue)
+- [`components/tools/hehun/HeHunDimensionCard.vue`](../../../components/tools/hehun/HeHunDimensionCard.vue)
+- [`server/api/divinations`](../../../server/api/divinations)
 
 以上代码链接用于定位现状，不是规则来源。
 

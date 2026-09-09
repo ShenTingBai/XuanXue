@@ -10,7 +10,7 @@
 >
 > 文档性质：已批准的交付边界与阶段顺序；不是实施计划、数据库迁移脚本或上线结论
 >
-> 文档入口：[XuanXue 产品规范索引](README.md)
+> 文档入口：[XuanXue 产品规范索引](../README.md)
 
 ## 1. 文档目的
 
@@ -286,11 +286,11 @@ R1 安全收口
 
 ## 10. 与其他规范的关系
 
-- [产品总纲](product-charter.md)规定产品定位、用户价值和总体准入原则；
-- [工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)规定通用状态、内容与公开门禁；
-- [用户档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)规定完整长期数据模型；
-- [生肖与太阳星座工具契约](shengxiao-and-constellation-tool-contract.md)规定生肖完整领域边界；
-- [八字工具契约](bazi-tool-contract.md)规定八字完整领域边界；
+- [产品总纲](../governance/product-charter.md)规定产品定位、用户价值和总体准入原则；
+- [工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)规定通用状态、内容与公开门禁；
+- [用户档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md)规定完整长期数据模型；
+- [生肖与太阳星座工具契约](../contracts/shengxiao-and-constellation-tool-contract.md)规定生肖完整领域边界；
+- [八字工具契约](../contracts/bazi-tool-contract.md)规定八字完整领域边界；
 - 本文规定上述能力首次落地时的顺序和缩小范围。
 
 若本文与旧阶段路线摘要冲突，以本文和项目阶段路线图中标记的当前路线为准。若与更高层产品规范或单项领域事实冲突，先停止生成实施计划并修正文档，不在执行阶段临时猜测。

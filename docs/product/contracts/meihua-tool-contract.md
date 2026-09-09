@@ -58,7 +58,7 @@
 
 ## 4. 继承规范与状态
 
-本契约继承[产品总纲](product-charter.md)、[工具统一体验与内容治理规范](tool-experience-and-content-governance-spec.md)、[档案与数据生命周期规范](profile-and-data-lifecycle-spec.md)和[设计系统](../design-system.md)。状态入口为[产品规范索引](README.md)，阶段入口为[项目路线图](../project/stage-roadmap.md)。
+本契约继承[产品总纲](../governance/product-charter.md)、[工具统一体验与内容治理规范](../governance/tool-experience-and-content-governance-spec.md)、[档案与数据生命周期规范](../governance/profile-and-data-lifecycle-spec.md)和[设计系统](../../design/design-system.md)。状态入口为[产品规范索引](../README.md)，阶段入口为[项目路线图](../../project/stage-roadmap.md)。
 
 产品决策为 `Approved`；系统性实施为 `Not started`。来源线索不能标为 `verified_primary` 或 `verified_secondary`。目标围栏继承公共模型：
 

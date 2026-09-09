@@ -9,7 +9,7 @@
 1. 根目录 `AGENTS.md`；
 2. `.Codex/project-config.md`；
 3. `docs/product/README.md` 及其正式产品规范；
-4. `docs/analysis/protocol.md`；
+4. `docs/engineering/agent-protocol.md`；
 5. 本文件中的既有实现说明。
 
 当前协作分工：
@@ -20,7 +20,7 @@
 - 文档纠正等经用户明确授权的限定任务可以由 Codex 直接完成，不存在“Codex 永远不能改文件”的规则；
 - 尚未形成契约的功能继续讨论，不从当前代码臆造目标规则。
 
-完整协作协议见 `docs/analysis/protocol.md`，当前产品状态见 `docs/product/README.md`。
+完整协作协议见 `docs/engineering/agent-protocol.md`，当前产品状态见 `docs/product/README.md`。
 
 ## 常用命令
 
@@ -154,7 +154,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 5. Codex 独立审查 result、diff、测试和浏览器证据；
 6. 用户确认接受后，再单独决定提交、推送或后续阶段。
 
-核心原则仍是先想再写、简单优先、精准修改和目标驱动。完整边界、返工收敛和文档同步规则见 `docs/analysis/protocol.md`。
+核心原则仍是先想再写、简单优先、精准修改和目标驱动。完整边界、返工收敛和文档同步规则见 `docs/engineering/agent-protocol.md`。
 
 ## 架构
 
@@ -198,7 +198,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ### UI 设计：墨韵 · Ink Resonance
 
-**完整设计规范见 [`docs/design-system.md`](docs/design-system.md)**——任何 UI 改动（新增组件、修改全局 CSS、调整色板/字体）前必须先查阅，并在同一提交中同步更新文档。全局 CSS 类无文档记录视为未完成，不得合并。
+**完整设计规范见 [`docs/design/design-system.md`](docs/design/design-system.md)**——任何 UI 改动（新增组件、修改全局 CSS、调整色板/字体）前必须先查阅，并在同一提交中同步更新文档。全局 CSS 类无文档记录视为未完成，不得合并。
 
 传统中式书房美学：
 
@@ -256,7 +256,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 ### BaZi 既有实现与整改边界
 
-以下用于定位旧实现，不替代 [八字工具契约](docs/product/bazi-tool-contract.md)。历法锚点、输入精度、传统规则和来源仍待按契约整改，不能仅凭已有函数和测试认定可信。
+以下用于定位旧实现，不替代 [八字工具契约](docs/product/contracts/bazi-tool-contract.md)。历法锚点、输入精度、传统规则和来源仍待按契约整改，不能仅凭已有函数和测试认定可信。
 
 - **`getTenGod` 永远不能返回 `'日主'`。**`'日主'` 标签是展示概念，不是十神。仅在日柱天干构建后手动赋值：`dayPillar.stemTenGod = '日主'`。十神矩阵对相同天干正确返回 `'比肩'`。
 - **节气边界**：当前 `getSolarTerm()` 只返回月、日，八字契约已记录其缺少精确节气时刻；不得把它描述为精确时刻规则，也不应以固定日期如 `day < 4` 替代。

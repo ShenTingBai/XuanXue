@@ -39,8 +39,8 @@ rg "[锟斤拷ÃÂ«»涓绠鏂鍚瑙璜鈥鐨]"
 ```
 1. 读 .Codex/project-config.md  → 项目路径/构建/框架规则/产品硬约束
 2. 读 AGENTS.md                 → 本文件
-3. 读 docs/analysis/protocol.md → 多 Agent 协作协议
-4. 读 docs/design-system.md     → 涉及 UI/移动端/组件交互时必读
+3. 读 docs/engineering/agent-protocol.md → 多 Agent 协作协议
+4. 读 docs/design/design-system.md     → 涉及 UI/移动端/组件交互时必读
 5. 输出歧义点+假设清单          → v2.2：先消歧再生成（clarify）
 6. 生成 v2.2 计划                → 全部写具体值，禁止 ${...} 占位符
 7. Claude /plan-execute 执行     → 门禁校验→hook防护→执行→验证
@@ -68,7 +68,7 @@ UI 或移动端改动必须提供 320、360、390、414 CSS 像素宽度的人�
 
 - 不自动提交、推送或合并；完成改动后必须先交用户审计
 - 格式：`type(scope): 中文描述` + 逐文件列出改动
-- 多 Agent 协作细节（任务分级、审计门）见 `docs/analysis/protocol.md`
+- 多 Agent 协作细节（任务分级、审计门）见 `docs/engineering/agent-protocol.md`
 
 ---
 

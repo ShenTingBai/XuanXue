@@ -58,5 +58,5 @@
 ## Evidence
 
 - 项目所有者关于当前服务器公开可访问状态的明确说明；
-- `docs/product/zeji-tool-contract.md` 第 19 章已采用相同的 `public_preview` 分类；
-- `docs/project-story.md` 记录了历史部署事实，但该文档只作为历史材料，不承担当前状态治理职责。
+- `docs/product/contracts/zeji-tool-contract.md` 第 19 章已采用相同的 `public_preview` 分类；
+- `docs/archive/project-story.md` 记录了历史部署事实，但该文档只作为历史材料，不承担当前状态治理职责。
