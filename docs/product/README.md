@@ -2,7 +2,7 @@
 
 > 状态：Active — 当前产品文档入口与状态单一事实来源
 >
-> 版本：1.13.0
+> 版本：1.14.0
 >
 > 最后更新：2026-09-09
 >
@@ -52,7 +52,7 @@
 - 来源台账只维护出处、等级、采用版本与审核范围；规则台账维护字段语义；黄金数据维护预期值。修订其中一项时同步受影响的引用、计数和版本说明。
 - `docs/audits/` 保存带日期的核验与裁决证据；现状判断引用最新有效审阅，不把旧审计快照当作当前源码事实。历史失败和作废计划保留追溯，不改写成成功。
 - 文档发生内容变化时更新日期与版本；资料通过、实现完成、运行验收及用户公开批准分别记录。正式文档通过正常审计与提交管理，不随执行器临时result自动升级状态。
-- 当前 R3 证据包审阅入口：[实施前资料审阅](../audits/2026-09-09-r3-evidence-package-review.md)。仅限定主张通过审阅，完整运行验收仍待完成。
+- 当前 R3 审阅入口：[实施前资料审阅](../audits/2026-09-09-r3-evidence-package-review.md)与[运行验收记录](../audits/2026-09-09-r3-shengxiao-runtime-acceptance.md)。限定实现已获用户接受，公开准入仍独立管理；R4 本人档案进入计划准备。
 
 ## 4. 当前运行环境
 
@@ -72,10 +72,10 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 | [产品总纲](governance/product-charter.md)                                              | Approved | 不适用；各能力独立判断 | 不适用                                                                                | 定位、用户、成功标准、三层结构、准入、第一版范围和轻量版本治理已批准                                                                                          |
 | [首页与每日内容](contracts/homepage-and-daily-content-contract.md)                     | Approved | Not started            | 历法规则映射、24 节气内容目录和观照题库待建立与核验                                   | 首页结构、每日三层内容、发现入口、登录边界、透明性和三层验收已经批准                                                                                          |
 | [用户档案与数据生命周期](governance/profile-and-data-lifecycle-spec.md)                | Approved | Not started            | 不适用；安全边界仍需公网专项验收                                                      | 决策已固定，不代表现有档案代码合格                                                                                                                            |
-| [基础重建与首批工具交付](delivery/foundation-rebuild-and-first-tools-delivery-spec.md) | Approved | In progress            | R1/R2已接受；生肖限定证据已审阅，八字证据另行核验                                     | 固定安全、账号、游客生肖、本人档案、八字历史和全链路验收六阶段顺序                                                                                            |
+| [基础重建与首批工具交付](delivery/foundation-rebuild-and-first-tools-delivery-spec.md) | Approved | In progress            | R1/R2/R3 限定交付已接受；八字证据另行核验                                             | 固定安全、账号、游客生肖、本人档案、八字历史和全链路验收六阶段顺序                                                                                            |
 | [工具统一体验与内容治理](governance/tool-experience-and-content-governance-spec.md)    | Approved | Not started            | 治理模型已批准，来源数据尚未建立                                                      | 所有工具后续共同遵守                                                                                                                                          |
 | [八字工具](contracts/bazi-tool-contract.md)                                            | Approved | Not started            | 多项历法、神煞和时间规则待核验                                                        | 未满足合同清单前不得标记第一版完成                                                                                                                            |
-| [生肖与太阳星座](contracts/shengxiao-and-constellation-tool-contract.md)               | Approved | Not started            | 传统关系、日期表和文化资料待核验                                                      | 两个轻量工具共用一份契约，但领域模型保持分离                                                                                                                  |
+| [生肖与太阳星座](contracts/shengxiao-and-constellation-tool-contract.md)               | Approved | In progress            | 生肖限定来源与运行证据通过；扩展及星座证据仍待核验                                    | R3 生肖限定功能 Accepted，太阳星座未实施；两者公开准入独立，当前围栏不变                                                                                      |
 | [日期对照（内部标识 `zeji`）](contracts/zeji-tool-contract.md)                         | Approved | Not started            | 日期事实范围、八类事项、传统背景和首批名单待专项核验                                  | 双入口、三层独立准入、首批两至三类、零服务器历史、本地 PNG 和五组验收门已批准；当前目录为 `in_review / internal / enabled / disabled`，日期对照新能力尚未实施 |
 | [八字关系对照（现有合婚退役）](contracts/hehun-tool-contract.md)                       | Approved | Not started            | 第一批干支关系只批准进入审计池，来源与实现均待核验                                    | 现有评分式合婚退役；候选继续封存，采用第三方当次草稿、浏览器本地计算、零服务器历史和十二项重新开放门禁                                                        |
 | [称骨表对照（现有称骨算命下线）](contracts/guming-tool-contract.md)                    | Approved | Not started            | 具体底本、四项记值表、歌诀、权利和内容风险均未核验                                    | 下线决定已批准，旧页面下线尚未实施；后续只保留次级文化查表候选，底本无法确认时不得重建或公开                                                                  |
@@ -162,6 +162,12 @@ R2 已于 2026-09-08 通过完整自动化与浏览器验收，状态更新为 *
 R2 保持 **Accepted**；R3 保持 **Approved**，运行验证和公开准入未完成，工具目录仍为 `in_review/internal/blocked/disabled`。本次文档重分类已获授权并通过现有项目构建、类型检查及53文件/2133用例测试（[验证记录](../validation/2026-09-09-document-reorganization-validation.md)）；R3新实现及浏览器验收尚未完成。下一步先提交文档基线，再执行 R3 实现计划。计划已准备于 `.claude/plans/plan-20260909-r3-shengxiao-implementation-v1.yaml`，执行前须确认文档基线已提交；不再重复查找已取得的两项资料。
 
 历史 v1/v2/v3 result 保留原状。v4 补证计划 `plan-20260909-r3-calendar-evidence-v4.yaml` 已由用户明确作废，不再交执行器运行；Codex 直接研究结果与已取得证据保留，记录见 `.claude/results/20260909-r3-calendar-evidence-v4-result.yaml`。
+
+### 8.1 当前进展更正（2026-09-09）
+
+上面的证据准备与文档分类段落保留其历史语境。当前 R3 已经过代码实施、两轮收敛及用户授权的运行验收：57 文件、2170 用例通过；126 个支持年份春节边界及 378 日期与官方历表一致，组件浏览器交互、缩放及实际图片导出已验证。用户确认继续并明确优先跑通功能和要求，产品 UI 视觉打磨后置。R3 限定功能实施状态为 **Accepted**，太阳星座仍未实施，工具公开围栏保持原状。
+
+R4 按已批准交付规范准备本人档案实现计划；不重复讨论已批准的账号、档案数量、字段或保存方式。R4 尚未实施，不沿用 R3 的构建测试授权。后续以路线图和最新验收记录为准，不再把前文“R3 尚未开始/黄金未运行”当作现状。
 
 ## 9. 已完成的审计与历史证据
 
