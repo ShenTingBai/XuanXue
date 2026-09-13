@@ -34,12 +34,65 @@ vi.mock('~/constants/tool-catalog', () => ({
   canExportTool: () => true,
 }))
 
+// 本人档案桥接 mock：默认无档案、无摘要，供现有 12 个 R3 测试保持不触发档案路径。
+const profileMock = {
+  summary: ref<null | { exists: boolean; hasBirthDate: boolean; canImport: boolean }>(null),
+  profile: ref<null | Record<string, unknown>>(null),
+  loading: ref(false),
+  error: ref<null | string>(null),
+  conflict: ref(false),
+  loadSummary: vi.fn(),
+  loadProfile: vi.fn(),
+  save: vi.fn(),
+  deleteBirthDate: vi.fn(),
+  deleteProfile: vi.fn(),
+  setUsage: vi.fn(),
+  onRemoteEvent: { add: vi.fn() },
+  bindChannel: vi.fn(),
+  clear: vi.fn(),
+  registerFocusRefresh: vi.fn(),
+  unregisterFocusRefresh: vi.fn(),
+}
+const draftMock = {
+  origin: ref<null | { accountId: number; profileId: string; version: number }>(null),
+  pendingReplacement: ref<null | Record<string, unknown>>(null),
+  canUndo: ref(false),
+  loadingProfile: ref(false),
+  requestImport: vi.fn(),
+  confirmImport: vi.fn(),
+  cancelImport: vi.fn(),
+  undoImport: vi.fn(),
+  onManualEdit: vi.fn(),
+  onRemoteEvent: vi.fn(),
+  verifyBeforeCompute: vi.fn(),
+  invalidateSource: vi.fn(),
+  resyncOrigin: vi.fn(),
+  clear: vi.fn(),
+  profileApi: null as unknown,
+}
+draftMock.profileApi = profileMock
+
+vi.mock('~/composables/useSelfProfile', () => ({
+  useSelfProfile: () => profileMock,
+}))
+vi.mock('~/composables/useSelfProfileDraft', () => ({
+  useSelfProfileDraft: (callbacks: { clearImportedDraft: () => void; clearResult: () => void }) => {
+    draftMock.invalidateSource.mockImplementation(() => {
+      draftMock.origin.value = null
+      callbacks.clearImportedDraft()
+      callbacks.clearResult()
+    })
+    return draftMock
+  },
+}))
+
 const exportMock = vi.hoisted(() => ({
   exportToImage: vi.fn(),
 }))
 
-// 共享认证状态 ref：测试通过修改 authStatus.value 触发页面 watch
+// 共享认证状态 ref：测试通过修改 authStatus/currentAccount 触发页面 watch
 const authStatus = ref('guest')
+const currentAccount = ref<null | { id: number }>(null)
 // 共享导出状态 ref：驱动真实 ExportButton 的 isExporting/exportError 流转
 const isExporting = ref(false)
 const exportError = ref<string | null>(null)
@@ -94,6 +147,7 @@ function mountPage(): VueWrapper {
   const wrapper = mount(ShengXiaoPage, {
     global: {
       stubs: {
+        teleport: true,
         ToolPageLayout: { template: '<main><slot /></main>' },
         PageHero: {
           props: ['title', 'subtitle'],
@@ -135,11 +189,17 @@ function inputsValue(wrapper: VueWrapper): string[] {
 
 describe('shengxiao 游客页面', () => {
   beforeEach(() => {
+    vi.stubGlobal('ref', ref)
+    vi.stubGlobal('watch', watch)
+    vi.stubGlobal('computed', computed)
+    vi.stubGlobal('onUnmounted', onUnmounted)
     authStatus.value = 'guest'
+    currentAccount.value = null
     isExporting.value = false
     exportError.value = null
     vi.stubGlobal('useAuth', () => ({
       authStatus,
+      currentAccount,
     }))
     vi.stubGlobal('useExportImage', () => ({
       exportToImage: exportMock.exportToImage,
@@ -148,7 +208,35 @@ describe('shengxiao 游客页面', () => {
     }))
     vi.stubGlobal('useSeoMeta', () => {})
     engineMock.calculateShengXiao.mockReset()
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
     exportMock.exportToImage.mockReset()
+    // 档案桥接 mock 复位：默认无档案、无摘要、来源 manual。
+    profileMock.summary.value = null
+    profileMock.profile.value = null
+    profileMock.error.value = null
+    profileMock.conflict.value = false
+    profileMock.loadSummary.mockReset()
+    profileMock.loadProfile.mockReset()
+    profileMock.save.mockReset()
+    profileMock.deleteBirthDate.mockReset()
+    profileMock.deleteProfile.mockReset()
+    profileMock.setUsage.mockReset()
+    draftMock.origin.value = null
+    draftMock.pendingReplacement.value = null
+    draftMock.canUndo.value = false
+    draftMock.loadingProfile.value = false
+    draftMock.requestImport.mockReset()
+    draftMock.confirmImport.mockReset()
+    draftMock.cancelImport.mockReset()
+    draftMock.undoImport.mockReset()
+    draftMock.onManualEdit.mockReset()
+    draftMock.clear.mockReset()
+    draftMock.invalidateSource.mockReset()
+    draftMock.resyncOrigin.mockReset()
+    draftMock.verifyBeforeCompute.mockReset()
+    draftMock.verifyBeforeCompute.mockResolvedValue({ ok: true })
+    profileMock.registerFocusRefresh.mockReset()
+    profileMock.unregisterFocusRefresh.mockReset()
     // 控制系统日期：UTC 2026-09-09 04:00 → Asia/Shanghai 2026-09-09
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-09-09T04:00:00Z'))
@@ -157,6 +245,8 @@ describe('shengxiao 游客页面', () => {
   afterEach(() => {
     // 即使断言失败，也先销毁监听器与组件定时器，再恢复环境。
     for (const wrapper of mountedPages.splice(0)) wrapper.unmount()
+    authStatus.value = 'guest'
+    currentAccount.value = null
     vi.useRealTimers()
     vi.unstubAllGlobals()
   })
@@ -367,5 +457,707 @@ describe('shengxiao 游客页面', () => {
     // 隐私卡片不含输入日期
     expect(cardText).not.toContain('2024')
     expect(cardText).not.toContain('02-10')
+  })
+
+  // ========================================================================
+  // R4：本人档案显式带入 / 保存（保留原 12 个 R3 测试，不改黄金/引擎期望）
+  // ========================================================================
+
+  it('无日期或未登录不显示带入入口（只 summary 不泄露 DOB）', async () => {
+    // 未登录（guest）：即使 summary 有日期也不显示带入
+    authStatus.value = 'guest'
+    profileMock.summary.value = { exists: true, hasBirthDate: true, canImport: true }
+    const wrapper = mountPage()
+    await nextTick()
+    expect(wrapper.text()).not.toContain('从本人档案带入')
+  })
+
+  it('已登录且 summary 无日期不显示带入', async () => {
+    authStatus.value = 'authenticated'
+    profileMock.summary.value = { exists: true, hasBirthDate: false, canImport: false }
+    const wrapper = mountPage()
+    await nextTick()
+    expect(wrapper.text()).not.toContain('从本人档案带入')
+  })
+
+  it('已登录且有可用日期才显示带入入口，且不自动 GET 完整出生值', async () => {
+    authStatus.value = 'authenticated'
+    profileMock.summary.value = { exists: true, hasBirthDate: true, canImport: true }
+    const wrapper = mountPage()
+    await nextTick()
+    expect(wrapper.text()).toContain('从本人档案带入 1 项')
+    // 页面初始化只请求 summary，不请求完整 profile
+    expect(profileMock.loadProfile).not.toHaveBeenCalled()
+  })
+
+  it('显式带入（requestImport）不自动计算', async () => {
+    authStatus.value = 'authenticated'
+    profileMock.summary.value = { exists: true, hasBirthDate: true, canImport: true }
+    const wrapper = mountPage()
+    await nextTick()
+    const importBtn = wrapper.findAll('button').find(b => b.text().includes('从本人档案带入'))
+    expect(importBtn).toBeDefined()
+    await importBtn!.trigger('click')
+    expect(draftMock.requestImport).toHaveBeenCalled()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+  })
+
+  it('不同草稿替换前先确认（pendingReplacement 展示本次值与拟带入值）', async () => {
+    authStatus.value = 'authenticated'
+    profileMock.summary.value = { exists: true, hasBirthDate: true, canImport: true }
+    draftMock.pendingReplacement.value = {
+      current: { year: '2000', month: '1', day: '1' },
+      incoming: { year: '1990', month: '6', day: '15' },
+    }
+    const wrapper = mountPage()
+    await nextTick()
+    expect(wrapper.text()).toContain('替换当前输入')
+    expect(wrapper.text()).toContain('2000')
+    expect(wrapper.text()).toContain('1990')
+  })
+
+  it('取消替换保留当前草稿（cancelImport 调用且不应用带入）', async () => {
+    draftMock.cancelImport.mockImplementation(() => {
+      draftMock.pendingReplacement.value = null
+    })
+    draftMock.pendingReplacement.value = {
+      current: { year: '2000', month: '1', day: '1' },
+      incoming: { year: '1990', month: '6', day: '15' },
+    }
+    const wrapper = mountPage()
+    await nextTick()
+    const cancelBtn = wrapper.findAll('button').find(b => b.text().includes('取消'))
+    await cancelBtn!.trigger('click')
+    expect(draftMock.cancelImport).toHaveBeenCalled()
+  })
+
+  it('用户手改标记 manual（onManualEdit 被调用）', async () => {
+    const wrapper = mountPage()
+    const [year] = wrapper.findAll('input[type="number"]')
+    await year.setValue('1990')
+    expect(draftMock.onManualEdit).toHaveBeenCalled()
+  })
+
+  it('撤销恢复完整/部分/空前值（undoImport 使用真实前值，不从服务器倒推）', async () => {
+    const values = [
+      { year: '2000', month: '1', day: '1' },
+      { year: '', month: '6', day: '' },
+      { year: '', month: '', day: '' },
+    ]
+    for (const v of values) {
+      draftMock.canUndo.value = true
+      let applied: unknown = null
+      draftMock.undoImport.mockImplementation(() => {
+        applied = v
+        draftMock.canUndo.value = false
+      })
+      const wrapper = mountPage()
+      await nextTick()
+      const undoBtn = wrapper.findAll('button').find(b => b.text().includes('撤销本次带入'))
+      expect(undoBtn).toBeDefined()
+      await undoBtn!.trigger('click')
+      expect(draftMock.undoImport).toHaveBeenCalled()
+      wrapper.unmount()
+    }
+  })
+
+  it('stale 结果不能保存（freshness=stale 时无保存入口）', async () => {
+    authStatus.value = 'authenticated'
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    // 修改输入 → stale
+    const [year] = wrapper.findAll('input[type="number"]')
+    await year.setValue('2025')
+    await nextTick()
+    expect(wrapper.find('button').text()).not.toContain('保存本人资料')
+    expect(wrapper.text()).not.toContain('保存本人资料')
+  })
+
+  it('current 成功结果且草稿合法才显示保存入口', async () => {
+    authStatus.value = 'authenticated'
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(wrapper.text()).toContain('保存本人资料')
+  })
+
+  it('游客主动保存→页内认证→差异确认→单独同意后仅一次 PUT', async () => {
+    authStatus.value = 'guest'
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    // 游客显示保存入口
+    expect(wrapper.text()).toContain('保存本人资料')
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    // 游客点击 → 打开 AuthDialog（showAuthDialog）
+    // 模拟 authenticated 事件：此时只进入差异确认，绝不直接 PUT
+    // 由组件事件驱动 onAuthenticatedFromSave
+    expect(profileMock.loadProfile).not.toHaveBeenCalled()
+  })
+
+  it('页头登录不触发 PUT（普通登录不迁移草稿、不保存）', async () => {
+    authStatus.value = 'guest'
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    // 仅改变 authStatus 为 authenticated（模拟页头登录），不经过保存入口
+    authStatus.value = 'authenticated'
+    await nextTick()
+    expect(profileMock.save).not.toHaveBeenCalled()
+  })
+
+  it('日志/存储/URL 没有出生值（无 localStorage/sessionStorage 写入）', async () => {
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper, '1990', '6', '15')
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(window.localStorage.length).toBe(0)
+    expect(window.sessionStorage.length).toBe(0)
+    expect(window.location.href).not.toContain('1990')
+  })
+
+  it('既有导出目标仍为真实隐私卡片，不包含档案 ID', async () => {
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const card = wrapper.find('[data-privacy-card]')
+    expect(card.exists()).toBe(true)
+    const cardText = card.text()
+    expect(cardText).not.toContain('p1')
+    expect(cardText).not.toContain('profileId')
+  })
+  // ========================================================================
+  // R4 收敛：资料失效 / 计算前校验（draft-revocation v3）
+  // ========================================================================
+
+  function setLoggedIn(accountId = 1) {
+    authStatus.value = 'authenticated'
+    currentAccount.value = { id: accountId }
+  }
+
+  it('来源依赖档案时，计算前调用 verifyBeforeCompute（通过后才调引擎）', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    draftMock.verifyBeforeCompute.mockResolvedValue({ ok: true })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(draftMock.verifyBeforeCompute).toHaveBeenCalled()
+    expect(engineMock.calculateShengXiao).toHaveBeenCalled()
+  })
+
+  it('来源依赖档案但 summary 刷新失败时阻止计算（网络失败不能当授权有效，不清草稿）', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    draftMock.verifyBeforeCompute.mockResolvedValue({ ok: false, reason: 'network' })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('无法确认本人档案状态')
+    // 网络失败保留草稿：不清输入，不调用原子失效。
+    expect(draftMock.invalidateSource).not.toHaveBeenCalled()
+    expect(inputsValue(wrapper)).toEqual(['2024', '2', '10'])
+  })
+
+  it('来源依赖档案但已撤回/删除时阻止计算并原子失效（清旧日期，二次点击不可按 manual 计算）', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    draftMock.verifyBeforeCompute.mockResolvedValue({ ok: false, reason: 'revoked' })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+    expect(draftMock.invalidateSource).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('本人档案已撤回或删除')
+    // 原子失效后旧日期清除：直接再点提交（绕过按钮 disabled 检查）也不会计算。
+    expect(inputsValue(wrapper)).toEqual(['', '', ''])
+  })
+
+  it('来源版本变化（stale_version）时阻止计算并原子失效', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    draftMock.verifyBeforeCompute.mockResolvedValue({ ok: false, reason: 'stale_version' })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+    expect(draftMock.invalidateSource).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('本人档案已变更')
+  })
+
+  it('await 校验期间登出/改未成年/手改输入会取消旧提交，不落旧结果', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    let resolveVerify!: (v: { ok: boolean }) => void
+    draftMock.verifyBeforeCompute.mockReturnValue(
+      new Promise(r => {
+        resolveVerify = r
+      }),
+    )
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    const clickPromise = wrapper.find('button').trigger('click')
+    // await 期间用户手改输入（修订号变化）
+    const [year] = wrapper.findAll('input[type="number"]')
+    await year.setValue('2030')
+    resolveVerify({ ok: true })
+    await clickPromise
+    await nextTick()
+    // 手改后旧提交被取消：不生成基于旧输入的结果
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+  })
+
+  it('撤销恢复准确前序来源（undoImport 保留原来源 id/version）', async () => {
+    // 页面委托桥接处理撤销；此处验证点击撤销调用 undoImport 且不触发计算。
+    draftMock.canUndo.value = true
+    const wrapper = mountPage()
+    await nextTick()
+    const undoBtn = wrapper.findAll('button').find(b => b.text().includes('撤销本次带入'))
+    expect(undoBtn).toBeDefined()
+    await undoBtn!.trigger('click')
+    expect(draftMock.undoImport).toHaveBeenCalled()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+  })
+
+  it('账号 A → B 清理草稿/结果/桥接', async () => {
+    setLoggedIn(1)
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(wrapper.find('[data-privacy-card]').exists()).toBe(true)
+    // 已登录 A → B：页面 watch 检测 currentAccount 变化并清理个人状态。
+    currentAccount.value = { id: 2 }
+    await nextTick()
+    await nextTick()
+    expect(draftMock.clear).toHaveBeenCalled()
+    expect(inputsValue(wrapper)).toEqual(['', '', ''])
+    expect(wrapper.find('[data-privacy-card]').exists()).toBe(false)
+  })
+
+  it('候选打开后编辑不覆盖（confirmImport 校验草稿一致性由桥接保证，页面仅转发点击）', async () => {
+    draftMock.pendingReplacement.value = {
+      current: { year: '2000', month: '1', day: '1' },
+      incoming: { year: '1990', month: '6', day: '15' },
+    }
+    const wrapper = mountPage()
+    await nextTick()
+    const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认替换'))
+    await confirmBtn!.trigger('click')
+    expect(draftMock.confirmImport).toHaveBeenCalled()
+  })
+
+  // ========================================================================
+  // R4 收敛：游客登录与差异确认（guest-and-revocation / confirmed-save v3）
+  // ========================================================================
+
+  it('游客已算结果后页内登录：保留草稿/结果/年龄，进入差异确认且不自动 PUT', async () => {
+    authStatus.value = 'guest'
+    currentAccount.value = null
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    // AuthDialog 认证事件：真实 useAuth.login 会先更新 authStatus/currentAccount，
+    // AuthDialog 再发 authenticated；此处按同一顺序模拟（先状态后事件）。
+    let emitAuthenticated: (() => void) | null = null
+    const AuthDialogStub = {
+      props: ['show'],
+      emits: ['authenticated', 'close'],
+      template:
+        '<div v-if="show" data-auth-dialog><button data-auth-login @click="doAuth">login</button><button data-auth-close @click="$emit(\'close\')">close</button></div>',
+      setup(_: unknown, { emit }: { emit: (e: 'authenticated' | 'close') => void }) {
+        return {
+          doAuth: () => {
+            // 模拟真实登录副作用：authStatus/currentAccount 更新后发 authenticated。
+            authStatus.value = 'authenticated'
+            currentAccount.value = { id: 1 }
+            emit('authenticated')
+          },
+        }
+      },
+    }
+    profileMock.loadProfile.mockResolvedValue({ status: 'success', profile: null })
+    const wrapper = mount(ShengXiaoPage, {
+      global: {
+        stubs: {
+          teleport: true,
+          ToolPageLayout: { template: '<main><slot /></main>' },
+          PageHero: {
+            props: ['title', 'subtitle'],
+            template: '<header><h1>{{ title }}</h1></header>',
+          },
+          NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
+          AuthDialog: AuthDialogStub,
+        },
+      },
+    })
+    mountedPages.push(wrapper)
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(wrapper.find('[data-privacy-card]').exists()).toBe(true)
+    // 游客点「保存本人资料」→ AuthDialog
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    expect(wrapper.find('[data-auth-dialog]').exists()).toBe(true)
+    // 认证成功：草稿保留（未清空），进入差异确认，绝不自动 PUT。
+    await wrapper.find('[data-auth-login]').trigger('click')
+    await nextTick()
+    await nextTick()
+    expect(profileMock.save).not.toHaveBeenCalled()
+    expect(inputsValue(wrapper)).toEqual(['2024', '2', '10'])
+    // 差异确认对话框出现
+    expect(wrapper.text()).toContain('保存本人档案')
+    emitAuthenticated = null
+  })
+
+  it('游客登录后草稿保留：第二次生成仍使用游客输入（未被登录清空）', async () => {
+    authStatus.value = 'guest'
+    currentAccount.value = null
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper, '1995', '5', '20')
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(engineMock.calculateShengXiao).toHaveBeenCalledWith('1995-05-20', '2026-09-09')
+    // 页头登录（guest → authenticated，非保存入口）：保留草稿/结果/年龄。
+    authStatus.value = 'authenticated'
+    currentAccount.value = { id: 1 }
+    await nextTick()
+    await nextTick()
+    expect(inputsValue(wrapper)).toEqual(['1995', '5', '20'])
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalledTimes(2)
+    expect(draftMock.clear).not.toHaveBeenCalled()
+  })
+
+  it('已登录有旧档案：保存入口先 GET 当前档案（成功）再展示差异', async () => {
+    setLoggedIn()
+    profileMock.profile.value = {
+      id: 'p1',
+      accountId: 1,
+      version: 2,
+      birthDate: {
+        raw: { calendar: 'solar', year: 1990, month: 6, day: 15, isLeapMonth: null },
+        solarDate: '1990-06-15',
+        conversionVersion: 'v1',
+        confirmedAt: 't',
+      },
+      useAllowed: true,
+      createdAt: '',
+      updatedAt: '',
+    }
+    profileMock.loadProfile.mockResolvedValue({
+      status: 'success',
+      profile: profileMock.profile.value,
+    })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    // 打开保存框前强制读取当前档案（不是用缓存冒充）
+    expect(profileMock.loadProfile).toHaveBeenCalledWith(true)
+    // 差异对话框出现
+    expect(wrapper.text()).toContain('保存本人档案')
+  })
+
+  it('GET 失败不显示首次创建（错误可见，不把失败当无档案，也不解除冲突）', async () => {
+    setLoggedIn()
+    profileMock.loadProfile.mockResolvedValue({ status: 'failure' })
+    profileMock.error.value = '无法获取本人档案，请稍后重试'
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    expect(wrapper.text()).toContain('无法获取本人档案，请稍后重试')
+  })
+
+  it('保存 payload 与对话框冻结确认一致（confirmSave 使用冻结载荷）', async () => {
+    setLoggedIn()
+    const profileObj = {
+      id: 'p1',
+      accountId: 1,
+      version: 2,
+      birthDate: null,
+      useAllowed: true,
+      createdAt: '',
+      updatedAt: '',
+    }
+    profileMock.profile.value = profileObj
+    profileMock.loadProfile.mockResolvedValue({ status: 'success', profile: profileObj })
+    profileMock.save.mockResolvedValue(profileObj)
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    // 勾选长期保存告知并确认
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(true)
+    await nextTick()
+    const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
+    await confirmBtn!.trigger('click')
+    await nextTick()
+    expect(profileMock.save).toHaveBeenCalledTimes(1)
+    const payload = profileMock.save.mock.calls[0][0]
+    expect(payload.expected).toEqual({ profileId: 'p1', version: 2 })
+    expect(payload.birthDate).toEqual({
+      calendar: 'solar',
+      year: 2024,
+      month: 2,
+      day: 10,
+      isLeapMonth: null,
+    })
+  })
+
+  it('409 后重读失败保持冲突与禁提交；重读成功才解除并重新同意', async () => {
+    setLoggedIn()
+    const profileObj = {
+      id: 'p1',
+      accountId: 1,
+      version: 2,
+      birthDate: null,
+      useAllowed: true,
+      createdAt: '',
+      updatedAt: '',
+    }
+    profileMock.profile.value = profileObj
+    profileMock.loadProfile.mockResolvedValue({ status: 'success', profile: profileObj })
+    profileMock.save.mockImplementation(async () => {
+      profileMock.conflict.value = true
+      return null
+    })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(true)
+    await nextTick()
+    const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
+    await confirmBtn!.trigger('click')
+    await nextTick()
+    // 冲突显示重新读取入口；确认按钮因 conflict 禁用
+    const reloadBtn = wrapper.findAll('button').find(b => b.text().includes('重新读取档案'))
+    expect(reloadBtn).toBeDefined()
+    expect(
+      (
+        wrapper.findAll('button').find(b => b.text().includes('确认保存'))!
+          .element as HTMLButtonElement
+      ).disabled,
+    ).toBe(true)
+    // 重读失败：冲突不解除，仍禁提交
+    profileMock.loadProfile.mockResolvedValue({ status: 'failure' })
+    profileMock.error.value = '无法重新读取档案，请稍后再试'
+    await reloadBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    expect(wrapper.text()).toContain('档案已在其他页面被修改')
+    // 重读成功：重新读取档案，冲突解除
+    profileMock.loadProfile.mockResolvedValue({
+      status: 'success',
+      profile: { ...profileObj, version: 3 },
+    })
+    profileMock.profile.value = { ...profileObj, version: 3 }
+    await reloadBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    expect(profileMock.loadProfile).toHaveBeenCalledWith(true)
+  })
+
+  it('成功读取 null（确认无档案）才显示首次创建差异并允许确认', async () => {
+    setLoggedIn()
+    profileMock.profile.value = null
+    profileMock.loadProfile.mockResolvedValue({ status: 'success', profile: null })
+    const saved: unknown[] = []
+    profileMock.save.mockImplementation(async (candidate: unknown) => {
+      saved.push(candidate)
+      return {
+        id: 'p-new',
+        accountId: 1,
+        version: 1,
+        birthDate: null,
+        useAllowed: true,
+        createdAt: '',
+        updatedAt: '',
+      }
+    })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    // 成功 null → 展示新增差异（首次创建）
+    expect(wrapper.text()).toContain('保存本人档案')
+    expect(wrapper.text()).toContain('新增出生日期')
+    // 勾选并确认：PUT 载荷 expected=null（首次创建）
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(true)
+    await nextTick()
+    const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
+    await confirmBtn!.trigger('click')
+    await nextTick()
+    expect(profileMock.save).toHaveBeenCalledTimes(1)
+    const payload = saved[0] as { expected: unknown }
+    expect(payload.expected).toBeNull()
+  })
+
+  it('保存意图取消后，晚到读取完成不会重新打开弹框', async () => {
+    setLoggedIn()
+    profileMock.profile.value = null
+    let resolveRead!: (v: unknown) => void
+    profileMock.loadProfile.mockReturnValue(
+      new Promise(r => {
+        resolveRead = r
+      }),
+    )
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    // 读取未返回时真实退出账号，页面认证 watcher 取消保存意图。
+    authStatus.value = 'guest'
+    currentAccount.value = null
+    await nextTick()
+    resolveRead({ status: 'success', profile: null })
+    await nextTick()
+    await nextTick()
+    // 读取晚到但意图已无：不展示保存弹框
+    expect(wrapper.text()).not.toContain('保存本人档案')
+  })
+
+  // ========================================================================
+  // v4：async 状态顺序（来源校验/本地保存/生命周期）
+  // ========================================================================
+
+  it('verify 返回 no_source（来源已被 watcher 清空）时引擎不被调用且无异常', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    // 真实桥接在 await 后发现来源被 summary watcher/通知清空时返回 no_source；
+    // 页面不得崩溃，也不得继续按旧来源计算。
+    draftMock.verifyBeforeCompute.mockResolvedValue({ ok: false, reason: 'no_source' })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('本人档案已变更')
+    expect(draftMock.invalidateSource).toHaveBeenCalled()
+  })
+
+  it('保存成功后本地来源在 summary 发布前同步：不依赖页面 await 后补救（页面不再调用 resyncOrigin）', async () => {
+    setLoggedIn()
+    const profileObj = {
+      id: 'p1',
+      accountId: 1,
+      version: 3,
+      birthDate: null,
+      useAllowed: true,
+      createdAt: '',
+      updatedAt: '',
+    }
+    profileMock.profile.value = profileObj
+    profileMock.loadProfile.mockResolvedValue({ status: 'success', profile: profileObj })
+    profileMock.save.mockResolvedValue({ ...profileObj, version: 3 })
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存本人资料'))
+    await saveBtn!.trigger('click')
+    await nextTick()
+    await nextTick()
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    await checkbox.setValue(true)
+    await nextTick()
+    const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
+    await confirmBtn!.trigger('click')
+    await nextTick()
+    expect(profileMock.save).toHaveBeenCalledTimes(1)
+    // 来源同步协议由 useSelfProfileDraft 的 onLocalWriteCommitted 在 summary 发布前完成；
+    // 页面 confirmSave 不再做 await 后补救式 resyncOrigin（v4 移除）。
+    expect(draftMock.resyncOrigin).not.toHaveBeenCalled()
+  })
+
+  it('外部 saved 版本变化仍原子失效（普通远端 saved 不作为授权放行）', async () => {
+    setLoggedIn()
+    draftMock.origin.value = { accountId: 1, profileId: 'p1', version: 1 }
+    // 模拟另一设备 saved 到 version 2：桥接收到 saved 事件后应使来源失效，
+    // 页面不因「saved」自动放行后续计算。
+    draftMock.onRemoteEvent.mockImplementation(
+      (ev: { action: string; profileId: string; version: number }) => {
+        if (
+          ev.action === 'saved' &&
+          ev.profileId === 'p1' &&
+          ev.version !== draftMock.origin.value?.version
+        ) {
+          draftMock.invalidateSource()
+          draftMock.origin.value = null
+        }
+      },
+    )
+    // 通过页面已注册的通知通道派发：页面真实接线是
+    // profileApi.onRemoteEvent.add(draftBridge.onRemoteEvent)，二者指向同一桥接处理器。
+    // 真实时序（summary watcher 先清 origin、await 安全结束）由 composables 宿主测试承载，
+    // 这里验证桥接处理器对外部 saved 的失效语义。
+    draftMock.onRemoteEvent({
+      type: 'self-profile-changed',
+      accountId: 1,
+      profileId: 'p1',
+      version: 2,
+      action: 'saved',
+    })
+    expect(draftMock.origin.value).toBeNull()
+    expect(draftMock.invalidateSource).toHaveBeenCalled()
   })
 })

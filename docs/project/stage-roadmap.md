@@ -161,13 +161,16 @@
 
 ### R4：本人档案
 
-- 状态：`Approved`。
+- 状态：`Implemented（technical_verification_passed_pending_user_acceptance）`（2026-09-13 完成自动化、生产预览临时库与窄屏浏览器验收；待用户确认，未 Accepted、未公开）。
 - 目标：建立 `Account 1 — 0..1 SelfProfile`，第一批只保存完整出生日期字段组，并打通档案向生肖草稿的显式复制。
 - 非目标：不加入出生时间、地点、传统排盘参数、亲友档案或强制建档。
 - 进入门槛：R3 `Accepted`。
-- 当前准备：R3 门槛已满足；R4 实施计划在 R3 提交推送后重建为干净提交基线，沿用 `codex/foundation-rebuild`，准确提交号记录在计划与基线文件中。R4 执行不自动提交或推送；R3 的运行授权不自动延伸为 R4 的构建测试授权。
-- 实施计划：`.claude/plans/plan-20260909-r4-self-profile-v1.yaml`（8 个任务；只编写实现与验证用例，执行完成保持 `implemented_verification_pending`）。
-- 完成门槛：创建、差异确认、版本冲突、字段组删除、整档删除、带入、替换和撤销均符合契约。
+- 当前准备：R3 门槛已满足；R4 v1 已实施但静态审阅发现保存、差异确认与资料失效缺口，须先执行 v2 收敛计划。衔接基线为已提交 R3 `45ad4a7` 加未提交 R4 文件指纹，沿用 `codex/foundation-rebuild`；原 v1 执行起点保留为历史。R4 执行不自动提交或推送；R3 的运行授权不自动延伸为 R4 的构建测试授权。详见 [Codex 静态审阅](../audits/2026-09-09-r4-self-profile-codex-review.md)。
+- 实施计划：`.claude/plans/plan-20260909-r4-self-profile-v1.yaml`（8 个任务；只编写实现与验证用例，执行完成保持 `implemented_verification_pending`）；v2 收敛 `.claude/plans/plan-20260909-r4-self-profile-convergence-v2.yaml`（保存约束/HTTP 契约/账号生命周期/资料失效/冻结确认，只写修复与回归）；v3 收敛 `.claude/plans/plan-20260909-r4-self-profile-convergence-v3.yaml`（通知生命周期/游客认证/失效传播/读取确认/NULL 反例，只写修复与回归）；v4 收敛 `.claude/plans/plan-20260909-r4-self-profile-convergence-v4.yaml`（确认快照原子作废/来源快照与代际/本地保存来源同步协议/loading token 化/频道归属，只写修复与回归）。
+- 执行结果：`.claude/results/20260909-r4-self-profile-v1-result.yaml`（历史）；v2 结果 `.claude/results/20260909-r4-self-profile-convergence-v2-result.yaml` 已经 Codex 静态复核；v3 结果 `.claude/results/20260909-r4-self-profile-convergence-v3-result.yaml` 已经 Codex 静态复核，仍有显示候选与冻结请求不一致、来源 await 后可能为空、同页保存来源同步时序、loading 跨代际扣减与频道归属残留；v4 结果 `.claude/results/20260909-r4-self-profile-convergence-v4-result.yaml`（待 Codex 复核），详见 [v3 静态复核](../audits/2026-09-09-r4-self-profile-convergence-v3-review.md)。
+- 实施审计：[R4 实施结果审计](../audits/2026-09-09-r4-self-profile-implementation-result.md)；v2 收敛审计 [R4 收敛结果审计](../audits/2026-09-09-r4-self-profile-convergence-v2-result.md)；v3 收敛审计 [R4 收敛结果审计（v3）](../audits/2026-09-09-r4-self-profile-convergence-v3-result.md)；v4 收敛审计 [R4 收敛结果审计（v4）](../audits/2026-09-09-r4-self-profile-convergence-v4-result.md)。
+- 验证状态：typecheck、full test、lint、build 已运行；生产预览使用系统临时目录新库完成注册、建档、修改、撤回、重新授权、版本冲突、日期删除、整档删除与会话保留验收；320/360/390/414 CSS px 及 200% 根字号无页面横向溢出，保存对话框在 320px + 200% 下可滚动、按钮可见且可操作。详见 [R4 Codex runtime acceptance](../audits/2026-09-11-r4-self-profile-runtime-acceptance.md)。
+- 完成门槛：创建、差异确认、版本冲突、字段组删除、整档删除、带入、替换和撤销均符合契约（待验收确认）。
 
 ### R5：八字基础排盘与结果历史
 

@@ -60,6 +60,22 @@ describe('敏感接口 no-store 中间件', () => {
     expect(mockSetResponseHeaders).toHaveBeenCalled()
   })
 
+  it('/api/self-profile 与子路径（/summary）成功/失败共用 no-store', async () => {
+    await callForPath('/api/self-profile')
+    expect(mockSetResponseHeaders).toHaveBeenCalled()
+    vi.clearAllMocks()
+    await callForPath('/api/self-profile/summary')
+    expect(mockSetResponseHeaders).toHaveBeenCalled()
+    vi.clearAllMocks()
+    await callForPath('/api/self-profile/birth-date')
+    expect(mockSetResponseHeaders).toHaveBeenCalled()
+  })
+
+  it('/api/self-profiled 不误匹配（前缀相似不设置 no-store）', async () => {
+    await callForPath('/api/self-profiled')
+    expect(mockSetResponseHeaders).not.toHaveBeenCalled()
+  })
+
   it('/api/other、页面路由不设置 no-store', async () => {
     await callForPath('/api/other')
     expect(mockSetResponseHeaders).not.toHaveBeenCalled()

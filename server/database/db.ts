@@ -11,6 +11,12 @@ import {
   INDEX_SESSIONS_EXPIRES_AT,
   INDEX_SECURITY_LOG_ACCOUNT_TYPE_CREATED,
 } from './schema'
+import {
+  CREATE_SELF_PROFILES_TABLE,
+  CREATE_CONSENT_RECEIPTS_TABLE,
+  INDEX_SELF_PROFILES_ACCOUNT,
+  INDEX_CONSENT_RECEIPTS_ACCOUNT,
+} from './self-profile-schema'
 
 /**
  * R2 默认数据库文件为独立新库（见下方 DB_PATH）。
@@ -129,6 +135,20 @@ export async function initDb(): Promise<void> {
     db.run(INDEX_SESSIONS_TOKEN_HASH)
     db.run(INDEX_SESSIONS_EXPIRES_AT)
     db.run(INDEX_SECURITY_LOG_ACCOUNT_TYPE_CREATED)
+
+    // R4 本人档案两表及索引：幂等 CREATE IF NOT EXISTS，初始化失败不把 R4 结构标为已完成。
+    db.run(CREATE_SELF_PROFILES_TABLE)
+    db.run(CREATE_CONSENT_RECEIPTS_TABLE)
+    db.run(INDEX_SELF_PROFILES_ACCOUNT)
+    db.run(INDEX_CONSENT_RECEIPTS_ACCOUNT)
+
+    // 迁移记录版本 4：必须在两表和索引成功后的事务内写入，重复启动不重复记录。
+    withTransaction(() => {
+      const migrationV4 = dbGet('SELECT version FROM _migrations WHERE version = 4')
+      if (!migrationV4) {
+        dbRun('INSERT INTO _migrations (version) VALUES (4)')
+      }
+    })
 
     // 清理 90 天前的过期安全日志，保持最小留存。
     db.run("DELETE FROM security_log WHERE created_at < datetime('now', '-90 days')")

@@ -250,13 +250,34 @@ const handleLogout = async () => {
                       </svg>
                       账号设置
                     </NuxtLink>
+                    <NuxtLink
+                      to="/self-profile"
+                      role="menuitem"
+                      :tabindex="menuActiveIndex === 1 ? '0' : '-1'"
+                      class="dropdown-menu-item flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline"
+                      @click="showProfileDropdown = false"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="w-4 h-4"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      >
+                        <path d="M4 8a4 4 0 108 0 4 4 0 00-8 0z" />
+                        <path d="M3 14c.8-2 2.5-3 5-3s4.2 1 5 3" />
+                      </svg>
+                      本人档案
+                    </NuxtLink>
                     <div v-if="actionError" class="px-4 py-2 text-xs text-cinnabar" role="alert">
                       {{ actionError }}
                     </div>
                     <div class="h-px bg-paper-dark mx-3" role="separator" />
                     <button
                       role="menuitem"
-                      :tabindex="menuActiveIndex === 1 ? '0' : '-1'"
+                      :tabindex="menuActiveIndex === 2 ? '0' : '-1'"
                       :disabled="loggingOut"
                       class="dropdown-menu-item flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink-medium hover:text-cinnabar transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       @click="handleLogout"
@@ -453,6 +474,25 @@ const handleLogout = async () => {
                     <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                   </svg>
                   <span class="font-sans text-sm text-ink-medium">账号设置</span>
+                </NuxtLink>
+                <NuxtLink
+                  to="/self-profile"
+                  class="mobile-nav-item !rounded-lg"
+                  @click="showMobileNav = false"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="w-4 h-4 text-ink-light shrink-0"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <path d="M4 8a4 4 0 108 0 4 4 0 00-8 0z" />
+                    <path d="M3 14c.8-2 2.5-3 5-3s4.2 1 5 3" />
+                  </svg>
+                  <span class="font-sans text-sm text-ink-medium">本人档案</span>
                 </NuxtLink>
                 <div v-if="actionError" class="mx-3 px-3 py-2 text-xs text-cinnabar" role="alert">
                   {{ actionError }}

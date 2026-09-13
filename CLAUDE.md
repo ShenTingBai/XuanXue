@@ -122,15 +122,19 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │   ├── api/auth/                 # register.post、login.post、me.get、logout.delete、logout-all.delete、account.delete
 │   ├── api/divinations/          # 保存与查询：index.post、index.get、[id].get
 │   ├── api/profiles/             # R4 前统一返回 410，不访问数据库
+│   ├── api/self-profile/         # R4 本人档案：index.get、summary.get、index.put、birth-date.delete、index.delete、usage.patch
 │   ├── database/
-│   │   ├── db.ts                 # sql.js SQLite 连接
-│   │   └── schema.ts             # 建表 DDL + 索引
+│   │   ├── db.ts                 # sql.js SQLite 连接（加载 R2 + R4 DDL，事务内写 _migrations 版本4）
+│   │   ├── schema.ts             # R2 账号/会话/安全日志 DDL + 索引
+│   │   └── self-profile-schema.ts # R4 本人档案两表（self_profiles/consent_receipts）DDL + 索引
+│   ├── services/
+│   │   └── self-profile.ts       # R4 领域服务：createSelfProfileService 依赖注入 + 默认实例
 │   ├── middleware/auth.ts        # 只从 xuanxue_token Cookie 恢复 → event.context.accountId
 │   ├── plugins/
 │   │   ├── database.ts           # Nitro 插件：数据库初始化
 │   │   └── csp.ts                # CSP nonce 注入插件
 │   ├── types/h3.d.ts             # H3 event context 扩展（accountId、sessionId、sessionToken）
-│   └── utils/                    # auth、rateLimit、json、profile、securityLog
+│   └── utils/                    # auth、rateLimit、json、profile、securityLog、self-profile-request
 └── tests/                        # composables/、server/、utils/、helpers/
 ```
 
@@ -183,9 +187,23 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 
 - **Auth** (`server/api/auth/`): `register.post`、`login.post`、`me.get`、`logout.delete`、`logout-all.delete`、`account.delete`
 - **Profiles** (`server/api/profiles/`): 全部旧档案接口在 R4 前统一返回 410，不访问数据库
+- **SelfProfile** (`server/api/self-profile/`): R4 本人档案：`index.get`、`summary.get`、`index.put`、`birth-date.delete`、`index.delete`、`usage.patch`
 - **Divinations** (`server/api/divinations/`): `index.post`（保存）、`index.get`（列表，按 type 过滤）、`[id].get`（详情，校验归属）
 - **Middleware** (`server/middleware/auth.ts`): 只从 `xuanxue_token` HttpOnly Cookie 恢复会话，注入 `event.context.accountId`、`sessionId` 与仅供当前请求删除会话使用的 `sessionToken`；不再接受 Bearer。
 - **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 key（IP/account）键控。
+
+### 本人档案（R4，实施待验收）
+
+R4 本人档案只实现完整出生日期字段组，状态为 `implemented_verification_pending`（未运行 typecheck/test/build、未初始化数据库、未浏览器验收，不是 Accepted）。
+
+- **领域类型**：`types/self-profile.ts` 定义严格联合 `RawBirthDate`（solar 的 `isLeapMonth` 必须 null；lunar 必须显式布尔）、`NormalizedBirthDate`、`SelfProfile`、`ExpectedProfile`、`SelfProfileSummary`、有限错误码与请求/草稿类型。
+- **策略常量**：`constants/self-profile-policy.ts`（告知版本 `2026-09-09`、转换版本、最小日期/年龄/字节、用途/数据类别/动作）。
+- **纯函数**：`utils/self-profile/birth-date.ts`（前后端共用，`normalizeBirthDate`/`isAtLeastFourteen`/`describeBirthDate`/`diffBirthDate`）；复用 `utils/shengxiao/date` 纯公历校验，不调用生肖分类或旧八字规则。
+- **数据库**：`server/database/self-profile-schema.ts` 只新建 `self_profiles`（account_id UNIQUE、日期组全 null 或完整约束）与 `consent_receipts`（用途/类别/动作/版本/状态，不含出生值）；`db.ts` 幂等创建并在事务内写 `_migrations` 版本 4。默认仍为 `xuanxue-r2.db`；**严禁读取、打开、迁移、修改、删除任何数据库文件**。
+- **服务**：`server/services/self-profile.ts` 的 `createSelfProfileService({get,run,transaction,now})` 依赖注入供内存 SQL 测试，`selfProfileService` 为生产实例。所有写入原子、按可信 accountId 限定、id+version CAS、相同值不重复写、注销靠 accounts 外键级联。
+- **HTTP 边界**：`server/utils/self-profile-request.ts` 统一身份（`event.context.accountId`）、同源、真实 UTF-8 字节 4096 上限、白名单结构校验与固定错误映射；`no-store.ts` 已覆盖 `/api/self-profile`，SW 对该路径 NetworkOnly。
+- **客户端**：`composables/useSelfProfile.ts`（私有 ref、accountId+请求序号防串号、401 清理、BroadcastChannel 只传 accountId/档案 id/version/action）、`composables/useSelfProfileDraft.ts`（生肖页带入/撤销）、`components/profile/*` 与 `pages/self-profile.vue`。
+- **关键约束**：所有日期写操作需差异确认、同源、本人权限与版本 CAS；R4 仅实施待验收，UI 视觉打磨后置；不建立旧账户认领或历史兼容，不读旧 `divination_results`。
 
 ### Session 安全
 

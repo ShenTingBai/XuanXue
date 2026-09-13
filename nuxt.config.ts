@@ -24,6 +24,7 @@ const sensitiveApiPatterns = [
   /^\/api\/auth(\/|$)/,
   /^\/api\/profiles(\/|$)/,
   /^\/api\/divinations(\/|$)/,
+  /^\/api\/self-profile(\/|$)/,
 ]
 const sensitiveRuntimeCaching = sensitiveApiPatterns.map(pattern => ({
   urlPattern: pattern,
@@ -90,7 +91,7 @@ export default defineNuxtConfig({
     },
   },
   sitemap: {
-    exclude: ['/api/**', ...nonPublicToolRoutes],
+    exclude: ['/api/**', '/self-profile', ...nonPublicToolRoutes],
   },
   runtimeConfig: {
     public: {

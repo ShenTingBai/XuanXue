@@ -213,7 +213,12 @@ async function confirmDelete() {
         <section class="mb-8 space-y-2 font-sans text-sm text-ink-medium">
           <p>昵称不可修改：{{ currentAccount.nickname }}</p>
           <p>创建时间：{{ new Date(currentAccount.createdAt).toLocaleDateString('zh-CN') }}</p>
-          <p class="text-ink-light mt-4">本人档案将在后续阶段开放。</p>
+          <div class="mt-4">
+            <NuxtLink to="/self-profile" class="btn-ink inline-flex">本人档案</NuxtLink>
+            <p class="text-ink-light mt-2">
+              管理本人出生日期档案：新增、修改、删除出生日期组或整份档案。
+            </p>
+          </div>
         </section>
 
         <!-- 错误提示 -->
