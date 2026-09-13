@@ -1,6 +1,8 @@
 # R4 本人档案运行时验收
 
-日期：2026-09-13`n分支：`codex/foundation-rebuild``n基线：`45ad4a7`
+日期：2026-09-13
+分支：`codex/foundation-rebuild`
+基线：`45ad4a7`
 
 ## 修复
 
@@ -27,3 +29,12 @@ Playwright（Browser 插件在本环境不可用，按前端调试规范采用 P
 网络记录中出生日期只出现在明确保存请求的 PUT body；GET 请求不返回出生日期的 summary 路径。预览启动期间一次 `/api/auth/me` 的 401 是注册前游客会话探测，已从浏览器错误判定中排除，不是运行时异常。R3 生肖公开围栏仍保持原状态，隔离桥接 harness 不冒充生产公开功能。
 
 R4 目前为技术验收通过、待用户接受；未提交、未推送、未标记 `Accepted`。
+
+## 更正（2026-09-13，本记录写于提交之前）
+
+本记录的门禁结论对**提交前的未格式化工作树**成立，对提交 `53cd19d` 不成立：
+
+- `.githooks/pre-commit` 会执行 `npx lint-staged` → `prettier --write`；`.prettierrc` 的 `semi: false` 把 `pages/tools/shengxiao.vue` 的多语句内联处理器改写成换行且无分号的形式，而 Vue 3.5 只把「换行 + 分号」包成语句块，生产构建因此在 `pages/tools/shengxiao.vue:767` 解析失败；
+- 同一轮格式化把 `tests/utils/self-profile-birth-date.test.ts` 的 5 处 `@ts-expect-error` 与报错行拆开，产生 11 个类型错误。
+
+提交树上实测为：typecheck 失败、测试 64 文件 / 2289 通过 + 1 套件编译失败（2289 + 45 = 2334，即本记录第 12 行声称的数字）、build 失败、lint 通过。复验驳回、根因证据与最小修复见 [R4 验收复验（驳回）](./2026-09-13-r4-self-profile-acceptance-review.md)；修复后四项门禁在格式化稳定的树上重新通过。本记录正文不回改，保留原始执行语境。

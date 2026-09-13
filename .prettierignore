@@ -3,3 +3,6 @@ node_modules
 .output
 dist
 *.log
+
+# archify 生成的交互式架构图与可视化校验页是构建产物，不参与格式化
+docs/architecture/*.html

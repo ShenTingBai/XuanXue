@@ -49,11 +49,11 @@
   },
   "lint-staged": {
     "*.{ts,vue,js,mjs}": [
-      "eslint --fix --no-warn-ignored",
-      "prettier --write"
+      "eslint --no-warn-ignored",
+      "prettier --check"
     ],
     "*.{css,json,md,yaml,yml}": [
-      "prettier --write"
+      "prettier --check"
     ]
   },
   "engines": {

@@ -7,10 +7,7 @@ import type { ShengXiaoResult } from '~/types/shengxiao'
 import type { RawBirthDate } from '~/types/self-profile'
 import { canExportTool } from '~/constants/tool-catalog'
 import { SHENGXIAO_RULE_VERSION } from '~/constants/shengxiao-rules'
-import {
-  SELF_PROFILE_POLICY_VERSION,
-  SELF_PROFILE_CONVERSION_VERSION,
-} from '~/constants/self-profile-policy'
+import { SELF_PROFILE_CONVERSION_VERSION } from '~/constants/self-profile-policy'
 import { useSelfProfile } from '~/composables/useSelfProfile'
 import { useSelfProfileDraft } from '~/composables/useSelfProfileDraft'
 import VerifiedResult from '~/components/tools/shengxiao/VerifiedResult.vue'
@@ -369,6 +366,18 @@ function clearSaveIntent() {
   saveError.value = null
   saveConflict.value = false
   saveReadiness.value = false
+}
+
+/**
+ * 保存对话框关闭：作废本次意图代际并撤销可确认状态。
+ *
+ * 必须是具名函数而不是多语句内联处理器——`.prettierrc` 的 semi:false 会把内联
+ * 多语句改写成换行且无分号的形式，Vue 只认「换行+分号」，结果在生产编译期报错。
+ */
+function onSaveDialogClose() {
+  showSaveDialog.value = false
+  saveReadiness.value = false
+  saveIntentSeq++
 }
 
 // 游客点击「保存本人资料」：只保存本次意图并打开真实 AuthDialog。
@@ -764,11 +773,7 @@ useSeoMeta({
       :busy="saveBusy"
       :error="saveError"
       :conflict="saveConflict"
-      @close="
-        showSaveDialog = false
-        saveReadiness = false
-        saveIntentSeq++
-      "
+      @close="onSaveDialogClose"
       @confirm="confirmSave"
       @reload="reloadForConflict"
     />

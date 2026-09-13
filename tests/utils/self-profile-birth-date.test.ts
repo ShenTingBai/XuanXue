@@ -33,6 +33,16 @@ function lunar(year: number, month: number, day: number, isLeapMonth: boolean): 
   return { calendar: 'lunar', year, month, day, isLeapMonth }
 }
 
+/**
+ * 故意构造畸形输入：显式断言为 RawBirthDate。
+ *
+ * 不用 `@ts-expect-error`——prettier 把超长调用折行后，指令与报错行会被拆开，
+ * 指令随即失效并暴露真实类型错误（提交时曾因此让 typecheck 失败）。
+ */
+function asRaw(value: unknown): RawBirthDate {
+  return value as RawBirthDate
+}
+
 describe('normalizeBirthDate 公历', () => {
   it('合法公历日期通过并保留 raw 与规范化日期', () => {
     const r = normalizeBirthDate(solar(2024, 2, 10), AS_OF)
@@ -64,10 +74,10 @@ describe('normalizeBirthDate 公历', () => {
   it('小数/字符串/NaN/无穷年月日拒绝', () => {
     // 小数属于 number，由运行时日期校验拒绝。
     expect(normalizeBirthDate(solar(2024.5, 2, 10), AS_OF).ok).toBe(false)
-    // @ts-expect-error 故意传字符串
+    // 字符串年份：运行时结构校验必须拒绝。
     expect(
       normalizeBirthDate(
-        { calendar: 'solar', year: '2024', month: 2, day: 10, isLeapMonth: null },
+        asRaw({ calendar: 'solar', year: '2024', month: 2, day: 10, isLeapMonth: null }),
         AS_OF,
       ).ok,
     ).toBe(false)
@@ -78,29 +88,29 @@ describe('normalizeBirthDate 公历', () => {
   })
 
   it('数组/额外字段/未知历法拒绝', () => {
-    // @ts-expect-error 故意传数组
-    expect(normalizeBirthDate([1, 2, 3], AS_OF).ok).toBe(false)
-    // @ts-expect-error 故意传额外字段
+    // 数组：运行时结构校验必须拒绝。
+    expect(normalizeBirthDate(asRaw([1, 2, 3]), AS_OF).ok).toBe(false)
+    // 额外字段：白名单校验必须拒绝。
     expect(
       normalizeBirthDate(
-        { calendar: 'solar', year: 2024, month: 2, day: 10, isLeapMonth: null, extra: 1 },
+        asRaw({ calendar: 'solar', year: 2024, month: 2, day: 10, isLeapMonth: null, extra: 1 }),
         AS_OF,
       ).ok,
     ).toBe(false)
-    // @ts-expect-error 故意传未知历法
+    // 未知历法：只接受 solar / lunar。
     expect(
       normalizeBirthDate(
-        { calendar: 'unknown', year: 2024, month: 2, day: 10, isLeapMonth: null },
+        asRaw({ calendar: 'unknown', year: 2024, month: 2, day: 10, isLeapMonth: null }),
         AS_OF,
       ).ok,
     ).toBe(false)
   })
 
   it('solar 的 isLeapMonth 必须为 null', () => {
-    // @ts-expect-error 故意传 false
+    // 公历的 isLeapMonth 必须为 null（false 也算结构非法）。
     expect(
       normalizeBirthDate(
-        { calendar: 'solar', year: 2024, month: 2, day: 10, isLeapMonth: false },
+        asRaw({ calendar: 'solar', year: 2024, month: 2, day: 10, isLeapMonth: false }),
         AS_OF,
       ).ok,
     ).toBe(false)
@@ -143,10 +153,10 @@ describe('normalizeBirthDate 农历', () => {
   })
 
   it('农历 isLeapMonth 未选（null）拒绝', () => {
-    // @ts-expect-error 故意传 null 农历闰月
+    // 农历闰月必须显式给出布尔值（null 视为结构非法）。
     expect(
       normalizeBirthDate(
-        { calendar: 'lunar', year: 2024, month: 1, day: 1, isLeapMonth: null },
+        asRaw({ calendar: 'lunar', year: 2024, month: 1, day: 1, isLeapMonth: null }),
         AS_OF,
       ).ok,
     ).toBe(false)

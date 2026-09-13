@@ -12,5 +12,8 @@ if [ "$BRANCH" = "main" ]; then
   exit 1
 fi
 
-# Auto-format staged files
+# 门禁：只检查已暂存文件是否合规，绝不改写工作树。
+# 2026-09-13 R4 事故：pre-commit 里的 prettier --write 在门禁验证之后改写了源码，
+# 把多语句内联处理器改成 Vue 无法编译的形式，提交树上的 typecheck/build 随即失效。
+# 因此这里只保留 check（失败则拒绝提交），格式化由作者显式执行 npm run format。
 npx lint-staged
