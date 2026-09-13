@@ -815,6 +815,305 @@ html {
     transform: translateY(-2px);
   }
 
+  /* ── ── ── ── ── ──
+     出版版紧凑按钮（本人档案页）
+     度量对齐本人档案出版版原型：44px 最小高度、10px 圆角、0.01em 字距，
+     与 btn-cin/btn-ink 的仪式化度量区分，用于档案页与其确认弹层。
+     ── ── ── ── ── ── */
+  .btn-solid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid var(--color-cinnabar);
+    border-radius: 10px;
+    background: var(--color-cinnabar);
+    color: var(--color-paper-lightest);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition:
+      background var(--transition-fast),
+      border-color var(--transition-fast),
+      transform 0.05s ease;
+  }
+  .btn-solid:not(:disabled):hover {
+    background: var(--color-cinnabar-dark);
+    border-color: var(--color-cinnabar-dark);
+  }
+  .btn-solid:active {
+    transform: translateY(1px);
+  }
+  .btn-solid:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-quiet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid var(--color-ink-faint);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--color-ink-dark);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition:
+      border-color var(--transition-fast),
+      background var(--transition-fast),
+      transform 0.05s ease;
+  }
+  .btn-quiet:not(:disabled):hover {
+    border-color: var(--color-ink-dark);
+    background: color-mix(in srgb, var(--color-ink-dark) 5%, transparent);
+  }
+  .btn-quiet:active {
+    transform: translateY(1px);
+  }
+  .btn-quiet:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── ── ── ── ── ──
+     出版版页面外壳（本人档案页 / 账号与安全页共用）
+     两列：卷目索引 + 正文；窄屏收为单列，索引转为正文上方网格。
+     ── ── ── ── ── ── */
+  .editorial-shell {
+    display: grid;
+    grid-template-columns: 214px minmax(0, 1fr);
+    align-items: start;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 32px;
+  }
+
+  .editorial-article {
+    min-width: 0;
+    padding: 48px 0 0 46px;
+    border-left: 1px solid var(--color-ink-faint);
+  }
+
+  .editorial-section {
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--color-ink-faint);
+    scroll-margin-top: 5rem;
+  }
+
+  .editorial-section--first {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  @media (max-width: 920px) {
+    .editorial-shell {
+      grid-template-columns: 1fr;
+      padding-inline: 24px;
+    }
+
+    .editorial-article {
+      padding: 32px 0 0;
+      border-left: 0;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .editorial-shell {
+      padding-inline: 20px;
+    }
+  }
+
+  /* ── ── ── ── ── ──
+     弹层外壳（认证、保存差异、删除确认等共用）
+     此前在 AuthDialog / SelfProfileSaveDialog / 账号页各写一份 scoped 副本，
+     页面自己 Teleport 的弹层拿不到这些类，故提升为全局单一定义。
+     ── ── ── ── ── ── */
+  .auth-dialog-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .auth-dialog-backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-ink-dark) 50%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .auth-dialog-panel {
+    position: relative;
+    width: 100%;
+    max-width: 24rem;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    background: var(--color-paper-lightest);
+    border: 1px solid var(--color-paper-dark);
+    border-radius: 1rem;
+    padding: 2rem 1.5rem 1.5rem;
+    box-shadow:
+      0 8px 32px color-mix(in srgb, #2c1a0e 12%, transparent),
+      0 2px 8px color-mix(in srgb, #2c1a0e 8%, transparent);
+  }
+
+  /* 弹层标题、说明与动作行：出版版页面与弹层共用。 */
+  .editorial-dialog-title {
+    margin: 0 0 16px;
+    font-family: var(--font-display);
+    font-size: 1.4375rem;
+    letter-spacing: 0.15em;
+    text-align: center;
+    color: var(--color-ink-dark);
+  }
+
+  .editorial-dialog-text {
+    margin: 0 0 20px;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink-medium);
+  }
+
+  .editorial-dialog-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .editorial-dialog-actions > * {
+    flex: 1 1 0;
+  }
+
+  .editorial-dialog-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--color-ink-medium);
+  }
+
+  /* ── 出版版引导态（恢复中 / 恢复失败） ── */
+  .editorial-boot {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding: 120px 24px;
+    text-align: center;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    color: var(--color-ink-medium);
+  }
+
+  .editorial-boot--error {
+    max-width: 28rem;
+  }
+
+  .editorial-boot-text {
+    margin: 0 0 16px;
+    line-height: 1.75;
+  }
+
+  /* ── 出版版事实清单（键值两列；档案页溯源节与账号页共用） ── */
+  .editorial-facts {
+    display: grid;
+    gap: 20px;
+  }
+
+  .editorial-fact {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-ink-faint);
+  }
+
+  .editorial-fact:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .editorial-fact-key {
+    padding-top: 2px;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-medium);
+  }
+
+  .editorial-fact p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-ink-dark);
+  }
+
+  .editorial-link {
+    color: var(--color-ink-dark);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-ink-faint);
+    transition: text-decoration-color var(--transition-fast);
+  }
+
+  .editorial-link:hover {
+    text-decoration-color: var(--color-ink-dark);
+  }
+
+  .editorial-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 720px) {
+    .editorial-fact {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .auth-dialog-wrap {
+      padding: 0;
+    }
+
+    .auth-dialog-panel {
+      max-width: none;
+      height: 100dvh;
+      max-height: 100dvh;
+      border-radius: 0;
+      border: none;
+      padding-inline: 16px;
+    }
+
+    /* 窄屏 + 放大字体时动作按钮改单列，避免按文字最小宽度撑出横向滚动。 */
+    .editorial-dialog-actions,
+    .auth-dialog-panel .flex.gap-3 {
+      flex-wrap: wrap;
+    }
+
+    .editorial-dialog-actions > *,
+    .auth-dialog-panel .flex.gap-3 > button {
+      min-width: 0;
+      flex: 1 1 100%;
+      padding-inline: 12px;
+    }
+  }
+
   /* ── 分区标题（朱丝栏书眉） ── */
   .section-header {
     position: relative;

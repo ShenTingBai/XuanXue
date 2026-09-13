@@ -178,7 +178,29 @@ R4 本人档案已完成代码实施与验证用例编写，状态为 **Implemen
 - 本人档案页 `/self-profile`、账号设置入口、生肖页「从本人档案带入 / 保存本人资料」显式交互。
 - 完整出生日期字段组（公历/农历 + 闰月）、服务端规范化与未满十四岁拒绝、差异确认、版本并发冲突、删除/撤回与最小授权凭证。
 
-本状态不代表 Accepted、不代表公开放行：**未运行 typecheck/test/build、未初始化或读取数据库、未做浏览器验收**。R3 限定功能保持 Accepted；R4 不自动升级 R5。实施详情与未来验收矩阵见 [R4 实施结果审计](../audits/2026-09-09-r4-self-profile-implementation-result.md)。
+本状态不代表 Accepted、不代表公开放行；R3 限定功能保持 Accepted，R4 不自动升级 R5。实施详情与未来验收矩阵见 [R4 实施结果审计](../audits/2026-09-09-r4-self-profile-implementation-result.md)。
+
+### 8.3 R4 运行验收与提交后复验（2026-09-13）
+
+2026-09-13 已按用户授权在生产预览与独立临时库上完成 R4 运行验收（typecheck/test/lint/build 及 320/360/390/414 + 200% 浏览器链路），当时四项门禁通过，记录见 [R4 运行时验收](../audits/2026-09-11-r4-self-profile-runtime-acceptance.md)。
+
+但提交 `53cd19d` 的树与那次验收的树不是同一棵：`.githooks/pre-commit` 执行 `npx lint-staged` → `prettier --write`，而 `.prettierrc` 的 `semi: false` 把 `pages/tools/shengxiao.vue` 的多语句内联处理器改写成换行且无分号的形式，Vue 只认「换行 + 分号」，于是生产构建解析失败；同一轮格式化还把 `tests/utils/self-profile-birth-date.test.ts` 中 5 处 `@ts-expect-error` 与其报错行拆开。提交树上实测：typecheck 11 个错误、测试 64 文件 / 2289 通过 + 1 套件编译失败（2289 + 45 = 2334，与验收文档声称的用例数一致）、build 失败、lint 通过。
+
+复验结论、证据链与修复见 [R4 验收复验（驳回）](../audits/2026-09-13-r4-self-profile-acceptance-review.md)。修复后四项门禁在格式化稳定的树上全部通过（typecheck 0 错、测试 64 文件 / 2334 用例、lint 0 error / 26 warnings、build 成功），并在生产预览 + 系统临时目录全新数据库上完成真机浏览器验收：注册、建档、差异确认、409 冲突与重读、停止/重新允许带入、字段组删除、整档删除保留会话、公开围栏、320/360/390/414 × 16px/32px 无横向溢出、320px + 200% 弹层可达、`no-store` 共 **35/35 通过**；证据存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-13-r4-verify/`（含 SHA256 清单；按用户要求不纳入仓库），公开围栏下不可达的带入/替换/撤销由 125 例组件级测试承担。同时把 `.githooks/pre-commit` 从改写型（`prettier --write`）改为门禁型（`prettier --check`），并使 `npx prettier --check .` 全仓通过。但 **R4 仍为 `Implemented`、待用户接受，未 Accepted、未公开放行**。
+
+### 8.4 R4 出版版视觉对齐（2026-09-13）
+
+按用户批准的设计基线，`/self-profile` 对齐本人档案出版版原型：卷目索引（Ⅰ 录 / Ⅱ 授 / Ⅲ 溯 / Ⅳ 归）+ 报头 + 分节 + 记录卡，并补齐 Ⅱ 四类用途矩阵（逐行取自《用户档案与数据生命周期产品规范》§10.1）、Ⅲ 溯源与范围、Ⅳ 归档与删除（默认折叠）。仅页面级改动：未动全站顶栏、页脚、数据层与 API；原型中涉及 R5 结果历史的文案（历史条数、旧输入标记）按"不承诺未实现能力"改写，设计稿示例版本 `1.2.0` 一律使用真实告知版本 `2026-09-09`。
+
+设计基线 [出版版视觉对齐设计](../design/2026-09-13-self-profile-editorial-redesign.md)；验收 [出版版视觉对齐验收](../audits/2026-09-13-self-profile-editorial-acceptance.md)：typecheck/lint/build/prettier 通过，测试 **66 文件 / 2365 例**通过，真机验收 **51/51 通过**，证据存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-13-self-profile-editorial/`（含 SHA256 清单；按用户要求不纳入仓库）。视觉打磨开始不等于 R4 已接受：**R4 仍为 `Implemented`、待用户接受，未 Accepted、未公开放行**。
+
+### 8.5 账号与档案信息架构调整（2026-09-13）
+
+用户提出的「取消账号设置页、并入本人档案」经讨论后确定为**保留两页、重新分工**：账号是身份验证与会话管理（规范 §3.1），与本人档案（§3.2）不是同一领域，且注销账号（全删 + 全部会话失效）与删除本人档案（保留账号与会话）爆炸半径不同（§13），不适合放在同一区。
+
+落地：**登录 / 注册 / 会话恢复的落脚点改为 `/self-profile`**（注册不自动建档，空态正好引导）；`/account` 重做为出版版「账号与安全」（Ⅰ 账 / Ⅱ 话 / Ⅲ 数 / Ⅳ 销），展示昵称规则、创建时间、真实隐私与服务规则版本、本人档案状态摘要，以及退出当前设备 / 退出所有设备 / 注销；顶栏账号菜单保持三项，退出登录全局可达。同轮把 `.auth-dialog-*` 从各组件 scoped 副本提升为全局单一定义，修掉页面自己 Teleport 的弹层拿不到样式的问题。
+
+设计见 [账号与档案信息架构调整设计](../design/2026-09-13-account-and-profile-ia.md)，验收见 [IA 调整验收](../audits/2026-09-13-account-and-profile-ia-acceptance.md)（真机 32/32，R2 三条账号流程已复跑）。页脚已统一：两页都渲染全站 `PageFooter`。**R4 仍为 `Implemented`、待用户接受，未 Accepted、未公开放行**。
 
 ## 9. 已完成的审计与历史证据
 

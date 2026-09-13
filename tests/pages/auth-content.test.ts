@@ -34,9 +34,12 @@ describe('R2 认证页面公开文案与结构', () => {
     expect(accountSource).toContain('退出失败')
   })
 
-  it('账号页不提供设备列表或找回', () => {
-    expect(accountSource).not.toContain('设备列表')
-    expect(accountSource).not.toMatch(/找回|邮箱|手机号/)
+  it('账号页不提供设备列表或凭证找回能力，只保留边界说明', () => {
+    // 允许「不提供…」这类边界说明存在（规范 §5.3 明确不建设会话设备列表），
+    // 但不允许出现任何找回/绑定入口或设备列表结构。
+    expect(accountSource).not.toMatch(/找回密码|重置密码|绑定邮箱|绑定手机号|发送验证码/)
+    expect(accountSource).not.toMatch(/<table|v-for="device|devices\.map/)
+    expect(accountSource).toContain('不提供设备列表与凭证找回')
   })
 
   it('隐私与服务规则页导入并渲染当前版本常量', () => {
@@ -54,18 +57,20 @@ describe('R2 认证页面公开文案与结构', () => {
     expect(typeof CURRENT_SERVICE_TERMS_VERSION).toBe('string')
   })
 
-  it('认证 UI 不含旧 /profile 路径与 token 语义', () => {
+  it('认证 UI 不含旧 /profile 路由与 token 语义', () => {
     const all = loginSource + accountSource + authFormSource
-    expect(all).not.toContain('/profile/')
+    // 只禁止「路由字面量」形式的旧档案页路径；components/profile/* 这类模块路径是合法引用。
+    expect(all).not.toMatch(/['"`]\/profile\//)
     expect(all).not.toMatch(/\btoken\b/)
   })
 
-  it('登录/账号页成功跳转账号页而非旧档案页', () => {
-    // 登录成功由 login.vue 导航到 /account；账号页本身就是目标页，
-    // 不要求 account.vue 自身源码重复包含 '/account' 字符串。
-    expect(loginSource).toContain("router.replace('/account')")
-    expect(loginSource).not.toContain('/profile/')
-    expect(accountSource).not.toContain('/profile/')
+  it('登录成功跳转登录后落脚点（本人档案页）而非账号页', () => {
+    // 登录成功由 login.vue 导航到本人档案页；账号页不再是落脚点。
+    expect(loginSource).toContain("router.replace('/self-profile')")
+    expect(loginSource).not.toContain("router.replace('/account')")
+    // 只禁止旧档案页「路由字面量」，components/profile/* 模块路径属合法引用。
+    expect(loginSource).not.toMatch(/['"`]\/profile\//)
+    expect(accountSource).not.toMatch(/['"`]\/profile\//)
   })
 
   it('登录页显示网络恢复错误与重试入口', () => {

@@ -2,17 +2,34 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { BirthDateDraft, NormalizedBirthDate } from '~/types/self-profile'
 import { normalizeBirthDate } from '~/utils/self-profile/birth-date'
+import {
+  formatRecordNote,
+  formatSolarDisplay,
+  formatUpdatedAt,
+  rawCalendarLabel,
+  resolveStatusKind,
+  statusLabel,
+} from '~/utils/self-profile/display'
 import { SELF_PROFILE_POLICY_VERSION } from '~/constants/self-profile-policy'
 import { useSelfProfile } from '~/composables/useSelfProfile'
+import PageFooter from '~/components/tools/PageFooter.vue'
 import BirthDateGroupInput from '~/components/profile/BirthDateGroupInput.vue'
 import SelfProfileSaveDialog from '~/components/profile/SelfProfileSaveDialog.vue'
+import ProfileIndexNav from '~/components/profile/ProfileIndexNav.vue'
+import ProfileMasthead from '~/components/profile/ProfileMasthead.vue'
+import ProfileSectionHeading from '~/components/profile/ProfileSectionHeading.vue'
+import ProfileRecordCard from '~/components/profile/ProfileRecordCard.vue'
+import ProfileUsageSection from '~/components/profile/ProfileUsageSection.vue'
+import ProfileScopeSection from '~/components/profile/ProfileScopeSection.vue'
+import ProfileDangerZone from '~/components/profile/ProfileDangerZone.vue'
 
 /**
- * 独立本人档案页（R4）。
+ * 独立本人档案页（R4，出版版视觉对齐 2026-09-13）。
  *
  * - 客户端复用 restoreSession 三态与账号页的恢复错误/显式重试模式；
  *   确认 guest 且无恢复网络错误才 replace('/login')；
  * - 加载失败不伪装为空档案；仅账号本人访问，SEO noindex；
+ * - 版式对齐本人档案出版版原型：卷目索引 + 报头 + 四节（录/授/溯/归）；
  * - 显示无档案、完整日期、日期组已删除三种状态；
  * - 先差异对话框再写 API；提供明确删除出生日期组/删除整份档案的确认；
  *   失败前不移除数据，成功才更新；删除不退出登录；
@@ -42,6 +59,8 @@ const draft = ref<BirthDateDraft>({
 })
 const draftError = ref('')
 const normalized = ref<NormalizedBirthDate | null>(null)
+/** 编辑器默认收起：由「录入/修改/重新填写出生日期」显式展开（原型行为）。 */
+const editorOpen = ref(false)
 
 // 服务端校验当日（Asia/Shanghai 民用日期，浏览器取，与生肖页一致）。
 function getShanghaiDate(): string {
@@ -162,6 +181,23 @@ function recomputeNormalized() {
   }
 }
 
+// ── 编辑器展开/收起 ──
+function toggleEditor() {
+  editorOpen.value = !editorOpen.value
+}
+
+function openEditor() {
+  editorOpen.value = true
+}
+
+/** 取消：收起编辑器并丢弃本次草稿，档案值不受影响。 */
+function closeEditor() {
+  editorOpen.value = false
+  draft.value = { calendar: 'solar', year: '', month: '', day: '', isLeapMonth: null }
+  draftError.value = ''
+  normalized.value = null
+}
+
 // ── 差异确认对话框 ──
 const showSaveDialog = ref(false)
 const saveDialogError = ref<string | null>(null)
@@ -260,7 +296,8 @@ async function confirmSave(payload: {
       saveIntentSeq++
       showSaveDialog.value = false
       saveReadiness.value = false
-      // 成功后才更新本地展示
+      // 成功后才更新本地展示，并收起编辑器（记录卡改为展示已保存值）。
+      editorOpen.value = false
       normalized.value = null
       draft.value = { calendar: 'solar', year: '', month: '', day: '', isLeapMonth: null }
       draftError.value = ''
@@ -392,6 +429,7 @@ watch(
       draft.value = { calendar: 'solar', year: '', month: '', day: '', isLeapMonth: null }
       draftError.value = ''
       normalized.value = null
+      editorOpen.value = false
       showSaveDialog.value = false
       showDeleteDateDialog.value = false
       showDeleteProfileDialog.value = false
@@ -411,6 +449,7 @@ watch(
       draft.value = { calendar: 'solar', year: '', month: '', day: '', isLeapMonth: null }
       draftError.value = ''
       normalized.value = null
+      editorOpen.value = false
       showSaveDialog.value = false
       showDeleteDateDialog.value = false
       showDeleteProfileDialog.value = false
@@ -433,157 +472,144 @@ onBeforeUnmount(() => {
 const hasProfile = computed(() => !!profileApi.profile.value)
 const hasBirthDate = computed(() => !!profileApi.profile.value?.birthDate)
 const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? null)
+const useAllowed = computed(() => profileApi.profile.value?.useAllowed ?? false)
+/** 读取失败且没有档案：只显示错误与重试，不用「未建档」冒充状态。 */
+const loadFailed = computed(() => !!profileApi.error.value && !hasProfile.value)
+
+const statusKind = computed(() => resolveStatusKind(hasProfile.value, hasBirthDate.value))
+const statusLabelText = computed(() => statusLabel(statusKind.value))
+const updatedAtText = computed(() =>
+  profileApi.profile.value ? formatUpdatedAt(profileApi.profile.value.updatedAt) : '',
+)
+const solarText = computed(() => formatSolarDisplay(displayNormalized.value?.solarDate ?? ''))
+const noteText = computed(() =>
+  displayNormalized.value ? formatRecordNote(displayNormalized.value) : '',
+)
+const confirmedAtText = computed(
+  () => formatUpdatedAt(displayNormalized.value?.confirmedAt ?? '') || '—',
+)
+const rawLabel = computed(() =>
+  displayNormalized.value ? rawCalendarLabel(displayNormalized.value.raw) : '',
+)
+
+/** 卷目索引：四节锚点，与页面 section id 一一对应。 */
+const indexItems = [
+  { num: 'Ⅰ', label: '录 · 已录入资料', href: '#sec-record' },
+  { num: 'Ⅱ', label: '授 · 授权与用途', href: '#sec-usage' },
+  { num: 'Ⅲ', label: '溯 · 溯源与范围', href: '#sec-scope' },
+  { num: 'Ⅳ', label: '归 · 归档与删除', href: '#sec-archive' },
+]
 </script>
 
 <template>
-  <div
-    class="self-profile-page min-h-[calc(100dvh-4rem)] flex items-start justify-center px-4 py-12"
-  >
+  <div class="profile-page">
     <!-- 恢复中占位 -->
-    <div v-if="authStatus === 'restoring'" class="text-center">
-      <p class="font-sans text-sm text-ink-medium tracking-[0.1em]">正在确认登录状态…</p>
-    </div>
+    <p v-if="authStatus === 'restoring'" class="boot" role="status">正在确认登录状态…</p>
 
     <!-- 游客：恢复网络失败时显示错误与重试；无错误则等待重定向 -->
-    <div v-else-if="authStatus === 'guest' && restoreError" class="text-center max-w-sm px-4">
-      <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4" role="alert">
-        {{ restoreError }}
-      </p>
-      <button type="button" class="btn-cin inline-flex" :disabled="restoring" @click="retryRestore">
+    <div v-else-if="authStatus === 'guest' && restoreError" class="boot boot--error">
+      <p class="boot-text" role="alert">{{ restoreError }}</p>
+      <button type="button" class="btn-solid" :disabled="restoring" @click="retryRestore">
         {{ restoring ? '确认中...' : '重新确认登录状态' }}
       </button>
     </div>
 
-    <div v-else-if="authStatus === 'guest'" class="text-center">
-      <p class="font-sans text-sm text-ink-medium tracking-[0.1em]">正在前往登录…</p>
-    </div>
+    <p v-else-if="authStatus === 'guest'" class="boot" role="status">正在前往登录…</p>
 
     <!-- 已登录档案页 -->
-    <div v-else-if="currentAccount" class="w-full max-w-2xl">
-      <div class="self-profile-card card-warm rounded-xl p-8 relative overflow-hidden">
-        <h1 class="sr-only">本人档案</h1>
-        <header class="self-profile-header mb-8">
-          <span
-            class="seal-icon w-16 h-16 text-base flex items-center justify-center mx-auto mb-4"
-            aria-hidden="true"
-            >玄</span
-          >
-          <h2 class="font-display text-3xl text-ink-dark tracking-[0.12em]">
-            {{ currentAccount.nickname }} 的本人档案
-          </h2>
-          <p class="font-sans text-xs text-ink-light tracking-[0.1em] mt-1">
-            仅账号本人可查看与编辑
-          </p>
-        </header>
+    <div v-else-if="currentAccount" class="editorial-shell">
+      <ProfileIndexNav :items="indexItems" />
 
-        <!-- 加载失败：不伪装为空档案 -->
-        <div
-          v-if="profileApi.error.value && !hasProfile"
-          class="mb-6 text-cinnabar text-sm"
-          role="alert"
-        >
-          {{ profileApi.error.value }}
-          <button type="button" class="btn-ghost mt-3" @click="profileApi.loadProfile(true)">
-            重新加载
-          </button>
-        </div>
+      <article class="editorial-article">
+        <ProfileMasthead
+          edition="第一阶段 · 出生日期字段组"
+          title="本人档案"
+          subtitle="账号名下唯一一份 · 仅账号本人可见"
+          :status-text="statusLabelText"
+          :meta-text="updatedAtText ? `最近更新 ${updatedAtText}` : '最近更新 —'"
+        />
 
-        <!-- 无档案 -->
+        <!-- Ⅰ 录 · 已录入资料 -->
         <section
-          v-else-if="!hasProfile"
-          aria-labelledby="no-profile-heading"
-          class="self-profile-section space-y-5"
+          id="sec-record"
+          class="editorial-section editorial-section--first"
+          data-profile-section
         >
-          <h3 id="no-profile-heading" class="font-display text-lg text-ink-dark">还没有本人档案</h3>
-          <p class="font-sans text-sm text-ink-medium leading-relaxed">
-            填写出生日期后，查看差异并决定是否长期保存。不强制建档，随时可以填写。
-          </p>
+          <ProfileSectionHeading num="Ⅰ" title="录 · 已录入资料" />
 
-          <BirthDateGroupInput
-            :draft="draft"
-            :error="draftError || undefined"
-            :normalized-solar-date="normalized?.solarDate"
-            @update:calendar="onDraftCalendar"
-            @update:year="onDraftYear"
-            @update:month="onDraftMonth"
-            @update:day="onDraftDay"
-            @update:leap-month="onDraftLeap"
-          />
+          <!-- 加载失败：不伪装为空档案 -->
+          <div v-if="loadFailed" class="load-error" role="alert">
+            <p>{{ profileApi.error.value }}</p>
+            <button type="button" class="btn-quiet" @click="profileApi.loadProfile(true)">
+              重新加载
+            </button>
+          </div>
 
-          <div v-if="actionError" class="text-cinnabar text-sm" role="alert">{{ actionError }}</div>
-
-          <button
-            type="button"
-            class="btn-seal self-profile-primary-action"
-            :disabled="!normalized || busy"
-            :aria-busy="busy"
-            @click="openSaveDialog"
-          >
-            <span>查看差异并保存</span>
-          </button>
-        </section>
-
-        <!-- 有档案：完整日期 / 日期组已删除 -->
-        <section v-else aria-label="本人档案内容" class="self-profile-section space-y-6">
-          <!-- 完整日期 -->
-          <div v-if="hasBirthDate && displayNormalized" class="space-y-3">
-            <div class="self-profile-date-card">
-              <p class="self-profile-date-label">当前出生日期</p>
-              <p class="self-profile-date-value">
-                {{ displayNormalized.raw.year }}年{{ displayNormalized.raw.month }}月{{
-                  displayNormalized.raw.day
-                }}日
-              </p>
-              <p>
-                {{ displayNormalized.raw.calendar === 'lunar' ? '农历' : '公历' }}
-                <span v-if="displayNormalized.raw.calendar === 'lunar'">
-                  （{{ displayNormalized.raw.isLeapMonth ? '闰月' : '普通月' }}）
-                </span>
-                · 规范化公历 {{ displayNormalized.solarDate }}
-              </p>
-              <details class="self-profile-technical-details">
-                <summary>查看转换与确认详情</summary>
-                <div class="self-profile-technical-content">
-                  <p>转换规则：{{ displayNormalized.conversionVersion }}</p>
-                  <p>最后确认：{{ displayNormalized.confirmedAt }}</p>
-                </div>
-              </details>
-            </div>
-
-            <div v-if="actionError" class="text-cinnabar text-sm" role="alert">
-              {{ actionError }}
-            </div>
-
-            <div class="self-profile-action-group">
-              <p class="self-profile-section-label">档案带入</p>
-              <div class="flex flex-wrap gap-3">
+          <template v-else>
+            <!-- 已录入 -->
+            <template v-if="hasBirthDate && displayNormalized">
+              <ProfileRecordCard
+                :solar-text="solarText"
+                :note-text="noteText"
+                :conversion-version="displayNormalized.conversionVersion"
+                :confirmed-at="confirmedAtText"
+                :raw-label="rawLabel"
+              />
+              <div class="record-actions">
                 <button
                   type="button"
-                  class="btn-ink"
-                  :disabled="busy"
-                  @click="showRevokeDialog = true"
+                  class="btn-quiet"
+                  :aria-expanded="editorOpen"
+                  aria-controls="profile-editor"
+                  @click="toggleEditor"
                 >
-                  停止后续档案带入
-                </button>
-                <button
-                  type="button"
-                  class="btn-ink self-profile-delete-action"
-                  :disabled="busy"
-                  @click="showDeleteDateDialog = true"
-                >
-                  删除出生日期
+                  修改出生日期
                 </button>
               </div>
+            </template>
+
+            <!-- 日期组已删除：保留档案 -->
+            <div v-else-if="hasProfile" class="state-card">
+              <p>出生日期已删除。档案仍保留，可随时重新填写；账号、登录与内容偏好都不受影响。</p>
+              <button
+                type="button"
+                class="btn-quiet"
+                :aria-expanded="editorOpen"
+                aria-controls="profile-editor"
+                @click="toggleEditor"
+              >
+                重新填写出生日期
+              </button>
             </div>
 
-            <!-- 编辑已有日期 -->
-            <div class="self-profile-edit border-t border-paper-dark pt-6 space-y-4">
-              <div>
-                <p class="font-display text-xl text-ink-dark">修改出生日期</p>
-                <p class="font-sans text-sm text-ink-medium mt-1">
-                  修改只会影响待保存草稿，确认差异后才会更新档案。
+            <!-- 无档案 -->
+            <div v-else class="state-card state-card--empty">
+              <p class="state-title">尚未录入出生资料</p>
+              <p>
+                本人档案用于在工具里一次性填充你已经确认过的字段。注册不会自动建档，填不填、什么时候填都由你决定。
+              </p>
+              <button
+                type="button"
+                class="btn-solid"
+                :aria-expanded="editorOpen"
+                aria-controls="profile-editor"
+                @click="toggleEditor"
+              >
+                录入出生日期
+              </button>
+            </div>
+
+            <div v-if="actionError" class="action-error" role="alert">{{ actionError }}</div>
+
+            <!-- 出生日期编辑器：默认收起，由上方三个入口展开 -->
+            <div v-if="editorOpen" id="profile-editor" class="editor">
+              <div class="editor-head">
+                <h3 class="editor-title">出生日期</h3>
+                <p class="editor-sub">
+                  改动只进入待保存草稿；确认差异后才会更新档案，工具页面上的临时修改不会反向覆盖这里。
                 </p>
               </div>
+
               <BirthDateGroupInput
                 :draft="draft"
                 :error="draftError || undefined"
@@ -594,83 +620,54 @@ const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? 
                 @update:day="onDraftDay"
                 @update:leap-month="onDraftLeap"
               />
-              <button
-                type="button"
-                class="btn-seal"
-                :disabled="!normalized || busy"
-                :aria-busy="busy"
-                @click="openSaveDialog"
-              >
-                <span>查看差异并保存</span>
-              </button>
+
+              <p v-if="normalized" class="editor-live">
+                规范化公历 <span class="num">{{ normalized.solarDate }}</span>
+              </p>
+
+              <div class="editor-actions">
+                <button type="button" class="btn-quiet" :disabled="busy" @click="closeEditor">
+                  取消
+                </button>
+                <button
+                  type="button"
+                  class="btn-quiet"
+                  :disabled="!normalized || busy"
+                  :aria-busy="busy"
+                  @click="openSaveDialog"
+                >
+                  查看本次变更
+                </button>
+              </div>
             </div>
-          </div>
-
-          <!-- 日期组已删除：保留档案 -->
-          <div v-else class="space-y-3">
-            <p class="font-sans text-sm text-ink-medium leading-relaxed">
-              出生日期已删除。档案仍保留，可重新填写；账号与登录不受影响。
-            </p>
-            <BirthDateGroupInput
-              :draft="draft"
-              :error="draftError || undefined"
-              :normalized-solar-date="normalized?.solarDate"
-              @update:calendar="onDraftCalendar"
-              @update:year="onDraftYear"
-              @update:month="onDraftMonth"
-              @update:day="onDraftDay"
-              @update:leap-month="onDraftLeap"
-            />
-            <button
-              type="button"
-              class="btn-seal"
-              :disabled="!normalized || busy"
-              :aria-busy="busy"
-              @click="openSaveDialog"
-            >
-              <span>查看差异并保存</span>
-            </button>
-          </div>
-
-          <!-- 撤回后保留日期只读展示 + 明确重新允许入口 -->
-          <div
-            v-if="hasBirthDate && !profileApi.profile.value?.useAllowed"
-            class="border-t border-paper-dark pt-4"
-          >
-            <p class="font-sans text-sm text-ink-medium leading-relaxed">
-              已停止从档案带入工具。日期仍保存在档案中，可随时重新允许带入。
-            </p>
-            <button
-              type="button"
-              class="btn-ink mt-3"
-              :disabled="busy"
-              @click="showAllowDialog = true"
-            >
-              重新允许带入
-            </button>
-          </div>
-
-          <!-- 删除整份档案（保留账号/会话） -->
-          <div class="self-profile-danger-zone border-t border-paper-dark pt-5">
-            <p class="self-profile-section-label">档案管理</p>
-            <p class="font-sans text-sm text-ink-medium mb-3">
-              删除整份档案会清除保存的出生日期与使用授权，不删除账号或会话。
-            </p>
-            <button
-              type="button"
-              class="btn-ghost"
-              :disabled="busy"
-              @click="showDeleteProfileDialog = true"
-            >
-              删除整份档案
-            </button>
-          </div>
+          </template>
         </section>
 
-        <p class="mt-8 text-center">
+        <ProfileUsageSection
+          v-if="!loadFailed"
+          :has-date="hasBirthDate"
+          :use-allowed="useAllowed"
+          :busy="busy"
+          @stop="showRevokeDialog = true"
+          @allow="showAllowDialog = true"
+          @refill="openEditor"
+        />
+
+        <ProfileScopeSection v-if="!loadFailed" :policy-version="SELF_PROFILE_POLICY_VERSION" />
+
+        <ProfileDangerZone
+          v-if="!loadFailed"
+          :has-profile="hasProfile"
+          :has-birth-date="hasBirthDate"
+          :busy="busy"
+          @delete-date="showDeleteDateDialog = true"
+          @delete-profile="showDeleteProfileDialog = true"
+        />
+
+        <p class="back-link">
           <NuxtLink to="/account" class="nav-link no-underline">返回账号设置</NuxtLink>
         </p>
-      </div>
+      </article>
     </div>
   </div>
 
@@ -703,30 +700,20 @@ const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? 
         aria-modal="true"
         aria-labelledby="delete-date-title"
       >
-        <h2
-          id="delete-date-title"
-          class="font-display text-xl text-ink-dark tracking-[0.15em] mb-4 text-center"
-        >
-          删除出生日期
-        </h2>
-        <p class="font-sans text-sm text-ink-medium leading-relaxed mb-5">
-          将删除已保存的出生日期字段组并停止档案带入，档案与账号保留。此操作不可撤销。
+        <h2 id="delete-date-title" class="editorial-dialog-title">删除出生日期</h2>
+        <p class="editorial-dialog-text">
+          将删除已保存的出生日期字段组，并停止档案带入。档案与账号保留，内容偏好不受影响。此操作不可撤销。
         </p>
-        <div class="flex gap-3">
+        <div class="editorial-dialog-actions">
           <button
             type="button"
-            class="btn-ink flex-1"
+            class="btn-quiet"
             :disabled="busy"
             @click="showDeleteDateDialog = false"
           >
             取消
           </button>
-          <button
-            type="button"
-            class="btn-cin flex-1"
-            :disabled="busy"
-            @click="confirmDeleteBirthDate"
-          >
+          <button type="button" class="btn-solid" :disabled="busy" @click="confirmDeleteBirthDate">
             {{ busy ? '删除中...' : '确认删除' }}
           </button>
         </div>
@@ -748,30 +735,20 @@ const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? 
         aria-modal="true"
         aria-labelledby="delete-profile-title"
       >
-        <h2
-          id="delete-profile-title"
-          class="font-display text-xl text-ink-dark tracking-[0.15em] mb-4 text-center"
-        >
-          删除整份档案
-        </h2>
-        <p class="font-sans text-sm text-ink-medium leading-relaxed mb-5">
-          将删除本人档案（含保存的出生日期与使用授权），并保留最小操作记录。此操作不会删除账号或使会话失效。
+        <h2 id="delete-profile-title" class="editorial-dialog-title">删除整份本人档案</h2>
+        <p class="editorial-dialog-text">
+          清除本人档案与使用授权，不删除账号或会话。删除后账号、登录与内容偏好都不受影响。此操作不可撤销。
         </p>
-        <div class="flex gap-3">
+        <div class="editorial-dialog-actions">
           <button
             type="button"
-            class="btn-ink flex-1"
+            class="btn-quiet"
             :disabled="busy"
             @click="showDeleteProfileDialog = false"
           >
             取消
           </button>
-          <button
-            type="button"
-            class="btn-cin flex-1"
-            :disabled="busy"
-            @click="confirmDeleteProfile"
-          >
+          <button type="button" class="btn-solid" :disabled="busy" @click="confirmDeleteProfile">
             {{ busy ? '删除中...' : '确认删除' }}
           </button>
         </div>
@@ -788,25 +765,20 @@ const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? 
         @click="!busy && (showRevokeDialog = false)"
       />
       <div class="auth-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="revoke-title">
-        <h2
-          id="revoke-title"
-          class="font-display text-xl text-ink-dark tracking-[0.15em] mb-4 text-center"
-        >
-          停止后续档案带入
-        </h2>
-        <p class="font-sans text-sm text-ink-medium leading-relaxed mb-5">
+        <h2 id="revoke-title" class="editorial-dialog-title">停止后续档案带入</h2>
+        <p class="editorial-dialog-text">
           工具以后不再从本档案填充出生日期。已保存的日期保留，可随时重新允许带入。
         </p>
-        <div class="flex gap-3">
+        <div class="editorial-dialog-actions">
           <button
             type="button"
-            class="btn-ink flex-1"
+            class="btn-quiet"
             :disabled="busy"
             @click="showRevokeDialog = false"
           >
             取消
           </button>
-          <button type="button" class="btn-cin flex-1" :disabled="busy" @click="confirmRevokeUse">
+          <button type="button" class="btn-solid" :disabled="busy" @click="confirmRevokeUse">
             {{ busy ? '处理中...' : '确认停止' }}
           </button>
         </div>
@@ -823,33 +795,21 @@ const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? 
         @click="!busy && (showAllowDialog = false)"
       />
       <div class="auth-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="allow-title">
-        <h2
-          id="allow-title"
-          class="font-display text-xl text-ink-dark tracking-[0.15em] mb-4 text-center"
-        >
-          重新允许带入
-        </h2>
-        <label
-          class="flex items-start gap-3 font-sans text-sm text-ink-medium leading-relaxed mb-5"
-        >
+        <h2 id="allow-title" class="editorial-dialog-title">重新允许带入</h2>
+        <label class="editorial-dialog-consent">
           <input v-model="allowConsent" type="checkbox" class="mt-1" :disabled="busy" />
           <span>
             我同意按当前告知（版本
             {{ SELF_PROFILE_POLICY_VERSION }}）允许从本档案带入出生日期到工具草稿。
           </span>
         </label>
-        <div class="flex gap-3">
-          <button
-            type="button"
-            class="btn-ink flex-1"
-            :disabled="busy"
-            @click="showAllowDialog = false"
-          >
+        <div class="editorial-dialog-actions">
+          <button type="button" class="btn-quiet" :disabled="busy" @click="showAllowDialog = false">
             取消
           </button>
           <button
             type="button"
-            class="btn-cin flex-1"
+            class="btn-solid"
             :disabled="!allowConsent || busy"
             @click="confirmAllowUse"
           >
@@ -859,184 +819,149 @@ const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? 
       </div>
     </div>
   </Teleport>
+
+  <PageFooter />
 </template>
 
 <style scoped>
-.self-profile-card {
-  border: 1px solid var(--color-paper-dark);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--color-ink-dark) 7%, transparent);
+.profile-page {
+  min-height: calc(100dvh - 4rem);
+  padding-bottom: 64px;
 }
-.self-profile-section {
-  min-width: 0;
-}
-.self-profile-section-label {
-  margin-bottom: 0.65rem;
-  color: var(--color-ink-light);
-  font: 500 0.75rem/1.4 var(--font-sans);
+
+/* ── 引导态 ── */
+.boot {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 120px 24px;
+  text-align: center;
+  font-size: 0.8125rem;
   letter-spacing: 0.12em;
+  color: var(--color-ink-medium);
 }
-.self-profile-action-group {
-  padding-top: 0.35rem;
+
+.boot--error {
+  max-width: 28rem;
 }
-.self-profile-delete-action {
-  color: var(--color-cinnabar-deepest);
-  border-color: color-mix(in srgb, var(--color-cinnabar) 28%, var(--color-paper-dark));
+
+.boot-text {
+  margin: 0 0 16px;
+  line-height: 1.75;
 }
-.self-profile-edit {
-  padding-inline: 1rem;
-  background: color-mix(in srgb, var(--color-paper-light) 48%, transparent);
+
+/* ── 状态卡 ── */
+.state-card {
+  padding: 26px 28px;
+  border: 1px solid var(--color-ink-faint);
+  border-radius: 16px;
+  background: var(--color-paper-light);
 }
-.self-profile-danger-zone {
-  margin-top: 0.5rem;
+
+.state-card--empty {
+  border-style: dashed;
+  padding: 34px 32px;
 }
-.self-profile-header {
-  border-bottom: 1px solid var(--color-paper-dark);
-  padding-bottom: 1.5rem;
-}
-.self-profile-header h2 {
-  line-height: 1.15;
-}
-.self-profile-seal {
-  display: inline-flex;
-  width: 2.25rem;
-  height: 2.25rem;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--color-cinnabar);
-  color: var(--color-cinnabar);
+
+.state-title {
+  margin: 0 0 10px;
   font-family: var(--font-display);
-  font-size: 1.15rem;
-}
-.self-profile-kicker {
-  margin-bottom: 0.25rem;
-  color: var(--color-ink-light);
-  font: 500 0.75rem/1 var(--font-sans);
-  letter-spacing: 0.08em;
-}
-.self-profile-date-card {
-  border-left: 3px solid var(--color-cinnabar);
-  background: color-mix(in srgb, var(--color-paper-medium) 45%, transparent);
-  padding: 1.25rem 1.25rem 1rem;
-}
-.self-profile-date-label {
-  color: var(--color-ink-medium);
-  font: 500 0.8rem/1.4 var(--font-sans);
-  letter-spacing: 0.08em;
-}
-.self-profile-date-value {
-  margin-top: 0.45rem;
+  font-size: 1.375rem;
+  letter-spacing: 0.05em;
   color: var(--color-ink-dark);
-  font: 2rem/1.25 var(--font-display);
 }
-.self-profile-technical-details {
-  margin-top: 1rem;
-  color: var(--color-ink-medium);
-  font: 0.75rem/1.6 var(--font-sans);
-}
-.self-profile-technical-details summary {
-  width: fit-content;
-  cursor: pointer;
-  color: var(--color-ink-medium);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-.self-profile-technical-details summary:focus-visible {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 3px;
-}
-.self-profile-technical-content {
-  display: grid;
-  gap: 0.2rem;
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--color-paper-dark);
-}
-.self-profile-primary-action {
-  width: 100%;
-  justify-content: center;
-}
-.self-profile-empty-state {
-  padding: 1rem 0 0.25rem;
-}
-.self-profile-danger-zone {
+
+.state-card p {
+  max-width: 56ch;
+  margin: 0 0 20px;
+  font-size: 0.9375rem;
+  line-height: 1.75;
   color: var(--color-ink-medium);
 }
-@media (min-width: 760px) {
-  .self-profile-card {
-    padding: 2.5rem;
-  }
-  .self-profile-date-card {
-    padding: 1.5rem;
-  }
-}
-@media (max-width: 480px) {
-  .self-profile-card {
-    padding: 1.25rem;
-  }
-  .self-profile-date-value {
-    font-size: 1.65rem;
-  }
-  .self-profile-actions > button,
-  .self-profile-action-group button {
-    width: 100%;
-    justify-content: center;
-  }
-  .self-profile-edit {
-    padding-inline: 0.75rem;
-  }
-}
-/* 窄屏文字放大时限制留白，保留正文与按钮可用宽度。 */
-@media (max-width: 480px) {
-  .self-profile-page {
-    padding-inline: 8px;
-  }
-  .self-profile-card {
-    padding-inline: 16px;
-  }
-  .self-profile-card button {
-    padding-inline: 12px;
-    max-width: 100%;
-  }
-}
-.auth-dialog-wrap {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
+
+/* ── 记录卡动作 ── */
+.record-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
 }
-.auth-dialog-backdrop {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--color-ink-dark) 50%, transparent);
-  backdrop-filter: blur(2px);
-}
-.auth-dialog-panel {
-  position: relative;
-  width: 100%;
-  max-width: 24rem;
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
+
+/* ── 编辑器 ── */
+.editor {
+  margin-top: 24px;
+  padding: 26px 28px;
+  border: 1px solid var(--color-ink-faint);
+  border-radius: 16px;
   background: var(--color-paper-lightest);
-  border: 1px solid var(--color-paper-dark);
-  border-radius: 1rem;
-  padding: 2rem 1.5rem 1.5rem;
-  box-shadow:
-    0 8px 32px color-mix(in srgb, #2c1a0e 12%, transparent),
-    0 2px 8px color-mix(in srgb, #2c1a0e 8%, transparent);
 }
-@media (max-width: 480px) {
-  .auth-dialog-wrap {
-    padding: 0;
-  }
-  .auth-dialog-panel {
-    max-width: none;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-    border: none;
+
+.editor-head {
+  margin-bottom: 22px;
+}
+
+.editor-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-dark);
+}
+
+.editor-sub {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--color-ink-medium);
+}
+
+.editor-live {
+  margin: 16px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-ink-medium);
+}
+
+.editor-live .num {
+  color: var(--color-ink-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* ── 错误与返回 ── */
+.load-error {
+  padding: 20px 22px;
+  border: 1px solid var(--color-cinnabar);
+  border-radius: 10px;
+  color: var(--color-cinnabar);
+  font-size: 0.875rem;
+}
+
+.load-error p {
+  margin: 0 0 12px;
+}
+
+.action-error {
+  margin-top: 16px;
+  font-size: 0.875rem;
+  color: var(--color-cinnabar);
+}
+
+.back-link {
+  margin: 40px 0 0;
+  text-align: center;
+}
+
+/* ── 窄屏：外壳与卷目的收窄规则由 .editorial-* 与 ProfileIndexNav 自己负责 ── */
+@media (max-width: 720px) {
+  .state-card,
+  .state-card--empty,
+  .editor {
+    padding: 22px 20px;
   }
 }
 </style>

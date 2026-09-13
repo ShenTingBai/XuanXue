@@ -313,12 +313,12 @@ function handleReload() {
         </label>
 
         <div class="flex gap-3">
-          <button type="button" class="btn-ink flex-1" :disabled="busy" @click="emit('close')">
+          <button type="button" class="btn-quiet flex-1" :disabled="busy" @click="emit('close')">
             取消
           </button>
           <button
             type="button"
-            class="btn-cin flex-1"
+            class="btn-solid flex-1"
             :disabled="!canConfirm"
             :aria-busy="busy"
             @click="handleConfirm"
@@ -330,57 +330,3 @@ function handleReload() {
     </div>
   </Teleport>
 </template>
-
-<style scoped>
-.auth-dialog-wrap {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-.auth-dialog-backdrop {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--color-ink-dark) 50%, transparent);
-  backdrop-filter: blur(2px);
-}
-.auth-dialog-panel {
-  position: relative;
-  width: 100%;
-  max-width: 24rem;
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
-  background: var(--color-paper-lightest);
-  border: 1px solid var(--color-paper-dark);
-  border-radius: 1rem;
-  padding: 2rem 1.5rem 1.5rem;
-  box-shadow:
-    0 8px 32px color-mix(in srgb, #2c1a0e 12%, transparent),
-    0 2px 8px color-mix(in srgb, #2c1a0e 8%, transparent);
-}
-@media (max-width: 480px) {
-  .auth-dialog-wrap {
-    padding: 0;
-  }
-  .auth-dialog-panel {
-    max-width: none;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-    border: none;
-    padding-inline: 16px;
-  }
-  /* 字体放大时将操作按钮改为单列，避免 flex 子项按文字最小宽度撑出横向滚动。 */
-  .auth-dialog-panel .flex.gap-3 {
-    flex-wrap: wrap;
-  }
-  .auth-dialog-panel .flex.gap-3 > button {
-    min-width: 0;
-    flex: 1 1 100%;
-    padding-inline: 12px;
-  }
-}
-</style>

@@ -9,17 +9,17 @@ useSeoMeta({
   ogType: 'website',
 })
 
-// 旧档案页面在 R4 前只重定向到 /account，不读取路由参数、不调用旧档案接口。
+// 旧档案页面只重定向到登录后的落脚点（本人档案页），不读取路由参数、不调用旧档案接口。
 const router = useRouter()
 
 onMounted(() => {
-  router.replace('/account')
+  router.replace('/self-profile')
 })
 </script>
 
 <template>
   <div class="min-h-[calc(100dvh-4rem)] flex items-center justify-center px-4">
-    <p class="font-sans text-sm text-ink-medium tracking-[0.1em]">正在前往账号设置…</p>
+    <p class="font-sans text-sm text-ink-medium tracking-[0.1em]">正在前往本人档案…</p>
   </div>
   <PageFooter />
 </template>

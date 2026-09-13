@@ -216,6 +216,63 @@
 - hover：文字变 `ink`，边框加深至 `rgba(44,26,14,0.15)`，上浮 2px
 - 适用：次要 CTA、页面内导航链接（作为 `<button>` 或 `<NuxtLink>`）
 
+#### `btn-solid` — 出版版实心按钮
+
+```
+<button class="btn-solid">确认保存</button>
+```
+
+- 朱砂实心底 + 纸白文字，1px 同色描边，圆角 10px
+- 度量：最小高度 44px，内边距 `0.625rem 1.25rem`，字距 0.01em（无 `<span>` 强制要求）
+- hover：`cinnabar-dark`；active：下沉 1px；disabled：45% 透明度
+- 适用：本人档案页及其确认弹层的主要操作（录入出生日期、确认保存、确认删除）
+- 与 `btn-cin` 的区别：`btn-cin` 是仪式化大按钮（0.3em 字距、无圆角、必须内嵌 `<span>`），用于页面级主 CTA；`btn-solid` 是紧凑按钮，用于档案页表单与弹层
+
+#### `btn-quiet` — 出版版描边按钮
+
+```
+<button class="btn-quiet">修改出生日期</button>
+```
+
+- 透明底 + 1px `ink-faint` 描边 + `ink-dark` 文字，圆角 10px，度量同 `btn-solid`
+- hover：边框加深为 `ink-dark`，背景 5% 墨色；active：下沉 1px；disabled：45% 透明度
+- 适用：档案页与弹层的次要操作（取消、修改出生日期、停止带入、危险操作入口）
+
+#### 本人档案页组件（`components/profile/*`，2026-09-13 出版版对齐）
+
+`/self-profile` 采用出版版版式：卷目索引 + 报头 + 四节（录 / 授 / 溯 / 归）。
+
+| 组件                    | 职责                                                                    |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `ProfileIndexNav`       | 卷目锚点索引；桌面 sticky，≤920px 转正文上方两行网格（两页共用）        |
+| `ProfileMasthead`       | 报头：印章、眉题、标题、副题、状态胶囊、元信息行（纯展示，两页共用）    |
+| `ProfileSectionHeading` | 分节标题（汉字数字 + 标题）                                             |
+| `ProfileRecordCard`     | 记录卡：大字规范化公历 + 原历法副行 + 转换与确认详情                    |
+| `ProfileUsageSection`   | Ⅱ 授权与用途：带入状态 + 四类用途矩阵（矩阵取自数据生命周期规范 §10.1） |
+| `ProfileScopeSection`   | Ⅲ 溯源与范围：告知版本取自 `SELF_PROFILE_POLICY_VERSION`                |
+| `ProfileDangerZone`     | Ⅳ 归档与删除：档案级操作（均保留账号）                                  |
+| `ProfileDangerSection`  | 危险区外壳（默认折叠 + 插槽），档案页与账号页共用                       |
+| `ProfileNote`           | 分节提示条容器（文案由调用方给出）                                      |
+
+`/account` 采用同一版式（账号与安全：账 / 话 / 数 / 销 四节），共用上述外壳与组件。
+
+**出版版全局类**（`assets/css/main.css`，2026-09-13 提升为全局单一定义）：
+
+| 类                                                                                               | 用途                                                                                                                   |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `editorial-shell` / `editorial-article`                                                          | 两列外壳：卷目 + 正文（正文左侧 1px 分隔线）                                                                           |
+| `editorial-section` / `editorial-section--first`                                                 | 分节间距、上边框与 `scroll-margin-top`                                                                                 |
+| `editorial-boot` / `editorial-boot--error` / `editorial-boot-text`                               | 恢复中 / 恢复失败的引导态                                                                                              |
+| `editorial-facts` / `editorial-fact` / `editorial-fact-key` / `editorial-link` / `editorial-num` | 键值两列事实清单（档案页溯源节、账号页Ⅰ/Ⅲ 节共用）                                                                     |
+| `editorial-dialog-title` / `-text` / `-actions` / `-consent`                                     | 弹层标题、说明、动作行与同意勾选                                                                                       |
+| `auth-dialog-wrap` / `auth-dialog-backdrop` / `auth-dialog-panel`                                | 弹层外壳；**已从各组件 scoped 副本提升为全局**（此前页面自己 Teleport 的弹层拿不到样式），并统一 ≤480px 的按钮单列规则 |
+
+版式度量：正文容器最大宽 72rem；桌面两列 `214px + minmax(0, 1fr)`，正文左内边距 46px 并带 1px 分隔线；分节 `padding-top 40px` + 上边框；≤920px 收为单列；≤720px 内边距降到 20px。展示口径（大字公历、副行原历法、状态文案）由 `utils/self-profile/display.ts` 决定，组件不自作换算。
+
+#### 账号与安全页（`/account`，2026-09-13）
+
+账号页不再是登录后的落脚点（落点为 `/self-profile`），只从顶栏账号菜单进入；内容为 Ⅰ 账号身份 / Ⅱ 会话与设备 / Ⅲ 数据与告知 / Ⅳ 注销账号。**账号级销毁（注销）只在账号页，档案级删除（删除出生日期 / 删除整份档案，均保留账号）只在档案页**，两类爆炸半径不同的操作不混放（数据生命周期规范 §13）。
+
 #### `marginal-toggle` — 眉批折叠按钮
 
 ```

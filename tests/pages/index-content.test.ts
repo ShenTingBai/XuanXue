@@ -90,8 +90,10 @@ describe('首页访客公开文案（R1 收敛）', () => {
     expect(indexPageSource).toContain('authStatus')
   })
 
-  it('首页 CTA 指向统一登录页与账号入口', () => {
+  it('首页 CTA 指向统一登录页；登录后落脚点是本人档案页', () => {
+    // 游客 CTA 不再指向游客打不开的账号页，统一走登录入口。
     expect(indexPageSource).toContain('to="/login"')
-    expect(indexPageSource).toContain('to="/account"')
+    expect(indexPageSource).toContain('登录 / 注册')
+    expect(indexPageSource).not.toContain('to="/account"')
   })
 })

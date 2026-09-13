@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { STEMS, BRANCHES } from '~/constants/bazi'
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getNayinWuxing } from '~/constants/bazi'
@@ -517,7 +517,7 @@ onMounted(async () => {
             <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
               <span>查看工具状态</span>
             </NuxtLink>
-            <NuxtLink to="/account" class="btn-ink no-underline">账号设置</NuxtLink>
+            <NuxtLink to="/login" class="btn-ink no-underline">登录 / 注册</NuxtLink>
           </div>
         </section>
       </div>

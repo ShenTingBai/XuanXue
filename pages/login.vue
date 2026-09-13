@@ -22,7 +22,7 @@ const restoring = ref(false)
 onMounted(async () => {
   await restoreSession()
   if (authStatus.value === 'authenticated' && currentAccount.value) {
-    router.replace('/account')
+    router.replace('/self-profile')
     return
   }
   if (route.query.expired === '1') {
@@ -36,17 +36,17 @@ onUnmounted(() => {
 })
 
 function onAuthenticated() {
-  router.replace('/account')
+  router.replace('/self-profile')
 }
 
-// 网络恢复失败：显式重试；成功 replace /account，仍失败留在登录页。
+// 网络恢复失败：显式重试；成功进入本人档案页（登录后落脚点），仍失败留在登录页。
 async function retryRestore() {
   if (restoring.value) return
   restoring.value = true
   try {
     await restoreSession()
     if (authStatus.value === 'authenticated' && currentAccount.value) {
-      router.replace('/account')
+      router.replace('/self-profile')
     }
   } finally {
     restoring.value = false

@@ -248,7 +248,7 @@ const handleLogout = async () => {
                         <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
                         <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                       </svg>
-                      账号设置
+                      账号与安全
                     </NuxtLink>
                     <NuxtLink
                       to="/self-profile"
@@ -473,7 +473,7 @@ const handleLogout = async () => {
                     <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
                     <path d="M13 14c0-2.8-2.2-5-5-5S3 11.2 3 14" />
                   </svg>
-                  <span class="font-sans text-sm text-ink-medium">账号设置</span>
+                  <span class="font-sans text-sm text-ink-medium">账号与安全</span>
                 </NuxtLink>
                 <NuxtLink
                   to="/self-profile"
