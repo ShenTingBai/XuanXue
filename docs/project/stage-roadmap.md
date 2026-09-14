@@ -111,7 +111,7 @@
 
 ## 3. 当前批准路线与阶段进入门槛
 
-2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)为准。R1 与 R2 均为 `Accepted`；R3 为 `Approved` 且已发起证据准备、收敛与收口子步骤（存在必需证据缺口，代码计划尚未发起）；R4–R6 仍为 `Approved`，尚未进入实施。
+2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)为准。截至 2026-09-14：R1、R2、R3、R4 均为 `Accepted`；R5 为 `Approved` 且进入门槛（R4 `Accepted`）已满足，尚未生成实施计划；R6 为 `Approved`，未进入实施。R4 的接受限定为「本人档案初版」，不等于任何工具获准公开发放行。
 
 ### R1：安全收口
 
@@ -162,7 +162,7 @@
 
 ### R4：本人档案
 
-- 状态：`Implemented（technical_verification_passed_pending_user_acceptance）`（2026-09-13 完成自动化、生产预览临时库与窄屏浏览器验收；同日提交后复验发现提交钩子格式化使提交树三项门禁失败，已完成最小修复、重跑四项门禁并在修复树上复跑真机浏览器验收 35/35；待用户确认，未 Accepted、未公开）。
+- 状态：`Accepted`（2026-09-14 用户确认接受）。接受限定为「本人档案初版」：功能、数据流程与已批准要求成立，工具公开围栏不变，不代表公开放行，也不把 R4 的授权延伸为 R5 的构建测试授权。（历史：2026-09-13 完成自动化、生产预览临时库与窄屏浏览器验收；同日提交后复验发现提交钩子格式化使提交树三项门禁失败，已完成最小修复、重跑四项门禁并在修复树上复跑真机浏览器验收 35/35；此后又完成出版版视觉对齐 51/51 与账号/档案信息架构调整 32/32，均待用户接受，现已接受。）
 - 目标：建立 `Account 1 — 0..1 SelfProfile`，第一批只保存完整出生日期字段组，并打通档案向生肖草稿的显式复制。
 - 非目标：不加入出生时间、地点、传统排盘参数、亲友档案或强制建档。
 - 进入门槛：R3 `Accepted`。
@@ -171,16 +171,19 @@
 - 执行结果：`.claude/results/20260909-r4-self-profile-v1-result.yaml`（历史）；v2 结果 `.claude/results/20260909-r4-self-profile-convergence-v2-result.yaml` 已经 Codex 静态复核；v3 结果 `.claude/results/20260909-r4-self-profile-convergence-v3-result.yaml` 已经 Codex 静态复核，仍有显示候选与冻结请求不一致、来源 await 后可能为空、同页保存来源同步时序、loading 跨代际扣减与频道归属残留；v4 结果 `.claude/results/20260909-r4-self-profile-convergence-v4-result.yaml`（待 Codex 复核），详见 [v3 静态复核](../audits/2026-09-09-r4-self-profile-convergence-v3-review.md)。
 - 实施审计：[R4 实施结果审计](../audits/2026-09-09-r4-self-profile-implementation-result.md)；v2 收敛审计 [R4 收敛结果审计](../audits/2026-09-09-r4-self-profile-convergence-v2-result.md)；v3 收敛审计 [R4 收敛结果审计（v3）](../audits/2026-09-09-r4-self-profile-convergence-v3-result.md)；v4 收敛审计 [R4 收敛结果审计（v4）](../audits/2026-09-09-r4-self-profile-convergence-v4-result.md)。
 - 验证状态：typecheck、full test、lint、build 已运行；生产预览使用系统临时目录新库完成注册、建档、修改、撤回、重新授权、版本冲突、日期删除、整档删除与会话保留验收；320/360/390/414 CSS px 及 200% 根字号无页面横向溢出，保存对话框在 320px + 200% 下可滚动、按钮可见且可操作。详见 [R4 Codex runtime acceptance](../audits/2026-09-11-r4-self-profile-runtime-acceptance.md)。
-- 提交后复验与浏览器验收（2026-09-13）：上述通过结论只对**提交前的未格式化树**成立。`.githooks/pre-commit` 的 `lint-staged`/`prettier --write` 在验证之后改写了源码，使提交 `53cd19d` 上 typecheck、测试与构建三项失败（2289 通过 + 编译失败的 45 例 = 验收文档声称的 2334）。已复验驳回并完成最小修复（`pages/tools/shengxiao.vue` 的多语句内联处理器改为具名方法；测试改用显式断言辅助函数替代会被格式化孤立的 `@ts-expect-error`）。修复后四项门禁在格式化稳定的树上重新通过：typecheck 0 错、测试 64 文件 / 2334 用例、lint 0 error / 26 warnings、build 成功。随后在生产预览 + 系统临时目录全新数据库上复跑真机链路：注册、建档、差异确认、409 冲突与重读、停止/重新允许带入、删除出生日期保留档案、删除整档保留会话、公开围栏（`/tools/shengxiao` → `/tools/status`）、320/360/390/414 CSS px × 16px/32px 无横向溢出、320px + 200% 弹层可滚动且确认按钮可达、26 条 `/api/self-profile` 响应全部 `no-store`，共 **35/35 通过**；证据存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-13-r4-verify/`（含 SHA256 清单；按用户要求不纳入仓库）。公开围栏下不可达的带入/替换/撤销由 125 例组件级测试承担。同轮把 `.githooks/pre-commit` 从改写型（`prettier --write`/`eslint --fix`）改为门禁型（`prettier --check`/`eslint`），`.prettierignore` 排除 archify 生成的 `docs/architecture/*.html`，使 `npx prettier --check .` 全仓通过。R4 仍为 `Implemented`、待用户接受，未 Accepted、未公开。全过程见 [R4 验收复验（驳回）](../audits/2026-09-13-r4-self-profile-acceptance-review.md)。
-- 完成门槛：创建、差异确认、版本冲突、字段组删除、整档删除、带入、替换和撤销均符合契约（待验收确认）。
-- 出版版视觉对齐（2026-09-13）：按用户批准的设计基线，把 `/self-profile` 对齐本人档案出版版原型——卷目索引（Ⅰ 录 / Ⅱ 授 / Ⅲ 溯 / Ⅳ 归）+ 报头 + 分节 + 记录卡，并补齐 Ⅱ 四类用途矩阵（取自数据生命周期规范 §10.1）、Ⅲ 溯源与范围、Ⅳ 归档与删除（默认折叠）。仅页面级改动：未动全站顶栏、页脚、数据层与 API；新增全局按钮类 `btn-solid`/`btn-quiet` 与 7 个展示型组件，均已登记进 [设计系统](../design/design-system.md)。涉及 R5 结果历史的原型文案（历史条数、旧输入标记）按"不承诺未实现能力"改写。设计基线见 [出版版视觉对齐设计](../design/2026-09-13-self-profile-editorial-redesign.md)，验收见 [出版版视觉对齐验收](../audits/2026-09-13-self-profile-editorial-acceptance.md)：typecheck/lint/build/prettier 通过，测试 66 文件 / 2365 例通过，真机验收 **51/51 通过**（含三态、409 冲突重读、带入授权开关、危险区折叠、320/360/390/414 × 16px/32px、320px+200% 弹层、`no-store`），证据存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-13-self-profile-editorial/`（含 SHA256 清单；按用户要求不纳入仓库）。R4 仍为 `Implemented`、待用户接受，未 Accepted、未公开。
+- 提交后复验与浏览器验收（2026-09-13）：上述通过结论只对**提交前的未格式化树**成立。`.githooks/pre-commit` 的 `lint-staged`/`prettier --write` 在验证之后改写了源码，使提交 `53cd19d` 上 typecheck、测试与构建三项失败（2289 通过 + 编译失败的 45 例 = 验收文档声称的 2334）。已复验驳回并完成最小修复（`pages/tools/shengxiao.vue` 的多语句内联处理器改为具名方法；测试改用显式断言辅助函数替代会被格式化孤立的 `@ts-expect-error`）。修复后四项门禁在格式化稳定的树上重新通过：typecheck 0 错、测试 64 文件 / 2334 用例、lint 0 error / 26 warnings、build 成功。随后在生产预览 + 系统临时目录全新数据库上复跑真机链路：注册、建档、差异确认、409 冲突与重读、停止/重新允许带入、删除出生日期保留档案、删除整档保留会话、公开围栏（`/tools/shengxiao` → `/tools/status`）、320/360/390/414 CSS px × 16px/32px 无横向溢出、320px + 200% 弹层可滚动且确认按钮可达、26 条 `/api/self-profile` 响应全部 `no-store`，共 **35/35 通过**；证据存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-13-r4-verify/`（含 SHA256 清单；按用户要求不纳入仓库）。公开围栏下不可达的带入/替换/撤销由 125 例组件级测试承担。同轮把 `.githooks/pre-commit` 从改写型（`prettier --write`/`eslint --fix`）改为门禁型（`prettier --check`/`eslint`），`.prettierignore` 排除 archify 生成的 `docs/architecture/*.html`，使 `npx prettier --check .` 全仓通过。该轮结束时 R4 仍为 `Implemented`、待用户接受；2026-09-14 用户确认接受，见本阶段「状态」与「接受依据」。全过程见 [R4 验收复验（驳回）](../audits/2026-09-13-r4-self-profile-acceptance-review.md)。
+- 完成门槛：创建、差异确认、版本冲突、字段组删除、整档删除、带入、替换和撤销均符合契约。**已满足**（2026-09-13 修复树真机 35/35 + 出版版视觉 51/51 + 信息架构 32/32；2026-09-14 用户确认接受）。
+- 接受依据（2026-09-14）：四项门禁在格式化稳定的树上通过（typecheck 0 错、测试 67 文件 / 2379 用例、lint 0 error / 26 既有 warnings、build 成功、`npx prettier --check .` 全仓通过、`git diff --check` 通过）；三轮真机浏览器验收证据（R4 复验 35/35、出版版视觉 51/51、信息架构 32/32）均已交付并复核；用户明确表示接受本人档案初版，并授权提交推送。提交：`e473a3c fix(r4): 修复提交钩子格式化导致的验收失效`、`4dd43c6 feat(r4): 本人档案初版（出版版视觉与账号信息架构调整）`，已推送至 `codex/foundation-rebuild`。证据与截图存于仓库外 `D:/@Temp/xuanxue-evidence/`（按用户要求不纳入仓库）。接受范围**不包括**公开围栏放开：工具目录仍为 `in_review/internal/blocked/disabled`。
+- 接受时已知限制：`/tools/` 围栏下「带入 / 替换 / 撤销带入」无真实浏览器路径（由 125 例组件级测试承担）；R4 构建测试授权不延伸至 R5。
+- 出版版视觉对齐（2026-09-13）：按用户批准的设计基线，把 `/self-profile` 对齐本人档案出版版原型——卷目索引（Ⅰ 录 / Ⅱ 授 / Ⅲ 溯 / Ⅳ 归）+ 报头 + 分节 + 记录卡，并补齐 Ⅱ 四类用途矩阵（取自数据生命周期规范 §10.1）、Ⅲ 溯源与范围、Ⅳ 归档与删除（默认折叠）。仅页面级改动：未动全站顶栏、页脚、数据层与 API；新增全局按钮类 `btn-solid`/`btn-quiet` 与 7 个展示型组件，均已登记进 [设计系统](../design/design-system.md)。涉及 R5 结果历史的原型文案（历史条数、旧输入标记）按"不承诺未实现能力"改写。设计基线见 [出版版视觉对齐设计](../design/2026-09-13-self-profile-editorial-redesign.md)，验收见 [出版版视觉对齐验收](../audits/2026-09-13-self-profile-editorial-acceptance.md)：typecheck/lint/build/prettier 通过，测试 66 文件 / 2365 例通过，真机验收 **51/51 通过**（含三态、409 冲突重读、带入授权开关、危险区折叠、320/360/390/414 × 16px/32px、320px+200% 弹层、`no-store`），证据存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-13-self-profile-editorial/`（含 SHA256 清单；按用户要求不纳入仓库）。该轮结束时 R4 仍为 `Implemented`、待用户接受；2026-09-14 用户确认接受，见本阶段「状态」与「接受依据」。
 
 ### R5：八字基础排盘与结果历史
 
 - 状态：`Approved`。
 - 目标：只用出生日期生成可追溯的三柱部分结果和节气边界候选，并建立首个显式保存、服务端复算、不可变快照与删除闭环。
 - 非目标：不输出时柱、大运、流年、神煞、强弱、喜用神、评分或现实预测。
-- 进入门槛：R4 `Accepted`。
+- 进入门槛：R4 `Accepted`（2026-09-14 已满足）。
+- 当前准备：R5 尚未生成实施计划，也未运行任何 R5 代码、测试或构建；本阶段 Build/Test 授权需用户单独给出。
 - 完成门槛：普通日期部分结果、节气边界候选、页内认证后二次确认、幂等保存、快照读取、重新计算和删除全部通过；八字日期、节气和甲子日来源及黄金样例满足对应准入。
 
 ### R6：全链路验收与公开门禁

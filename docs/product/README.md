@@ -72,7 +72,7 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 | [产品总纲](governance/product-charter.md)                                              | Approved | 不适用；各能力独立判断 | 不适用                                                                                | 定位、用户、成功标准、三层结构、准入、第一版范围和轻量版本治理已批准                                                                                          |
 | [首页与每日内容](contracts/homepage-and-daily-content-contract.md)                     | Approved | Not started            | 历法规则映射、24 节气内容目录和观照题库待建立与核验                                   | 首页结构、每日三层内容、发现入口、登录边界、透明性和三层验收已经批准                                                                                          |
 | [用户档案与数据生命周期](governance/profile-and-data-lifecycle-spec.md)                | Approved | In progress            | 不适用；安全边界仍需公网专项验收                                                      | 决策已固定，不代表现有档案代码合格                                                                                                                            |
-| [基础重建与首批工具交付](delivery/foundation-rebuild-and-first-tools-delivery-spec.md) | Approved | In progress            | R1/R2/R3 限定交付已接受；八字证据另行核验                                             | 固定安全、账号、游客生肖、本人档案、八字历史和全链路验收六阶段顺序                                                                                            |
+| [基础重建与首批工具交付](delivery/foundation-rebuild-and-first-tools-delivery-spec.md) | Approved | In progress            | R1–R4 限定交付已接受；R5 八字证据另行核验                                             | 固定安全、账号、游客生肖、本人档案、八字历史和全链路验收六阶段顺序                                                                                            |
 | [工具统一体验与内容治理](governance/tool-experience-and-content-governance-spec.md)    | Approved | Not started            | 治理模型已批准，来源数据尚未建立                                                      | 所有工具后续共同遵守                                                                                                                                          |
 | [八字工具](contracts/bazi-tool-contract.md)                                            | Approved | Not started            | 多项历法、神煞和时间规则待核验                                                        | 未满足合同清单前不得标记第一版完成                                                                                                                            |
 | [生肖与太阳星座](contracts/shengxiao-and-constellation-tool-contract.md)               | Approved | In progress            | 生肖限定来源与运行证据通过；扩展及星座证据仍待核验                                    | R3 生肖限定功能 Accepted，太阳星座未实施；两者公开准入独立，当前围栏不变                                                                                      |
@@ -200,7 +200,22 @@ R4 本人档案已完成代码实施与验证用例编写，状态为 **Implemen
 
 落地：**登录 / 注册 / 会话恢复的落脚点改为 `/self-profile`**（注册不自动建档，空态正好引导）；`/account` 重做为出版版「账号与安全」（Ⅰ 账 / Ⅱ 话 / Ⅲ 数 / Ⅳ 销），展示昵称规则、创建时间、真实隐私与服务规则版本、本人档案状态摘要，以及退出当前设备 / 退出所有设备 / 注销；顶栏账号菜单保持三项，退出登录全局可达。同轮把 `.auth-dialog-*` 从各组件 scoped 副本提升为全局单一定义，修掉页面自己 Teleport 的弹层拿不到样式的问题。
 
-设计见 [账号与档案信息架构调整设计](../design/2026-09-13-account-and-profile-ia.md)，验收见 [IA 调整验收](../audits/2026-09-13-account-and-profile-ia-acceptance.md)（真机 32/32，R2 三条账号流程已复跑）。页脚已统一：两页都渲染全站 `PageFooter`。**R4 仍为 `Implemented`、待用户接受，未 Accepted、未公开放行**。
+设计见 [账号与档案信息架构调整设计](../design/2026-09-13-account-and-profile-ia.md)，验收见 [IA 调整验收](../audits/2026-09-13-account-and-profile-ia-acceptance.md)（真机 32/32，R2 三条账号流程已复跑）。页脚已统一：两页都渲染全站 `PageFooter`。以上 8.3–8.5 三段末尾「R4 仍为 `Implemented`、待用户接受」的表述是该轮当时的真实状态，已被下节取代。
+
+### 8.6 R4 用户接受（2026-09-14）
+
+用户已确认接受 R4 本人档案初版，R4 状态由 `Implemented` 更新为 **`Accepted`**。接受依据：
+
+- 四项门禁在格式化稳定的提交树上通过：typecheck 0 错误、测试 **67 文件 / 2379 用例**、lint 0 error / 26 既有 warnings、`npm run build` 成功，另加 `npx prettier --check .` 与 `git diff --check` 全仓通过；
+- 三轮真机浏览器验收证据齐备并已复核：R4 修复树复验 **35/35**、出版版视觉对齐 **51/51**、账号与档案信息架构 **32/32**；截图与 SHA256 清单存于仓库外 `D:/@Temp/xuanxue-evidence/`（按用户要求不纳入仓库）；
+- 提交 `e473a3c`（修复提交钩子格式化导致的验收失效）与 `4dd43c6`（本人档案初版：出版版视觉与账号信息架构调整）已推送至 `codex/foundation-rebuild`。
+
+接受范围与限制（不得被后续引用放大）：
+
+1. 接受限定为「本人档案初版」，即功能、数据流程与已批准要求成立；不是对完整产品、视觉细节或来源真实性的整体验收；
+2. **不构成公开放行**：工具目录仍为 `in_review / internal / blocked / disabled`，R6 公开门禁未开始；
+3. 已知限制：`/tools/` 围栏下「带入 / 替换 / 撤销带入」没有真实浏览器路径，由 125 例组件级测试承担；
+4. R4 的构建测试授权**不延伸**到 R5；R5 进入门槛（R4 `Accepted`）已满足，但 R5 尚未生成实施计划、未运行任何代码。
 
 ## 9. 已完成的审计与历史证据
 
