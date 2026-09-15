@@ -72,7 +72,7 @@ describe('八字页静态回归（R5）', () => {
     }
   })
 
-  it('页面只使用 R5 的九个新组件与四个通用组件（含统一认证弹层）', () => {
+  it('页面只使用 R5 的十个新组件与四个通用组件（含统一认证弹层）', () => {
     const imported = [...pageSource.matchAll(/from '~\/components\/([^']+)'/g)].map(
       match => match[1],
     )
@@ -87,12 +87,50 @@ describe('八字页静态回归（R5）', () => {
         'bazi/BaziPillarCard.vue',
         'bazi/BaziCandidatePanel.vue',
         'bazi/BaziDateComparison.vue',
+        'bazi/BaziElementComposition.vue',
         'bazi/BaziReadingGuide.vue',
         'bazi/BaziEvidenceScope.vue',
         'bazi/BaziSaveDialog.vue',
         'bazi/BaziHistoryPanel.vue',
       ]),
     )
+  })
+
+  it('R5-C 设计规格要求的新全局类被页面使用，且不在组件里私自复制实现', () => {
+    // 三柱一览用全局类（Ⅲ 段重心）；五行构成不重复造布局类。
+    for (const className of ['bazi-pillar-summary', 'bazi-pillar-cell', 'bazi-pillar-wuxing']) {
+      expect(pageSource, `pages/tools/bazi.vue 应使用 .${className}`).toContain(className)
+    }
+    // 候选轨道样式只能来自全局类，组件不得再内联一套轨道底色。
+    const candidateSource = componentSources.get('BaziCandidatePanel.vue') ?? ''
+    expect(candidateSource).toContain('bazi-candidate-lane')
+    expect(candidateSource).not.toContain('rgba(')
+  })
+
+  it('五行构成组件只做字面统计：模板不出现百分比、比例或旺衰判断', () => {
+    const composition = componentSources.get('BaziElementComposition.vue') ?? ''
+    expect(composition).toContain('data-bazi-element-composition')
+    // 只看 <template> 元素本身（不含 script 注释与 style 里的 CSS 百分比）。
+    const template = composition.slice(
+      composition.indexOf('<template>'),
+      composition.indexOf('</template>'),
+    )
+    expect(template.length).toBeGreaterThan(0)
+    expect(template, '模板不应出现百分比号').not.toContain('%')
+    expect(template, '模板不应出现「比例」').not.toContain('比例')
+    for (const banned of [
+      '喜用神',
+      '忌神',
+      '评分',
+      '旺衰判断',
+      '缺木',
+      '缺火',
+      '缺土',
+      '缺金',
+      '缺水',
+    ]) {
+      expect(template, `模板不应出现「${banned}」`).not.toContain(banned)
+    }
   })
 
   it('页面与组件均为 UTF-8 无 BOM，且不含乱码特征', () => {

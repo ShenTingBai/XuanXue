@@ -1011,6 +1011,22 @@ html {
     color: var(--color-ink-medium);
   }
 
+  /**
+   * 清空/危险确认块（R5-C 设计规格 Ⅵ 段）：
+   * 朱砂描边 + 文字说明，**不使用整块红底**——确认的严重性靠文字与描边表达，
+   * 不靠大面积色块，避免在墨韵底纹上产生刺眼色域。
+   */
+  .editorial-dialog-confirm {
+    margin-bottom: 20px;
+    padding: 16px;
+    border: 1px solid color-mix(in srgb, var(--color-cinnabar-dark) 40%, transparent);
+    border-radius: 10px;
+    background: var(--color-paper-lightest);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--color-ink-medium);
+  }
+
   /* ── 出版版引导态（恢复中 / 恢复失败） ── */
   .editorial-boot {
     max-width: 72rem;
@@ -1524,6 +1540,70 @@ html {
   .input-warm:focus {
     border-color: rgba(156, 26, 28, 0.07);
     box-shadow: 0 0 0 3px rgba(156, 26, 28, 0.015);
+  }
+
+  /* ── ── ── ── ── ──
+     八字页（/tools/bazi）专用类（R5-C，2026-09-15）
+     设计基线：docs/design/2026-09-15-bazi-ui-spec.md §5
+     只放既有类表达不了的层：三柱一览、候选轨道。
+     五行色不写死在本层：组件按 constants/bazi.ts 的 WUXING_COLORS 绑定，
+     回退 WUXING_FALLBACK_COLOR；本层只管结构与中性底色。
+     ── ── ── ── ── ── */
+  .bazi-pillar-summary {
+    display: grid;
+    /* 手机及以上三柱横排；≤389px 转纵排（规格：窄屏三柱纵排或压缩横排，保可读） */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .bazi-pillar-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 16px 12px;
+    border: 1px solid var(--color-ink-faint);
+    border-radius: 10px;
+    background: var(--color-paper-lightest);
+    text-align: center;
+  }
+
+  /**
+   * 日柱独有形态：更实的描边 + 极浅洗底。
+   * 与年/月柱的区分来自**边框与底纹**，不来自颜色，符合「不得仅靠颜色区分」。
+   */
+  .bazi-pillar-cell--day {
+    border-color: color-mix(in srgb, var(--color-ink-dark) 40%, transparent);
+    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+  }
+
+  .bazi-pillar-wuxing {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /**
+   * 候选轨道：中性洗底 + 细线框。
+   * 禁止用红/绿区分两个情形——「甲 / 乙」由组件以文字标注。
+   */
+  .bazi-candidate-lane {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--color-ink-faint);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+  }
+
+  @media (max-width: 389px) {
+    .bazi-pillar-summary {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 }
 

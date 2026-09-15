@@ -6,9 +6,10 @@ import type { BaziScenario } from '~/types/bazi'
 /**
  * 候选逐项对比（页面 Ⅳ 段，仅当结果跨「节」时显示）。
  *
+ * 设计基线：docs/design/2026-09-15-bazi-ui-spec.md §2 Ⅳ 段（候选轨道 `bazi-candidate-lane`）。
  * 依据契约 §22.1 与规则台账 R-BZ-008：
  * - 每个情形按**完整的年柱 + 月柱整组**并列展示，禁止跨情形拼合，情形数不得叉乘；
- * - 每项必须带文字原因（如「立春前（当日 00:00 至 04:02）」），**不得只用颜色区分**；
+ * - 每项必须带文字原因与「甲 / 乙」文字标注，**不得只用颜色区分**；轨道一律中性色，不用红绿；
  * - 情形数由引擎给出（恰好 2），组件不自行组合中间态；
  * - 边界距午夜小于阈值时，显式提示该判定对精度敏感。
  */
@@ -32,6 +33,11 @@ function branchLabel(branch: BaziScenario['branch']): string {
   return branch === 'pre' ? '边界之前' : '边界之后'
 }
 
+/** 甲 / 乙 序号：与文字标签一起构成「不只靠颜色」的区分手段。 */
+function laneMark(index: number): string {
+  return index === 0 ? '甲' : '乙'
+}
+
 const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的两种可能`)
 </script>
 
@@ -43,7 +49,7 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
   >
     <h3 id="bazi-candidates-heading" class="font-display text-lg text-ink-dark">{{ heading }}</h3>
 
-    <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+    <p class="mt-2 font-sans text-sm leading-relaxed text-ink-medium">
       出生日期落在「{{
         boundaryTerm
       }}」当天，而填写内容不含出生时刻，因此无法确定这一刻之前还是之后。
@@ -53,7 +59,7 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
 
     <p
       v-if="boundaryInstant"
-      class="mt-2 font-sans text-xs text-ink-medium"
+      class="mt-2 font-sans text-xs text-ink-medium editorial-num"
       data-bazi-boundary-instant
     >
       该「{{ boundaryTerm }}」的交节时刻（北京时间，分钟级）：{{ boundaryInstant }}
@@ -61,7 +67,7 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
 
     <p
       v-if="nearMidnight"
-      class="mt-3 font-sans text-sm text-ink-dark border-l-[3px] border-l-cinnabar pl-3"
+      class="bazi-near-midnight mt-3 font-sans text-sm leading-relaxed"
       role="alert"
       data-bazi-near-midnight
     >
@@ -69,15 +75,15 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
       若需要确定唯一的年柱与月柱，请补充出生时刻或与历书核对交节时刻。
     </p>
 
-    <ol class="mt-4 grid gap-4 sm:grid-cols-2">
+    <ol class="mt-4 grid gap-4 md:grid-cols-2">
       <li
         v-for="(scenario, index) in scenarios"
         :key="`${scenario.branch}-${scenario.yearPillar.stem}${scenario.monthPillar.stem}`"
-        class="rounded-lg border border-paper-dark p-4"
+        class="bazi-candidate-lane"
         :data-bazi-scenario="scenario.branch"
       >
-        <p class="font-sans text-xs text-ink-medium tracking-[0.15em]">
-          情形 {{ index + 1 }} · {{ branchLabel(scenario.branch) }}
+        <p class="font-sans text-xs tracking-[0.15em] text-ink-medium">
+          情形{{ laneMark(index) }} · {{ branchLabel(scenario.branch) }}
         </p>
         <p class="mt-1 font-sans text-sm text-ink-dark" data-bazi-scenario-reason>
           {{ scenario.reason }}
@@ -86,10 +92,10 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
         <dl class="mt-3 space-y-2 font-sans text-xs text-ink-medium">
           <div class="flex flex-wrap items-center gap-2">
             <dt>年柱</dt>
-            <dd class="font-display text-xl text-ink-dark tracking-[0.15em]">
+            <dd class="font-display text-xl tracking-[0.15em] text-ink-dark">
               {{ scenario.yearPillar.stem }}{{ scenario.yearPillar.branch }}
             </dd>
-            <dd class="flex items-center gap-1.5">
+            <dd class="bazi-pillar-wuxing">
               <span
                 class="bazi-swatch"
                 :style="{ backgroundColor: elementColor(scenario.yearPillar.stemElement) }"
@@ -97,7 +103,7 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
               />
               <span>{{ scenario.yearPillar.stemElement }}</span>
             </dd>
-            <dd class="flex items-center gap-1.5">
+            <dd class="bazi-pillar-wuxing">
               <span
                 class="bazi-swatch"
                 :style="{ backgroundColor: elementColor(scenario.yearPillar.branchElement) }"
@@ -108,10 +114,10 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <dt>月柱</dt>
-            <dd class="font-display text-xl text-ink-dark tracking-[0.15em]">
+            <dd class="font-display text-xl tracking-[0.15em] text-ink-dark">
               {{ scenario.monthPillar.stem }}{{ scenario.monthPillar.branch }}
             </dd>
-            <dd class="flex items-center gap-1.5">
+            <dd class="bazi-pillar-wuxing">
               <span
                 class="bazi-swatch"
                 :style="{ backgroundColor: elementColor(scenario.monthPillar.stemElement) }"
@@ -119,7 +125,7 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
               />
               <span>{{ scenario.monthPillar.stemElement }}</span>
             </dd>
-            <dd class="flex items-center gap-1.5">
+            <dd class="bazi-pillar-wuxing">
               <span
                 class="bazi-swatch"
                 :style="{ backgroundColor: elementColor(scenario.monthPillar.branchElement) }"
@@ -142,5 +148,13 @@ const heading = computed(() => `跨越「${props.boundaryTerm || '节气'}」的
   border-radius: 2px;
   border: 1px solid color-mix(in srgb, var(--color-ink-faint) 60%, transparent);
   flex-shrink: 0;
+}
+/* 精度敏感提示：金描边 + 文字，不用整块彩色底 */
+.bazi-near-midnight {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 45%, transparent);
+  border-radius: 10px;
+  color: var(--color-ink-dark);
+  background: color-mix(in srgb, var(--color-gold) 6%, var(--color-paper-lightest));
 }
 </style>

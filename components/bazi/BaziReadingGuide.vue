@@ -2,11 +2,12 @@
 /**
  * 「怎样看懂这张盘」（页面 Ⅳ 段）：契约 §17 六问 + 三层结构。
  *
- * 组织方式（设计文档 §3 Ⅳ.4、治理规范 §14）：
+ * 设计基线：docs/design/2026-09-15-bazi-ui-spec.md §2 Ⅳ 段（六问 · 三层折叠）。
+ * 组织方式（治理规范 §14）：
  * - 六问固定覆盖：干支、年柱、月柱（为何以「节」为界）、日柱与日干、边界候选为何不确定、缺时柱意味着什么；
- * - 三层：默认一句白话（summary 可见）→ 用户主动展开的计算说明 → 来源与规则版本（展开区末行）；
- * - 每个术语都答同一组问题：用户得到什么 → 怎样算或查 → 在本页的作用 → **不代表什么** → 用了哪版规则与来源；
- * - 不得只用另一组专业术语解释当前术语；不使用浮动「注」按钮或覆盖式说明。
+ * - 三层：第一层一句白话（summary 可见）→ 第二层计算说明 → 第三层来源与规则版本（展开区末行）；
+ * - 每个术语都答同一组问题：用户得到什么 → 怎样算或查 → 在本页的作用 → 不代表什么 → 用了哪版规则与来源；
+ * - 原生 `details` 折叠，**不使用固定 max-height**；不使用浮动「注」按钮或覆盖式说明。
  *
  * 措辞红线（来源台账 §5）：年柱以「立春」为界是**传统规则并由本项目采用**，
  * 不是国家标准规定；传统规则目前只到古籍在线整理本层级，原刻影印核对尚未完成。
@@ -114,39 +115,94 @@ const items: GuideItem[] = [
     <h3 id="bazi-guide-detail-heading" class="font-display text-lg text-ink-dark">
       怎样看懂这张盘
     </h3>
-    <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+    <p class="mt-2 font-sans text-sm leading-relaxed text-ink-medium">
       六个问题，每个都按同一组顺序回答：你得到什么 → 怎样算或查 → 在本页的作用 → 不代表什么 →
       用了哪版规则与来源。默认只显示一句白话，需要计算细节时再展开。
     </p>
 
-    <dl class="mt-4 space-y-3">
-      <details v-for="item in items" :key="item.id" class="rounded-lg border border-paper-dark p-4">
-        <summary class="bazi-summary">
-          <span class="font-sans text-sm text-ink-dark">{{ item.question }}</span>
-          <span class="mt-1 block font-sans text-sm text-ink-medium leading-relaxed">
-            {{ item.plain }}
-          </span>
+    <div class="mt-4 space-y-3">
+      <details v-for="item in items" :key="item.id" class="bazi-guide-item">
+        <!-- 第一层：问题 + 一句白话 -->
+        <summary class="bazi-guide-summary">
+          <span class="bazi-layer">第一层 · 白话</span>
+          <span class="bazi-guide-question">{{ item.question }}</span>
+          <span class="bazi-guide-plain">{{ item.plain }}</span>
         </summary>
-        <div class="mt-3 space-y-2 font-sans text-xs text-ink-medium leading-relaxed">
-          <p v-for="line in item.detail" :key="line">{{ line }}</p>
-          <p class="pt-2 border-t border-paper-dark">{{ item.source }}</p>
+
+        <div class="bazi-guide-body">
+          <!-- 第二层：怎么算 / 在本页的作用 / 不代表什么 -->
+          <p class="bazi-layer bazi-layer--inner">第二层 · 计算说明</p>
+          <p v-for="line in item.detail" :key="line" class="bazi-guide-line">{{ line }}</p>
+
+          <!-- 第三层：来源与规则版本 -->
+          <p class="bazi-layer bazi-layer--inner bazi-layer--top">第三层 · 来源与规则版本</p>
+          <p class="bazi-guide-line">{{ item.source }}</p>
         </div>
       </details>
-    </dl>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.bazi-summary {
+.bazi-guide-item {
+  border: 1px solid var(--color-paper-dark);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.bazi-guide-summary {
+  display: block;
   min-height: 44px;
   cursor: pointer;
   list-style: none;
 }
-.bazi-summary::-webkit-details-marker {
+.bazi-guide-summary::-webkit-details-marker {
   display: none;
 }
-.bazi-summary:focus-visible {
+.bazi-guide-summary:focus-visible {
   outline: 2px solid var(--color-cinnabar);
   outline-offset: 2px;
+}
+/* 层级标签：小字 + 中性色，承担「这三层是什么」的说明，不是装饰 */
+.bazi-layer {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-medium);
+}
+.bazi-layer--inner {
+  margin: 0 0 6px;
+}
+.bazi-layer--top {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-paper-dark);
+}
+.bazi-guide-question {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-ink-dark);
+}
+.bazi-guide-plain {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ink-medium);
+}
+/* 展开区：每层左缩进 16px；不使用固定 max-height */
+.bazi-guide-body {
+  margin-top: 12px;
+  padding-left: 16px;
+}
+.bazi-guide-line {
+  margin: 0 0 6px;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--color-ink-medium);
 }
 </style>

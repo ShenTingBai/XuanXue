@@ -15,6 +15,7 @@ import BaziStatusBanner from '~/components/bazi/BaziStatusBanner.vue'
 import BaziPillarCard from '~/components/bazi/BaziPillarCard.vue'
 import BaziCandidatePanel from '~/components/bazi/BaziCandidatePanel.vue'
 import BaziDateComparison from '~/components/bazi/BaziDateComparison.vue'
+import BaziElementComposition from '~/components/bazi/BaziElementComposition.vue'
 import BaziReadingGuide from '~/components/bazi/BaziReadingGuide.vue'
 import BaziEvidenceScope from '~/components/bazi/BaziEvidenceScope.vue'
 import BaziSaveDialog from '~/components/bazi/BaziSaveDialog.vue'
@@ -228,26 +229,38 @@ async function handleRefreshHistory() {
 }
 
 // ── Ⅲ 段摘要：唯一情形下的三柱一览（详细卡片在 Ⅳ 段）──
+// isDay 用于给日柱格加更实的描边与洗底（区分来自边框与底纹，不来自颜色）；
+// dayMaster 只有日柱有，单独成行显示「日干」。
 const summaryPillars = computed(() => {
   const result = draft.result.value
   if (!result) return []
-  const rows: Array<{ label: string; value: string; note: string }> = []
+  const rows: Array<{
+    label: string
+    value: string
+    note: string
+    isDay: boolean
+    dayMaster?: string
+  }> = []
   if (result.uniquePillars) {
     rows.push({
       label: '年柱',
       value: `${result.uniquePillars.year.stem}${result.uniquePillars.year.branch}`,
-      note: `${result.uniquePillars.year.stemElement}·${result.uniquePillars.year.branchElement}`,
+      note: `${result.uniquePillars.year.stemElement} · ${result.uniquePillars.year.branchElement}`,
+      isDay: false,
     })
     rows.push({
       label: '月柱',
       value: `${result.uniquePillars.month.stem}${result.uniquePillars.month.branch}`,
-      note: `${result.uniquePillars.month.stemElement}·${result.uniquePillars.month.branchElement}`,
+      note: `${result.uniquePillars.month.stemElement} · ${result.uniquePillars.month.branchElement}`,
+      isDay: false,
     })
   }
   rows.push({
     label: '日柱',
     value: `${result.dayPillar.stem}${result.dayPillar.branch}`,
-    note: `${result.dayPillar.stemElement}·${result.dayPillar.branchElement}（日干 ${result.dayMaster}）`,
+    note: `${result.dayPillar.stemElement} · ${result.dayPillar.branchElement}`,
+    isDay: true,
+    dayMaster: result.dayMaster,
   })
   return rows
 })
@@ -299,7 +312,7 @@ onBeforeUnmount(() => {
       subtitle="按出生日期排出年、月、日三柱，并说明每一步的依据、边界与限制。"
     />
 
-    <main class="bazi-page max-w-[48rem] mx-auto space-y-6">
+    <main class="bazi-page max-w-[48rem] mx-auto space-y-16">
       <!-- Ⅰ 工具说明 -->
       <section
         id="bazi-guide"
@@ -316,16 +329,24 @@ onBeforeUnmount(() => {
           >，并逐条说明这三柱的依据、边界与限制。它是可追溯的历法与规则整理，不是命运测评。
         </p>
 
-        <h3 class="mt-5 font-sans text-sm text-ink-dark">本页能回答</h3>
-        <ul class="mt-2 space-y-1.5 font-sans text-sm text-ink-medium leading-relaxed">
-          <li v-for="item in canAnswer" :key="item">· {{ item }}</li>
-        </ul>
-
-        <h3 class="mt-5 font-sans text-sm text-ink-dark">本页不能回答</h3>
-        <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
-          本版不输出以下内容：{{ notOutputText }}。也就是说，本页不给任何性格、事业、财富、健康、
-          婚恋或吉凶判断，也不给 0–100 分一类的评分与等级排序。
-        </p>
+        <!-- 两个能力清单：并列两张暖纸卡；「不能回答」同样保持正文对比度 -->
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div class="card-warm rounded-xl p-4">
+            <h3 class="font-sans text-sm text-ink-dark">本页能回答</h3>
+            <ul class="mt-2 space-y-1.5 font-sans text-sm text-ink-medium leading-relaxed">
+              <li v-for="item in canAnswer" :key="item">{{ item }}</li>
+            </ul>
+          </div>
+          <div class="card-warm rounded-xl p-4">
+            <h3 class="font-sans text-sm text-ink-dark">本页不能回答</h3>
+            <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+              本版不输出以下内容：{{
+                notOutputText
+              }}。也就是说，本页不给任何性格、事业、财富、健康、 婚恋或吉凶判断，也不给 0–100
+              分一类的评分与等级排序。
+            </p>
+          </div>
+        </div>
 
         <p
           v-if="internalOnly"
@@ -423,10 +444,10 @@ onBeforeUnmount(() => {
           >
             <span>生成三柱结果</span>
           </button>
-          <p v-if="!draft.canGenerate.value" class="mt-2 font-sans text-xs text-ink-light">
+          <p v-if="!draft.canGenerate.value" class="mt-2 font-sans text-sm text-ink-medium">
             请先选择完整日期（农历需明确普通月或闰月）并确认已满十四周岁。
           </p>
-          <p v-else class="mt-2 font-sans text-xs text-ink-light">
+          <p v-else class="mt-2 font-sans text-sm text-ink-medium">
             生成只使用本页内存中的日期，不会向服务器提交出生日期。
           </p>
         </div>
@@ -452,33 +473,36 @@ onBeforeUnmount(() => {
 
         <div
           v-if="summaryPillars.length > 0"
-          class="card-warm rounded-xl p-6 sm:p-8"
+          class="card-paper-solid rounded-xl p-6 sm:p-8"
           data-bazi-summary
         >
-          <ul class="space-y-2">
-            <li
+          <!-- 三柱一览：全页唯一重心；日柱格用更实描边与洗底区分 -->
+          <div class="bazi-pillar-summary">
+            <div
               v-for="row in summaryPillars"
               :key="row.label"
-              class="flex flex-wrap gap-x-3 gap-y-1"
+              class="bazi-pillar-cell"
+              :class="{ 'bazi-pillar-cell--day': row.isDay }"
             >
-              <span class="font-sans text-sm text-ink-medium w-12">{{ row.label }}</span>
-              <span class="font-display text-lg text-ink-dark tracking-[0.15em]">{{
-                row.value
-              }}</span>
-              <span class="font-sans text-xs text-ink-medium self-center">{{ row.note }}</span>
-            </li>
-          </ul>
+              <p class="font-sans text-xs tracking-[0.2em] text-ink-medium">{{ row.label }}</p>
+              <p class="font-display text-2xl tracking-[0.15em] text-ink-dark">{{ row.value }}</p>
+              <p class="bazi-pillar-wuxing text-ink-medium">{{ row.note }}</p>
+              <p v-if="row.dayMaster" class="font-sans text-xs text-ink-medium">
+                日干 {{ row.dayMaster }}
+              </p>
+            </div>
+          </div>
 
-          <p v-if="scenarios" class="mt-3 font-sans text-sm text-ink-medium leading-relaxed">
+          <p v-if="scenarios" class="mt-4 font-sans text-sm text-ink-medium leading-relaxed">
             年柱与月柱各有 2 种可能，已在上方状态中说明，逐项对比见下方「详细结果」。
           </p>
 
           <h3 class="mt-5 font-sans text-sm text-ink-dark">限制与缺失</h3>
-          <ul class="mt-2 space-y-1.5 font-sans text-xs text-ink-medium leading-relaxed">
-            <li>· 缺时柱：本版只用出生日期，不生成时柱，也不据此推断任何结论。</li>
-            <li>· 不支持 23:00—23:59 的午夜换日与子初换日双候选。</li>
+          <ul class="mt-2 space-y-1.5 font-sans text-sm text-ink-medium leading-relaxed">
+            <li>缺时柱：本版只用出生日期，不生成时柱，也不据此推断任何结论。</li>
+            <li>不支持 23:00—23:59 的午夜换日与子初换日双候选。</li>
             <li>
-              · 节气时刻为分钟级核验：国家标准要求的 1 秒级精度尚未核验，边界日的结果对精度敏感。
+              节气时刻为分钟级核验：国家标准要求的 1 秒级精度尚未核验，边界日的结果对精度敏感。
             </li>
           </ul>
         </div>
@@ -520,6 +544,13 @@ onBeforeUnmount(() => {
         />
 
         <BaziDateComparison v-if="dateComparison" :comparison="dateComparison" />
+
+        <!-- 五行构成：只做六个字的字面统计（跨节时只统计唯一确定的日柱两个字） -->
+        <BaziElementComposition
+          v-if="baziResult"
+          :day-pillar="baziResult.dayPillar"
+          :year-month="uniquePillars"
+        />
 
         <p v-if="!baziResult" class="card-warm rounded-xl p-6 font-sans text-sm text-ink-medium">
           尚未生成结果：在上方填写出生日期并点击「生成三柱结果」后，这里会显示三柱、候选对比与日期对照。

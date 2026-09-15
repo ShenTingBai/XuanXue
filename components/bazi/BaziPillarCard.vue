@@ -4,14 +4,15 @@ import { WUXING_COLORS, WUXING_FALLBACK_COLOR } from '~/constants/bazi'
 import type { BaziPillar } from '~/types/bazi'
 
 /**
- * 单柱卡片（页面 Ⅳ 段）：干支 + 天干五行 + 地支五行。
+ * 单柱卡片（页面 Ⅳ 段「把六个字讲清楚」）。
  *
- * 硬边界（契约 §21、设计文档 §5）：
+ * 设计基线：docs/design/2026-09-15-bazi-ui-spec.md §2 Ⅳ 段。
+ * 硬边界（契约 §21、任务书 §5 措辞红线）：
  * - 不显示十神、藏干、纳音、日主强弱、喜用神，也不给任何吉凶或现实判断；
  * - 日柱卡片额外标注「日干」（传统体系亦称「日主」，首现说明在 Ⅳ 段六问里）；
- * - 五行配色取自 `constants/bazi.ts` 的 `WUXING_COLORS`，回退色用 `WUXING_FALLBACK_COLOR`，
- *   但颜色不是唯一区分手段：每个五行都同时给出文字；
- * - 详细内容放卡片下方的正常文档流折叠区（原生 `details`），不使用固定 max-height。
+ * - 五行配色取自 `constants/bazi.ts` 的 `WUXING_COLORS`，回退 `WUXING_FALLBACK_COLOR`；
+ *   **颜色不是唯一区分手段**：每个五行都同时给出文字；
+ * - 详细内容放卡片下方正常文档流的原生 `details` 折叠区，不使用固定 max-height。
  */
 
 const props = defineProps<{
@@ -22,7 +23,8 @@ const props = defineProps<{
   isDay?: boolean
 }>()
 
-const ganZhi = computed(() => `${props.pillar.stem}${props.pillar.branch}`)
+const stem = computed(() => props.pillar.stem)
+const branch = computed(() => props.pillar.branch)
 
 function elementColor(element: string): string {
   return WUXING_COLORS[element] ?? WUXING_FALLBACK_COLOR
@@ -33,30 +35,32 @@ const branchColor = computed(() => elementColor(props.pillar.branchElement))
 </script>
 
 <template>
-  <article class="bazi-pillar card-warm rounded-xl p-5" :data-bazi-pillar="label">
-    <h3 class="font-sans text-xs text-ink-medium tracking-[0.2em]">{{ label }}</h3>
+  <article class="card-warm rounded-xl p-4 sm:p-5" :data-bazi-pillar="label">
+    <div class="flex items-center justify-between gap-2">
+      <h4 class="font-sans text-xs tracking-[0.2em] text-ink-medium">{{ label }}</h4>
+      <!-- 日柱用印章小印标注（不用左色条，避免颜色成为唯一标识） -->
+      <span v-if="isDay" class="seal-icon" aria-hidden="true">日</span>
+    </div>
 
-    <p class="mt-2 font-display text-3xl text-ink-dark tracking-[0.2em]">{{ ganZhi }}</p>
+    <!-- 干支：天干用地干五行色、地支用地支五行色，同时以文字写明五行 -->
+    <p class="mt-2 font-display text-2xl tracking-[0.2em]">
+      <span :style="{ color: stemColor }">{{ stem }}</span>
+      <span :style="{ color: branchColor }">{{ branch }}</span>
+    </p>
 
-    <dl class="mt-3 space-y-1 font-sans text-xs text-ink-medium">
-      <div class="flex flex-wrap items-center gap-x-2">
-        <dt>天干五行</dt>
-        <dd class="flex items-center gap-1.5">
-          <span class="bazi-swatch" :style="{ backgroundColor: stemColor }" aria-hidden="true" />
-          <span>{{ pillar.stemElement }}</span>
-        </dd>
-      </div>
-      <div class="flex flex-wrap items-center gap-x-2">
-        <dt>地支五行</dt>
-        <dd class="flex items-center gap-1.5">
-          <span class="bazi-swatch" :style="{ backgroundColor: branchColor }" aria-hidden="true" />
-          <span>{{ pillar.branchElement }}</span>
-        </dd>
-      </div>
-    </dl>
+    <div class="mt-3 space-y-1.5">
+      <p class="bazi-pillar-wuxing text-ink-medium">
+        <span class="bazi-swatch" :style="{ backgroundColor: stemColor }" aria-hidden="true" />
+        <span>天干 {{ stem }} · {{ pillar.stemElement }}</span>
+      </p>
+      <p class="bazi-pillar-wuxing text-ink-medium">
+        <span class="bazi-swatch" :style="{ backgroundColor: branchColor }" aria-hidden="true" />
+        <span>地支 {{ branch }} · {{ pillar.branchElement }}</span>
+      </p>
+    </div>
 
-    <p v-if="isDay" class="mt-3 font-sans text-sm text-ink-dark" data-bazi-day-master>
-      日干：{{ pillar.stem }}
+    <p v-if="isDay" class="mt-3 text-sm text-ink-dark" data-bazi-day-master>
+      日干：{{ stem }}
       <span class="font-sans text-xs text-ink-medium">
         （日柱天干；传统体系中亦称「日主」，本页主用「日干」）
       </span>
@@ -66,14 +70,14 @@ const branchColor = computed(() => elementColor(props.pillar.branchElement))
       <summary class="bazi-summary font-sans text-xs text-ink-medium">
         这一柱是怎么来的（展开计算说明）
       </summary>
-      <dl class="mt-2 space-y-1.5 font-sans text-xs text-ink-medium leading-relaxed">
+      <dl class="mt-2 space-y-1.5 font-sans text-xs leading-relaxed text-ink-medium">
         <div>
           <dt class="inline">天干：</dt>
-          <dd class="inline">{{ pillar.stem }}（{{ pillar.stemElement }}）</dd>
+          <dd class="inline">{{ stem }}（{{ pillar.stemElement }}）</dd>
         </div>
         <div>
           <dt class="inline">地支：</dt>
-          <dd class="inline">{{ pillar.branch }}（{{ pillar.branchElement }}）</dd>
+          <dd class="inline">{{ branch }}（{{ pillar.branchElement }}）</dd>
         </div>
         <div>
           <dt class="inline">本页只做：</dt>
@@ -101,9 +105,10 @@ const branchColor = computed(() => elementColor(props.pillar.branchElement))
   border: 1px solid color-mix(in srgb, var(--color-ink-faint) 60%, transparent);
   flex-shrink: 0;
 }
+/* 折叠摘要：≥44px 触控目标，键盘焦点可见 */
 .bazi-summary {
-  min-height: 44px;
   display: flex;
+  min-height: 44px;
   align-items: center;
   cursor: pointer;
   list-style: none;

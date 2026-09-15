@@ -124,6 +124,45 @@ describe('八字页面六段结构', () => {
     expect(page.get('[data-bazi-internal]').text()).toContain('内部验证')
   })
 
+  it('R5-C 六段段名为治理规范原名，Ⅳ 不得简写', async () => {
+    const page = await openPage()
+    const headings = page
+      .findAll('[data-bazi-section] h2')
+      .map(node => node.text().replace(/\s+/g, ''))
+    expect(headings).toEqual([
+      'Ⅰ工具说明',
+      'Ⅱ本次操作',
+      'Ⅲ核心结果摘要',
+      'Ⅳ通俗解释与详细结果',
+      'Ⅴ依据与范围',
+      'Ⅵ本次结果操作',
+    ])
+  })
+
+  it('Ⅰ 段两个能力清单为两张并列暖纸卡', async () => {
+    const page = await openPage()
+    const guide = page.get('[data-bazi-section="guide"]')
+    const cards = guide.findAll('.card-warm')
+    expect(cards).toHaveLength(2)
+    expect(cards[0]!.text()).toContain('本页能回答')
+    expect(cards[1]!.text()).toContain('本页不能回答')
+  })
+
+  it('Ⅲ 段三柱一览用全局类渲染，日柱格带 --day 修饰', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+    expect(page.find('.bazi-pillar-summary').exists()).toBe(true)
+    const cells = page.findAll('.bazi-pillar-cell')
+    expect(cells).toHaveLength(3)
+    // 日柱是最后一格，且只有它带 --day 修饰（区分来自边框与底纹）。
+    expect(cells.map(cell => cell.classes().includes('bazi-pillar-cell--day'))).toEqual([
+      false,
+      false,
+      true,
+    ])
+    expect(cells[2]!.text()).toContain('日干')
+  })
+
   it('Ⅱ 段无任何默认值：三个日期控件均为空、闰月控件未出现、年龄未勾选', async () => {
     const page = await openPage()
     const selects = page.findAll('select')
@@ -189,6 +228,37 @@ describe('八字结果状态与内容', () => {
     expect(comparison.get('[data-bazi-solar]').text()).toContain('2000-08-15')
     expect(comparison.get('[data-bazi-lunar]').text()).toContain('普通月')
     expect(comparison.get('[data-bazi-conversion-version]').text().length).toBeGreaterThan(0)
+  })
+
+  it('五行构成：只有字面次数、无百分比，且写明不代表旺衰', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+
+    const composition = page.get('[data-bazi-element-composition]')
+    const text = composition.text()
+    expect(text).toContain('五行构成')
+    expect(text).toContain('不代表旺衰、强弱、平衡与否')
+    // 不得出现百分比、比例或「缺某行」这类滑向用神判断的措辞。
+    expect(text).not.toContain('%')
+    expect(text).not.toContain('比例')
+    expect(text).not.toMatch(/缺[木火土金水]/)
+    // 三柱 6 个字：各五行出现次数之和必须正好等于 6。
+    const counts = [...text.matchAll(/×(\d+)/g)].map(match => Number(match[1]))
+    expect(counts.length).toBeGreaterThan(0)
+    expect(counts.reduce((sum, value) => sum + value, 0)).toBe(6)
+    // 唯一情形下不需要「只统计日柱」的范围说明。
+    expect(composition.find('[data-bazi-elements-scope]').exists()).toBe(false)
+  })
+
+  it('五行构成在跨节时只统计唯一确定的日柱两个字，并给出范围说明', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '7')
+
+    const composition = page.get('[data-bazi-element-composition]')
+    const text = composition.text()
+    expect(composition.get('[data-bazi-elements-scope]').text()).toContain('只统计唯一确定的日柱')
+    const counts = [...text.matchAll(/×(\d+)/g)].map(match => Number(match[1]))
+    expect(counts.reduce((sum, value) => sum + value, 0)).toBe(2)
   })
 
   it('修改输入后：旧结果保留并显示「输入已修改，结果尚未更新」，不自动重算', async () => {
@@ -489,5 +559,67 @@ describe('八字状态横幅四类文案', () => {
     })
     expect(banner.get('[data-bazi-save-failed]').text()).toContain('本次结果仍未保存')
     banner.unmount()
+  })
+
+  it('四类状态都是「文字 + 图标 + 颜色」三重编码：色相与图标逐类对应', () => {
+    // 设计规格 §3：颜色只是第三重编码，图标与文字必须同时到位。
+    const cases: Array<{
+      label: string
+      tone: string
+      glyph: string
+      props: Record<string, unknown>
+    }> = [
+      {
+        label: '成功·日期级',
+        tone: 'jade',
+        glyph: '✓',
+        props: { state: { phase: 'success', successQualifier: 'partial', freshness: 'current' } },
+      },
+      {
+        label: '成功·跨节',
+        tone: 'gold',
+        glyph: '⋯',
+        props: {
+          state: { phase: 'success', successQualifier: 'candidate', freshness: 'current' },
+          boundaryTerm: '立春',
+        },
+      },
+      {
+        label: '已过期',
+        tone: 'gold',
+        glyph: '↻',
+        props: {
+          state: { phase: 'success', successQualifier: 'partial', freshness: 'stale' },
+          staleInputSummary: '公历 2000-08-15',
+        },
+      },
+      {
+        label: '失败',
+        tone: 'alert',
+        glyph: '!',
+        props: { state: { phase: 'failure', failureCategory: 'invalid_input' } },
+      },
+      {
+        // stale 与 candidate 同时成立时，模板显示的是「输入已修改」，
+        // 图标必须是 ↻（回归：曾经显示成候选的 ⋯，图标与文字互相矛盾）。
+        label: '已过期·跨节结果',
+        tone: 'gold',
+        glyph: '↻',
+        props: {
+          state: { phase: 'success', successQualifier: 'candidate', freshness: 'stale' },
+          staleInputSummary: '公历 2000-08-07',
+        },
+      },
+    ]
+
+    for (const item of cases) {
+      const banner = mountBanner(item.props)
+      const node = banner.get('[data-bazi-status] [data-tone]')
+      expect(node.attributes('data-tone'), item.label).toBe(item.tone)
+      expect(node.get('.bazi-status__glyph').text(), item.label).toBe(item.glyph)
+      // 图标对读屏隐藏，语义由文字承担。
+      expect(node.get('.bazi-status__glyph').attributes('aria-hidden'), item.label).toBe('true')
+      banner.unmount()
+    }
   })
 })

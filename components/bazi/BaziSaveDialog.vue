@@ -115,50 +115,54 @@ function onKeydown(event: KeyboardEvent) {
           下面是将要保存的内容。保存会新建一条不可变的历史快照，不会自动更新，也不会改动你的本人档案。
         </p>
 
-        <dl class="space-y-2 font-sans text-sm leading-relaxed" data-bazi-save-summary>
-          <div>
-            <dt class="text-ink-medium">输入类别</dt>
-            <dd class="text-ink-dark">
-              出生日期（{{ originLabel }}）：{{ originalExpression }}；不含出生时刻与出生地点。
-            </dd>
+        <!-- 保存摘要整体（含隐私提示）：data-bazi-save-summary 覆盖全部将保存的内容 -->
+        <div data-bazi-save-summary>
+          <dl class="bazi-summary-sheet">
+            <div class="bazi-summary-row">
+              <dt>输入类别</dt>
+              <dd>
+                出生日期（{{ originLabel }}）：{{ originalExpression }}；不含出生时刻与出生地点。
+              </dd>
+            </div>
+            <div class="bazi-summary-row">
+              <dt>结果内容</dt>
+              <dd>
+                <span v-for="line in resultLines" :key="line" class="block">{{ line }}</span>
+              </dd>
+            </div>
+            <div class="bazi-summary-row">
+              <dt>规则与来源版本</dt>
+              <dd>
+                规则版本 <span class="editorial-num">{{ ruleVersion }}</span
+                >；来源集合 <span class="editorial-num">{{ sourceSetVersion }}</span
+                >；引擎 {{ engineLabel }}。 查询当日
+                <span class="editorial-num">{{ asOfDate || '—' }}</span
+                >。
+              </dd>
+            </div>
+            <div class="bazi-summary-row">
+              <dt>保存时间</dt>
+              <dd>以服务器时间为准，保存后在「已保存的结果」里显示。</dd>
+            </div>
+            <div class="bazi-summary-row">
+              <dt>如何查看与删除</dt>
+              <dd>
+                在下方「已保存的结果」中随时查看、删除单条，或按当前条数确认后清空全部八字历史；
+                删除本人档案时可选择一并删除这些快照。
+              </dd>
+            </div>
+            <div class="bazi-summary-row">
+              <dt>不会做什么</dt>
+              <dd>不会更新本人档案，不会自动保存以后的每次计算，也不会把结果导出或分享。</dd>
+            </div>
+          </dl>
+
+          <!-- 隐私提示：这条快照含敏感出生日期，用朱砂描边块单独强调，不用整块红底 -->
+          <div class="editorial-dialog-confirm" data-bazi-save-privacy>
+            <p class="bazi-privacy-key">隐私提示</p>
+            <p>这条快照包含你的出生日期（敏感个人信息）。它只属于当前账号，其他账号无法读取。</p>
           </div>
-          <div>
-            <dt class="text-ink-medium">结果内容</dt>
-            <dd class="text-ink-dark">
-              <span v-for="line in resultLines" :key="line" class="block">{{ line }}</span>
-            </dd>
-          </div>
-          <div>
-            <dt class="text-ink-medium">规则与来源版本</dt>
-            <dd class="text-ink-dark">
-              规则版本 {{ ruleVersion }}；来源集合 {{ sourceSetVersion }}；引擎 {{ engineLabel }}。
-              查询当日 {{ asOfDate || '—' }}。
-            </dd>
-          </div>
-          <div>
-            <dt class="text-ink-medium">隐私提示</dt>
-            <dd class="text-ink-dark">
-              这条快照包含你的出生日期（敏感个人信息）。它只属于当前账号，其他账号无法读取。
-            </dd>
-          </div>
-          <div>
-            <dt class="text-ink-medium">保存时间</dt>
-            <dd class="text-ink-dark">以服务器时间为准，保存后在「已保存的结果」里显示。</dd>
-          </div>
-          <div>
-            <dt class="text-ink-medium">如何查看与删除</dt>
-            <dd class="text-ink-dark">
-              在下方「已保存的结果」中随时查看、删除单条，或按当前条数确认后清空全部八字历史；
-              删除本人档案时可选择一并删除这些快照。
-            </dd>
-          </div>
-          <div>
-            <dt class="text-ink-medium">不会做什么</dt>
-            <dd class="text-ink-dark">
-              不会更新本人档案，不会自动保存以后的每次计算，也不会把结果导出或分享。
-            </dd>
-          </div>
-        </dl>
+        </div>
 
         <p
           v-if="alreadySaved && savedAt"
@@ -189,3 +193,42 @@ function onKeydown(event: KeyboardEvent) {
     </div>
   </Teleport>
 </template>
+
+<style scoped>
+/* 保存摘要：宽屏键值两列、行间细线；窄屏上下排列（不产生横向滚动） */
+.bazi-summary-sheet {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.bazi-summary-row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink-faint) 60%, transparent);
+}
+.bazi-summary-row:first-child {
+  padding-top: 0;
+}
+.bazi-summary-row dt {
+  color: var(--color-ink-medium);
+}
+.bazi-summary-row dd {
+  margin: 0;
+  color: var(--color-ink-dark);
+  overflow-wrap: anywhere;
+}
+.bazi-privacy-key {
+  margin: 0 0 4px;
+  font-weight: 500;
+  color: var(--color-cinnabar-dark);
+}
+@media (max-width: 480px) {
+  .bazi-summary-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+</style>

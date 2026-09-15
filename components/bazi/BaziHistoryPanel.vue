@@ -180,7 +180,7 @@ function snapshotPillars(record: ResultSnapshotRecord): string[] {
         </button>
         <div
           v-else
-          class="rounded-lg border border-paper-dark p-4"
+          class="editorial-dialog-confirm"
           role="alertdialog"
           aria-labelledby="bazi-clear-title"
         >
