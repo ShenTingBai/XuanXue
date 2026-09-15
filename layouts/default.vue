@@ -1,8 +1,16 @@
 <script lang="ts">
-import { isToolPubliclyAvailable, TOOL_CATALOG } from '~/constants/tool-catalog'
+import {
+  getLocalDevNavTools,
+  isToolPubliclyAvailable,
+  TOOL_CATALOG,
+} from '~/constants/tool-catalog'
 
 // 导航只消费目录的公开可用判断，避免页面自行维护另一份可见性状态。
-const navTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
+// 开发期额外追加 internal + enabled 的「内部验证」入口（生产构建里为空，见目录注释）。
+const navTools = [
+  ...TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)),
+  ...getLocalDevNavTools(import.meta.dev === true),
+]
 </script>
 
 <script setup lang="ts">

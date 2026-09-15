@@ -17,6 +17,10 @@ import {
   INDEX_SELF_PROFILES_ACCOUNT,
   INDEX_CONSENT_RECEIPTS_ACCOUNT,
 } from './self-profile-schema'
+import {
+  CREATE_RESULT_SNAPSHOTS_TABLE,
+  INDEX_RESULT_SNAPSHOTS_ACCOUNT_TOOL,
+} from './result-history-schema'
 
 /**
  * R2 默认数据库文件为独立新库（见下方 DB_PATH）。
@@ -147,6 +151,18 @@ export async function initDb(): Promise<void> {
       const migrationV4 = dbGet('SELECT version FROM _migrations WHERE version = 4')
       if (!migrationV4) {
         dbRun('INSERT INTO _migrations (version) VALUES (4)')
+      }
+    })
+
+    // R5 结果历史一表及索引：同样幂等 CREATE IF NOT EXISTS，失败不把 R5 结构标为已完成。
+    db.run(CREATE_RESULT_SNAPSHOTS_TABLE)
+    db.run(INDEX_RESULT_SNAPSHOTS_ACCOUNT_TOOL)
+
+    // 迁移记录版本 5：与 R4 同样要求表与索引成功后再写入。
+    withTransaction(() => {
+      const migrationV5 = dbGet('SELECT version FROM _migrations WHERE version = 5')
+      if (!migrationV5) {
+        dbRun('INSERT INTO _migrations (version) VALUES (5)')
       }
     })
 

@@ -5,6 +5,10 @@ declare module 'lunar-javascript' {
     getYear(): number
     getMonth(): number
     getDay(): number
+    /** 时刻按北京时间返回（R5 节气边界时刻需要）。 */
+    getHour(): number
+    getMinute(): number
+    getSecond(): number
     getLunar(): Lunar
   }
   export class Lunar {
@@ -32,6 +36,12 @@ declare module 'lunar-javascript' {
     getDayJi(): string[]
     getDayTianShen(): string
     getDayTianShenType(): string
+    /**
+     * 节气表：键含中文节气名与相邻年份的全大写别名（如 大雪 与 DA_XUE 分属相邻年份）。
+     * 中文名键覆盖「上一年的冬至 → 本年的冬至…大雪」窗口；取值必须按目标年份显式筛选，
+     * 不得按 key 存在性取用（R5 规则台账 R-BZ-004 的已知陷阱）。
+     */
+    getJieQiTable(): Record<string, Solar>
   }
 
   export class LunarYear {

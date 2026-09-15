@@ -71,8 +71,11 @@ export const TOOL_CATALOG: readonly ToolCatalogEntry[] = [
     route: '/tools/bazi',
     reviewStatus: 'in_review',
     exposure: 'internal',
-    computePolicy: 'blocked',
-    historyPolicy: 'disabled',
+    // R5：按治理规范 §20.2「internal + enabled 只允许授权内部验证」启用计算与历史创建，
+    // 供授权账号在真实构建上验收；exposure 保持 internal，公开判定仍为 false，
+    // 顶栏/首页/SEO 不受影响。内部验证由 XUANXUE_INTERNAL_TOOLS 白名单控制，默认关闭。
+    computePolicy: 'enabled',
+    historyPolicy: 'create_allowed',
   },
   {
     id: 'name-test',
@@ -166,6 +169,24 @@ export function isToolPubliclyAvailable(id: string): boolean {
 /** 公开计算：只有已获准公开且计算启用才允许。 */
 export function canPubliclyCompute(id: string): boolean {
   return isToolPubliclyAvailable(id)
+}
+
+/**
+ * **本地开发专用**导航项：把 `internal + enabled`（D3 授权内部验证通道可放行的工具）
+ * 追加进顶栏，省掉开发期手输 URL。
+ *
+ * 边界（不要在发布语境里绕过）：
+ * - 只在 `import.meta.dev === true`（即 `npm run dev`）返回非空；生产构建里该分支不可达，
+ *   顶栏/首页/SEO 与 `exposure` 声明完全不变（治理规范 §20.2、R5 消歧记录 §8.1 第 2 条）；
+ * - 目录本身不被改写：`isToolPubliclyAvailable` 对这些工具仍为 false，围栏照常生效
+ *   （未登录/未在白名单 → 仍然 302 到状态页）；
+ * - 名称带「内部验证」标识，避免把未公开工具误当成已放行功能。
+ */
+export function getLocalDevNavTools(isDev: boolean): ToolCatalogEntry[] {
+  if (!isDev) return []
+  return TOOL_CATALOG.filter(
+    tool => tool.exposure === 'internal' && tool.computePolicy === 'enabled',
+  ).map(tool => ({ ...tool, name: `${tool.name}（内部验证）` }))
 }
 
 /** 历史读取：只在 read_only 或 create_allowed 时允许。 */

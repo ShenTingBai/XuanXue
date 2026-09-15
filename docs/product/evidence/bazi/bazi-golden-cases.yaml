@@ -1,0 +1,612 @@
+# 八字黄金样例（R5 首批：日期级三柱 + 节气边界候选）
+# 状态：R5-A 资料待审阅；未运行测试，未获产品公开批准
+# 规则版本：2026-09-14-bazi-date-v1
+# 资料访问日期：2026-09-14
+# review_status: unreviewed
+#
+# 时区口径：Asia/Shanghai（北京时间 UTC+8）——国标 §3.16/§3.17。所有边界判定按北京时间的日历日与时刻。
+# 支持范围：1901-01-01 至 asOfDate（含下界，D9 裁决）。
+#
+# 严禁性约束（治理规范 §21.1、契约 §25.1）：
+#   期望值一律不由 lunar-javascript 或任何候选引擎输出生成。取得方式只有三种，逐例标注 derivation：
+#     - source_direct       来源直接给出该值（A 级来源的日期/时刻/锚点）
+#     - anchor_arithmetic   A 级锚点 + 纯日期算术（六十甲子日按 1949-10-01=甲子日；干支年标签按 1984=甲子年）
+#     - rule_application    按规则台账已登记的规则推算（该规则的来源状态见下 field_source_status）
+#
+# field_source_status（决定 R5-B 的用户可见措辞与准入主张）：
+#   dayPillar.stem/branch:      verified_primary（国标 §6.3.2 锚点 + 确定性算术）
+#   yearPillar.stem/branch:     标签序列 verified_primary（国标 §6.1.1）；**立春为界 = 条文推导**（SRC-BZ-008「遁月从年」+ SRC-BZ-009「节→月」）；
+#                               无一句直接宣称它的古籍原文，不得写"国家标准规定/古籍明文规定"（GAP-BZ-001）
+#   monthPillar.branch（月支）:  verified_primary（十二"节"黄经与时刻）
+#   monthPillar.stem（月干）:    verified_secondary（五虎遁古歌，SRC-BZ-008；载体为在线整理本，底本未与影印核对 → GAP-BZ-007）
+#   stem.element/branch.element: verified_secondary（复用 R3 SRC-006 天干五行 / SRC-007 地支五行）
+#   lunarDate / 闰月:            verified_secondary（HKO 逐年对照表）
+#   termInstant（节气时刻）:     verified_primary 但仅抽样年份；1 s 级精度 unverified（GAP-BZ-004/005/006）
+#
+# 未在 R5 输出：时柱、大运、流年、流月、神煞、日主强弱、喜用神、评分、性格与现实预测（交付规范 §7.1 闭集，D1 裁决）。
+# 未在 R5 处理：23:00—23:59 的子初换日候选（需出生时刻，属后续阶段）。
+#
+# 样例分类：`kind` 为 term_definition / term_instant / term_date / timezone_boundary / month_stem_rule 的 5 例是**定义与参照样例**，
+#   不带 expectedPhase（它们断言的是定义表、时刻/日期本身与规则表）；其余 24 例为管道结果样例，均带 expectedPhase。
+#
+# 旁证（不影响期望值来源）：`CROSS-BZ-001`（2017 年现代普及著述的公开算例，扫描页已目视核对）。它**不是**期望值来源——
+#   本文件的期望值一律来自 A 级锚点算术或 A 级来源；正因如此，`BZ-606` 与它的吻合才构成一次独立检验。
+
+rule_version: '2026-09-14-bazi-date-v1'
+source_set_version: '2026-09-14-bazi-date-v1'
+source_access_date: '2026-09-14'
+review_status: unreviewed
+timezone: Asia/Shanghai
+tool_id: bazi
+
+support_range:
+  start: '1901-01-01'
+  end: asOfDate（显式传入）
+  basis: R-BZ-001；下界沿用 R3 生肖口径（D9 裁决）
+
+# 固定参照（用于候选判定的边界表，来源见各 case 的 sourceRefs）
+jie_definition:
+  rule: R-BZ-003
+  sourceRefs: [SRC-BZ-001#annexA, SRC-BZ-005#table1, SRC-BZ-003#2026]
+  members:
+    立春: 315
+    惊蛰: 345
+    清明: 15
+    立夏: 45
+    芒种: 75
+    小暑: 105
+    立秋: 135
+    白露: 165
+    寒露: 195
+    立冬: 225
+    大雪: 255
+    小寒: 285
+
+golden_cases:
+  # ── 二十四个"节"的定义（R-BZ-003）──────────────────────────────────────────
+  - caseId: BZ-301
+    kind: term_definition
+    assert: 十二个"节"的名称与太阳地心视黄经与国标附录 A 表 A.1 完全一致
+    members:
+      立春: 315
+      惊蛰: 345
+      清明: 15
+      立夏: 45
+      芒种: 75
+      小暑: 105
+      立秋: 135
+      白露: 165
+      寒露: 195
+      立冬: 225
+      大雪: 255
+      小寒: 285
+    applicableRules: [R-BZ-003]
+    sourceRefs: [SRC-BZ-001#annexA, SRC-BZ-005#table1, SRC-BZ-003#2026]
+    derivation: source_direct
+    note:
+      三方 A 级来源（国标规范性附录 A、香港天文台表一、日本国立天文台暦要項逐行黄经列）在全部 12 个"节"上一致，
+      未发现 A 级证据冲突。中气（雨水/春分等）不参与月柱边界，故不列入本样例。
+
+  # ── 节气时刻与日期（R-BZ-004）──────────────────────────────────────────────
+  - caseId: BZ-401
+    kind: term_instant
+    year: 2026
+    assert: 十二个"节"的北京时间时刻与日历日
+    expected:
+      - term: 小寒
+        jstAtSource: '2026-01-05 17:23'
+        beijingInstant: '2026-01-05 16:23'
+        beijingDate: '2026-01-05'
+      - term: 立春
+        jstAtSource: '2026-02-04 05:02'
+        beijingInstant: '2026-02-04 04:02'
+        beijingDate: '2026-02-04'
+      - term: 惊蛰
+        jstAtSource: '2026-03-05 22:59'
+        beijingInstant: '2026-03-05 21:59'
+        beijingDate: '2026-03-05'
+      - term: 清明
+        jstAtSource: '2026-04-05 03:40'
+        beijingInstant: '2026-04-05 02:40'
+        beijingDate: '2026-04-05'
+      - term: 立夏
+        jstAtSource: '2026-05-05 20:49'
+        beijingInstant: '2026-05-05 19:49'
+        beijingDate: '2026-05-05'
+      - term: 芒种
+        jstAtSource: '2026-06-06 00:48'
+        beijingInstant: '2026-06-05 23:48'
+        beijingDate: '2026-06-05'
+      - term: 小暑
+        jstAtSource: '2026-07-07 10:57'
+        beijingInstant: '2026-07-07 09:57'
+        beijingDate: '2026-07-07'
+      - term: 立秋
+        jstAtSource: '2026-08-07 20:43'
+        beijingInstant: '2026-08-07 19:43'
+        beijingDate: '2026-08-07'
+      - term: 白露
+        jstAtSource: '2026-09-07 23:41'
+        beijingInstant: '2026-09-07 22:41'
+        beijingDate: '2026-09-07'
+      - term: 寒露
+        jstAtSource: '2026-10-08 15:29'
+        beijingInstant: '2026-10-08 14:29'
+        beijingDate: '2026-10-08'
+      - term: 立冬
+        jstAtSource: '2026-11-07 18:52'
+        beijingInstant: '2026-11-07 17:52'
+        beijingDate: '2026-11-07'
+      - term: 大雪
+        jstAtSource: '2026-12-07 11:53'
+        beijingInstant: '2026-12-07 10:53'
+        beijingDate: '2026-12-07'
+    applicableRules: [R-BZ-003, R-BZ-004]
+    sourceRefs: [SRC-BZ-003#2026, SRC-BZ-002#T2026c, SRC-BZ-001#5.2]
+    derivation: source_direct
+    precision: 分（来源精度）；国标 §5.2 要求 1 s 计算精度，该级未核验
+    note: JST 换算为北京时间按 UTC+9 → UTC+8 减 1 小时。NAOJ 给出到分，故一致性判定为 |Δ| ≤ 0.5 分。
+      HKO T2026c.txt 独立给出 2026 年十二个"节"的**日期**（立春 2 月 4 日、芒种 6 月 5 日等），与换算结果全部一致。
+
+  - caseId: BZ-402
+    kind: term_date
+    year: 2000
+    assert: 十二个"节"的日历日（与依赖库独立比对用）
+    expected:
+      小寒: '2000-01-06'
+      立春: '2000-02-04'
+      惊蛰: '2000-03-05'
+      清明: '2000-04-04'
+      立夏: '2000-05-05'
+      芒种: '2000-06-05'
+      小暑: '2000-07-07'
+      立秋: '2000-08-07'
+      白露: '2000-09-07'
+      寒露: '2000-10-08'
+      立冬: '2000-11-07'
+      大雪: '2000-12-07'
+    applicableRules: [R-BZ-003, R-BZ-004]
+    sourceRefs: [SRC-BZ-002#T2000c]
+    derivation: source_direct
+    note: HKO 文本版逐行可见"节气"列；中文用字为繁体（驚蟄／芒種），比对按节气序号与日期对齐，不按字形匹配。
+
+  - caseId: BZ-403
+    kind: timezone_boundary
+    assert: 同一瞬时在 JST 与北京时间的日历日不同，边界日必须按北京时间判定
+    input:
+      term: 芒种
+      jst: '2026-06-06 00:48'
+      beijing: '2026-06-05 23:48'
+    expected:
+      beijingDate: '2026-06-05'
+      hkoRecordedDate: '2026-06-05'
+    applicableRules: [R-BZ-003, R-BZ-004, R-BZ-008]
+    sourceRefs: [SRC-BZ-003#2026, SRC-BZ-002#T2026c]
+    derivation: source_direct
+    note:
+      若误用 JST 日期会把芒种判为 6 月 6 日，从而把 2026-06-05 出生的月柱算成午月、把 2026-06-06 算成候选，
+      与实际相反。HKO（北京时间口径）把芒种标在 6 月 5 日，两处 A 级来源一致，可作时区口径的定锚样例。
+
+  # ── 六十甲子日（R-BZ-007）──────────────────────────────────────────────────
+  - caseId: BZ-701
+    kind: day_pillar_anchor
+    originalInput: { calendar: solar, year: 1949, month: 10, day: 1 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 甲, branch: 子 }
+      daysFromAnchor: 0
+    applicableRules: [R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2]
+    derivation: source_direct
+    expectedPhase: success
+    successQualifier: partial
+    note: 国标 §6.3.2 明文：干支纪日的循环参考时间为"对应于北京时间公历 1949 年 10 月 1 日的农历日为甲子日"。本样例是全部日柱期望的锚点本身。
+
+  - caseId: BZ-702
+    kind: day_pillar
+    originalInput: { calendar: solar, year: 1901, month: 1, day: 1 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 己, branch: 卯 }
+      daysFromAnchor: -17805
+    applicableRules: [R-BZ-007, R-BZ-001]
+    sourceRefs: [SRC-BZ-001#6.3.2]
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+    note: 支持范围下界当日（含下界）。距锚点 −17805 天，−17805 mod 60 = 15，六十甲子第 16 位为「己卯」。
+
+  - caseId: BZ-703
+    kind: day_pillar_cycle
+    originalInput: { calendar: solar, year: 1964, month: 7, day: 14 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 甲, branch: 子 }
+      daysFromAnchor: 5400
+    applicableRules: [R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2]
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+    note: 5400 = 90 × 60，故与锚点同日柱；用于验证六十日循环闭合，不依赖任何引擎输出。
+
+  - caseId: BZ-704
+    kind: day_pillar
+    originalInput: { calendar: solar, year: 2000, month: 1, day: 1 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 戊, branch: 午 }
+      daysFromAnchor: 18354
+    applicableRules: [R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2]
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+    note: 18354 mod 60 = 54，六十甲子第 55 位为「戊午」。**项目现有实现给出「戊申」**（错误锚点），
+      旧测试 `tests/composables/useBaZi.test.ts` 内联快照固化了该错误；本样例即为纠错基准（D12 裁决：不改旧测试）。
+
+  - caseId: BZ-705
+    kind: day_pillar
+    originalInput: { calendar: solar, year: 2026, month: 9, day: 14 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 辛, branch: 卯 }
+      yearPillar: { stem: 丙, branch: 午 }
+      monthPillar: { stem: 丁, branch: 酉 }
+      daysFromAnchor: 28107
+    applicableRules: [R-BZ-005, R-BZ-006, R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2, SRC-BZ-001#6.1.1, SRC-BZ-003#2026, SRC-BZ-007#10.1]
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+    missingFields: [hour_pillar]
+    note: 当日距白露（2026-09-07 22:41 北京时间）之后、寒露之前，故月支为酉；年柱丙午（立春后）；
+      年干丙按五虎遁得寅月为庚寅，酉为寅后第 8 位，故月干为丁，月柱丁酉。
+
+  - caseId: BZ-706
+    kind: day_pillar_cycle
+    originalInput: { calendar: solar, year: 1949, month: 11, day: 30 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 甲, branch: 子 }
+      daysFromAnchor: 60
+    applicableRules: [R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2]
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+    note: 锚点后第 60 天回到甲子日，验证「六十日一个循环，周而复始」。
+
+  - caseId: BZ-707
+    kind: day_pillar
+    originalInput: { calendar: solar, year: 2024, month: 6, day: 15 }
+    asOfDate: '2026-09-14'
+    expected:
+      dayPillar: { stem: 庚, branch: 戌 }
+      daysFromAnchor: 27286
+    applicableRules: [R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2]
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+
+  # ── 公历 ↔ 农历与闰月（R-BZ-002）────────────────────────────────────────────
+  - caseId: BZ-201
+    kind: lunar_conversion
+    originalInput: { calendar: solar, year: 2023, month: 3, day: 22 }
+    asOfDate: '2026-09-14'
+    expected:
+      lunarDate: 闰二月初一
+      isLeapMonth: true
+      dayPillar: { stem: 己, branch: 卯 }
+      yearPillar: { stem: 癸, branch: 卯 }
+      monthPillar: { stem: 乙, branch: 卯 }
+    applicableRules: [R-BZ-002, R-BZ-005, R-BZ-006, R-BZ-007]
+    sourceRefs: [SRC-BZ-002#T2023c, SRC-BZ-001#6.3.2]
+    derivation: source_direct
+    expectedPhase: success
+    successQualifier: partial
+    note: HKO T2023c.txt 逐行给出 2023 年 3 月 22 日为「閏二月」初一。日柱由锚点算术得己卯；
+      年柱癸卯（2023-03-22 已过立春）；2023-03-22 在惊蛰（3 月 6 日）之后、清明之前，月支卯；
+      年干癸按五虎遁得甲寅月起，卯为其次位，故月干乙。
+
+  - caseId: BZ-202
+    kind: lunar_reverse
+    originalInput: { calendar: lunar, year: 2023, month: 2, day: 1, isLeapMonth: true }
+    asOfDate: '2026-09-14'
+    expected:
+      solarDate: '2023-03-22'
+      roundTrip: '2023 闰二月初一'
+    applicableRules: [R-BZ-002]
+    sourceRefs: [SRC-BZ-002#T2023c]
+    derivation: source_direct
+    expectedPhase: success
+    successQualifier: partial
+    note: 农历输入必须显式给出闰月状态；反向换算结果为 2023-03-22，与 HKO 一致。
+
+  - caseId: BZ-203
+    kind: lunar_invalid_leap
+    originalInput: { calendar: lunar, year: 2023, month: 3, day: 1, isLeapMonth: true }
+    asOfDate: '2026-09-14'
+    failureCategory: invalid_input
+    failureDetailCode: INVALID_LUNAR_DATE
+    applicableRules: [R-BZ-002, R-BZ-010]
+    sourceRefs: [SRC-BZ-002#T2023c]
+    derivation: source_direct
+    expectedPhase: failure
+    note: 2023 年只有闰二月一个月为闰月（HKO 该年对照表中「閏」只出现一次），不存在闰三月；必须返回无效输入，不得默认按普通三月或自动滚动。
+
+  # ── 年柱与立春边界（R-BZ-005）──────────────────────────────────────────────
+  - caseId: BZ-501
+    kind: year_pillar_lichun
+    originalInput: { calendar: solar, year: 2026, month: 2, day: 5 }
+    asOfDate: '2026-09-14'
+    expected:
+      yearPillar: { stem: 丙, branch: 午 }
+      monthPillar: { stem: 庚, branch: 寅 }
+      dayPillar: { stem: 庚, branch: 戌 }
+      lunarDate: 腊月十八
+      civilGanZhiYear: 乙巳
+    applicableRules: [R-BZ-005, R-BZ-006, R-BZ-007]
+    sourceRefs: [SRC-BZ-003#2026, SRC-BZ-002#T2026c, SRC-BZ-001#6.1.1, SRC-BZ-004, SRC-BZ-007#10.1]
+    derivation: rule_application
+    expectedPhase: success
+    successQualifier: partial
+    note:
+      对照基准（**干支年界 ≠ 八字年柱界**）：北京时间 2026-02-04 04:02 已过立春，故八字年柱为丙午；
+      而 HKO 把 2026 年正月初一定在 2026-02-17，故民用/农历干支年在 2 月 5 日仍为乙巳。
+      两个结论各自有 A 级依据（立春时刻见 SRC-BZ-003，正月初一见 SRC-BZ-002），不得互相替代。
+      月支由立春（2 月 4 日）决定为寅；年干丙按五虎遁得庚寅。
+
+  - caseId: BZ-502
+    kind: boundary_candidate
+    originalInput: { calendar: solar, year: 2026, month: 2, day: 4 }
+    asOfDate: '2026-09-14'
+    expected:
+      successQualifier: candidate
+      boundaryTerm: 立春
+      boundaryInstant: '2026-02-04 04:02'
+      scenarioCount: 2
+      scenarios:
+        - {
+            yearPillar: { stem: 乙, branch: 巳 },
+            monthPillar: { stem: 己, branch: 丑 },
+            reason: 立春前,
+          }
+        - {
+            yearPillar: { stem: 丙, branch: 午 },
+            monthPillar: { stem: 庚, branch: 寅 },
+            reason: 立春后,
+          }
+    applicableRules: [R-BZ-005, R-BZ-006, R-BZ-008]
+    sourceRefs: [SRC-BZ-003#2026, SRC-BZ-007#10.1, SRC-BZ-007#7.2]
+    derivation: rule_application
+    expectedPhase: success
+    missingFields: [hour_pillar]
+    note:
+      立春当日、无出生时刻 → 必须返回边界不确定与候选，不得取零点或正午生成伪唯一结果（交付规范 §7.2）。
+      **情形数必须恰好为 2**：立春当刻年柱与月柱同时切换，属同一情形的联合变化；
+      若对年柱与月柱候选做叉乘会得到 4 个组合，其中「乙巳年＋庚寅月」与「丙午年＋己丑月」在物理上不可能。
+
+  - caseId: BZ-503
+    kind: year_pillar
+    originalInput: { calendar: solar, year: 2026, month: 1, day: 15 }
+    asOfDate: '2026-09-14'
+    expected:
+      yearPillar: { stem: 乙, branch: 巳 }
+      monthPillar: { stem: 己, branch: 丑 }
+      dayPillar: { stem: 己, branch: 丑 }
+    applicableRules: [R-BZ-005, R-BZ-006, R-BZ-007]
+    sourceRefs: [SRC-BZ-003#2026, SRC-BZ-001#6.3.2, SRC-BZ-007#10.1]
+    derivation: rule_application
+    expectedPhase: success
+    successQualifier: partial
+    note: 立春前 → 年柱取上一干支年（乙巳）；当日在小寒（2026-01-05 16:23 北京时间）之后，月支丑。
+
+  - caseId: BZ-504
+    kind: year_pillar_no_change_at_new_year
+    originalInput: { calendar: solar, year: 2026, month: 2, day: 17 }
+    asOfDate: '2026-09-14'
+    expected:
+      yearPillar: { stem: 丙, branch: 午 }
+      lunarDate: 正月初一
+      note: 正月初一（2026-02-17）在八字年柱上**不产生切换**，年柱在 2 月 4 日立春已切换为丙午
+    applicableRules: [R-BZ-005]
+    sourceRefs: [SRC-BZ-002#T2026c, SRC-BZ-003#2026]
+    derivation: source_direct
+    expectedPhase: success
+    successQualifier: partial
+    note: 用于防止把民用干支年界误用为八字年柱界。
+
+  # ── 月柱与其余"节"边界（R-BZ-006、R-BZ-008）────────────────────────────────
+  - caseId: BZ-601
+    kind: month_pillar
+    originalInput: { calendar: solar, year: 2026, month: 9, day: 14 }
+    asOfDate: '2026-09-14'
+    expected:
+      monthPillar: { stem: 丁, branch: 酉 }
+      precedingTerm: { term: 白露, beijingInstant: '2026-09-07 22:41' }
+    applicableRules: [R-BZ-006]
+    sourceRefs: [SRC-BZ-003#2026]
+    derivation: rule_application
+    expectedPhase: success
+    successQualifier: partial
+
+  - caseId: BZ-602
+    kind: boundary_candidate
+    originalInput: { calendar: solar, year: 2026, month: 6, day: 5 }
+    asOfDate: '2026-09-14'
+    expected:
+      successQualifier: candidate
+      boundaryTerm: 芒种
+      boundaryInstant: '2026-06-05 23:48'
+      scenarioCount: 2
+      scenarios:
+        - {
+            yearPillar: { stem: 丙, branch: 午 },
+            monthPillar: { stem: 癸, branch: 巳 },
+            reason: 芒种前,
+          }
+        - {
+            yearPillar: { stem: 丙, branch: 午 },
+            monthPillar: { stem: 甲, branch: 午 },
+            reason: 芒种后,
+          }
+    applicableRules: [R-BZ-006, R-BZ-008]
+    sourceRefs: [SRC-BZ-003#2026, SRC-BZ-002#T2026c]
+    derivation: rule_application
+    expectedPhase: success
+    missingFields: [hour_pillar]
+    note:
+      本样例同时是**时区陷阱样例**：芒种在北京时间 6 月 5 日 23:48，若按 JST 会落到 6 月 6 日，候选日就整体错一天。
+      年柱不变（非立春），故两个情形只差月柱。
+
+  - caseId: BZ-603
+    kind: boundary_candidate
+    originalInput: { calendar: solar, year: 2026, month: 8, day: 7 }
+    asOfDate: '2026-09-14'
+    expected:
+      successQualifier: candidate
+      boundaryTerm: 立秋
+      boundaryInstant: '2026-08-07 19:43'
+      scenarioCount: 2
+      scenarios:
+        - { monthPillar: { stem: 乙, branch: 未 }, reason: 立秋前 }
+        - { monthPillar: { stem: 丙, branch: 申 }, reason: 立秋后 }
+    applicableRules: [R-BZ-006, R-BZ-008]
+    sourceRefs: [SRC-BZ-003#2026]
+    derivation: rule_application
+    expectedPhase: success
+    missingFields: [hour_pillar]
+
+  - caseId: BZ-604
+    kind: month_pillar_leap_year
+    originalInput: { calendar: solar, year: 2000, month: 2, day: 4 }
+    asOfDate: '2026-09-14'
+    expected:
+      successQualifier: candidate
+      boundaryTerm: 立春
+      scenarioCount: 2
+    applicableRules: [R-BZ-005, R-BZ-006, R-BZ-008]
+    sourceRefs: [SRC-BZ-002#T2000c, SRC-BZ-003#2026]
+    derivation: source_direct
+    expectedPhase: success
+    missingFields: [hour_pillar]
+    note:
+      HKO 明确 2000-02-04 为立春，故该日必须产生候选。本样例只断言"该日跨立春并产生候选"这一可由 A 级来源直接支持的事实；
+      具体情形内的年柱/月柱取值待 R5-B 补齐 2000 年立春时刻的 A 级依据后再断言，**不得**用依赖库输出补全。
+
+  - caseId: BZ-605
+    kind: month_stem_rule
+    assert: 五虎遁月干表与《三命通会》卷二·论遁月时古歌逐项一致
+    quote:
+      source: SRC-BZ-008
+      principle: 所以遁月从年，遁时从日。遁月即甲己之年，正月起丙寅，二月丁卯，顺行十二月。
+      verse: 甲已之年丙作首，乙庚之岁戊为头，丙辛之岁寻庚上，丁壬壬位顺行流，更有戊癸何处起？甲寅之上好追求。
+    expected:
+      寅月月干（正月）:
+        甲: 丙
+        己: 丙
+        乙: 戊
+        庚: 戊
+        丙: 庚
+        辛: 庚
+        丁: 壬
+        壬: 壬
+        戊: 甲
+        癸: 甲
+      offsetRule: 自寅月起按天干顺序逐月顺行（二月丁卯、三月戊辰……）
+    applicableRules: [R-BZ-006]
+    sourceRefs: [SRC-BZ-008]
+    derivation: source_direct
+    note:
+      古歌按「年干→正月（寅月）月干」成对写出，与本项目 `R-BZ-006` 的五虎遁表逐项一致（甲/己→丙寅、乙/庚→戊寅、丙/辛→庚寅、
+      丁/壬→壬寅、戊/癸→甲寅）。本样例只比对**月干起始**，不断言任何现实结论。
+      版本声明：引自通行广本篇目；钦定四库全书本卷二不含此篇。载体为在线整理本，底本未与影印核对（GAP-BZ-007）。
+
+  - caseId: BZ-606
+    kind: cross_check_worked_example
+    originalInput: { calendar: solar, year: 1974, month: 8, day: 25 }
+    asOfDate: '2026-09-14'
+    expected:
+      yearPillar: { stem: 甲, branch: 寅 }
+      monthPillar: { stem: 壬, branch: 申 }
+      dayPillar: { stem: 戊, branch: 戌 }
+    applicableRules: [R-BZ-005, R-BZ-006, R-BZ-007]
+    sourceRefs: [SRC-BZ-001#6.3.2, SRC-BZ-001#6.1.1, SRC-BZ-008]
+    crossCheckRef: CROSS-BZ-001
+    derivation: anchor_arithmetic
+    expectedPhase: success
+    successQualifier: partial
+    missingFields: [hour_pillar]
+    note:
+      期望值只由 A 级锚点算术产生：年标签按国标 §6.1.1（1984 = 甲子年）推得 1974 为甲寅；日柱按国标 §6.3.2 锚点（1949-10-01 = 甲子日）
+      加 9094 天、mod 60 = 34 得戊戌；月支申（当日已过立秋）、月干依 `SRC-BZ-008` 五虎遁（甲年正月起丙寅）得壬申。
+      旁证 `CROSS-BZ-001`（周德元《名至实归》2017 第 65 页，扫描页已目视核对）载有同一日期的四柱算例「甲寅、壬申、戊戌、乙卯」，
+      与本年柱/月柱/日柱**逐项吻合**，其卯时柱（乙卯）亦与本项目五鼠遁推法一致——但**时柱不在 R5 输出范围**，此处仅作五鼠遁一致性旁证。
+      旁证不参与期望值生成，也不得作为规则依据（非 A/B 级来源）。
+
+  # ── 范围与失败（R-BZ-001、R-BZ-010）────────────────────────────────────────
+  - caseId: BZ-101
+    kind: support_lower_bound
+    originalInput: { calendar: solar, year: 1901, month: 1, day: 1 }
+    asOfDate: '2026-09-14'
+    expected:
+      yearPillar: { stem: 庚, branch: 子 }
+      monthPillar: { stem: 戊, branch: 子 }
+      dayPillar: { stem: 己, branch: 卯 }
+      lunarDate: 十一月十一
+    applicableRules: [R-BZ-001, R-BZ-005, R-BZ-006, R-BZ-007]
+    sourceRefs: [SRC-BZ-002#T1901c, SRC-BZ-001#6.3.2]
+    derivation: source_direct
+    expectedPhase: success
+    successQualifier: partial
+    note:
+      HKO T1901c.txt：表头为「1901(辛丑-肖牛)年」，1901-01-01 为农历十一月十一，1901-01-06 小寒，1901-02-04 立春。
+      故 1901-01-01 尚未到立春 → 年柱取上一干支年庚子；当日在小寒之前、大雪之后 → 月支子；年干庚按五虎遁得戊寅月起，子为第十一位，故月干戊。
+
+  - caseId: BZ-102
+    kind: failure_out_of_range
+    originalInput: { calendar: solar, year: 1900, month: 12, day: 31 }
+    asOfDate: '2026-09-14'
+    failureCategory: unsupported_input
+    failureDetailCode: UNSUPPORTED_DATE
+    applicableRules: [R-BZ-001, R-BZ-010]
+    sourceRefs: [SRC-BZ-002]
+    derivation: source_direct
+    expectedPhase: failure
+    note: 早于支持范围下界 1901-01-01；HKO 对照表从 1901 年开始（T1900c.txt 不存在）。返回 unsupported_input，不近似计算，不用取模兜底。
+
+  - caseId: BZ-103
+    kind: failure_future
+    originalInput: { calendar: solar, year: 2026, month: 9, day: 15 }
+    asOfDate: '2026-09-14'
+    failureCategory: invalid_input
+    failureDetailCode: FUTURE_DATE
+    applicableRules: [R-BZ-001, R-BZ-010]
+    sourceRefs: [SRC-BZ-007#7.1]
+    derivation: source_direct
+    expectedPhase: failure
+    note: 未来出生日期无效（契约 §7.1）。上界由显式传入的 asOfDate 决定，不使用系统时钟。
+
+  - caseId: BZ-104
+    kind: failure_invalid_calendar
+    originalInput: { calendar: solar, year: 2026, month: 2, day: 30 }
+    asOfDate: '2026-09-14'
+    failureCategory: invalid_input
+    failureDetailCode: INVALID_DATE
+    applicableRules: [R-BZ-001, R-BZ-010]
+    derivation: source_direct
+    expectedPhase: failure
+    note: 2026 年 2 月没有 30 日；纯日历校验，必须先于任何历法换算。
+
+  - caseId: BZ-105
+    kind: failure_missing_field
+    originalInput: { calendar: solar, year: 2026, month: 2 }
+    asOfDate: '2026-09-14'
+    failureCategory: invalid_input
+    failureDetailCode: INVALID_DATE
+    applicableRules: [R-BZ-001]
+    derivation: source_direct
+    expectedPhase: failure
+    note: 缺日字段属输入本身无效；R5 不触发 missing_required_input（缺出生时刻走 partial，不是失败，见 D9 裁决）。

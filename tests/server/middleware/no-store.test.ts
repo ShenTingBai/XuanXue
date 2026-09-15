@@ -76,6 +76,27 @@ describe('敏感接口 no-store 中间件', () => {
     expect(mockSetResponseHeaders).not.toHaveBeenCalled()
   })
 
+  it('/api/result-history 与子路径/查询共用 no-store（R5 结果历史）', async () => {
+    await callForPath('/api/result-history')
+    expect(mockSetResponseHeaders).toHaveBeenCalled()
+    vi.clearAllMocks()
+    await callForPath('/api/result-history/1f0f2a3c-0000-4000-8000-000000000000')
+    expect(mockSetResponseHeaders).toHaveBeenCalled()
+    vi.clearAllMocks()
+    // query 存在时仍按 pathname 匹配（与既有 /api/divinations 用例同一手法）。
+    mockGetRequestURL.mockReturnValue({
+      pathname: '/api/result-history',
+      search: '?tool=bazi&limit=20',
+    })
+    await handler({} as any)
+    expect(mockSetResponseHeaders).toHaveBeenCalled()
+  })
+
+  it('/api/result-history-extra 不误匹配（前缀相似不设置 no-store）', async () => {
+    await callForPath('/api/result-history-extra')
+    expect(mockSetResponseHeaders).not.toHaveBeenCalled()
+  })
+
   it('/api/other、页面路由不设置 no-store', async () => {
     await callForPath('/api/other')
     expect(mockSetResponseHeaders).not.toHaveBeenCalled()

@@ -4,6 +4,7 @@ import {
   canExportTool,
   canPubliclyCompute,
   canReadHistory,
+  getLocalDevNavTools,
   getStatusOnlyToolFromQuery,
   getToolById,
   getToolByRoute,
@@ -32,25 +33,31 @@ describe('tool catalog — 四维目录契约', () => {
     }
   })
 
-  it('围栏期矩阵：全部 in_review/internal/disabled，仅 zeji 计算 enabled，其余 blocked', () => {
+  it('围栏期矩阵：全部 in_review/internal，仅 zeji 与 bazi 计算 enabled，仅 bazi 允许创建历史', () => {
     for (const tool of TOOL_CATALOG) {
       expect(tool.reviewStatus).toBe('in_review')
       expect(tool.exposure).toBe('internal')
-      expect(tool.historyPolicy).toBe('disabled')
+      // R5：bazi 因授权内部验证需要创建历史（治理规范 §20.2），其余工具仍为 disabled。
+      expect(tool.historyPolicy).toBe(tool.id === 'bazi' ? 'create_allowed' : 'disabled')
     }
-    expect(getToolById('zeji')?.computePolicy).toBe('enabled')
-    for (const tool of TOOL_CATALOG.filter(tool => tool.id !== 'zeji')) {
-      expect(tool.computePolicy).toBe('blocked')
+    for (const tool of TOOL_CATALOG) {
+      const expectEnabled = tool.id === 'zeji' || tool.id === 'bazi'
+      expect(tool.computePolicy).toBe(expectEnabled ? 'enabled' : 'blocked')
     }
   })
 
   it('当前矩阵没有任何普通访客可用工具，internal + enabled 不等于公开', () => {
     for (const tool of TOOL_CATALOG) {
+      // 公开判定与公开发放行必须全部为 false：internal 不能被 computePolicy 绕过。
       expect(isToolPubliclyAvailable(tool.id)).toBe(false)
       expect(canPubliclyCompute(tool.id)).toBe(false)
       expect(canExportTool(tool.id)).toBe(false)
-      expect(canReadHistory(tool.id)).toBe(false)
-      expect(canCreateHistory(tool.id)).toBe(false)
+    }
+    // 历史读写：仅 bazi 因授权内部验证放行，其余仍不可读不可建。
+    for (const tool of TOOL_CATALOG) {
+      const expectHistory = tool.id === 'bazi'
+      expect(canReadHistory(tool.id)).toBe(expectHistory)
+      expect(canCreateHistory(tool.id)).toBe(expectHistory)
     }
   })
 
@@ -117,5 +124,21 @@ describe('tool catalog — 四维目录契约', () => {
     expect(original).toBeDefined()
     // 当前 zeji 为 internal+enabled → 不可公开 → 应返回状态页工具
     expect(getStatusOnlyToolFromQuery('zeji')?.id).toBe('zeji')
+  })
+
+  it('本地开发导航项：仅开发环境返回，且不改写目录的公开声明', () => {
+    // 生产构建（isDev=false）必须为空：顶栏与公开面与已批准状态完全一致。
+    expect(getLocalDevNavTools(false)).toEqual([])
+
+    const dev = getLocalDevNavTools(true)
+    expect(dev.map(tool => tool.id).sort()).toEqual(['bazi', 'zeji'])
+    for (const tool of dev) {
+      expect(tool.name).toContain('内部验证')
+      // 只是开发期展示项：目录本身的公开判定与四维字段不得被改写。
+      expect(isToolPubliclyAvailable(tool.id)).toBe(false)
+      expect(getToolById(tool.id)?.name).not.toContain('内部验证')
+      expect(tool.reviewStatus).toBe('in_review')
+      expect(tool.exposure).toBe('internal')
+    }
   })
 })

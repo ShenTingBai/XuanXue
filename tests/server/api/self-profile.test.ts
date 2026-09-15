@@ -39,6 +39,8 @@ vi.hoisted(() => {
 const serviceMock = vi.hoisted(() => ({
   get: vi.fn(),
   summary: vi.fn(),
+  // R5：删除档案前需查询"仍含出生输入的历史条数"（默认 0 → 不要求 historyMode）。
+  countHistoryWithBirthInput: vi.fn(() => 0),
   save: vi.fn(),
   deleteBirthDate: vi.fn(),
   deleteProfile: vi.fn(),

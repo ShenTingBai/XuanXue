@@ -89,7 +89,10 @@ function confirmGuestRedirect() {
 onMounted(async () => {
   await restoreSession()
   if (authStatus.value === 'authenticated') {
+    // 完整档案用于展示；摘要用于「仍含出生输入的历史条数」——
+    // 删除整份档案前必须先显示该条数并提供保留/同删选择（交付规范 §7.5）。
     await profileApi.loadProfile()
+    await profileApi.loadSummary()
   }
   confirmGuestRedirect()
 })
@@ -101,6 +104,7 @@ async function retryRestore() {
     await restoreSession()
     if (authStatus.value === 'authenticated') {
       await profileApi.loadProfile()
+      await profileApi.loadSummary()
     }
     confirmGuestRedirect()
   } finally {
@@ -316,6 +320,23 @@ async function confirmSave(payload: {
 // ── 删除出生日期组 / 删除整份档案（分别确认）──
 const showDeleteDateDialog = ref(false)
 const showDeleteProfileDialog = ref(false)
+/**
+ * 删除档案时的历史快照处置选择（交付规范 §7.5、数据规范 §13）。
+ * '' 表示尚未选择；存在历史条数时**必须显式选择**，不设默认值。
+ */
+const deleteHistoryMode = ref<'' | 'keep' | 'delete'>('')
+
+/** 打开删除档案弹层：每次重开都重置选择与错误，避免沿用上次的处置方式。 */
+function openDeleteProfileDialog() {
+  deleteHistoryMode.value = ''
+  actionError.value = ''
+  showDeleteProfileDialog.value = true
+}
+
+// 用户一旦做出选择就撤掉「请先选择…」的守卫提示：选择已经生效，旧错误不该继续挂在弹层里。
+watch(deleteHistoryMode, () => {
+  if (showDeleteProfileDialog.value) actionError.value = ''
+})
 
 async function confirmDeleteBirthDate() {
   const current = profileApi.profile.value
@@ -345,13 +366,22 @@ async function confirmDeleteProfile() {
   const current = profileApi.profile.value
   if (!current) return
   if (busy.value) return
+
+  // 存在仍含出生输入的历史时必须先选择处置方式：不设默认值、不静默删历史。
+  const historyCount = profileApi.historyWithBirthInputCount.value
+  const mode = deleteHistoryMode.value
+  if (historyCount > 0 && mode === '') {
+    actionError.value = '请先选择历史记录的处置方式'
+    return
+  }
+
   busy.value = true
   actionError.value = ''
   try {
-    const ok = await profileApi.deleteProfile({
-      profileId: current.id,
-      version: current.version,
-    })
+    const ok = await profileApi.deleteProfile(
+      { profileId: current.id, version: current.version },
+      historyCount > 0 && mode !== '' ? mode : undefined,
+    )
     if (ok) {
       showDeleteProfileDialog.value = false
       actionError.value = ''
@@ -473,6 +503,11 @@ const hasProfile = computed(() => !!profileApi.profile.value)
 const hasBirthDate = computed(() => !!profileApi.profile.value?.birthDate)
 const displayNormalized = computed(() => profileApi.profile.value?.birthDate ?? null)
 const useAllowed = computed(() => profileApi.profile.value?.useAllowed ?? false)
+/**
+ * 仍含保存时出生输入的历史快照条数（服务端按账号 + 八字工具统计）。
+ * 大于 0 时删除整份档案必须先选择历史处置方式，不设默认值。
+ */
+const historyWithBirthInputCount = computed(() => profileApi.historyWithBirthInputCount.value)
 /** 读取失败且没有档案：只显示错误与重试，不用「未建档」冒充状态。 */
 const loadFailed = computed(() => !!profileApi.error.value && !hasProfile.value)
 
@@ -661,7 +696,7 @@ const indexItems = [
           :has-birth-date="hasBirthDate"
           :busy="busy"
           @delete-date="showDeleteDateDialog = true"
-          @delete-profile="showDeleteProfileDialog = true"
+          @delete-profile="openDeleteProfileDialog"
         />
 
         <p class="back-link">
@@ -739,6 +774,43 @@ const indexItems = [
         <p class="editorial-dialog-text">
           清除本人档案与使用授权，不删除账号或会话。删除后账号、登录与内容偏好都不受影响。此操作不可撤销。
         </p>
+
+        <!-- 存在仍含出生输入的历史：显示条数并要求明确选择（无默认值） -->
+        <fieldset
+          v-if="historyWithBirthInputCount > 0"
+          class="mb-5 space-y-2 font-sans text-sm leading-relaxed text-ink-medium"
+        >
+          <legend class="mb-1">
+            仍有 {{ historyWithBirthInputCount }} 条历史快照包含保存时的出生输入，请选择处置方式：
+          </legend>
+          <label class="flex items-start gap-3">
+            <input
+              v-model="deleteHistoryMode"
+              type="radio"
+              name="delete-history-mode"
+              value="keep"
+              class="mt-1"
+              :disabled="busy"
+            />
+            <span>保留这 {{ historyWithBirthInputCount }} 条历史快照</span>
+          </label>
+          <label class="flex items-start gap-3">
+            <input
+              v-model="deleteHistoryMode"
+              type="radio"
+              name="delete-history-mode"
+              value="delete"
+              class="mt-1"
+              :disabled="busy"
+            />
+            <span>同时删除这 {{ historyWithBirthInputCount }} 条历史快照</span>
+          </label>
+          <p v-if="deleteHistoryMode === 'keep'" class="text-xs leading-relaxed">
+            保留的历史快照中仍包含保存时的出生输入，档案删除不代表这些出生资料已消失。
+          </p>
+        </fieldset>
+
+        <p v-if="actionError" class="action-error" role="alert">{{ actionError }}</p>
         <div class="editorial-dialog-actions">
           <button
             type="button"

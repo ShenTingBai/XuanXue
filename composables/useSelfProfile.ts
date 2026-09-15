@@ -34,6 +34,22 @@ export interface SelfProfileEvent {
   action: 'saved' | 'birth-date-deleted' | 'profile-deleted' | 'usage-changed'
 }
 
+/**
+ * 取服务端业务错误码。
+ *
+ * Nuxt 的 `createError({ data })` 把业务数据放在响应体的 `data` 字段，而 ofetch 的
+ * `FetchError.data` 又是**整个响应体**，因此实际路径是 `error.data.data.code`。
+ * 只读浅层 `error.data.code` 会永远拿不到码，把「需要选择历史处置」误报成版本冲突
+ * （R5-B 浏览器验收实测：删除档案弹层显示了错误的冲突文案）。
+ * 两种形状都接受，避免测试里的浅层假错误与真实响应行为不一致。
+ */
+function serviceErrorCode(error: unknown): string {
+  const data = (error as { data?: { code?: unknown; data?: { code?: unknown } } })?.data
+  const nested = data?.data?.code
+  if (typeof nested === 'string') return nested
+  return typeof data?.code === 'string' ? data.code : ''
+}
+
 type SelfProfileAction = SelfProfileEvent['action']
 
 /** 差异确认所需的候选（父组件在保存前冻结 expected 与 RawBirthDate）。 */
@@ -80,6 +96,11 @@ export function useSelfProfile() {
 
   // 无日期的最小摘要（工具进入时使用）；完整档案只由档案页显式读取。
   const summary = ref<SelfProfileSummary | null>(null)
+  /**
+   * 仍含出生输入的结果历史条数（不含任何出生数据本身）。
+   * 删除本人档案前必须展示该数值并提供"保留/同时删除"选择（交付规范 §7.5、数据规范 §13）。
+   */
+  const historyWithBirthInputCount = ref(0)
   const profile = shallowRef<SelfProfile | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -283,6 +304,7 @@ export function useSelfProfile() {
     if (authStatus.value === 'restoring') return { status: 'stale' }
     if (authStatus.value === 'guest') {
       summary.value = null
+      historyWithBirthInputCount.value = 0
       return { status: 'unauthenticated' }
     }
     if (!force && summary.value && isCacheCurrent()) {
@@ -294,11 +316,15 @@ export function useSelfProfile() {
     // 记录发起时的写序号：期间若有写入，摘要结果不得覆盖更新的写入状态。
     const writeSeqAtStart = writeSeq
     try {
-      const res = await $fetch<{ summary: SelfProfileSummary }>('/api/self-profile/summary')
+      const res = await $fetch<{
+        summary: SelfProfileSummary
+        historyWithBirthInputCount?: number
+      }>('/api/self-profile/summary')
       if (isStale(bound)) return { status: 'stale' }
       // 写入先于本次摘要完成：丢弃本次摘要，避免旧数据覆盖新写入结果。
       if (writeSeq !== writeSeqAtStart) return { status: 'stale' }
       summary.value = res.summary
+      historyWithBirthInputCount.value = res.historyWithBirthInputCount ?? 0
       markCache(bound.accountId)
       return { status: 'success', summary: res.summary }
     } catch (e: unknown) {
@@ -473,18 +499,30 @@ export function useSelfProfile() {
     }
   }
 
-  /** 删除整份档案（保留账号/会话）。 */
-  async function deleteProfile(expected: { profileId: string; version: number }): Promise<boolean> {
+  /**
+   * 删除整份档案（保留账号/会话）。
+   *
+   * `historyMode` 落实交付规范 §7.5 与数据规范 §13：当存在仍含出生输入的历史时，
+   * 用户必须明确选择"保留历史快照"或"同时删除"；服务端缺选择时返回 409，
+   * 该 409 与版本冲突不同，不置 `conflict`。
+   */
+  async function deleteProfile(
+    expected: { profileId: string; version: number },
+    historyMode?: 'keep' | 'delete',
+  ): Promise<boolean> {
     if (authStatus.value !== 'authenticated') return false
     const bound = beginWrite()
     const token = opStart()
     error.value = null
     conflict.value = false
     try {
-      await $fetch<{ success: true }>('/api/self-profile', {
-        method: 'DELETE',
-        body: { expected },
-      })
+      await $fetch<{ success: true; historyDeleted?: number; historyKept?: number }>(
+        '/api/self-profile',
+        {
+          method: 'DELETE',
+          body: historyMode ? { expected, historyMode } : { expected },
+        },
+      )
       if (isWriteStale(bound)) return false
       // 本地写成功回调先于 summary 更新（见 save）。
       notifyLocalWriteCommitted({
@@ -493,6 +531,8 @@ export function useSelfProfile() {
         version: expected.version,
       })
       profile.value = null
+      // 选择同删时历史已随之清空；选择保留时快照仍含出生输入，条数保持不变。
+      if (historyMode === 'delete') historyWithBirthInputCount.value = 0
       summary.value = {
         exists: false,
         profileId: null,
@@ -517,6 +557,12 @@ export function useSelfProfile() {
         return false
       }
       if (statusCode === 409) {
+        // 区分两类 409：需要选择历史处置（非版本冲突）与真实版本冲突。
+        const code = serviceErrorCode(e)
+        if (code === 'HISTORY_MODE_REQUIRED') {
+          error.value = '请先选择历史记录的处置方式'
+          return false
+        }
         conflict.value = true
         return false
       }
@@ -647,6 +693,7 @@ export function useSelfProfile() {
 
   return {
     summary,
+    historyWithBirthInputCount,
     profile,
     loading,
     error,

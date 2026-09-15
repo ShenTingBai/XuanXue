@@ -25,6 +25,7 @@ const sensitiveApiPatterns = [
   /^\/api\/profiles(\/|$)/,
   /^\/api\/divinations(\/|$)/,
   /^\/api\/self-profile(\/|$)/,
+  /^\/api\/result-history(\/|$)/,
 ]
 const sensitiveRuntimeCaching = sensitiveApiPatterns.map(pattern => ({
   urlPattern: pattern,
@@ -150,7 +151,18 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
+    // 工具页默认客户端渲染。
     '/tools/**': { ssr: false },
+    /**
+     * bazi 例外：D3 内部验证通道要求**服务端**用可信 accountId 判定白名单，
+     * 并把判定结果写入 `useState` 供客户端复用（治理规范 §20.2、middleware/tool-availability.global.ts）。
+     *
+     * 若该路由保持 ssr:false，围栏中间件只在客户端运行：既不会服务端重定向，
+     * 也不会播种授权结果，客户端「未知即失败关闭」将使授权账号同样被重定向到状态页
+     * ——白名单通道等于不可用（R5-B 浏览器验收实测：匿名与授权账号都被客户端重定向）。
+     * 因此该路由必须服务端渲染，围栏本身也因此多一层服务端强制。
+     */
+    '/tools/bazi': { ssr: true },
     '/profile/**': { ssr: false },
     '/**': {
       headers: {

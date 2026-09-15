@@ -94,9 +94,13 @@ describe('Divinations API handlers', () => {
       handler = (await import('~/server/api/divinations/index.post')).default
     })
 
-    it('当前围栏期所有合法已登录类型都返回 403 且不执行 dbRun', async () => {
+    it('当前围栏期除 bazi 外所有合法已登录类型都返回 403 且不执行 dbRun', async () => {
       const nonCreateableTypes = TOOL_CATALOG.filter(tool => !canCreateHistory(tool.id))
-      expect(nonCreateableTypes).toHaveLength(11)
+      // R5：bazi 的 historyPolicy 改为 create_allowed（授权内部验证，治理规范 §20.2），
+      // 因此"全部类型 403"变为"除 bazi 外全部 403"。bazi 的旧接口路径在生产中仍不可用：
+      // context.profileId 从不由认证中间件赋值，请求在 401 处即被拒绝（见下方 401 用例）。
+      expect(nonCreateableTypes).toHaveLength(10)
+      expect(canCreateHistory('bazi')).toBe(true)
 
       for (const tool of nonCreateableTypes) {
         mockReadBody.mockResolvedValue({
@@ -172,13 +176,20 @@ describe('Divinations API handlers', () => {
       expect(dbAll).not.toHaveBeenCalled()
     })
 
-    it('无 type 且当前没有可读类型时直接返回空数组且不查询数据库', async () => {
+    it('无 type 时只查询当前可读类型；本次矩阵下可读类型为 bazi', async () => {
       const readableTypes = TOOL_CATALOG.filter(tool => canReadHistory(tool.id))
-      expect(readableTypes).toHaveLength(0)
+      // R5：bazi 因授权内部验证成为唯一可读类型（其余工具仍 disabled）。
+      expect(readableTypes.map(tool => tool.id)).toEqual(['bazi'])
 
+      vi.mocked(dbAll).mockReturnValue([])
       const result = await handler({ context: { profileId: 1 } } as any)
       expect(result).toEqual([])
-      expect(dbAll).not.toHaveBeenCalled()
+      // 只按可读类型查询，且未携带 type 时不得扩大到其他工具。
+      const sql = vi.mocked(dbAll).mock.calls[0]?.[0] ?? ''
+      expect(sql).toContain('type IN')
+      const params = (vi.mocked(dbAll).mock.calls[0]?.[1] ?? []) as unknown[]
+      expect(params).toContain('bazi')
+      expect(params).not.toContain('shengxiao')
     })
 
     it('throws 401 without auth header', async () => {

@@ -3,7 +3,12 @@ import { getMonthPillar } from '~/composables/useSolarTerms'
 import { STEMS, BRANCHES } from '~/constants/bazi'
 import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getNayinWuxing } from '~/constants/bazi'
 import { SAMPLE_BAZI, SAMPLE_PROMINENT_SHENSHA } from '~/constants/sample-bazi'
-import { isToolPubliclyAvailable, TOOL_CATALOG } from '~/constants/tool-catalog'
+import {
+  getLocalDevNavTools,
+  isToolPubliclyAvailable,
+  TOOL_CATALOG,
+  type ToolCatalogEntry,
+} from '~/constants/tool-catalog'
 import DailyFortuneStick from '~/components/home/DailyFortuneStick.vue'
 import PageFooter from '~/components/tools/PageFooter.vue'
 
@@ -35,7 +40,21 @@ const greeting = useGreeting()
 
 // 首页工具入口只从四维目录推导公开可用项；当前围栏期没有任何普通访客可用工具。
 const publicTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
-const hasPublicTools = computed(() => publicTools.length > 0)
+// 开发期额外把 internal + enabled 的「内部验证」工具加进卡片列表，省掉手输 URL。
+// 生产构建里 getLocalDevNavTools(false) 为空数组，因此可见集合与公开集合完全相同。
+const visibleTools = [...publicTools, ...getLocalDevNavTools(import.meta.dev === true)]
+const hasVisibleTools = computed(() => visibleTools.length > 0)
+
+/**
+ * 卡片说明文字。
+ * 公开工具沿用围栏期的「整理中」措辞；内部验证入口必须说实话——它是可用的，
+ * 只是未公开，不能写成「敬请期待」。
+ */
+function toolCardNote(tool: ToolCatalogEntry): string {
+  return tool.exposure === 'public'
+    ? `${tool.name}功能整理中，敬请期待。`
+    : '内部验证中（未公开）：点此进入。'
+}
 
 // ── 今日玄机：懒加载天文信息（避免急切导入 lunar-javascript ~200KB）──
 interface TodayAstroData {
@@ -362,7 +381,7 @@ onMounted(async () => {
 
           <!-- 当前围栏期没有公开可用工具，仅展示中性核验说明 -->
           <div
-            v-if="!hasPublicTools"
+            v-if="!hasVisibleTools"
             class="card-warm rounded-xl p-8 text-center anim-rise"
             style="--delay: 0.05s"
           >
@@ -373,7 +392,7 @@ onMounted(async () => {
 
           <div v-else class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             <NuxtLink
-              v-for="tool in publicTools"
+              v-for="tool in visibleTools"
               :key="tool.id"
               :to="tool.route"
               :aria-label="'打开' + tool.name + '工具'"
@@ -393,7 +412,7 @@ onMounted(async () => {
                 {{ tool.name }}
               </div>
               <p class="font-sans text-xs text-ink-medium tracking-[0.08em] leading-relaxed">
-                {{ tool.name }}功能整理中，敬请期待。
+                {{ toolCardNote(tool) }}
               </p>
             </NuxtLink>
           </div>
@@ -649,11 +668,11 @@ onMounted(async () => {
 
         <!-- Tool grid -->
         <div
-          v-if="hasPublicTools"
+          v-if="hasVisibleTools"
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
         >
           <NuxtLink
-            v-for="tool in publicTools"
+            v-for="tool in visibleTools"
             :key="tool.id"
             :to="tool.route"
             :aria-label="'打开' + tool.name + '工具'"
@@ -681,7 +700,7 @@ onMounted(async () => {
                 line-height: 1.6;
               "
             >
-              {{ tool.name }}功能整理中，敬请期待。
+              {{ toolCardNote(tool) }}
             </p>
           </NuxtLink>
         </div>

@@ -26,7 +26,9 @@ import {
   SELF_PROFILE_DATA_CATEGORY,
 } from '~/constants/self-profile-policy'
 import { normalizeBirthDate, isAtLeastFourteen } from '~/utils/self-profile/birth-date'
+import { BAZI_TOOL_ID } from '~/constants/bazi-rules'
 import { dbGet, dbRun, withTransaction } from '../database/db'
+import { resultHistoryService } from './result-history'
 
 /** 领域服务依赖入口：可注入真实 sql.js 或测试内存库。 */
 export interface SelfProfileDb {
@@ -56,6 +58,33 @@ export class SelfProfileServiceError extends Error {
 /** 服务端时间提供者：返回当前时间；校验当日按 Asia/Shanghai 取。 */
 export interface SelfProfileServiceDeps extends SelfProfileDb {
   now: () => Date
+  /**
+   * 统计仍含出生输入的结果历史条数（可选）。
+   * 未注入时视为 0：不关心历史的调用方与既有测试保持原行为。
+   */
+  countHistoryWithBirthInput?: (accountId: number) => number
+  /**
+   * 在**调用方事务内**删除该账号全部结果快照并返回删除行数（可选）。
+   * 不自开事务——嵌套 BEGIN 会失败，事务边界由 deleteProfile 统一负责。
+   * 未注入时禁止按"同时删除"执行，避免假装删除成功。
+   */
+  deleteHistoryRows?: (accountId: number) => number
+}
+
+/**
+ * 删除档案时缺少历史处置选择。
+ *
+ * 不复用 `SelfProfileErrorCode`：该联合类型定义在 types/self-profile.ts，
+ * 且语义上这是"缺少必要决策"而非输入非法。由删除端点单独映射为 409。
+ */
+export class HistoryModeRequiredError extends Error {
+  code = 'HISTORY_MODE_REQUIRED' as const
+  historyCount: number
+  constructor(historyCount: number) {
+    super('请先选择历史记录的处置方式')
+    this.name = 'HistoryModeRequiredError'
+    this.historyCount = historyCount
+  }
 }
 
 interface ProfileRow extends Record<string, unknown> {
@@ -227,6 +256,14 @@ export function createSelfProfileService(deps: SelfProfileServiceDeps) {
     return rowToSummary(loadRow(accountId))
   }
 
+  /**
+   * 仍含出生输入的结果历史条数。
+   * R5 说明：八字快照按定义都含出生输入，因此该值即该账号的八字快照总数。
+   */
+  function countHistoryWithBirthInput(accountId: number): number {
+    return deps.countHistoryWithBirthInput ? deps.countHistoryWithBirthInput(accountId) : 0
+  }
+
   /** 首次创建或更新（差异确认后）。 */
   function save(accountId: number, request: SaveSelfProfileRequest): SelfProfile {
     const account = get('SELECT status, age_confirmed_at FROM accounts WHERE id = ?', [accountId])
@@ -348,17 +385,38 @@ export function createSelfProfileService(deps: SelfProfileServiceDeps) {
     })
   }
 
-  /** 删除整份档案：撤回凭证、保留最小删除凭证后删档；不删除 Account/Session。 */
+  /**
+   * 删除整份档案：撤回凭证、保留最小删除凭证后删档；不删除 Account/Session。
+   *
+   * 交付规范 §7.5 + 数据规范 §13：删除本人档案前必须已显示"仍含出生输入的历史条数"，
+   * 并由用户明确选择保留还是同时删除。有条数而**未给出选择时拒绝执行**，不设默认值；
+   * `historyMode === 'delete'` 时在同一事务内先删快照再删档案，任一步失败整体回滚。
+   */
   function deleteProfile(
     accountId: number,
     expected: { profileId: string; version: number },
+    historyMode?: 'keep' | 'delete',
   ): { success: true } {
     const existing = loadRow(accountId)
     if (!existing || existing.id !== expected.profileId || existing.version !== expected.version) {
       throw new SelfProfileServiceError('VERSION_CONFLICT', '档案已变更，请重新读取后重试')
     }
+
+    const historyCount = countHistoryWithBirthInput(accountId)
+    const hasMode = historyMode === 'keep' || historyMode === 'delete'
+    if (historyCount > 0 && !hasMode) {
+      throw new HistoryModeRequiredError(historyCount)
+    }
+    if (historyMode === 'delete' && !deps.deleteHistoryRows) {
+      // 未注入删除能力：宁可失败，也不返回"已删除"却留下快照。
+      throw new SelfProfileServiceError('SAVE_FAILED', '删除失败，请稍后再试')
+    }
+
     const nowIso = now().toISOString()
     return transaction(() => {
+      if (historyMode === 'delete' && deps.deleteHistoryRows) {
+        deps.deleteHistoryRows(accountId)
+      }
       writeConsentReceipt(deps, accountId, 'delete_profile', SELF_PROFILE_POLICY_VERSION, nowIso)
       const result = run(
         'DELETE FROM self_profiles WHERE account_id = ? AND id = ? AND version = ?',
@@ -419,6 +477,7 @@ export function createSelfProfileService(deps: SelfProfileServiceDeps) {
   return {
     get: getProfile,
     summary,
+    countHistoryWithBirthInput,
     save,
     deleteBirthDate,
     deleteProfile,
@@ -428,10 +487,22 @@ export function createSelfProfileService(deps: SelfProfileServiceDeps) {
 
 export type SelfProfileService = ReturnType<typeof createSelfProfileService>
 
-/** 绑定现有数据库入口的默认实例（生产路径）。 */
+/**
+ * 绑定现有数据库入口的默认实例（生产路径）。
+ *
+ * 档案与结果历史的联动（D5）在此绑定：计数走结果历史服务，删除走**原始 run**
+ * 以便在 deleteProfile 自己的事务内执行（嵌套事务会失败）。
+ */
 export const selfProfileService = createSelfProfileService({
   get: dbGet,
   run: dbRun,
   transaction: withTransaction,
   now: () => new Date(),
+  countHistoryWithBirthInput: accountId =>
+    resultHistoryService.countByTool(accountId, BAZI_TOOL_ID),
+  deleteHistoryRows: accountId =>
+    dbRun('DELETE FROM result_snapshots WHERE account_id = ? AND tool_id = ?', [
+      accountId,
+      BAZI_TOOL_ID,
+    ]).changes,
 })

@@ -545,6 +545,58 @@ describe('useSelfProfile（生命周期宿主挂载）', () => {
     expect(failCommitted).toHaveLength(0)
   })
 
+  it('删除整份档案：真实 409 形状下区分「需选择历史处置」与版本冲突', async () => {
+    setAuthenticated()
+    const { api } = mountHost()
+    await flush()
+
+    // R5-B 浏览器验收实测的服务端错误形状：createError 的业务 data 被 ofetch 整体
+    // 放在 FetchError.data 上，业务码实际位于 data.data.code。
+    mockFetch.mockRejectedValueOnce(
+      Object.assign(new Error('conflict'), {
+        statusCode: 409,
+        data: {
+          statusCode: 409,
+          statusMessage: '请先选择历史记录的处置方式',
+          data: { code: 'HISTORY_MODE_REQUIRED', historyCount: 2 },
+        },
+      }),
+    )
+    expect(await api.deleteProfile({ profileId: 'p1', version: 1 })).toBe(false)
+    expect(api.error.value).toBe('请先选择历史记录的处置方式')
+    // 必须与版本冲突区分：不能把「需要选择历史处置」报成档案被改。
+    expect(api.conflict.value).toBe(false)
+
+    // 真实版本冲突（无业务码）仍按冲突处理。
+    mockFetch.mockRejectedValueOnce(
+      Object.assign(new Error('conflict'), {
+        statusCode: 409,
+        data: { statusCode: 409, statusMessage: '档案已变更' },
+      }),
+    )
+    expect(await api.deleteProfile({ profileId: 'p1', version: 1 })).toBe(false)
+    expect(api.conflict.value).toBe(true)
+  })
+
+  it('删除整份档案成功：带上 historyMode 并清空本地档案与历史计数', async () => {
+    setAuthenticated()
+    const { api } = mountHost()
+    await flush()
+    api.historyWithBirthInputCount.value = 2
+    mockFetch.mockResolvedValueOnce({ success: true, historyDeleted: 2 })
+
+    expect(await api.deleteProfile({ profileId: 'p1', version: 1 }, 'delete')).toBe(true)
+    const [url, options] = mockFetch.mock.calls.at(-1) as [string, any]
+    expect(url).toBe('/api/self-profile')
+    expect(options.method).toBe('DELETE')
+    expect(options.body).toEqual({
+      expected: { profileId: 'p1', version: 1 },
+      historyMode: 'delete',
+    })
+    expect(api.profile.value).toBeNull()
+    expect(api.historyWithBirthInputCount.value).toBe(0)
+  })
+
   it('clearData 只清数据不动频道；页面清理路径后 B 频道仍收 message', async () => {
     setAuthenticated()
     const received: any[] = []

@@ -5,6 +5,7 @@ const SENSITIVE_API_PREFIXES = [
   '/api/profiles',
   '/api/divinations',
   '/api/self-profile',
+  '/api/result-history',
 ]
 
 function isSensitivePath(pathname: string): boolean {
