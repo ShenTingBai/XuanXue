@@ -6,18 +6,27 @@ import { TOOL_CATALOG, isToolPubliclyAvailable } from '~/constants/tool-catalog'
 /**
  * 工具可用性路由围栏测试。
  *
- * 中间件现在是 async，并在服务端读取授权内部验证白名单、把判定结果播种进 `useState`，
- * 客户端只信任该播种值（未知即失败关闭）。因此测试分两类：
- * - 路由行为（本文件）：默认矩阵下全部重定向；客户端被播种为允许时仅放行该工具；
- * - 白名单判定本身（`tests/server/internal-verification.test.ts`）。
+ * 中间件是 async：服务端读取授权内部验证白名单、把判定结果播种进 `useState`；
+ * 客户端只信任该播种值，未见播种时**整页重取**（由服务端重新裁决），水合期则失败关闭。
+ * 因此测试分三类：
+ * - 路由行为（本文件，vitest 环境下 `import.meta.server === false`，即客户端分支）；
+ * - 白名单判定本身（`tests/server/internal-verification.test.ts`）；
+ * - 真实 SSR 播种与整页重取（R5-C 浏览器验收证据）。
  */
 
-type ToolAvailabilityMiddleware = (to: { path: string }) => unknown
+interface MiddlewareRoute {
+  path: string
+  fullPath: string
+}
+
+type ToolAvailabilityMiddleware = (to: MiddlewareRoute) => unknown
 
 const navigateTo = vi.fn((target: unknown) => target)
 let middleware: ToolAvailabilityMiddleware
 /** 模拟 SSR 播种的 useState 容器：按 key 稳定持有，不因再次调用而重置。 */
 const stateStore: Record<string, unknown> = {}
+/** 模拟客户端是否处于初次水合（`useNuxtApp().isHydrating`）。 */
+let isHydrating = false
 
 function seedInternalAccess(value: Record<string, boolean>): void {
   stateStore['tools:internalAccess'] = value
@@ -25,9 +34,11 @@ function seedInternalAccess(value: Record<string, boolean>): void {
 
 function stubNuxtGlobals(): void {
   for (const key of Object.keys(stateStore)) delete stateStore[key]
+  isHydrating = false
   vi.stubGlobal('defineNuxtRouteMiddleware', (handler: ToolAvailabilityMiddleware) => handler)
   vi.stubGlobal('navigateTo', navigateTo)
   vi.stubGlobal('useRequestEvent', () => undefined)
+  vi.stubGlobal('useNuxtApp', () => ({ isHydrating }))
   vi.stubGlobal('useState', (key: string, init: () => unknown) => {
     if (!(key in stateStore)) stateStore[key] = init()
     return {
@@ -39,6 +50,19 @@ function stubNuxtGlobals(): void {
       },
     }
   })
+}
+
+/** 目录里 `internal + enabled`（内部验证通道可放行）的工具，当前应为 zeji 与 bazi。 */
+const enabledInternalTools = TOOL_CATALOG.filter(
+  tool => !isToolPubliclyAvailable(tool.id) && tool.computePolicy === 'enabled',
+)
+/** 其余不可公开工具：无论登录与否都必须进状态页。 */
+const blockedTools = TOOL_CATALOG.filter(
+  tool => !isToolPubliclyAvailable(tool.id) && tool.computePolicy !== 'enabled',
+)
+
+function fenceTarget(toolId: string) {
+  return { path: '/tools/status', query: { tool: toolId }, replace: true }
 }
 
 describe('工具可用性路由围栏', () => {
@@ -55,26 +79,46 @@ describe('工具可用性路由围栏', () => {
     vi.unstubAllGlobals()
   })
 
-  it('默认矩阵（无内部授权播种）下所有真实工具路由都重定向到统一状态页', async () => {
+  it('默认矩阵（无内部授权播种）下不可公开工具都不得放行', async () => {
     const nonPublicTools = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(tool.id))
     expect(nonPublicTools).toHaveLength(11)
+    expect(enabledInternalTools.map(tool => tool.id)).toEqual(['zeji', 'bazi'])
+    expect(blockedTools).toHaveLength(9)
 
-    for (const tool of nonPublicTools) {
-      const target = { path: '/tools/status', query: { tool: tool.id }, replace: true }
+    for (const tool of blockedTools) {
+      const target = fenceTarget(tool.id)
 
-      await expect(middleware({ path: tool.route })).resolves.toEqual(target)
+      await expect(middleware({ path: tool.route, fullPath: tool.route })).resolves.toEqual(target)
       expect(navigateTo).toHaveBeenLastCalledWith(target)
     }
 
-    expect(navigateTo).toHaveBeenCalledTimes(11)
+    // computePolicy 为 enabled 的工具在未知状态下整页重取同一路径，由服务端裁决；
+    // 它们绝不等价于「普通访客可访问」。
+    for (const tool of enabledInternalTools) {
+      await expect(middleware({ path: tool.route, fullPath: tool.route })).resolves.toBe(tool.route)
+      expect(navigateTo).toHaveBeenLastCalledWith(tool.route, { external: true })
+    }
+
+    expect(navigateTo).toHaveBeenCalledTimes(nonPublicTools.length)
   })
 
-  it('尾斜杠路径不能绕过围栏：/tools/<id>/ 与多尾斜杠都进入同一状态页', async () => {
+  it('尾斜杠路径不能绕过围栏：/tools/<id>/ 与多尾斜杠都进入同一处理', async () => {
     for (const tool of TOOL_CATALOG) {
-      const target = { path: '/tools/status', query: { tool: tool.id }, replace: true }
+      if (tool.computePolicy === 'enabled' && !isToolPubliclyAvailable(tool.id)) {
+        await expect(
+          middleware({ path: `${tool.route}/`, fullPath: `${tool.route}/` }),
+        ).resolves.toBe(`${tool.route}/`)
+        continue
+      }
 
-      await expect(middleware({ path: `${tool.route}/` })).resolves.toEqual(target)
-      await expect(middleware({ path: `${tool.route}//` })).resolves.toEqual(target)
+      const target = fenceTarget(tool.id)
+
+      await expect(
+        middleware({ path: `${tool.route}/`, fullPath: `${tool.route}/` }),
+      ).resolves.toEqual(target)
+      await expect(
+        middleware({ path: `${tool.route}//`, fullPath: `${tool.route}//` }),
+      ).resolves.toEqual(target)
     }
   })
 
@@ -82,8 +126,9 @@ describe('工具可用性路由围栏', () => {
     expect(isToolPubliclyAvailable('zeji')).toBe(false)
     expect(isToolPubliclyAvailable('bazi')).toBe(false)
     for (const id of ['zeji', 'bazi']) {
-      const target = { path: '/tools/status', query: { tool: id }, replace: true }
-      await expect(middleware({ path: `/tools/${id}` })).resolves.toEqual(target)
+      // 未播种时只能是「进状态页」或「整页重取」，绝不放行。
+      const result = await middleware({ path: `/tools/${id}`, fullPath: `/tools/${id}` })
+      expect([fenceTarget(id), `/tools/${id}`]).toContainEqual(result)
     }
   })
 
@@ -91,26 +136,66 @@ describe('工具可用性路由围栏', () => {
     // 模拟服务端已判定 bazi 允许内部验证并写入 useState。
     seedInternalAccess({ bazi: true })
 
-    await expect(middleware({ path: '/tools/bazi' })).resolves.toBeUndefined()
-    // 其余 internal + enabled 工具未播种，仍须重定向。
-    await expect(middleware({ path: '/tools/zeji' })).resolves.toEqual({
-      path: '/tools/status',
-      query: { tool: 'zeji' },
-      replace: true,
-    })
+    await expect(
+      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+    ).resolves.toBeUndefined()
+    // 其余 internal + enabled 工具未播种：整页重取（服务端复判），不直接放行。
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toBe(
+      '/tools/zeji',
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/zeji', { external: true })
+  })
+
+  it('登录后点入口链接可用：软导航整页重取，且保留完整路径', async () => {
+    // 回归背景：登录是纯客户端动作，SSR payload 里没有内部工具播种值。
+    // 旧实现「未知即失败关闭」使已授权账号点首页「八字（内部验证）」卡片必落到状态页。
+    await expect(
+      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi?from=home' }),
+    ).resolves.toBe('/tools/bazi?from=home')
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/bazi?from=home', { external: true })
+  })
+
+  it('水合期未见播种时失败关闭，不整页重取（避免刷新死循环）', async () => {
+    isHydrating = true
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+  })
+
+  it('播种为拒绝时不重取：直接进状态页', async () => {
+    seedInternalAccess({ bazi: false })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+  })
+
+  it('退出登录后不再复用旧播种：播种的允许值只在有会话时生效', async () => {
+    seedInternalAccess({ bazi: true })
+    stateStore['auth:status'] = 'guest'
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
   })
 
   it('允许普通非工具路由与状态页本身继续原有页面生命周期', async () => {
-    await expect(middleware({ path: '/tools/status' })).resolves.toBeUndefined()
-    await expect(middleware({ path: '/' })).resolves.toBeUndefined()
-    await expect(middleware({ path: '/login' })).resolves.toBeUndefined()
-    await expect(middleware({ path: '/tools/not-real-route' })).resolves.toBeUndefined()
+    for (const path of ['/tools/status', '/', '/login', '/tools/not-real-route']) {
+      await expect(middleware({ path, fullPath: path })).resolves.toBeUndefined()
+    }
     expect(navigateTo).not.toHaveBeenCalled()
   })
 
   it('名称相近的伪工具路由不被拦截', async () => {
-    await expect(middleware({ path: '/tools/bazi-extra' })).resolves.toBeUndefined()
-    await expect(middleware({ path: '/tools/cezi-ish' })).resolves.toBeUndefined()
+    await expect(
+      middleware({ path: '/tools/bazi-extra', fullPath: '/tools/bazi-extra' }),
+    ).resolves.toBeUndefined()
+    await expect(
+      middleware({ path: '/tools/cezi-ish', fullPath: '/tools/cezi-ish' }),
+    ).resolves.toBeUndefined()
     expect(navigateTo).not.toHaveBeenCalled()
   })
 

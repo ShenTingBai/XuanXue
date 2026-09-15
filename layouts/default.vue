@@ -4,19 +4,25 @@ import {
   isToolPubliclyAvailable,
   TOOL_CATALOG,
 } from '~/constants/tool-catalog'
-
-// 导航只消费目录的公开可用判断，避免页面自行维护另一份可见性状态。
-// 开发期额外追加 internal + enabled 的「内部验证」入口（生产构建里为空，见目录注释）。
-const navTools = [
-  ...TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)),
-  ...getLocalDevNavTools(import.meta.dev === true),
-]
 </script>
 
 <script setup lang="ts">
 import AvatarCircle from '~/components/tools/AvatarCircle.vue'
 const { authStatus, currentAccount, restoreSession, logout } = useAuth()
 const router = useRouter()
+
+/**
+ * 导航项：只消费目录的公开可用判断，不自行维护第二份可见性状态。
+ *
+ * 开发期额外追加 `internal + enabled` 的「内部验证」入口（生产构建里为空，
+ * 见目录里 `getLocalDevNavTools` 的注释），但**必须已登录才显示**：
+ * 未登录访客点了只会被围栏 302 回状态页，看到「功能整理中」，会误以为工具没做。
+ * 与账号菜单同样处理：SSR 恢复期为 restoring 时不渲染，避免闪现错误入口。
+ */
+const navTools = computed(() => [
+  ...TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)),
+  ...(authStatus.value === 'authenticated' ? getLocalDevNavTools(import.meta.dev === true) : []),
+])
 const showMobileNav = ref(false)
 const mobileNavRef = ref<HTMLElement | null>(null)
 const mobileNavCloseRef = ref<HTMLElement | null>(null)

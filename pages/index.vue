@@ -40,10 +40,19 @@ const greeting = useGreeting()
 
 // 首页工具入口只从四维目录推导公开可用项；当前围栏期没有任何普通访客可用工具。
 const publicTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
-// 开发期额外把 internal + enabled 的「内部验证」工具加进卡片列表，省掉手输 URL。
-// 生产构建里 getLocalDevNavTools(false) 为空数组，因此可见集合与公开集合完全相同。
-const visibleTools = [...publicTools, ...getLocalDevNavTools(import.meta.dev === true)]
-const hasVisibleTools = computed(() => visibleTools.length > 0)
+/**
+ * 开发期额外把 `internal + enabled` 的「内部验证」工具加进卡片列表，省掉手输 URL。
+ *
+ * 两个门都必须过：① 仅开发构建（生产里 `getLocalDevNavTools(false)` 为空数组，
+ * 可见集合与公开集合完全相同）；② **仅已登录**——未登录访客点了只会被围栏 302
+ * 回状态页看到「功能整理中」，会误以为工具没做。SSR 期 authStatus 为 restoring，
+ * 因此与布局里的账号菜单一样由客户端恢复后渲染。
+ */
+const visibleTools = computed(() => [
+  ...publicTools,
+  ...(authStatus.value === 'authenticated' ? getLocalDevNavTools(import.meta.dev === true) : []),
+])
+const hasVisibleTools = computed(() => visibleTools.value.length > 0)
 
 /**
  * 卡片说明文字。
