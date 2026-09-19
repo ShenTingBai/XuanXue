@@ -57,6 +57,11 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci --registry https://registry.npmmirror.com
+      # 必须先生成 .nuxt：根 tsconfig.json 是 `extends ./.nuxt/tsconfig.json`，
+      # 而 setupFiles 之外没人会生成它。缺了它，类型感知 lint 拿不到 Nuxt 自动导入的
+      # 类型（useState、Account 等退化为 error 类型），no-misused-promises 会在
+      # composables/useAuth.ts 上误报 error，导致本 job 失败（见 CI #82）。
+      - run: npx nuxi prepare
       - run: npm run lint
 
   format:

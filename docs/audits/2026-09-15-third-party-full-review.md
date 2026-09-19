@@ -1014,3 +1014,38 @@ teardown 一并清理，两个测试文件中「DB_PATH 必须位于 os.tmpdir()
   11 个 grep 测试转行为测试、`components/tools/bazi/*` 死组件处置。
 - **5C（需决策）**：统一地支关系表（会改行为）。
 - **type-aware lint 逐目录推进**：`components/`、`pages/`、`tests/` 尚未纳入。
+
+### 14.7 CI 首跑失败与修复（run #82）
+
+本批推送后 **CI #82 的 `lint` job 失败**（其余 typecheck / test / build / format 全过）。
+本地 `npm run lint` 为 0 error，**本地过、CI 挂**——如实记录并追根因。
+
+**追根因过程**：
+
+1. 首个猜测是 `.nuxt` 缺失导致类型解析失败，但本地"临时改名 `.nuxt`"的复现报的是
+   `@eslint/config-array: TypeError: Unexpected function`，与假设不符——该报错在逻辑上
+   不该依赖 `.nuxt` 是否存在，说明**复现方式被污染**。检查配置数组确认 20 个顶层元素
+   全为 object，排除配置本身的问题。
+2. 改用**忠实复现**：`git worktree` 取 `baf5a05` 的干净检出（天然无 `.nuxt`），
+   junction 复用 `node_modules`，再跑 `npm run lint`。得到真实报错：
+
+   ```
+   composables/useAuth.ts
+     52:9  error  Expected non-Promise value in a boolean conditional  @typescript-eslint/no-misused-promises
+   ```
+
+   并伴以大量 `type that could not be resolved`。
+
+**真因**：根 `tsconfig.json` 是 `extends ./.nuxt/tsconfig.json`，而 **CI 的 `lint` job
+从来没有 `nuxi prepare` 步骤**（`test` job 有）。缺 `.nuxt` 时 Nuxt 自动导入的类型
+（`useState`、`Account` 等）全部退化为 `error` 类型，`no-misused-promises` 因此在
+`useAuth.ts:52` 被**误报为 error**，job 失败。
+
+**修复**：在 `lint` job 的 `npm ci` 之后、`npm run lint` 之前加入 `npx nuxi prepare`。
+
+**修复验证**：在同一个干净 worktree 上补跑 `nuxi prepare` 后，`npm run lint` 回到
+**0 error / 52 warnings**，与本地一致。
+
+**这条记录的教训**（与本报告 §5.1 的判断一致）：**本地绿灯不能替代干净环境验证**。
+本批若只依赖本地 lint，就会带着一条永久红的 CI 推上去——而这恰是"仓促推开"最难被
+人工发现的一类问题。首次把 CI 真正跑起来，第一次就抓到了它。
