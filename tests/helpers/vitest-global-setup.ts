@@ -24,6 +24,10 @@ export default function setup(): () => void {
   // 强制覆盖任何外部 DB_PATH；测试运行期间一律使用本轮独立临时库。
   process.env.DB_PATH = tempDbPath
 
+  // 多个测试 worker 会共用同一个临时库路径，生产用的单实例锁会互相冲突。
+  // 锁本身的正确性由 tests/server/utils/instance-lock.test.ts 用独立临时路径单独覆盖。
+  process.env.XUANXUE_DISABLE_DB_LOCK = '1'
+
   return function teardown(): void {
     // 先校验目标确在 os.tmpdir() 之下，再精确递归删除本轮目录，避免误删其他路径。
     const tmpRoot = resolve(tmpdir())
@@ -37,5 +41,7 @@ export default function setup(): () => void {
     } else {
       process.env.DB_PATH = originalDbPath
     }
+
+    delete process.env.XUANXUE_DISABLE_DB_LOCK
   }
 }

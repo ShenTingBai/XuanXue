@@ -1,6 +1,7 @@
 import initSqlJs, { type SqlJsStatic, type Database as SqlJsDatabase } from 'sql.js'
 import fs from 'fs'
 import path from 'path'
+import { acquireInstanceLock, type InstanceLock } from '../utils/instance-lock'
 import {
   CREATE_ACCOUNTS_TABLE,
   CREATE_SESSIONS_TABLE,
@@ -29,11 +30,28 @@ import {
  */
 const DB_PATH = process.env.DB_PATH || path.resolve(process.cwd(), 'xuanxue-r2.db')
 
+/**
+ * 拒绝把数据库放进静态资源目录。
+ * 若 DB_PATH 指向 public/ 之下，构建或托管配置一旦把该目录整体对外提供，
+ * 全量用户数据（账号、会话、出生日期）会变成可直接下载的静态文件。
+ * 只做校验、不改变默认路径，避免移动既有用户的数据文件。
+ */
+function assertDbPathOutsideWebRoot(dbPath: string): void {
+  const publicDir = path.resolve(process.cwd(), 'public')
+  const resolved = path.resolve(dbPath)
+  if (resolved === publicDir || resolved.startsWith(publicDir + path.sep)) {
+    throw new Error(
+      `DB_PATH 不得位于 public/ 静态目录内（会把用户数据当静态文件暴露）：${resolved}`,
+    )
+  }
+}
+
 let SQL: SqlJsStatic | null = null
 let db: SqlJsDatabase | null = null
 
 let initStarted = false
 let initComplete: Promise<void> | null = null
+let instanceLock: InstanceLock | null = null
 
 function getDbPath(): string {
   return DB_PATH
@@ -48,11 +66,64 @@ function loadFile(): Buffer | undefined {
   }
 }
 
+/**
+ * 原子落盘：写入同目录临时文件 → fsync → rename 覆盖。
+ *
+ * 旧实现直接 `writeFileSync(target)`：写入过程中崩溃或断电会留下截断文件，
+ * 账号 / 会话 / 档案一次性损毁，且没有任何可回退副本。
+ * rename 在同一文件系统内是原子的，因此读者要么看到旧文件、要么看到新文件。
+ * 覆盖前保留一份 `.bak`，供极端情况下人工回滚。
+ */
 function saveFile(): void {
   if (!db) return
-  const data = db.export()
-  const buffer = Buffer.from(data)
-  fs.writeFileSync(getDbPath(), buffer)
+  const target = getDbPath()
+  const dir = path.dirname(target)
+  const buffer = Buffer.from(db.export())
+
+  fs.mkdirSync(dir, { recursive: true })
+
+  // 先留旧副本；备份失败不阻塞主写入（数据完整性优先于备份完整性）。
+  if (fs.existsSync(target)) {
+    try {
+      fs.copyFileSync(target, `${target}.bak`)
+    } catch {
+      // 忽略：无可回退副本仍优于放弃本次写入
+    }
+  }
+
+  const tempPath = `${target}.${process.pid}.tmp`
+  const fd = fs.openSync(tempPath, 'w')
+  try {
+    fs.writeFileSync(fd, buffer)
+    // fsync 确保内容真正落盘后，rename 才是安全的
+    fs.fsyncSync(fd)
+  } finally {
+    fs.closeSync(fd)
+  }
+
+  try {
+    fs.renameSync(tempPath, target)
+  } catch (err) {
+    // rename 失败必须清掉临时文件，否则目录会残留 .tmp
+    try {
+      fs.unlinkSync(tempPath)
+    } catch {
+      // 忽略清理失败
+    }
+    throw err
+  }
+
+  // 目录项落盘，确保 rename 本身持久化；部分平台不支持对目录 fsync，忽略即可。
+  try {
+    const dirFd = fs.openSync(dir, 'r')
+    try {
+      fs.fsyncSync(dirFd)
+    } finally {
+      fs.closeSync(dirFd)
+    }
+  } catch {
+    // 忽略
+  }
 }
 
 let saveScheduled = false
@@ -121,6 +192,17 @@ export async function initDb(): Promise<void> {
 
   initStarted = true
   initComplete = (async () => {
+    // 启动前置校验：库文件不得落在 public/ 静态目录内。
+    assertDbPathOutsideWebRoot(DB_PATH)
+
+    // 单实例保护：sql.js 多实例会每 5 秒互相整文件覆盖，属于确定性数据丢失。
+    // 测试环境下多个 worker 共用同一临时库，用显式开关跳过（见 vitest-global-setup）。
+    if (process.env.XUANXUE_DISABLE_DB_LOCK !== '1') {
+      instanceLock = acquireInstanceLock(`${getDbPath()}.lock`)
+      // 任何退出路径（含 process.exit）都会触发 exit，据此释放锁。
+      process.once('exit', () => instanceLock?.release())
+    }
+
     SQL = await initSqlJs()
     const existing = loadFile()
     db = new SQL.Database(existing || undefined)
