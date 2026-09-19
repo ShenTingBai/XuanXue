@@ -917,3 +917,100 @@ typecheck / test / build 在 24 上均已通过，说明 24 是被验证可用�
 2. **神煞规则的口径问题全部保留**，待来源核验；其中"同名神煞成对进入流年 ±5 累加"
    会造成同一概念被计两次，是**可观察的评分后果**，但修正方式取决于流派选择。
 3. 批次 5（可维护性）未开始。
+
+---
+
+## 十四、修复实施记录（批次 5A：类型安全与测试隔离）
+
+> 执行时间：2026-09-15
+>
+> 授权：用户批准「只做 5A」
+>
+> 批次 5 被拆为三层：**5A（本批，低风险真实缺陷）**、5B（拆巨型函数／grep 测试转行为测试）、
+> **5C（不做）**。5C 被排除的理由见 §14.4。
+
+### 14.1 类型感知 lint 首次开启
+
+此前 `eslint.config.mjs` 用的是 `tseslint.configs.recommended`（**非 type-checked**），
+因此 `no-floating-promises`、`no-unsafe-*`、`no-misused-promises` 等规则**全部不生效**。
+
+**开启前实测规模**（临时配置测量，测完即删）：`server/`、`composables/`、`utils/` 三个目录
+**38 条**存量违规。测量中的 6 条 `(parse)` 是**我临时配置的假象**——它们是
+"未使用的 eslint-disable 指令"，因为临时配置没带 `no-console` 规则，导致那些
+`eslint-disable-next-line no-console` 无物可抑制；真实配置里它们是被使用的。**没有解析错误。**
+
+**配置策略**：
+
+- `recommendedTypeChecked` **只作用于 `server/`、`composables/`、`utils/`**。
+  `components/`、`pages/`、`tests/` 尚未测量，一次性纳入会有不可控的 error 风险，留待按目录推进。
+- `no-floating-promises` 与 `no-misused-promises` 设为 **error**（开启时均为零违规），作为长期保护。
+- 其余类型感知规则设为 **warn** 逐步清零；注释中写明"只允许下调违规数，不允许为了变绿而关规则或降级"。
+
+**lint 结果：0 error / 52 warnings**（基线 26；新增 26 条即类型感知规则发现的存量问题）。
+
+### 14.2 修掉的三处真实缺陷（原审计均未发现）
+
+| 位置                               | 问题                                                                                                                       | 处理                                                                                                                                                                     |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `composables/useGreeting.ts`       | **13 条 `no-unsafe-*`**：`JSON.parse` 返回 `any` 后直接访问 `.prefix` / `.subtitle`，localStorage 内容**未做任何形状校验** | 新增 `readSavedGreeting()` 形状守卫：收窄为 `unknown` → 逐字段 `typeof` 校验，非法形状返回 null                                                                          |
+| `composables/useExportImage.ts:88` | `if (document.fonts?.ready)` —— **在条件中使用 Promise**（恒为真值），语义含混                                             | 改为 `if (document.fonts) { await document.fonts.ready }`                                                                                                                |
+| `server/plugins/database.ts`       | `no-misused-promises`：`defineNitroPlugin(async …)` 的返回类型与 `void` 声明不符                                           | **保留 async 并显式说明**——Nitro 类型只声明 `() => void`（类型定义不精确），但运行时确实 await 插件返回值；为迁就类型而改成不返回 Promise 会让请求在 `initDb` 完成前到达 |
+
+**关于第一条的诚实说明**：本报告 §3.1 曾写"`as any` = **0**"，该结论**仍然准确**。
+但这里的 `any` 是从 `JSON.parse`（TS 标准库返回 `any`）**隐式**漏入的，不是手写的 `as any`——
+**非 type-aware 的 lint 看不见这类问题，这正是开启它的直接价值**。
+
+### 14.3 DB 测试隔离（消除并行读写同一 sqlite）
+
+**问题**：`vitest-global-setup.ts` 只注入**一个**临时库路径，而
+`tests/server/divinations.test.ts` 与 `tests/server/utils/auth.test.ts` 都会调用真实
+`initDb()` 并落盘；Vitest 默认 `fileParallelism: true`，两者落在不同进程时会对同一 sqlite
+文件并发读改写（丢更新 / flaky），且两侧都用 `LIKE 'test_%'` 清库、互为对方的外部状态。
+
+**修复**：在 `tests/helpers/vitest-setup.ts`（每个 worker 都会执行、且先于任何测试模块导入）
+把 `DB_PATH` 改写为 `worker-<pid>/xuanxue.db`，位于 globalSetup 建的临时根之下，
+teardown 一并清理，两个测试文件中「DB_PATH 必须位于 os.tmpdir() 之下」的既有断言继续成立。
+
+**实测验证**（写两个临时探针文件观测后删除）：
+
+```
+42208  D:\@Temp\xuanxue-vitest-iyKNzK\worker-42208\xuanxue.db
+40664  D:\@Temp\xuanxue-vitest-iyKNzK\worker-40664\xuanxue.db
+→ 每个 worker 路径唯一，隔离生效
+```
+
+该结果同时证实了 Vitest 3 默认 pool 为 `forks`（不同 PID = 不同进程），
+这一前提已写入 `vitest-setup.ts` 的注释（若将来改用 `worker_threads`，需改回按文件分配路径）。
+
+### 14.4 批次 5C 被排除的理由（实测，非推测）
+
+**统一地支关系表会改变行为。** 实测 `useLiuNian.ts:78`：
+
+```ts
+巳申: ['合', '刑'], // 破 excluded — 合 takes precedence; +刑 from 三刑
+```
+
+而 `constants/hehun.ts:169-192` 的六害/三刑表、`useShengXiao.ts` 的刑/破表各有**不同的优先级口径**。
+因此"统一成一份数据源"不是重构，而是**改变至少一个工具的输出**——属规则口径决策，
+须先由用户或 Codex 定口径，执行方不得擅自合并。
+
+**删除旧八字栈不可行**：`useBaZi` 引擎仍被 `useHeHun.ts` 调用（非死代码）；
+6 个 `components/tools/bazi/*` 组件虽已无页面引用，但删除需连带改动断言它们的测试，
+属 5B 范围。
+
+### 14.5 验证结果（实测）
+
+| 检查                             | 结果                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| `npm run typecheck`              | **0 错误**                                                                        |
+| `npm run test`                   | **85 文件 / 2627 用例全部通过**                                                   |
+| `npm run lint`                   | **0 error / 52 warnings**（`no-floating-promises`、`no-misused-promises` 均为 0） |
+| `npx prettier --check .`（全仓） | 通过                                                                              |
+| DB 隔离                          | 两个 worker 路径唯一（见 §14.3 实测输出）                                         |
+
+### 14.6 剩余
+
+- **5B**：拆巨型函数（`useSelfProfile.ts:94` 约 522 行、`calculateShenSha` 约 445 行）、
+  11 个 grep 测试转行为测试、`components/tools/bazi/*` 死组件处置。
+- **5C（需决策）**：统一地支关系表（会改行为）。
+- **type-aware lint 逐目录推进**：`components/`、`pages/`、`tests/` 尚未纳入。

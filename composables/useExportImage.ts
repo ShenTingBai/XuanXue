@@ -85,7 +85,9 @@ export function useExportImage() {
     const allPatches = [...textPatches, ...backdropPatches]
 
     try {
-      if (document.fonts?.ready) {
+      // 不能写成 `if (document.fonts?.ready)`：Promise 对象恒为真值，
+      // 该条件实际只在 `document.fonts` 缺失时为假，语义含混且易被误读。
+      if (document.fonts) {
         await document.fonts.ready
       }
 
