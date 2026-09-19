@@ -52,7 +52,7 @@
 - 来源台账只维护出处、等级、采用版本与审核范围；规则台账维护字段语义；黄金数据维护预期值。修订其中一项时同步受影响的引用、计数和版本说明。
 - `docs/audits/` 保存带日期的核验与裁决证据；现状判断引用最新有效审阅，不把旧审计快照当作当前源码事实。历史失败和作废计划保留追溯，不改写成成功。
 - 文档发生内容变化时更新日期与版本；资料通过、实现完成、运行验收及用户公开批准分别记录。正式文档通过正常审计与提交管理，不随执行器临时result自动升级状态。
-- 当前 R3 审阅入口：[实施前资料审阅](../audits/2026-09-09-r3-evidence-package-review.md)与[运行验收记录](../audits/2026-09-09-r3-shengxiao-runtime-acceptance.md)。限定实现已获用户接受，公开准入仍独立管理；R4 本人档案进入计划准备。
+- 当前 R3 审阅入口：[实施前资料审阅](../audits/2026-09-09-r3-evidence-package-review.md)与[运行验收记录](../audits/2026-09-09-r3-shengxiao-runtime-acceptance.md)。限定实现已获用户接受，公开准入仍独立管理；R4 本人档案已于 2026-09-14 获用户接受（`Accepted`），R5 八字基础排盘与结果历史已进入实施（见 §8.7），公开准入仍未开始。
 
 ## 4. 当前运行环境
 
@@ -91,21 +91,21 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 
 ### 6.1 当前代码围栏与后续放行
 
-下表按2026-09-09只读核对的[工具目录](../../constants/tool-catalog.ts)记录当前四维枚举；这是代码事实，不是线上验收。旧 listed/hidden 已由 R1 替换，不继续作为当前状态维护。
+下表按 2026-09-15 只读核对的[工具目录](../../constants/tool-catalog.ts)记录当前四维枚举；这是代码事实，不是线上验收。旧 listed/hidden 已由 R1 替换，不继续作为当前状态维护。
 
-| 工具 ID         | 第一版角色               | reviewStatus | exposure | computePolicy | historyPolicy |
-| --------------- | ------------------------ | ------------ | -------- | ------------- | ------------- |
-| `shengxiao`     | 首批核心：生肖           | in_review    | internal | blocked       | disabled      |
-| `constellation` | 后续核心：太阳星座       | in_review    | internal | blocked       | disabled      |
-| `bazi`          | 首批核心：八字基础排盘   | in_review    | internal | blocked       | disabled      |
-| `zeji`          | 候选：日期对照           | in_review    | internal | enabled       | disabled      |
-| `guming`        | 候选：称骨表对照         | in_review    | internal | blocked       | disabled      |
-| `yijing`        | 候选：周易卦象阅读       | in_review    | internal | blocked       | disabled      |
-| `name-test`     | 候选：姓名笔画与五格对照 | in_review    | internal | blocked       | disabled      |
-| `cezi`          | 候选：测字双轨           | in_review    | internal | blocked       | disabled      |
-| `ziwei`         | 封存候选：紫微基础命盘   | in_review    | internal | blocked       | disabled      |
-| `hehun`         | 封存候选：八字关系对照   | in_review    | internal | blocked       | disabled      |
-| `meihua`        | 封存候选：梅花起卦演示   | in_review    | internal | blocked       | disabled      |
+| 工具 ID         | 第一版角色               | reviewStatus | exposure | computePolicy | historyPolicy  |
+| --------------- | ------------------------ | ------------ | -------- | ------------- | -------------- |
+| `shengxiao`     | 首批核心：生肖           | in_review    | internal | blocked       | disabled       |
+| `constellation` | 后续核心：太阳星座       | in_review    | internal | blocked       | disabled       |
+| `bazi`          | 首批核心：八字基础排盘   | in_review    | internal | enabled       | create_allowed |
+| `zeji`          | 候选：日期对照           | in_review    | internal | enabled       | disabled       |
+| `guming`        | 候选：称骨表对照         | in_review    | internal | blocked       | disabled       |
+| `yijing`        | 候选：周易卦象阅读       | in_review    | internal | blocked       | disabled       |
+| `name-test`     | 候选：姓名笔画与五格对照 | in_review    | internal | blocked       | disabled       |
+| `cezi`          | 候选：测字双轨           | in_review    | internal | blocked       | disabled       |
+| `ziwei`         | 封存候选：紫微基础命盘   | in_review    | internal | blocked       | disabled       |
+| `hehun`         | 封存候选：八字关系对照   | in_review    | internal | blocked       | disabled       |
+| `meihua`        | 封存候选：梅花起卦演示   | in_review    | internal | blocked       | disabled       |
 
 生肖须在 R3 来源、实现、自动化、浏览器和用户验收完成后另行批准 approved/public/enabled，历史保持 disabled；八字在 R5/R6 对应验收后才可批准公开与 create_allowed。阶段条件不是运行枚举，不能提前写入目录。太阳星座不属于首批 R1–R6 交付。
 
@@ -216,6 +216,18 @@ R4 本人档案已完成代码实施与验证用例编写，状态为 **Implemen
 2. **不构成公开放行**：工具目录仍为 `in_review / internal / blocked / disabled`，R6 公开门禁未开始；
 3. 已知限制：`/tools/` 围栏下「带入 / 替换 / 撤销带入」没有真实浏览器路径，由 125 例组件级测试承担；
 4. R4 的构建测试授权**不延伸**到 R5；R5 进入门槛（R4 `Accepted`）已满足，但 R5 尚未生成实施计划、未运行任何代码。
+
+### 8.7 R5 八字基础排盘与结果历史实施状态（2026-09-15）
+
+截至 2026-09-15，R5 已进入实施。本节只记录**可核对的代码事实**，不构成 R5 完成、Accepted 或公开放行：
+
+- `constants/tool-catalog.ts` 中 `bazi` 的 `computePolicy` 为 `enabled`、`historyPolicy` 为 `create_allowed`；`exposure` 保持 `internal`，`isToolPubliclyAvailable` 仍为 false，普通访客仍被重定向到状态页。内部验证由 `XUANXUE_INTERNAL_TOOLS` 白名单控制，默认关闭。
+- 已提交：`c1eb1eb`（R5-B 八字基础排盘与结果历史，含 D3 授权内部验证通道）、`7073f5d`（R5-C 按设计规格改造八字页 UI，六段结构与内容闭集不变）、`481cef9`（八字页出版版版式对齐设计基线）。
+- 工作区未提交：R5-D 八字页互动可供性调整（`components/bazi/*`、`components/profile/*`、`pages/tools/bazi.vue` 等）。
+- R5 新引擎位于 `utils/bazi/*`（国标锚点 1949-10-01 甲子、分钟级节气、边界候选建模）；旧 `composables/useBaZi.ts` 的日柱锚点存在**已知系统性错误**（日支对所有日期偏移 +2），且仍被 `useHeHun.ts` 调用，围栏内不对外。
+- 第三方独立复核（[2026-09-15 全面复核](../audits/2026-09-15-third-party-full-review.md)）记录了当前判读：八字新引擎骨架可信，但全部来源仍为 `unreviewed`，且分钟级外部核验只覆盖 2026 一年。
+
+**R5 阶段状态仍由用户确认**；本节不把实现完成写成 Accepted，也不改变公开准入与工具围栏。
 
 ## 9. 已完成的审计与历史证据
 

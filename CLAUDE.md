@@ -45,51 +45,61 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 ├── docs/                         # 项目文档 + 设计系统规范
 ├── public/fonts/                 # 自托管 woff2 字体
 ├── constants/                    # 干支、卦象、星曜、笔画字典等领域数据
-│   ├── bazi.ts                   # STEMS、BRANCHES、WUXING_COLORS（唯一数据源）
+│   ├── bazi.ts                   # STEMS、BRANCHES、WUXING_COLORS（主数据源；藏干表仍在 useBaZi.ts，尚未收敛）
 │   ├── yijing.ts / yijing-data.ts / yijing-hexagrams.ts  # 易经六十四卦
-│   ├── shengxiao.ts              # 生肖性格、婚配数据
+│   ├── shengxiao.ts              # 生肖性格、婚配数据（旧内容，页面已不再引用）
 │   ├── constellation.ts          # 星座特征、守护星数据
 │   ├── ziwei.ts                  # 紫微斗数星曜、宫位数据
-│   ├── fortune-sticks.ts         # 每日灵签数据
+│   ├── fortune-sticks.ts         # 每日灵签数据（按本地日期取签）
 │   ├── guardian-buddha.ts        # 本命佛数据
 │   ├── stem-animal.ts            # 干支生肖映射
 │   ├── tai-sui.ts                # 太岁方位数据
-│   ├── hehun.ts                  # 合婚规则数据
+│   ├── hehun.ts                  # 合婚规则数据（权重自认为开发者合成，无经典依据）
 │   ├── name-test.ts              # 姓名测试三才五格数据
 │   ├── cezi.ts                   # 测字五行分类
 │   ├── stroke-dict.ts            # 汉字笔画字典
 │   ├── zeji.ts                   # 择吉规则数据
 │   ├── gu-ming.ts / meihua.ts     # 称骨、梅花旧规则数据
-│   ├── tool-catalog.ts           # 当前 listed/hidden 工具目录
+│   ├── tool-catalog.ts           # 工具四维状态目录（审核/暴露/计算/历史）
 │   └── planet-data.ts            # 行星符号/守护关系
 ├── types/
 │   └── lunar-javascript.d.ts     # lunar-javascript 库类型声明
 ├── utils/
 │   ├── date.ts                   # 日期解析工具（parseDate 等）
 │   └── time.ts                   # 时辰计算工具
-├── composables/                  # 计算引擎 + 共享状态
+├── composables/                  # 计算引擎 + 共享状态（共 26 个）
 │   ├── useAuth.ts                # 认证状态（基于 useState）
 │   ├── useSolarTerms.ts          # 节气日期、月柱、五虎遁
-│   ├── useBaZi.ts                # 四柱、十神、大运
-│   ├── useShenSha.ts             # 神煞查找表，按维度组织
-│   ├── useLiuNian.ts             # 流年：11 年跨度、评分、模板文本
-│   ├── useShengXiao.ts           # 生肖性格、五行、婚配
+│   ├── useBaZi.ts                # 【旧引擎】四柱、十神、大运（日柱锚点已知错误，仍被 useHeHun 调用）
+│   ├── useShenSha.ts             # 【旧引擎】神煞查找表，按维度组织
+│   ├── useLiuNian.ts             # 【旧引擎】流年：11 年跨度、工程评分、模板文本
+│   ├── useShengXiao.ts           # 生肖分类与干支；旧性格/婚配/运势函数仍在，但页面已不再引用
 │   ├── useConstellation.ts       # 星座星盘、星座解读
 │   ├── useGreeting.ts            # 问候语（localStorage 持久化）
 │   ├── useYijing.ts              # 易经起卦、变卦、爻辞
 │   ├── useZiwei.ts               # 紫微斗数星盘（依赖 iztro 库）
-│   ├── useHeHun.ts               # 八字合婚匹配
+│   ├── useHeHun.ts               # 八字合婚匹配（上游依赖旧 useBaZi 的日柱，围栏内）
 │   ├── useCezi.ts                # 汉字测字解读
 │   ├── useNameTest.ts            # 姓名三才五格测试
 │   ├── useZeJi.ts                # 择吉日推荐
 │   ├── useGuMing.ts / useMeiHua.ts # 称骨、梅花旧计算
 │   ├── useMonthlyFortune.ts      # 月运势计算
 │   ├── useNatalChart.ts          # 星座本命星盘（依赖 astronomy-engine）
-│   └── useExportImage.ts         # html-to-image 导出图片
+│   ├── useExportImage.ts         # html-to-image 导出图片
+│   ├── useBaziDraft.ts           # R5 八字页草稿（走 utils/bazi 新引擎）
+│   ├── useBaziProfileImport.ts   # 八字页从本人档案带入
+│   ├── useResultHistory.ts       # R5 结果历史读写
+│   ├── useSelfProfile.ts         # R4 本人档案状态
+│   ├── useSelfProfileDraft.ts    # 生肖页档案带入/撤销
+│   ├── useDailyWuxing.ts         # 首页今日穿衣
+│   └── useProfileAutoFill.ts     # 旧档案自动填充（随旧档案页封存）
 ├── components/
 │   ├── home/                     # 首页专用组件（DailyFortuneStick）
+│   ├── bazi/                     # R5 当前八字页组件（BaziInputForm、BaziPillarCard 等）
+│   ├── profile/                  # R4 本人档案页组件
 │   └── tools/
-│       ├── bazi/                 # BaziGrid、ElementAnalysis、DayMasterCard、DaYunTimeline 等
+│       ├── bazi/                 # 【死代码】旧八字区块（BaziGrid、ElementAnalysis、DayMasterCard 等）
+│       │                         #   已无任何页面引用，仅测试仍在断言；见"旧八字栈"段
 │       ├── constellation/        # Nav、Hero、HoroscopePanel、YiJiPanel、NatalChart 等
 │       ├── shengxiao/            # AnimalNav、Hero、Personality、WuXingGrid、CompatibilityGrid 等
 │       ├── yijing/               # HexagramDisplay、YijingCastingPanel、YijingInterpretation 等
@@ -98,7 +108,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │       ├── zeji/                 # ZejiCalendar、ZejiRecommend
 │       ├── ToolPageLayout.vue    # 三栏布局：#nav / #mobile-nav / #nav-right
 │       ├── ToolToolbar.vue       # 顶部工具栏（历史 + 导出）
-│       ├── HistoryModal.vue      # 历史记录模态框
+│       ├── HistoryModal.vue      # 【死代码】历史模态框，已无页面引用，见 Divinations API 段
 │       ├── ExportButton.vue      # 导出图片按钮
 │       ├── InkDivider.vue        # 墨韵分割线
 │       ├── PageHero.vue          # 页面标题区
@@ -107,7 +117,6 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │       ├── SkeletonCard.vue      # 骨架屏卡片
 │       ├── SkeletonBars.vue      # 骨架屏柱状图
 │       ├── ScrollTopButton.vue   # 回到顶部按钮
-│       ├── EntertainmentDisclaimer.vue  # 娱乐免责声明
 │       ├── AvatarCircle.vue      # 头像圈
 │       └── auth/                 # AuthForm、AuthDialog（统一认证表单与页内弹层）
 ├── pages/                        # 首页、登录、账号、工具与状态页
@@ -124,18 +133,24 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │   ├── api/profiles/             # R4 前统一返回 410，不访问数据库
 │   ├── api/self-profile/         # R4 本人档案：index.get、summary.get、index.put、birth-date.delete、index.delete、usage.patch
 │   ├── database/
-│   │   ├── db.ts                 # sql.js SQLite 连接（加载 R2 + R4 DDL，事务内写 _migrations 版本4）
+│   │   ├── db.ts                 # sql.js 连接：R2+R4+R5 DDL、_migrations 版本 4/5、
+│   │   │                         #   原子落盘（临时文件+fsync+rename）、单实例锁、public/ 路径守卫
 │   │   ├── schema.ts             # R2 账号/会话/安全日志 DDL + 索引
-│   │   └── self-profile-schema.ts # R4 本人档案两表（self_profiles/consent_receipts）DDL + 索引
+│   │   ├── self-profile-schema.ts # R4 本人档案两表（self_profiles/consent_receipts）DDL + 索引
+│   │   └── result-history-schema.ts # R5 结果快照表（result_snapshots）DDL + 索引
 │   ├── services/
-│   │   └── self-profile.ts       # R4 领域服务：createSelfProfileService 依赖注入 + 默认实例
+│   │   ├── self-profile.ts       # R4 领域服务：createSelfProfileService 依赖注入 + 默认实例
+│   │   ├── result-history.ts     # R5 结果历史领域服务
+│   │   └── tool-recompute.ts     # R5 服务端复算
 │   ├── middleware/auth.ts        # 只从 xuanxue_token Cookie 恢复 → event.context.accountId
 │   ├── plugins/
 │   │   ├── database.ts           # Nitro 插件：数据库初始化
-│   │   └── csp.ts                # CSP nonce 注入插件
+│   │   └── csp.ts                # CSP nonce 注入插件（从 event 读取 routeRules 策略并写回）
 │   ├── types/h3.d.ts             # H3 event context 扩展（accountId、sessionId、sessionToken）
-│   └── utils/                    # auth、rateLimit、json、profile、securityLog、self-profile-request
-└── tests/                        # composables/、server/、utils/、helpers/
+│   └── utils/                    # auth、rateLimit、bounded-json-body、instance-lock、
+│                                 # request-origin、securityLog、account、self-profile-request 等
+└── tests/                        # composables/、components/、pages/、server/、middleware/、
+                                  # config/、constants/、utils/、helpers/、fixtures/
 ```
 
 **类型优先就近放**——组件/组合式函数专用的类型在其自身模块中 `export`。**跨模块共享的类型**（如 `FetchError`，被 10+ 个页面引用）放在 `types/` 目录，避免循环依赖。`types/lunar-javascript.d.ts` 仅为第三方库类型声明。
@@ -190,11 +205,16 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 - **SelfProfile** (`server/api/self-profile/`): R4 本人档案：`index.get`、`summary.get`、`index.put`、`birth-date.delete`、`index.delete`、`usage.patch`
 - **Divinations** (`server/api/divinations/`): `index.post`（保存）、`index.get`（列表，按 type 过滤）、`[id].get`（详情，校验归属）
 - **Middleware** (`server/middleware/auth.ts`): 只从 `xuanxue_token` HttpOnly Cookie 恢复会话，注入 `event.context.accountId`、`sessionId` 与仅供当前请求删除会话使用的 `sessionToken`；不再接受 Bearer。
-- **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 key（IP/account）键控。
+- **Rate limiting** (`server/utils/rateLimit.ts`): 内存限流，按 key（IP/account）键控。客户端 IP 由 `getClientIp()` 从 `X-Forwarded-For` **从右向左**跳过可信代理取第一个不可信地址（不取最左值——那由客户端完全控制）；可信集由 `TRUSTED_PROXY_IPS` 声明。
 
-### 本人档案（R4，实施待验收）
+### 本人档案（R4，Accepted）
 
-R4 本人档案只实现完整出生日期字段组，状态为 `implemented_verification_pending`（未运行 typecheck/test/build、未初始化数据库、未浏览器验收，不是 Accepted）。
+R4 本人档案只实现完整出生日期字段组，状态为 **`Accepted`（2026-09-14 用户确认接受）**。
+接受限定为「本人档案初版」：功能、数据流程与已批准要求成立；**不构成公开放行**——工具目录
+仍为 `in_review / internal / blocked / disabled`，R6 公开门禁未开始。接受依据：四项门禁在
+格式化稳定的提交树上通过（typecheck 0 错、测试 67 文件 / 2379 用例、lint 0 error、build 成功），
+另有复验 35/35、出版版视觉 51/51、信息架构 32/32 三轮真机浏览器验收。详见
+[产品规范索引](docs/product/README.md) 与 [阶段路线图](docs/project/stage-roadmap.md)。
 
 - **领域类型**：`types/self-profile.ts` 定义严格联合 `RawBirthDate`（solar 的 `isLeapMonth` 必须 null；lunar 必须显式布尔）、`NormalizedBirthDate`、`SelfProfile`、`ExpectedProfile`、`SelfProfileSummary`、有限错误码与请求/草稿类型。
 - **策略常量**：`constants/self-profile-policy.ts`（告知版本 `2026-09-09`、转换版本、最小日期/年龄/字节、用途/数据类别/动作）。
@@ -203,7 +223,7 @@ R4 本人档案只实现完整出生日期字段组，状态为 `implemented_ver
 - **服务**：`server/services/self-profile.ts` 的 `createSelfProfileService({get,run,transaction,now})` 依赖注入供内存 SQL 测试，`selfProfileService` 为生产实例。所有写入原子、按可信 accountId 限定、id+version CAS、相同值不重复写、注销靠 accounts 外键级联。
 - **HTTP 边界**：`server/utils/self-profile-request.ts` 统一身份（`event.context.accountId`）、同源、真实 UTF-8 字节 4096 上限、白名单结构校验与固定错误映射；`no-store.ts` 已覆盖 `/api/self-profile`，SW 对该路径 NetworkOnly。
 - **客户端**：`composables/useSelfProfile.ts`（私有 ref、accountId+请求序号防串号、401 清理、BroadcastChannel 只传 accountId/档案 id/version/action）、`composables/useSelfProfileDraft.ts`（生肖页带入/撤销）、`components/profile/*` 与 `pages/self-profile.vue`。
-- **关键约束**：所有日期写操作需差异确认、同源、本人权限与版本 CAS；R4 仅实施待验收，UI 视觉打磨后置；不建立旧账户认领或历史兼容，不读旧 `divination_results`。
+- **关键约束**：所有日期写操作需差异确认、同源、本人权限与版本 CAS；R4 已 Accepted，但其构建测试授权不延伸至 R5；不建立旧账户认领或历史兼容，不读旧 `divination_results`。
 
 ### Session 安全
 
@@ -242,10 +262,11 @@ R4 本人档案只实现完整出生日期字段组，状态为 `implemented_ver
 
 项目配置了 `.githooks/` 目录，`git config core.hooksPath .githooks` 已激活：
 
-| Hook         | 触发            | 行为                                       |
-| ------------ | --------------- | ------------------------------------------ |
-| `pre-commit` | `git commit` 前 | 当前分支为 `main` → 拒绝提交，提示切分支   |
-| `pre-push`   | `git push` 前   | 自动运行 `npx vitest run` → 不通过拒绝推送 |
+| Hook         | 触发            | 行为                                                               |
+| ------------ | --------------- | ------------------------------------------------------------------ |
+| `pre-commit` | `git commit` 前 | 当前分支为 `main` → 拒绝提交，提示切分支                           |
+| `pre-commit` | `git commit` 前 | `lint-staged`：`eslint` + `prettier --check`（门禁型，不改写源码） |
+| `pre-push`   | `git push` 前   | 先 `nuxi typecheck`，再 `npx vitest run` → 不通过拒绝推送          |
 
 新克隆项目需执行：`git config core.hooksPath .githooks`
 
@@ -309,23 +330,30 @@ R4 本人档案只实现完整出生日期字段组，状态为 `implemented_ver
 
 #### Divinations API
 
+> **本段描述的是已退役的死代码。** `pages/**` 对 `/api/divinations` 与 `HistoryModal` 的引用为
+> **0 命中**，且 `tests/pages/tools/history-containment.test.ts` 明确断言 11 个工具页不得再引用它们
+> （`event.context.profileId` 从不赋值，`divination_results` 表全仓无 DDL，整条链路恒 401）。
+> 历史读写已由 R5 的 `result-history` 端点与 `components/bazi/BaziHistoryPanel.vue` 承接。
+> 保留该实现仅为追溯，**不得在新页面复用，也不得据此推断当前历史行为**。
+
 - 三个端点：`POST /api/divinations`（保存）、`GET /api/divinations?type=bazi`（列表）、`GET /api/divinations/[id]`（详情）。
 - POST 校验：需要认证令牌、每 profile 每分钟限流 10 次、校验 type 必须在 `server/api/divinations/shared.ts` 的 `DIVINATION_TYPES`（当前 11 种）中。
 - 当前遗留实现会以 fire-and-forget 自动保存；这是已确认待整改行为。目标规范要求生成与保存分离，只有用户主动确认后才能创建历史。
 - GET 列表排除 `result_data`（仅元数据以节省带宽），GET 详情包含 `result_data` 并校验归属（`profile_id` 不匹配返回 403）。
 - `input_data` 和 `result_data` 在 SQLite 中以 JSON 字符串存储；读取时通过 `safeJsonParse()` 反序列化。
-- HistoryModal（通用历史弹窗）展示最近 **5 条**记录，服务器返回 LIMIT 20，客户端 `slice(0, 5)`。
-- BaZi 页面历史下拉同样通过 HistoryModal 展示，点击恢复完整结果并重新计算神煞/流年。
+
+**当前历史实现（R5）**：`server/api/result-history/*` + `server/services/result-history.ts` +
+`composables/useResultHistory.ts`；仅 `create_allowed` 的工具可创建，服务端复算、不可变快照、按 accountId 限定归属。
 
 ### 新工具约定（ZiWei、HeHun、CeZi、NameTest、ZeJi）
 
-以上页面当前复用了 `ToolPageLayout`、`ToolToolbar`、`HistoryModal` 和 `EntertainmentDisclaimer` 等组件，但这只是既有实现记录。后续是否保留历史、导出、免责声明或其他能力由通用规范和单项工具契约决定，不得继续套用统一旧模板。
+以上页面当前复用了 `ToolPageLayout`、`ToolToolbar` 等组件，但这只是既有实现记录。`EntertainmentDisclaimer.vue` **已不存在于仓库**（旧文件已删除），不要按它写新代码。后续是否保留历史、导出、免责声明或其他能力由通用规范和单项工具契约决定，不得继续套用统一旧模板。
 
 #### ZiWei（紫微斗数）
 
 - **依赖 `iztro`** npm 包计算紫微斗数星盘——这是唯一的外部紫微计算库
 - `ZiWeiCelestialChart` 渲染 12 宫格星盘，`ZiWeiPalaceGrid` 展示宫位星曜详情，`ZiWeiDaXianTimeline` 展示大限流年时间线，`ZiWeiDetailPanel` + `ZiWeiDetailSheet` 展示星曜解读
-- `ZiWeiInputForm` 收集出生信息（含 longitude/latitude），`ZiWeiTabSwitcher` 切换星盘/大限/流年视图
+- `ZiWeiInputForm` 收集出生**公历**日期、时辰与性别（**不收集 longitude/latitude**；全仓 `longitude` 仅出现在星座组件，紫微页与八字页均不传经纬度，`useZiwei.ts` 的真太阳时分支实际不可达），`ZiWeiTabSwitcher` 切换星盘/大限/流年视图
 - `ZiWeiInfoSidebar` 作为 `#nav-right` 展示个人信息摘要
 
 #### HeHun（合婚）
