@@ -351,12 +351,13 @@ describe('calculateBaZi', () => {
   })
 
   it('hidden stems never show 日主, matching stem gets 比肩', () => {
-    // 1964-07-14: 甲寅日, day branch 寅 hidden stems [甲, 丙, 戊]
-    // The hidden 甲 matches day master — must be 比肩, not 日主
+    // 1960-01-27 日柱为**甲寅**，日支寅藏干 [甲, 丙, 戊]；藏干中的甲与日主同干，须为比肩而非日主。
+    // 注：本用例原先使用 1964-07-14，该日日柱实为**甲子**（旧引擎因错误锚点算成甲寅，
+    // 子之藏干为癸），断言依赖了错误的日支，随日柱锚点修复一并更正。
     const result = calculateBaZi({
-      birthYear: 1964,
-      birthMonth: 7,
-      birthDay: 14,
+      birthYear: 1960,
+      birthMonth: 1,
+      birthDay: 27,
       birthCalendar: 'solar' as const,
       birthHour: 8,
       gender: '男' as const,
@@ -773,7 +774,8 @@ describe('snapshot tests', () => {
     expect(result.monthPillar.stem).toMatchInlineSnapshot(`"丙"`)
     expect(result.monthPillar.branch).toMatchInlineSnapshot(`"子"`)
     expect(result.dayPillar.stem).toMatchInlineSnapshot(`"戊"`)
-    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"申"`)
+    // 2000-01-01 日柱为戊午（国标锚点推算 + lunar-javascript 互证；黄金样例 BZ-704）
+    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"午"`)
     expect(result.hourPillar!.stem).toMatchInlineSnapshot(`"戊"`)
     expect(result.hourPillar!.branch).toMatchInlineSnapshot(`"午"`)
     expect(result.dayMaster).toMatchInlineSnapshot(`"戊"`)
@@ -792,7 +794,8 @@ describe('snapshot tests', () => {
     expect(result.yearPillar.stem).toMatchInlineSnapshot(`"甲"`)
     expect(result.yearPillar.branch).toMatchInlineSnapshot(`"辰"`)
     expect(result.dayMaster).toMatchInlineSnapshot(`"甲"`)
-    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"寅"`)
+    // 1964-07-14 日柱为甲子（国标锚点推算 + lunar-javascript 互证；黄金样例 BZ-703）
+    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"子"`)
     expect(result.dayPillar.stemTenGod).toMatchInlineSnapshot(`"日主"`)
     expect(result.monthPillar.stem).toMatchInlineSnapshot(`"辛"`)
     expect(result.monthPillar.branch).toMatchInlineSnapshot(`"未"`)
@@ -812,7 +815,8 @@ describe('snapshot tests', () => {
     expect(result.yearPillar.stem).toMatchInlineSnapshot(`"甲"`)
     expect(result.yearPillar.branch).toMatchInlineSnapshot(`"申"`)
     expect(result.dayMaster).toMatchInlineSnapshot(`"甲"`)
-    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"辰"`)
+    // 2004-02-05 日柱为甲寅（国标锚点推算 + lunar-javascript 互证）
+    expect(result.dayPillar.branch).toMatchInlineSnapshot(`"寅"`)
     expect(result.dayMasterStrength).toMatchInlineSnapshot(`"强"`)
   })
 
@@ -844,13 +848,16 @@ describe('snapshot tests', () => {
       birthHour: 14,
       gender: '男' as const,
     })
+    // 1998-05-25 日柱由（错误的）壬戌更正为壬申，元素统计随之变化且总数不变（24）：
+    // 土 9→8（日支戌土→申金）、火 7→6（藏干丁火消失）、金 2→4（日支申金 +1、纳音大海水→剑锋金 +1）、
+    // 水 3→3（藏干得壬水 +1、纳音失水 −1）、木 3→3。计数逻辑本身未改动。
     expect(result.elementCounts).toMatchInlineSnapshot(`
       {
-        "土": 9,
+        "土": 8,
         "木": 3,
         "水": 3,
-        "火": 7,
-        "金": 2,
+        "火": 6,
+        "金": 4,
       }
     `)
   })

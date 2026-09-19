@@ -76,15 +76,26 @@ export function yearGanZhi(gregorianYear: number): string {
   return ganZhiAt(gregorianYear - BAZI_YEAR_CYCLE_ANCHOR)
 }
 
+/**
+ * 六十甲子日序（0 = 甲子），纯整数日历算术。
+ * 锚点：1949-10-01 为甲子日（GB/T 33661—2017 §6.3.2）。
+ *
+ * 单独导出供旧引擎（`composables/useBaZi.ts`）复用，使**日柱规则在仓库内只有一处实现**，
+ * 不再存在第二个可以漂移的锚点。该入口接受任意年月日整数、不做公历合法性校验
+ * （严格校验由 `dayGanZhi` 与 `utils/bazi/calendar-adapter.ts` 承担）。
+ */
+export function dayGanZhiIndex(year: number, month: number, day: number): number {
+  const anchor = parseDateString(BAZI_DAY_PILLAR_ANCHOR)
+  if (!anchor) throw new Error('invalid day pillar anchor')
+  const diff = dayNumber(year, month, day) - dayNumber(anchor.year, anchor.month, anchor.day)
+  return ((diff % 60) + 60) % 60
+}
+
 /** 干支日：以 1949-10-01 = 甲子日为锚点按天数差取模（GB/T §6.3.2）。 */
 export function dayGanZhi(solarDate: string): string {
   const target = parseDateString(solarDate)
-  const anchor = parseDateString(BAZI_DAY_PILLAR_ANCHOR)
-  if (!target || !anchor) throw new Error('invalid date')
-  const diff =
-    dayNumber(target.year, target.month, target.day) -
-    dayNumber(anchor.year, anchor.month, anchor.day)
-  return ganZhiAt(diff)
+  if (!target) throw new Error('invalid date')
+  return ganZhiAt(dayGanZhiIndex(target.year, target.month, target.day))
 }
 
 /**

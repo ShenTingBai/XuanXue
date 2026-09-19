@@ -11,6 +11,7 @@ import {
 } from '~/constants/bazi'
 import { getTrueSolarHour } from '~/utils/time'
 import { getYearStemIndex, getYearBranchIndex } from '~/utils/stem-branch'
+import { dayGanZhiIndex } from '~/utils/bazi/pillars'
 
 // === Helper ===
 
@@ -243,33 +244,25 @@ function buildPillar(stemIndex: number, branchIndex: number, dayMasterIndex: num
 }
 
 /**
- * Days from the Zeller formula epoch to 1900-01-01.
- * 1900-01-01 is a 甲子日 (stem=0, branch=0) in the sexagenary cycle.
- * Derived from: days = 365*1899 + floor(1899/4) - floor(1899/100) + floor(1899/400)
- *   + floor((153*13-457)/5) + 1 = 693902
- */
-const DAYS_FROM_EPOCH_TO_1900_01_01 = 693902
-
-/**
- * Calculate day pillar stem and branch indices.
- * Uses Zeller-like formula with reference date 1900-01-01 = 甲子日 (stem=0, branch=0).
+ * 日柱干支索引 [天干, 地支]。
+ *
+ * 2026-09-15 修复：旧实现用 Zeller 式公式配一个**错误锚点**——注释断言
+ * 「1900-01-01 是甲子日」，真值为**甲戌**（国标锚点反推、lunar-javascript、
+ * JDN 公式三法互证）。由于天干与地支是对同一个偏差值分别取模，锚点偏 10 位
+ * 导致「**日干恒对、日支恒偏移 +2**」，即所有日期的日支都是错的。
+ * 日支为夫妻宫，直接决定合婚的六合/六冲/六害/相刑与空亡取旬。
+ *
+ * 现直接复用 `utils/bazi/pillars.ts` 的 `dayGanZhiIndex()`（国标锚点
+ * 1949-10-01 = 甲子，见 constants/bazi-rules.ts），日柱规则在仓库内只保留
+ * **一处实现**，不再有第二个锚点可以漂移。
+ *
+ * 注意：本函数保留对任意整数年月日的宽容（不做公历合法性校验），
+ * 以维持 `calculateBaZi` 既有的输入处理语义；严格校验由新引擎 `utils/bazi` 承担。
  */
 function getDayPillarIndices(year: number, month: number, day: number): [number, number] {
-  const y = month <= 2 ? year - 1 : year
-  const m = month <= 2 ? month + 12 : month
-
-  const days =
-    365 * y +
-    Math.floor(y / 4) -
-    Math.floor(y / 100) +
-    Math.floor(y / 400) +
-    Math.floor((153 * m - 457) / 5) +
-    day -
-    DAYS_FROM_EPOCH_TO_1900_01_01
-
-  const stemIndex = ((days % 10) + 10) % 10
-  const branchIndex = ((days % 12) + 12) % 12
-  return [stemIndex, branchIndex]
+  const sexagenary = dayGanZhiIndex(year, month, day)
+  // 天干与地支必须取自**同一个**六十甲子序——这是甲子配对成立的前提。
+  return [sexagenary % 10, sexagenary % 12]
 }
 
 /** Get the hour branch index from birth hour (0-23) */

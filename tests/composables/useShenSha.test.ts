@@ -151,11 +151,14 @@ describe('calculateShenSha', () => {
 
   // 禄神: 甲禄在寅
   it('禄神: 甲日主 → 寅支柱有禄神', () => {
-    // 1964-07-14: 甲辰年 甲寅日 (甲日主 with day branch 寅)
+    // 1960-01-27 日柱为**甲寅**（国标锚点 1949-10-01 = 甲子 推算，lunar-javascript 互证）：
+    // 甲日主且日支为寅，禄神应落在日柱地支。
+    // 注：本用例原先使用 1964-07-14，该日日柱实为**甲子**（旧引擎因错误锚点算成甲寅），
+    // 属建立在错误日柱上的夹具，随日柱锚点修复一并更正。
     const bazi = calculateBaZi({
-      birthYear: 1964,
-      birthMonth: 7,
-      birthDay: 14,
+      birthYear: 1960,
+      birthMonth: 1,
+      birthDay: 27,
       birthCalendar: 'solar' as const,
       birthHour: 8,
       gender: '男' as const,
@@ -290,8 +293,19 @@ describe('calculateShenSha', () => {
   })
 
   it('华盖 present for 年支寅 (寅午戌华盖在戌)', () => {
-    // 1998-05-25 戊寅年, day branch is 戌, so 华盖 should be on 日柱
-    const input = getShenShaInput()
+    // 1998-02-08（立春后，戊寅年）日柱为**丙戌**：年支寅 → 华盖在戌，应落在日柱。
+    // 注：本用例原先用共享夹具 1998-05-25，该日日柱实为**壬申**（旧引擎错算成壬戌），
+    // 全盘并无戌，属建立在错误日柱上的夹具，随日柱锚点修复一并更正。
+    const bazi = calculateBaZi({ ...baseProfile, birthMonth: 2, birthDay: 8 })
+    const input = {
+      yearPillar: bazi.yearPillar,
+      monthPillar: bazi.monthPillar,
+      dayPillar: bazi.dayPillar,
+      hourPillar: bazi.hourPillar,
+      dayMaster: bazi.dayMaster,
+      dayMasterIndex: getStemIndex(bazi.dayMaster),
+      gender: '男' as const,
+    }
     expect(input.yearPillar.branch).toBe('寅')
     expect(input.dayPillar.branch).toBe('戌')
     const result = calculateShenSha(input)
