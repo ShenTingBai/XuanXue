@@ -64,7 +64,17 @@ const nuxtGlobals = {
 export default [
   // Global ignores
   {
-    ignores: ['.nuxt/**', '.output/**', 'node_modules/**', 'dist/**', 'deploy/**', '.claude/**'],
+    // coverage/ 是 npm run test:coverage 生成的报告产物；eslint 不读 .gitignore，
+    // 必须显式忽略，否则跑过覆盖率后 lint 会去检查生成文件并产生噪音/误报。
+    ignores: [
+      '.nuxt/**',
+      '.output/**',
+      'node_modules/**',
+      'dist/**',
+      'deploy/**',
+      '.claude/**',
+      'coverage/**',
+    ],
   },
 
   // Base JS/TS recommended
