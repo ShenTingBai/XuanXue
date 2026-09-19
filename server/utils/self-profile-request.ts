@@ -10,7 +10,6 @@
  * @author LiXinwen
  */
 
-import { getHeader, readRawBody } from 'h3'
 import type { H3Event } from 'h3'
 import type {
   SaveSelfProfileRequest,
@@ -22,6 +21,7 @@ import type {
 } from '~/types/self-profile'
 import { SELF_PROFILE_MAX_REQUEST_BYTES } from '~/constants/self-profile-policy'
 import { SelfProfileServiceError } from '../services/self-profile'
+import { readBoundedJsonBody as readBoundedJsonBodyShared } from './bounded-json-body'
 
 /** 统一身份获取：未认证 401。 */
 export function requireAccountId(event: H3Event): number {
@@ -32,27 +32,13 @@ export function requireAccountId(event: H3Event): number {
   return accountId
 }
 
-/** 校验请求体真实 UTF-8 字节不超过上限：不能只相信 Content-Length。 */
-export async function readBoundedJsonBody(event: H3Event): Promise<unknown> {
-  const contentLength = Number(getHeader(event, 'content-length') || 0)
-  if (Number.isFinite(contentLength) && contentLength > SELF_PROFILE_MAX_REQUEST_BYTES) {
-    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
-  }
-  // 真实字节兜底：即使缺失或伪造 Content-Length 仍按实际 UTF-8 长度拦截。
-  const raw = await readRawBody(event, 'utf-8')
-  if (raw == null) {
-    return {}
-  }
-  if (Buffer.byteLength(raw, 'utf-8') > SELF_PROFILE_MAX_REQUEST_BYTES) {
-    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
-  }
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    throw createError({ statusCode: 400, statusMessage: '请求体格式错误' })
-  }
-  return parsed
+/**
+ * 校验请求体真实 UTF-8 字节不超过上限：不能只相信 Content-Length。
+ * 具体判定集中在 server/utils/bounded-json-body.ts，与认证接口共用同一实现。
+ * 命名带 SelfProfile 前缀，避免与通用实现的同名导出在 Nuxt 自动导入中冲突。
+ */
+export function readSelfProfileJsonBody(event: H3Event): Promise<Record<string, unknown>> {
+  return readBoundedJsonBodyShared(event, SELF_PROFILE_MAX_REQUEST_BYTES)
 }
 
 /** 严格整数（拒绝数字字符串、小数、NaN、无穷）。 */

@@ -9,19 +9,22 @@ import { toSafeAccount, normalizeNickname } from '../../utils/account'
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 import { assertSameOriginMutation } from '../../utils/request-origin'
-import { ACCOUNT_STATUS_ACTIVE } from '../../../constants/account-policy'
+import { readBoundedJsonBody } from '../../utils/bounded-json-body'
+import { ACCOUNT_STATUS_ACTIVE, AUTH_MAX_REQUEST_BYTES } from '../../../constants/account-policy'
 
 export default defineEventHandler(async event => {
   // 同源校验先于任何数据库写入
   assertSameOriginMutation(event)
 
-  // 体积限制：防止超大请求体
-  const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
-  if (contentLength > 1024) {
-    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
+  // 限流先于读体：登录是暴破的唯一防线，必须最先判定，
+  // 体积上限由 readBoundedJsonBody 按真实字节兜底。
+  const clientIp = getClientIp(event)
+  if (!checkRateLimit(`login:${clientIp}`, 5, 60000)) {
+    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Login rate limit exceeded')
+    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
-  const body = (await readBody(event)) || {}
+  const body = await readBoundedJsonBody(event, AUTH_MAX_REQUEST_BYTES)
   const { nickname: rawNickname, password } = body
 
   // 密码不 trim，按原值参与校验
@@ -32,13 +35,6 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 400, statusMessage: '密码长度不能超过64个字符' })
   }
   const nickname = normalizeNickname(rawNickname)
-
-  // 限流：每分钟 5 次/IP
-  const clientIp = getClientIp(event)
-  if (!checkRateLimit(`login:${clientIp}`, 5, 60000)) {
-    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Login rate limit exceeded')
-    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
-  }
 
   cleanupExpiredSessions()
 

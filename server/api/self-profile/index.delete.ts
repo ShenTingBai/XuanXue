@@ -1,7 +1,7 @@
 import { assertSameOriginMutation } from '../../utils/request-origin'
 import {
   requireAccountId,
-  readBoundedJsonBody,
+  readSelfProfileJsonBody,
   mapServiceError,
 } from '../../utils/self-profile-request'
 import { HistoryModeRequiredError, selfProfileService } from '../../services/self-profile'
@@ -14,7 +14,7 @@ import { HistoryModeRequiredError, selfProfileService } from '../../services/sel
 export default defineEventHandler(async event => {
   assertSameOriginMutation(event)
   const accountId = requireAccountId(event)
-  const body = await readBoundedJsonBody(event)
+  const body = await readSelfProfileJsonBody(event)
   const { expected, historyMode } = parseDeleteProfileRequest(body)
 
   const historyCount = selfProfileService.countHistoryWithBirthInput(accountId)

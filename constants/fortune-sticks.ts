@@ -376,9 +376,21 @@ export const fortuneSticks: FortuneStick[] = [
   },
 ]
 
+/**
+ * 本地日期 YYYY-MM-DD。
+ * 不能用 toISOString()——那是 UTC 日期，东八区在 00:00–08:00 会取到前一天，
+ * 使首页「今日命签」在每天前八小时显示昨天的签。
+ */
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 /** 以日期字符串为 seed，返回当日签文 */
 export function getDailyFortune(dateStr?: string): FortuneStick {
-  const d = dateStr ?? new Date().toISOString().slice(0, 10)
+  const d = dateStr ?? toLocalDateString(new Date())
   let hash = 0
   for (let i = 0; i < d.length; i++) {
     hash = (hash << 5) - hash + d.charCodeAt(i)

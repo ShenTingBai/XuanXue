@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # 覆盖所有分支：长期开发分支（codex/**、feat/**、fix/**）必须同样受门禁约束。
+    # 旧配置只覆盖 main，而 R2–R5 全部提交都在 codex/foundation-rebuild 上，
+    # 导致该分支 CI 运行次数为 0 —— 提交树与验收树分叉时没有任何机器告警。
+    branches: ['**']
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -14,9 +16,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.nvmrc'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --registry https://registry.npmmirror.com
       - run: npm run typecheck
 
   test:
@@ -25,11 +27,26 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.nvmrc'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --registry https://registry.npmmirror.com
       - run: npx nuxi prepare
-      - run: npm test
+      # 跑覆盖率版本：阈值只在这里被真正评估（旧配置 enabled:false 且无任何
+      # --coverage 入口，thresholds 从未生效过）。
+      - run: npm run test:coverage
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci --registry https://registry.npmmirror.com
+      # build 是历史上唯一真正拦下过事故的门禁（Vue 模板 / semi:false 类问题
+      # 只有生产构建能抓到），此前 CI 完全没有这一步。
+      - run: npm run build
 
   lint:
     runs-on: ubuntu-latest
@@ -37,9 +54,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.nvmrc'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --registry https://registry.npmmirror.com
       - run: npm run lint
 
   format:
@@ -48,7 +65,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci --registry https://registry.npmmirror.com
       - run: npx prettier --check .

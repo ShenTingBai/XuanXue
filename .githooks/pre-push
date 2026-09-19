@@ -1,5 +1,16 @@
 #!/bin/bash
-# push 前自动跑全部测试，不通过拒绝推送
+# push 前跑类型检查与全部测试，不通过拒绝推送。
+# typecheck 必须在这里：CI 只在远端跑，本地推送前的最后一道门禁不能只看测试。
+echo ""
+echo "🔎 运行类型检查..."
+npx nuxi typecheck
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ 类型检查未通过，拒绝推送。请修复后重试。"
+  exit 1
+fi
+
 echo ""
 echo "🧪 运行测试套件..."
 npx vitest run --reporter=verbose
@@ -11,4 +22,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "✅ 测试全部通过，允许推送。"
+echo "✅ 类型检查与测试全部通过，允许推送。"

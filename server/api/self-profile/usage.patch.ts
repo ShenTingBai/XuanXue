@@ -1,7 +1,7 @@
 import { assertSameOriginMutation } from '../../utils/request-origin'
 import {
   requireAccountId,
-  readBoundedJsonBody,
+  readSelfProfileJsonBody,
   parseUsageRequest,
   mapServiceError,
 } from '../../utils/self-profile-request'
@@ -12,7 +12,7 @@ import { selfProfileService } from '../../services/self-profile'
 export default defineEventHandler(async event => {
   assertSameOriginMutation(event)
   const accountId = requireAccountId(event)
-  const body = await readBoundedJsonBody(event)
+  const body = await readSelfProfileJsonBody(event)
   const request = parseUsageRequest(body)
   try {
     const profile = selfProfileService.setUsage(

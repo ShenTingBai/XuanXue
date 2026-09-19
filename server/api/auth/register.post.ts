@@ -9,6 +9,7 @@ import { toSafeAccount, normalizeNickname, isValidNickname } from '../../utils/a
 import { getClientIp, checkRateLimit } from '../../utils/rateLimit'
 import { logSecurityEvent } from '../../utils/securityLog'
 import { assertSameOriginMutation } from '../../utils/request-origin'
+import { readBoundedJsonBody } from '../../utils/bounded-json-body'
 import {
   CURRENT_PRIVACY_POLICY_VERSION,
   CURRENT_SERVICE_TERMS_VERSION,
@@ -16,19 +17,22 @@ import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   ACCOUNT_STATUS_ACTIVE,
+  AUTH_MAX_REQUEST_BYTES,
 } from '../../../constants/account-policy'
 
 export default defineEventHandler(async event => {
   // 同源校验先于任何数据库写入
   assertSameOriginMutation(event)
 
-  // 体积限制：防止超大请求体
-  const contentLength = parseInt(getHeader(event, 'content-length') || '0', 10)
-  if (contentLength > 1024) {
-    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
+  // 限流先于读体：体积上限由 readBoundedJsonBody 按真实字节判定，
+  // 但不能让未认证请求先消耗一次完整读体的资源。
+  const clientIp = getClientIp(event)
+  if (!checkRateLimit(`register:${clientIp}`, 3, 60000)) {
+    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Register rate limit exceeded')
+    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
-  const body = (await readBody(event)) || {}
+  const body = await readBoundedJsonBody(event, AUTH_MAX_REQUEST_BYTES)
   const {
     nickname: rawNickname,
     password,
@@ -71,13 +75,6 @@ export default defineEventHandler(async event => {
   }
   if (serviceTermsVersion !== CURRENT_SERVICE_TERMS_VERSION) {
     throw createError({ statusCode: 400, statusMessage: '服务规则版本不符，请刷新后重试' })
-  }
-
-  // 限流：每分钟 3 次/IP
-  const clientIp = getClientIp(event)
-  if (!checkRateLimit(`register:${clientIp}`, 3, 60000)) {
-    logSecurityEvent('rate_limit_triggered', null, clientIp, 'Register rate limit exceeded')
-    throw createError({ statusCode: 429, statusMessage: '请求过于频繁，请稍后再试' })
   }
 
   // 昵称唯一性预检（事务内仍有 UNIQUE 约束兜底）

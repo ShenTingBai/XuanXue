@@ -32,3 +32,9 @@ export const NICKNAME_PATTERN = /^[㐀-鿿\w-]+$/
 
 /** 认证 Cookie 名称：保持兼容，所有 set/delete Cookie 选项集中在 server/utils/auth.ts。 */
 export const AUTH_COOKIE_NAME = 'xuanxue_token'
+
+/**
+ * 认证类接口请求体上限（字节）：昵称 + 密码 + 两个规则版本，1024 足够。
+ * 按真实 UTF-8 字节判定，缺失 Content-Length（chunked）时仍会拦截。
+ */
+export const AUTH_MAX_REQUEST_BYTES = 1024

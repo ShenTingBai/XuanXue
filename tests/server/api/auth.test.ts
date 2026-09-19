@@ -7,6 +7,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockGetHeader = vi.hoisted(() => vi.fn())
 const mockReadBody = vi.hoisted(() => vi.fn())
+const mockReadRawBody = vi.hoisted(() => vi.fn())
 const mockGetRequestURL = vi.hoisted(() => vi.fn())
 const mockSetCookie = vi.hoisted(() => vi.fn())
 const mockDeleteCookie = vi.hoisted(() => vi.fn())
@@ -16,6 +17,14 @@ const mockCreateErrorFn = vi.hoisted(() =>
   }),
 )
 
+// 认证端点改走 server/utils/bounded-json-body（显式 import h3），
+// 因此除 stubGlobal 外还需替换 h3 模块导出，才能让真实字节上限逻辑受测。
+vi.mock('h3', async importOriginal => ({
+  ...(await importOriginal<typeof import('h3')>()),
+  getHeader: mockGetHeader,
+  readRawBody: mockReadRawBody,
+}))
+
 // Stub Nuxt auto-import globals
 vi.hoisted(() => {
   vi.stubGlobal(
@@ -24,6 +33,7 @@ vi.hoisted(() => {
   )
   vi.stubGlobal('getHeader', mockGetHeader)
   vi.stubGlobal('readBody', mockReadBody)
+  vi.stubGlobal('readRawBody', mockReadRawBody)
   vi.stubGlobal('getRequestURL', mockGetRequestURL)
   vi.stubGlobal('setCookie', mockSetCookie)
   vi.stubGlobal('deleteCookie', mockDeleteCookie)
@@ -119,6 +129,12 @@ function makeEvent(overrides: Record<string, unknown> = {}) {
 describe('R2 认证接口', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    // readRawBody 委托给既有 readBody 夹具：各用例的 body 写法保持不变，
+    // 同时让 bounded-json-body 的真实 UTF-8 字节校验受测。
+    mockReadRawBody.mockImplementation(async (event: any) => {
+      const body = await mockReadBody(event)
+      return body === undefined || body === null ? undefined : JSON.stringify(body)
+    })
     // clearAllMocks 会连 mock 实现一并清空，这里显式恢复默认实现，
     // 避免上一个 describe 的用例（如 verifyPassword=false）泄漏到后续用例
     const authMod = await import('~/server/utils/auth')
@@ -271,6 +287,32 @@ describe('R2 认证接口', () => {
       vi.mocked(checkRateLimit).mockReturnValue(false)
       await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 429 })
     })
+
+    it('缺失 Content-Length 时仍按真实字节拒绝超大请求体（chunked 绕过回归）', async () => {
+      // 回归：旧实现只信 Content-Length，缺失该头时 parseInt('0')=0 直接放行，
+      // 随后读入整包；现由 bounded-json-body 按真实 UTF-8 字节兜底。
+      mockReadRawBody.mockResolvedValue(JSON.stringify({ nickname: 'x'.repeat(4096) }))
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
+    })
+
+    it('Content-Length 声明超限时在读体前拒绝', async () => {
+      mockGetHeader.mockImplementation((_e: any, name: string) => {
+        if (name?.toLowerCase() === 'content-length') return '999999'
+        return undefined
+      })
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
+    })
+
+    it('请求体不是合法 JSON 时返回 400', async () => {
+      mockReadRawBody.mockResolvedValue('not-json')
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('限流先于读体：被限流时不读取请求体', async () => {
+      vi.mocked(checkRateLimit).mockReturnValue(false)
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 429 })
+      expect(mockReadRawBody).not.toHaveBeenCalled()
+    })
   })
 
   // ── 登录 ──
@@ -312,6 +354,11 @@ describe('R2 认证接口', () => {
       // verifyPassword 必须收到未 trim 的原值
       const calls = vi.mocked(verifyPassword).mock.calls
       expect(calls[calls.length - 1][0]).toBe('  password123  ')
+    })
+
+    it('缺失 Content-Length 时仍拒绝超大请求体（chunked 绕过回归）', async () => {
+      mockReadRawBody.mockResolvedValue(JSON.stringify({ nickname: 'x'.repeat(4096) }))
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
     })
 
     it('不存在与非 active 统一返回 401（防枚举）', async () => {
@@ -528,6 +575,15 @@ describe('R2 认证接口', () => {
       ).rejects.toMatchObject({
         statusCode: 400,
       })
+    })
+
+    it('注销接口受限流保护且先于读体判定', async () => {
+      // 注销含密码复核（scrypt 同步开销），旧实现完全无限流
+      vi.mocked(checkRateLimit).mockReturnValue(false)
+      await expect(
+        handler(makeEvent({ context: { accountId: 7 }, method: 'DELETE' })),
+      ).rejects.toMatchObject({ statusCode: 429 })
+      expect(mockReadRawBody).not.toHaveBeenCalled()
     })
 
     it('密码错误返回 401 且不清 Cookie、不删除', async () => {

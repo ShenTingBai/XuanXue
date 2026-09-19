@@ -20,16 +20,13 @@ describe('sql.js 生产运行时 WASM 定位', () => {
     expect(configSource).not.toContain('publicDir')
   })
 
-  it('构建后目标 WASM 与服务端 sql-wasm.js 同目录存在', () => {
-    const serverSqlJs = resolve(root, '.output/server/node_modules/sql.js/dist/sql-wasm.js')
-    const serverWasm = join(
-      resolve(root, '.output/server/node_modules/sql.js/dist'),
-      'sql-wasm.wasm',
-    )
-    // 若生产构建已运行（.output 存在），必须满足 WASM 与 JS 同目录；未构建时不阻塞。
-    if (existsSync(serverSqlJs)) {
-      expect(existsSync(serverWasm)).toBe(true)
-    }
+  const serverSqlJs = resolve(root, '.output/server/node_modules/sql.js/dist/sql-wasm.js')
+  const serverWasm = join(resolve(root, '.output/server/node_modules/sql.js/dist'), 'sql-wasm.wasm')
+
+  // 生产构建产物存在时必须满足 WASM 与 JS 同目录。
+  // 用 skipIf 显式跳过，而非在用例体内条件断言静默通过——跳过与否在测试报告中可见。
+  it.skipIf(!existsSync(serverSqlJs))('构建后目标 WASM 与服务端 sql-wasm.js 同目录存在', () => {
+    expect(existsSync(serverWasm)).toBe(true)
   })
 
   it('server/database/db.ts 不改变数据库 API 或持久化行为', () => {
