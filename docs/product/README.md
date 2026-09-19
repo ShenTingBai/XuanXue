@@ -222,9 +222,9 @@ R4 本人档案已完成代码实施与验证用例编写，状态为 **Implemen
 截至 2026-09-15，R5 已进入实施。本节只记录**可核对的代码事实**，不构成 R5 完成、Accepted 或公开放行：
 
 - `constants/tool-catalog.ts` 中 `bazi` 的 `computePolicy` 为 `enabled`、`historyPolicy` 为 `create_allowed`；`exposure` 保持 `internal`，`isToolPubliclyAvailable` 仍为 false，普通访客仍被重定向到状态页。内部验证由 `XUANXUE_INTERNAL_TOOLS` 白名单控制，默认关闭。
-- 已提交：`c1eb1eb`（R5-B 八字基础排盘与结果历史，含 D3 授权内部验证通道）、`7073f5d`（R5-C 按设计规格改造八字页 UI，六段结构与内容闭集不变）、`481cef9`（八字页出版版版式对齐设计基线）。
-- 工作区未提交：R5-D 八字页互动可供性调整（`components/bazi/*`、`components/profile/*`、`pages/tools/bazi.vue` 等）。
-- R5 新引擎位于 `utils/bazi/*`（国标锚点 1949-10-01 甲子、分钟级节气、边界候选建模）；旧 `composables/useBaZi.ts` 的日柱锚点存在**已知系统性错误**（日支对所有日期偏移 +2），且仍被 `useHeHun.ts` 调用，围栏内不对外。
+- 已提交：`c1eb1eb`（R5-B 八字基础排盘与结果历史，含 D3 授权内部验证通道）、`7073f5d`（R5-C 按设计规格改造八字页 UI，六段结构与内容闭集不变）、`481cef9`（八字页出版版版式对齐设计基线）、`7877285`（R5-D 出版版外壳 + 交互可供性第二轮，合并为单提交）。
+- 上述两轮的验收记录见 [R5-D 版式对齐验收](../validation/2026-09-15-r5d-bazi-editorial-alignment-validation.md)与[交互可供性验收](../validation/2026-09-15-bazi-interaction-affordance-validation.md)；独立审查于提交前由第三方补做，覆盖 R5-D `result.yaml` 的 `codex_review_checklist` 8 项并全部通过（第二轮无 `plan.yaml`／`result.yaml`，属流程留痕缺口）。
+- R5 新引擎位于 `utils/bazi/*`（国标锚点 1949-10-01 甲子、分钟级节气、边界候选建模）。旧 `composables/useBaZi.ts` 的日柱锚点错误已于 `89f626d` 修正——原用自研锚点断言「1900-01-01 是甲子日」（真值甲戌），因天干地支对同一偏差值分别取模，表现为**日干恒对、日支恒偏移 +2**；现改为复用 `utils/bazi/pillars.ts` 的 `dayGanZhiIndex()`，日柱规则在仓库内只保留一处实现。`useHeHun.ts` 经 `calculateBaZi` 自动获得正确日支；相关工具围栏内不对外。
 - 第三方独立复核（[2026-09-15 全面复核](../audits/2026-09-15-third-party-full-review.md)）记录了当前判读：八字新引擎骨架可信，但全部来源仍为 `unreviewed`，且分钟级外部核验只覆盖 2026 一年。
 
 **R5 阶段状态仍由用户确认**；本节不把实现完成写成 Accepted，也不改变公开准入与工具围栏。

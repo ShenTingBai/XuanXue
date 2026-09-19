@@ -111,7 +111,7 @@
 
 ## 3. 当前批准路线与阶段进入门槛
 
-2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)为准。截至 2026-09-15：R1、R2、R3、R4 均为 `Accepted`；R5 已进入实施（R5-B、R5-C 已提交，R5-D 在工作区未提交），阶段状态待用户确认；R6 为 `Approved`，未进入实施。R4 的接受限定为「本人档案初版」，不等于任何工具获准公开发放行。
+2026-09-07 用户已逐项批准六阶段基础重建路线。完整范围以[基础重建与首批工具交付规范](../product/delivery/foundation-rebuild-and-first-tools-delivery-spec.md)为准。截至 2026-09-15：R1、R2、R3、R4 均为 `Accepted`；R5 已进入实施（R5-B、R5-C、R5-D 均已提交，其中 R5-D 与交互可供性合并为单提交 `7877285`），阶段状态待用户确认；R6 为 `Approved`，未进入实施。R4 的接受限定为「本人档案初版」，不等于任何工具获准公开发放行。
 
 ### R1：安全收口
 
@@ -185,8 +185,8 @@
 - 进入门槛：R4 `Accepted`（2026-09-14 已满足）。
 - 实施进展（2026-09-15 核对）：
   - `constants/tool-catalog.ts` 中 `bazi` 已为 `computePolicy: enabled` + `historyPolicy: create_allowed`，`exposure` 仍为 `internal`；普通访客仍被围栏重定向，内部验证由 `XUANXUE_INTERNAL_TOOLS` 白名单控制且默认关闭；
-  - 已提交 `c1eb1eb`（R5-B 基础排盘与结果历史）、`7073f5d`（R5-C 八字页 UI 改造）、`481cef9`（出版版版式对齐设计基线）；R5-D 互动可供性调整在工作区未提交；
-  - 新引擎位于 `utils/bazi/*`；旧 `composables/useBaZi.ts` 日柱锚点存在已知系统性错误，仍被 `useHeHun.ts` 调用（围栏内）。
+  - 已提交 `c1eb1eb`（R5-B 基础排盘与结果历史）、`7073f5d`（R5-C 八字页 UI 改造）、`481cef9`（出版版版式对齐设计基线）、`7877285`（R5-D 出版版外壳，含交互可供性第二轮，合并为单提交）；
+  - 新引擎位于 `utils/bazi/*`；旧 `composables/useBaZi.ts` 的日柱锚点错误已于 `89f626d` 修正（改复用 `utils/bazi/pillars.ts` 的 `dayGanZhiIndex()`，日柱规则只保留一处实现），`useHeHun.ts` 经 `calculateBaZi` 自动获得正确日支，围栏内不对外。
 - 完成门槛：普通日期部分结果、节气边界候选、页内认证后二次确认、幂等保存、快照读取、重新计算和删除全部通过；八字日期、节气和甲子日来源及黄金样例满足对应准入。
 - 完成门槛**尚未满足**：第三方独立复核（[2026-09-15](../audits/2026-09-15-third-party-full-review.md)）记录多项来源仍为 `unreviewed`，分钟级外部核验只覆盖 2026 一年。
 
