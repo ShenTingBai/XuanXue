@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { BAZI_NOT_OUTPUT, BAZI_TOOL_ID } from '~/constants/bazi-rules'
+import { BAZI_NOT_OUTPUT, BAZI_RULE_VERSION, BAZI_TOOL_ID } from '~/constants/bazi-rules'
 import { getToolById, canCreateHistory, canReadHistory } from '~/constants/tool-catalog'
 import { useBaziDraft } from '~/composables/useBaziDraft'
 import { useBaziProfileImport } from '~/composables/useBaziProfileImport'
 import { useResultHistory } from '~/composables/useResultHistory'
 import { useSelfProfile } from '~/composables/useSelfProfile'
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
-import PageHero from '~/components/tools/PageHero.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import PageFooter from '~/components/tools/PageFooter.vue'
+import IndexNav from '~/components/editorial/IndexNav.vue'
+import Masthead from '~/components/editorial/Masthead.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import AuthDialog from '~/components/auth/AuthDialog.vue'
 import BaziInputForm from '~/components/bazi/BaziInputForm.vue'
 import BaziStatusBanner from '~/components/bazi/BaziStatusBanner.vue'
@@ -89,6 +91,19 @@ const canAnswer = [
 ]
 
 const notOutputText = BAZI_NOT_OUTPUT.join('、')
+
+// ── 出版版外壳：卷目六条（与治理规范六段一一对应，名称用规范全名，不简写）──
+const indexItems = [
+  { num: 'Ⅰ', label: '工具说明', href: '#bazi-guide' },
+  { num: 'Ⅱ', label: '本次操作', href: '#bazi-input' },
+  { num: 'Ⅲ', label: '核心结果摘要', href: '#bazi-summary' },
+  { num: 'Ⅳ', label: '通俗解释与详细结果', href: '#bazi-detail' },
+  { num: 'Ⅴ', label: '依据与范围', href: '#bazi-scope' },
+  { num: 'Ⅵ', label: '本次结果操作', href: '#bazi-actions' },
+]
+
+/** 卷目脚注：本页真实边界——只有日期级三柱，不含时辰。 */
+const indexFootnote = '三柱（年 / 月 / 日）\n只到日期级 · 不含时辰'
 
 // ── 结果投影（模板可读性）：唯一情形、候选情形、日期对照与不确定性 ──
 const baziResult = computed(() => draft.result.value)
@@ -305,24 +320,26 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <PageHero
-      emoji="八"
-      title="八字基础排盘"
-      subtitle="按出生日期排出年、月、日三柱，并说明每一步的依据、边界与限制。"
-    />
+  <div class="bazi-page editorial-shell">
+    <IndexNav :items="indexItems" :footnote="indexFootnote" />
 
-    <main class="bazi-page max-w-[48rem] mx-auto space-y-16">
+    <article class="editorial-article">
+      <Masthead
+        seal="八"
+        edition="工具 · 日期级排盘（年 / 月 / 日三柱）"
+        title="八字基础排盘"
+        subtitle="按出生日期排出年、月、日三柱，并说明每一步的依据、边界与限制。"
+        :status-text="internalOnly ? '内部验证中' : undefined"
+        :meta-text="`规则版本 ${BAZI_RULE_VERSION}`"
+      />
       <!-- Ⅰ 工具说明 -->
       <section
         id="bazi-guide"
         data-bazi-section="guide"
-        class="card-paper-solid rounded-xl p-6 sm:p-8"
+        class="editorial-section editorial-section--first"
         aria-labelledby="bazi-guide-heading"
       >
-        <h2 id="bazi-guide-heading" class="section-header font-display text-xl text-ink-dark">
-          <span class="bazi-sec-num" aria-hidden="true">Ⅰ</span>工具说明
-        </h2>
+        <SectionHeading num="Ⅰ" title="工具说明" heading-id="bazi-guide-heading" />
 
         <p class="mt-4 font-sans text-sm sm:text-base text-ink-medium leading-relaxed">
           本页按出生日期排出<strong class="font-medium text-ink-dark">年柱、月柱、日柱</strong
@@ -362,94 +379,111 @@ onBeforeUnmount(() => {
       <section
         id="bazi-input"
         data-bazi-section="input"
-        class="card-paper-solid rounded-xl p-6 sm:p-8"
+        class="editorial-section"
         aria-labelledby="bazi-input-heading"
       >
-        <h2 id="bazi-input-heading" class="section-header font-display text-xl text-ink-dark">
-          <span class="bazi-sec-num" aria-hidden="true">Ⅱ</span>本次操作
-        </h2>
+        <SectionHeading num="Ⅱ" title="本次操作" heading-id="bazi-input-heading" />
 
-        <p class="mt-4 font-sans text-sm text-ink-medium leading-relaxed">
-          填写出生日期后主动生成。本页不使用出生时刻：时柱需要时刻，本版不输出时柱。
-        </p>
-
-        <BaziInputForm
-          class="mt-4"
-          :draft="draft.draft.value"
-          :error="draft.inputError.value"
-          :max-year="maxYear"
-          @update:calendar="onDraftCalendar"
-          @update:year="onDraftYear"
-          @update:month="onDraftMonth"
-          @update:day="onDraftDay"
-          @update:leap-month="onDraftLeap"
-          @update:age-confirmed="draft.setAgeConfirmed"
-        />
-
-        <!-- 从本人档案带入：只复制出生日期到本次草稿，不自动计算、不自动保存 -->
-        <div v-if="draftBridge.canImport.value" class="mt-4" data-bazi-import>
-          <button
-            type="button"
-            class="btn-ghost"
-            :disabled="draftBridge.loading.value"
-            @click="draftBridge.requestImport()"
-          >
-            {{ draftBridge.loading.value ? '读取中...' : '从本人档案带入出生日期' }}
-          </button>
-          <p class="mt-2 font-sans text-xs text-ink-light">
-            只把出生日期复制到本次输入，不带入档案其他字段，也不会自动生成或保存。
+        <div class="card-paper-solid rounded-xl p-6 sm:p-8">
+          <p class="mt-4 font-sans text-sm text-ink-medium leading-relaxed">
+            填写出生日期后主动生成。本页不使用出生时刻：时柱需要时刻，本版不输出时柱。
           </p>
-        </div>
-        <p v-if="draftBridge.error.value" class="mt-2 font-sans text-xs text-cinnabar" role="alert">
-          {{ draftBridge.error.value }}
-        </p>
 
-        <!-- 替换确认：草稿已有不同日期时，先展示当前值与拟带入值 -->
-        <div
-          v-if="draftBridge.pending.value"
-          class="mt-4 card-warm rounded-xl p-4 border-l-[3px] border-l-cinnabar"
-          role="dialog"
-          aria-labelledby="bazi-import-replace-title"
-        >
-          <p id="bazi-import-replace-title" class="font-display text-base text-ink-dark">
-            替换当前输入？
-          </p>
-          <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
-            当前：{{ draftBridge.describeRaw(draftBridge.pending.value.current) }} → 拟带入：{{
-              draftBridge.describeRaw(draftBridge.pending.value.incoming)
-            }}
-          </p>
-          <div class="mt-3 flex flex-wrap gap-3">
-            <button type="button" class="btn-quiet" @click="draftBridge.cancelImport()">
-              取消
+          <BaziInputForm
+            class="mt-4"
+            :draft="draft.draft.value"
+            :error="draft.inputError.value"
+            :max-year="maxYear"
+            @update:calendar="onDraftCalendar"
+            @update:year="onDraftYear"
+            @update:month="onDraftMonth"
+            @update:day="onDraftDay"
+            @update:leap-month="onDraftLeap"
+            @update:age-confirmed="draft.setAgeConfirmed"
+          />
+
+          <!-- 从本人档案带入：只复制出生日期到本次草稿，不自动计算、不自动保存 -->
+          <div v-if="draftBridge.canImport.value" class="mt-4" data-bazi-import>
+            <!-- 次要描边按钮 + 下箭头：此前是无边框的 ghost 文本，看起来不像按钮（用户 2026-09-15 反馈）。
+                 仍不填色，把「本屏唯一朱砂」留给生成键。 -->
+            <button
+              type="button"
+              class="btn-quiet"
+              :disabled="draftBridge.loading.value"
+              @click="draftBridge.requestImport()"
+            >
+              <svg
+                aria-hidden="true"
+                class="h-4 w-4"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              >
+                <path d="M8 2v8m0 0L5 7m3 3l3-3M3 13h10" />
+              </svg>
+              {{ draftBridge.loading.value ? '读取中...' : '从本人档案带入出生日期' }}
             </button>
-            <button type="button" class="btn-solid" @click="draftBridge.confirmImport()">
-              确认替换
+            <p class="mt-2 font-sans text-xs text-ink-medium">
+              只把出生日期复制到本次输入，不带入档案其他字段，也不会自动生成或保存。
+            </p>
+          </div>
+          <p
+            v-if="draftBridge.error.value"
+            class="mt-2 font-sans text-xs text-cinnabar"
+            role="alert"
+          >
+            {{ draftBridge.error.value }}
+          </p>
+
+          <!-- 替换确认：草稿已有不同日期时，先展示当前值与拟带入值 -->
+          <div
+            v-if="draftBridge.pending.value"
+            class="mt-4 card-warm rounded-xl p-4 border-l-[3px] border-l-cinnabar"
+            role="dialog"
+            aria-labelledby="bazi-import-replace-title"
+          >
+            <p id="bazi-import-replace-title" class="font-display text-base text-ink-dark">
+              替换当前输入？
+            </p>
+            <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+              当前：{{ draftBridge.describeRaw(draftBridge.pending.value.current) }} → 拟带入：{{
+                draftBridge.describeRaw(draftBridge.pending.value.incoming)
+              }}
+            </p>
+            <div class="mt-3 flex flex-wrap gap-3">
+              <button type="button" class="btn-quiet" @click="draftBridge.cancelImport()">
+                取消
+              </button>
+              <button type="button" class="btn-solid" @click="draftBridge.confirmImport()">
+                确认替换
+              </button>
+            </div>
+          </div>
+
+          <div v-if="draftBridge.canUndo.value" class="mt-3">
+            <button type="button" class="btn-ghost" @click="draftBridge.undoImport()">
+              撤销本次带入
             </button>
           </div>
-        </div>
 
-        <div v-if="draftBridge.canUndo.value" class="mt-3">
-          <button type="button" class="btn-ghost" @click="draftBridge.undoImport()">
-            撤销本次带入
-          </button>
-        </div>
-
-        <div class="mt-4">
-          <button
-            type="button"
-            class="btn-seal"
-            :disabled="!draft.canGenerate.value"
-            @click="handleGenerate"
-          >
-            <span>生成三柱结果</span>
-          </button>
-          <p v-if="!draft.canGenerate.value" class="mt-2 font-sans text-sm text-ink-medium">
-            请先选择完整日期（农历需明确普通月或闰月）并确认已满十四周岁。
-          </p>
-          <p v-else class="mt-2 font-sans text-sm text-ink-medium">
-            生成只使用本页内存中的日期，不会向服务器提交出生日期。
-          </p>
+          <div class="mt-4">
+            <button
+              type="button"
+              class="btn-seal"
+              :disabled="!draft.canGenerate.value"
+              @click="handleGenerate"
+            >
+              <span>生成三柱结果</span>
+            </button>
+            <p v-if="!draft.canGenerate.value" class="mt-2 font-sans text-sm text-ink-medium">
+              请先选择完整日期（农历需明确普通月或闰月）并确认已满十四周岁。
+            </p>
+            <p v-else class="mt-2 font-sans text-sm text-ink-medium">
+              生成只使用本页内存中的日期，不会向服务器提交出生日期。
+            </p>
+          </div>
         </div>
       </section>
 
@@ -457,12 +491,10 @@ onBeforeUnmount(() => {
       <section
         id="bazi-summary"
         data-bazi-section="summary"
-        class="space-y-3"
+        class="editorial-section space-y-3"
         aria-labelledby="bazi-summary-heading"
       >
-        <h2 id="bazi-summary-heading" class="section-header font-display text-xl text-ink-dark">
-          <span class="bazi-sec-num" aria-hidden="true">Ⅲ</span>核心结果摘要
-        </h2>
+        <SectionHeading num="Ⅲ" title="核心结果摘要" heading-id="bazi-summary-heading" />
 
         <BaziStatusBanner
           :state="draft.state.value"
@@ -512,12 +544,10 @@ onBeforeUnmount(() => {
       <section
         id="bazi-detail"
         data-bazi-section="detail"
-        class="space-y-4"
+        class="editorial-section space-y-4"
         aria-labelledby="bazi-detail-heading"
       >
-        <h2 id="bazi-detail-heading" class="section-header font-display text-xl text-ink-dark">
-          <span class="bazi-sec-num" aria-hidden="true">Ⅳ</span>通俗解释与详细结果
-        </h2>
+        <SectionHeading num="Ⅳ" title="通俗解释与详细结果" heading-id="bazi-detail-heading" />
 
         <!-- 唯一情形：三柱并列；候选情形：日柱单列，年/月柱见逐项对比 -->
         <div v-if="baziResult" class="grid gap-4 sm:grid-cols-3">
@@ -563,14 +593,10 @@ onBeforeUnmount(() => {
       <section
         id="bazi-scope"
         data-bazi-section="scope"
+        class="editorial-section"
         aria-labelledby="bazi-scope-section-heading"
       >
-        <h2
-          id="bazi-scope-section-heading"
-          class="section-header font-display text-xl text-ink-dark mb-4"
-        >
-          <span class="bazi-sec-num" aria-hidden="true">Ⅴ</span>依据与范围
-        </h2>
+        <SectionHeading num="Ⅴ" title="依据与范围" heading-id="bazi-scope-section-heading" />
         <BaziEvidenceScope
           :result="baziResult"
           :as-of-date="draft.generation.value?.asOfDate || asOfDate"
@@ -581,12 +607,10 @@ onBeforeUnmount(() => {
       <section
         id="bazi-actions"
         data-bazi-section="actions"
-        class="space-y-4"
+        class="editorial-section space-y-4"
         aria-labelledby="bazi-actions-heading"
       >
-        <h2 id="bazi-actions-heading" class="section-header font-display text-xl text-ink-dark">
-          <span class="bazi-sec-num" aria-hidden="true">Ⅵ</span>本次结果操作
-        </h2>
+        <SectionHeading num="Ⅵ" title="本次结果操作" heading-id="bazi-actions-heading" />
 
         <div class="card-warm rounded-xl p-6 sm:p-8" data-bazi-save>
           <h3 class="font-display text-lg text-ink-dark">保存本次结果</h3>
@@ -668,45 +692,43 @@ onBeforeUnmount(() => {
           @cancel-clear="history.cancelClearAll"
         />
       </section>
-    </main>
+    </article>
+  </div>
 
-    <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
+  <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
 
-    <!-- 保存确认：先展示摘要，再由用户确认（认证成功不触发保存） -->
-    <BaziSaveDialog
-      :show="showSaveDialog"
-      :original-expression="baziResult?.dateComparison.originalExpression ?? ''"
-      :origin-label="saveOriginLabel"
-      :result-lines="saveSummaryLines"
-      :rule-version="baziResult?.ruleVersion ?? ''"
-      :source-set-version="baziResult?.sourceSetVersion ?? ''"
-      :engine-label="`${baziResult?.engineName ?? ''} ${baziResult?.engineVersion ?? ''}`.trim()"
-      :as-of-date="draft.generation.value?.asOfDate ?? ''"
-      :busy="history.saving.value"
-      :error="history.saveError.value"
-      :saved-at="history.savedAt.value"
-      @close="showSaveDialog = false"
-      @confirm="confirmSave"
-    />
+  <!-- 保存确认：先展示摘要，再由用户确认（认证成功不触发保存） -->
+  <BaziSaveDialog
+    :show="showSaveDialog"
+    :original-expression="baziResult?.dateComparison.originalExpression ?? ''"
+    :origin-label="saveOriginLabel"
+    :result-lines="saveSummaryLines"
+    :rule-version="baziResult?.ruleVersion ?? ''"
+    :source-set-version="baziResult?.sourceSetVersion ?? ''"
+    :engine-label="`${baziResult?.engineName ?? ''} ${baziResult?.engineVersion ?? ''}`.trim()"
+    :as-of-date="draft.generation.value?.asOfDate ?? ''"
+    :busy="history.saving.value"
+    :error="history.saveError.value"
+    :saved-at="history.savedAt.value"
+    @close="showSaveDialog = false"
+    @confirm="confirmSave"
+  />
 
-    <!-- 游客保存意图 → 页内认证（复用统一认证弹层，不新增表单） -->
-    <AuthDialog
-      :show="showAuthDialog"
-      initial-mode="login"
-      @close="onAuthCancel"
-      @authenticated="onAuthenticatedFromSave"
-    />
-  </ToolPageLayout>
+  <!-- 游客保存意图 → 页内认证（复用统一认证弹层，不新增表单） -->
+  <AuthDialog
+    :show="showAuthDialog"
+    initial-mode="login"
+    @close="onAuthCancel"
+    @authenticated="onAuthenticatedFromSave"
+  />
+  <PageFooter />
 </template>
 
 <style scoped>
 /* 时区与版本串在窄屏与放大字体下也必须留在正常阅读流中。 */
 .bazi-page {
+  min-height: calc(100dvh - 4rem);
+  padding-bottom: 64px;
   overflow-wrap: anywhere;
-}
-.bazi-sec-num {
-  margin-right: 0.5em;
-  font-size: 0.875em;
-  color: var(--color-ink-medium);
 }
 </style>

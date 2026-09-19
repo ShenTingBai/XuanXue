@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ProfileSectionHeading from '~/components/profile/ProfileSectionHeading.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ProfileNote from '~/components/profile/ProfileNote.vue'
 
 /**
@@ -15,7 +15,7 @@ defineProps<{
 
 <template>
   <section id="sec-scope" class="editorial-section" data-profile-section>
-    <ProfileSectionHeading num="Ⅲ" title="溯 · 溯源与范围" />
+    <SectionHeading num="Ⅲ" title="溯 · 溯源与范围" />
 
     <div class="editorial-facts">
       <div class="editorial-fact">

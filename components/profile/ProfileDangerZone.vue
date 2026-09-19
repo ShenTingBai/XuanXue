@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ProfileDangerSection from '~/components/profile/ProfileDangerSection.vue'
-import ProfileSectionHeading from '~/components/profile/ProfileSectionHeading.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 
 /**
  * Ⅳ 归 · 归档与删除：本人档案页的危险操作区。
@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 <template>
   <section id="sec-archive" class="editorial-section" data-profile-section>
-    <ProfileSectionHeading num="Ⅳ" title="归 · 归档与删除" />
+    <SectionHeading num="Ⅳ" title="归 · 归档与删除" />
 
     <ProfileDangerSection body-id="profile-danger-body">
       <div v-if="hasBirthDate" class="danger-item">

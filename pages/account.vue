@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import PageFooter from '~/components/tools/PageFooter.vue'
-import ProfileIndexNav from '~/components/profile/ProfileIndexNav.vue'
-import ProfileMasthead from '~/components/profile/ProfileMasthead.vue'
-import ProfileSectionHeading from '~/components/profile/ProfileSectionHeading.vue'
+import IndexNav from '~/components/editorial/IndexNav.vue'
+import Masthead from '~/components/editorial/Masthead.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ProfileDangerSection from '~/components/profile/ProfileDangerSection.vue'
 import ProfileNote from '~/components/profile/ProfileNote.vue'
 import {
@@ -272,10 +272,10 @@ async function confirmDelete() {
 
     <!-- 已登录 -->
     <div v-else-if="currentAccount" class="editorial-shell">
-      <ProfileIndexNav :items="indexItems" footnote="昵称不可修改&#10;每台设备独立会话" />
+      <IndexNav :items="indexItems" footnote="昵称不可修改&#10;每台设备独立会话" />
 
       <article class="editorial-article">
-        <ProfileMasthead
+        <Masthead
           edition="账号与会话"
           :title="nickname"
           subtitle="昵称注册后不可修改 · 仅账号本人可见"
@@ -289,7 +289,7 @@ async function confirmDelete() {
           class="editorial-section editorial-section--first"
           data-account-section
         >
-          <ProfileSectionHeading num="Ⅰ" title="账 · 账号身份" />
+          <SectionHeading num="Ⅰ" title="账 · 账号身份" />
 
           <div class="editorial-facts">
             <div class="editorial-fact">
@@ -316,7 +316,7 @@ async function confirmDelete() {
 
         <!-- Ⅱ 会话与设备 -->
         <section id="sec-session" class="editorial-section" data-account-section>
-          <ProfileSectionHeading num="Ⅱ" title="话 · 会话与设备" />
+          <SectionHeading num="Ⅱ" title="话 · 会话与设备" />
 
           <div class="session-card">
             <div class="session-item">
@@ -362,7 +362,7 @@ async function confirmDelete() {
 
         <!-- Ⅲ 数据与告知 -->
         <section id="sec-data" class="editorial-section" data-account-section>
-          <ProfileSectionHeading num="Ⅲ" title="数 · 数据与告知" />
+          <SectionHeading num="Ⅲ" title="数 · 数据与告知" />
 
           <div class="editorial-facts">
             <div class="editorial-fact">
@@ -404,7 +404,7 @@ async function confirmDelete() {
 
         <!-- Ⅳ 注销账号 -->
         <section id="sec-close" class="editorial-section" data-account-section>
-          <ProfileSectionHeading num="Ⅳ" title="销 · 注销账号" />
+          <SectionHeading num="Ⅳ" title="销 · 注销账号" />
 
           <ProfileDangerSection body-id="account-danger-body">
             <div class="danger-item">

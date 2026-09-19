@@ -2,16 +2,16 @@
 import { nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import ProfileMasthead from '~/components/profile/ProfileMasthead.vue'
+import Masthead from '~/components/editorial/Masthead.vue'
 import ProfileUsageSection from '~/components/profile/ProfileUsageSection.vue'
 import ProfileScopeSection from '~/components/profile/ProfileScopeSection.vue'
 import ProfileDangerZone from '~/components/profile/ProfileDangerZone.vue'
 import ProfileRecordCard from '~/components/profile/ProfileRecordCard.vue'
 import { SELF_PROFILE_POLICY_VERSION } from '~/constants/self-profile-policy'
 
-describe('ProfileMasthead', () => {
+describe('Masthead', () => {
   it('档案页用法：状态胶囊与元信息按传入文案渲染', () => {
-    const saved = mount(ProfileMasthead, {
+    const saved = mount(Masthead, {
       props: {
         edition: '第一阶段 · 出生日期字段组',
         title: '本人档案',
@@ -28,7 +28,7 @@ describe('ProfileMasthead', () => {
   })
 
   it('账号页用法：主标题可以是昵称，且不传状态胶囊时不渲染胶囊', () => {
-    const wrapper = mount(ProfileMasthead, {
+    const wrapper = mount(Masthead, {
       props: {
         edition: '账号与会话',
         title: '验收账号',
@@ -42,10 +42,22 @@ describe('ProfileMasthead', () => {
   })
 
   it('元信息缺失时显示占位，不渲染空行', () => {
-    const wrapper = mount(ProfileMasthead, {
+    const wrapper = mount(Masthead, {
       props: { edition: '账号与会话', title: '验收账号', subtitle: '副题' },
     })
     expect(wrapper.text()).toContain('—')
+  })
+
+  it('印章文字可传：默认「玄」，工具页可传自己的单字印章', () => {
+    const fallback = mount(Masthead, {
+      props: { edition: '工具', title: '八字基础排盘', subtitle: '副题' },
+    })
+    expect(fallback.get('.seal').text()).toBe('玄')
+
+    const custom = mount(Masthead, {
+      props: { edition: '工具', title: '八字基础排盘', subtitle: '副题', seal: '八' },
+    })
+    expect(custom.get('.seal').text()).toBe('八')
   })
 })
 

@@ -77,66 +77,142 @@ const sources = [
 </script>
 
 <template>
-  <section
-    class="card-warm rounded-xl p-6 sm:p-8"
-    data-bazi-evidence-scope
-    aria-labelledby="bazi-scope-heading"
-  >
-    <h3 id="bazi-scope-heading" class="font-display text-lg text-ink-dark">依据与范围</h3>
+  <details class="bazi-scope-fold card-warm rounded-xl" data-bazi-evidence-scope>
+    <!-- 默认收起：来源、限制与「不输出什么」的清单由摘要按钮展开。
+         段标题「Ⅴ 依据与范围」由页面承担（此前组件内还有第二个同名 h3，属重复标题，已移除）。 -->
+    <summary class="bazi-scope-summary">
+      <span class="bazi-fold-mark" aria-hidden="true" />
+      <span class="bazi-scope-label bazi-scope-label--closed">
+        展开：来源清单、版本、限制说明与本页不输出的内容
+      </span>
+      <span class="bazi-scope-label bazi-scope-label--open">
+        收起：来源清单、版本、限制说明与本页不输出的内容
+      </span>
+    </summary>
 
-    <h4 class="bazi-subhead">来源清单</h4>
-    <ul class="bazi-list">
-      <li v-for="source in sources" :key="source.name">
-        <span class="bazi-source-name">{{ source.name }}</span>
-        <span class="bazi-chip" data-bazi-source-level>{{ source.level }}</span>
-        <span class="bazi-source-detail">—— {{ source.detail }}</span>
-      </li>
-    </ul>
+    <div class="bazi-scope-body">
+      <h4 class="bazi-subhead">来源清单</h4>
+      <ul class="bazi-list">
+        <li v-for="source in sources" :key="source.name">
+          <span class="bazi-source-name">{{ source.name }}</span>
+          <span class="bazi-chip" data-bazi-source-level>{{ source.level }}</span>
+          <span class="bazi-source-detail">—— {{ source.detail }}</span>
+        </li>
+      </ul>
 
-    <h4 class="bazi-subhead">版本</h4>
-    <ul class="bazi-list">
-      <li>
-        规则版本：<span class="editorial-num">{{ ruleVersion }}</span>
-      </li>
-      <li>
-        来源集合版本：<span class="editorial-num">{{ sourceSetVersion }}</span>
-      </li>
-      <li>
-        引擎：{{ engineName }} <span class="editorial-num">{{ engineVersion }}</span>
-        （实现工具，不作规则权威）
-      </li>
-      <li>
-        支持范围：公历 <span class="editorial-num">{{ BAZI_SUPPORT_START }}</span> 至查询当日{{
-          asOfDate ? `（${asOfDate}）` : ''
-        }}
-      </li>
-      <li>内容标签：本页只使用{{ contentLabels.map(label => `「${label}」`).join('与') }}两类</li>
-    </ul>
+      <h4 class="bazi-subhead">版本</h4>
+      <ul class="bazi-list">
+        <li>
+          规则版本：<span class="editorial-num">{{ ruleVersion }}</span>
+        </li>
+        <li>
+          来源集合版本：<span class="editorial-num">{{ sourceSetVersion }}</span>
+        </li>
+        <li>
+          引擎：{{ engineName }} <span class="editorial-num">{{ engineVersion }}</span>
+          （实现工具，不作规则权威）
+        </li>
+        <li>
+          支持范围：公历 <span class="editorial-num">{{ BAZI_SUPPORT_START }}</span> 至查询当日{{
+            asOfDate ? `（${asOfDate}）` : ''
+          }}
+        </li>
+        <li>内容标签：本页只使用{{ contentLabels.map(label => `「${label}」`).join('与') }}两类</li>
+      </ul>
 
-    <h4 class="bazi-subhead">限制说明</h4>
-    <ul class="bazi-list">
-      <li v-for="item in limitations" :key="item">{{ item }}</li>
-      <li>
-        交节时刻已对抽样年份做分钟级核对；国家标准要求的 1
-        秒级精度尚未核验，因此边界日的结果可能随精度修正而改变。
-      </li>
-      <li>
-        年柱与月柱的传统规则目前只到古籍在线整理本层级，原刻影印核对尚未完成；「以立春为年界」是本项目采用的传统口径，不是国家标准规定。
-      </li>
-    </ul>
+      <h4 class="bazi-subhead">限制说明</h4>
+      <ul class="bazi-list">
+        <li v-for="item in limitations" :key="item">{{ item }}</li>
+        <li>
+          交节时刻已对抽样年份做分钟级核对；国家标准要求的 1
+          秒级精度尚未核验，因此边界日的结果可能随精度修正而改变。
+        </li>
+        <li>
+          年柱与月柱的传统规则目前只到古籍在线整理本层级，原刻影印核对尚未完成；「以立春为年界」是本项目采用的传统口径，不是国家标准规定。
+        </li>
+      </ul>
 
-    <h4 class="bazi-subhead">本页不输出的内容</h4>
-    <p class="bazi-list" data-bazi-not-output>
-      {{ notOutput.join('、') }}。以上内容本版一律不生成、不展示，也不以「即将推出」等方式承诺时间。
-    </p>
+      <h4 class="bazi-subhead">本页不输出的内容</h4>
+      <p class="bazi-list" data-bazi-not-output>
+        {{
+          notOutput.join('、')
+        }}。以上内容本版一律不生成、不展示，也不以「即将推出」等方式承诺时间。
+      </p>
 
-    <p class="bazi-foot">
-      本页内容为历法换算结果与项目整理的规则说明，不构成任何预测、建议或评价；如需确定性结论，请以权威历书为准。
-    </p>
-  </section>
+      <p class="bazi-foot">
+        本页内容为历法换算结果与项目整理的规则说明，不构成任何预测、建议或评价；如需确定性结论，请以权威历书为准。
+      </p>
+    </div>
+  </details>
 </template>
 
 <style scoped>
+/* Ⅴ 段折叠：默认收起，摘要即按钮（原生 details，键盘可达、无固定 max-height）。 */
+.bazi-scope-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 44px;
+  padding: 1.25rem 1.5rem;
+  border-radius: inherit;
+  cursor: pointer;
+  list-style: none;
+  transition: background var(--transition-fast);
+}
+.bazi-scope-summary::-webkit-details-marker {
+  display: none;
+}
+.bazi-scope-summary:hover {
+  background: color-mix(in srgb, var(--color-ink-dark) 4%, transparent);
+}
+.bazi-scope-summary:focus-visible {
+  outline: 2px solid var(--color-cinnabar);
+  outline-offset: 2px;
+}
+.bazi-scope-label {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-ink-dark);
+}
+.bazi-scope-label--open {
+  display: none;
+}
+details[open] > .bazi-scope-summary .bazi-scope-label--closed {
+  display: none;
+}
+details[open] > .bazi-scope-summary .bazi-scope-label--open {
+  display: inline;
+}
+/* 展开标记：方形 ＋/－，展开后填充朱砂（与三柱卡、六问同一视觉） */
+.bazi-fold-mark {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-cinnabar);
+  border-radius: 3px;
+  color: var(--color-cinnabar);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.bazi-fold-mark::before {
+  content: '＋';
+}
+details[open] .bazi-fold-mark {
+  background: var(--color-cinnabar);
+  color: var(--color-paper-lightest);
+}
+details[open] .bazi-fold-mark::before {
+  content: '－';
+}
+.bazi-scope-body {
+  padding: 0 1.5rem 1.5rem;
+}
+/* 展开区第一个小标题不再额外留白（外层已有内边距） */
+.bazi-scope-body > .bazi-subhead:first-child {
+  margin-top: 0;
+}
 /* 段落标题：最低对比但可读（正文下限 text-sm） */
 .bazi-subhead {
   margin: 24px 0 0;

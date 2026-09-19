@@ -1,27 +1,32 @@
 <script setup lang="ts">
 /**
- * 出版版报头：印章、眉题、标题、副题、状态胶囊与元信息行。
+ * 出版版报头：印章、眉题、标题、副题、状态胶囊与元信息行（共用件）。
  *
  * 纯展示：状态与时间文案由页面格式化后传入，组件不推断业务状态，
- * 供本人档案页与账号与安全页共用。
+ * 当前由本人档案页、账号与安全页、八字排盘页共用。
  */
-defineProps<{
-  /** 眉题，如「第一阶段 · 出生日期字段组」。 */
-  edition: string
-  /** 报头主标题。 */
-  title: string
-  /** 副题，一行说明这份内容属于谁、谁能看。 */
-  subtitle: string
-  /** 状态胶囊文案；为空则不渲染胶囊。 */
-  statusText?: string
-  /** 元信息行文案（已格式化）；为空时显示占位。 */
-  metaText?: string
-}>()
+withDefaults(
+  defineProps<{
+    /** 眉题，如「第一阶段 · 出生日期字段组」。 */
+    edition: string
+    /** 报头主标题。 */
+    title: string
+    /** 副题，一行说明这份内容属于谁、谁能看。 */
+    subtitle: string
+    /** 状态胶囊文案；为空则不渲染胶囊。 */
+    statusText?: string
+    /** 元信息行文案（已格式化）；为空时显示占位。 */
+    metaText?: string
+    /** 印章文字；默认「玄」，工具页可传自己的单字印章（如八字页传「八」）。 */
+    seal?: string
+  }>(),
+  { seal: '玄' },
+)
 </script>
 
 <template>
   <header class="masthead">
-    <span class="seal" aria-hidden="true">玄</span>
+    <span class="seal" aria-hidden="true">{{ seal }}</span>
     <p class="edition">{{ edition }}</p>
     <h1 class="title">{{ title }}</h1>
     <p class="sub">{{ subtitle }}</p>

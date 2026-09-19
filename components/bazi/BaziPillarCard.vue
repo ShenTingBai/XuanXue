@@ -67,9 +67,7 @@ const branchColor = computed(() => elementColor(props.pillar.branchElement))
     </p>
 
     <details class="mt-3">
-      <summary class="bazi-summary font-sans text-xs text-ink-medium">
-        这一柱是怎么来的（展开计算说明）
-      </summary>
+      <summary class="bazi-summary font-sans text-xs">这一柱是怎么来的（展开计算说明）</summary>
       <dl class="mt-2 space-y-1.5 font-sans text-xs leading-relaxed text-ink-medium">
         <div>
           <dt class="inline">天干：</dt>
@@ -105,20 +103,40 @@ const branchColor = computed(() => elementColor(props.pillar.branchElement))
   border: 1px solid color-mix(in srgb, var(--color-ink-faint) 60%, transparent);
   flex-shrink: 0;
 }
-/* 折叠摘要：≥44px 触控目标，键盘焦点可见 */
+/* 折叠摘要：≥44px 触控目标，键盘焦点可见；
+   可展开性靠「方形 ＋/－ 标记 + 悬停底色 + 加深字色」表达，不只靠文字。 */
 .bazi-summary {
   display: flex;
   min-height: 44px;
   align-items: center;
+  padding-inline: 8px;
+  margin-inline: -8px 0;
+  border-radius: 6px;
+  color: var(--color-ink-dark);
   cursor: pointer;
   list-style: none;
+  transition: background var(--transition-fast);
+}
+.bazi-summary:hover {
+  background: color-mix(in srgb, var(--color-ink-dark) 4%, transparent);
 }
 .bazi-summary::before {
   content: '＋';
-  margin-right: 0.375rem;
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  border: 1px solid var(--color-cinnabar);
+  border-radius: 3px;
+  color: var(--color-cinnabar);
+  font-size: 0.75rem;
+  line-height: 1;
 }
 details[open] > .bazi-summary::before {
   content: '－';
+  background: var(--color-cinnabar);
+  color: var(--color-paper-lightest);
 }
 .bazi-summary:focus-visible {
   outline: 2px solid var(--color-cinnabar);

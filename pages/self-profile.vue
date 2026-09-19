@@ -15,9 +15,9 @@ import { useSelfProfile } from '~/composables/useSelfProfile'
 import PageFooter from '~/components/tools/PageFooter.vue'
 import BirthDateGroupInput from '~/components/profile/BirthDateGroupInput.vue'
 import SelfProfileSaveDialog from '~/components/profile/SelfProfileSaveDialog.vue'
-import ProfileIndexNav from '~/components/profile/ProfileIndexNav.vue'
-import ProfileMasthead from '~/components/profile/ProfileMasthead.vue'
-import ProfileSectionHeading from '~/components/profile/ProfileSectionHeading.vue'
+import IndexNav from '~/components/editorial/IndexNav.vue'
+import Masthead from '~/components/editorial/Masthead.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ProfileRecordCard from '~/components/profile/ProfileRecordCard.vue'
 import ProfileUsageSection from '~/components/profile/ProfileUsageSection.vue'
 import ProfileScopeSection from '~/components/profile/ProfileScopeSection.vue'
@@ -553,10 +553,10 @@ const indexItems = [
 
     <!-- 已登录档案页 -->
     <div v-else-if="currentAccount" class="editorial-shell">
-      <ProfileIndexNav :items="indexItems" />
+      <IndexNav :items="indexItems" />
 
       <article class="editorial-article">
-        <ProfileMasthead
+        <Masthead
           edition="第一阶段 · 出生日期字段组"
           title="本人档案"
           subtitle="账号名下唯一一份 · 仅账号本人可见"
@@ -570,7 +570,7 @@ const indexItems = [
           class="editorial-section editorial-section--first"
           data-profile-section
         >
-          <ProfileSectionHeading num="Ⅰ" title="录 · 已录入资料" />
+          <SectionHeading num="Ⅰ" title="录 · 已录入资料" />
 
           <!-- 加载失败：不伪装为空档案 -->
           <div v-if="loadFailed" class="load-error" role="alert">
@@ -1028,7 +1028,7 @@ const indexItems = [
   text-align: center;
 }
 
-/* ── 窄屏：外壳与卷目的收窄规则由 .editorial-* 与 ProfileIndexNav 自己负责 ── */
+/* ── 窄屏：外壳与卷目的收窄规则由 .editorial-* 与 IndexNav 自己负责 ── */
 @media (max-width: 720px) {
   .state-card,
   .state-card--empty,

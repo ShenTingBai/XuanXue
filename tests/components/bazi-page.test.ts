@@ -108,9 +108,22 @@ describe('八字页面六段结构', () => {
     expect(order).toEqual(['guide', 'input', 'summary', 'detail', 'scope', 'actions'])
   })
 
-  it('页面只有一个 h1（由 PageHero 提供）', async () => {
+  it('页面只有一个 h1（由出版版报头提供）', async () => {
     const page = await openPage()
     expect(page.findAll('h1')).toHaveLength(1)
+  })
+
+  it('交互反馈：勾选框不用原生样式，六问折叠有可展开标记', async () => {
+    const page = await openPage()
+    // 十四周岁勾选框：与历法单选同法（sr-only input + 样式化方框），避免系统蓝勾。
+    const age = page.get('[data-bazi-age]')
+    expect(age.attributes('type')).toBe('checkbox')
+    expect(age.classes()).toContain('sr-only')
+    expect(page.find('.bazi-check').exists()).toBe(true)
+    // 六问：每条都有可展开标记（改造前没有任何可视线索）。
+    expect(page.get('[data-bazi-section="detail"]').findAll('.bazi-fold-mark')).toHaveLength(6)
+    // Ⅴ 段折叠复用同一标记（正文折叠件现在共三处：三柱卡、六问、依据与范围）
+    expect(page.get('[data-bazi-evidence-scope]').findAll('.bazi-fold-mark')).toHaveLength(1)
   })
 
   it('Ⅰ 段列出定位、能回答与不能回答的闭集，并标注内部验证状态', async () => {
@@ -127,7 +140,7 @@ describe('八字页面六段结构', () => {
   it('R5-C 六段段名为治理规范原名，Ⅳ 不得简写', async () => {
     const page = await openPage()
     const headings = page
-      .findAll('[data-bazi-section] h2')
+      .findAll('[data-bazi-section] .section-head')
       .map(node => node.text().replace(/\s+/g, ''))
     expect(headings).toEqual([
       'Ⅰ工具说明',
@@ -137,6 +150,43 @@ describe('八字页面六段结构', () => {
       'Ⅴ依据与范围',
       'Ⅵ本次结果操作',
     ])
+  })
+
+  it('卷目六条锚点与六个分节的 id 一一对应（出版版外壳）', async () => {
+    const page = await openPage()
+    const links = page.findAll('[data-profile-index] a')
+    expect(links.map(link => link.attributes('href'))).toEqual([
+      '#bazi-guide',
+      '#bazi-input',
+      '#bazi-summary',
+      '#bazi-detail',
+      '#bazi-scope',
+      '#bazi-actions',
+    ])
+    // 卷目标签与段标题同字（治理规范全名），不简写。
+    expect(links.map(link => link.text().replace(/\s+/g, ''))).toEqual([
+      'Ⅰ工具说明',
+      'Ⅱ本次操作',
+      'Ⅲ核心结果摘要',
+      'Ⅳ通俗解释与详细结果',
+      'Ⅴ依据与范围',
+      'Ⅵ本次结果操作',
+    ])
+    for (const link of links) {
+      const href = link.attributes('href') ?? ''
+      expect(page.find(href).exists(), `${href} 应指向存在的分节`).toBe(true)
+    }
+  })
+
+  it('六个分节的 aria-labelledby 指到存在的标题 id（headingId 生效）', async () => {
+    const page = await openPage()
+    const sections = page.findAll('[data-bazi-section]')
+    expect(sections).toHaveLength(6)
+    for (const section of sections) {
+      const labelledBy = section.attributes('aria-labelledby')
+      expect(labelledBy, '每个分节都应声明 aria-labelledby').toBeTruthy()
+      expect(page.find(`#${labelledBy}`).exists(), `#${labelledBy} 应存在`).toBe(true)
+    }
   })
 
   it('Ⅰ 段两个能力清单为两张并列暖纸卡', async () => {
@@ -310,6 +360,29 @@ describe('八字结果状态与内容', () => {
     expect(scope.text()).toContain('国家标准')
   })
 
+  it('Ⅴ 段默认收起：摘要即展开按钮，且「依据与范围」标题只出现一次', async () => {
+    const page = await openPage()
+    const fold = page.get('[data-bazi-evidence-scope]')
+
+    // 默认收起：details 无 open；内容仍在 DOM（折叠不是 v-if 卸载）
+    expect(fold.attributes('open')).toBeUndefined()
+    expect(fold.findAll('summary')).toHaveLength(1)
+    expect(fold.text()).toContain('展开：来源清单、版本、限制说明与本页不输出的内容')
+    expect(fold.text()).toContain('限制说明')
+
+    // 点击摘要 → 展开（原生 details 行为）
+    await fold.get('summary').trigger('click')
+    await flushPromises()
+    expect(page.get('[data-bazi-evidence-scope]').attributes('open')).toBeDefined()
+    expect(page.get('[data-bazi-evidence-scope]').text()).toContain('收起：')
+
+    // 组件内不再重复一个同名标题：全页「依据与范围」标题只出现一次（由 Ⅴ 段段标题承担）
+    const scopeHeadings = page
+      .findAll('h2, h3')
+      .filter(node => node.text().replace(/\s+/g, '') === '依据与范围')
+    expect(scopeHeadings).toHaveLength(1)
+  })
+
   it('正文段不出现任何结论型内容（大运/流年/神煞/喜用神/评分/吉凶）', async () => {
     const page = await openPage()
     await generate(page, '2000', '8', '15')
@@ -455,8 +528,14 @@ describe('八字保存与历史（Ⅵ 段）', () => {
     })
 
     const page = await openPage()
-    expect(page.find('[data-bazi-import]').exists()).toBe(true)
-    await page.get('[data-bazi-import] button').trigger('click')
+    // get() 找不到即抛错，等价于断言入口存在
+    const importEntry = page.get('[data-bazi-import]')
+    // 入口必须看起来像按钮：次要描边按钮（`btn-quiet`），且仍不填色——
+    // 「本屏唯一朱砂」留给生成键。此前用 ghost（无边框），用户反馈「不明显」。
+    expect(importEntry.get('button').classes()).toContain('btn-quiet')
+    // 说明文字不得低于 ink.medium（R5-C 设计规格 §2 Ⅱ 的下限）
+    expect(importEntry.get('button + p').classes()).not.toContain('text-ink-light')
+    await importEntry.get('button').trigger('click')
     await flushPromises()
     await page.get('[data-bazi-age]').setValue(true)
 

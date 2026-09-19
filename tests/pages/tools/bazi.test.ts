@@ -72,15 +72,17 @@ describe('八字页静态回归（R5）', () => {
     }
   })
 
-  it('页面只使用 R5 的十个新组件与四个通用组件（含统一认证弹层）', () => {
+  it('页面使用出版版外壳与 R5 的十个组件（不再使用工具页外壳）', () => {
     const imported = [...pageSource.matchAll(/from '~\/components\/([^']+)'/g)].map(
       match => match[1],
     )
     expect(new Set(imported)).toEqual(
       new Set([
-        'tools/ToolPageLayout.vue',
-        'tools/PageHero.vue',
+        'tools/PageFooter.vue',
         'tools/ScrollTopButton.vue',
+        'editorial/IndexNav.vue',
+        'editorial/Masthead.vue',
+        'editorial/SectionHeading.vue',
         'auth/AuthDialog.vue',
         'bazi/BaziInputForm.vue',
         'bazi/BaziStatusBanner.vue',
@@ -94,6 +96,16 @@ describe('八字页静态回归（R5）', () => {
         'bazi/BaziHistoryPanel.vue',
       ]),
     )
+  })
+
+  it('页面不再使用工具页外壳：ToolPageLayout 与 PageHero 不得回归', () => {
+    // 出版版外壳用 editorial-shell + 卷目 + 报头；工具页外壳由其余 10 个工具页继续使用。
+    for (const identifier of ['ToolPageLayout', 'PageHero']) {
+      expect(pageSource, `pages/tools/bazi.vue 不应再引用 ${identifier}`).not.toContain(identifier)
+    }
+    for (const className of ['editorial-shell', 'editorial-article', 'editorial-section']) {
+      expect(pageSource, `pages/tools/bazi.vue 应使用 .${className}`).toContain(className)
+    }
   })
 
   it('R5-C 设计规格要求的新全局类被页面使用，且不在组件里私自复制实现', () => {
@@ -130,6 +142,55 @@ describe('八字页静态回归（R5）', () => {
       '缺水',
     ]) {
       expect(template, `模板不应出现「${banned}」`).not.toContain(banned)
+    }
+  })
+
+  it('交互反馈：勾选框不用原生样式，两处折叠件都有可展开标记', () => {
+    // 原生 checkbox 会在纸/朱砂体系里出现系统蓝勾（用户 2026-09-15 复核指出），
+    // 与历法单选同法改为 sr-only input + 样式化方框。
+    const inputSource = componentSources.get('BaziInputForm.vue') ?? ''
+    expect(inputSource, '十四周岁勾选框应改为 sr-only').toContain('class="sr-only"')
+    expect(inputSource, '应有样式化方框 bazi-check').toContain('bazi-check')
+    expect(inputSource, '选中态应填充朱砂').toContain('input:checked + .bazi-check')
+
+    // 折叠件必须给出可视线索：三柱卡用方形 ＋/－ 伪元素，六问用 bazi-fold-mark。
+    const pillarSource = componentSources.get('BaziPillarCard.vue') ?? ''
+    expect(pillarSource, '三柱卡折叠标记应有展开态反色').toContain(
+      'details[open] > .bazi-summary::before',
+    )
+    const guideSource = componentSources.get('BaziReadingGuide.vue') ?? ''
+    expect(guideSource, '六问应有可展开标记').toContain('bazi-fold-mark')
+
+    // 本轮新增的交互样式只用既有令牌与 color-mix，不引入 rgba。
+    for (const [name, source] of componentSources) {
+      expect(source, `${name} 不应出现 rgba(`).not.toContain('rgba(')
+    }
+  })
+
+  it('交互反馈：卷目当前节用指示条 + 朱砂序号，不再只有 1px 下划线', () => {
+    const indexNav = readFileSync(
+      resolve(process.cwd(), 'components/editorial/IndexNav.vue'),
+      'utf-8',
+    )
+    expect(indexNav, '活动项应有左侧指示条').toContain('.index-link.is-active::before')
+    expect(indexNav, '活动项序号应变朱砂').toContain('.index-link.is-active .index-num')
+    expect(indexNav, '悬停应有底色反馈').toContain('.index-link:hover')
+    expect(indexNav, '窄屏应改用下边框').toContain('border-bottom: 2px solid var(--color-cinnabar)')
+    expect(indexNav, '不应再出现旧的 1px 下划线实现').not.toContain('.index-label::after')
+  })
+
+  it('空态不得出现预选值：三个下拉的占位符必须落在可选中的第一项', () => {
+    // 回归背景（2026-09-15 真机截图发现）：占位符写成 disabled 时，浏览器在动态插入选项后会
+    // 触发 reset，跳过 disabled 项而回退到第一个真实选项——空态因此显示「2026 / 1月 / 1日」，
+    // 看起来像预填了默认值（契约要求无任何默认值）。占位符可选中后，reset 会停在占位符上。
+    const inputSource = componentSources.get('BaziInputForm.vue') ?? ''
+    const placeholders = [...inputSource.matchAll(/<option value=""([^>]*)>/g)].map(m => m[1] ?? '')
+    expect(placeholders).toHaveLength(3)
+    for (const attrs of placeholders) {
+      expect(attrs, '占位符不得带 disabled').not.toContain('disabled')
+    }
+    for (const label of ['选择年份', '选择月份', '选择日期']) {
+      expect(inputSource).toContain(label)
     }
   })
 

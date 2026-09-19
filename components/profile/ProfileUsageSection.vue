@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import ProfileSectionHeading from '~/components/profile/ProfileSectionHeading.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ProfileNote from '~/components/profile/ProfileNote.vue'
 
 /**
@@ -80,7 +80,7 @@ const purposes = [
 
 <template>
   <section id="sec-usage" class="editorial-section" data-profile-section>
-    <ProfileSectionHeading num="Ⅱ" title="授 · 授权与用途" />
+    <SectionHeading num="Ⅱ" title="授 · 授权与用途" />
 
     <div class="usage">
       <div class="usage-row">

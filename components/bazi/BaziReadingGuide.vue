@@ -124,9 +124,12 @@ const items: GuideItem[] = [
       <details v-for="item in items" :key="item.id" class="bazi-guide-item">
         <!-- 第一层：问题 + 一句白话 -->
         <summary class="bazi-guide-summary">
-          <span class="bazi-layer">第一层 · 白话</span>
-          <span class="bazi-guide-question">{{ item.question }}</span>
-          <span class="bazi-guide-plain">{{ item.plain }}</span>
+          <span class="bazi-fold-mark" aria-hidden="true" />
+          <span class="bazi-guide-head">
+            <span class="bazi-layer">第一层 · 白话</span>
+            <span class="bazi-guide-question">{{ item.question }}</span>
+            <span class="bazi-guide-plain">{{ item.plain }}</span>
+          </span>
         </summary>
 
         <div class="bazi-guide-body">
@@ -149,14 +152,51 @@ const items: GuideItem[] = [
   border-radius: 10px;
   padding: 12px 14px;
 }
+/* 六问摘要：补上可展开标记（此前完全没有可视线索）；标记形状 + 悬停底色一起表达可点。
+   摘要改 flex 两列（标记 + 原三行头区），三层结构与文案不变。 */
 .bazi-guide-summary {
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
   min-height: 44px;
+  padding: 6px 8px;
+  margin: -6px -8px 0;
+  border-radius: 6px;
   cursor: pointer;
   list-style: none;
+  transition: background var(--transition-fast);
 }
 .bazi-guide-summary::-webkit-details-marker {
   display: none;
+}
+.bazi-guide-summary:hover {
+  background: color-mix(in srgb, var(--color-ink-dark) 4%, transparent);
+}
+.bazi-guide-head {
+  min-width: 0;
+}
+.bazi-fold-mark {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15rem;
+  border: 1px solid var(--color-cinnabar);
+  border-radius: 3px;
+  color: var(--color-cinnabar);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.bazi-fold-mark::before {
+  content: '＋';
+}
+details[open] .bazi-fold-mark {
+  background: var(--color-cinnabar);
+  color: var(--color-paper-lightest);
+}
+details[open] .bazi-fold-mark::before {
+  content: '－';
 }
 .bazi-guide-summary:focus-visible {
   outline: 2px solid var(--color-cinnabar);

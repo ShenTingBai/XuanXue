@@ -139,7 +139,7 @@ function onAge(event: Event) {
           :aria-invalid="error ? 'true' : undefined"
           @change="onYear"
         >
-          <option value="" disabled>选择年份</option>
+          <option value="">选择年份</option>
           <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}</option>
         </select>
       </div>
@@ -155,7 +155,7 @@ function onAge(event: Event) {
           :aria-invalid="error ? 'true' : undefined"
           @change="onMonth"
         >
-          <option value="" disabled>选择月份</option>
+          <option value="">选择月份</option>
           <option v-for="month in monthOptions" :key="month" :value="month">{{ month }}月</option>
         </select>
       </div>
@@ -171,7 +171,7 @@ function onAge(event: Event) {
           :aria-invalid="error ? 'true' : undefined"
           @change="onDay"
         >
-          <option value="" disabled>选择日期</option>
+          <option value="">选择日期</option>
           <option v-for="day in dayOptions" :key="day" :value="day">{{ day }}日</option>
         </select>
       </div>
@@ -230,11 +230,12 @@ function onAge(event: Event) {
     <label class="bazi-age">
       <input
         type="checkbox"
-        class="mt-1"
+        class="sr-only"
         :checked="draft.ageConfirmed"
         data-bazi-age
         @change="onAge"
       />
+      <span class="bazi-check" aria-hidden="true" />
       <span>
         我已满十四周岁。未满十四周岁时不提供个人出生日期的排盘计算，但仍可阅读本页的规则与来源说明。
       </span>
@@ -298,6 +299,11 @@ function onAge(event: Event) {
   background: var(--color-paper-lightest);
 }
 
+/* 聚焦时除下划线转朱砂，再加极浅朱砂底：避免「只有一条线」的弱反馈。 */
+.bazi-control:focus {
+  background: color-mix(in srgb, var(--color-cinnabar) 4%, var(--color-paper-lightest));
+}
+
 /* 辅助说明：正文下限之上，不用 ink-light */
 .bazi-note {
   margin: 0.5rem 0 0;
@@ -320,6 +326,46 @@ function onAge(event: Event) {
   line-height: 1.65;
   color: var(--color-ink-medium);
   cursor: pointer;
+}
+
+/* 十四周岁勾选框：不使用浏览器原生样式（原生蓝色勾与墨/朱砂体系冲突），
+   与历法单选同法——sr-only input + 样式化方框，四种状态都不出现原生控件。 */
+.bazi-check {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.2rem;
+  border: 1px solid var(--color-ink-faint);
+  border-radius: 3px;
+  background: var(--color-paper-lightest);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+.bazi-age:hover .bazi-check {
+  border-color: var(--color-ink-medium);
+}
+.bazi-age input:checked + .bazi-check {
+  border-color: var(--color-cinnabar);
+  background: var(--color-cinnabar);
+}
+.bazi-check::after {
+  content: '';
+  width: 0.3rem;
+  height: 0.6rem;
+  border: solid var(--color-paper-lightest);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--transition-fast);
+}
+.bazi-age input:checked + .bazi-check::after {
+  transform: rotate(45deg) scale(1);
+}
+.bazi-age input:focus-visible + .bazi-check {
+  outline: 2px solid var(--color-cinnabar);
+  outline-offset: 2px;
 }
 
 .bazi-error {
