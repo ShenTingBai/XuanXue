@@ -225,7 +225,7 @@ R4 本人档案已完成代码实施与验证用例编写，状态为 **Implemen
 - 已提交：`c1eb1eb`（R5-B 八字基础排盘与结果历史，含 D3 授权内部验证通道）、`7073f5d`（R5-C 按设计规格改造八字页 UI，六段结构与内容闭集不变）、`481cef9`（八字页出版版版式对齐设计基线）、`7877285`（R5-D 出版版外壳 + 交互可供性第二轮，合并为单提交）。
 - 上述两轮的验收记录见 [R5-D 版式对齐验收](../validation/2026-09-15-r5d-bazi-editorial-alignment-validation.md)与[交互可供性验收](../validation/2026-09-15-bazi-interaction-affordance-validation.md)；独立审查于提交前由第三方补做，覆盖 R5-D `result.yaml` 的 `codex_review_checklist` 8 项并全部通过（第二轮无 `plan.yaml`／`result.yaml`，属流程留痕缺口）。
 - R5 新引擎位于 `utils/bazi/*`（国标锚点 1949-10-01 甲子、分钟级节气、边界候选建模）。旧 `composables/useBaZi.ts` 的日柱锚点错误已于 `89f626d` 修正——原用自研锚点断言「1900-01-01 是甲子日」（真值甲戌），因天干地支对同一偏差值分别取模，表现为**日干恒对、日支恒偏移 +2**；现改为复用 `utils/bazi/pillars.ts` 的 `dayGanZhiIndex()`，日柱规则在仓库内只保留一处实现。`useHeHun.ts` 经 `calculateBaZi` 自动获得正确日支；相关工具围栏内不对外。
-- 第三方独立复核（[2026-09-15 全面复核](../audits/2026-09-15-third-party-full-review.md)）记录了当前判读：八字新引擎骨架可信，但全部来源仍为 `unreviewed`，且分钟级外部核验只覆盖 2026 一年。
+- 八字来源**取证已完成**（[来源台账](evidence/bazi/bazi-source-ledger.md)：8 条来源逐条登记，含国标 GB/T 33661—2017 扫描页目视核对、香港天文台逐年数据逐行核对、日本国立天文台《暦要項》；8 条 GAP 逐条登记），台账状态为 `evidence_prepared_review_pending`。未满足的是**人工审阅裁决**（`sourceReviewStatus` 仍为 `unreviewed`，待 R5-A 审阅）与台账自列的 3 项 R5-B 前待处理（`GAP-BZ-001`/`004`/`007`）。第三方独立复核（[2026-09-15 全面复核](../audits/2026-09-15-third-party-full-review.md)）对引擎的判读为"骨架可信"，其 §15.4 亦更正了"0 个公开工具"的表述。
 
 **R5 阶段状态仍由用户确认**；本节不把实现完成写成 Accepted，也不改变公开准入与工具围栏。
 
