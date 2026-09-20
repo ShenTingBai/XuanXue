@@ -68,10 +68,7 @@ interface NodeReadableRequest {
  * - 非请求体方法 → 沿用 h3 的 405 断言
  * - 流读取错误 → 原样传播，不伪装成 413
  */
-export async function readBoundedRawBody(
-  event: H3Event,
-  maxBytes: number,
-): Promise<string | null> {
+export async function readBoundedRawBody(event: H3Event, maxBytes: number): Promise<string | null> {
   assertMethod(event, [...PAYLOAD_METHODS])
 
   // ① h3 已明确预缓冲的请求体。取值顺序与 h3 readRawBody 一致。
@@ -188,10 +185,7 @@ function readStreamLike(value: unknown, maxBytes: number): Promise<string | null
  * settle 只允许发生一次：晚到的 data/end/error/aborted 既不能二次 settle，
  * 也不能重新开始缓存（否则超限判定会被后续事件绕过）。
  */
-function readFromNodeRequest(
-  req: NodeReadableRequest,
-  maxBytes: number,
-): Promise<string | null> {
+function readFromNodeRequest(req: NodeReadableRequest, maxBytes: number): Promise<string | null> {
   return new Promise<string | null>((resolve, reject) => {
     let settled = false
     let totalBytes = 0

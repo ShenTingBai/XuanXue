@@ -11,13 +11,13 @@
 v1（`plan-20260920-r5-chunked-body-limit-v1`）已实现流式字节上限，但 Node 超限分支为
 `pauseNodeRequest(event)` + `reader.cancel()`。本计划审计用真实 Node HTTP 复现，确认两点不足：
 
-| 观测项 | v1（pause 无 resume） | v2（直读 + resume 排空） |
-|--------|----------------------|--------------------------|
-| 超限后未消费字节 | **65536 字节残留** | 0 |
-| `readableEnded`（超限响应后） | `false` | `true` |
-| `complete`（message 是否完整解析） | `false` | `true` |
-| 慢速大请求后续请求 | 等 **5529ms** 且 `reused: false` | 立即完成，`reused: true` |
-| 未捕获异常 | 单独 cancel 会抛 `ERR_INVALID_STATE` | 无 |
+| 观测项                             | v1（pause 无 resume）                | v2（直读 + resume 排空） |
+| ---------------------------------- | ------------------------------------ | ------------------------ |
+| 超限后未消费字节                   | **65536 字节残留**                   | 0                        |
+| `readableEnded`（超限响应后）      | `false`                              | `true`                   |
+| `complete`（message 是否完整解析） | `false`                              | `true`                   |
+| 慢速大请求后续请求                 | 等 **5529ms** 且 `reused: false`     | 立即完成，`reused: true` |
+| 未捕获异常                         | 单独 cancel 会抛 `ERR_INVALID_STATE` | 无                       |
 
 即：v1 虽能返回 413，但未消费的请求体会一直占住 keep-alive socket，形成连接资源耗尽风险；
 且 h3 包装流在 cancel 后仍持有 `data` 监听，继续向已取消的 controller enqueue 会抛未捕获异常。
@@ -69,13 +69,13 @@ Content-Length）请求：
 
 ## 4. 命令结果
 
-| 命令 | 退出码 |
-|------|--------|
-| `git diff --check` | 0 |
-| `npm run typecheck` | 0（仅既有 duplicated imports warning） |
-| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/utils/bounded-request-body.node.test.ts` | 0（20/20） |
-| `npm run test` | 0（88 文件 / 2661 用例） |
-| `npm run build` | 0 |
+| 命令                                                                                                                  | 退出码                                 |
+| --------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `git diff --check`                                                                                                    | 0                                      |
+| `npm run typecheck`                                                                                                   | 0（仅既有 duplicated imports warning） |
+| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/utils/bounded-request-body.node.test.ts` | 0（20/20）                             |
+| `npm run test`                                                                                                        | 0（88 文件 / 2661 用例）               |
+| `npm run build`                                                                                                       | 0                                      |
 
 ## 5. 数据库隔离与范围
 

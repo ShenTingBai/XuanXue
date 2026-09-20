@@ -39,14 +39,14 @@
 
 R5-C 的差异，主要不是实现走样，而是**转写阶段的判断错误**：`2026-09-15-bazi-ui-spec.md` §5「类的复用与新增」把原型的出版版骨架（`sp-index` + `sp-masthead` + `sp-section`）映射成了工具页卡片语汇（`card-paper-solid`/`card-warm`），等于搬了内容、换了骨架。原型给的本来就是出版版版式，而且与已验收的 R4 版式同源：
 
-| 原型（`xuandao-bazi-chart.html`） | 本项目已有件                                                                | 现状   |
-| --------------------------------- | --------------------------------------------------------------------------- | ------ |
-| `sp-shell` 两列外壳（1120px）     | `.editorial-shell`（`214px + minmax(0,1fr)`，72rem）                        | 全局类 |
-| `article.sp-scroll` + 左分隔线    | `.editorial-article`（左边框 1px、左内边距 46px）                           | 全局类 |
+| 原型（`xuandao-bazi-chart.html`） | 本项目已有件                                                     | 现状   |
+| --------------------------------- | ---------------------------------------------------------------- | ------ |
+| `sp-shell` 两列外壳（1120px）     | `.editorial-shell`（`214px + minmax(0,1fr)`，72rem）             | 全局类 |
+| `article.sp-scroll` + 左分隔线    | `.editorial-article`（左边框 1px、左内边距 46px）                | 全局类 |
 | `aside.sp-index` 卷目 + 脚注      | `ProfileIndexNav`（sticky + 吸顶线几何高亮 + ≤920px 转顶部网格） | 组件   |
-| `header.sp-masthead` 报头         | `ProfileMasthead`（印章/眉题/标题/副题/状态胶囊/元信息行）                  | 组件   |
-| `sp-section-head`（Ⅰ + 标题）     | `ProfileSectionHeading`                                                     | 组件   |
-| `sp-section`（40px + 上细线）     | `.editorial-section` / `--first`（含 `scroll-margin-top: 5rem`）            | 全局类 |
+| `header.sp-masthead` 报头         | `ProfileMasthead`（印章/眉题/标题/副题/状态胶囊/元信息行）       | 组件   |
+| `sp-section-head`（Ⅰ + 标题）     | `ProfileSectionHeading`                                          | 组件   |
+| `sp-section`（40px + 上细线）     | `.editorial-section` / `--first`（含 `scroll-margin-top: 5rem`） | 全局类 |
 
 度量实测：原型正文列约 850px；`editorial-article` = 1152 − 64 − 214 − 46 ≈ **828px**。断点三档与 ≤920px 网格化在 R4 验收中有 320px+200% 的真机证据（`docs/audits/2026-09-13-self-profile-editorial-acceptance.md`）。
 

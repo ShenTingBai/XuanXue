@@ -55,14 +55,14 @@ release 闭包保存本次 `pid + token`，只有锁文件**同时匹配两者**
 
 ## 3. 回归测试（14 例）
 
-| 组 | 覆盖 |
-|----|------|
-| `isProcessAlive` | 本进程存活、非法 PID |
-| 单进程基础 | 创建写入 pid+token、release 幂等、递归建目录 |
-| 陈旧接管 | 损坏锁接管、死亡 PID 接管、**接管后无隔离文件残留** |
-| 存活拒绝 | 存活 PID 拒绝、错误携带 lockPath/holderPid |
-| token 身份 | 释放不误删他人锁、**同 PID 不同 token 旧 handle 不删新锁** |
-| **真实多进程** | ① 两子进程争抢空锁：恰好一个持有；② 预置死亡 PID 后两子进程接管：仍只一个持有；③ 子进程持有期父进程拒绝、释放后可获取 |
+| 组               | 覆盖                                                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `isProcessAlive` | 本进程存活、非法 PID                                                                                                  |
+| 单进程基础       | 创建写入 pid+token、release 幂等、递归建目录                                                                          |
+| 陈旧接管         | 损坏锁接管、死亡 PID 接管、**接管后无隔离文件残留**                                                                   |
+| 存活拒绝         | 存活 PID 拒绝、错误携带 lockPath/holderPid                                                                            |
+| token 身份       | 释放不误删他人锁、**同 PID 不同 token 旧 handle 不删新锁**                                                            |
+| **真实多进程**   | ① 两子进程争抢空锁：恰好一个持有；② 预置死亡 PID 后两子进程接管：仍只一个持有；③ 子进程持有期父进程拒绝、释放后可获取 |
 
 真实多进程用例通过 `spawn` 拉起子进程，用 `node --experimental-strip-types` 加载**生产模块**
 （仓库无 jiti/tsx 依赖，这是 Node 24 原生能力，**未引入新依赖**）。子进程用
@@ -83,13 +83,13 @@ release 闭包保存本次 `pid + token`，只有锁文件**同时匹配两者**
 
 ## 4. 命令结果
 
-| 命令 | 退出码 |
-|------|--------|
-| `git diff --check` | 0 |
-| `npm run typecheck` | 0（仅既有 duplicated imports warning） |
-| `npx vitest run tests/server/utils/instance-lock.test.ts` | 0（14/14） |
-| `npm run test` | 0（88 文件 / 2681 用例） |
-| `npm run build` | 0 |
+| 命令                                                      | 退出码                                 |
+| --------------------------------------------------------- | -------------------------------------- |
+| `git diff --check`                                        | 0                                      |
+| `npm run typecheck`                                       | 0（仅既有 duplicated imports warning） |
+| `npx vitest run tests/server/utils/instance-lock.test.ts` | 0（14/14）                             |
+| `npm run test`                                            | 0（88 文件 / 2681 用例）               |
+| `npm run build`                                           | 0                                      |
 
 ## 5. 数据库隔离与范围
 

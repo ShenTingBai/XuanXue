@@ -13,10 +13,10 @@ R5 浏览器验收发现 `components/editorial/IndexNav.vue` 的卷目链接在�
 
 根因（审计结论）：
 
-| 断点 | `.index-link` 规则 | 实测高度 |
-|------|-------------------|----------|
-| 桌面（>920px） | `padding: 9px 8px`，内容约 26px（`.index-num` 15px 行高主导） | ≈44px |
-| **窄屏（≤920px）** | `padding: 4px 8px`（为横向网格压缩垂直空间） | **31.5–33.5px** |
+| 断点               | `.index-link` 规则                                            | 实测高度        |
+| ------------------ | ------------------------------------------------------------- | --------------- |
+| 桌面（>920px）     | `padding: 9px 8px`，内容约 26px（`.index-num` 15px 行高主导） | ≈44px           |
+| **窄屏（≤920px）** | `padding: 4px 8px`（为横向网格压缩垂直空间）                  | **31.5–33.5px** |
 
 `align-items: baseline` 让盒高由内容行高决定；窄屏把上下内边距压到 4px 后，
 内容高度不足以达到 44px。**问题只在移动端网格规则，桌面态本身接近达标。**
@@ -28,7 +28,7 @@ R5 浏览器验收发现 `components/editorial/IndexNav.vue` 的卷目链接在�
 ```css
 /* 基础规则：声明 44px 命中区下限（桌面态原本即约 44px，此声明将其固定为契约） */
 .index-link {
-  min-height: 44px;   /* 新增 */
+  min-height: 44px; /* 新增 */
   /* 其余规则不变：padding / margin-inline / font-size / transition 等 */
 }
 
@@ -37,7 +37,7 @@ R5 浏览器验收发现 `components/editorial/IndexNav.vue` 的卷目链接在�
   .index-link {
     padding: 4px 8px;
     margin-inline: 0;
-    align-items: center;   /* 新增：避免 baseline 在拉高的盒子里把文字顶到上沿 */
+    align-items: center; /* 新增：避免 baseline 在拉高的盒子里把文字顶到上沿 */
   }
 }
 ```
@@ -49,13 +49,13 @@ R5 浏览器验收发现 `components/editorial/IndexNav.vue` 的卷目链接在�
 
 `tests/components/editorial-index-nav.test.ts`（1 → **5 例**）：
 
-| 用例 | 断言 |
-|------|------|
-| 短章节高亮（原有） | 空态Ⅲ滚到 5rem 吸顶线时保持Ⅲ高亮，不提前跳到Ⅳ |
-| 锚点与 active class 不漂移（新增） | 四项 href 与 `data-profile-index` 保持；active 仍唯一落在Ⅲ |
-| 基础规则含命中区下限（新增） | `.index-link` 基础规则含 `min-height: 44px` |
-| 移动端垂直居中（新增） | ≤920px 规则含 `align-items: center`、`margin-inline: 0`，且**不含** `font-size` 覆盖 |
-| 不得掩盖（新增） | 源码不含 `user-scalable=no` / `maximum-scale` / `overflow: hidden` |
+| 用例                               | 断言                                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------------------ |
+| 短章节高亮（原有）                 | 空态Ⅲ滚到 5rem 吸顶线时保持Ⅲ高亮，不提前跳到Ⅳ                                        |
+| 锚点与 active class 不漂移（新增） | 四项 href 与 `data-profile-index` 保持；active 仍唯一落在Ⅲ                           |
+| 基础规则含命中区下限（新增）       | `.index-link` 基础规则含 `min-height: 44px`                                          |
+| 移动端垂直居中（新增）             | ≤920px 规则含 `align-items: center`、`margin-inline: 0`，且**不含** `font-size` 覆盖 |
+| 不得掩盖（新增）                   | 源码不含 `user-scalable=no` / `maximum-scale` / `overflow: hidden`                   |
 
 happy-dom 不做真实布局，因此测试只断言**样式声明**；真实 ≥44px 由第 4 节浏览器证据确认，
 未伪造几何通过。
@@ -67,13 +67,13 @@ happy-dom 不做真实布局，因此测试只断言**样式声明**；真实 �
 
 ### 4.1 环境
 
-| 项 | 取值 |
-|----|------|
-| 构建 | `npm run build` 产物 + `node .output/server/index.mjs`（**复验前重新构建**） |
-| 端口 | 4397 |
+| 项         | 取值                                                                                                |
+| ---------- | --------------------------------------------------------------------------------------------------- |
+| 构建       | `npm run build` 产物 + `node .output/server/index.mjs`（**复验前重新构建**）                        |
+| 端口       | 4397                                                                                                |
 | 临时数据库 | `D:/@Temp/xuanxue-evidence/2026-09-20-r5-index-nav-touch-target/external-db/touch-tmp.db`（仓库外） |
-| 白名单 | `XUANXUE_INTERNAL_TOOLS=bazi:1`（账号 id=1） |
-| 证据目录 | `D:/@Temp/xuanxue-evidence/2026-09-20-r5-index-nav-touch-target/`（仓库外） |
+| 白名单     | `XUANXUE_INTERNAL_TOOLS=bazi:1`（账号 id=1）                                                        |
+| 证据目录   | `D:/@Temp/xuanxue-evidence/2026-09-20-r5-index-nav-touch-target/`（仓库外）                         |
 
 **先构建后复验**：首轮测量时预览仍运行旧构建产物（实测 31.5–33.5px），
 重新构建并重启后复测才反映新 CSS——这本身证明「复验必须针对当前构建」。
@@ -82,11 +82,11 @@ happy-dom 不做真实布局，因此测试只断言**样式声明**；真实 �
 ### 4.2 命中区实测（`getBoundingClientRect().height`）
 
 | 视口 | 空态（6 个链接） | 生成后 | 全部 ≥44 | 页面横向溢出 |
-|------|-----------------|--------|----------|--------------|
-| 320 | 44.00 ×6 | 44.00 | ✅ | 无 |
-| 360 | 44.00 ×6 | 44.00 | ✅ | 无 |
-| 390 | 44.00 ×6 | 44.00 | ✅ | 无 |
-| 414 | 44.00 ×6 | 44.00 | ✅ | 无 |
+| ---- | ---------------- | ------ | -------- | ------------ |
+| 320  | 44.00 ×6         | 44.00  | ✅       | 无           |
+| 360  | 44.00 ×6         | 44.00  | ✅       | 无           |
+| 390  | 44.00 ×6         | 44.00  | ✅       | 无           |
+| 414  | 44.00 ×6         | 44.00  | ✅       | 无           |
 
 320px + **200% 文本缩放**：卷目最小高度 **53px**（字号放大后行高增长，min-height 是下限），
 生成按钮完整可见，无页面级横向溢出。
@@ -96,21 +96,21 @@ happy-dom 不做真实布局，因此测试只断言**样式声明**；真实 �
 
 ### 4.3 交互不回归
 
-| 检查 | 结果 |
-|------|------|
-| 点击卷目Ⅲ | active=Ⅲ、summary 吸顶 80px、焦点在 `#bazi-summary` |
-| 点击卷目Ⅴ | active=Ⅴ、焦点在 `#bazi-scope` |
-| Ⅴ 展开后（169→1100px） | active 仍稳定在Ⅴ（几何重算未受影响） |
+| 检查                   | 结果                                                |
+| ---------------------- | --------------------------------------------------- |
+| 点击卷目Ⅲ              | active=Ⅲ、summary 吸顶 80px、焦点在 `#bazi-summary` |
+| 点击卷目Ⅴ              | active=Ⅴ、焦点在 `#bazi-scope`                      |
+| Ⅴ 展开后（169→1100px） | active 仍稳定在Ⅴ（几何重算未受影响）                |
 
 ## 5. 自动化门禁（修复后工作树）
 
-| 命令 | 退出码 | 结果 |
-|------|--------|------|
-| `npm run typecheck` | 0 | 仅既有 `HexagramInfo` 重复导入警告 |
-| `npx vitest run tests/components/editorial-index-nav.test.ts` | 0 | 5/5 |
-| `npm run test` | 0 | 89 文件 / **2686 用例**（较修复前 +4，即新增断言） |
-| `npm run lint` | 0 | 0 errors / 56 warnings（均为既有） |
-| `npm run build` | 0 | 生产构建成功 |
+| 命令                                                          | 退出码 | 结果                                               |
+| ------------------------------------------------------------- | ------ | -------------------------------------------------- |
+| `npm run typecheck`                                           | 0      | 仅既有 `HexagramInfo` 重复导入警告                 |
+| `npx vitest run tests/components/editorial-index-nav.test.ts` | 0      | 5/5                                                |
+| `npm run test`                                                | 0      | 89 文件 / **2686 用例**（较修复前 +4，即新增断言） |
+| `npm run lint`                                                | 0      | 0 errors / 56 warnings（均为既有）                 |
+| `npm run build`                                               | 0      | 生产构建成功                                       |
 
 ## 6. 敏感临时文件清理
 

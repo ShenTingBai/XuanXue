@@ -11,11 +11,11 @@
 v2 把 Node 路径改为"具备 on/off/resume 就直读"，但**没有**检查请求体是否已被上游
 预缓冲或消费。审计用夹具实证三个缺陷：
 
-| 场景 | v2 行为 | 期望 |
-|------|---------|------|
-| Node req 已 `readableEnded`/`complete` 且无预缓冲体 | **永久 pending** | 空体语义（null） |
-| `event._requestBody` 预缓冲 Buffer | **永久 pending**，内容丢失 | 返回原文 |
-| `req.rawBody` 预缓冲（请求已结束） | **永久 pending** | 返回原文 |
+| 场景                                                | v2 行为                    | 期望             |
+| --------------------------------------------------- | -------------------------- | ---------------- |
+| Node req 已 `readableEnded`/`complete` 且无预缓冲体 | **永久 pending**           | 空体语义（null） |
+| `event._requestBody` 预缓冲 Buffer                  | **永久 pending**，内容丢失 | 返回原文         |
+| `req.rawBody` 预缓冲（请求已结束）                  | **永久 pending**           | 返回原文         |
 
 根因：v1 依赖 h3 包装流时，这些预缓冲来源由 h3 `readRawBody` 内部处理；v2 绕开包装流后
 既未读取预缓冲来源，也未在注册监听前排除"请求已结束"的情形。
@@ -53,6 +53,7 @@ h3 `readRawBody` 的来源顺序（1.15.11 实测）：`event._requestBody` →
 ### 3.2 真实 HTTP（5 例，新增 2 例）
 
 新增：
+
 - **已结束且无预缓冲体**：handler 先把请求体读干净（`req.resume()` + `end`）再调 helper，
   断言有限时间内返回 `ok:null`（空体语义），不永久 pending。
 - **上游预缓冲 `req.rawBody`**：handler 先读成 Buffer 挂到 `req.rawBody` 再调 helper，
@@ -68,13 +69,13 @@ h3 `readRawBody` 的来源顺序（1.15.11 实测）：`event._requestBody` →
 
 ## 4. 命令结果
 
-| 命令 | 退出码 |
-|------|--------|
-| `git diff --check` | 0 |
-| `npm run typecheck` | 0（首轮暴露 1 处 TS2352 并修复；仅既有 duplicated imports warning） |
-| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/utils/bounded-request-body.node.test.ts` | 0（29/29） |
-| `npm run test` | 0（88 文件 / 2670 用例） |
-| `npm run build` | 0 |
+| 命令                                                                                                                  | 退出码                                                              |
+| --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `git diff --check`                                                                                                    | 0                                                                   |
+| `npm run typecheck`                                                                                                   | 0（首轮暴露 1 处 TS2352 并修复；仅既有 duplicated imports warning） |
+| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/utils/bounded-request-body.node.test.ts` | 0（29/29）                                                          |
+| `npm run test`                                                                                                        | 0（88 文件 / 2670 用例）                                            |
+| `npm run build`                                                                                                       | 0                                                                   |
 
 ## 5. 数据库隔离与范围
 

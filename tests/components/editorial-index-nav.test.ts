@@ -101,7 +101,9 @@ describe('IndexNav 当前章节高亮', () => {
     expect(links.map(l => l.attributes('href'))).toEqual(items.map(i => i.href))
     // active 仍由几何判定落在Ⅲ，而不是因为样式改动而漂移
     expect(wrapper.findAll('[data-profile-index] a.is-active')).toHaveLength(1)
-    expect(wrapper.find('[data-profile-index] a.is-active').attributes('href')).toBe('#section-summary')
+    expect(wrapper.find('[data-profile-index] a.is-active').attributes('href')).toBe(
+      '#section-summary',
+    )
   })
 })
 
@@ -112,7 +114,8 @@ describe('IndexNav 触控命中区（§18.1）', () => {
    * 移动端规则须把内容垂直居中（否则 min-height 会把文字顶到上沿）。
    * 真实 ≥44px 的 border box 由浏览器验收记录确认。
    */
-  const source = () => readFileSync(resolve(process.cwd(), 'components/editorial/IndexNav.vue'), 'utf-8')
+  const source = () =>
+    readFileSync(resolve(process.cwd(), 'components/editorial/IndexNav.vue'), 'utf-8')
 
   /** 截取 `selector { ... }` 规则块正文；找不到返回空串。 */
   function ruleBlock(css: string, selector: string): string {

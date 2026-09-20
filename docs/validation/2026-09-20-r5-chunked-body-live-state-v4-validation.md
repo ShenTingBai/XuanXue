@@ -15,8 +15,12 @@ v3 补回了 h3 预缓冲兼容，但两处边界判断不精确：
 h3 `readRawBody` 用 **truthy** 链选择来源：
 
 ```js
-const _rawBody = event._requestBody || event.web?.request?.body
-  || event.node.req[RawBodySymbol] || event.node.req.rawBody || event.node.req.body
+const _rawBody =
+  event._requestBody ||
+  event.web?.request?.body ||
+  event.node.req[RawBodySymbol] ||
+  event.node.req.rawBody ||
+  event.node.req.body
 ```
 
 v3 helper 用的是 **nullish** 链（`??`）。差异：空字符串、`0`、`false` 在 h3 里
@@ -56,6 +60,7 @@ maxBytes 校验、live Node 超限 `resume` 排空、Web Stream `reader.cancel`�
 ### 3.1 单元（28 例，新增 4 例）
 
 新增「live 状态边界」套件：
+
 - 空字符串 `_requestBody` 不触发 `readRawBody`，live Node 数据仍被读取；
 - `complete=true / readableEnded=false` 仍直读缓冲数据，不返回假 null；
 - `readableEnded=true` 且无预缓冲体 → 立即 null 且**未注册任何监听**；
@@ -66,6 +71,7 @@ v3 的预缓冲兼容、Node 直读、Web Stream 断言全部保留。
 ### 3.2 真实 HTTP（7 例，新增 2 例）
 
 新增：
+
 - **message 已完整接收但 readable 未结束**：handler 轮询等到 `req.complete === true` 后
   才开始读取，断言请求体被完整读取（`ok:7`）而非返回 `ok:null`。
 - **live 请求携带空 `_requestBody`**：断言不回退 `readRawBody`，数据仍被读取。
@@ -87,13 +93,13 @@ v3 的已结束无体、`req.rawBody` 预缓冲、chunked keep-alive、慢速超
 
 ## 4. 命令结果
 
-| 命令 | 退出码 |
-|------|--------|
-| `git diff --check` | 0 |
-| `npm run typecheck` | 0（仅既有 duplicated imports warning） |
-| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/utils/bounded-request-body.node.test.ts` | 0（35/35） |
-| `npm run test` | 0（88 文件 / 2676 用例） |
-| `npm run build` | 0 |
+| 命令                                                                                                                  | 退出码                                 |
+| --------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `git diff --check`                                                                                                    | 0                                      |
+| `npm run typecheck`                                                                                                   | 0（仅既有 duplicated imports warning） |
+| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/utils/bounded-request-body.node.test.ts` | 0（35/35）                             |
+| `npm run test`                                                                                                        | 0（88 文件 / 2676 用例）               |
+| `npm run build`                                                                                                       | 0                                      |
 
 ## 5. 数据库隔离与范围
 

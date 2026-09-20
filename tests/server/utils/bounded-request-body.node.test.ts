@@ -22,13 +22,11 @@ import { readBoundedRawBody } from '~/server/utils/bounded-request-body'
 // Nuxt 运行时自动导入的 createError 在纯测试环境不存在；注入带状态码的替身，
 // 让生产模块抛出的 413 能被服务器 handler 正确映射为响应状态。
 vi.hoisted(() => {
-  vi.stubGlobal(
-    'createError',
-    (args: { statusCode?: number; statusMessage?: string }) =>
-      Object.assign(new Error(args?.statusMessage ?? 'error'), {
-        statusCode: args?.statusCode,
-        statusMessage: args?.statusMessage,
-      }),
+  vi.stubGlobal('createError', (args: { statusCode?: number; statusMessage?: string }) =>
+    Object.assign(new Error(args?.statusMessage ?? 'error'), {
+      statusCode: args?.statusCode,
+      statusMessage: args?.statusMessage,
+    }),
   )
 })
 
@@ -36,7 +34,6 @@ const OVERSIZE_LIMIT = 1024
 /** 单个用例整体上限：任何永久暂停都会在这里超时暴露。 */
 const CASE_TIMEOUT_MS = 15_000
 /** 连接健康度采样间隔。 */
-
 
 interface SendResult {
   status: number

@@ -38,11 +38,11 @@ h3 `readRawBody` 取得完整字符串，再用 `Buffer.byteLength` 判定上限
 
 ## 3. 回归测试
 
-| 文件 | 用例数 | 新增覆盖 |
-|------|--------|----------|
-| `tests/server/utils/bounded-request-body.test.ts`（新建） | 10 | 多块刚超限即 413 且 cancel 被调用、恰好等于上限放行、多字节 UTF-8 原文保留、空流 null、流错误传播、无流 null、非请求体方法 405、Content-Length 快速失败不请求流、chunked 累计超限、非法 JSON 400 / 顶层非对象 {} |
-| `tests/server/api/auth.test.ts` | 38 | 注册与登录各新增「无 Content-Length 的 chunked 超限在流读取阶段被截断并取消流」 |
-| `tests/server/api/result-history.test.ts` | 20 | 新增同型 chunked 超限用例，并断言服务层未被调用 |
+| 文件                                                      | 用例数 | 新增覆盖                                                                                                                                                                                                         |
+| --------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/server/utils/bounded-request-body.test.ts`（新建） | 10     | 多块刚超限即 413 且 cancel 被调用、恰好等于上限放行、多字节 UTF-8 原文保留、空流 null、流错误传播、无流 null、非请求体方法 405、Content-Length 快速失败不请求流、chunked 累计超限、非法 JSON 400 / 顶层非对象 {} |
+| `tests/server/api/auth.test.ts`                           | 38     | 注册与登录各新增「无 Content-Length 的 chunked 超限在流读取阶段被截断并取消流」                                                                                                                                  |
+| `tests/server/api/result-history.test.ts`                 | 20     | 新增同型 chunked 超限用例，并断言服务层未被调用                                                                                                                                                                  |
 
 测试夹具用**真实 `ReadableStream` 按 256 字节分块投递**，并断言 `reader.cancel` 被调用
 与 `pull` 次数——不是把完整巨大字符串交给 mock 冒充流式保护。
@@ -56,13 +56,13 @@ mock 的是旧的读取函数而失败 11 例。经用户明确授权，对该�
 
 ## 4. 命令结果
 
-| 命令 | 退出码 |
-|------|--------|
-| `git diff --check` | 0 |
-| `npm run typecheck` | 0（仅既有 duplicated imports warning） |
-| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/api/auth.test.ts tests/server/api/result-history.test.ts` | 0（68/68） |
-| `npm run test` | 0（87 文件 / 2651 用例） |
-| `npm run build` | 0 |
+| 命令                                                                                                                                   | 退出码                                 |
+| -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `git diff --check`                                                                                                                     | 0                                      |
+| `npm run typecheck`                                                                                                                    | 0（仅既有 duplicated imports warning） |
+| `npx vitest run tests/server/utils/bounded-request-body.test.ts tests/server/api/auth.test.ts tests/server/api/result-history.test.ts` | 0（68/68）                             |
+| `npm run test`                                                                                                                         | 0（87 文件 / 2651 用例）               |
+| `npm run build`                                                                                                                        | 0                                      |
 
 ## 5. 数据库隔离
 

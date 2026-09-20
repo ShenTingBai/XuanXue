@@ -201,7 +201,9 @@ describe('工具可用性路由围栏', () => {
     stateStore['auth:status'] = 'authenticated'
     seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBeUndefined()
+    await expect(
+      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+    ).resolves.toBeUndefined()
     expect(navigateTo).not.toHaveBeenCalled()
   })
 
@@ -234,7 +236,9 @@ describe('工具可用性路由围栏', () => {
     seedCurrentAccount({ id: 12 })
     stateStore['auth:status'] = 'authenticated'
     seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBeUndefined()
+    await expect(
+      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+    ).resolves.toBeUndefined()
 
     // 退出 A：auth:status 变 guest，auth:account 清空。
     stateStore['auth:status'] = 'guest'
@@ -281,7 +285,9 @@ describe('工具可用性路由围栏', () => {
     seedCurrentAccount(null)
     seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBeUndefined()
+    await expect(
+      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+    ).resolves.toBeUndefined()
   })
 
   it('允许普通非工具路由与状态页本身继续原有页面生命周期', async () => {

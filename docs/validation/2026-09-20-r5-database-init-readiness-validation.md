@@ -31,10 +31,10 @@ function runNitroPlugins(nitroApp2) {
 
 ```ts
 export default defineNitroPlugin(nitroApp => {
-  const databaseReady = initDb()          // 插件执行时创建一次共享初始化 Promise
+  const databaseReady = initDb() // 插件执行时创建一次共享初始化 Promise
 
   nitroApp.hooks.hook('request', async () => {
-    await databaseReady                   // 每个请求等待同一个 Promise
+    await databaseReady // 每个请求等待同一个 Promise
   })
 })
 ```
@@ -50,25 +50,25 @@ export default defineNitroPlugin(nitroApp => {
 
 `tests/server/plugins/database.test.ts`（新建，4 例全过）：
 
-| # | 场景 | 断言 |
-|---|------|------|
-| ① | 插件执行 | 插件回调同步返回 `undefined`；`initDb` 恰好调用 1 次；request hook 已注册 |
-| ② | deferred 未 resolve | 两个并发 request hook 均保持 pending（微任务冲刷后仍未 settled） |
-| ③ | resolve 后 | 两个 hook 都完成，且 `initDb` 仍只调用 1 次（共享同一 Promise） |
-| ④ | initDb reject | request hook 同样 reject，失败不被伪装成已就绪 |
+| #   | 场景                | 断言                                                                      |
+| --- | ------------------- | ------------------------------------------------------------------------- |
+| ①   | 插件执行            | 插件回调同步返回 `undefined`；`initDb` 恰好调用 1 次；request hook 已注册 |
+| ②   | deferred 未 resolve | 两个并发 request hook 均保持 pending（微任务冲刷后仍未 settled）          |
+| ③   | resolve 后          | 两个 hook 都完成，且 `initDb` 仍只调用 1 次（共享同一 Promise）           |
+| ④   | initDb reject       | request hook 同样 reject，失败不被伪装成已就绪                            |
 
 测试用 `vi.mock` 把 `initDb` 替换为可控 deferred Promise，并用 identity stub 暴露真实
 插件回调、从假 nitroApp 捕获其注册的 request hook 直接驱动——不是源码字符串断言。
 
 ## 4. 命令结果
 
-| 命令 | 退出码 |
-|------|--------|
-| `git diff --check` | 0 |
-| `npm run typecheck` | 0（仅既有 duplicated imports warning） |
-| `npx vitest run tests/server/plugins/database.test.ts` | 0（4/4） |
-| `npm run test` | 0（86 文件 / 2638 用例） |
-| `npm run build` | 0 |
+| 命令                                                   | 退出码                                 |
+| ------------------------------------------------------ | -------------------------------------- |
+| `git diff --check`                                     | 0                                      |
+| `npm run typecheck`                                    | 0（仅既有 duplicated imports warning） |
+| `npx vitest run tests/server/plugins/database.test.ts` | 0（4/4）                               |
+| `npm run test`                                         | 0（86 文件 / 2638 用例）               |
+| `npm run build`                                        | 0                                      |
 
 ## 5. 数据库隔离
 
