@@ -39,11 +39,23 @@ export default defineNuxtRouteMiddleware(async to => {
 type InternalAccessDecision = 'allowed' | 'denied' | 'reload'
 
 /**
+ * SSR 播种的内部验证缓存：判定值绑定播种时的账号，防止跨账号复用。
+ * accountId 为播种时服务端取得的可信账号 id；decisions 为工具 id → 是否放行。
+ */
+interface InternalAccessCache {
+  accountId: number | null
+  decisions: Record<string, boolean>
+}
+
+/**
  * 当前账号是否允许对该工具做内部验证。
  * 白名单读取只在服务端发生（动态导入，不进入客户端包）。
  */
 async function decideInternalAccess(toolId: string): Promise<InternalAccessDecision> {
-  const access = useState<Record<string, boolean>>('tools:internalAccess', () => ({}))
+  const access = useState<InternalAccessCache>('tools:internalAccess', () => ({
+    accountId: null,
+    decisions: {},
+  }))
 
   if (import.meta.server) {
     const event = useRequestEvent()
@@ -53,20 +65,59 @@ async function decideInternalAccess(toolId: string): Promise<InternalAccessDecis
 
     const { isInternalVerificationAllowed } = await import('~/server/utils/internal-verification')
     const allowed = isInternalVerificationAllowed(toolId, accountId)
-    if (access.value[toolId] !== allowed) {
-      access.value = { ...access.value, [toolId]: allowed }
+    if (access.value.accountId !== accountId || access.value.decisions[toolId] !== allowed) {
+      // 账号变化时丢弃旧账号的全部判定，防止残留值被新账号在客户端复用；
+      // 同账号仅增量更新当前工具。
+      access.value = {
+        accountId,
+        decisions:
+          access.value.accountId === accountId
+            ? { ...access.value.decisions, [toolId]: allowed }
+            : { [toolId]: allowed },
+      }
     }
     return allowed ? 'allowed' : 'denied'
   }
 
-  if (access.value[toolId] === true) {
-    // 播种值代表**播种那一刻**的会话权限，退出登录/会话过期后不得继续复用。
-    const authStatus = useState<AuthStatus>('auth:status', () => 'restoring')
-    return authStatus.value === 'guest' ? 'denied' : 'allowed'
-  }
-  if (access.value[toolId] === false) return 'denied'
+  // 播种值只对播种那一刻的账号有效：A 的 true 被 B 复用就是权限放大。
+  // 游客态一律失败关闭：退出登录后不得再读旧播种，也不整页重取试探。
+  const authStatus = useState<AuthStatus>('auth:status', () => 'restoring')
+  if (authStatus.value === 'guest') return 'denied'
 
-  // 未知值：水合期不得升级为整页重取（若服务端渲染了页面却没播种，会形成刷新死循环），
-  // 此时失败关闭；软导航则整页重取。
-  return useNuxtApp().isHydrating ? 'denied' : 'reload'
+  // 水合期：服务端渲染时播种的 accountId 就是当前会话的真实账号，此时
+  // auth:account 可能尚未恢复完成（restoring），直接按播种值裁决，避免同账号
+  // 刷新被误判为跨账号；只有恢复已确认账号且与播种不一致时才失败关闭。
+  if (useNuxtApp().isHydrating) {
+    const currentAccount = useState<{ id: number } | null>('auth:account', () => null)
+    if (
+      authStatus.value === 'authenticated' &&
+      currentAccount.value !== null &&
+      access.value.accountId !== null &&
+      currentAccount.value.id !== access.value.accountId
+    ) {
+      return 'denied'
+    }
+    if (access.value.decisions[toolId] === true) return 'allowed'
+    return 'denied'
+  }
+
+  // 非水合期（软导航）：账号缺失或与播种账号不一致时不得复用旧播种，
+  // 整页重取由服务端对当前账号重新裁决；账号一致时按播种值三分支。
+  const currentAccount = useState<{ id: number } | null>('auth:account', () => null)
+  if (
+    access.value.accountId === null ||
+    currentAccount.value === null ||
+    currentAccount.value.id !== access.value.accountId
+  ) {
+    return 'reload'
+  }
+
+  if (access.value.decisions[toolId] === true) {
+    // 播种值代表**播种那一刻**的会话权限，账号一致且非游客才可复用。
+    return 'allowed'
+  }
+  if (access.value.decisions[toolId] === false) return 'denied'
+
+  // 未知值：账号一致但未播种该工具，整页重取由服务端裁决。
+  return 'reload'
 }

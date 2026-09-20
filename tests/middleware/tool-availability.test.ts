@@ -28,8 +28,17 @@ const stateStore: Record<string, unknown> = {}
 /** 模拟客户端是否处于初次水合（`useNuxtApp().isHydrating`）。 */
 let isHydrating = false
 
-function seedInternalAccess(value: Record<string, boolean>): void {
+/** 模拟 SSR 播种的内部验证缓存：判定值绑定播种时的账号 id。 */
+function seedInternalAccess(value: {
+  accountId: number | null
+  decisions: Record<string, boolean>
+}): void {
   stateStore['tools:internalAccess'] = value
+}
+
+/** 模拟客户端当前登录账号（useAuth 的 auth:account）。 */
+function seedCurrentAccount(account: { id: number } | null): void {
+  stateStore['auth:account'] = account
 }
 
 function stubNuxtGlobals(): void {
@@ -133,8 +142,10 @@ describe('工具可用性路由围栏', () => {
   })
 
   it('客户端只信任 SSR 播种的授权：播种为允许时仅放行该工具', async () => {
-    // 模拟服务端已判定 bazi 允许内部验证并写入 useState。
-    seedInternalAccess({ bazi: true })
+    // 模拟服务端已判定账号 12 对 bazi 允许内部验证并写入 useState。
+    seedCurrentAccount({ id: 12 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
 
     await expect(
       middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
@@ -165,7 +176,9 @@ describe('工具可用性路由围栏', () => {
   })
 
   it('播种为拒绝时不重取：直接进状态页', async () => {
-    seedInternalAccess({ bazi: false })
+    seedCurrentAccount({ id: 12 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: false } })
 
     await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
       fenceTarget('bazi'),
@@ -174,12 +187,101 @@ describe('工具可用性路由围栏', () => {
   })
 
   it('退出登录后不再复用旧播种：播种的允许值只在有会话时生效', async () => {
-    seedInternalAccess({ bazi: true })
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
     stateStore['auth:status'] = 'guest'
+    seedCurrentAccount(null)
 
     await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
       fenceTarget('bazi'),
     )
+  })
+
+  it('播种账号与当前账号一致且已认证：直接放行（正常复用）', async () => {
+    seedCurrentAccount({ id: 12 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBeUndefined()
+    expect(navigateTo).not.toHaveBeenCalled()
+  })
+
+  it('A→B 换号登录：非水合期整页重取，不得复用 A 的 true 直接放行', async () => {
+    // A（id=12）的 SSR 播种 bazi=true，当前已换为 B（id=34）登录。
+    seedCurrentAccount({ id: 34 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBe(
+      '/tools/bazi',
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/bazi', { external: true })
+  })
+
+  it('A→B 换号登录且水合期：失败关闭，不得放行也不整页重取', async () => {
+    isHydrating = true
+    seedCurrentAccount({ id: 34 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+  })
+
+  it('A 的 true 播种后退出再登录 B：B 仍整页重取而不是复用 true', async () => {
+    // 先以 A 播种并复用（放行）。
+    seedCurrentAccount({ id: 12 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBeUndefined()
+
+    // 退出 A：auth:status 变 guest，auth:account 清空。
+    stateStore['auth:status'] = 'guest'
+    seedCurrentAccount(null)
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
+
+    // 登录 B：auth:status 恢复 authenticated，当前账号变为 34，但播种仍是 A 的 12。
+    stateStore['auth:status'] = 'authenticated'
+    seedCurrentAccount({ id: 34 })
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBe(
+      '/tools/bazi',
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/bazi', { external: true })
+  })
+
+  it('当前账号为空且 authStatus=guest：进状态页（游客不可复用任何播种）', async () => {
+    seedCurrentAccount(null)
+    stateStore['auth:status'] = 'guest'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
+  })
+
+  it('播种 false 且账号一致：直接进状态页', async () => {
+    seedCurrentAccount({ id: 12 })
+    stateStore['auth:status'] = 'authenticated'
+    seedInternalAccess({ accountId: 12, decisions: { bazi: false } })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
+      fenceTarget('bazi'),
+    )
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+  })
+
+  it('水合期同账号可复用 SSR 播种值：不因 auth 恢复中而误判跨账号', async () => {
+    // 服务端渲染时已播种账号 12 的 bazi=true，客户端水合时 auth:status 仍为 restoring、
+    // auth:account 尚未恢复；此时必须放行（同账号刷新），不能失败关闭。
+    isHydrating = true
+    stateStore['auth:status'] = 'restoring'
+    seedCurrentAccount(null)
+    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+
+    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBeUndefined()
   })
 
   it('允许普通非工具路由与状态页本身继续原有页面生命周期', async () => {

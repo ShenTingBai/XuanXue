@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 /**
  * 卷目索引：出版版页面的分节锚点导航（共用件）。
  *
  * 当前使用者：/self-profile、/account、/tools/bazi。
  * - 桌面为 sticky 左栏；≤920px 转为正文上方的两行网格（不再 sticky）。
- * - 当前节高亮使用 IntersectionObserver，只在客户端注册，卸载时断开，SSR 阶段不触碰 DOM。
+ * - 当前节按吸顶线处最后一个已越线的章节高亮；只在客户端监听滚动与几何变化，卸载时清理。
  * - 点击锚点后把焦点交给目标节，键盘与读屏用户不会停留在原处。
  *
  * 注意：DOM 钩子仍沿用 `data-profile-index`（历史命名），因为 /self-profile 与 /account
@@ -22,64 +22,76 @@ const props = withDefaults(
 )
 
 const activeHref = ref('')
-let observer: IntersectionObserver | null = null
+let targets: HTMLElement[] = []
+let resizeObserver: ResizeObserver | null = null
+let syncFrame: number | null = null
+let mounted = false
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-onMounted(() => {
-  if (typeof IntersectionObserver === 'undefined') return
-  const targets = props.items
-    .map(item => document.querySelector<HTMLElement>(item.href))
-    .filter((el): el is HTMLElement => el !== null)
+/**
+ * 按当前几何重算当前节。
+ *
+ * 分节统一使用 `scroll-margin-top: 5rem` 避开吸顶栏，因此当前节就是吸顶线处
+ * 最后一个顶边已越线的章节。该规则不依赖章节高度：空态Ⅲ段即使只有约 80px，
+ * 滚到它时也不会因为Ⅳ段同时出现在视口上部而提前高亮Ⅳ。
+ */
+function syncActive() {
   if (!targets.length) return
 
-  /**
-   * 按当前几何重算当前节。
-   *
-   * 不能只看回调里的 `entries`——它只含「本次交叉状态发生变化」的目标，两种情况会失准：
-   * ① 连续滚动或跳转之后，最后一次变化的那一节不一定是当前节；
-   * ② 页内折叠/展开改变布局，让某一节在高亮带内长大、把下一节挤出带外，
-   *    被挤出的那一节只发出「离开」事件，回调里没有可选项，高亮就停在旧值。
-   * 因此每次回调都重算全集：优先取覆盖高亮带的那一节，否则取最靠上的相交节，
-   * 再不然取最后一节顶边已在带上方的（滚到底时保持末节高亮）。
-   */
-  const syncActive = () => {
-    const bandTop = window.innerHeight * 0.25
-    const bandBottom = window.innerHeight * 0.35
-    let intersecting: HTMLElement | null = null
-    let covering: HTMLElement | null = null
-    let lastAbove: HTMLElement | null = null
-    for (const target of targets) {
-      const rect = target.getBoundingClientRect()
-      if (rect.top <= bandTop && rect.bottom >= bandBottom) {
-        covering = target
-        break
-      }
-      if (!intersecting && rect.top <= bandBottom && rect.bottom >= bandTop) {
-        intersecting = target
-      }
-      if (rect.top <= bandTop) lastAbove = target
-    }
-    const active = covering ?? intersecting ?? lastAbove
-    if (active?.id) activeHref.value = `#${active.id}`
+  const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+  const activationLine = rootFontSize * 5 + 1
+  let active = targets[0] ?? null
+  for (const target of targets) {
+    if (target.getBoundingClientRect().top > activationLine) break
+    active = target
   }
+  if (active?.id) activeHref.value = `#${active.id}`
+}
 
-  observer = new IntersectionObserver(syncActive, {
-    // 视口上四分之一到下一次分节之间算「当前节」，避免两节同时高亮。
-    rootMargin: '-25% 0px -65% 0px',
-    threshold: 0,
+/** 滚动事件按动画帧合并，避免同一帧内重复读取全部章节布局。 */
+function scheduleSync() {
+  if (syncFrame !== null) return
+  syncFrame = window.requestAnimationFrame(() => {
+    syncFrame = null
+    syncActive()
   })
-  targets.forEach(target => observer?.observe(target))
-  // 进页先对齐一次当前节，不必等第一次滚动。
-  syncActive()
+}
+
+onMounted(() => {
+  mounted = true
+  // IndexNav 常与章节作为同一父节点的兄弟挂载；等待一轮 tick，确保兄弟章节
+  // 已进入 DOM 后再查询锚点，避免初始高亮为空。
+  void nextTick(() => {
+    if (!mounted) return
+    targets = props.items
+      .map(item => document.querySelector<HTMLElement>(item.href))
+      .filter((el): el is HTMLElement => el !== null)
+    if (!targets.length) return
+
+    window.addEventListener('scroll', scheduleSync, { passive: true })
+    window.addEventListener('resize', scheduleSync)
+    if (typeof ResizeObserver !== 'undefined') {
+      // 折叠内容展开/收起不会必然触发 scroll；监听章节几何变化后立即重新判定。
+      resizeObserver = new ResizeObserver(scheduleSync)
+      targets.forEach(target => resizeObserver?.observe(target))
+    }
+    syncActive()
+  })
 })
 
 onBeforeUnmount(() => {
-  observer?.disconnect()
-  observer = null
+  mounted = false
+  window.removeEventListener('scroll', scheduleSync)
+  window.removeEventListener('resize', scheduleSync)
+  if (syncFrame !== null) window.cancelAnimationFrame(syncFrame)
+  syncFrame = null
+  resizeObserver?.disconnect()
+  resizeObserver = null
+  targets = []
 })
 
 function onSelect(item: { href: string }, event: MouseEvent) {
@@ -147,6 +159,9 @@ function onSelect(item: { href: string }, event: MouseEvent) {
   padding: 9px 8px;
   margin-inline: -8px 0;
   border-radius: 4px;
+  /* 治理规范 §18.1 触控目标：border box 命中区至少 44px。字号与文字密度不变，
+     扩大的是可点击区域而不是文字本身。 */
+  min-height: 44px;
   font-size: 0.875rem;
   color: var(--color-ink-medium);
   text-decoration: none;
@@ -215,6 +230,10 @@ function onSelect(item: { href: string }, event: MouseEvent) {
     /* 横向网格里没有左侧空间放指示条：取消负外边距，活动项改用下边框。 */
     padding: 4px 8px;
     margin-inline: 0;
+    /* 移动端把上下内边距压到 4px 后，行高只剩约 34px（低于 §18.1 的 44px）。
+       min-height 补足命中区；内容改为垂直居中，避免 baseline 对齐
+       在拉高的盒子里把文字顶到上沿。 */
+    align-items: center;
   }
 
   .index-link.is-active::before {

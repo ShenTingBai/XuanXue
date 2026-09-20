@@ -19,6 +19,7 @@ import type { H3Event } from 'h3'
 
 const mockGetHeader = vi.hoisted(() => vi.fn((): string | undefined => undefined))
 const mockReadRawBody = vi.hoisted(() => vi.fn())
+const mockGetRequestWebStream = vi.hoisted(() => vi.fn())
 const mockGetQuery = vi.hoisted(() => vi.fn(() => ({})))
 const mockGetRouterParam = vi.hoisted(() => vi.fn())
 const mockCreateError = vi.hoisted(() =>
@@ -31,10 +32,12 @@ const mockCreateError = vi.hoisted(() =>
   ),
 )
 
+// 2026-09-20：请求体读取改走 getRequestWebStream 流式累计，故一并替换该导出。
 vi.mock('h3', async importOriginal => ({
   ...(await importOriginal<typeof import('h3')>()),
   getHeader: mockGetHeader,
   readRawBody: mockReadRawBody,
+  getRequestWebStream: mockGetRequestWebStream,
   getQuery: mockGetQuery,
   getRouterParam: mockGetRouterParam,
 }))
@@ -99,8 +102,8 @@ function validBody(overrides: Record<string, unknown> = {}) {
   }
 }
 
-function authorizedEvent(): H3Event {
-  return { context: { accountId: ACCOUNT_ID } } as unknown as H3Event
+function authorizedEvent(method: string = 'POST'): H3Event {
+  return { context: { accountId: ACCOUNT_ID }, method } as unknown as H3Event
 }
 
 let postHandler: any
@@ -109,12 +112,53 @@ let clearHandler: any
 let detailHandler: any
 let deleteHandler: any
 
+/** 记录超限时 reader.cancel() 是否被调用。 */
+const streamCancel = { called: false }
+
+/**
+ * 由 `mockReadRawBody` 提供文本、按 256 字节分块投递的流。
+ * `getRequestWebStream` 在生产端是同步函数，mock 必须同步返回流对象。
+ */
+function deferredRawTextStream(): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const raw = await mockReadRawBody()
+      const bytes = new TextEncoder().encode(raw ?? '')
+      for (let offset = 0; offset < bytes.length; offset += 256) {
+        controller.enqueue(bytes.slice(offset, offset + 256))
+      }
+      controller.close()
+    },
+    cancel() {
+      streamCancel.called = true
+    },
+  })
+}
+
+/** 无 Content-Length 的 chunked 超限流：不依赖单个巨大字符串。 */
+function oversizedChunkedStream(totalBytes: number): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      const chunk = new TextEncoder().encode('x'.repeat(512))
+      for (let sent = 0; sent < totalBytes; sent += chunk.byteLength) {
+        controller.enqueue(chunk)
+      }
+      controller.close()
+    },
+    cancel() {
+      streamCancel.called = true
+    },
+  })
+}
+
 beforeEach(async () => {
   vi.resetModules()
   vi.clearAllMocks()
+  streamCancel.called = false
   mockGetHeader.mockReturnValue(undefined)
   mockGetQuery.mockReturnValue({})
   mockGetRouterParam.mockReturnValue(undefined)
+  mockGetRequestWebStream.mockImplementation(() => deferredRawTextStream())
   checkRateLimitMock.mockReturnValue(true)
   process.env[ENV_KEY] = `bazi:${ACCOUNT_ID}`
   mockAssertSameOrigin.mockReturnValue(undefined as never)
@@ -149,6 +193,14 @@ describe('POST /api/result-history', () => {
     mockGetHeader.mockReturnValue(String(8192 + 1))
     mockReadRawBody.mockResolvedValue('{}')
     await expect(postHandler(authorizedEvent())).rejects.toMatchObject({ statusCode: 413 })
+  })
+
+  it('无 Content-Length 的 chunked 超限在流读取阶段被截断并取消流，且不调用服务层', async () => {
+    // 真实读取器路径：累计超限必须立即 cancel 流，而不是先缓冲完整 body 再判定。
+    mockGetRequestWebStream.mockReturnValue(oversizedChunkedStream(64 * 1024))
+    await expect(postHandler(authorizedEvent())).rejects.toMatchObject({ statusCode: 413 })
+    expect(streamCancel.called).toBe(true)
+    expect(serviceMock.saveSnapshot).not.toHaveBeenCalled()
   })
 
   it('结构非法返回 400（额外字段、toolId 非 bazi、摘要形状错误）', async () => {

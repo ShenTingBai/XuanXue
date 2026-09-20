@@ -74,7 +74,7 @@ R4 本人档案状态为 **`Accepted`（2026-09-14 用户确认接受）**。接
 
 ### 前置要求
 
-- Node.js ≥ 18
+- Node.js ≥ 22（与 `package.json` 的 `engines` 一致；仓库 `.nvmrc` 固定为 24）
 - npm ≥ 9
 
 ### 安装与运行

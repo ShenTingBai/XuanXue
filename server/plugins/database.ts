@@ -3,13 +3,22 @@ import { initDb } from '../database/db'
 /**
  * 数据库初始化插件。
  *
- * 这里**有意**返回 Promise：Nitro 在启动阶段会 await 插件返回值，从而保证开始处理请求前
- * 数据库已完成初始化。若为迁就类型而改成不返回 Promise，请求可能在 initDb 完成前到达。
+ * Nitro 的 `runNitroPlugins` 是**同步**逐个调用插件函数的
+ * （node_modules/nitropack/dist/runtime/internal/app.mjs），不会 await 插件返回值。
+ * 旧实现依赖「Nitro 会 await 插件返回的 Promise」这一未证实行为：首请求可能在
+ * schema 建表、迁移记录与实例锁完成前进入数据库层。
  *
- * `defineNitroPlugin` 的类型只声明 `() => void`，属 Nitro 类型定义不精确（运行时确实 await），
- * 因此这一处按真实语义保留 async 并显式说明，而不是放弃等待。
+ * 因此这里不再返回 Promise，改为在插件执行时创建**一次**共享初始化 Promise，
+ * 并注册为 request hook 的前置等待。Nitro 的 onRequest 确实
+ * `await callHook("request", event)`，所以每个请求都会等待同一个初始化 Promise——
+ * request hook 才是实际的请求前置边界，而不是插件返回值。
+ *
+ * initDb 自身带重复调用保护（返回同一 Promise），此处不做第二次调用，也不改数据库层。
  */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises -- 见上：Nitro 类型不精确，运行时 await 插件返回值
-export default defineNitroPlugin(async () => {
-  await initDb()
+export default defineNitroPlugin(nitroApp => {
+  const databaseReady = initDb()
+
+  nitroApp.hooks.hook('request', async () => {
+    await databaseReady
+  })
 })

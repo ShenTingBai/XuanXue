@@ -12,11 +12,12 @@
  * @author LiXinwen
  */
 
-import { getHeader, readRawBody } from 'h3'
+import { getHeader } from 'h3'
 import type { H3Event } from 'h3'
 import { BAZI_MAX_REQUEST_BYTES, BAZI_TOOL_ID, type BaziErrorCode } from '~/constants/bazi-rules'
 import { isToolPubliclyAvailable } from '~/constants/tool-catalog'
 import { isInternalVerificationAllowed } from './internal-verification'
+import { readBoundedRawBody } from './bounded-request-body'
 import type {
   BaziInputOrigin,
   BaziPillar,
@@ -48,17 +49,14 @@ export function assertInternalAccessIfNotPublic(toolId: string, accountId: numbe
   throw createError({ statusCode: 403, statusMessage: '当前不可用' })
 }
 
-/** 读取并限制请求体：Content-Length 预检 + 真实 UTF-8 字节兜底。 */
+/** 读取并限制请求体：Content-Length 预检 + 流式真实 UTF-8 字节兜底。 */
 export async function readBoundedHistoryBody(event: H3Event): Promise<unknown> {
   const contentLength = Number(getHeader(event, 'content-length') || 0)
   if (Number.isFinite(contentLength) && contentLength > BAZI_MAX_REQUEST_BYTES) {
     throw createError({ statusCode: 413, statusMessage: '请求体过大' })
   }
-  const raw = await readRawBody(event, 'utf-8')
+  const raw = await readBoundedRawBody(event, BAZI_MAX_REQUEST_BYTES)
   if (raw == null) return {}
-  if (Buffer.byteLength(raw, 'utf-8') > BAZI_MAX_REQUEST_BYTES) {
-    throw createError({ statusCode: 413, statusMessage: '请求体过大' })
-  }
   try {
     return JSON.parse(raw) as unknown
   } catch {

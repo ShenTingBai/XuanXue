@@ -70,7 +70,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 ├── composables/                  # 计算引擎 + 共享状态（共 26 个）
 │   ├── useAuth.ts                # 认证状态（基于 useState）
 │   ├── useSolarTerms.ts          # 节气日期、月柱、五虎遁
-│   ├── useBaZi.ts                # 【旧引擎】四柱、十神、大运（日柱锚点已知错误，仍被 useHeHun 调用）
+│   ├── useBaZi.ts                # 【旧引擎】四柱、十神、大运（日柱锚点已于 89f626d 修正为复用 utils/bazi/pillars.ts，仍被 useHeHun 调用）
 │   ├── useShenSha.ts             # 【旧引擎】神煞查找表，按维度组织
 │   ├── useLiuNian.ts             # 【旧引擎】流年：11 年跨度、工程评分、模板文本
 │   ├── useShengXiao.ts           # 生肖分类与干支；旧性格/婚配/运势函数仍在，但页面已不再引用
@@ -78,7 +78,7 @@ npx vitest             # watch 模式（无参数即 watch，非 run）
 │   ├── useGreeting.ts            # 问候语（localStorage 持久化）
 │   ├── useYijing.ts              # 易经起卦、变卦、爻辞
 │   ├── useZiwei.ts               # 紫微斗数星盘（依赖 iztro 库）
-│   ├── useHeHun.ts               # 八字合婚匹配（上游依赖旧 useBaZi 的日柱，围栏内）
+│   ├── useHeHun.ts               # 八字合婚匹配（经 calculateBaZi 取日柱；89f626d 后日柱已正确，围栏内）
 │   ├── useCezi.ts                # 汉字测字解读
 │   ├── useNameTest.ts            # 姓名三才五格测试
 │   ├── useZeJi.ts                # 择吉日推荐

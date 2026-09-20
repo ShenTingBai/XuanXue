@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockGetHeader = vi.hoisted(() => vi.fn())
 const mockReadBody = vi.hoisted(() => vi.fn())
 const mockReadRawBody = vi.hoisted(() => vi.fn())
+const mockGetRequestWebStream = vi.hoisted(() => vi.fn())
 const mockGetRequestURL = vi.hoisted(() => vi.fn())
 const mockSetCookie = vi.hoisted(() => vi.fn())
 const mockDeleteCookie = vi.hoisted(() => vi.fn())
@@ -19,10 +20,12 @@ const mockCreateErrorFn = vi.hoisted(() =>
 
 // 认证端点改走 server/utils/bounded-json-body（显式 import h3），
 // 因此除 stubGlobal 外还需替换 h3 模块导出，才能让真实字节上限逻辑受测。
+// 2026-09-20：读取改走 getRequestWebStream 流式累计，故同时替换该导出。
 vi.mock('h3', async importOriginal => ({
   ...(await importOriginal<typeof import('h3')>()),
   getHeader: mockGetHeader,
   readRawBody: mockReadRawBody,
+  getRequestWebStream: mockGetRequestWebStream,
 }))
 
 // Stub Nuxt auto-import globals
@@ -119,6 +122,54 @@ type SecurityLogCall = Parameters<typeof logSecurityEvent>
 type DbRunCall = Parameters<typeof dbRun>
 
 // ============================================================================
+// 流式请求体夹具
+// ============================================================================
+
+/** 记录超限时 reader.cancel() 是否被调用。 */
+const streamCancel = vi.hoisted(() => ({ called: false }))
+
+/**
+ * 把**原始请求体文本**包装成按 256 字节分块投递的 ReadableStream。
+ *
+ * 注意两点：
+ * - 生产端 `getRequestWebStream` 是同步函数，mock 必须同步返回流，否则会被
+ *   实现判为"无可用流"；
+ * - 文本来源仍是各用例设置的 `mockReadRawBody`，因此在流的 `start` 中惰性 await，
+ *   既保持既有用例写法，又让真实字节累计逻辑受测。
+ */
+function deferredRawTextStream(): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const raw = await mockReadRawBody()
+      const bytes = new TextEncoder().encode(raw ?? '')
+      for (let offset = 0; offset < bytes.length; offset += 256) {
+        controller.enqueue(bytes.slice(offset, offset + 256))
+      }
+      controller.close()
+    },
+    cancel() {
+      streamCancel.called = true
+    },
+  })
+}
+
+/** 无 Content-Length 的 chunked 超限流：总字节数远超上限，且不依赖单个巨大字符串。 */
+function oversizedChunkedStream(totalBytes: number) {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      const chunk = new TextEncoder().encode('x'.repeat(512))
+      for (let sent = 0; sent < totalBytes; sent += chunk.byteLength) {
+        controller.enqueue(chunk)
+      }
+      controller.close()
+    },
+    cancel() {
+      streamCancel.called = true
+    },
+  })
+}
+
+// ============================================================================
 // R2 Auth API tests
 // ============================================================================
 
@@ -129,12 +180,15 @@ function makeEvent(overrides: Record<string, unknown> = {}) {
 describe('R2 认证接口', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    // readRawBody 委托给既有 readBody 夹具：各用例的 body 写法保持不变，
-    // 同时让 bounded-json-body 的真实 UTF-8 字节校验受测。
+    streamCancel.called = false
+    // mockReadRawBody 继续充当"原始请求体文本来源"，各用例写法不变；
+    // 生产代码实际经由 getRequestWebStream 逐块读取，这里把同一文本包成分块流，
+    // 从而让 bounded-request-body 的真实字节累计与取消逻辑受测。
     mockReadRawBody.mockImplementation(async (event: any) => {
       const body = await mockReadBody(event)
       return body === undefined || body === null ? undefined : JSON.stringify(body)
     })
+    mockGetRequestWebStream.mockImplementation(() => deferredRawTextStream())
     // clearAllMocks 会连 mock 实现一并清空，这里显式恢复默认实现，
     // 避免上一个 describe 的用例（如 verifyPassword=false）泄漏到后续用例
     const authMod = await import('~/server/utils/auth')
@@ -290,9 +344,17 @@ describe('R2 认证接口', () => {
 
     it('缺失 Content-Length 时仍按真实字节拒绝超大请求体（chunked 绕过回归）', async () => {
       // 回归：旧实现只信 Content-Length，缺失该头时 parseInt('0')=0 直接放行，
-      // 随后读入整包；现由 bounded-json-body 按真实 UTF-8 字节兜底。
+      // 随后读入整包；现由 bounded-request-body 逐块累计真实字节兜底。
       mockReadRawBody.mockResolvedValue(JSON.stringify({ nickname: 'x'.repeat(4096) }))
       await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
+    })
+
+    it('无 Content-Length 的 chunked 超限在流读取阶段被截断并取消流', async () => {
+      // 真实读取器路径：getRequestWebStream 返回分块流，累计超限必须立即 cancel，
+      // 而不是先缓冲完整 body 再判定。
+      mockGetRequestWebStream.mockReturnValue(oversizedChunkedStream(64 * 1024))
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
+      expect(streamCancel.called).toBe(true)
     })
 
     it('Content-Length 声明超限时在读体前拒绝', async () => {
@@ -359,6 +421,12 @@ describe('R2 认证接口', () => {
     it('缺失 Content-Length 时仍拒绝超大请求体（chunked 绕过回归）', async () => {
       mockReadRawBody.mockResolvedValue(JSON.stringify({ nickname: 'x'.repeat(4096) }))
       await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
+    })
+
+    it('无 Content-Length 的 chunked 超限在流读取阶段被截断并取消流', async () => {
+      mockGetRequestWebStream.mockReturnValue(oversizedChunkedStream(64 * 1024))
+      await expect(handler(makeEvent())).rejects.toMatchObject({ statusCode: 413 })
+      expect(streamCancel.called).toBe(true)
     })
 
     it('不存在与非 active 统一返回 401（防枚举）', async () => {

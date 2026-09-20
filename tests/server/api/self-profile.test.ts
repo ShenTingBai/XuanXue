@@ -8,11 +8,15 @@ import type { H3Event } from 'h3'
 
 const mockGetHeader = vi.hoisted(() => vi.fn())
 const mockReadRawBody = vi.hoisted(() => vi.fn())
+const mockGetRequestWebStream = vi.hoisted(() => vi.fn())
 const mockAssertSameOrigin = vi.hoisted(() => vi.fn())
+// 2026-09-20：共享解析器 bounded-json-body 改走 getRequestWebStream 流式累计，
+// 故一并替换该导出，使真实字节上限逻辑继续受测。
 vi.mock('h3', async importOriginal => ({
   ...(await importOriginal<typeof import('h3')>()),
   getHeader: mockGetHeader,
   readRawBody: mockReadRawBody,
+  getRequestWebStream: mockGetRequestWebStream,
 }))
 // createError 替身返回带状态/数据的 Error（真实 h3 语义：调用方自行 throw）。
 const mockCreateErrorFn = vi.hoisted(() =>
@@ -93,6 +97,24 @@ const validSaveBody = {
   consent: { accepted: true, policyVersion: SELF_PROFILE_POLICY_VERSION },
 }
 
+/**
+ * 由 `mockReadRawBody` 提供文本、按 256 字节分块投递的请求流。
+ * `getRequestWebStream` 在生产端是同步函数，mock 必须同步返回流对象；
+ * 文本来源保持各用例既有写法，流的 start 中惰性 await。
+ */
+function deferredRawTextStream(): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const raw = await mockReadRawBody()
+      const bytes = new TextEncoder().encode(raw ?? '')
+      for (let offset = 0; offset < bytes.length; offset += 256) {
+        controller.enqueue(bytes.slice(offset, offset + 256))
+      }
+      controller.close()
+    },
+  })
+}
+
 describe('R4 /api/self-profile 接口', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -102,6 +124,7 @@ describe('R4 /api/self-profile 接口', () => {
       return undefined
     })
     mockReadRawBody.mockResolvedValue(JSON.stringify(validSaveBody))
+    mockGetRequestWebStream.mockImplementation(() => deferredRawTextStream())
     serviceMock.get.mockReturnValue({
       id: 'p1',
       accountId: 1,

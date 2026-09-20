@@ -1,0 +1,209 @@
+# R5 八字页生产预览与全链路浏览器验收记录
+
+> 计划：`plan-20260920-r5-browser-acceptance-v1`
+>
+> 执行日期：2026-09-20（本地时间 20:47–21:05）
+>
+> 执行者：ZCode（Claude 侧执行器）
+>
+> 浏览器环境：ZCode 内置浏览器（in-app browser / IAB，Chromium 内核），**非** Playwright headless
+>
+> 验证状态：**technical_verification_passed_pending_user_acceptance**
+
+## 1. 本次补齐的缺口
+
+上一轮（`docs/validation/2026-09-20-r5-index-nav-active-section-validation.md`）记录：
+
+> 浏览器交互未完成：Browser 插件不可用，Playwright Chromium 下载/启动失败，
+> 已有 headless shell 不能稳定退出；未伪造截图或交互通过证据。
+
+本轮 Browser 插件恢复可用，因此执行了完整的真实浏览器交互验收，覆盖该文档
+§4「待验证」的全部四项。
+
+## 2. 隔离条件
+
+| 项 | 取值 |
+|----|------|
+| 生产构建 | `node .output/server/index.mjs`（`npm run build` 产物，非 dev server） |
+| 预览端口 | `4396`（独立端口） |
+| 临时数据库 | `D:/@Temp/xuanxue-evidence/2026-09-20-r5-browser-acceptance/external-db/r5-browser-tmp.db`（**仓库外**，独立空库） |
+| `SESSION_SECRET` | 每次启动随机生成（48 字节 hex），仅存于进程环境与仓库外临时文件，未写入仓库 |
+| 内部验证白名单 | `XUANXUE_INTERNAL_TOOLS=bazi:1`（仅账号 id=1） |
+| 证据目录 | `D:/@Temp/xuanxue-evidence/2026-09-20-r5-browser-acceptance/`（仓库外，含 20 张截图） |
+
+**业务数据库隔离**：`xuanxue-r2.db`（mtime 2026-09-15 20:11）与 `xuanxue.db`（mtime 2026-09-07 16:40）
+在预览启动前后 mtime 未变化；本轮未读取、未哈希、未复制、未修改任何业务数据库文件。
+所有数据库写入只发生在仓库外临时库。
+
+账号标签：临时库首个账号记为**账号 A（id=1）**，第二个记为**账号 B（id=2）**；
+本记录不包含昵称全称、密码、Cookie 或密钥。
+
+## 3. 自动化门禁（本轮工作树）
+
+| 命令 | 退出码 | 结果 |
+|------|--------|------|
+| `npm run typecheck` | 0 | 仅既有 `HexagramInfo` 重复导入警告 |
+| `npm run test` | 0 | 89 文件 / 2682 用例通过 |
+| `npm run lint` | 0 | 0 errors / 56 warnings（均为既有） |
+| `npm run build` | 0 | 生产构建成功 |
+
+## 4. 围栏与换号（账号边界）
+
+| # | 场景 | URL 结果 | DOM 事实 | 截图 |
+|---|------|----------|----------|------|
+| 1 | 游客访问 `/tools/bazi` | → `/tools/status?tool=bazi` | 无 `[data-bazi-section='input']`；显示「功能整理中」；无框架错误覆盖层 | `01-guest-tools-bazi.png` |
+| 2 | 注册账号 A（id=1） | → `/self-profile` | `GET /api/auth/me` 返回 `id: 1` | `02-account-a-registered.png` |
+| 3 | A 访问 `/tools/bazi` | **保持 `/tools/bazi`** | h1「八字基础排盘」；六段结构完整；卷目 6 项 | `03-account-a-bazi-reachable.png` |
+| 4 | A 退出后立即访问 | → `/tools/status?tool=bazi` | 回到状态页 | — |
+| 5 | 账号 B（id=2）访问 | → `/tools/status?tool=bazi` | 顶栏确认登录态为 B；无八字表单；**未复用 A 的客户端允许值** | `04-account-b-fenced.png` |
+
+**结论**：游客不可达、白名单 A 可达、非白名单 B 不可达三条路径均有 URL + DOM + 截图证据；
+A→退出→B 未出现内部权限串号，服务端白名单仍是最终安全边界。
+
+## 5. 八字生命周期闭环
+
+### 5.1 空态与卷目
+
+- 六段结构顺序：guide → input → summary → detail → scope → actions ✓
+- 空态 summary 段实测高度 **80px**（短章节场景）
+- 点击卷目Ⅲ → `summaryTop = 80`（吸顶线）、焦点落在 `#bazi-summary`、
+  **高亮保持Ⅲ未提前跳到Ⅳ**（截图 `06-index-iii-empty-short-section.png`）
+- 卷目其余锚点点击均正确滚动并高亮；Ⅴ 折叠（169px）→ 展开（1100px）后
+  **高亮仍稳定在Ⅴ**（IndexNav 的几何重算生效，截图 `07-index-scope-collapsed-expanded.png`）
+
+### 5.2 生成（含独立校验）
+
+| 输入 | 页面结果 | 独立校验 |
+|------|----------|----------|
+| 公历 2000-01-01 | 年柱 己卯 / 月柱 丙子 / **日柱 戊午**（日干 戊） | 按国标锚点 1949-10-01=甲子推算，偏差 18354 天 ≡ 54 (mod 60) → 戊午 **一致** |
+| 公历 2000-02-04（立春边界） | 提示「该日期跨〈立春〉，年柱与月柱各有 2 种可能」；**日柱唯一 壬辰** | 偏差 18388 天 ≡ 28 (mod 60) → 壬辰 **一致** |
+
+结果信封包含：日期级限定（不含时辰）、日期对照、逐项候选对比、限制说明
+（缺时柱、不支持午夜换日双候选、节气时刻为分钟级核验）、规则版本
+`2026-09-14-bazi-date-v1` 与来源集合版本。
+
+**禁用内容核对**：全文检出 `时柱`/`强弱`/`分` 三个词，逐条核对上下文后确认**全部位于
+「本页不输出以下内容」否定清单与诚实缺失说明中**（如「本版不输出…时柱…日主强弱…评分」
+「也不给 0–100 分一类的评分」），**不存在**违规结果输出。十神、藏干、纳音、大运、流年、
+神煞、喜用神仅出现在同一否定清单内。
+
+### 5.3 保存与历史
+
+| 步骤 | 结果 |
+|------|------|
+| 未保存状态 | 明确提示「生成与保存是两步…不会自动保存」 |
+| 保存弹层 | 含输入类别、结果内容、规则/来源版本、保存时间说明、查看/删除方式、「不会做什么」、**出生日期隐私提示**；初始焦点在弹层标题 |
+| 确认保存 | 成功提示含时间戳与「重复保存不会产生第二条记录」 |
+| 重复保存防护 | 保存后按钮变为 **disabled**（UI 层直接禁止重复提交） |
+| 历史列表 | 「共 1 条」；API 返回字段为安全摘要（`displayNamePrefix` 等），**不含精确出生日期** |
+| 快照详情 | 标注「快照详情（只读）」、写明「按当时的规则版本…生成，不会随当前规则变化而改写」；「用当前规则重新计算」注明「原记录不变」 |
+| 单条删除 | 成功；API 0 条、列表清空、显示空态 |
+| 删除失败语义 | `composables/useResultHistory.ts:234` 注释与实现确认「失败时不从界面移除」——仅在成功路径执行列表 filter |
+| 按工具清空 | 二次确认 `role=alertdialog`「确认清空全部 1 条八字历史记录？删除后无法恢复」；清空后 API 0 条 |
+
+### 5.4 本人档案删除联动
+
+| 路径 | 弹层 | 结果 |
+|------|------|------|
+| 含出生输入历史 | 「仍有 **1 条**历史快照包含保存时的出生输入，请选择处置方式」 | 两个选项 `keep` / `delete` **均默认未选** |
+| 选 `keep` | 保留这 1 条历史快照 | 档案删除、**历史保留 1 条** ✓ |
+| 重建档案 + 再制造 1 条 | 弹层动态显示「**2 条**」 | 选 `delete` → 档案删除、**历史 0 条** ✓ |
+
+## 6. 响应式与可访问性
+
+### 6.1 四档视口（空态 + 生成后）
+
+| 视口 | 空态 scrollWidth / clientWidth | 生成后 | 页面级横向溢出 |
+|------|-------------------------------|--------|----------------|
+| 320 | 305 / 305 | 305 / 305 | **无** |
+| 360 | 345 / 345 | 345 / 345 | **无** |
+| 390 | 375 / 375 | 375 / 375 | **无** |
+| 414 | 399 / 399 | 399 / 399 | **无** |
+
+生成按钮在各档均完整可见（181×51 CSS px，≥44px）。
+截图：`18-responsive-empty-{320,360,390,414}.png`、`20-responsive-generated-{320,360,390,414}.png`。
+
+### 6.2 200% 文本缩放（根字号 16px → 32px）
+
+| 视口 | scrollWidth / clientWidth | 溢出 | 生成按钮 |
+|------|--------------------------|------|----------|
+| 320 | 305 / 305 | **无** | 完整可见、可点 |
+| 414 | 399 / 399 | **无** | 完整可见、可点 |
+
+采用放大根字号方式（rem 体系整体放大），**未使用禁用浏览器缩放**。截图 `19-zoom200-*.png`。
+
+### 6.3 焦点与键盘
+
+| 项 | 结果 |
+|----|------|
+| `:focus-visible` | 卷目链接聚焦时 `matches(':focus-visible') === true`，可见 `2px solid` 朱砂色 outline；样式表含 34 条 `:focus-visible` 规则 |
+| Tab 焦点困于弹层 | 连续 5 次 Tab 焦点在弹层「取消」↔「确认保存」间循环，**未进入背景**（`contains(activeElement) === true` ×5） |
+| Escape 关闭 | `.auth-dialog-wrap` 的 `@keydown` 处理 Escape；实测弹层关闭 |
+| 关闭后焦点返回 | **焦点返回触发按钮「保存本次结果」** ✓ |
+| 锚点焦点 | 点击卷目后目标 section 获得焦点（`tabindex="-1"` + `focus({preventScroll:true})`） |
+| reduced-motion | JS 分支 `behavior: prefersReducedMotion() ? 'auto' : 'smooth'` **且** CSS `@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important } }` 覆盖全局 `html { scroll-behavior: smooth }`；两处配合下锚点即时跳转仍可用 |
+
+## 7. 明确未取得或未覆盖的证据
+
+| 项 | 说明 |
+|----|------|
+| 控制台 error/warning 逐条采集 | 当前浏览器运行时（IAB）未暴露 console 监听 API，**未能逐条采集 console 输出**；替代证据为「无框架错误覆盖层」检查（各页面 `#nuxt-error-overlay` 均不存在）与交互全程无错误提示。此项如实列为未覆盖。 |
+| 卷目触控目标尺寸 | 卷目链接（`.index-link`）实测高 **34px**（`padding: 4px 8px`，14px 字号），**低于治理规范 §18.1「至少 44px」**。关键操作按钮（生成 51px、保存等）达标。卷目属于页内导航辅助，但按计划「所有触控目标至少 44px」的字面要求**未通过**，列为待修复项。 |
+| reduced-motion 的浏览器级模拟 | 通过 `matchMedia` 覆盖 + CSS 规则核验验证分支，**未使用浏览器级媒体模拟**（运行时未暴露该能力）；结论以代码分支 + CSS 规则 + 规则覆盖链为依据。 |
+| 删除失败的 UI 注入 | 运行时未暴露请求拦截能力，无法在 UI 层注入删除失败；该场景以服务端语义 + 组件实现（失败不移除）为证据，未做浏览器级失败注入。 |
+
+## 8. 状态边界
+
+- 本记录是**执行者自查**，不是 Codex 独立审查；独立审查见
+  [2026-09-20 Codex 独立审查](../audits/2026-09-20-codex-independent-review-7073f5d-588b6cb.md)。
+- **R5 未标记 Accepted、未公开放行**：`bazi` 仍是 `exposure=internal`，由
+  `XUANXUE_INTERNAL_TOOLS` 白名单控制，普通访客仍进状态页。
+- 来源审阅（`sourceReviewStatus`）与用户最终接受仍是**独立状态**，本次浏览器证据不改变它们。
+- 相关契约与设计依据：[八字工具契约](../product/contracts/bazi-tool-contract.md)、
+  [档案与数据生命周期规范](../product/governance/profile-and-data-lifecycle-spec.md)、
+  [卷目短章节收敛验证](2026-09-20-r5-index-nav-active-section-validation.md)。
+
+## 9. 证据清单（仓库外）
+
+目录 `D:/@Temp/xuanxue-evidence/2026-09-20-r5-browser-acceptance/`：
+
+```
+01-guest-tools-bazi.png                    游客被围栏到状态页
+02-account-a-registered.png                账号 A 注册（id=1）
+03-account-a-bazi-reachable.png            A 可达八字页（六段+卷目）
+04-account-b-fenced.png                    账号 B 被围栏（顶栏确认为 B）
+05-empty-state-index-iii.png               空态与卷目
+06-index-iii-empty-short-section.png       空态Ⅲ短章节高亮（不跳Ⅳ）
+07-index-scope-collapsed-expanded.png      Ⅴ折叠/展开高亮
+08-generated-2000-01-01.png                生成结果（日柱戊午）
+09-saved-history-item.png                  保存后历史列表
+10-history-snapshot-detail.png             只读快照详情
+11-boundary-lichun-2000-02-04.png          立春边界候选
+12-cleared-history.png                     按工具清空
+13-self-profile-created.png                档案建档
+14-self-profile-danger-zone.png            危险操作区
+15-profile-delete-dialog.png               删除联动弹层（keep/delete 未选）
+16-profile-deleted-keep-history.png        keep 路径
+17-profile-deleted-history-too.png         delete 路径
+18-responsive-empty-{320,360,390,414}.png  四档空态
+19-zoom200-{320,414}.png                   200% 文本缩放
+20-responsive-generated-{320,360,390,414}.png 四档生成后
+preview.log                                预览启动日志（不含密钥/Cookie）
+external-db/                               临时数据库（仓库外）
+```
+
+## 10. plan_amendments
+
+见 `.claude/results/20260920-r5-browser-acceptance-v1-result.yaml` 的 `plan_amendments` 段。
+
+## 11. 结论
+
+R5 页面与数据生命周期已在**独立生产预览 + 独立临时数据库**上完成真实浏览器验收：
+游客围栏、白名单 A 可达、非白名单 B 不可达、八字生成（含边界候选）、显式保存、
+历史只读快照、单条删除、按工具清空、档案删除联动（keep/delete 双路径）、
+空态短章节卷目高亮、四档窄屏与 200% 文本缩放、焦点与键盘闭环均有实测证据。
+
+**两项如实记录的未通过/未覆盖项**：卷目触控目标 34px 低于 44px 要求（待修复）；
+console 输出未能逐条采集（运行时限制，以「无错误覆盖层」替代）。
+
+状态：**technical_verification_passed_pending_user_acceptance**（待用户最终接受）。

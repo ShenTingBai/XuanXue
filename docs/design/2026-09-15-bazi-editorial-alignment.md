@@ -43,7 +43,7 @@ R5-C 的差异，主要不是实现走样，而是**转写阶段的判断错误*
 | --------------------------------- | --------------------------------------------------------------------------- | ------ |
 | `sp-shell` 两列外壳（1120px）     | `.editorial-shell`（`214px + minmax(0,1fr)`，72rem）                        | 全局类 |
 | `article.sp-scroll` + 左分隔线    | `.editorial-article`（左边框 1px、左内边距 46px）                           | 全局类 |
-| `aside.sp-index` 卷目 + 脚注      | `ProfileIndexNav`（sticky + IntersectionObserver 高亮 + ≤920px 转顶部网格） | 组件   |
+| `aside.sp-index` 卷目 + 脚注      | `ProfileIndexNav`（sticky + 吸顶线几何高亮 + ≤920px 转顶部网格） | 组件   |
 | `header.sp-masthead` 报头         | `ProfileMasthead`（印章/眉题/标题/副题/状态胶囊/元信息行）                  | 组件   |
 | `sp-section-head`（Ⅰ + 标题）     | `ProfileSectionHeading`                                                     | 组件   |
 | `sp-section`（40px + 上细线）     | `.editorial-section` / `--first`（含 `scroll-margin-top: 5rem`）            | 全局类 |
