@@ -1,6 +1,24 @@
 #!/bin/bash
-# push 前跑类型检查与全部测试，不通过拒绝推送。
-# typecheck 必须在这里：CI 只在远端跑，本地推送前的最后一道门禁不能只看测试。
+# push 前跑格式、类型检查与全部测试，不通过拒绝推送。
+#
+# 顺序按「最快失败优先」：格式（约 20s）→ 类型检查（约 30s）→ 测试（约 40s）。
+#
+# 为什么 prettier 必须在这里：
+# pre-commit 的 lint-staged 只检查**已暂存**的文件，且可以用 --no-verify 绕过。
+# 2026-09-20（86ee250，22 个 md）与 2026-09-21（72c1ab8，6 个 md）连续两次，
+# 都是「pre-commit 的 Prettier 检查失败之后仍然提交并推送」，CI 随即红在 format job。
+# 也就是说，问题不是发现不了，而是**已知红仍推**。
+# pre-push 的绕过成本更高、也更不容易被顺手绕过，把全仓格式检查放在这里才能拦住它。
+echo ""
+echo "🎨 运行格式检查..."
+npx prettier --check .
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ 格式检查未通过，拒绝推送。运行 npx prettier --write <文件> 修复后重试。"
+  exit 1
+fi
+
 echo ""
 echo "🔎 运行类型检查..."
 npx nuxi typecheck
@@ -22,4 +40,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "✅ 类型检查与测试全部通过，允许推送。"
+echo "✅ 格式、类型检查与测试全部通过，允许推送。"
