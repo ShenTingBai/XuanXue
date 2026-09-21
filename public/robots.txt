@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://xuanxue.example.com/sitemap.xml
+Sitemap: https://xuanji.me/sitemap.xml

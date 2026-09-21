@@ -1,0 +1,101 @@
+# R6 登录态首页移动端溢出专项验证记录
+
+> 计划：`plan-20260921-r6-home-auth-mobile-overflow-v1`
+>
+> 执行日期：2026-09-21（本地时间 17:40–18:20）
+>
+> 执行者：ZCode（Claude 侧执行器）
+>
+> 浏览器环境：ZCode 内置浏览器（IAB，Chromium 内核）
+>
+> 验证状态：**technical_verification_completed**（响应式专项；不改变 R6 bazi 来源 GAP、公开体验第 15 项、工具目录或公开放行结论）
+
+## 1. 背景
+
+R6 bazi 公开门禁复审发现：登录态首页在 320px + 200% 根字号下 `scrollWidth=476 > clientWidth=305`。
+根因定位为「今日玄机」头部 `.slip-date-inline` 使用 `flex-shrink: 0`，在 `.slip-hd` 单行 flex 中
+无法收缩/换行。复验时进一步发现问候语区 h1（含昵称）也在 200% 下撑破视口。
+
+## 2. 变更（pages/index.vue，scoped CSS 与最小 class）
+
+| 位置 | 修改 | 意图 |
+| ---- | ---- | ---- |
+| `.slip-hd` | 加 `flex-wrap: wrap` | 允许头部子项在窄屏/放大文本下换行回流 |
+| `.slip-date-inline` | 移除 `flex-shrink: 0`，加 `min-width: 0`、`white-space: normal` | 日期文字可收缩并正常断行，不再把头部撑出视口 |
+| `.slip-fortune` | 加 `white-space: nowrap` | 节气名是原子标签，不随文本放大断行；换行交给 `slip-hd` 的 flex-wrap |
+| 问候语 h1 | 加 `break-words min-w-0` | 昵称字母串允许断行、h1 作为 flex item 可收缩 |
+| 问候语父容器 `.flex.items-center.gap-3.sm:gap-4` | 加 `min-w-0 max-w-full` | 父 flex 行允许在 column 布局内收缩，不按内容宽撑破视口 |
+
+**未修改**：`todayAstro` 数据来源、日期格式、节气计算、登录态条件、其他首页区域、全局样式、工具目录。
+**未使用**：`user-scalable=no`、`maximum-scale`、全局 `overflow: hidden`。
+
+## 3. 自动化门禁（串行执行，避免 `.nuxt/schema` 竞争）
+
+| 命令                | 退出码 | 结果                                        |
+| ------------------- | ------ | ------------------------------------------- |
+| `npm run typecheck` | 0      | 0 错误；仅既有 `HexagramInfo` 重复导入警告  |
+| `npm run test`      | 0      | **89 文件 / 2693 用例通过**（+3 新增回归）  |
+| `npm run lint`      | 0      | 0 errors / 56 warnings（均为既有）          |
+| `npm run build`     | 0      | 生产构建成功（7.07 MB）                     |
+
+专项回归：`npx vitest run tests/pages/index-content.test.ts` → 17 测试通过（新增 3 条：
+今日玄机 DOM 保留、flex-wrap/min-width 回流规则存在、无禁缩放/overflow hidden 掩盖）。
+
+## 4. 生产预览浏览器复验
+
+| 项               | 取值                                                                                     |
+| ---------------- | ---------------------------------------------------------------------------------------- |
+| 生产构建         | `node .output/server/index.mjs`（含修复后重新构建）                                      |
+| 预览端口         | `4401`（独立端口）                                                                       |
+| 临时数据库       | `D:/@Temp/xuanxue-evidence/2026-09-21-r6-home-auth-mobile-overflow/external-db/overflow-tmp.db`（仓库外独立空库） |
+| `SESSION_SECRET` | 随机 48 字节 hex，仅存仓库外                                                             |
+| 临时账号         | 浏览器注册（id=1，白名单 bazi:1），昵称未写入任何文档                                    |
+
+### 4.1 登录态首页四档视口（16px 根字号）
+
+| 视口 | scrollWidth / clientWidth | 页面级横向溢出 |
+| ---- | ------------------------- | -------------- |
+| 320  | 305 / 305                 | **无**         |
+| 360  | 345 / 345                 | **无**         |
+| 390  | 375 / 375                 | **无**         |
+| 414  | 399 / 399                 | **无**         |
+
+### 4.2 200% 文本缩放（根字号 16px→32px）
+
+| 视口 | scrollWidth / clientWidth | 溢出   | 说明                                   |
+| ---- | ------------------------- | ------ | -------------------------------------- |
+| 320  | **305 / 305**             | **无** | 修复前 476/305；documentElement 与 body 均验证 |
+| 414  | 399 / 399                 | **无** |                                        |
+
+### 4.3 今日玄机头部与问候语（320px + 200%）
+
+| 元素                    | rect（left→right, width） | 说明                                   |
+| ----------------------- | ------------------------- | -------------------------------------- |
+| 问候语 h1               | 32→273（241px）           | 昵称可收缩断行，不再撑破（修复前 329px 越界到 317） |
+| `.slip-date-inline`     | 81→208（127px）           | 日期「2026年9月21日 · 周一」收缩并换行到第二行 |
+| `.slip-fortune--吉`     | 81→150（69px）            | 节气「白露」标签完整保留               |
+| `.slip-ttl`             | 「今 日 玄 机」           | 标题完整                               |
+
+### 4.4 今日玄机内容完整性
+
+日期「2026年9月21日 · 周一」、节气「白露」、标题「今 日 玄 机」均 `display: block` 可见，
+未被 `display:none` 隐藏或截断为空。
+
+## 5. 数据库与凭证隔离
+
+- 业务数据库 `xuanxue-r2.db`（mtime 2026-09-15 20:11）与 `xuanxue.db`（mtime 2026-09-07 16:40）
+  在预览前后未变化；未读取、未哈希、未复制、未修改。
+- 结束时清理：SESSION_SECRET、Cookie jar、临时 DB/.bak/.lock；证据目录仅保留不含敏感数据的 `preview.log`。
+- 截图存于 `D:/@Temp/xuanxue-evidence/2026-09-21-r6-home-auth-mobile-overflow/`（仓库外）。
+
+## 6. 未覆盖或未决项
+
+- **空数据状态**（`todayAstro` 未加载）：代码分支确认 `v-if="todayAstro"` 控制日期/节气显示，空态只有标题
+  （该分支在 200% 下不溢出，因无日期/节气内容）；真实浏览器未单独触发空态（懒加载很快完成）。
+- 其余 R6 阻断（GAP-BZ-001/007、bazi 公开体验第 15 项、shengxiao blocked）**不由本专项处理**。
+
+## 7. 状态边界
+
+- 本记录是**执行者自查**，不是 Codex 独立审查。
+- 本专项只修登录态首页响应式缺口，**不改变** R6 bazi 公开门禁结论、工具目录或公开放行状态。
+- 未自动提交、推送、部署。

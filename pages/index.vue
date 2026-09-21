@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { STEMS, BRANCHES } from '~/constants/bazi'
-import { WUXING_COLORS, WUXING_FALLBACK_COLOR, getNayinWuxing } from '~/constants/bazi'
-import { SAMPLE_BAZI, SAMPLE_PROMINENT_SHENSHA } from '~/constants/sample-bazi'
 import {
   getLocalDevNavTools,
   isToolPubliclyAvailable,
@@ -76,23 +74,6 @@ interface TodayAstroData {
   dateStr: string
 }
 const todayAstro = ref<TodayAstroData | null>(null)
-
-// ── 命盘预览：预计算的静态示例数据 ──
-const sampleBaZi = SAMPLE_BAZI
-const prominentShenSha = SAMPLE_PROMINENT_SHENSHA
-
-const samplePillars = computed(() => {
-  const labels = ['年柱', '月柱', '日柱', '时柱']
-  const pillars = [
-    sampleBaZi.yearPillar,
-    sampleBaZi.monthPillar,
-    sampleBaZi.dayPillar,
-    sampleBaZi.hourPillar,
-  ]
-  return pillars
-    .map((p, i) => ({ label: labels[i], data: p }))
-    .filter((p): p is { label: string; data: NonNullable<typeof p.data> } => p.data !== null)
-})
 
 interface DailyWuxingData {
   luckyColorNames: string[]
@@ -267,115 +248,6 @@ onMounted(async () => {
                 每条结果都会说明所使用的输入、规则、来源与版本，不虚构结论。
               </p>
             </div>
-          </div>
-        </section>
-
-        <!-- ── 命盘预览 ── -->
-        <section
-          class="max-w-grid mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16"
-          aria-label="命盘预览"
-        >
-          <div class="section-header">
-            <h2>命 盘 预 览</h2>
-          </div>
-
-          <p class="font-sans text-sm text-ink-medium tracking-[0.15em] text-center mt-2 mb-6">
-            示例：1990年5月15日 午时
-          </p>
-
-          <div v-if="sampleBaZi" class="card-warm card-warm--elevated rounded-xl p-8 anim-rise">
-            <!-- Four pillars -->
-            <div class="grid grid-cols-4 gap-4 sm:gap-6">
-              <div
-                v-for="pillar in samplePillars"
-                :key="pillar.label"
-                class="flex flex-col items-center text-center"
-              >
-                <span class="font-sans text-[0.6875rem] text-ink-light tracking-[0.15em] mb-2">
-                  {{ pillar.label }}
-                </span>
-                <span class="font-display text-2xl text-ink-dark tracking-[0.2em] mb-1">
-                  {{ pillar.data.stem }}{{ pillar.data.branch }}
-                </span>
-                <div class="flex items-center gap-1.5 mb-1">
-                  <span
-                    class="inline-block w-2.5 h-2.5 rounded-full"
-                    :style="{
-                      background: WUXING_COLORS[pillar.data.stemWuxing] || WUXING_FALLBACK_COLOR,
-                    }"
-                    :aria-label="pillar.data.stemWuxing"
-                  ></span>
-                  <span class="font-sans text-xs text-ink-medium">{{
-                    pillar.data.stemWuxing
-                  }}</span>
-                </div>
-                <span class="font-sans text-[0.6875rem] text-ink-light tracking-[0.1em]">
-                  {{ getNayinWuxing(pillar.data.stem, pillar.data.branch) || '—' }}命
-                </span>
-              </div>
-            </div>
-
-            <!-- Divider -->
-            <div
-              class="my-5 h-px"
-              style="background: color-mix(in srgb, var(--color-ink-faint) 50%, transparent)"
-              aria-hidden="true"
-            ></div>
-
-            <!-- Day master + shensha -->
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-6">
-              <div class="flex items-center gap-2">
-                <span class="font-sans text-sm text-ink-medium">日主：</span>
-                <span
-                  class="font-display text-lg"
-                  :style="{
-                    color: WUXING_COLORS[sampleBaZi.dayMasterWuxing] || WUXING_FALLBACK_COLOR,
-                  }"
-                >
-                  {{ sampleBaZi.dayMaster }}{{ sampleBaZi.dayMasterWuxing }}
-                </span>
-                <span class="font-sans text-sm text-ink-medium"
-                  >（{{ sampleBaZi.dayMasterStrength }}）</span
-                >
-              </div>
-
-              <span
-                class="hidden sm:block w-px h-5"
-                style="background: color-mix(in srgb, var(--color-ink-faint) 50%, transparent)"
-                aria-hidden="true"
-              ></span>
-
-              <div
-                v-if="prominentShenSha.length > 0"
-                class="flex flex-wrap items-center gap-x-3 gap-y-1"
-              >
-                <span class="font-sans text-xs text-ink-light tracking-[0.1em]">神煞：</span>
-                <span
-                  v-for="s in prominentShenSha"
-                  :key="s.name"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm font-sans"
-                  :class="
-                    s.category === '吉'
-                      ? 'text-jade'
-                      : s.category === '凶'
-                        ? 'text-cinnabar'
-                        : 'text-ink-medium'
-                  "
-                  style="
-                    font-size: 0.6875rem;
-                    letter-spacing: 0.08em;
-                    background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
-                  "
-                >
-                  {{ s.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Footer note -->
-            <p class="mt-5 font-sans text-xs text-ink-light tracking-[0.1em]">
-              * 此为示例命盘，仅用于展示传统排盘形式。
-            </p>
           </div>
         </section>
 
@@ -565,7 +437,7 @@ onMounted(async () => {
               <div
                 class="flex flex-col items-center justify-center h-full gap-2 sm:gap-3 text-center"
               >
-                <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center gap-3 sm:gap-4 min-w-0 max-w-full">
                   <span
                     class="hidden sm:block w-6 h-px flex-shrink-0"
                     style="
@@ -574,7 +446,7 @@ onMounted(async () => {
                     aria-hidden="true"
                   />
                   <h1
-                    class="font-display text-3xl sm:text-4xl lg:text-5xl"
+                    class="font-display text-3xl sm:text-4xl lg:text-5xl break-words min-w-0"
                     style="color: var(--color-ink); letter-spacing: 0.05em"
                   >
                     {{ greeting.prefix }}，<span class="text-cinnabar-deeper">{{
@@ -797,6 +669,7 @@ onMounted(async () => {
 .slip-hd {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.375rem;
   margin-bottom: 0.375rem;
 }
@@ -831,7 +704,10 @@ onMounted(async () => {
   color: var(--color-ink-light);
   letter-spacing: 0.04em;
   opacity: 0.7;
-  flex-shrink: 0;
+  /* 窄屏/放大文本下允许日期文字收缩与断行，避免把 slip-hd 撑出视口；
+     flex-wrap 已允许头部整体换行，这里不再强制不收缩（不用 overflow hidden 掩盖）。 */
+  min-width: 0;
+  white-space: normal;
   margin-right: 0.5rem;
 }
 
@@ -843,6 +719,8 @@ onMounted(async () => {
   letter-spacing: 0.08em;
   transform: rotate(-0.5deg);
   line-height: 1.3;
+  /* 节气名是原子标签，不随文本放大断行；换行交给 slip-hd 的 flex-wrap。 */
+  white-space: nowrap;
 }
 
 .slip-fortune--吉 {

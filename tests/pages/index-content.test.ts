@@ -96,4 +96,57 @@ describe('首页访客公开文案（R1 收敛）', () => {
     expect(indexPageSource).toContain('登录 / 注册')
     expect(indexPageSource).not.toContain('to="/account"')
   })
+
+  // ── R6 公开面 truthfulness 回归（移除首页命盘示例） ──
+
+  it('首页不再引用 sample-bazi 命盘示例资产', () => {
+    expect(indexPageSource).not.toContain('sample-bazi')
+    expect(indexPageSource).not.toContain('SAMPLE_BAZI')
+    expect(indexPageSource).not.toContain('SAMPLE_PROMINENT_SHENSHA')
+  })
+
+  it('首页不再渲染契约禁止的八字示例字段', () => {
+    expect(indexPageSource).not.toContain('命盘预览')
+    expect(indexPageSource).not.toContain('日主：')
+    expect(indexPageSource).not.toContain('神煞：')
+    expect(indexPageSource).not.toContain('身弱')
+    expect(indexPageSource).not.toContain('福星贵人')
+    expect(indexPageSource).not.toContain('五行比例')
+    expect(indexPageSource).not.toContain('天生福气')
+  })
+})
+
+describe('登录态首页今日玄机响应式（R6 移动端专项）', () => {
+  it('保留今日玄机 DOM 标识与日期/节气绑定', () => {
+    expect(indexPageSource).toContain('今日玄机')
+    expect(indexPageSource).toContain('slip-date-inline')
+    expect(indexPageSource).toContain('todayAstro.dateStr')
+    expect(indexPageSource).toContain('todayAstro?.solarTerm')
+  })
+
+  it('今日玄机头部允许窄屏回流（flex-wrap），日期可收缩', () => {
+    // 删除 flex-wrap 或 min-width:0/white-space:normal 时本断言失败，防止溢出回归。
+    expect(indexPageSource).toMatch(/\.slip-hd\s*\{[^}]*flex-wrap:\s*wrap/)
+    expect(indexPageSource).toMatch(/\.slip-date-inline\s*\{[^}]*min-width:\s*0/)
+    expect(indexPageSource).toMatch(/\.slip-date-inline\s*\{[^}]*white-space:\s*normal/)
+  })
+
+  it('不使用禁缩放或全局 overflow hidden 掩盖溢出', () => {
+    expect(indexPageSource).not.toMatch(/user-scalable\s*=\s*["']?no/)
+    expect(indexPageSource).not.toMatch(/maximum-scale/)
+    // 不允许页面级全局 overflow hidden；组件内局部滚动不在此断言范围
+    expect(indexPageSource).not.toContain('overflow: hidden')
+  })
+})
+
+describe('robots.txt 站点地址一致性（R6 公开面）', () => {
+  const robotsSource = readFileSync(resolve(process.cwd(), 'public/robots.txt'), 'utf-8')
+
+  it('Sitemap 使用站点单一来源域名 xuanji.me', () => {
+    expect(robotsSource).toContain('Sitemap: https://xuanji.me/sitemap.xml')
+  })
+
+  it('不再残留示例域名 xuanxue.example.com', () => {
+    expect(robotsSource).not.toContain('xuanxue.example.com')
+  })
 })
