@@ -19,12 +19,12 @@ R6 全链路公开门禁审计（`docs/audits/2026-09-21-r6-full-chain-public-ga
 
 ## 2. 变更
 
-| 文件                                   | 操作   | 说明                                                                                     |
-| -------------------------------------- | ------ | ---------------------------------------------------------------------------------------- |
-| `pages/index.vue`                      | modify | 删除「命盘预览」整段公开渲染；移除 `sample-bazi`、`WUXING_COLORS`、`getNayinWuxing` 等仅供该区块的 import、常量和 computed |
-| `constants/sample-bazi.ts`             | delete | 删除仅被首页使用的预计算命盘/神煞示例常量（含日主强弱、喜忌、五行比例、神煞现实承诺等禁止/未核验字段） |
-| `public/robots.txt`                    | modify | Sitemap 从 `xuanxue.example.com` 改为 `xuanji.me`，与 nuxt.config 的 `siteUrl` 一致       |
-| `tests/pages/index-content.test.ts`    | modify | 新增 5 条回归断言：首页不引用 sample-bazi、不渲染禁止字段；robots 使用 xuanji.me、无示例域名 |
+| 文件                                | 操作   | 说明                                                                                                                       |
+| ----------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `pages/index.vue`                   | modify | 删除「命盘预览」整段公开渲染；移除 `sample-bazi`、`WUXING_COLORS`、`getNayinWuxing` 等仅供该区块的 import、常量和 computed |
+| `constants/sample-bazi.ts`          | delete | 删除仅被首页使用的预计算命盘/神煞示例常量（含日主强弱、喜忌、五行比例、神煞现实承诺等禁止/未核验字段）                     |
+| `public/robots.txt`                 | modify | Sitemap 从 `xuanxue.example.com` 改为 `xuanji.me`，与 nuxt.config 的 `siteUrl` 一致                                        |
+| `tests/pages/index-content.test.ts` | modify | 新增 5 条回归断言：首页不引用 sample-bazi、不渲染禁止字段；robots 使用 xuanji.me、无示例域名                               |
 
 **未修改**：`nuxt.config.ts`（sitemap 生成逻辑）、`constants/tool-catalog.ts`、`server/**`、`middleware/**`、
 `/tools/bazi` 页面、旧八字计算引擎、R6 审计/验证文档（known dirty，只读不改写）。
@@ -55,12 +55,12 @@ R6 全链路公开门禁审计（`docs/audits/2026-09-21-r6-full-chain-public-ga
 
 ## 5. 生产预览浏览器复验
 
-| 项               | 取值                                                                                     |
-| ---------------- | ---------------------------------------------------------------------------------------- |
-| 生产构建         | `node .output/server/index.mjs`                                                          |
-| 预览端口         | `4399`（独立端口）                                                                       |
+| 项               | 取值                                                                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------- |
+| 生产构建         | `node .output/server/index.mjs`                                                                          |
+| 预览端口         | `4399`（独立端口）                                                                                       |
 | 临时数据库       | `D:/@Temp/xuanxue-evidence/2026-09-21-r6-public-surface/external-db/r6-surface-tmp.db`（仓库外独立空库） |
-| `SESSION_SECRET` | 随机 48 字节 hex，仅存仓库外                                                             |
+| `SESSION_SECRET` | 随机 48 字节 hex，仅存仓库外                                                                             |
 
 ### 5.1 HTTP 层
 
@@ -70,14 +70,14 @@ R6 全链路公开门禁审计（`docs/audits/2026-09-21-r6-full-chain-public-ga
 
 ### 5.2 浏览器（IAB）
 
-| 项                     | 结果                                                                                     |
-| ---------------------- | ---------------------------------------------------------------------------------------- |
-| 客户端渲染首页         | 禁止字段 **0 命中**；「传统文化自我探索」「登录查看状态」「相关工具正在逐项核验」均保留   |
-| 320 / 360 / 390 / 414  | 305 / 345 / 375 / 399，无页面级横向溢出                                                   |
-| 320px + 200% 文本缩放  | 305 / 305，无横向溢出（放大根字号方式，未禁用缩放）                                      |
-| 游客 `/tools/bazi`     | 302 → `/tools/status?tool=bazi`（bazi 仍 `internal`，未变）                              |
-| 游客 `/tools/shengxiao`| 200 SPA 壳 + 客户端重定向（未变）                                                        |
-| 首页 SSR 工具名        | 无「八字/生肖」工具名                                                                    |
+| 项                      | 结果                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------- |
+| 客户端渲染首页          | 禁止字段 **0 命中**；「传统文化自我探索」「登录查看状态」「相关工具正在逐项核验」均保留 |
+| 320 / 360 / 390 / 414   | 305 / 345 / 375 / 399，无页面级横向溢出                                                 |
+| 320px + 200% 文本缩放   | 305 / 305，无横向溢出（放大根字号方式，未禁用缩放）                                     |
+| 游客 `/tools/bazi`      | 302 → `/tools/status?tool=bazi`（bazi 仍 `internal`，未变）                             |
+| 游客 `/tools/shengxiao` | 200 SPA 壳 + 客户端重定向（未变）                                                       |
+| 首页 SSR 工具名         | 无「八字/生肖」工具名                                                                   |
 
 截图存于仓库外 `D:/@Temp/xuanxue-evidence/2026-09-21-r6-public-surface/`（不含凭证）。
 
