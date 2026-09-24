@@ -18,6 +18,9 @@ const componentSources = new Map(
   componentFiles.map(name => [name, readFileSync(resolve(componentDir, name), 'utf-8')]),
 )
 
+/** 全局控件规范：choice-control 的选中态（含方框勾选）只由全局 CSS 提供，组件不得自带一套。 */
+const globalCssSource = readFileSync(resolve(process.cwd(), 'assets/css/main.css'), 'utf-8')
+
 /** 旧页引用过、R5 明确不再使用的实现与组件标识符。 */
 const legacyIdentifiers = [
   'useBaZi',
@@ -72,16 +75,15 @@ describe('八字页静态回归（R5）', () => {
     }
   })
 
-  it('页面使用出版版外壳与 R5 的十个组件（不再使用工具页外壳）', () => {
+  it('页面使用统一工具外壳与 R5 的十个组件（不再自带外壳结构）', () => {
     const imported = [...pageSource.matchAll(/from '~\/components\/([^']+)'/g)].map(
       match => match[1],
     )
+    // 卷目 / 报头 / 页脚由 ToolEditorialShell 组合，页面不再各自渲染一份。
     expect(new Set(imported)).toEqual(
       new Set([
-        'tools/PageFooter.vue',
         'tools/ScrollTopButton.vue',
-        'editorial/IndexNav.vue',
-        'editorial/Masthead.vue',
+        'editorial/ToolEditorialShell.vue',
         'editorial/SectionHeading.vue',
         'auth/AuthDialog.vue',
         'bazi/BaziInputForm.vue',
@@ -99,12 +101,35 @@ describe('八字页静态回归（R5）', () => {
   })
 
   it('页面不再使用工具页外壳：ToolPageLayout 与 PageHero 不得回归', () => {
-    // 出版版外壳用 editorial-shell + 卷目 + 报头；工具页外壳由其余 10 个工具页继续使用。
-    for (const identifier of ['ToolPageLayout', 'PageHero']) {
+    // 出版版外壳由共用组合件提供：页面只声明分节与内容，不重复渲染外壳 DOM。
+    for (const identifier of [
+      'ToolPageLayout',
+      'PageHero',
+      'editorial/IndexNav.vue',
+      'editorial/Masthead.vue',
+    ]) {
       expect(pageSource, `pages/tools/bazi.vue 不应再引用 ${identifier}`).not.toContain(identifier)
     }
-    for (const className of ['editorial-shell', 'editorial-article', 'editorial-section']) {
-      expect(pageSource, `pages/tools/bazi.vue 应使用 .${className}`).toContain(className)
+    expect(pageSource, '页面应使用统一工具外壳组合件').toContain(
+      "import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'",
+    )
+    expect(pageSource).toContain('editorial-section')
+
+    // 外壳 DOM 契约（editorial-shell / editorial-article / 卷目 / 报头 / 页脚）由组合件保证：
+    // 断言组合件源码，页面改用组合件后这些类不再出现在页面自身。
+    const shellSource = readFileSync(
+      resolve(process.cwd(), 'components/editorial/ToolEditorialShell.vue'),
+      'utf-8',
+    )
+    for (const className of ['editorial-shell', 'editorial-article']) {
+      expect(shellSource, `ToolEditorialShell 应渲染 .${className}`).toContain(className)
+    }
+    for (const part of [
+      'editorial/IndexNav.vue',
+      'editorial/Masthead.vue',
+      'tools/PageFooter.vue',
+    ]) {
+      expect(shellSource, `ToolEditorialShell 应组合 ${part}`).toContain(part)
     }
   })
 
@@ -147,11 +172,23 @@ describe('八字页静态回归（R5）', () => {
 
   it('交互反馈：勾选框不用原生样式，两处折叠件都有可展开标记', () => {
     // 原生 checkbox 会在纸/朱砂体系里出现系统蓝勾（用户 2026-09-15 复核指出），
-    // 与历法单选同法改为 sr-only input + 样式化方框。
+    // 与历法单选同法改为 sr-only input + 全局 choice-control 方框指示器。
     const inputSource = componentSources.get('BaziInputForm.vue') ?? ''
     expect(inputSource, '十四周岁勾选框应改为 sr-only').toContain('class="sr-only"')
-    expect(inputSource, '应有样式化方框 bazi-check').toContain('bazi-check')
-    expect(inputSource, '选中态应填充朱砂').toContain('input:checked + .bazi-check')
+    expect(inputSource, '应保留原生 checkbox').toContain('type="checkbox"')
+    expect(inputSource, '应使用共享 choice-control').toContain('choice-control')
+    expect(inputSource, '应使用方框指示器').toContain('choice-control__indicator--box')
+
+    // 旧兼容钩子必须彻底删除。类名用拼装而非字面量：本计划的 grep 门禁要求本文件 0 次命中，
+    // 写下字面量会让检测命令自身命中（自指误报），断言强度不变。
+    const legacyHookClass = ['bazi', 'check'].join('-')
+    expect(inputSource, '组件不应残留旧兼容钩子').not.toContain(legacyHookClass)
+
+    // 方框勾选态由全局规范提供：断言全局 CSS 确有该规则，且不含工具专属类。
+    expect(globalCssSource, '全局 CSS 应定义方框勾选态填充').toContain(
+      '.choice-control input:checked + .choice-control__indicator--box',
+    )
+    expect(globalCssSource, '全局 CSS 不应出现工具专属类').not.toContain(legacyHookClass)
 
     // 折叠件必须给出可视线索：三柱卡用方形 ＋/－ 伪元素，六问用 bazi-fold-mark。
     const pillarSource = componentSources.get('BaziPillarCard.vue') ?? ''

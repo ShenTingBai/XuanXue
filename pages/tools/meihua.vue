@@ -9,7 +9,8 @@ import {
   type InputMethod,
 } from '~/composables/useMeiHua'
 import { TRIGRAMS } from '~/constants/meihua'
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -40,6 +41,24 @@ const meihuaSynthesis: string[] = [
   '体用生克：无动爻之卦为体（主体），有动爻之卦为用（客体）',
   '解读文本为规则模板 + 卦辞原文 + 白话解读，非 AI 生成',
 ]
+
+/**
+ * 卷目（Ⅰ–Ⅲ）与脚注。
+ *
+ * 只列页面**已有**的三个段落——起卦输入、体用生克分析与白话解读卷；
+ * 不为让索引变长新增段（设计系统：卷目只是既有段序的目录）。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '梅花易数', href: '#meihua-input' },
+  { num: 'Ⅱ', label: '体用生克分析', href: '#meihua-tiyong' },
+  { num: 'Ⅲ', label: '白话解读', href: '#meihua-slip' },
+]
+
+/**
+ * 卷目脚注：只写三种起卦方式这一条输入口径。
+ * 内存结果边界改由报头元信息行承担——脚注 ≤920px 隐藏，隐私提示不能只放这里。
+ */
+const indexFootnote = '时间 / 数字 / 随机三种起卦'
 
 // ── State ──
 const result = ref<MeiHuaResult | null>(null)
@@ -251,44 +270,61 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">梅花易数</h1>
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="梅"
+    edition="工具 · 梅花易数（时间 / 数字 / 随机起卦）"
+    title="梅花易数"
+    subtitle="依先天八卦数起卦，推演本卦、互卦、变卦与体用生克。"
+    status-text="功能整理中"
+    meta-text="结果只在本页内存 · 不写服务器历史"
+  >
     <div role="status" class="sr-only" aria-live="polite">
       {{ loading ? '正在起卦...' : result ? '卦象已就绪' : '' }}
     </div>
-    <div class="max-w-[48rem] mx-auto">
-      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
-      <div v-if="!missingBirth" class="flex items-center justify-between mb-6">
-        <span></span>
-        <ExportButton
-          v-if="result"
-          :target-ref="exportRef"
-          filename="梅花易数.png"
-          :is-exporting="isExporting"
-          @export="handleExport"
-        />
-      </div>
 
-      <!-- Input card -->
-
-      <ProfileAutoFillBanner
-        v-if="showBanner || missingBirth"
-        :profile-name="birthData?.profileName || ''"
-        :is-filled="isFilled"
-        :missing-birth="missingBirth"
-        :profile-id="currentProfile?.id"
-        :conversion-note="birthData?.conversionNote"
-        @fill="handleAutoFill"
-        @revoke="handleRevoke"
+    <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+    <div v-if="!missingBirth" class="flex items-center justify-between mb-6">
+      <span></span>
+      <ExportButton
+        v-if="result"
+        :target-ref="exportRef"
+        filename="梅花易数.png"
+        :is-exporting="isExporting"
+        @export="handleExport"
       />
+    </div>
 
+    <ProfileAutoFillBanner
+      v-if="showBanner || missingBirth"
+      :profile-name="birthData?.profileName || ''"
+      :is-filled="isFilled"
+      :missing-birth="missingBirth"
+      :profile-id="currentProfile?.id"
+      :conversion-note="birthData?.conversionNote"
+      @fill="handleAutoFill"
+      @revoke="handleRevoke"
+    />
+
+    <!-- Ⅰ 梅花易数：起卦输入（时间 / 数字 / 随机三种方式） -->
+    <section
+      id="meihua-input"
+      class="editorial-section editorial-section--first"
+      aria-labelledby="meihua-input-heading"
+    >
       <div
         v-if="!missingBirth"
         class="fade-in card-paper-solid rounded-xl p-8"
         :style="{ '--delay': '0.1s' }"
       >
         <div class="flex items-center justify-between mb-6">
-          <div class="section-header flex-1 min-w-0 !mb-0"><h2>梅花易数</h2></div>
+          <SectionHeading
+            num="Ⅰ"
+            title="梅花易数"
+            heading-id="meihua-input-heading"
+            class="flex-1 min-w-0 !mb-0"
+          />
           <MethodologyNote
             :classical="meihuaClassical"
             :synthesis="meihuaSynthesis"
@@ -432,94 +468,105 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
+    </section>
 
-      <!-- Error -->
-      <div v-if="error" class="mt-4 text-center">
-        <p class="text-sm text-cinnabar" role="alert">{{ error }}</p>
-      </div>
+    <!-- Error -->
+    <div v-if="error" class="mt-4 text-center">
+      <p class="text-sm text-cinnabar" role="alert">{{ error }}</p>
+    </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="mt-6 space-y-4" aria-busy="true">
-        <span class="sr-only">正在计算...</span><SkeletonCard />
-      </div>
+    <!-- Loading -->
+    <div v-if="loading" class="mt-6 space-y-4" aria-busy="true">
+      <span class="sr-only">正在计算...</span><SkeletonCard />
+    </div>
 
-      <!-- Results -->
-      <template v-if="result">
-        <div ref="exportRef" class="mt-8 space-y-6">
-          <!-- Hexagram trio -->
-          <div class="meihua-hexagrams">
-            <div class="fade-in hexagram-card" :style="{ '--delay': '0.15s' }">
-              <div class="hexagram-card__label">本卦</div>
-              <div class="hexagram-card__subtitle">当前状态</div>
-              <div class="hexagram-card__symbols">
-                <div class="hexagram-card__trigram">
-                  {{ getTrigramSymbol(result.benGua.upperTrigram) }}
-                </div>
-                <div class="hexagram-card__trigram">
-                  {{ getTrigramSymbol(result.benGua.lowerTrigram) }}
-                </div>
+    <!-- Results -->
+    <template v-if="result">
+      <div ref="exportRef" class="mt-8 space-y-6">
+        <!-- Hexagram trio -->
+        <div class="meihua-hexagrams">
+          <div class="fade-in hexagram-card" :style="{ '--delay': '0.15s' }">
+            <div class="hexagram-card__label">本卦</div>
+            <div class="hexagram-card__subtitle">当前状态</div>
+            <div class="hexagram-card__symbols">
+              <div class="hexagram-card__trigram">
+                {{ getTrigramSymbol(result.benGua.upperTrigram) }}
               </div>
-              <div class="hexagram-card__name">{{ result.benGua.hexagramName }}</div>
-            </div>
-            <div class="hexagram-arrow">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </div>
-            <div class="fade-in hexagram-card" :style="{ '--delay': '0.25s' }">
-              <div class="hexagram-card__label">互卦</div>
-              <div class="hexagram-card__subtitle">发展过程</div>
-              <div class="hexagram-card__symbols">
-                <div class="hexagram-card__trigram">
-                  {{ getTrigramSymbol(result.huGua.upperTrigram) }}
-                </div>
-                <div class="hexagram-card__trigram">
-                  {{ getTrigramSymbol(result.huGua.lowerTrigram) }}
-                </div>
+              <div class="hexagram-card__trigram">
+                {{ getTrigramSymbol(result.benGua.lowerTrigram) }}
               </div>
-              <div class="hexagram-card__name">{{ result.huGua.hexagramName }}</div>
             </div>
-            <div class="hexagram-arrow">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </div>
-            <div
-              class="fade-in hexagram-card hexagram-card--changing"
-              :style="{ '--delay': '0.35s' }"
-            >
-              <div class="hexagram-card__label">变卦</div>
-              <div class="hexagram-card__subtitle">发展趋势</div>
-              <div class="hexagram-card__symbols">
-                <div class="hexagram-card__trigram">
-                  {{ getTrigramSymbol(result.bianGua.upperTrigram) }}
-                </div>
-                <div class="hexagram-card__trigram">
-                  {{ getTrigramSymbol(result.bianGua.lowerTrigram) }}
-                </div>
-              </div>
-              <div class="hexagram-card__name">{{ result.bianGua.hexagramName }}</div>
-              <div class="hexagram-card__line">第{{ result.bianGua.movingLine }}爻动</div>
-            </div>
+            <div class="hexagram-card__name">{{ result.benGua.hexagramName }}</div>
           </div>
+          <div class="hexagram-arrow">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div class="fade-in hexagram-card" :style="{ '--delay': '0.25s' }">
+            <div class="hexagram-card__label">互卦</div>
+            <div class="hexagram-card__subtitle">发展过程</div>
+            <div class="hexagram-card__symbols">
+              <div class="hexagram-card__trigram">
+                {{ getTrigramSymbol(result.huGua.upperTrigram) }}
+              </div>
+              <div class="hexagram-card__trigram">
+                {{ getTrigramSymbol(result.huGua.lowerTrigram) }}
+              </div>
+            </div>
+            <div class="hexagram-card__name">{{ result.huGua.hexagramName }}</div>
+          </div>
+          <div class="hexagram-arrow">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div
+            class="fade-in hexagram-card hexagram-card--changing"
+            :style="{ '--delay': '0.35s' }"
+          >
+            <div class="hexagram-card__label">变卦</div>
+            <div class="hexagram-card__subtitle">发展趋势</div>
+            <div class="hexagram-card__symbols">
+              <div class="hexagram-card__trigram">
+                {{ getTrigramSymbol(result.bianGua.upperTrigram) }}
+              </div>
+              <div class="hexagram-card__trigram">
+                {{ getTrigramSymbol(result.bianGua.lowerTrigram) }}
+              </div>
+            </div>
+            <div class="hexagram-card__name">{{ result.bianGua.hexagramName }}</div>
+            <div class="hexagram-card__line">第{{ result.bianGua.movingLine }}爻动</div>
+          </div>
+        </div>
 
-          <!-- Ti-Yong analysis -->
+        <!-- Ⅱ 体用生克分析 -->
+        <section
+          id="meihua-tiyong"
+          class="editorial-section"
+          aria-labelledby="meihua-tiyong-heading"
+        >
           <div class="fade-in card-warm rounded-xl p-6" :style="{ '--delay': '0.4s' }">
-            <div class="section-header !mb-4"><h2>体用生克分析</h2></div>
+            <SectionHeading
+              num="Ⅱ"
+              title="体用生克分析"
+              heading-id="meihua-tiyong-heading"
+              class="!mb-4"
+            />
             <div class="tiyong-grid">
               <div class="tiyong-card">
                 <span class="tiyong-card__label">体卦 (体)</span
@@ -558,13 +605,15 @@ onUnmounted(() => {
               {{ result.tiYong.description }}
             </p>
           </div>
+        </section>
 
-          <!-- 白话解读 — 符纸叙事卷 -->
-          <div class="fade-in mt-6 meihua-slip" :style="{ '--delay': '0.5s' }">
+        <!-- Ⅲ 白话解读 — 符纸叙事卷（分节名取自卷内的既有品牌字「白 话 解 读」） -->
+        <section id="meihua-slip" class="editorial-section" aria-labelledby="meihua-slip-heading">
+          <div class="fade-in meihua-slip" :style="{ '--delay': '0.5s' }">
             <!-- Header: trigram + title + trigram -->
             <div class="meihua-slip__header">
               <span class="meihua-slip__trigram">☰</span>
-              <span class="meihua-slip__seal-mark">白 话 解 读</span>
+              <span id="meihua-slip-heading" class="meihua-slip__seal-mark">白 话 解 读</span>
               <span class="meihua-slip__trigram">☷</span>
             </div>
 
@@ -617,16 +666,16 @@ onUnmounted(() => {
               <div class="meihua-slip__footer-line"></div>
             </div>
           </div>
+        </section>
 
-          <!-- Reset -->
-          <div class="text-center mt-6 pb-8">
-            <button class="btn-ink" @click="resetToForm" @keydown.enter="resetToForm">
-              <span>⟲ 重新起卦</span>
-            </button>
-          </div>
+        <!-- Reset -->
+        <div class="text-center mt-6 pb-8">
+          <button class="btn-ink" @click="resetToForm" @keydown.enter="resetToForm">
+            <span>⟲ 重新起卦</span>
+          </button>
         </div>
-      </template>
-    </div>
+      </div>
+    </template>
 
     <ScrollTopButton
       v-if="showScrollTop"
@@ -640,7 +689,7 @@ onUnmounted(() => {
         }
       "
     />
-  </ToolPageLayout>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>

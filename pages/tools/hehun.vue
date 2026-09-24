@@ -9,7 +9,8 @@ import {
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import HeHunScoreCard from '~/components/tools/hehun/HeHunScoreCard.vue'
 import HeHunDimensionCard from '~/components/tools/hehun/HeHunDimensionCard.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
@@ -36,6 +37,21 @@ useSeoMeta({
   ogDescription: '八字合婚配对分析，从八个维度综合评估双方婚姻匹配度和相处之道。',
   ogType: 'website',
 })
+
+// ── 出版版外壳：卷目只列本页既有三段，不为凑数新增段 ──
+const indexItems = [
+  { num: 'Ⅰ', label: '对方信息', href: '#hehun-input' },
+  { num: 'Ⅱ', label: '合婚综论', href: '#hehun-summary' },
+  { num: 'Ⅲ', label: '八字对照', href: '#hehun-bazi' },
+]
+
+/**
+ * 卷目脚注：本页数据来源边界——两条输入各自的出处。
+ *
+ * 保存边界不写在这里：卷目脚注 ≤920px 隐藏，必须常驻可见的提示由报头元信息行承担，
+ * 同一语义只保留元信息行那一处。
+ */
+const indexFootnote = '本人出生信息取自个人档案\n对方信息本页填写'
 
 const result = ref<HeHunResult | null>(null)
 const loading = ref(false)
@@ -182,9 +198,19 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <template v-if="!missingBirthInfo" #nav>
-      <div class="hehun-sidebar fade-in" :style="{ '--delay': '0s' }">
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="合"
+    edition="工具 · 八字合婚（年柱 / 日柱法 · 纳音 · 神煞 · 十神）"
+    title="八字合婚"
+    subtitle="八字合婚配对分析，从八个维度综合评估双方婚姻匹配度和相处之道。"
+    status-text="内部验证中"
+    meta-text="输出：综合评分 · 八个维度 · 八字对照 · 结果不保存"
+  >
+    <!-- 本人信息：页面级事实（原工具页外壳左侧栏），随报头呈现 -->
+    <template #masthead-extra>
+      <div v-if="!missingBirthInfo" class="hehun-sidebar fade-in" :style="{ '--delay': '0s' }">
         <div class="sidebar-header">
           <div class="sidebar-seal" aria-hidden="true">合</div>
           <h3 class="sidebar-title">本人信息</h3>
@@ -204,25 +230,37 @@ const computedGrade = computed<HeHunGrade | null>(() => {
       </div>
     </template>
 
-    <h1 class="sr-only">八字合婚</h1>
-
     <div role="status" class="sr-only" aria-live="polite">
       {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
     </div>
 
-    <!-- Missing birth info -->
-    <div v-if="missingBirthInfo" class="max-w-[48rem] mx-auto">
+    <!-- Ⅰ 对方信息（缺出生信息时只显示补全引导） -->
+    <section
+      id="hehun-input"
+      class="editorial-section editorial-section--first"
+      aria-labelledby="hehun-input-heading"
+    >
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <SectionHeading
+          num="Ⅰ"
+          title="对方信息"
+          heading-id="hehun-input-heading"
+          class="flex-1 min-w-0 !mb-0"
+        />
+        <MethodologyNote tool="八字合婚" :classical="hehunClassical" :synthesis="hehunSynthesis" />
+      </div>
+
+      <!-- Missing birth info -->
       <ProfileAutoFillBanner
+        v-if="missingBirthInfo"
         :profile-name="currentProfile?.nickname || ''"
         :is-filled="false"
         :missing-birth="true"
         :profile-id="currentProfile?.id"
       />
-    </div>
 
-    <!-- Main content -->
-    <template v-else>
-      <div class="max-w-[48rem] mx-auto">
+      <!-- Main content -->
+      <template v-else>
         <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
         <div class="flex items-center justify-between mb-6">
           <span></span>
@@ -237,16 +275,6 @@ const computedGrade = computed<HeHunGrade | null>(() => {
 
         <!-- ══ 输入区 ══ -->
         <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-          <div class="flex items-center justify-between mb-6">
-            <div class="section-header !mb-0 flex-1 min-w-0">
-              <h2>对方信息</h2>
-            </div>
-            <MethodologyNote
-              tool="八字合婚"
-              :classical="hehunClassical"
-              :synthesis="hehunSynthesis"
-            />
-          </div>
           <p class="text-xs text-ink-muted mb-6 tracking-wide">输入对方的出生信息进行合婚分析</p>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -307,13 +335,15 @@ const computedGrade = computed<HeHunGrade | null>(() => {
             <div>
               <label class="input-label block mb-2">性别</label>
               <div class="flex gap-4">
-                <label class="radio-inline">
+                <label class="choice-control">
                   <input v-model="bGender" type="radio" value="男" class="sr-only" />
-                  <span class="radio-custom">男</span>
+                  <span class="choice-control__indicator" aria-hidden="true" />
+                  <span class="choice-control__text">男</span>
                 </label>
-                <label class="radio-inline">
+                <label class="choice-control">
                   <input v-model="bGender" type="radio" value="女" class="sr-only" />
-                  <span class="radio-custom">女</span>
+                  <span class="choice-control__indicator" aria-hidden="true" />
+                  <span class="choice-control__text">女</span>
                 </label>
               </div>
             </div>
@@ -321,13 +351,15 @@ const computedGrade = computed<HeHunGrade | null>(() => {
             <div>
               <label class="input-label block mb-2">历法</label>
               <div class="flex gap-4">
-                <label class="radio-inline">
+                <label class="choice-control">
                   <input v-model="bCalendar" type="radio" value="solar" class="sr-only" />
-                  <span class="radio-custom">公历</span>
+                  <span class="choice-control__indicator" aria-hidden="true" />
+                  <span class="choice-control__text">公历</span>
                 </label>
-                <label class="radio-inline">
+                <label class="choice-control">
                   <input v-model="bCalendar" type="radio" value="lunar" class="sr-only" />
-                  <span class="radio-custom">农历</span>
+                  <span class="choice-control__indicator" aria-hidden="true" />
+                  <span class="choice-control__text">农历</span>
                 </label>
               </div>
             </div>
@@ -367,112 +399,120 @@ const computedGrade = computed<HeHunGrade | null>(() => {
           <SkeletonCard />
         </div>
 
-        <!-- ══ Result ══ -->
+        <!-- ══ Result ══（导出目标覆盖全部结果段） -->
         <template v-if="result">
           <div ref="resultRef">
-            <!-- Score -->
-            <div class="mt-8">
-              <HeHunScoreCard
-                :total-score="result.totalScore"
-                :grade="computedGrade"
-                delay="0.15s"
-              />
-            </div>
-
-            <div
-              class="fade-in mt-6 card-warm rounded-xl p-8 result-summary"
-              :style="{
-                '--delay': '0.25s',
-                borderLeft: '3px solid color-mix(in srgb, var(--color-cinnabar) 30%, transparent)',
-                background: 'color-mix(in srgb, var(--color-cinnabar) 4%, var(--color-paper-card))',
-              }"
+            <!-- Ⅱ 合婚综论 -->
+            <section
+              id="hehun-summary"
+              class="editorial-section"
+              aria-labelledby="hehun-summary-heading"
             >
-              <div class="section-header">
-                <h2>合婚综论</h2>
-              </div>
-              <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4">
-                {{ result.summary }}
-              </p>
+              <SectionHeading num="Ⅱ" title="合婚综论" heading-id="hehun-summary-heading" />
 
-              <!-- Warnings -->
-              <div v-if="result.warnings.length > 0" class="space-y-1.5 mb-4">
-                <p class="font-sans text-xs font-medium text-cinnabar mb-1">注意事项</p>
-                <p
-                  v-for="(w, i) in result.warnings"
-                  :key="i"
-                  class="font-sans text-xs text-ink-light pl-3 warning-accent"
-                >
-                  {{ w }}
+              <!-- Score -->
+              <div>
+                <HeHunScoreCard
+                  :total-score="result.totalScore"
+                  :grade="computedGrade"
+                  delay="0.15s"
+                />
+              </div>
+
+              <div
+                class="fade-in mt-6 card-warm rounded-xl p-8 result-summary"
+                :style="{
+                  '--delay': '0.25s',
+                  borderLeft:
+                    '3px solid color-mix(in srgb, var(--color-cinnabar) 30%, transparent)',
+                  background:
+                    'color-mix(in srgb, var(--color-cinnabar) 4%, var(--color-paper-card))',
+                }"
+              >
+                <p class="font-sans text-sm text-ink-medium leading-relaxed mb-4">
+                  {{ result.summary }}
                 </p>
-              </div>
 
-              <!-- Suggestions -->
-              <div class="space-y-1">
-                <p class="font-sans text-xs font-medium mb-1" style="color: var(--color-jade)">
-                  建议
-                </p>
-                <p
-                  v-for="(s, i) in result.suggestions"
-                  :key="i"
-                  class="font-sans text-xs text-ink-light pl-3"
-                  style="
-                    border-left: 2px solid color-mix(in srgb, var(--color-jade) 30%, transparent);
-                  "
-                >
-                  {{ s }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Dimensions -->
-            <div class="mt-6 space-y-4">
-              <p class="font-sans text-xs text-ink-muted tracking-wide text-center">维度分析</p>
-              <HeHunDimensionCard
-                v-for="(dim, i) in result.dimensions"
-                :key="dim.name"
-                :dim="dim"
-                :delay="`${0.3 + i * 0.07}s`"
-              />
-            </div>
-
-            <!-- 八字对比 -->
-            <div class="fade-in mt-6 card-warm rounded-xl p-8" :style="{ '--delay': '0.7s' }">
-              <div class="section-header">
-                <h2>八字对照</h2>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-                <div>
-                  <p class="font-sans text-xs text-ink-medium mb-3">
-                    {{ currentProfile?.nickname || '本人' }}
+                <!-- Warnings -->
+                <div v-if="result.warnings.length > 0" class="space-y-1.5 mb-4">
+                  <p class="font-sans text-xs font-medium text-cinnabar mb-1">注意事项</p>
+                  <p
+                    v-for="(w, i) in result.warnings"
+                    :key="i"
+                    class="font-sans text-xs text-ink-light pl-3 warning-accent"
+                  >
+                    {{ w }}
                   </p>
-                  <BaziSmallDisplay :result="result.baziA" />
                 </div>
-                <div>
-                  <p class="font-sans text-xs text-ink-medium mb-3">
-                    {{ bNickname.trim() || '对方' }}
+
+                <!-- Suggestions -->
+                <div class="space-y-1">
+                  <p class="font-sans text-xs font-medium mb-1" style="color: var(--color-jade)">
+                    建议
                   </p>
-                  <BaziSmallDisplay :result="result.baziB" />
+                  <p
+                    v-for="(s, i) in result.suggestions"
+                    :key="i"
+                    class="font-sans text-xs text-ink-light pl-3"
+                    style="
+                      border-left: 2px solid color-mix(in srgb, var(--color-jade) 30%, transparent);
+                    "
+                  >
+                    {{ s }}
+                  </p>
                 </div>
               </div>
-            </div>
+
+              <!-- Dimensions -->
+              <div class="mt-6 space-y-4">
+                <p class="font-sans text-xs text-ink-muted tracking-wide text-center">维度分析</p>
+                <HeHunDimensionCard
+                  v-for="(dim, i) in result.dimensions"
+                  :key="dim.name"
+                  :dim="dim"
+                  :delay="`${0.3 + i * 0.07}s`"
+                />
+              </div>
+            </section>
+
+            <!-- Ⅲ 八字对照 -->
+            <section id="hehun-bazi" class="editorial-section" aria-labelledby="hehun-bazi-heading">
+              <SectionHeading num="Ⅲ" title="八字对照" heading-id="hehun-bazi-heading" />
+              <div class="fade-in card-warm rounded-xl p-8" :style="{ '--delay': '0.7s' }">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p class="font-sans text-xs text-ink-medium mb-3">
+                      {{ currentProfile?.nickname || '本人' }}
+                    </p>
+                    <BaziSmallDisplay :result="result.baziA" />
+                  </div>
+                  <div>
+                    <p class="font-sans text-xs text-ink-medium mb-3">
+                      {{ bNickname.trim() || '对方' }}
+                    </p>
+                    <BaziSmallDisplay :result="result.baziB" />
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </template>
-      </div>
 
-      <ScrollTopButton
-        v-if="showScrollTop"
-        @click="scrollToTop"
-        @keydown="
-          (e: KeyboardEvent) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              scrollToTop()
+        <ScrollTopButton
+          v-if="showScrollTop"
+          @click="scrollToTop"
+          @keydown="
+            (e: KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                scrollToTop()
+              }
             }
-          }
-        "
-      />
-    </template>
-  </ToolPageLayout>
+          "
+        />
+      </template>
+    </section>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>
@@ -526,39 +566,6 @@ const computedGrade = computed<HeHunGrade | null>(() => {
   font-size: 0.6875rem;
   color: var(--color-ink-light);
   line-height: 1.6;
-}
-
-/* ── Radio inline ── */
-.radio-inline {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-}
-
-.radio-custom {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 3rem;
-  padding: 0.3rem 0.75rem;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  color: var(--color-ink-medium);
-  border: 1px solid color-mix(in srgb, var(--color-ink-faint) 30%, transparent);
-  border-radius: 0.375rem;
-  background: color-mix(in srgb, var(--color-paper-lightest) 80%, transparent);
-  transition: all 0.2s;
-}
-
-.sr-only:focus-visible + .radio-custom {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
-}
-
-.sr-only:checked + .radio-custom {
-  border-color: var(--color-cinnabar);
-  background: color-mix(in srgb, var(--color-cinnabar) 6%, transparent);
-  color: var(--color-cinnabar);
 }
 
 /* ── Input overrides ── */

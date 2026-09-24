@@ -85,14 +85,10 @@ function onAge(event: Event) {
   <fieldset :aria-describedby="error ? errorId : undefined">
     <legend class="font-sans text-sm text-ink-dark">出生日期</legend>
 
-    <!-- 历法选择：切换即清空年月日并要求重新填写 -->
+    <!-- 历法选择：切换即清空年月日并要求重新填写。共享 choice-control。 -->
     <div class="mt-3" role="radiogroup" aria-label="历法选择">
       <div class="flex flex-wrap gap-2">
-        <label
-          class="bazi-choice"
-          :class="{ 'bazi-choice--selected': calendar === 'solar' }"
-          data-bazi-calendar="solar"
-        >
+        <label class="choice-control" data-bazi-calendar="solar">
           <input
             type="radio"
             name="bazi-calendar"
@@ -101,14 +97,10 @@ function onAge(event: Event) {
             :checked="calendar === 'solar'"
             @change="emit('update:calendar', 'solar')"
           />
-          <span class="bazi-dot" aria-hidden="true" />
-          <span>公历出生日期</span>
+          <span class="choice-control__indicator" aria-hidden="true" />
+          <span class="choice-control__text">公历出生日期</span>
         </label>
-        <label
-          class="bazi-choice"
-          :class="{ 'bazi-choice--selected': calendar === 'lunar' }"
-          data-bazi-calendar="lunar"
-        >
+        <label class="choice-control" data-bazi-calendar="lunar">
           <input
             type="radio"
             name="bazi-calendar"
@@ -117,8 +109,8 @@ function onAge(event: Event) {
             :checked="calendar === 'lunar'"
             @change="emit('update:calendar', 'lunar')"
           />
-          <span class="bazi-dot bazi-dot--lunar" aria-hidden="true" />
-          <span>我只知道农历出生日期</span>
+          <span class="choice-control__indicator" aria-hidden="true" />
+          <span class="choice-control__text">我只知道农历出生日期</span>
         </label>
       </div>
       <p class="bazi-note">
@@ -186,10 +178,7 @@ function onAge(event: Event) {
     >
       <p id="bazi-leap-label" class="bazi-label">该月是闰月吗（必选）</p>
       <div class="mt-1 flex flex-wrap gap-2">
-        <label
-          class="bazi-choice"
-          :class="{ 'bazi-choice--selected': draft.isLeapMonth === false }"
-        >
+        <label class="choice-control">
           <input
             type="radio"
             name="bazi-leap"
@@ -198,10 +187,10 @@ function onAge(event: Event) {
             :checked="draft.isLeapMonth === false"
             @change="emit('update:leap-month', false)"
           />
-          <span class="bazi-dot" aria-hidden="true" />
-          <span>普通月</span>
+          <span class="choice-control__indicator" aria-hidden="true" />
+          <span class="choice-control__text">普通月</span>
         </label>
-        <label class="bazi-choice" :class="{ 'bazi-choice--selected': draft.isLeapMonth === true }">
+        <label class="choice-control">
           <input
             type="radio"
             name="bazi-leap"
@@ -210,8 +199,8 @@ function onAge(event: Event) {
             :checked="draft.isLeapMonth === true"
             @change="emit('update:leap-month', true)"
           />
-          <span class="bazi-dot bazi-dot--leap" aria-hidden="true" />
-          <span>闰月</span>
+          <span class="choice-control__indicator" aria-hidden="true" />
+          <span class="choice-control__text">闰月</span>
         </label>
       </div>
       <p v-if="draft.isLeapMonth === null" class="bazi-note">
@@ -226,8 +215,8 @@ function onAge(event: Event) {
       不写入浏览器存储，刷新或离开页面即清除。年柱、月柱、日柱与「日期对照」都读取它。
     </p>
 
-    <!-- 十四周岁声明（数据规范 §5.4） -->
-    <label class="bazi-age">
+    <!-- 十四周岁声明（数据规范 §5.4）：共享 choice-control checkbox -->
+    <label class="choice-control bazi-age">
       <input
         type="checkbox"
         class="sr-only"
@@ -235,8 +224,8 @@ function onAge(event: Event) {
         data-bazi-age
         @change="onAge"
       />
-      <span class="bazi-check" aria-hidden="true" />
-      <span>
+      <span class="choice-control__indicator choice-control__indicator--box" aria-hidden="true" />
+      <span class="choice-control__text">
         我已满十四周岁。未满十四周岁时不提供个人出生日期的排盘计算，但仍可阅读本页的规则与来源说明。
       </span>
     </label>
@@ -246,33 +235,6 @@ function onAge(event: Event) {
 </template>
 
 <style scoped>
-/* 选项 chip：≥44px 触控目标；选中态靠边框 + 底纹 + 文字色，不只靠颜色。 */
-.bazi-choice {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-paper-dark);
-  border-radius: 0.35rem;
-  background: var(--color-paper-lightest);
-  color: var(--color-ink-medium);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.2;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
-}
-.bazi-choice--selected {
-  border-color: var(--color-cinnabar);
-  background: color-mix(in srgb, var(--color-cinnabar) 8%, var(--color-paper-lightest));
-  color: var(--color-cinnabar-deepest);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
-}
-
 /* 字段：手机三列同行，窄屏自动换行 */
 .bazi-fields {
   display: grid;
@@ -321,51 +283,10 @@ function onAge(event: Event) {
   align-items: flex-start;
   gap: 0.75rem;
   margin-top: 1rem;
-  font-family: var(--font-sans);
+  /* 长文本声明是整块可点区域，不用 chip 的紧凑内边距 */
+  padding: 0.75rem;
   font-size: 0.875rem;
   line-height: 1.65;
-  color: var(--color-ink-medium);
-  cursor: pointer;
-}
-
-/* 十四周岁勾选框：不使用浏览器原生样式（原生蓝色勾与墨/朱砂体系冲突），
-   与历法单选同法——sr-only input + 样式化方框，四种状态都不出现原生控件。 */
-.bazi-check {
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  width: 1.125rem;
-  height: 1.125rem;
-  margin-top: 0.2rem;
-  border: 1px solid var(--color-ink-faint);
-  border-radius: 3px;
-  background: var(--color-paper-lightest);
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast);
-}
-.bazi-age:hover .bazi-check {
-  border-color: var(--color-ink-medium);
-}
-.bazi-age input:checked + .bazi-check {
-  border-color: var(--color-cinnabar);
-  background: var(--color-cinnabar);
-}
-.bazi-check::after {
-  content: '';
-  width: 0.3rem;
-  height: 0.6rem;
-  border: solid var(--color-paper-lightest);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) scale(0);
-  transition: transform var(--transition-fast);
-}
-.bazi-age input:checked + .bazi-check::after {
-  transform: rotate(45deg) scale(1);
-}
-.bazi-age input:focus-visible + .bazi-check {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
 }
 
 .bazi-error {
@@ -374,26 +295,6 @@ function onAge(event: Event) {
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-cinnabar);
-}
-
-.bazi-dot {
-  display: inline-block;
-  width: 1.125rem;
-  height: 1.125rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-ink-faint);
-  background: transparent;
-  flex-shrink: 0;
-}
-.bazi-dot--lunar {
-  border-color: var(--color-jade);
-}
-.bazi-dot--leap {
-  border-color: var(--color-cinnabar);
-}
-.sr-only:focus-visible + .bazi-dot {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
 }
 
 @media (max-width: 389px) {

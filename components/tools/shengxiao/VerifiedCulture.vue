@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { STEMS, BRANCHES, ANIMALS, BRANCH_TO_ANIMAL } from '~/constants/shengxiao-rules'
 import { resolveSourceLink, resolveSourceTitle } from '~/constants/shengxiao-sources'
 
@@ -11,10 +11,30 @@ import { resolveSourceLink, resolveSourceTitle } from '~/constants/shengxiao-sou
  *   （SRC-003 / SRC-003a / SRC-004）；
  * - 不生成代表年份、不调用领域日期计算（calculateShengXiao）；
  * - 不展示可选关系（R-SX-007）、人格、配对、运势或守护佛（BLK-005/006 未核验）。
+ *
+ * 键盘模型（WAI-ARIA tabs 自动激活）：
+ * - roving tabindex：选中项 tabindex=0，其余=-1，Tab 键在 tablist 上只停一次；
+ * - ArrowRight/ArrowDown 选中下一项、ArrowLeft/ArrowUp 选中上一项，首尾循环；
+ * - Home 选中第一项，End 选中最后一项；
+ * - 键盘切换后把焦点移到新选中的 tab，使焦点与 aria-selected 始终一致。
  */
 const selectedIndex = ref(0)
 
+/** 详细来源台账默认收起；生肖次序与地支对应等核心事实始终直接可见。 */
+const sourcesExpanded = ref(false)
+
+/** 12 个 tab 的按钮引用，用于键盘切换后转移焦点。 */
+const tabRefs = ref<HTMLButtonElement[]>([])
+
 const CULTURE_SOURCES = ['SRC-003', 'SRC-003a', 'SRC-004']
+
+/** tab 与 tabpanel 的稳定关联 id（同一组件实例内唯一）。 */
+const TAB_ID_PREFIX = 'shengxiao-culture-tab'
+const PANEL_ID = 'shengxiao-culture-panel'
+
+function tabId(index: number): string {
+  return `${TAB_ID_PREFIX}-${index}`
+}
 
 const selected = computed(() => {
   const index = selectedIndex.value
@@ -26,8 +46,48 @@ const selected = computed(() => {
   return { index, animal, branch, ganZhi }
 })
 
+/** 鼠标/键盘选中同一入口：只改选中态，不触碰公共文化内容以外的任何状态。 */
 function selectAnimal(index: number) {
   selectedIndex.value = index
+}
+
+/** 首尾循环取模，负数也回绕到末项。 */
+function wrapIndex(index: number): number {
+  const count = ANIMALS.length
+  return ((index % count) + count) % count
+}
+
+/** 键盘选中并转移焦点：nextTick 等待 aria/tabindex 更新后再聚焦新按钮。 */
+function selectAndFocus(index: number) {
+  selectAnimal(wrapIndex(index))
+  void nextTick(() => {
+    tabRefs.value[selectedIndex.value]?.focus()
+  })
+}
+
+function handleKeydown(event: KeyboardEvent, index: number) {
+  switch (event.key) {
+    case 'ArrowRight':
+    case 'ArrowDown':
+      event.preventDefault()
+      selectAndFocus(index + 1)
+      break
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      event.preventDefault()
+      selectAndFocus(index - 1)
+      break
+    case 'Home':
+      event.preventDefault()
+      selectAndFocus(0)
+      break
+    case 'End':
+      event.preventDefault()
+      selectAndFocus(ANIMALS.length - 1)
+      break
+    default:
+      break
+  }
 }
 </script>
 
@@ -45,6 +105,8 @@ function selectAnimal(index: number) {
       <button
         v-for="(animal, idx) in ANIMALS"
         :key="animal"
+        :ref="el => (tabRefs[idx] = el as HTMLButtonElement)"
+        :id="tabId(idx)"
         type="button"
         :class="[
           'min-h-[44px] rounded-lg border-l-2 text-sm transition-colors',
@@ -54,8 +116,11 @@ function selectAnimal(index: number) {
         ]"
         :aria-selected="idx === selectedIndex ? 'true' : 'false'"
         :aria-current="idx === selectedIndex ? 'true' : undefined"
+        :tabindex="idx === selectedIndex ? 0 : -1"
+        :aria-controls="PANEL_ID"
         role="tab"
         @click="selectAnimal(idx)"
+        @keydown="handleKeydown($event, idx)"
         @keydown.enter="selectAnimal(idx)"
         @keydown.space.prevent="selectAnimal(idx)"
       >
@@ -64,7 +129,14 @@ function selectAnimal(index: number) {
     </div>
 
     <!-- 当前生肖文化内容 -->
-    <div class="mt-6 card-warm rounded-xl p-6 sm:p-8" role="tabpanel">
+    <!-- 面板内含来源链接（可聚焦），按 WAI-ARIA tabs 模式不再给面板加 tabindex，
+         避免多出一个冗余 Tab 停留点。 -->
+    <div
+      :id="PANEL_ID"
+      class="mt-6 card-warm rounded-xl p-6 sm:p-8"
+      role="tabpanel"
+      :aria-labelledby="tabId(selectedIndex)"
+    >
       <div class="flex flex-wrap items-center gap-4">
         <span class="seal-icon seal-icon--lg flex-shrink-0" aria-hidden="true">{{
           selected.animal
@@ -89,20 +161,38 @@ function selectAnimal(index: number) {
       </dl>
 
       <div class="mt-4">
-        <h4 class="font-display text-base text-ink-dark">依据与来源</h4>
-        <ul class="mt-2 space-y-2">
-          <li v-for="sourceRef in CULTURE_SOURCES" :key="sourceRef" class="font-sans text-sm">
-            <a
-              :href="resolveSourceLink(sourceRef)"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-cinnabar underline break-words"
-            >
-              {{ resolveSourceTitle(sourceRef) }}
-            </a>
-            <span class="text-ink-light">（{{ sourceRef }}）</span>
-          </li>
-        </ul>
+        <!-- 依据与来源：详细台账默认收起，核心事实（生肖次序、地支对应）在上方直接可见。
+             折叠只影响详细程度，不影响「结果是否适用」的判断。 -->
+        <button
+          :aria-expanded="sourcesExpanded"
+          aria-controls="culture-sources-panel"
+          class="marginal-toggle"
+          @click="sourcesExpanded = !sourcesExpanded"
+          @keydown.enter="sourcesExpanded = !sourcesExpanded"
+          @keydown.space.prevent="sourcesExpanded = !sourcesExpanded"
+        >
+          <span class="marginal-toggle__rule" aria-hidden="true" />
+          <span>{{ sourcesExpanded ? '收起' : '展开' }}依据与来源</span>
+          <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
+        </button>
+        <Transition name="expand">
+          <div v-if="sourcesExpanded" id="culture-sources-panel">
+            <ul class="mt-2 space-y-2">
+              <li v-for="sourceRef in CULTURE_SOURCES" :key="sourceRef" class="font-sans text-sm">
+                <a
+                  :href="resolveSourceLink(sourceRef)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-cinnabar underline break-words"
+                >
+                  {{ resolveSourceTitle(sourceRef) }}
+                </a>
+                <span class="text-ink-light">（{{ sourceRef }}）</span>
+              </li>
+            </ul>
+          </div>
+        </Transition>
+        <!-- 文化边界：关键限制始终直接可见，不随来源台账折叠。 -->
         <p class="mt-3 font-sans text-xs text-ink-medium leading-relaxed">
           生肖次序与地支对应来自已核验来源；扩展文化形象、地支关系等未核验内容不在此展示。
         </p>
@@ -115,6 +205,22 @@ function selectAnimal(index: number) {
 /* 按钮至少保留触控宽度，文本放大后换行而不是挤压字形。 */
 .culture-tabs {
   grid-template-columns: repeat(auto-fit, minmax(max(44px, 1.5em), 1fr));
+}
+/* 折叠过渡：与设计系统 §4.1 标准模式一致。 */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 2000px;
+  opacity: 1;
 }
 .verified-culture__cell dt {
   font-family: var(--font-sans);

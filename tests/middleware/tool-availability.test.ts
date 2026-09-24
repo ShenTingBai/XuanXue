@@ -61,7 +61,7 @@ function stubNuxtGlobals(): void {
   })
 }
 
-/** 目录里 `internal + enabled`（内部验证通道可放行）的工具，当前应为 zeji 与 bazi。 */
+/** 目录里 `internal + enabled`（内部验证通道可放行）的工具，shengxiao 公开后为 zeji 与 bazi。 */
 const enabledInternalTools = TOOL_CATALOG.filter(
   tool => !isToolPubliclyAvailable(tool.id) && tool.computePolicy === 'enabled',
 )
@@ -88,11 +88,24 @@ describe('工具可用性路由围栏', () => {
     vi.unstubAllGlobals()
   })
 
+  it('游客可直接进入已公开的 /tools/shengxiao，不跳状态页', async () => {
+    expect(isToolPubliclyAvailable('shengxiao')).toBe(true)
+    // 公开工具在围栏第一行即返回，不进入内部验证分支，也不重定向。
+    await expect(
+      middleware({ path: '/tools/shengxiao', fullPath: '/tools/shengxiao' }),
+    ).resolves.toBeUndefined()
+    await expect(
+      middleware({ path: '/tools/shengxiao/', fullPath: '/tools/shengxiao/' }),
+    ).resolves.toBeUndefined()
+    expect(navigateTo).not.toHaveBeenCalled()
+  })
+
   it('默认矩阵（无内部授权播种）下不可公开工具都不得放行', async () => {
     const nonPublicTools = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(tool.id))
-    expect(nonPublicTools).toHaveLength(11)
+    // shengxiao 公开后，不可公开工具由 11 项减为 10 项。
+    expect(nonPublicTools).toHaveLength(10)
     expect(enabledInternalTools.map(tool => tool.id)).toEqual(['zeji', 'bazi'])
-    expect(blockedTools).toHaveLength(9)
+    expect(blockedTools).toHaveLength(8)
 
     for (const tool of blockedTools) {
       const target = fenceTarget(tool.id)
@@ -113,7 +126,18 @@ describe('工具可用性路由围栏', () => {
 
   it('尾斜杠路径不能绕过围栏：/tools/<id>/ 与多尾斜杠都进入同一处理', async () => {
     for (const tool of TOOL_CATALOG) {
-      if (tool.computePolicy === 'enabled' && !isToolPubliclyAvailable(tool.id)) {
+      // 已公开工具：任何尾斜杠形式都放行。
+      if (isToolPubliclyAvailable(tool.id)) {
+        await expect(
+          middleware({ path: `${tool.route}/`, fullPath: `${tool.route}/` }),
+        ).resolves.toBeUndefined()
+        await expect(
+          middleware({ path: `${tool.route}//`, fullPath: `${tool.route}//` }),
+        ).resolves.toBeUndefined()
+        continue
+      }
+
+      if (tool.computePolicy === 'enabled') {
         await expect(
           middleware({ path: `${tool.route}/`, fullPath: `${tool.route}/` }),
         ).resolves.toBe(`${tool.route}/`)

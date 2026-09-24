@@ -3,7 +3,8 @@ import { WUXING_COLORS } from '~/constants/bazi'
 import { evaluateDates, type ZejiResult, type ZejiDayResult } from '~/composables/useZeJi'
 import { EVENT_TYPES } from '~/constants/zeji'
 
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ZejiCalendar from '~/components/tools/zeji/ZejiCalendar.vue'
 import ZejiRecommend from '~/components/tools/zeji/ZejiRecommend.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
@@ -36,6 +37,26 @@ const zejiSynthesis: string[] = [
   '事项关键词匹配为工程约定（民间常用但不完整）',
   '评分权重和阈值为开发者校准（无经典原文量化标准）',
 ]
+
+/**
+ * 卷目（Ⅰ–Ⅱ）与脚注。
+ *
+ * 卷目只列页面**已有**的两段：选择事项与日历/推荐结果，不为凑长度新增段
+ * （设计系统：卷目只是既有段序的目录；本页本身就是「输入 → 结果」两段结构）。
+ * 脚注写本页真实边界：可查月份范围与评分权重的来源性质。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '选择事项', href: '#zeji-event' },
+  { num: 'Ⅱ', label: '日历与推荐吉日', href: '#zeji-calendar' },
+]
+
+/**
+ * 卷目脚注：只写本页可查范围（一行，窄屏隐藏）。
+ *
+ * 评分权重与阈值的来源性质（工程校准、无经典原文量化标准）由报头 meta 短事实承担，
+ * 「注」面板的 zejiSynthesis 提供展开证据；脚注不再复述，避免首屏出现两遍。
+ */
+const indexFootnote = '本月起三个月内择日'
 
 useSeoMeta({
   title: '择吉日 — 玄·道',
@@ -194,66 +215,76 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">择吉日</h1>
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="择"
+    edition="工具 · 黄历择吉"
+    title="择吉日"
+    subtitle="传统择吉日推荐，根据十二值星、黄黑道和二十八宿为你挑选最佳日期。"
+    status-text="内部验证中"
+    meta-text="依据《协纪辨方书》《星历考原》《增补万全玉匣记》 · 评分权重为工程校准，暂无经典原文量化标准"
+  >
+    <!-- 顶部工具条：仅保留导出入口（历史记录已下线）；不进入导出区域 -->
+    <div class="flex items-center justify-between mb-6">
+      <span></span>
+      <ExportButton
+        :target-ref="resultRef"
+        filename="择吉日.png"
+        :is-exporting="isExporting"
+        @export="handleExport"
+      />
+    </div>
 
-    <div class="max-w-[56rem] mx-auto">
-      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
-      <div class="flex items-center justify-between mb-6">
-        <span></span>
-        <ExportButton
-          :target-ref="resultRef"
-          filename="择吉日.png"
-          :is-exporting="isExporting"
-          @export="handleExport"
-        />
-      </div>
-
-      <div ref="resultRef">
-        <!-- ── 方法论溯源 ── -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="section-header !mb-0 flex-1 min-w-0">
-            <h2>择吉日</h2>
-          </div>
+    <div ref="resultRef">
+      <!-- Ⅰ 选择事项：事项类型是本页唯一输入，选择器放正文（左栏只放卷目） -->
+      <section
+        id="zeji-event"
+        class="editorial-section editorial-section--first"
+        aria-labelledby="zeji-event-heading"
+      >
+        <div class="flex items-center justify-between gap-4">
+          <SectionHeading num="Ⅰ" title="选择事项" heading-id="zeji-event-heading" />
           <MethodologyNote :classical="zejiClassical" :synthesis="zejiSynthesis" tool="择吉" />
         </div>
+
         <!-- ══ Event Type Selector ══ -->
         <div class="section-enter card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-          <div class="section-header">
-            <h2>选择事项</h2>
-          </div>
           <p class="text-xs text-ink-light mb-5 tracking-wide">
             选择您要择吉的事项类型，系统将根据黄历宜忌为您推荐吉日
           </p>
 
+          <!-- 事项选择：原生 radio + 共享 choice-control。
+               此前是 role="radio" 的 button 组，需要手写 aria-checked 与键盘分支；
+               改用原生 input 后，Tab 聚焦、方向键切换与 Space 选中由浏览器提供。 -->
           <div class="flex flex-wrap gap-2.5" role="radiogroup" aria-label="择日事项类型">
-            <button
-              v-for="(info, key) in EVENT_TYPES"
-              :key="key"
-              role="radio"
-              :aria-checked="selectedEvent === key"
-              :class="[
-                'event-btn flex items-center gap-1.5 px-3.5 py-2 rounded-lg border transition-all text-sm',
-                selectedEvent === key ? 'event-btn--active' : 'event-btn--idle',
-              ]"
-              @click="selectEvent(key)"
-              @keydown.enter="selectEvent(key)"
-              @keydown.space.prevent="selectEvent(key)"
-            >
+            <label v-for="(info, key) in EVENT_TYPES" :key="key" class="choice-control event-btn">
+              <input
+                v-model="selectedEvent"
+                type="radio"
+                name="zeji-event"
+                :value="key"
+                class="sr-only"
+                @change="selectEvent(key)"
+              />
               <span
                 class="seal-icon text-[0.6875rem] w-5 h-5 flex items-center justify-center flex-shrink-0"
-                :style="selectedEvent === key ? { background: 'var(--color-cinnabar)' } : {}"
                 aria-hidden="true"
                 >{{ info.icon }}</span
               >
-              <span class="font-sans tracking-[0.06em]">{{ info.name }}</span>
-            </button>
+              <span class="choice-control__text font-sans tracking-[0.06em]">{{ info.name }}</span>
+            </label>
           </div>
         </div>
+      </section>
+
+      <!-- Ⅱ 日历与推荐吉日：月份切换 + 日历 + 当日详情 / 推荐 -->
+      <section id="zeji-calendar" class="editorial-section" aria-labelledby="zeji-calendar-heading">
+        <SectionHeading num="Ⅱ" title="日历与推荐吉日" heading-id="zeji-calendar-heading" />
 
         <!-- ══ Month Tabs ══ -->
         <div
-          class="section-enter mt-6"
+          class="section-enter"
           :style="{ '--delay': '0.2s' }"
           role="tablist"
           aria-label="月份选择"
@@ -426,9 +457,12 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
             />
           </div>
         </div>
-      </div>
-      <!-- /resultRef -->
+      </section>
+    </div>
+    <!-- /resultRef -->
 
+    <!-- 根级附加区：回到顶部不属于阅读流，放在外壳同级 -->
+    <template #after>
       <ScrollTopButton
         v-if="showScrollTop"
         @click="scrollToTop"
@@ -441,36 +475,11 @@ function handleMonthTabKeydown(e: KeyboardEvent, index: number) {
           }
         "
       />
-    </div>
-  </ToolPageLayout>
+    </template>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>
-/* ── Event selector buttons ── */
-.event-btn {
-  font-family: var(--font-sans);
-  color: var(--color-ink-medium, #5a4a3a);
-  background: var(--color-paper-lightest, #fbf8f4);
-  border-color: rgba(44, 26, 14, 0.06);
-}
-
-.event-btn:hover {
-  background: rgba(44, 26, 14, 0.03);
-  border-color: rgba(44, 26, 14, 0.1);
-}
-
-.event-btn:focus-visible {
-  outline: 2px solid var(--color-cinnabar, #c62828);
-  outline-offset: 1px;
-}
-
-.event-btn--active {
-  color: var(--color-cinnabar, #c62828);
-  background: rgba(198, 40, 40, 0.05);
-  border-color: rgba(198, 40, 40, 0.2);
-  box-shadow: 0 0 0 1px rgba(198, 40, 40, 0.06);
-}
-
 /* ── Month tabs ── */
 .month-tab {
   color: var(--color-ink-light, #8a7a6a);

@@ -3,6 +3,7 @@ import { ref, watch, computed, onUnmounted, nextTick } from 'vue'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import ShengXiaoPage from '~/pages/tools/shengxiao.vue'
+import { SHENGXIAO_RULE_VERSION } from '~/constants/shengxiao-rules'
 
 /**
  * 生肖游客页面交互测试（实施映射第 8 节、收敛 v2/v3 回归）。
@@ -29,9 +30,14 @@ vi.mock('~/utils/shengxiao/engine', () => ({
   calculateShengXiao: engineMock.calculateShengXiao,
 }))
 
-// 允许导出的目录 mock：覆盖 current 可导出 / stale 不可导出 / exportError 传递
+// 允许导出的目录 mock：覆盖 current 可导出 / stale 不可导出 / exportError 传递。
+// shengxiao 已公开（approved/public/enabled），故 canExportTool 与公开判定同时为 true。
 vi.mock('~/constants/tool-catalog', () => ({
   canExportTool: () => true,
+  isToolPubliclyAvailable: () => true,
+  canPubliclyCompute: () => true,
+  canReadHistory: () => false,
+  canCreateHistory: () => false,
 }))
 
 // 本人档案桥接 mock：默认无档案、无摘要，供现有 12 个 R3 测试保持不触发档案路径。
@@ -148,11 +154,8 @@ function mountPage(): VueWrapper {
     global: {
       stubs: {
         teleport: true,
-        ToolPageLayout: { template: '<main><slot /></main>' },
-        PageHero: {
-          props: ['title', 'subtitle'],
-          template: '<header><h1>{{ title }}</h1></header>',
-        },
+        // 页面改用 ToolEditorialShell 后，外壳（IndexNav/Masthead/PageFooter）真实渲染，
+        // 顺带覆盖页面与统一外壳的组合；此处只保留与页面无关的宿主桩。
         NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
         // ExportButton 不 stub：真实挂载以观察 isExporting/exportError watchers 行为
       },
@@ -382,6 +385,154 @@ describe('shengxiao 游客页面', () => {
     await cultureButtons[2].trigger('click')
     expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
     expect(wrapper.text()).toContain('虎')
+  })
+
+  // ========================================================================
+  // FU-002 收敛：生肖 tablist 的 roving tabindex 与标准键盘模型
+  // ========================================================================
+
+  /** 读取 12 个 tab 的 tabindex 与 aria-selected，供键盘模型断言复用。 */
+  function tabState(wrapper: VueWrapper) {
+    return wrapper.findAll('[role="tab"]').map(tab => ({
+      text: tab.text(),
+      tabindex: tab.attributes('tabindex'),
+      selected: tab.attributes('aria-selected'),
+    }))
+  }
+
+  it('roving tabindex：任何时刻恰好一个 tab 的 tabindex=0，其余为 -1', async () => {
+    const wrapper = mountPage()
+    const state = tabState(wrapper)
+    expect(state).toHaveLength(12)
+    expect(state.filter(t => t.tabindex === '0')).toHaveLength(1)
+    expect(state.filter(t => t.tabindex === '-1')).toHaveLength(11)
+    // 初始选中第一项（鼠）。
+    expect(state[0].tabindex).toBe('0')
+    expect(state[0].selected).toBe('true')
+  })
+
+  it('ArrowRight/ArrowDown 选中下一项并首尾循环', async () => {
+    const wrapper = mountPage()
+    const tabs = wrapper.findAll('[role="tab"]')
+
+    await tabs[0].trigger('keydown', { key: 'ArrowRight' })
+    expect(wrapper.text()).toContain('牛')
+    expect(tabState(wrapper)[1].selected).toBe('true')
+    expect(tabState(wrapper)[0].tabindex).toBe('-1')
+    expect(tabState(wrapper)[1].tabindex).toBe('0')
+
+    await tabs[1].trigger('keydown', { key: 'ArrowDown' })
+    expect(tabState(wrapper)[2].selected).toBe('true')
+
+    // 末项 ArrowRight → 回到首项（循环）。
+    await tabs[11].trigger('keydown', { key: 'ArrowRight' })
+    expect(tabState(wrapper)[0].selected).toBe('true')
+    expect(wrapper.text()).toContain('鼠')
+  })
+
+  it('ArrowLeft/ArrowUp 选中上一项并首尾循环', async () => {
+    const wrapper = mountPage()
+    const tabs = wrapper.findAll('[role="tab"]')
+
+    // 首项 ArrowLeft → 回绕到末项（猪）。
+    await tabs[0].trigger('keydown', { key: 'ArrowLeft' })
+    expect(tabState(wrapper)[11].selected).toBe('true')
+    expect(wrapper.text()).toContain('猪')
+
+    await tabs[11].trigger('keydown', { key: 'ArrowUp' })
+    expect(tabState(wrapper)[10].selected).toBe('true')
+  })
+
+  it('Home 选中第一项，End 选中最后一项', async () => {
+    const wrapper = mountPage()
+    const tabs = wrapper.findAll('[role="tab"]')
+
+    await tabs[5].trigger('keydown', { key: 'End' })
+    expect(tabState(wrapper)[11].selected).toBe('true')
+    expect(tabState(wrapper)[11].tabindex).toBe('0')
+
+    await tabs[11].trigger('keydown', { key: 'Home' })
+    expect(tabState(wrapper)[0].selected).toBe('true')
+    expect(tabState(wrapper)[0].tabindex).toBe('0')
+  })
+
+  it('键盘切换后焦点移到新选中的 tab（焦点与 aria-selected 一致）', async () => {
+    // 焦点断言必须挂到真实文档上：happy-dom 里游离节点无法持有 activeElement，
+    // 用 attachTo 复现浏览器行为，避免把测试环境限制误判为组件缺陷。
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mount(ShengXiaoPage, {
+      attachTo: host,
+      global: {
+        stubs: {
+          teleport: true,
+          ToolPageLayout: { template: '<main><slot /></main>' },
+          PageHero: {
+            props: ['title', 'subtitle'],
+            template: '<header><h1>{{ title }}</h1></header>',
+          },
+          NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
+        },
+      },
+    })
+    mountedPages.push(wrapper)
+    try {
+      const tabs = wrapper.findAll('[role="tab"]')
+      await tabs[0].trigger('keydown', { key: 'ArrowRight' })
+      await nextTick()
+      await nextTick()
+      // 焦点应落在新选中的第 2 个 tab 上。
+      expect(document.activeElement).toBe(tabs[1].element)
+      expect(tabState(wrapper)[1].selected).toBe('true')
+    } finally {
+      wrapper.unmount()
+      host.remove()
+    }
+  })
+
+  it('tab 与 tabpanel 具有稳定的 id / aria-controls / aria-labelledby 关系', async () => {
+    const wrapper = mountPage()
+    const tabs = wrapper.findAll('[role="tab"]')
+    const panel = wrapper.find('[role="tabpanel"]')
+    expect(panel.exists()).toBe(true)
+
+    const panelId = panel.attributes('id')
+    expect(panelId).toBeTruthy()
+    // 每个 tab 通过 aria-controls 指向同一面板。
+    for (const tab of tabs) {
+      expect(tab.attributes('aria-controls')).toBe(panelId)
+      expect(tab.attributes('id')).toBeTruthy()
+    }
+    // 面板的 aria-labelledby 指向当前选中的 tab id。
+    expect(panel.attributes('aria-labelledby')).toBe(tabs[0].attributes('id'))
+
+    // 切换后 aria-labelledby 跟随更新。
+    await tabs[3].trigger('click')
+    await nextTick()
+    expect(wrapper.find('[role="tabpanel"]').attributes('aria-labelledby')).toBe(
+      tabs[3].attributes('id'),
+    )
+  })
+
+  it('鼠标点击与 Enter/Space 激活行为不回归，且不触发个人计算', async () => {
+    const wrapper = mountPage()
+    const tabs = wrapper.findAll('[role="tab"]')
+
+    // 鼠标点击。
+    await tabs[4].trigger('click')
+    expect(tabState(wrapper)[4].selected).toBe('true')
+    expect(wrapper.text()).toContain('龙')
+
+    // Enter 激活。
+    await tabs[7].trigger('keydown', { key: 'Enter' })
+    expect(tabState(wrapper)[7].selected).toBe('true')
+
+    // Space 激活。
+    await tabs[9].trigger('keydown', { key: ' ' })
+    expect(tabState(wrapper)[9].selected).toBe('true')
+
+    // 公共文化切换始终不得触发个人计算。
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
   })
 
   it('underage 状态解除 DOM 禁用后函数内门禁仍生效，公共内容保留', async () => {
@@ -1159,5 +1310,197 @@ describe('shengxiao 游客页面', () => {
     })
     expect(draftMock.origin.value).toBeNull()
     expect(draftMock.invalidateSource).toHaveBeenCalled()
+  })
+
+  // ========================================================================
+  // 公开候选：公开状态下的游客链路断言（不改变既有业务期望）
+  // ========================================================================
+
+  it('公开状态：游客空草稿、不自动计算、不写服务器历史', async () => {
+    const wrapper = mountPage()
+    await nextTick()
+    // 空草稿且未触发引擎。
+    expect(inputsValue(wrapper)).toEqual(['', '', ''])
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+    // 公开不等于自动保存：页面不请求历史/档案写入接口。
+    expect(profileMock.save).not.toHaveBeenCalled()
+    expect(profileMock.loadProfile).not.toHaveBeenCalled()
+  })
+
+  it('公开状态：导出可用（canExportTool 放行），但零服务器历史能力', async () => {
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    // 公开工具：current 结果可导出。
+    expect(wrapper.find('.export-btn').exists()).toBe(true)
+    // 历史策略仍为 disabled：页面无历史入口，也不写历史。
+    expect(wrapper.text()).not.toContain('查看历史')
+    expect(wrapper.text()).not.toContain('历史记录')
+  })
+
+  it('公开状态：输出仍为限定闭集，不恢复人格/婚配/运势内容', async () => {
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    const text = wrapper.text()
+    // 限定输出仍包含可复算字段。
+    expect(text).toContain('甲辰')
+    // 契约 §12 禁止内容不得因公开而回归。
+    for (const forbidden of ['婚配', '本命佛', '化太岁', '运势', '幸运数字', '幸运颜色']) {
+      expect(text).not.toContain(forbidden)
+    }
+    // 旧人格/运势/婚配组件不得被页面引用。
+    for (const component of [
+      'Personality',
+      'MonthlyFortune',
+      'CompatibilityGrid',
+      'TaiSuiMitigation',
+      'GuardianBuddha',
+    ]) {
+      expect(wrapper.html()).not.toContain(component)
+    }
+  })
+
+  it('公开状态：刷新/卸载清空草稿与结果（零持久化）', async () => {
+    engineMock.calculateShengXiao.mockReturnValue(successOutcome)
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(wrapper.find('[data-privacy-card]').exists()).toBe(true)
+
+    // 卸载等价于刷新：组件销毁后不保留草稿/结果。
+    wrapper.unmount()
+    expect(window.localStorage.length).toBe(0)
+    expect(window.sessionStorage.length).toBe(0)
+  })
+
+  it('公开状态：档案带入替换/撤销仍为显式操作，不自动计算', async () => {
+    setLoggedIn()
+    profileMock.summary.value = { exists: true, hasBirthDate: true, canImport: true }
+    const wrapper = mountPage()
+    await nextTick()
+    // 带入入口可见，但未点击前不计算、不读取完整档案。
+    expect(wrapper.text()).toContain('从本人档案带入 1 项')
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+    expect(profileMock.loadProfile).not.toHaveBeenCalled()
+
+    // 带入后撤销：恢复前值且仍不计算。
+    draftMock.canUndo.value = true
+    await nextTick()
+    const undoBtn = wrapper.findAll('button').find(b => b.text().includes('撤销本次带入'))
+    expect(undoBtn).toBeDefined()
+    await undoBtn!.trigger('click')
+    expect(draftMock.undoImport).toHaveBeenCalled()
+    expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+  })
+
+  // ── v3 设计稿结构回归：四段阅读层级、结果状态与折叠边界 ──
+  // 只断言结构与可见性可达；像素级视觉一致性由真实浏览器验收记录承担，不在此冒充。
+
+  it('设计稿结构：事实边界 meta 与输入/结果/文化/依据四段齐备', async () => {
+    const wrapper = mountPage()
+
+    // ① 事实与边界：年界、支持范围、时区直接可见（不折叠）。
+    // 断言事实行的**语义构成**（哪个事实在），不断言具体文案串——
+    // 版本号此前被锁在这里，导致生肖成为 12 页里唯一重复显示版本的特例。
+    const facts = wrapper.find('[data-shengxiao-meta]')
+    expect(facts.exists()).toBe(true)
+    expect(facts.text()).toContain('年界口径')
+    expect(facts.text()).toContain('正月初一')
+    expect(facts.text()).toContain('1901-01-01')
+    expect(facts.text()).toContain('Asia/Shanghai')
+
+    // 规则版本只出现在报头 meta 行（与八字等页面同一层级），事实行不复述。
+    expect(wrapper.find('.masthead .meta-text').text()).toContain(SHENGXIAO_RULE_VERSION)
+    expect(facts.text()).not.toContain(SHENGXIAO_RULE_VERSION)
+
+    // ②③④ 四段阅读结构
+    expect(wrapper.find('#shengxiao-query').exists()).toBe(true)
+    expect(wrapper.find('#shengxiao-result').exists()).toBe(true)
+    expect(wrapper.find('#shengxiao-culture').exists()).toBe(true)
+    expect(wrapper.find('#shengxiao-scope').exists()).toBe(true)
+
+    // 可见的「计算结果」标题与结果范围说明
+    const heading = wrapper.find('#shengxiao-result-heading')
+    expect(heading.exists()).toBe(true)
+    expect(heading.text()).toContain('计算结果')
+    expect(wrapper.find('#shengxiao-result').text()).toContain('不含推断')
+
+    // 输入段的游客隐私说明保持直接可见
+    expect(wrapper.find('#shengxiao-query').text()).toContain('不提交服务器')
+    expect(wrapper.find('#shengxiao-query').text()).toContain('不保存历史')
+  })
+
+  it('设计稿结构：结果区默认空态，状态区承担 aria-live 播报', async () => {
+    const wrapper = mountPage()
+
+    const empty = wrapper.find('[data-shengxiao-state="empty"]')
+    expect(empty.exists()).toBe(true)
+    expect(empty.text()).toContain('尚未生成结果')
+    // 空态与处理中/失败/stale 同处一个 aria-live 区域
+    expect(empty.element.closest('[aria-live="polite"]')?.getAttribute('aria-atomic')).toBe('true')
+    // 未生成时不出现成功结果
+    expect(wrapper.find('[data-shengxiao-state="success"]').exists()).toBe(false)
+  })
+
+  it('设计稿结构：生成前文化来源台账默认收起，核心文化与边界直接可见', async () => {
+    const wrapper = mountPage()
+    const culture = wrapper.find('#shengxiao-culture')
+
+    // 生肖、地支、次序与边界说明直接可见
+    expect(culture.text()).toContain('对应地支')
+    expect(culture.text()).toContain('生肖次序')
+    expect(culture.text()).toContain('干支循环')
+    expect(culture.text()).toContain('未核验内容不在此展示')
+
+    // 十二生肖 tablist 与 roving tabindex 的 ARIA 关联保留
+    expect(culture.find('[role="tablist"]').exists()).toBe(true)
+    expect(culture.findAll('[role="tab"]')).toHaveLength(12)
+    expect(culture.findAll('[role="tabpanel"]')).toHaveLength(1)
+    const selectedTab = culture
+      .findAll('[role="tab"]')
+      .find(t => t.attributes('aria-selected') === 'true')
+    expect(selectedTab?.attributes('tabindex')).toBe('0')
+
+    // 详细来源台账默认收起
+    const sourceToggle = culture.find('.marginal-toggle')
+    expect(sourceToggle.attributes('aria-expanded')).toBe('false')
+    expect(sourceToggle.attributes('aria-controls')).toBe('culture-sources-panel')
+    expect(culture.find('#culture-sources-panel').exists()).toBe(false)
+  })
+
+  it('设计稿结构：生成后关键限制直接可见，详细传统分类默认收起且 aria 关联完整', async () => {
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+
+    const resultSection = wrapper.find('#shengxiao-result')
+    expect(resultSection.find('[data-shengxiao-state="success"]').exists()).toBe(true)
+    // 空态被成功结果取代
+    expect(resultSection.find('[data-shengxiao-state="empty"]').exists()).toBe(false)
+
+    // 核心结论、年界与范围直接可见
+    expect(resultSection.text()).toContain('甲辰')
+    expect(resultSection.text()).toContain('年界与范围')
+    expect(resultSection.text()).toContain('Asia/Shanghai')
+    // 关键限制不随详细字段折叠
+    expect(resultSection.text()).toContain('不能推出喜用神')
+
+    // 详细传统分类默认收起，展开控件与面板通过 aria 关联
+    const toggle = resultSection.find('[aria-controls="shengxiao-classification-panel"]')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(resultSection.find('#shengxiao-classification-panel').exists()).toBe(false)
+
+    // 展开后才出现详细字段，关键限制仍在
+    await toggle.trigger('click')
+    expect(resultSection.find('#shengxiao-classification-panel').exists()).toBe(true)
+    expect(resultSection.text()).toContain('年干五行')
+    expect(resultSection.text()).toContain('六十甲子纳音')
+    expect(resultSection.text()).toContain('不能推出喜用神')
   })
 })

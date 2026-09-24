@@ -294,17 +294,20 @@ function handleReload() {
 
         <p v-else class="font-sans text-sm text-ink-medium mb-5">没有可保存的档案内容。</p>
 
-        <!-- 长期保存告知：checkbox 默认未选；readiness=false/conflict 时禁用勾选 -->
-        <label
-          class="flex items-start gap-3 font-sans text-sm text-ink-medium leading-relaxed mb-5"
-        >
+        <!-- 长期保存告知：checkbox 默认未选；readiness=false/conflict 时禁用勾选。
+             共享 choice-control：不再出现浏览器原生蓝勾。 -->
+        <label class="choice-control choice-control--block mb-5">
           <input
             v-model="consentChecked"
             type="checkbox"
-            class="mt-1"
+            class="sr-only"
             :disabled="busy || noChange || !candidate || !readiness || conflict"
           />
-          <span>
+          <span
+            class="choice-control__indicator choice-control__indicator--box"
+            aria-hidden="true"
+          />
+          <span class="choice-control__text">
             我确认这是本人的出生日期，并同意按当前告知长期保存（版本
             {{
               SELF_PROFILE_POLICY_VERSION

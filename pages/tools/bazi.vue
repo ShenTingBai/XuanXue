@@ -7,9 +7,7 @@ import { useBaziProfileImport } from '~/composables/useBaziProfileImport'
 import { useResultHistory } from '~/composables/useResultHistory'
 import { useSelfProfile } from '~/composables/useSelfProfile'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
-import PageFooter from '~/components/tools/PageFooter.vue'
-import IndexNav from '~/components/editorial/IndexNav.vue'
-import Masthead from '~/components/editorial/Masthead.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
 import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import AuthDialog from '~/components/auth/AuthDialog.vue'
 import BaziInputForm from '~/components/bazi/BaziInputForm.vue'
@@ -320,18 +318,22 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="bazi-page editorial-shell">
-    <IndexNav :items="indexItems" :footnote="indexFootnote" />
-
-    <article class="editorial-article">
-      <Masthead
-        seal="八"
-        edition="工具 · 日期级排盘（年 / 月 / 日三柱）"
-        title="八字基础排盘"
-        subtitle="按出生日期排出年、月、日三柱，并说明每一步的依据、边界与限制。"
-        :status-text="internalOnly ? '内部验证中' : undefined"
-        :meta-text="`规则版本 ${BAZI_RULE_VERSION}`"
-      />
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="八"
+    edition="工具 · 干支历法"
+    title="八字基础排盘"
+    subtitle="按出生日期排出年、月、日三柱，并说明每一步的依据、边界与限制。"
+    :status-text="internalOnly ? '内部验证中' : undefined"
+    :meta-text="`规则版本 ${BAZI_RULE_VERSION}`"
+  >
+    <!--
+      页面自己的容器：根级 scoped 样式（时区/版本串换行、底部留白）必须落在页面渲染的节点上。
+      外壳是多根组件，父组件的 scope id 不会附加到它渲染的根节点，页面 scoped 样式选不中外壳内部
+      （见 components/editorial/ToolEditorialShell.vue 的边界说明）。
+    -->
+    <div class="bazi-page">
       <!-- Ⅰ 工具说明 -->
       <section
         id="bazi-guide"
@@ -341,9 +343,9 @@ onBeforeUnmount(() => {
       >
         <SectionHeading num="Ⅰ" title="工具说明" heading-id="bazi-guide-heading" />
 
+        <!-- 定位句：排出三柱并说明依据已由报头副题承担，本段只回答「这是哪一类内容」。 -->
         <p class="mt-4 font-sans text-sm sm:text-base text-ink-medium leading-relaxed">
-          本页按出生日期排出<strong class="font-medium text-ink-dark">年柱、月柱、日柱</strong
-          >，并逐条说明这三柱的依据、边界与限制。它是可追溯的历法与规则整理，不是命运测评。
+          本页是可追溯的历法与规则整理，不是命运测评。
         </p>
 
         <!-- 两个能力清单：并列两张暖纸卡；「不能回答」同样保持正文对比度 -->
@@ -692,40 +694,44 @@ onBeforeUnmount(() => {
           @cancel-clear="history.cancelClearAll"
         />
       </section>
-    </article>
-  </div>
+    </div>
 
-  <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
+    <!-- 根级附加区：回到顶部与两个弹层不属于阅读流，放在外壳同级 -->
+    <template #after>
+      <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
 
-  <!-- 保存确认：先展示摘要，再由用户确认（认证成功不触发保存） -->
-  <BaziSaveDialog
-    :show="showSaveDialog"
-    :original-expression="baziResult?.dateComparison.originalExpression ?? ''"
-    :origin-label="saveOriginLabel"
-    :result-lines="saveSummaryLines"
-    :rule-version="baziResult?.ruleVersion ?? ''"
-    :source-set-version="baziResult?.sourceSetVersion ?? ''"
-    :engine-label="`${baziResult?.engineName ?? ''} ${baziResult?.engineVersion ?? ''}`.trim()"
-    :as-of-date="draft.generation.value?.asOfDate ?? ''"
-    :busy="history.saving.value"
-    :error="history.saveError.value"
-    :saved-at="history.savedAt.value"
-    @close="showSaveDialog = false"
-    @confirm="confirmSave"
-  />
+      <!-- 保存确认：先展示摘要，再由用户确认（认证成功不触发保存） -->
+      <BaziSaveDialog
+        :show="showSaveDialog"
+        :original-expression="baziResult?.dateComparison.originalExpression ?? ''"
+        :origin-label="saveOriginLabel"
+        :result-lines="saveSummaryLines"
+        :rule-version="baziResult?.ruleVersion ?? ''"
+        :source-set-version="baziResult?.sourceSetVersion ?? ''"
+        :engine-label="`${baziResult?.engineName ?? ''} ${baziResult?.engineVersion ?? ''}`.trim()"
+        :as-of-date="draft.generation.value?.asOfDate ?? ''"
+        :busy="history.saving.value"
+        :error="history.saveError.value"
+        :saved-at="history.savedAt.value"
+        @close="showSaveDialog = false"
+        @confirm="confirmSave"
+      />
 
-  <!-- 游客保存意图 → 页内认证（复用统一认证弹层，不新增表单） -->
-  <AuthDialog
-    :show="showAuthDialog"
-    initial-mode="login"
-    @close="onAuthCancel"
-    @authenticated="onAuthenticatedFromSave"
-  />
-  <PageFooter />
+      <!-- 游客保存意图 → 页内认证（复用统一认证弹层，不新增表单） -->
+      <AuthDialog
+        :show="showAuthDialog"
+        initial-mode="login"
+        @close="onAuthCancel"
+        @authenticated="onAuthenticatedFromSave"
+      />
+    </template>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>
-/* 时区与版本串在窄屏与放大字体下也必须留在正常阅读流中。 */
+/* 时区与版本串在窄屏与放大字体下也必须留在正常阅读流中。
+   外壳由共用组件渲染（多根结构），页面 scoped 样式只能落在页面自己渲染的 .bazi-page
+   容器上：min-height 与底部留白因此挂在该容器，而不是外壳根节点。 */
 .bazi-page {
   min-height: calc(100dvh - 4rem);
   padding-bottom: 64px;

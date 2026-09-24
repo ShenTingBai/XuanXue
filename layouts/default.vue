@@ -1,9 +1,5 @@
 <script lang="ts">
-import {
-  getLocalDevNavTools,
-  isToolPubliclyAvailable,
-  TOOL_CATALOG,
-} from '~/constants/tool-catalog'
+import { isToolPubliclyAvailable, TOOL_CATALOG } from '~/constants/tool-catalog'
 </script>
 
 <script setup lang="ts">
@@ -12,17 +8,15 @@ const { authStatus, currentAccount, restoreSession, logout } = useAuth()
 const router = useRouter()
 
 /**
- * 导航项：只消费目录的公开可用判断，不自行维护第二份可见性状态。
+ * 导航项：只渲染目录中已通过公开准入的工具，不自行维护第二份可见性状态。
  *
- * 开发期额外追加 `internal + enabled` 的「内部验证」入口（生产构建里为空，
- * 见目录里 `getLocalDevNavTools` 的注释），但**必须已登录才显示**：
- * 未登录访客点了只会被围栏 302 回状态页，看到「功能整理中」，会误以为工具没做。
+ * 公开工具游客可直接进入，导航可见集合不随登录态变化；未公开工具不进全局导航——
+ * 它尚未作为产品入口发布，未登录访客点它只会被围栏送回状态页看到「功能整理中」，
+ * 容易误以为工具没做。研发期调试直接访问真实路由，由服务端围栏裁决，
+ * 不把研发阶段身份伪装成用户可见入口。
  * 与账号菜单同样处理：SSR 恢复期为 restoring 时不渲染，避免闪现错误入口。
  */
-const navTools = computed(() => [
-  ...TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)),
-  ...(authStatus.value === 'authenticated' ? getLocalDevNavTools(import.meta.dev === true) : []),
-])
+const navTools = computed(() => TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)))
 const showMobileNav = ref(false)
 const mobileNavRef = ref<HTMLElement | null>(null)
 const mobileNavCloseRef = ref<HTMLElement | null>(null)
@@ -199,13 +193,33 @@ const handleLogout = async () => {
               </svg>
             </button>
 
-            <!-- Guest login (desktop) — 恢复中不显示，避免闪现错误入口 -->
+            <!--
+              Guest identity (desktop) — 恢复中不渲染，避免闪现错误身份。
+              单一账户触发器：账户图形与「未登录」同属一个可点击控件，点击进入登录；
+              不把「未登录」和「登录」并排做成两个同级视觉元素——前者是会话事实，
+              后者是能力入口，并排会让人误读成两个并列选项。登录是点击后的结果。
+              登录用于保存本人资料、结果与历史、跨设备，不是使用公开工具的门槛：
+              公开工具游客可直接进入，未公开工具仍由服务端围栏裁决，与本入口无关。
+            -->
             <NuxtLink
               v-if="authStatus === 'guest'"
               to="/login"
-              class="hidden md:inline-flex items-center px-4 py-2 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline flex-shrink-0"
+              class="hidden md:inline-flex items-center gap-2 min-h-[44px] px-3 text-sm text-ink-medium hover:text-cinnabar transition-colors no-underline flex-shrink-0 account-control"
+              aria-label="未登录，前往登录或注册"
             >
-              登录
+              <svg
+                aria-hidden="true"
+                class="w-5 h-5"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              >
+                <path d="M10 10a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                <path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" />
+              </svg>
+              <span>未登录</span>
             </NuxtLink>
 
             <!-- Account Section (desktop only — mobile is in the drawer) -->
@@ -437,16 +451,6 @@ const handleLogout = async () => {
               </NuxtLink>
             </nav>
 
-            <!-- Guest login (mobile) — 恢复中不显示 -->
-            <NuxtLink
-              v-if="authStatus === 'guest'"
-              to="/login"
-              class="mobile-nav-item !rounded-lg"
-              @click="showMobileNav = false"
-            >
-              <span class="font-sans text-sm text-ink-medium">登录</span>
-            </NuxtLink>
-
             <!-- Spacer -->
             <div class="flex-1" />
 
@@ -536,6 +540,50 @@ const handleLogout = async () => {
               </div>
             </template>
 
+            <!--
+              Guest identity (mobile) — 与桌面顶栏同一语义：单一账户项，
+              只写「未登录」并带账户图形，点击即进入登录；登录不是并排标签。
+              与登录态同处抽屉底部账号区：两种身份的账户入口落点一致，
+              不再夹在工具导航与 spacer 之间——那里是导航分组，不是账号分组。
+              守卫放在外层 <template> 上：分隔线与容器必须随身份一起出现或消失，
+              否则登录态下会多出一条空分隔线；guest 守卫总数仍为两个。
+            -->
+            <template v-if="authStatus === 'guest'">
+              <div
+                class="mx-5 h-px"
+                style="
+                  background: linear-gradient(
+                    90deg,
+                    transparent 0%,
+                    rgba(0, 0, 0, 0.06) 50%,
+                    transparent 100%
+                  );
+                "
+              />
+              <div class="flex flex-col px-3 py-3 gap-1">
+                <NuxtLink
+                  to="/login"
+                  class="mobile-nav-item account-control !rounded-lg"
+                  aria-label="未登录，前往登录或注册"
+                  @click="showMobileNav = false"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="w-4 h-4 text-ink-light shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <path d="M10 10a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                    <path d="M3.5 17c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" />
+                  </svg>
+                  <span class="font-sans text-sm text-ink-medium">未登录</span>
+                </NuxtLink>
+              </div>
+            </template>
+
             <!-- Bottom focus trap sentinel — cycles Tab back to close button -->
             <div tabindex="0" class="focus-trap-sentinel" @focus="trapFocusBack" />
           </div>
@@ -591,6 +639,12 @@ const handleLogout = async () => {
 .mobile-nav-item--locked:hover {
   background: transparent;
   color: var(--color-ink-medium);
+}
+
+/* 顶栏账户控件（游客）：与登录后的头像区同一占位高度，
+   命中区下限 44px，窄屏与放大字体下不缩水。 */
+.account-control {
+  min-height: 44px;
 }
 
 /* Drawer transitions */

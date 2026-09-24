@@ -5,7 +5,8 @@ import { calculateNameTest, type NameTestResult } from '~/composables/useNameTes
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -34,6 +35,23 @@ const nameTestSynthesis: string[] = [
   '评分阈值：≥80 大吉 / ≥60 中吉 / ≥40 末吉（工程校准）',
   '数理分类标签（首领运/财富运等）为现代实用分类整理',
 ]
+
+/**
+ * 卷目（Ⅰ–Ⅱ）与脚注。
+ *
+ * 只列页面**已有**的两个段落——输入姓名与五格剖象结果，
+ * 不为让索引变长新增段（设计系统：卷目只是既有段序的目录）。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '输入姓名', href: '#name-input' },
+  { num: 'Ⅱ', label: '五格剖象', href: '#name-grids' },
+]
+
+/**
+ * 卷目脚注：输入口径 + 笔画口径。
+ * 保存边界改由报头元信息行承担——脚注 ≤920px 隐藏，必须常驻可见且只出现一次。
+ */
+const indexFootnote = '姓氏 + 名字（简体或繁体）\n康熙字典笔画'
 
 const result = ref<NameTestResult | null>(null)
 const loading = ref(false)
@@ -127,32 +145,46 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">姓名测试</h1>
-
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="名"
+    edition="工具 · 姓名笔画与五格剖象"
+    title="姓名测试"
+    subtitle="姓名三才五格测试，分析姓名笔画数理，了解天格/人格/地格的数理分类。"
+    status-text="功能整理中"
+    meta-text="结果不保存"
+  >
     <div role="status" class="sr-only" aria-live="polite">
       {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
     </div>
 
-    <div class="max-w-[48rem] mx-auto">
-      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
-      <div class="flex items-center justify-between mb-6">
-        <span></span>
-        <ExportButton
-          v-if="result"
-          :target-ref="resultRef"
-          filename="姓名分析.png"
-          :is-exporting="isExporting"
-          @export="handleExport"
-        />
-      </div>
+    <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+    <div class="flex items-center justify-between mb-6">
+      <span></span>
+      <ExportButton
+        v-if="result"
+        :target-ref="resultRef"
+        filename="姓名分析.png"
+        :is-exporting="isExporting"
+        @export="handleExport"
+      />
+    </div>
 
-      <!-- ══ 输入区 ══ -->
+    <!-- Ⅰ 输入姓名：姓氏 + 名字，只有点击才计算 -->
+    <section
+      id="name-input"
+      class="editorial-section editorial-section--first"
+      aria-labelledby="name-input-heading"
+    >
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
         <div class="flex items-center justify-between">
-          <div class="section-header !mb-0 flex-1 min-w-0">
-            <h2>输入姓名</h2>
-          </div>
+          <SectionHeading
+            num="Ⅰ"
+            title="输入姓名"
+            heading-id="name-input-heading"
+            class="flex-1 min-w-0 !mb-0"
+          />
           <MethodologyNote
             :classical="nameTestClassical"
             :synthesis="nameTestSynthesis"
@@ -204,248 +236,256 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
           </button>
         </div>
       </div>
+    </section>
 
-      <!-- Error -->
-      <div v-if="error" class="mt-4 text-center">
-        <p class="text-sm text-cinnabar" role="alert">{{ error }}</p>
-      </div>
+    <!-- Error -->
+    <div v-if="error" class="mt-4 text-center">
+      <p class="text-sm text-cinnabar" role="alert">{{ error }}</p>
+    </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="mt-6 space-y-4" aria-busy="true">
-        <span class="sr-only">正在计算...</span>
-        <SkeletonCard />
-      </div>
+    <!-- Loading -->
+    <div v-if="loading" class="mt-6 space-y-4" aria-busy="true">
+      <span class="sr-only">正在计算...</span>
+      <SkeletonCard />
+    </div>
 
-      <!-- ══ Result ══ -->
-      <template v-if="result">
-        <div ref="resultRef">
-          <!-- 总分横幅 -->
-          <div class="fade-in mt-8 score-banner" :style="{ '--delay': '0.15s' }">
-            <div class="score-banner__left">
-              <div class="score-banner__grade">
-                {{
-                  result.totalScore >= 80
-                    ? '大吉'
-                    : result.totalScore >= 60
-                      ? '中吉'
-                      : result.totalScore >= 40
-                        ? '末吉'
-                        : '凶'
-                }}
-              </div>
-              <div class="score-banner__name">{{ result.fullName }}</div>
+    <!-- Ⅱ 五格剖象：当次结果（总分横幅 + 五格表 + 各格详情） -->
+    <section
+      v-if="result"
+      id="name-grids"
+      class="editorial-section"
+      aria-labelledby="name-grids-heading"
+    >
+      <div ref="resultRef">
+        <!-- 总分横幅 -->
+        <div class="fade-in score-banner" :style="{ '--delay': '0.15s' }">
+          <div class="score-banner__left">
+            <div class="score-banner__grade">
+              {{
+                result.totalScore >= 80
+                  ? '大吉'
+                  : result.totalScore >= 60
+                    ? '中吉'
+                    : result.totalScore >= 40
+                      ? '末吉'
+                      : '凶'
+              }}
             </div>
-            <div class="score-banner__center">
-              <ScoreRing :score="result.totalScore" :size="64" />
-            </div>
-            <div class="score-banner__right">
-              <p class="score-banner__summary">{{ result.summary }}</p>
-            </div>
+            <div class="score-banner__name">{{ result.fullName }}</div>
           </div>
+          <div class="score-banner__center">
+            <ScoreRing :score="result.totalScore" :size="64" />
+          </div>
+          <div class="score-banner__right">
+            <p class="score-banner__summary">{{ result.summary }}</p>
+          </div>
+        </div>
 
-          <!-- 五格一览表 -->
-          <div
-            class="fade-in mt-6 card-warm rounded-xl overflow-hidden"
-            :style="{ '--delay': '0.25s' }"
-          >
-            <div class="section-header px-8 pt-8 pb-4">
-              <h2>五格剖象</h2>
-            </div>
-            <div class="grid-table">
-              <!-- 天格 -->
-              <div class="grid-row" :class="{ 'grid-row--alt': true }">
-                <div class="grid-row__top">
-                  <span class="grid-row__label">天格</span>
-                  <span
-                    class="grid-row__fortune"
-                    :style="{ color: fortuneColor(result.grids.tian.fortune) }"
-                  >
-                    {{
-                      result.grids.tian.fortune === '吉'
-                        ? '吉'
-                        : result.grids.tian.fortune === '半吉'
-                          ? '平'
-                          : '凶'
-                    }}
-                  </span>
-                </div>
-                <div class="grid-row__mid">
-                  <span class="grid-row__strokes">{{ result.grids.tian.strokes }} 画</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="wx-badge" :class="`wx-${result.grids.tian.wuxing}`">{{
-                    result.grids.tian.wuxing
-                  }}</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="grid-row__number-name">{{ result.grids.tian.name }}</span>
-                </div>
-                <p class="grid-row__meaning">{{ result.grids.tian.meaning }}</p>
-              </div>
-              <!-- 人格（主运） -->
-              <div class="grid-row grid-row--primary">
-                <div class="grid-row__accent" aria-hidden="true"></div>
-                <div class="grid-row__top">
-                  <span class="grid-row__label"
-                    >人格<span class="grid-row__subtitle">主运</span></span
-                  >
-                  <span
-                    class="grid-row__fortune"
-                    :style="{ color: fortuneColor(result.grids.ren.fortune) }"
-                  >
-                    {{
-                      result.grids.ren.fortune === '吉'
-                        ? '吉'
-                        : result.grids.ren.fortune === '半吉'
-                          ? '平'
-                          : '凶'
-                    }}
-                  </span>
-                </div>
-                <div class="grid-row__mid">
-                  <span class="grid-row__strokes">{{ result.grids.ren.strokes }} 画</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="wx-badge" :class="`wx-${result.grids.ren.wuxing}`">{{
-                    result.grids.ren.wuxing
-                  }}</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="grid-row__number-name">{{ result.grids.ren.name }}</span>
-                </div>
-                <p class="grid-row__meaning">{{ result.grids.ren.meaning }}</p>
-              </div>
-              <!-- 地格（前运） -->
-              <div class="grid-row grid-row--alt">
-                <div class="grid-row__top">
-                  <span class="grid-row__label"
-                    >地格<span class="grid-row__subtitle">前运</span></span
-                  >
-                  <span
-                    class="grid-row__fortune"
-                    :style="{ color: fortuneColor(result.grids.di.fortune) }"
-                  >
-                    {{
-                      result.grids.di.fortune === '吉'
-                        ? '吉'
-                        : result.grids.di.fortune === '半吉'
-                          ? '平'
-                          : '凶'
-                    }}
-                  </span>
-                </div>
-                <div class="grid-row__mid">
-                  <span class="grid-row__strokes">{{ result.grids.di.strokes }} 画</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="wx-badge" :class="`wx-${result.grids.di.wuxing}`">{{
-                    result.grids.di.wuxing
-                  }}</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="grid-row__number-name">{{ result.grids.di.name }}</span>
-                </div>
-                <p class="grid-row__meaning">{{ result.grids.di.meaning }}</p>
-              </div>
-              <!-- 总格（后运） -->
-              <div class="grid-row">
-                <div class="grid-row__top">
-                  <span class="grid-row__label"
-                    >总格<span class="grid-row__subtitle">后运</span></span
-                  >
-                  <span
-                    class="grid-row__fortune"
-                    :style="{ color: fortuneColor(result.grids.total.fortune) }"
-                  >
-                    {{
-                      result.grids.total.fortune === '吉'
-                        ? '吉'
-                        : result.grids.total.fortune === '半吉'
-                          ? '平'
-                          : '凶'
-                    }}
-                  </span>
-                </div>
-                <div class="grid-row__mid">
-                  <span class="grid-row__strokes">{{ result.grids.total.strokes }} 画</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="wx-badge" :class="`wx-${result.grids.total.wuxing}`">{{
-                    result.grids.total.wuxing
-                  }}</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="grid-row__number-name">{{ result.grids.total.name }}</span>
-                </div>
-                <p class="grid-row__meaning">{{ result.grids.total.meaning }}</p>
-              </div>
-              <!-- 外格（副运） -->
-              <div class="grid-row grid-row--alt">
-                <div class="grid-row__top">
-                  <span class="grid-row__label"
-                    >外格<span class="grid-row__subtitle">副运</span></span
-                  >
-                  <span
-                    class="grid-row__fortune"
-                    :style="{ color: fortuneColor(result.grids.wai.fortune) }"
-                  >
-                    {{
-                      result.grids.wai.fortune === '吉'
-                        ? '吉'
-                        : result.grids.wai.fortune === '半吉'
-                          ? '平'
-                          : '凶'
-                    }}
-                  </span>
-                </div>
-                <div class="grid-row__mid">
-                  <span class="grid-row__strokes">{{ result.grids.wai.strokes }} 画</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="wx-badge" :class="`wx-${result.grids.wai.wuxing}`">{{
-                    result.grids.wai.wuxing
-                  }}</span>
-                  <span class="sept" aria-hidden="true">·</span>
-                  <span class="grid-row__number-name">{{ result.grids.wai.name }}</span>
-                </div>
-                <p class="grid-row__meaning">{{ result.grids.wai.meaning }}</p>
-              </div>
-            </div>
-
-            <!-- 三才配置 -->
-            <div
-              class="px-8 pb-8 pt-4 border-t"
-              style="border-color: color-mix(in srgb, var(--color-ink-faint) 16%, transparent)"
-            >
-              <div class="flex items-center gap-2 mb-2">
-                <span class="font-sans text-xs text-ink-medium">三才配置</span>
-                <span class="text-xs text-ink-light"
-                  >天格{{ result.sanCai.tian }} → 人格{{ result.sanCai.ren }} → 地格{{
-                    result.sanCai.di
-                  }}</span
-                >
+        <!-- 五格一览表 -->
+        <div
+          class="fade-in mt-6 card-warm rounded-xl overflow-hidden"
+          :style="{ '--delay': '0.25s' }"
+        >
+          <SectionHeading
+            num="Ⅱ"
+            title="五格剖象"
+            heading-id="name-grids-heading"
+            class="px-8 pt-8 pb-4"
+          />
+          <div class="grid-table">
+            <!-- 天格 -->
+            <div class="grid-row" :class="{ 'grid-row--alt': true }">
+              <div class="grid-row__top">
+                <span class="grid-row__label">天格</span>
                 <span
-                  class="text-xs font-medium"
-                  :style="{ color: fortuneColor(result.sanCai.fortune) }"
+                  class="grid-row__fortune"
+                  :style="{ color: fortuneColor(result.grids.tian.fortune) }"
                 >
-                  ·
                   {{
-                    result.sanCai.fortune === '吉'
-                      ? '相生大吉'
-                      : result.sanCai.fortune === '半吉'
-                        ? '半吉'
-                        : '相克大凶'
+                    result.grids.tian.fortune === '吉'
+                      ? '吉'
+                      : result.grids.tian.fortune === '半吉'
+                        ? '平'
+                        : '凶'
                   }}
                 </span>
               </div>
-              <div v-if="result.categories.length > 0" class="flex flex-wrap gap-1.5">
-                <span v-for="cat in result.categories" :key="cat" class="nayin-tag">{{ cat }}</span>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.tian.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.tian.wuxing}`">{{
+                  result.grids.tian.wuxing
+                }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.tian.name }}</span>
               </div>
+              <p class="grid-row__meaning">{{ result.grids.tian.meaning }}</p>
+            </div>
+            <!-- 人格（主运） -->
+            <div class="grid-row grid-row--primary">
+              <div class="grid-row__accent" aria-hidden="true"></div>
+              <div class="grid-row__top">
+                <span class="grid-row__label"
+                  >人格<span class="grid-row__subtitle">主运</span></span
+                >
+                <span
+                  class="grid-row__fortune"
+                  :style="{ color: fortuneColor(result.grids.ren.fortune) }"
+                >
+                  {{
+                    result.grids.ren.fortune === '吉'
+                      ? '吉'
+                      : result.grids.ren.fortune === '半吉'
+                        ? '平'
+                        : '凶'
+                  }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.ren.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.ren.wuxing}`">{{
+                  result.grids.ren.wuxing
+                }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.ren.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.ren.meaning }}</p>
+            </div>
+            <!-- 地格（前运） -->
+            <div class="grid-row grid-row--alt">
+              <div class="grid-row__top">
+                <span class="grid-row__label"
+                  >地格<span class="grid-row__subtitle">前运</span></span
+                >
+                <span
+                  class="grid-row__fortune"
+                  :style="{ color: fortuneColor(result.grids.di.fortune) }"
+                >
+                  {{
+                    result.grids.di.fortune === '吉'
+                      ? '吉'
+                      : result.grids.di.fortune === '半吉'
+                        ? '平'
+                        : '凶'
+                  }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.di.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.di.wuxing}`">{{
+                  result.grids.di.wuxing
+                }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.di.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.di.meaning }}</p>
+            </div>
+            <!-- 总格（后运） -->
+            <div class="grid-row">
+              <div class="grid-row__top">
+                <span class="grid-row__label"
+                  >总格<span class="grid-row__subtitle">后运</span></span
+                >
+                <span
+                  class="grid-row__fortune"
+                  :style="{ color: fortuneColor(result.grids.total.fortune) }"
+                >
+                  {{
+                    result.grids.total.fortune === '吉'
+                      ? '吉'
+                      : result.grids.total.fortune === '半吉'
+                        ? '平'
+                        : '凶'
+                  }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.total.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.total.wuxing}`">{{
+                  result.grids.total.wuxing
+                }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.total.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.total.meaning }}</p>
+            </div>
+            <!-- 外格（副运） -->
+            <div class="grid-row grid-row--alt">
+              <div class="grid-row__top">
+                <span class="grid-row__label"
+                  >外格<span class="grid-row__subtitle">副运</span></span
+                >
+                <span
+                  class="grid-row__fortune"
+                  :style="{ color: fortuneColor(result.grids.wai.fortune) }"
+                >
+                  {{
+                    result.grids.wai.fortune === '吉'
+                      ? '吉'
+                      : result.grids.wai.fortune === '半吉'
+                        ? '平'
+                        : '凶'
+                  }}
+                </span>
+              </div>
+              <div class="grid-row__mid">
+                <span class="grid-row__strokes">{{ result.grids.wai.strokes }} 画</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="wx-badge" :class="`wx-${result.grids.wai.wuxing}`">{{
+                  result.grids.wai.wuxing
+                }}</span>
+                <span class="sept" aria-hidden="true">·</span>
+                <span class="grid-row__number-name">{{ result.grids.wai.name }}</span>
+              </div>
+              <p class="grid-row__meaning">{{ result.grids.wai.meaning }}</p>
             </div>
           </div>
 
-          <!-- 各格详解 -->
-          <div class="fade-in mt-6 space-y-3" :style="{ '--delay': '0.5s' }">
-            <p class="text-xs text-ink-medium tracking-wide text-center">各格详情</p>
-            <div v-for="detail in result.details" :key="detail.label" class="detail-line">
-              <span class="detail-line__label">{{ detail.label }}</span>
-              <span class="detail-line__text">{{ detail.text }}</span>
+          <!-- 三才配置 -->
+          <div
+            class="px-8 pb-8 pt-4 border-t"
+            style="border-color: color-mix(in srgb, var(--color-ink-faint) 16%, transparent)"
+          >
+            <div class="flex items-center gap-2 mb-2">
+              <span class="font-sans text-xs text-ink-medium">三才配置</span>
+              <span class="text-xs text-ink-light"
+                >天格{{ result.sanCai.tian }} → 人格{{ result.sanCai.ren }} → 地格{{
+                  result.sanCai.di
+                }}</span
+              >
+              <span
+                class="text-xs font-medium"
+                :style="{ color: fortuneColor(result.sanCai.fortune) }"
+              >
+                ·
+                {{
+                  result.sanCai.fortune === '吉'
+                    ? '相生大吉'
+                    : result.sanCai.fortune === '半吉'
+                      ? '半吉'
+                      : '相克大凶'
+                }}
+              </span>
+            </div>
+            <div v-if="result.categories.length > 0" class="flex flex-wrap gap-1.5">
+              <span v-for="cat in result.categories" :key="cat" class="nayin-tag">{{ cat }}</span>
             </div>
           </div>
         </div>
-      </template>
-    </div>
+
+        <!-- 各格详解 -->
+        <div class="fade-in mt-6 space-y-3" :style="{ '--delay': '0.5s' }">
+          <p class="text-xs text-ink-medium tracking-wide text-center">各格详情</p>
+          <div v-for="detail in result.details" :key="detail.label" class="detail-line">
+            <span class="detail-line__label">{{ detail.label }}</span>
+            <span class="detail-line__text">{{ detail.text }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <ScrollTopButton
       v-if="showScrollTop"
@@ -459,7 +499,7 @@ function fortuneColor(f: '吉' | '凶' | '半吉'): string {
         }
       "
     />
-  </ToolPageLayout>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>

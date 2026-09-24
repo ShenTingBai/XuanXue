@@ -17,7 +17,8 @@ import ConstellationCompatibility from '~/components/tools/constellation/Constel
 import HoroscopePanel from '~/components/tools/constellation/HoroscopePanel.vue'
 import YiJiPanel from '~/components/tools/constellation/YiJiPanel.vue'
 import ConstellationNav from '~/components/tools/constellation/Nav.vue'
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
 import { useExportImage } from '~/composables/useExportImage'
@@ -49,6 +50,29 @@ const constellationSynthesis: string[] = [
   '今日运势 + 宜忌为模板拼接（非占星学日月运行实时推演）',
   '解释文本为现代白话转述（非 Ptolemy 原文）',
 ]
+
+/**
+ * 卷目（Ⅰ–Ⅳ）与脚注。
+ *
+ * 卷目只列页面**已有**的四段阅读内容（星座分析、本命星盘、今日运势与宜忌、速配星座），
+ * 不为凑长度新增段（设计系统：卷目只是既有段序的目录）。星座选择器是输入控件，
+ * 放正文而不占卷目左栏。
+ * 脚注写本页真实边界：运势与宜忌的来源性质、星盘计算的依据。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '星座分析', href: '#constellation-analysis' },
+  { num: 'Ⅱ', label: '本命星盘', href: '#constellation-natal' },
+  { num: 'Ⅲ', label: '今日运势与宜忌', href: '#constellation-today' },
+  { num: 'Ⅳ', label: '速配星座', href: '#constellation-match' },
+]
+
+/**
+ * 卷目脚注：只写本页内容来源性质（一行，窄屏隐藏）。
+ *
+ * 星盘引擎依据（astronomy-engine / VSOP87）由报头 meta 承担，脚注不再复述同一句；
+ * 正式引用标题与出处保留在「注」面板的经典来源列表中，不因关键词重复而删除。
+ */
+const indexFootnote = '今日运势为模板拼接'
 
 useSeoMeta({
   title: '星座星盘 — 玄·道',
@@ -230,12 +254,25 @@ function scrollToConstellationNav() {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <template v-if="!missingBirthInfo" #nav>
-      <ConstellationNav :current-index="selectedZodiac" @select="selectZodiac" />
-    </template>
-    <template v-if="!missingBirthInfo" #mobile-nav>
-      <div data-constellation-nav class="flex gap-2 overflow-x-auto pb-2 scroll-hint-x">
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="星"
+    edition="工具 · 星座星盘（黄道十二宫）"
+    title="星座星盘"
+    subtitle="探索你的星座特征、今日运势、星盘轨迹和缘分匹配，发现星空下的你。"
+    status-text="内部验证中"
+    meta-text="星盘引擎 astronomy-engine v2.1.19"
+  >
+    <!--
+      星座选择：原本占用页面左栏（左栏只放卷目），迁到正文。
+      与结果淡入区分离，切换星座时按钮不被重建，键盘焦点留在刚触发的按钮上。
+    -->
+    <div v-if="!missingBirthInfo" data-constellation-nav class="mb-8">
+      <div class="hidden lg:block max-w-[20rem]">
+        <ConstellationNav :current-index="selectedZodiac" @select="selectZodiac" />
+      </div>
+      <div class="lg:hidden flex gap-2 overflow-x-auto pb-2 scroll-hint-x">
         <button
           v-for="(name, idx) in zodiacShortNames"
           :key="idx"
@@ -252,9 +289,7 @@ function scrollToConstellationNav() {
           {{ name }}
         </button>
       </div>
-    </template>
-
-    <h1 class="sr-only">星座分析</h1>
+    </div>
 
     <!-- Screen reader status -->
     <div role="status" class="sr-only" aria-live="polite">
@@ -288,33 +323,34 @@ function scrollToConstellationNav() {
       </div>
     </div>
 
-    <!-- Result -->
+    <!-- Result：四段阅读内容（卷目锚点） -->
     <template v-else-if="result">
-      <Transition name="content-fade" mode="out-in">
-        <div
-          :key="selectedZodiac"
-          class="max-w-[48rem] mx-auto"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
-          <div class="flex items-center justify-between mb-6">
-            <span></span>
-            <ExportButton
-              v-if="result"
-              :target-ref="resultRef"
-              filename="星座星盘.png"
-              :is-exporting="isExporting"
-              @export="handleExport"
-            />
-          </div>
+      <!-- 顶部工具条：仅保留导出入口（历史记录已下线）；不进入导出区域 -->
+      <div class="flex items-center justify-between mb-6">
+        <span></span>
+        <ExportButton
+          v-if="result"
+          :target-ref="resultRef"
+          filename="星座星盘.png"
+          :is-exporting="isExporting"
+          @export="handleExport"
+        />
+      </div>
 
-          <div ref="resultRef">
-            <!-- ── 方法论溯源 ── -->
-            <div class="flex items-center justify-between mb-6">
-              <div class="section-header !mb-0 flex-1 min-w-0">
-                <h2>星座分析</h2>
-              </div>
+      <Transition name="content-fade" mode="out-in">
+        <div ref="resultRef" :key="selectedZodiac" aria-live="polite" aria-atomic="true">
+          <!-- Ⅰ 星座分析 -->
+          <section
+            id="constellation-analysis"
+            class="editorial-section editorial-section--first"
+            aria-labelledby="constellation-analysis-heading"
+          >
+            <div class="flex items-center justify-between gap-4">
+              <SectionHeading
+                num="Ⅰ"
+                title="星座分析"
+                heading-id="constellation-analysis-heading"
+              />
               <MethodologyNote
                 :classical="constellationClassical"
                 :synthesis="constellationSynthesis"
@@ -330,12 +366,16 @@ function scrollToConstellationNav() {
               :selected-zodiac="selectedZodiac"
               :user-zodiac-index="userZodiacIndex"
             />
+          </section>
 
-            <!-- ═══ 本命星盘 ═══ -->
-            <div v-if="natalChartData" class="fade-in mt-8 mb-6" :style="{ '--delay': '0.3s' }">
-              <div class="section-header">
-                <h2>本命星盘</h2>
-              </div>
+          <!-- ═══ Ⅱ 本命星盘 ═══ -->
+          <section
+            id="constellation-natal"
+            class="editorial-section"
+            aria-labelledby="constellation-natal-heading"
+          >
+            <SectionHeading num="Ⅱ" title="本命星盘" heading-id="constellation-natal-heading" />
+            <div v-if="natalChartData" class="fade-in" :style="{ '--delay': '0.3s' }">
               <div class="card-warm rounded-xl p-4 sm:p-6 flex justify-center">
                 <NatalChart :data="natalChartData" />
               </div>
@@ -360,14 +400,7 @@ function scrollToConstellationNav() {
             </div>
 
             <!-- 缺少出生年份时的提示 -->
-            <div
-              v-else-if="!natalChartData && !loading && !error"
-              class="fade-in mt-8 mb-6"
-              :style="{ '--delay': '0.3s' }"
-            >
-              <div class="section-header">
-                <h2>本命星盘</h2>
-              </div>
+            <div v-else class="fade-in" :style="{ '--delay': '0.3s' }">
               <div class="card-warm rounded-xl p-8 text-center opacity-65">
                 <p class="font-sans text-sm text-ink-medium mb-3">需要出生年份以计算行星位置</p>
                 <NuxtLink
@@ -378,31 +411,57 @@ function scrollToConstellationNav() {
                 </NuxtLink>
               </div>
             </div>
-            <div class="divider-ink mt-8 mb-6" role="separator" />
+          </section>
 
+          <!-- Ⅲ 今日运势与宜忌 -->
+          <section
+            id="constellation-today"
+            class="editorial-section"
+            aria-labelledby="constellation-today-heading"
+          >
+            <SectionHeading
+              num="Ⅲ"
+              title="今日运势与宜忌"
+              heading-id="constellation-today-heading"
+            />
             <HoroscopePanel :horoscope="result.todayHoroscope" />
 
             <YiJiPanel :yi="result.todayYi" :ji="result.todayJi" />
+          </section>
 
+          <!-- Ⅳ 速配星座 -->
+          <section
+            id="constellation-match"
+            class="editorial-section"
+            aria-labelledby="constellation-match-heading"
+          >
+            <SectionHeading num="Ⅳ" title="速配星座" heading-id="constellation-match-heading" />
             <ConstellationCompatibility :items="result.compatibility" />
-          </div>
-
-          <!-- Action buttons -->
-          <div class="flex flex-wrap gap-3 justify-center my-8">
-            <button
-              class="btn-cin"
-              @click="scrollToConstellationNav"
-              @keydown.space.prevent="scrollToConstellationNav"
-            >
-              <span>切换星座</span>
-            </button>
-          </div>
+          </section>
         </div>
       </Transition>
 
-      <ScrollTopButton v-if="showScrollTop" @click="scrollToTop" @keydown.enter="scrollToTop" />
+      <!-- Action buttons -->
+      <div class="flex flex-wrap gap-3 justify-center my-8">
+        <button
+          class="btn-cin"
+          @click="scrollToConstellationNav"
+          @keydown.space.prevent="scrollToConstellationNav"
+        >
+          <span>切换星座</span>
+        </button>
+      </div>
     </template>
-  </ToolPageLayout>
+
+    <!-- 根级附加区：回到顶部不属于阅读流，放在外壳同级 -->
+    <template #after>
+      <ScrollTopButton
+        v-if="result && showScrollTop"
+        @click="scrollToTop"
+        @keydown.enter="scrollToTop"
+      />
+    </template>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>

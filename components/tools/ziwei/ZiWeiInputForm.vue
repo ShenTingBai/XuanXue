@@ -79,11 +79,7 @@ defineProps<{
           性别
         </legend>
         <div class="flex gap-3">
-          <label
-            v-for="opt in GENDER_OPTIONS"
-            :key="opt.value"
-            class="flex items-center gap-2 cursor-pointer"
-          >
+          <label v-for="opt in GENDER_OPTIONS" :key="opt.value" class="choice-control">
             <input
               type="radio"
               name="ziwei-gender"
@@ -92,19 +88,8 @@ defineProps<{
               class="sr-only"
               @change="onGenderChange(opt.value)"
             />
-            <span
-              class="px-4 py-2 text-sm rounded-lg border transition-all duration-300"
-              :class="gender === opt.value ? 'gender-radio--selected' : 'gender-radio--unselected'"
-              :style="
-                gender === opt.value
-                  ? {
-                      boxShadow:
-                        '0 0 8px color-mix(in srgb, var(--color-cinnabar) 6%, transparent)',
-                    }
-                  : undefined
-              "
-              >{{ opt.label }}</span
-            >
+            <span class="choice-control__indicator" aria-hidden="true" />
+            <span class="choice-control__text">{{ opt.label }}</span>
           </label>
         </div>
       </fieldset>
@@ -126,11 +111,6 @@ defineProps<{
 </template>
 
 <style scoped>
-.sr-only:focus-visible + span {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
-}
-
 .select-appearance {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A6A5C' fill-opacity='0.6' d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
@@ -139,20 +119,5 @@ defineProps<{
   background-size: 0.85rem;
   padding-right: 2rem;
   cursor: pointer;
-}
-
-.gender-radio--selected {
-  border-color: color-mix(in srgb, var(--color-cinnabar) 40%, transparent);
-  background: color-mix(in srgb, var(--color-cinnabar) 5%, transparent);
-  color: var(--color-cinnabar);
-  font-weight: 500;
-}
-.gender-radio--unselected {
-  border-color: color-mix(in srgb, var(--color-ink-faint) 20%, transparent);
-  color: var(--color-ink-light);
-}
-.gender-radio--unselected:hover {
-  border-color: color-mix(in srgb, var(--color-ink-faint) 40%, transparent);
-  color: var(--color-ink-dark);
 }
 </style>

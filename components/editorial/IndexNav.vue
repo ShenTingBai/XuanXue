@@ -24,12 +24,39 @@ const props = withDefaults(
 const activeHref = ref('')
 let targets: HTMLElement[] = []
 let resizeObserver: ResizeObserver | null = null
+let mutationObserver: MutationObserver | null = null
 let syncFrame: number | null = null
 let mounted = false
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+/** 解析锚点目标：同名 id 在一页内唯一，重复查询开销可忽略。 */
+function resolveTargets(): HTMLElement[] {
+  return props.items
+    .map(item => document.querySelector<HTMLElement>(item.href))
+    .filter((el): el is HTMLElement => el !== null)
+}
+
+/**
+ * 目标是否需要重解析。
+ *
+ * 段落并非总在挂载时就存在：工具页会在异步恢复会话/档案后才渲染结果段，
+ * 切换内容的 `:key` 重绘也会整体替换节点。旧实现在挂载时一次性快照，
+ * 遇到这两种情况会拿到空列表或已脱节的节点，当前节高亮从此失效。
+ */
+function targetsStale(): boolean {
+  return targets.length === 0 || targets.some(target => !target.isConnected)
+}
+
+/** 重新绑定章节几何监听：目标集合变化后必须重挂，否则折叠展开不会触发重算。 */
+function observeTargets() {
+  if (resizeObserver) resizeObserver.disconnect()
+  if (typeof ResizeObserver === 'undefined') return
+  resizeObserver = new ResizeObserver(scheduleSync)
+  targets.forEach(target => resizeObserver?.observe(target))
 }
 
 /**
@@ -40,6 +67,10 @@ function prefersReducedMotion(): boolean {
  * 滚到它时也不会因为Ⅳ段同时出现在视口上部而提前高亮Ⅳ。
  */
 function syncActive() {
+  if (targetsStale()) {
+    targets = resolveTargets()
+    observeTargets()
+  }
   if (!targets.length) return
 
   const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
@@ -67,17 +98,16 @@ onMounted(() => {
   // 已进入 DOM 后再查询锚点，避免初始高亮为空。
   void nextTick(() => {
     if (!mounted) return
-    targets = props.items
-      .map(item => document.querySelector<HTMLElement>(item.href))
-      .filter((el): el is HTMLElement => el !== null)
-    if (!targets.length) return
+    targets = resolveTargets()
+    observeTargets()
 
+    // 监听器无条件挂载：段落晚于挂载出现时，仍需在首次滚动/重算时能拿到它们。
     window.addEventListener('scroll', scheduleSync, { passive: true })
     window.addEventListener('resize', scheduleSync)
-    if (typeof ResizeObserver !== 'undefined') {
-      // 折叠内容展开/收起不会必然触发 scroll；监听章节几何变化后立即重新判定。
-      resizeObserver = new ResizeObserver(scheduleSync)
-      targets.forEach(target => resizeObserver?.observe(target))
+    if (typeof MutationObserver !== 'undefined') {
+      // 章节晚渲染或 keyed 重绘时不必然触发 scroll，靠 DOM 变化兜底重新解析。
+      mutationObserver = new MutationObserver(scheduleSync)
+      mutationObserver.observe(document.body, { childList: true, subtree: true })
     }
     syncActive()
   })
@@ -91,6 +121,8 @@ onBeforeUnmount(() => {
   syncFrame = null
   resizeObserver?.disconnect()
   resizeObserver = null
+  mutationObserver?.disconnect()
+  mutationObserver = null
   targets = []
 })
 

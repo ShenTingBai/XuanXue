@@ -115,11 +115,12 @@ describe('八字页面六段结构', () => {
 
   it('交互反馈：勾选框不用原生样式，六问折叠有可展开标记', async () => {
     const page = await openPage()
-    // 十四周岁勾选框：与历法单选同法（sr-only input + 样式化方框），避免系统蓝勾。
+    // 十四周岁勾选框：全站共享 choice-control（sr-only input + 样式化方框），避免系统蓝勾。
+    // 断言全局方框变体而非已退役的页内 bazi-check 钩子（该钩子由统一选择控件计划删除）。
     const age = page.get('[data-bazi-age]')
     expect(age.attributes('type')).toBe('checkbox')
     expect(age.classes()).toContain('sr-only')
-    expect(page.find('.bazi-check').exists()).toBe(true)
+    expect(page.find('.choice-control__indicator--box').exists()).toBe(true)
     // 六问：每条都有可展开标记（改造前没有任何可视线索）。
     expect(page.get('[data-bazi-section="detail"]').findAll('.bazi-fold-mark')).toHaveLength(6)
     // Ⅴ 段折叠复用同一标记（正文折叠件现在共三处：三柱卡、六问、依据与范围）

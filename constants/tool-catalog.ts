@@ -36,15 +36,18 @@ export interface ToolCatalogEntry {
 }
 
 export const TOOL_CATALOG: readonly ToolCatalogEntry[] = [
-  // 围栏期：11 项全部 in_review / internal / disabled；
-  // 仅 zeji 的 computePolicy 为 enabled（只允许受控内部验证，不放行普通访客）。
+  // 公开候选：shengxiao 是唯一 approved / public / enabled 工具，公开范围限于 R3 Accepted 的
+  // 「查我的生肖 / 认识十二生肖」限定能力。公开范围**不含** constellation 太阳星座、
+  // 人格/婚配/运势/本命佛/化太岁扩展，也不含服务器历史（historyPolicy 保持 disabled）；
+  // 其余 10 项仍为 in_review / internal，zeji 与 bazi 仅按 §20.2 供授权内部验证。
   {
     id: 'shengxiao',
     name: '生肖',
     route: '/tools/shengxiao',
-    reviewStatus: 'in_review',
-    exposure: 'internal',
-    computePolicy: 'blocked',
+    reviewStatus: 'approved',
+    exposure: 'public',
+    computePolicy: 'enabled',
+    // 零服务器历史：游客结果只存在当前页面，不写历史表（契约 §6.4）。
     historyPolicy: 'disabled',
   },
   {
@@ -169,24 +172,6 @@ export function isToolPubliclyAvailable(id: string): boolean {
 /** 公开计算：只有已获准公开且计算启用才允许。 */
 export function canPubliclyCompute(id: string): boolean {
   return isToolPubliclyAvailable(id)
-}
-
-/**
- * **本地开发专用**导航项：把 `internal + enabled`（D3 授权内部验证通道可放行的工具）
- * 追加进顶栏，省掉开发期手输 URL。
- *
- * 边界（不要在发布语境里绕过）：
- * - 只在 `import.meta.dev === true`（即 `npm run dev`）返回非空；生产构建里该分支不可达，
- *   顶栏/首页/SEO 与 `exposure` 声明完全不变（治理规范 §20.2、R5 消歧记录 §8.1 第 2 条）；
- * - 目录本身不被改写：`isToolPubliclyAvailable` 对这些工具仍为 false，围栏照常生效
- *   （未登录/未在白名单 → 仍然 302 到状态页）；
- * - 名称带「内部验证」标识，避免把未公开工具误当成已放行功能。
- */
-export function getLocalDevNavTools(isDev: boolean): ToolCatalogEntry[] {
-  if (!isDev) return []
-  return TOOL_CATALOG.filter(
-    tool => tool.exposure === 'internal' && tool.computePolicy === 'enabled',
-  ).map(tool => ({ ...tool, name: `${tool.name}（内部验证）` }))
 }
 
 /** 历史读取：只在 read_only 或 create_allowed 时允许。 */

@@ -1,16 +1,20 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   canCreateHistory,
   canExportTool,
   canPubliclyCompute,
   canReadHistory,
-  getLocalDevNavTools,
   getStatusOnlyToolFromQuery,
   getToolById,
   getToolByRoute,
   isToolPubliclyAvailable,
   TOOL_CATALOG,
 } from '~/constants/tool-catalog'
+
+/** 目录源码：用于断言不残留面向用户的开发模式派生入口。 */
+const catalogSource = readFileSync(resolve(process.cwd(), 'constants/tool-catalog.ts'), 'utf-8')
 
 const REVIEW_STATUSES = ['unreviewed', 'in_review', 'approved', 'suspended', 'retired']
 const EXPOSURES = ['public', 'internal', 'status_only']
@@ -33,27 +37,29 @@ describe('tool catalog — 四维目录契约', () => {
     }
   })
 
-  it('围栏期矩阵：全部 in_review/internal，仅 zeji 与 bazi 计算 enabled，仅 bazi 允许创建历史', () => {
+  it('公开候选矩阵：shengxiao 是唯一 approved/public/enabled，历史仍为 disabled', () => {
     for (const tool of TOOL_CATALOG) {
-      expect(tool.reviewStatus).toBe('in_review')
-      expect(tool.exposure).toBe('internal')
-      // R5：bazi 因授权内部验证需要创建历史（治理规范 §20.2），其余工具仍为 disabled。
+      const isPublicCandidate = tool.id === 'shengxiao'
+      expect(tool.reviewStatus).toBe(isPublicCandidate ? 'approved' : 'in_review')
+      expect(tool.exposure).toBe(isPublicCandidate ? 'public' : 'internal')
+      // R5：bazi 因授权内部验证需要创建历史（治理规范 §20.2）；shengxiao 公开但零服务器历史。
       expect(tool.historyPolicy).toBe(tool.id === 'bazi' ? 'create_allowed' : 'disabled')
     }
     for (const tool of TOOL_CATALOG) {
-      const expectEnabled = tool.id === 'zeji' || tool.id === 'bazi'
+      const expectEnabled = tool.id === 'zeji' || tool.id === 'bazi' || tool.id === 'shengxiao'
       expect(tool.computePolicy).toBe(expectEnabled ? 'enabled' : 'blocked')
     }
   })
 
-  it('当前矩阵没有任何普通访客可用工具，internal + enabled 不等于公开', () => {
+  it('只有 shengxiao 对普通访客公开：公开计算与导出放行，历史读写拒绝', () => {
     for (const tool of TOOL_CATALOG) {
-      // 公开判定与公开发放行必须全部为 false：internal 不能被 computePolicy 绕过。
-      expect(isToolPubliclyAvailable(tool.id)).toBe(false)
-      expect(canPubliclyCompute(tool.id)).toBe(false)
-      expect(canExportTool(tool.id)).toBe(false)
+      const expectPublic = tool.id === 'shengxiao'
+      // internal 不能被 computePolicy 绕过：其余 10 项公开判定必须为 false。
+      expect(isToolPubliclyAvailable(tool.id)).toBe(expectPublic)
+      expect(canPubliclyCompute(tool.id)).toBe(expectPublic)
+      expect(canExportTool(tool.id)).toBe(expectPublic)
     }
-    // 历史读写：仅 bazi 因授权内部验证放行，其余仍不可读不可建。
+    // 公开不等于允许历史：shengxiao 零服务器历史（契约 §6.4），仅 bazi 因内部验证放行。
     for (const tool of TOOL_CATALOG) {
       const expectHistory = tool.id === 'bazi'
       expect(canReadHistory(tool.id)).toBe(expectHistory)
@@ -73,7 +79,10 @@ describe('tool catalog — 四维目录契约', () => {
   })
 
   it('状态页参数只接受单值的不可公开工具 id', () => {
+    // 已公开的 shengxiao 不再进入状态页；其余 10 项仍按 id 返回。
+    expect(getStatusOnlyToolFromQuery('shengxiao')).toBeUndefined()
     for (const tool of TOOL_CATALOG) {
+      if (tool.id === 'shengxiao') continue
       expect(getStatusOnlyToolFromQuery(tool.id)?.id).toBe(tool.id)
     }
     expect(getStatusOnlyToolFromQuery(['ziwei'])).toBeUndefined()
@@ -107,8 +116,10 @@ describe('tool catalog — 四维目录契约', () => {
   })
 
   it('getStatusOnlyToolFromQuery 只返回当前不可公开的单值工具', () => {
+    // shengxiao 已公开：不再作为状态页工具返回。
+    expect(getStatusOnlyToolFromQuery('shengxiao')).toBeUndefined()
     for (const tool of TOOL_CATALOG) {
-      // 当前围栏期全部不可公开，因此均返回工具
+      if (tool.id === 'shengxiao') continue
       expect(getStatusOnlyToolFromQuery(tool.id)?.id).toBe(tool.id)
     }
     expect(getStatusOnlyToolFromQuery(['ziwei'])).toBeUndefined()
@@ -117,28 +128,23 @@ describe('tool catalog — 四维目录契约', () => {
     expect(getStatusOnlyToolFromQuery('unknown')).toBeUndefined()
   })
 
-  it('getStatusOnlyToolFromQuery 逻辑显式依赖 isToolPubliclyAvailable，未来公开工具不显示整理中', () => {
-    // 契约验证：若某工具变为 approved/public/enabled，则不再作为状态页工具返回。
-    // 通过构造「公开可用」判断来断言排除逻辑（模拟未来状态变化）。
-    const original = getToolById('zeji')
-    expect(original).toBeDefined()
-    // 当前 zeji 为 internal+enabled → 不可公开 → 应返回状态页工具
+  it('getStatusOnlyToolFromQuery 逻辑显式依赖 isToolPubliclyAvailable，已公开工具不显示整理中', () => {
+    // 契约验证：approved/public/enabled 的工具不再作为状态页工具返回。
+    // shengxiao 已公开 → 必须被排除；zeji 仍 internal+enabled → 仍返回状态页工具。
+    expect(isToolPubliclyAvailable('shengxiao')).toBe(true)
+    expect(getStatusOnlyToolFromQuery('shengxiao')).toBeUndefined()
+    expect(getToolById('zeji')).toBeDefined()
     expect(getStatusOnlyToolFromQuery('zeji')?.id).toBe('zeji')
   })
 
-  it('本地开发导航项：仅开发环境返回，且不改写目录的公开声明', () => {
-    // 生产构建（isDev=false）必须为空：顶栏与公开面与已批准状态完全一致。
-    expect(getLocalDevNavTools(false)).toEqual([])
-
-    const dev = getLocalDevNavTools(true)
-    expect(dev.map(tool => tool.id).sort()).toEqual(['bazi', 'zeji'])
-    for (const tool of dev) {
-      expect(tool.name).toContain('内部验证')
-      // 只是开发期展示项：目录本身的公开判定与四维字段不得被改写。
-      expect(isToolPubliclyAvailable(tool.id)).toBe(false)
-      expect(getToolById(tool.id)?.name).not.toContain('内部验证')
-      expect(tool.reviewStatus).toBe('in_review')
-      expect(tool.exposure).toBe('internal')
-    }
+  it('目录不包含面向用户的开发模式派生入口', () => {
+    // 回归背景：目录曾导出 getLocalDevNavTools，把 internal + enabled 工具以
+    // 「（内部验证）」命名追加进顶栏与首页。研发阶段身份不应成为用户可见产品模式，
+    // 未公开工具改由开发者直接访问真实路由调试，服务端围栏照常生效。
+    // 断言只针对派生入口与用户可见命名后缀；`internal`/治理注释里的「内部验证」
+    // 是线上准入元数据，不在本断言范围（见计划 context）。
+    expect(catalogSource).not.toContain('getLocalDevNavTools')
+    expect(catalogSource).not.toContain('（内部验证）')
+    expect(catalogSource).not.toContain('本地开发专用')
   })
 })

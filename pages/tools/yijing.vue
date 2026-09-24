@@ -1,20 +1,36 @@
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">六爻占卜</h1>
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="易"
+    edition="工具 · 六爻起卦（摇卦 / 数字起卦）"
+    title="六爻占卜"
+    subtitle="按六爻纳甲法起卦，给出卦象、爻辞与解读依据。"
+    status-text="功能整理中"
+    meta-text="结果只在本页内存 · 不写服务器历史"
+  >
+    <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+    <div class="flex items-center justify-between mb-6">
+      <span></span>
+      <ExportButton
+        v-if="result && !processing"
+        :target-ref="exportRef"
+        filename="六爻卦象.png"
+        :is-exporting="isExporting"
+        @export="handleExport"
+      />
+    </div>
 
-    <div class="max-w-[48rem] mx-auto">
-      <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
-      <div class="flex items-center justify-between mb-6">
-        <span></span>
-        <ExportButton
-          v-if="result && !processing"
-          :target-ref="exportRef"
-          filename="六爻卦象.png"
-          :is-exporting="isExporting"
-          @export="handleExport"
-        />
-      </div>
-
+    <!--
+      Ⅰ 起卦方式：摇卦或数字起卦。
+      面板自身没有可见标题，分节名沿用面板既有的「起卦方式」标签（其 tablist 的 aria-label），
+      不为此新增可见标题，卷目锚点只是把已有区块变成可跳转的段落。
+    -->
+    <section
+      id="yijing-casting"
+      class="editorial-section editorial-section--first"
+      aria-label="起卦方式"
+    >
       <!-- Casting panel -->
       <YijingCastingPanel
         :mode="castingMode"
@@ -26,34 +42,73 @@
         @reset="requestReset"
         @update:mode="castingMode = $event"
       />
+    </section>
 
-      <!-- Loading / processing -->
-      <div v-if="processing" class="space-y-6" aria-busy="true">
-        <span class="sr-only">正在加载...</span>
-        <SkeletonCard />
+    <!-- Loading / processing -->
+    <div v-if="processing" class="space-y-6" aria-busy="true">
+      <span class="sr-only">正在加载...</span>
+      <SkeletonCard />
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="text-center py-16">
+      <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
+      <div class="flex justify-center mt-6">
+        <button
+          class="btn-cin"
+          @click="handleReset"
+          @keydown.enter="handleReset"
+          @keydown.space.prevent="handleReset"
+        >
+          <span>重新起卦</span>
+        </button>
+      </div>
+    </div>
+
+    <div aria-live="polite" role="status" class="sr-only">
+      <span v-if="processing">解卦中，请稍候</span>
+      <span v-else-if="result">卦象已就绪</span>
+    </div>
+
+    <!-- Ⅱ 占卜结果 -->
+    <section
+      v-if="result && !processing"
+      id="yijing-result"
+      class="editorial-section"
+      aria-labelledby="yijing-result-heading"
+    >
+      <div class="flex items-center justify-between">
+        <SectionHeading
+          num="Ⅱ"
+          title="占卜结果"
+          heading-id="yijing-result-heading"
+          class="flex-1 min-w-0 !mb-0"
+        />
+        <MethodologyNote :classical="yijingClassical" :synthesis="yijingSynthesis" tool="六爻" />
       </div>
 
-      <!-- Error -->
-      <div v-else-if="error" class="text-center py-16">
-        <p class="font-sans text-base text-cinnabar" role="alert">{{ error }}</p>
-        <div class="flex justify-center mt-6">
+      <!-- Results -->
+      <div ref="resultSection" class="mt-8">
+        <div ref="exportRef">
+          <YijingInterpretation :result="result" :score="score" />
+        </div>
+
+        <!-- Reset -->
+        <div class="text-center mt-6 pb-8">
           <button
-            class="btn-cin"
-            @click="handleReset"
-            @keydown.enter="handleReset"
-            @keydown.space.prevent="handleReset"
+            class="btn-ink"
+            @click="requestReset"
+            @keydown.enter="requestReset"
+            @keydown.space.prevent="requestReset"
           >
-            <span>重新起卦</span>
+            ⟲ 重新占卜
           </button>
         </div>
       </div>
+    </section>
 
-      <div aria-live="polite" role="status" class="sr-only">
-        <span v-if="processing">解卦中，请稍候</span>
-        <span v-else-if="result">卦象已就绪</span>
-      </div>
-
-      <!-- Reset confirmation dialog -->
+    <!-- 重新起卦确认：弹层不属于阅读流，放到外壳的根级附加区 -->
+    <template #after>
       <Transition name="confirm-dialog">
         <div
           v-if="showResetConfirm"
@@ -97,53 +152,28 @@
           </div>
         </div>
       </Transition>
+    </template>
+  </ToolEditorialShell>
 
-      <div v-if="result && !processing" class="flex items-center justify-between">
-        <div class="section-header flex-1 min-w-0">
-          <h2>占卜结果</h2>
-        </div>
-        <MethodologyNote :classical="yijingClassical" :synthesis="yijingSynthesis" tool="六爻" />
-      </div>
-
-      <!-- Results -->
-      <div v-if="result && !processing" ref="resultSection" class="mt-8">
-        <div ref="exportRef">
-          <YijingInterpretation :result="result" :score="score" />
-        </div>
-
-        <!-- Reset -->
-        <div class="text-center mt-6 pb-8">
-          <button
-            class="btn-ink"
-            @click="requestReset"
-            @keydown.enter="requestReset"
-            @keydown.space.prevent="requestReset"
-          >
-            ⟲ 重新占卜
-          </button>
-        </div>
-      </div>
-
-      <ScrollTopButton
-        v-if="showScrollTop"
-        class="right-8"
-        @click="scrollToTop"
-        @keydown="
-          (e: KeyboardEvent) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              scrollToTop()
-            }
-          }
-        "
-      />
-    </div>
-  </ToolPageLayout>
+  <ScrollTopButton
+    v-if="showScrollTop"
+    class="right-8"
+    @click="scrollToTop"
+    @keydown="
+      (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          scrollToTop()
+        }
+      }
+    "
+  />
 </template>
 
 <script setup lang="ts">
 import { castByNumbers, computeYijingResult, type YijingResult } from '~/composables/useYijing'
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import YijingCastingPanel from '~/components/tools/yijing/YijingCastingPanel.vue'
 import YijingInterpretation from '~/components/tools/yijing/YijingInterpretation.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
@@ -175,6 +205,23 @@ const yijingSynthesis: string[] = [
   '互卦由本卦 2-3-4 爻为下卦、3-4-5 爻为上卦组成',
   '变卦（之卦）由本卦动爻阴阳反转生成',
 ]
+
+/**
+ * 卷目（Ⅰ–Ⅱ）与脚注。
+ *
+ * 只列页面**已有**的两个段落——起卦方式面板与占卜结果；
+ * 不为让索引变长新增段（设计系统：卷目只是既有段序的目录）。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '起卦方式', href: '#yijing-casting' },
+  { num: 'Ⅱ', label: '占卜结果', href: '#yijing-result' },
+]
+
+/**
+ * 卷目脚注：只写起卦方式这一条输入口径。
+ * 内存结果边界改由报头元信息行承担——脚注 ≤920px 隐藏，隐私提示不能只放这里。
+ */
+const indexFootnote = '摇卦与数字起卦两种方式'
 
 // State
 const castingMode = ref<'coin' | 'number'>('coin')

@@ -15,6 +15,9 @@ const props = defineProps<{
   result: ShengXiaoResult
 }>()
 
+/** 详细传统分类默认收起；生肖、地支、干支年、年界与范围始终直接可见。 */
+const classificationExpanded = ref(false)
+
 /** 隐私文化卡片 DOM，供页面导入（不含出生日期）。 */
 const privacyCardEl = ref<HTMLElement | null>(null)
 defineExpose({ privacyCardEl })
@@ -79,35 +82,56 @@ function visibleSources() {
       </p>
     </section>
 
-    <!-- 传统分类（契约 §9.2，可折叠展示） -->
+    <!-- 传统分类（契约 §9.2）：详细传统分类解释默认收起。
+         生肖、地支、干支年与下方「年界与范围」始终直接可见，
+         折叠只影响详细程度，不隐藏年界、范围、隐私与关键限制。 -->
     <section
       class="card-warm rounded-xl p-6 sm:p-8"
       aria-labelledby="shengxiao-classification-heading"
     >
-      <h2
-        id="shengxiao-classification-heading"
-        class="section-header font-display text-xl text-ink-dark"
-      >
-        传统分类
-      </h2>
-      <dl class="verified-result__grid">
-        <div class="verified-result__cell">
-          <dt>年干五行</dt>
-          <dd>{{ result.stemElement }}</dd>
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <h2
+          id="shengxiao-classification-heading"
+          class="section-header font-display text-xl text-ink-dark !mb-0"
+        >
+          传统分类
+        </h2>
+        <button
+          :aria-expanded="classificationExpanded"
+          aria-controls="shengxiao-classification-panel"
+          class="marginal-toggle flex-shrink-0"
+          @click="classificationExpanded = !classificationExpanded"
+          @keydown.enter="classificationExpanded = !classificationExpanded"
+          @keydown.space.prevent="classificationExpanded = !classificationExpanded"
+        >
+          <span class="marginal-toggle__rule" aria-hidden="true" />
+          <span>{{ classificationExpanded ? '收起' : '展开' }}</span>
+          <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
+        </button>
+      </div>
+      <Transition name="expand">
+        <div v-if="classificationExpanded" id="shengxiao-classification-panel">
+          <dl class="verified-result__grid">
+            <div class="verified-result__cell">
+              <dt>年干五行</dt>
+              <dd>{{ result.stemElement }}</dd>
+            </div>
+            <div class="verified-result__cell">
+              <dt>年干阴阳</dt>
+              <dd>{{ result.yinYang }}</dd>
+            </div>
+            <div class="verified-result__cell">
+              <dt>年支五行</dt>
+              <dd>{{ result.branchElement }}</dd>
+            </div>
+            <div class="verified-result__cell">
+              <dt>六十甲子纳音</dt>
+              <dd>{{ result.naYin }}</dd>
+            </div>
+          </dl>
         </div>
-        <div class="verified-result__cell">
-          <dt>年干阴阳</dt>
-          <dd>{{ result.yinYang }}</dd>
-        </div>
-        <div class="verified-result__cell">
-          <dt>年支五行</dt>
-          <dd>{{ result.branchElement }}</dd>
-        </div>
-        <div class="verified-result__cell">
-          <dt>六十甲子纳音</dt>
-          <dd>{{ result.naYin }}</dd>
-        </div>
-      </dl>
+      </Transition>
+      <!-- 关键限制：不随详细字段折叠——「不能推出什么」必须先于展开可见。 -->
       <p class="mt-3 font-sans text-xs text-ink-medium leading-relaxed">
         年干五行、年支五行与纳音是三个不同的传统分类概念，不代表个人整体五行强弱，也不能推出喜用神、性格或命运。
       </p>
@@ -185,6 +209,22 @@ function visibleSources() {
 </template>
 
 <style scoped>
+/* 折叠过渡：与设计系统 §4.1 标准模式一致。 */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 2000px;
+  opacity: 1;
+}
 .verified-result__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

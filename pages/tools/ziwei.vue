@@ -4,7 +4,8 @@ import { calculateZiWei, getMingGongIndex } from '~/composables/useZiwei'
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe'
 import { getTimeIndex } from '~/constants/ziwei'
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace'
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import ZiWeiInputForm from '~/components/tools/ziwei/ZiWeiInputForm.vue'
 import ZiWeiTabSwitcher from '~/components/tools/ziwei/ZiWeiTabSwitcher.vue'
 import ZiWeiCelestialChart from '~/components/tools/ziwei/ZiWeiCelestialChart.vue'
@@ -46,6 +47,22 @@ useSeoMeta({
   ogDescription: '紫微斗数命盘推演，查看你的十二宫星曜、四化飞星和大限流年运势。',
   ogType: 'website',
 })
+
+/**
+ * 紫微斗数页卷目（Ⅰ–Ⅱ）与脚注。
+ *
+ * 本页主体是「输入 → 命盘」的单条阅读流，只有两段：Ⅰ 排盘（前置状态、输入与命盘）
+ * 与 Ⅱ 命盘与宫位解读（原工具页外壳右侧栏）。卷目只列这两段，不拆段凑数。
+ * 输出范围（十二宫 / 四化 / 大限）只在副题与眉题各出现一次；脚注只写输入口径，
+ * 隐私边界（本地计算、不留记录）放报头元信息行，窄屏也始终可见。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '排盘', href: '#ziwei-chart' },
+  { num: 'Ⅱ', label: '命盘与宫位解读', href: '#ziwei-info' },
+]
+
+/** 卷目脚注：只写输入口径；窄屏隐藏，不放必须常驻可见的边界说明。 */
+const indexFootnote = '出生日期 · 时辰 · 性别'
 
 const router = useRouter()
 const { currentProfile, restoreSession } = useAuth()
@@ -188,190 +205,216 @@ const sortedPeriods = computed(() => {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">紫微斗数</h1>
-
-    <!-- Initial loading / auth guard -->
-    <div
-      v-if="!ready"
-      class="flex items-center justify-center py-20"
-      role="status"
-      aria-live="polite"
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="紫"
+    edition="工具 · 紫微斗数（十二宫 · 四化 · 大限）"
+    title="紫微斗数"
+    subtitle="紫微斗数命盘推演，查看你的十二宫星曜、四化飞星和大限流年运势。"
+    status-text="内部验证中"
+    meta-text="计算在浏览器本地 · 不保存记录"
+  >
+    <!-- Ⅰ 排盘：登录与档案前置状态、输入表单与命盘 -->
+    <section
+      id="ziwei-chart"
+      class="editorial-section editorial-section--first"
+      aria-labelledby="ziwei-chart-heading"
     >
+      <SectionHeading num="Ⅰ" title="排盘" heading-id="ziwei-chart-heading" />
+
+      <!-- Initial loading / auth guard -->
       <div
-        class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin"
-      />
-      <span class="sr-only">正在加载命盘...</span>
-    </div>
-
-    <!-- Not logged in -->
-    <div v-else-if="!currentProfile" class="text-center py-16">
-      <p class="font-sans text-lg text-ink-medium mb-4">请先登录</p>
-      <NuxtLink to="/login" class="btn-cin inline-flex">
-        <span>前往登录</span>
-      </NuxtLink>
-    </div>
-
-    <!-- Error -->
-    <div v-else-if="error" class="text-center py-16">
-      <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
-      <div class="flex justify-center mt-6">
-        <button class="btn-cin" @click="handleCalculate">
-          <span>重新排盘</span>
-        </button>
+        v-if="!ready"
+        class="flex items-center justify-center py-20"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="w-8 h-8 rounded-full border-2 border-ink-faint/30 border-t-cinnabar/60 animate-spin"
+        />
+        <span class="sr-only">正在加载命盘...</span>
       </div>
-    </div>
 
-    <!-- Missing birth info -->
-    <div v-else-if="profileMissingBirth" class="max-w-[48rem] mx-auto">
-      <ProfileAutoFillBanner
-        :profile-name="currentProfile?.nickname || ''"
-        :is-filled="false"
-        :missing-birth="true"
-        :profile-id="currentProfile?.id"
-      />
-    </div>
+      <!-- Not logged in -->
+      <div v-else-if="!currentProfile" class="text-center py-16">
+        <p class="font-sans text-lg text-ink-medium mb-4">请先登录</p>
+        <NuxtLink to="/login" class="btn-cin inline-flex">
+          <span>前往登录</span>
+        </NuxtLink>
+      </div>
 
-    <!-- Input form (shown before first calculation) -->
-    <div v-else-if="!astrolabe && !loading">
-      <ZiWeiInputForm
-        :birth-date="birthDate"
-        :birth-hour="birthHour"
-        :gender="gender"
-        :loading="false"
-        :on-calculate="handleCalculate"
-        :on-date-change="(val: string) => (birthDate = val)"
-        :on-hour-change="(val: number | null) => (birthHour = val)"
-        :on-gender-change="(val: 'male' | 'female') => (gender = val)"
-      />
-    </div>
-
-    <!-- Loading -->
-    <div v-else-if="loading" class="space-y-6" aria-busy="true">
-      <span class="sr-only">正在排盘...</span>
-      <SkeletonCard />
-    </div>
-
-    <!-- Result with dual views -->
-    <template v-else-if="astrolabe">
-      <div class="w-full max-w-full sm:max-w-[48rem] mx-auto">
-        <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
-        <div class="flex items-center justify-between mb-6">
-          <span></span>
-          <ExportButton
-            v-if="astrolabe"
-            :target-ref="resultRef"
-            filename="紫微斗数.png"
-            :is-exporting="isExporting"
-            @export="handleExport"
-          />
-        </div>
-
-        <div ref="resultRef">
-          <!-- ── 方法论溯源 ── -->
-          <div class="flex items-center justify-between mb-6">
-            <div class="section-header !mb-0 flex-1 min-w-0">
-              <h2>紫微斗数</h2>
-            </div>
-            <MethodologyNote
-              :classical="ziweiClassical"
-              :synthesis="ziweiSynthesis"
-              tool="紫微斗数"
-            />
-          </div>
-          <ZiWeiTabSwitcher
-            :current-view="currentView"
-            @update:current-view="currentView = $event"
-          />
-
-          <p class="text-xs text-ink-muted text-center mt-2 mb-1 tracking-wide">
-            点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
-          </p>
-
-          <!-- View Transition -->
-          <Transition name="view-fade" mode="out-in">
-            <div
-              v-if="currentView === 'celestial'"
-              id="panel-celestial"
-              :key="'celestial'"
-              role="tabpanel"
-              :aria-labelledby="'tab-celestial'"
-            >
-              <ZiWeiCelestialChart
-                :palaces="astrolabe.palaces"
-                :selected-index="selectedIndex"
-                :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-                :is-visible="currentView === 'celestial'"
-                @select="handleSelectPalace"
-              />
-            </div>
-            <div v-else id="panel-grid" :key="'grid'" role="tabpanel" :aria-labelledby="'tab-grid'">
-              <ZiWeiPalaceGrid
-                :palaces="astrolabe.palaces"
-                :selected-index="selectedIndex"
-                :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
-                :five-elements-class="astrolabe.fiveElementsClass"
-                :soul="astrolabe.soul"
-                :body="astrolabe.body"
-                :ming-gong-branch="
-                  astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''
-                "
-                :on-select-palace="handleSelectPalace"
-              />
-            </div>
-          </Transition>
-
-          <!-- DaXian Timeline -->
-          <div class="mt-4">
-            <ZiWeiDaXianTimeline
-              :periods="sortedPeriods"
-              :current-age="currentAge"
-              @select="handleSelectPalace"
-            />
-          </div>
-        </div>
-
-        <!-- Action buttons -->
-        <div class="flex flex-wrap gap-3 justify-center mt-8">
-          <button
-            class="btn-cin"
-            @click="handleCalculate"
-            @keydown.enter="handleCalculate"
-            @keydown.space.prevent="handleCalculate"
-          >
+      <!-- Error -->
+      <div v-else-if="error" class="text-center py-16">
+        <p class="text-base text-cinnabar" role="alert">{{ error }}</p>
+        <div class="flex justify-center mt-6">
+          <button class="btn-cin" @click="handleCalculate">
             <span>重新排盘</span>
           </button>
         </div>
       </div>
 
-      <ScrollTopButton
-        v-if="showScrollTop"
-        @click="scrollToTop"
-        @keydown="
-          (e: KeyboardEvent) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              scrollToTop()
+      <!-- Missing birth info -->
+      <div v-else-if="profileMissingBirth" class="max-w-[48rem] mx-auto">
+        <ProfileAutoFillBanner
+          :profile-name="currentProfile?.nickname || ''"
+          :is-filled="false"
+          :missing-birth="true"
+          :profile-id="currentProfile?.id"
+        />
+      </div>
+
+      <!-- Input form (shown before first calculation) -->
+      <div v-else-if="!astrolabe && !loading">
+        <ZiWeiInputForm
+          :birth-date="birthDate"
+          :birth-hour="birthHour"
+          :gender="gender"
+          :loading="false"
+          :on-calculate="handleCalculate"
+          :on-date-change="(val: string) => (birthDate = val)"
+          :on-hour-change="(val: number | null) => (birthHour = val)"
+          :on-gender-change="(val: 'male' | 'female') => (gender = val)"
+        />
+      </div>
+
+      <!-- Loading -->
+      <div v-else-if="loading" class="space-y-6" aria-busy="true">
+        <span class="sr-only">正在排盘...</span>
+        <SkeletonCard />
+      </div>
+
+      <!-- Result with dual views -->
+      <template v-else-if="astrolabe">
+        <div class="w-full max-w-full sm:max-w-[48rem] mx-auto">
+          <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
+          <div class="flex items-center justify-between mb-6">
+            <span></span>
+            <ExportButton
+              v-if="astrolabe"
+              :target-ref="resultRef"
+              filename="紫微斗数.png"
+              :is-exporting="isExporting"
+              @export="handleExport"
+            />
+          </div>
+
+          <div ref="resultRef">
+            <!-- ── 方法论溯源（保留在导出目标内，导出图与改版前一致） ── -->
+            <div class="flex items-center justify-end mb-6">
+              <MethodologyNote
+                :classical="ziweiClassical"
+                :synthesis="ziweiSynthesis"
+                tool="紫微斗数"
+              />
+            </div>
+            <ZiWeiTabSwitcher
+              :current-view="currentView"
+              @update:current-view="currentView = $event"
+            />
+
+            <p class="text-xs text-ink-muted text-center mt-2 mb-1 tracking-wide">
+              点击宫位或星曜可查看详细解读 · 命宫以朱砂色标注
+            </p>
+
+            <!-- View Transition -->
+            <Transition name="view-fade" mode="out-in">
+              <div
+                v-if="currentView === 'celestial'"
+                id="panel-celestial"
+                :key="'celestial'"
+                role="tabpanel"
+                :aria-labelledby="'tab-celestial'"
+              >
+                <ZiWeiCelestialChart
+                  :palaces="astrolabe.palaces"
+                  :selected-index="selectedIndex"
+                  :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+                  :is-visible="currentView === 'celestial'"
+                  @select="handleSelectPalace"
+                />
+              </div>
+              <div
+                v-else
+                id="panel-grid"
+                :key="'grid'"
+                role="tabpanel"
+                :aria-labelledby="'tab-grid'"
+              >
+                <ZiWeiPalaceGrid
+                  :palaces="astrolabe.palaces"
+                  :selected-index="selectedIndex"
+                  :ming-gong-index="getMingGongIndex(astrolabe.palaces)"
+                  :five-elements-class="astrolabe.fiveElementsClass"
+                  :soul="astrolabe.soul"
+                  :body="astrolabe.body"
+                  :ming-gong-branch="
+                    astrolabe.palaces[getMingGongIndex(astrolabe.palaces)]?.earthlyBranch ?? ''
+                  "
+                  :on-select-palace="handleSelectPalace"
+                />
+              </div>
+            </Transition>
+
+            <!-- DaXian Timeline -->
+            <div class="mt-4">
+              <ZiWeiDaXianTimeline
+                :periods="sortedPeriods"
+                :current-age="currentAge"
+                @select="handleSelectPalace"
+              />
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex flex-wrap gap-3 justify-center mt-8">
+            <button
+              class="btn-cin"
+              @click="handleCalculate"
+              @keydown.enter="handleCalculate"
+              @keydown.space.prevent="handleCalculate"
+            >
+              <span>重新排盘</span>
+            </button>
+          </div>
+        </div>
+
+        <ScrollTopButton
+          v-if="showScrollTop"
+          @click="scrollToTop"
+          @keydown="
+            (e: KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                scrollToTop()
+              }
             }
-          }
-        "
+          "
+        />
+      </template>
+    </section>
+
+    <!-- Ⅱ 命盘与宫位解读：原工具页外壳右侧栏进入正文流 -->
+    <section
+      v-if="astrolabe"
+      id="ziwei-info"
+      class="editorial-section space-y-4"
+      aria-labelledby="ziwei-info-heading"
+    >
+      <SectionHeading num="Ⅱ" title="命盘与宫位解读" heading-id="ziwei-info-heading" />
+      <ZiWeiInfoSidebar :astrolabe="astrolabe" :birth-hour="birthHour" />
+      <ZiWeiDetailPanel :palace="selectedPalace" />
+    </section>
+
+    <!-- 窄屏宫位详情页：根级弹层，与外壳同级 -->
+    <template #after>
+      <ZiWeiDetailSheet
+        :show="selectedPalace !== null"
+        :palace="selectedPalace"
+        @close="selectedPalace = null"
       />
     </template>
-
-    <!-- nav-right slot: palace detail panel -->
-    <template v-if="astrolabe" #nav-right>
-      <div class="space-y-4">
-        <ZiWeiInfoSidebar :astrolabe="astrolabe" :birth-hour="birthHour" />
-        <ZiWeiDetailPanel :palace="selectedPalace" />
-      </div>
-    </template>
-  </ToolPageLayout>
-
-  <ZiWeiDetailSheet
-    :show="selectedPalace !== null"
-    :palace="selectedPalace"
-    @close="selectedPalace = null"
-  />
+  </ToolEditorialShell>
 </template>
 
 <style scoped>

@@ -14,8 +14,8 @@ import VerifiedResult from '~/components/tools/shengxiao/VerifiedResult.vue'
 import BirthDateInput from '~/components/tools/BirthDateInput.vue'
 import VerifiedCulture from '~/components/tools/shengxiao/VerifiedCulture.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
-import PageHero from '~/components/tools/PageHero.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import SelfProfileSaveDialog from '~/components/profile/SelfProfileSaveDialog.vue'
 import AuthDialog from '~/components/auth/AuthDialog.vue'
 
@@ -31,7 +31,8 @@ import AuthDialog from '~/components/auth/AuthDialog.vue'
  * - 不强制登录、不 restoreSession、不读 currentProfile、不自动填充。
  */
 
-// ── 工具目录状态（shengxiao 当前 in_review/internal/blocked/disabled）──
+// ── 工具目录状态（shengxiao 已为 approved/public/enabled，historyPolicy 仍为 disabled）──
+// 公开范围仅限本页两个限定能力；太阳星座、人格/婚配/运势扩展与服务器历史均不随之公开。
 const toolPublic = canExportTool('shengxiao')
 
 // ── 当次草稿（页面内存）──
@@ -85,6 +86,12 @@ const canSubmit = computed(() => {
 })
 
 const ageBlocked = computed(() => ageConfirm.value === 'underage')
+
+/**
+ * 结果区空态：尚未发起生成且没有任何结果时，展示「尚未生成结果」引导。
+ * 处理中/失败/stale 各有独立卡片，不与此态重叠。
+ */
+const showEmptyState = computed(() => !result.value && toolState.value.phase === 'idle')
 
 // ── 输入校验（真实日期 + 范围）──
 function validateDraft(): string {
@@ -541,38 +548,71 @@ useSeoMeta({
     '根据公历出生日期按农历正月初一查询民俗生肖，并认识十二生肖次序、地支对应与干支循环基础。',
   ogType: 'website',
 })
+/**
+ * 生肖页卷目（Ⅰ–Ⅳ）与脚注。
+ *
+ * 卷目只列页面**已有**的四个段落，不为了让索引变长而新增段（设计系统：卷目只是既有段序的目录）。
+ * 脚注写本页真实边界：年界口径与支持范围，放弃「有效期」这类无法核验的说法。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '查我的生肖', href: '#shengxiao-query' },
+  { num: 'Ⅱ', label: '计算结果', href: '#shengxiao-result' },
+  { num: 'Ⅲ', label: '认识十二生肖', href: '#shengxiao-culture' },
+  { num: 'Ⅳ', label: '依据与范围', href: '#shengxiao-scope' },
+]
+
+/**
+ * 卷目脚注：只写本页输入口径（一行，窄屏隐藏）。
+ *
+ * 年界与支持范围由报头下方的事实条（`[data-shengxiao-meta]`，无断点隐藏）承担；
+ * 输入隐私与年龄门在正文 Ⅰ 段直接可见。脚注不再复述任一处，避免同一事实在首屏出现两遍。
+ */
+const indexFootnote = '公历出生日期输入'
 </script>
 
 <template>
-  <ToolPageLayout>
-    <template #nav>
-      <div class="space-y-1">
-        <a href="#shengxiao-query" class="nav-link no-underline">
-          <span>查我的生肖</span>
-        </a>
-        <a href="#shengxiao-culture" class="nav-link no-underline">
-          <span>认识十二生肖</span>
-        </a>
-      </div>
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="生"
+    edition="工具 · 民俗生肖"
+    title="生肖文化"
+    subtitle="按农历正月初一查询民俗生肖，并了解十二生肖的文化分类基础。"
+    :meta-text="`规则版本 ${SHENGXIAO_RULE_VERSION}`"
+  >
+    <!--
+      事实与边界：放在报头补充区，不放进任何折叠区。
+      年界口径、支持范围与时区决定「结果是否适用于你」，因此必须直接可见。
+      规则版本不在此重复——它已在报头 meta 行出现（与八字等页面同一层级），
+      同一语义只保留一处。
+    -->
+    <template #masthead-extra>
+      <dl class="shengxiao-meta" data-shengxiao-meta aria-label="生肖查询的事实与边界">
+        <div class="shengxiao-meta__item">
+          <dt>年界口径</dt>
+          <dd>中国农历正月初一（与八字年柱按立春的口径不同）</dd>
+        </div>
+        <div class="shengxiao-meta__item">
+          <dt>支持范围</dt>
+          <dd>公历 1901-01-01 至查询当日</dd>
+        </div>
+        <div class="shengxiao-meta__item">
+          <dt>时区</dt>
+          <dd>Asia/Shanghai</dd>
+        </div>
+      </dl>
     </template>
 
-    <h1 class="sr-only">生肖文化</h1>
-
-    <PageHero
-      emoji="🐀"
-      title="生肖文化"
-      subtitle="按农历正月初一查询民俗生肖，并了解十二生肖的文化分类基础。"
-    />
-
-    <main class="shengxiao-page max-w-[48rem] mx-auto space-y-6">
-      <!-- 查我的生肖：输入与当次操作 -->
+    <div class="shengxiao-page">
+      <!-- Ⅰ 查我的生肖：输入与当次操作 -->
       <section
         id="shengxiao-query"
-        class="card-paper-solid rounded-xl p-6 sm:p-8"
+        data-shengxiao-section="query"
+        class="editorial-section editorial-section--first"
         aria-labelledby="shengxiao-query-heading"
       >
-        <h2 id="shengxiao-query-heading" class="font-display text-xl text-ink-dark">查我的生肖</h2>
-        <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+        <SectionHeading num="Ⅰ" title="查我的生肖" heading-id="shengxiao-query-heading" />
+        <p class="font-sans text-sm text-ink-medium leading-relaxed">
           填写公历出生日期后主动生成。日期只在本页内存中使用，不提交服务器、不保存历史。
         </p>
 
@@ -639,11 +679,11 @@ useSeoMeta({
           </button>
         </div>
 
-        <!-- 十四周岁确认（仅页面状态） -->
+        <!-- 十四周岁确认（仅页面状态）——共享 choice-control，不再用页面局部选择体系 -->
         <div class="mt-4" role="group" aria-labelledby="age-confirm-label">
           <p id="age-confirm-label" class="font-sans text-sm text-ink-medium">年龄确认</p>
           <div class="mt-2 flex flex-wrap gap-3">
-            <label class="inline-flex items-center gap-2 font-sans text-sm text-ink-medium">
+            <label class="choice-control">
               <input
                 v-model="ageConfirm"
                 type="radio"
@@ -651,10 +691,10 @@ useSeoMeta({
                 value="confirmed"
                 class="sr-only"
               />
-              <span class="age-radio age-radio--confirmed" aria-hidden="true" />
-              <span>已满十四周岁</span>
+              <span class="choice-control__indicator" aria-hidden="true" />
+              <span class="choice-control__text">已满十四周岁</span>
             </label>
-            <label class="inline-flex items-center gap-2 font-sans text-sm text-ink-medium">
+            <label class="choice-control">
               <input
                 v-model="ageConfirm"
                 type="radio"
@@ -662,8 +702,8 @@ useSeoMeta({
                 value="underage"
                 class="sr-only"
               />
-              <span class="age-radio age-radio--underage" aria-hidden="true" />
-              <span>未满十四周岁</span>
+              <span class="choice-control__indicator" aria-hidden="true" />
+              <span class="choice-control__text">未满十四周岁</span>
             </label>
           </div>
         </div>
@@ -682,77 +722,132 @@ useSeoMeta({
         </div>
       </section>
 
-      <!-- 统一状态区（处理中/失败/stale） -->
-      <section aria-live="polite" aria-atomic="true">
-        <!-- 处理中 -->
-        <div
-          v-if="toolState.phase === 'processing'"
-          class="card-warm rounded-xl p-6 sm:p-8"
-          role="status"
-        >
-          <p class="font-sans text-sm text-ink-medium">正在生成…</p>
-        </div>
-
-        <!-- 失败 -->
-        <div
-          v-else-if="toolState.phase === 'failure'"
-          class="card-warm rounded-xl p-6 sm:p-8 border-l-[3px] border-l-cinnabar"
-          role="alert"
-        >
-          <h2 class="font-display text-lg text-ink-dark">未能生成结果</h2>
-          <p class="mt-2 font-sans text-sm text-ink-medium">{{ errorMessage }}</p>
-          <p class="mt-1 font-sans text-xs text-ink-medium">输入已保留，可直接修改后重新生成。</p>
-        </div>
-
-        <!-- stale 提示 -->
-        <div
-          v-else-if="result && toolState.phase === 'success' && toolState.freshness === 'stale'"
-          class="card-warm rounded-xl p-6 sm:p-8"
-          role="status"
-        >
-          <p class="font-sans text-sm text-ink-medium">
-            输入已修改，结果尚未更新。主动点击「生成生肖结果」后才会重新计算。
+      <!--
+        计算结果：明确的阅读层级，覆盖空态 / 处理中 / 失败 / stale / 成功五种状态。
+        状态判读与结果同属一个 aria-live 区域，播报只在状态变化时发生。
+      -->
+      <section
+        id="shengxiao-result"
+        data-shengxiao-section="result"
+        class="editorial-section space-y-6"
+        aria-labelledby="shengxiao-result-heading"
+      >
+        <div>
+          <SectionHeading num="Ⅱ" title="计算结果" heading-id="shengxiao-result-heading" />
+          <p class="font-sans text-sm text-ink-medium leading-relaxed">
+            结果只包含可核验的年份、干支、生肖与农历日期，以及传统分类对应关系，不含推断。
           </p>
+        </div>
+
+        <!-- 状态区：空态 / 处理中 / 失败 / stale -->
+        <div aria-live="polite" aria-atomic="true" class="space-y-6">
+          <!-- 空态：尚未发起生成 -->
+          <div
+            v-if="showEmptyState"
+            class="card-warm rounded-xl p-6 sm:p-8"
+            role="status"
+            data-shengxiao-state="empty"
+          >
+            <h3 class="font-display text-lg text-ink-dark">尚未生成结果</h3>
+            <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+              在上方填写公历出生日期并确认年龄后，点击「生成生肖结果」。也可以先浏览下方「认识十二生肖」。
+            </p>
+          </div>
+
+          <!-- 处理中 -->
+          <div
+            v-else-if="toolState.phase === 'processing'"
+            class="card-warm rounded-xl p-6 sm:p-8"
+            role="status"
+            data-shengxiao-state="processing"
+          >
+            <p class="font-sans text-sm text-ink-medium">正在生成，请稍候…</p>
+          </div>
+
+          <!-- 失败 -->
+          <div
+            v-else-if="toolState.phase === 'failure'"
+            class="card-warm rounded-xl p-6 sm:p-8 border-l-[3px] border-l-cinnabar"
+            role="alert"
+            data-shengxiao-state="failure"
+          >
+            <h3 class="font-display text-lg text-ink-dark">未能生成结果</h3>
+            <p class="mt-2 font-sans text-sm text-ink-medium">{{ errorMessage }}</p>
+            <p class="mt-1 font-sans text-xs text-ink-medium">输入已保留，可直接修改后重新生成。</p>
+          </div>
+
+          <!-- stale：输入已修改，结果尚未更新 -->
+          <div
+            v-else-if="result && toolState.phase === 'success' && toolState.freshness === 'stale'"
+            class="card-warm rounded-xl p-6 sm:p-8"
+            role="status"
+            data-shengxiao-state="stale"
+          >
+            <p class="font-sans text-sm text-ink-medium">
+              输入已修改，结果尚未更新。主动点击「生成生肖结果」后才会重新计算。
+            </p>
+          </div>
+        </div>
+
+        <!-- 成功结果 -->
+        <div
+          v-if="result && toolState.phase === 'success' && toolState.freshness !== 'stale'"
+          class="space-y-4"
+          data-shengxiao-state="success"
+        >
+          <div class="flex items-center justify-between">
+            <span></span>
+            <ExportButton
+              v-if="canExportCard"
+              :target-ref="exportCardEl"
+              filename="生肖文化卡片.png"
+              :is-exporting="isExporting"
+              :export-error="exportError"
+              @export="handleExportCard"
+            />
+          </div>
+          <VerifiedResult ref="verifiedResultRef" :result="result" />
+
+          <!-- 主动保存本人资料：仅在 current 成功结果且草稿合法时提供；不自动保存 -->
+          <div v-if="canShowSaveEntry">
+            <button
+              type="button"
+              class="btn-seal"
+              :disabled="saveBusy"
+              @click="handleSaveFromResult"
+            >
+              <span>保存本人资料</span>
+            </button>
+            <p class="mt-2 font-sans text-xs text-ink-light">
+              保存到本人档案，需查看差异并单独确认；不会自动保存结果或历史。
+            </p>
+          </div>
         </div>
       </section>
 
-      <!-- 结果 -->
-      <div v-if="result && toolState.phase === 'success' && toolState.freshness !== 'stale'">
-        <div class="flex items-center justify-between mb-4">
-          <span></span>
-          <ExportButton
-            v-if="canExportCard"
-            :target-ref="exportCardEl"
-            filename="生肖文化卡片.png"
-            :is-exporting="isExporting"
-            :export-error="exportError"
-            @export="handleExportCard"
-          />
-        </div>
-        <VerifiedResult ref="verifiedResultRef" :result="result" />
-
-        <!-- 主动保存本人资料：仅在 current 成功结果且草稿合法时提供；不自动保存 -->
-        <div v-if="canShowSaveEntry" class="mt-4">
-          <button type="button" class="btn-seal" :disabled="saveBusy" @click="handleSaveFromResult">
-            <span>保存本人资料</span>
-          </button>
-          <p class="mt-2 font-sans text-xs text-ink-light">
-            保存到本人档案，需查看差异并单独确认；不会自动保存结果或历史。
-          </p>
-        </div>
-      </div>
-
-      <!-- 认识十二生肖：公共文化浏览 -->
-      <section id="shengxiao-culture" class="mt-10">
+      <!--
+        Ⅲ 认识十二生肖：公共文化浏览。
+        本段标题由 VerifiedCulture 自带（该组件本轮属计划 known_dirty，不可修改），
+        因此不在此重复渲染 SectionHeading，避免同一段落出现两个同名标题。
+      -->
+      <section
+        id="shengxiao-culture"
+        data-shengxiao-section="culture"
+        class="editorial-section"
+        aria-labelledby="shengxiao-culture-heading"
+      >
         <VerifiedCulture />
       </section>
 
-      <!-- 依据与范围（正常阅读流） -->
-      <section class="card-warm rounded-xl p-6 sm:p-8" aria-labelledby="shengxiao-scope-heading">
-        <h2 id="shengxiao-scope-heading" class="section-header font-display text-xl text-ink-dark">
-          依据与范围
-        </h2>
-        <ul class="mt-3 space-y-2 font-sans text-sm text-ink-medium leading-relaxed">
+      <!-- Ⅳ 依据与范围（正常阅读流） -->
+      <section
+        id="shengxiao-scope"
+        data-shengxiao-section="scope"
+        class="editorial-section"
+        aria-labelledby="shengxiao-scope-heading"
+      >
+        <SectionHeading num="Ⅳ" title="依据与范围" heading-id="shengxiao-scope-heading" />
+        <ul class="space-y-2 font-sans text-sm text-ink-medium leading-relaxed">
           <li>生肖按中国农历正月初一为年界；八字年柱按精确立春，两者用途不同，结果可能不同。</li>
           <li>支持范围：公历 1901-01-01 至查询当日（Asia/Shanghai）。</li>
           <li>
@@ -761,31 +856,33 @@ useSeoMeta({
           <li>未核验的地支关系、扩展文化形象等不在此页展示。</li>
         </ul>
       </section>
-    </main>
+    </div>
 
-    <!-- 保存本人资料差异确认（页内认证后二次确认） -->
-    <SelfProfileSaveDialog
-      :show="showSaveDialog"
-      :current-profile="profileApi.profile.value"
-      :candidate="saveCandidate"
-      :readiness="saveReadiness"
-      :account-id="currentAccount?.id ?? null"
-      :busy="saveBusy"
-      :error="saveError"
-      :conflict="saveConflict"
-      @close="onSaveDialogClose"
-      @confirm="confirmSave"
-      @reload="reloadForConflict"
-    />
+    <template #after>
+      <!-- 保存本人资料差异确认（页内认证后二次确认） -->
+      <SelfProfileSaveDialog
+        :show="showSaveDialog"
+        :current-profile="profileApi.profile.value"
+        :candidate="saveCandidate"
+        :readiness="saveReadiness"
+        :account-id="currentAccount?.id ?? null"
+        :busy="saveBusy"
+        :error="saveError"
+        :conflict="saveConflict"
+        @close="onSaveDialogClose"
+        @confirm="confirmSave"
+        @reload="reloadForConflict"
+      />
 
-    <!-- 游客保存意图 → 页内认证：authenticated 事件后只进入差异确认，绝不直接保存 -->
-    <AuthDialog
-      :show="showAuthDialog"
-      initial-mode="login"
-      @close="onAuthCancel"
-      @authenticated="onAuthenticatedFromSave"
-    />
-  </ToolPageLayout>
+      <!-- 游客保存意图 → 页内认证：authenticated 事件后只进入差异确认，绝不直接保存 -->
+      <AuthDialog
+        :show="showAuthDialog"
+        initial-mode="login"
+        @close="onAuthCancel"
+        @authenticated="onAuthenticatedFromSave"
+      />
+    </template>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>
@@ -793,22 +890,35 @@ useSeoMeta({
 .shengxiao-page {
   overflow-wrap: anywhere;
 }
-.age-radio {
-  display: inline-block;
-  width: 1.125rem;
-  height: 1.125rem;
-  border-radius: 9999px;
+/* 事实与边界 meta：窄屏单列、宽屏按可用宽度自动分栏，不挤压长文案。 */
+.shengxiao-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 0;
+  padding: 1rem 1.25rem;
   border: 1px solid var(--color-ink-faint);
-  background: transparent;
+  border-radius: 0.75rem;
+  background: var(--color-paper-lightest);
+  font-family: var(--font-sans);
 }
-.age-radio--confirmed {
-  border-color: var(--color-jade);
+.shengxiao-meta__item {
+  min-width: 0;
 }
-.age-radio--underage {
-  border-color: var(--color-cinnabar);
+.shengxiao-meta dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-medium);
 }
-.sr-only:focus-visible + .age-radio {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
+.shengxiao-meta dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-ink-dark);
+  overflow-wrap: anywhere;
+}
+/* 报头补充区的边界条与正文列之间留出呼吸，避免贴住第一段的分节线。 */
+.shengxiao-meta {
+  margin-bottom: 8px;
 }
 </style>

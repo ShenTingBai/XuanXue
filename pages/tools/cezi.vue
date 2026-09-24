@@ -6,7 +6,8 @@ import { ELEMENT_INTERPRETATIONS } from '~/constants/cezi'
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
 
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -20,6 +21,22 @@ useSeoMeta({
   ogDescription: '传统测字占卜，根据汉字笔画五行解读你的运势和事物发展趋势。',
   ogType: 'website',
 })
+
+/**
+ * 测字页卷目（Ⅰ–Ⅱ）与脚注。
+ *
+ * 本页只有两段：Ⅰ 测字（单字输入与当次操作）与 Ⅱ 测字笺（结果笺）。
+ * 卷目只列这两段，不为凑数新增段（设计系统：卷目只是既有段序的目录）。
+ * 脚注只写输入口径：卷目脚注在 ≤920px 隐藏，结果保存边界这类必须常驻的说明
+ * 只能留在报头 meta，不放进脚注。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '测字', href: '#cezi-query' },
+  { num: 'Ⅱ', label: '测字笺', href: '#cezi-slip' },
+]
+
+/** 卷目脚注：本页输入口径（窄屏隐藏，因此不放必须常驻的结果保存边界）。 */
+const indexFootnote = '一次只测一个汉字'
 
 const result = ref<CeziResult | null>(null)
 const loading = ref(false)
@@ -151,14 +168,36 @@ const interpretationParagraphs = computed(() => {
 </script>
 
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">测字占卜</h1>
-
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="测"
+    edition="工具 · 测字"
+    title="测字占卜"
+    subtitle="传统测字占卜，根据汉字笔画五行解读你的运势和事物发展趋势。"
+    status-text="内部验证中"
+    meta-text="输出：笔画 · 五行 · 数理吉凶 · 字形结构；结果只在本页展示 · 不保存记录"
+  >
     <div role="status" class="sr-only" aria-live="polite">
       {{ loading ? '正在测字...' : result ? '测字结果已就绪' : '' }}
     </div>
 
-    <div class="max-w-[48rem] mx-auto">
+    <!-- Ⅰ 测字：单字输入与当次操作（段 id 不与 #cezi-input 输入框重名） -->
+    <section
+      id="cezi-query"
+      class="editorial-section editorial-section--first"
+      aria-labelledby="cezi-query-heading"
+    >
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <SectionHeading
+          num="Ⅰ"
+          title="测字"
+          heading-id="cezi-query-heading"
+          class="flex-1 min-w-0 !mb-0"
+        />
+        <MethodologyNote :classical="ceziClassical" :synthesis="ceziSynthesis" tool="测字" />
+      </div>
+
       <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
       <div class="flex items-center justify-between mb-6">
         <span></span>
@@ -173,12 +212,6 @@ const interpretationParagraphs = computed(() => {
 
       <!-- ══ Input Area ══ -->
       <div class="fade-in card-paper-solid rounded-xl p-8" :style="{ '--delay': '0.1s' }">
-        <div class="flex items-center justify-between mb-6">
-          <div class="section-header flex-1 min-w-0 !mb-0">
-            <h2>测字占卜</h2>
-          </div>
-          <MethodologyNote :classical="ceziClassical" :synthesis="ceziSynthesis" tool="测字" />
-        </div>
         <p class="text-xs text-ink-medium mb-6 tracking-wide">
           请输入一字，以窥天机。一字一世界，拆解字形探玄机。
         </p>
@@ -232,118 +265,124 @@ const interpretationParagraphs = computed(() => {
 
       <!-- ══ Result ══ -->
       <template v-if="result">
-        <!-- Divination Slip Card -->
-        <div ref="resultRef" class="fade-in mt-8 cezi-slip" :style="{ '--delay': '0.15s' }">
-          <!-- Top decorative band -->
-          <div class="cezi-slip__header">
-            <span class="cezi-slip__trigram" aria-hidden="true">☰</span>
-            <span class="cezi-slip__seal-mark">玄·道 测字笺</span>
-            <span class="cezi-slip__trigram" aria-hidden="true">☷</span>
-          </div>
-
-          <div class="cezi-slip__divider" aria-hidden="true"></div>
-
-          <!-- Character Display -->
-          <div class="cezi-slip__char-section">
-            <div class="cezi-slip__char-ring">
-              <span class="cezi-slip__char">{{ result.character }}</span>
+        <!-- Ⅱ 测字笺 -->
+        <section id="cezi-slip" class="editorial-section" aria-labelledby="cezi-slip-heading">
+          <SectionHeading num="Ⅱ" title="测字笺" heading-id="cezi-slip-heading" />
+          <!-- Divination Slip Card -->
+          <div ref="resultRef" class="fade-in cezi-slip" :style="{ '--delay': '0.15s' }">
+            <!-- Top decorative band -->
+            <div class="cezi-slip__header">
+              <span class="cezi-slip__trigram" aria-hidden="true">☰</span>
+              <span class="cezi-slip__seal-mark">玄·道 测字笺</span>
+              <span class="cezi-slip__trigram" aria-hidden="true">☷</span>
             </div>
-          </div>
 
-          <!-- Quick Stats Row -->
-          <div class="cezi-slip__stats">
-            <div class="cezi-slip__stat">
-              <span class="cezi-slip__stat-label">笔画</span>
-              <span class="cezi-slip__stat-value">
-                {{ result.strokeCount }}
+            <div class="cezi-slip__divider" aria-hidden="true"></div>
+
+            <!-- Character Display -->
+            <div class="cezi-slip__char-section">
+              <div class="cezi-slip__char-ring">
+                <span class="cezi-slip__char">{{ result.character }}</span>
+              </div>
+            </div>
+
+            <!-- Quick Stats Row -->
+            <div class="cezi-slip__stats">
+              <div class="cezi-slip__stat">
+                <span class="cezi-slip__stat-label">笔画</span>
+                <span class="cezi-slip__stat-value">
+                  {{ result.strokeCount }}
+                  <span
+                    v-if="result.strokeSource === 'estimated'"
+                    class="text-[0.6875rem] text-ink-muted ml-0.5"
+                    >估算</span
+                  >
+                </span>
+              </div>
+              <div class="cezi-slip__stat">
+                <span class="cezi-slip__stat-label">五行</span>
                 <span
-                  v-if="result.strokeSource === 'estimated'"
-                  class="text-[0.6875rem] text-ink-muted ml-0.5"
-                  >估算</span
+                  class="cezi-slip__stat-value font-medium"
+                  :style="{ color: getElementColor(result.primaryElement) }"
+                  >{{ result.primaryElement }}</span
                 >
-              </span>
+              </div>
+              <div class="cezi-slip__stat">
+                <span class="cezi-slip__stat-label">吉凶</span>
+                <span
+                  :class="['fortune-badge', getFortuneBadgeClass(result.numberFortune.category)]"
+                >
+                  {{ getFortuneShortLabel(result.numberFortune.category) }}
+                </span>
+              </div>
+              <div class="cezi-slip__stat">
+                <span class="cezi-slip__stat-label">结构</span>
+                <span class="cezi-slip__stat-value">{{ result.structureName }}</span>
+              </div>
             </div>
-            <div class="cezi-slip__stat">
-              <span class="cezi-slip__stat-label">五行</span>
-              <span
-                class="cezi-slip__stat-value font-medium"
-                :style="{ color: getElementColor(result.primaryElement) }"
-                >{{ result.primaryElement }}</span
+
+            <div class="cezi-slip__divider" aria-hidden="true"></div>
+
+            <!-- Number Fortune Detail -->
+            <div class="cezi-slip__section">
+              <h3 class="cezi-slip__section-title">数理 · 第{{ result.strokeCount }}数</h3>
+              <p class="cezi-slip__text">{{ result.numberFortune.desc }}</p>
+            </div>
+
+            <!-- Element Detail -->
+            <div class="cezi-slip__section">
+              <h3 class="cezi-slip__section-title">五行 · 属{{ result.primaryElement }}</h3>
+              <div class="flex items-center gap-2 mb-2">
+                <span
+                  class="inline-block w-3 h-3 rounded-sm"
+                  :style="{ backgroundColor: getElementColor(result.primaryElement) }"
+                  aria-hidden="true"
+                ></span>
+                <span class="text-xs text-ink-medium">五行属{{ result.primaryElement }}性</span>
+              </div>
+              <p class="cezi-slip__text">{{ getElementSummary(result.primaryElement) }}</p>
+              <div
+                v-if="result.radicalElement && result.radicalElement !== result.primaryElement"
+                class="mt-2 cezi-slip__note"
               >
+                <span class="text-[0.6875rem] text-ink-muted">偏旁属</span>
+                <span
+                  class="text-[0.6875rem] font-medium"
+                  :style="{ color: getElementColor(result.radicalElement) }"
+                  >{{ result.radicalElement }}</span
+                >
+                <span class="text-[0.6875rem] text-ink-muted">，与数理五行相异，需综合参详。</span>
+              </div>
             </div>
-            <div class="cezi-slip__stat">
-              <span class="cezi-slip__stat-label">吉凶</span>
-              <span :class="['fortune-badge', getFortuneBadgeClass(result.numberFortune.category)]">
-                {{ getFortuneShortLabel(result.numberFortune.category) }}
-              </span>
-            </div>
-            <div class="cezi-slip__stat">
-              <span class="cezi-slip__stat-label">结构</span>
-              <span class="cezi-slip__stat-value">{{ result.structureName }}</span>
-            </div>
-          </div>
 
-          <div class="cezi-slip__divider" aria-hidden="true"></div>
-
-          <!-- Number Fortune Detail -->
-          <div class="cezi-slip__section">
-            <h3 class="cezi-slip__section-title">数理 · 第{{ result.strokeCount }}数</h3>
-            <p class="cezi-slip__text">{{ result.numberFortune.desc }}</p>
-          </div>
-
-          <!-- Element Detail -->
-          <div class="cezi-slip__section">
-            <h3 class="cezi-slip__section-title">五行 · 属{{ result.primaryElement }}</h3>
-            <div class="flex items-center gap-2 mb-2">
-              <span
-                class="inline-block w-3 h-3 rounded-sm"
-                :style="{ backgroundColor: getElementColor(result.primaryElement) }"
-                aria-hidden="true"
-              ></span>
-              <span class="text-xs text-ink-medium">五行属{{ result.primaryElement }}性</span>
+            <!-- Structure Detail -->
+            <div class="cezi-slip__section">
+              <h3 class="cezi-slip__section-title">字形 · {{ result.structureName }}结构</h3>
+              <p class="cezi-slip__text">{{ result.structureDesc }}</p>
             </div>
-            <p class="cezi-slip__text">{{ getElementSummary(result.primaryElement) }}</p>
-            <div
-              v-if="result.radicalElement && result.radicalElement !== result.primaryElement"
-              class="mt-2 cezi-slip__note"
-            >
-              <span class="text-[0.6875rem] text-ink-muted">偏旁属</span>
-              <span
-                class="text-[0.6875rem] font-medium"
-                :style="{ color: getElementColor(result.radicalElement) }"
-                >{{ result.radicalElement }}</span
-              >
-              <span class="text-[0.6875rem] text-ink-muted">，与数理五行相异，需综合参详。</span>
+
+            <div class="cezi-slip__divider" aria-hidden="true"></div>
+
+            <!-- Full Interpretation -->
+            <div class="cezi-slip__section">
+              <h3 class="cezi-slip__section-title">详解</h3>
+              <div class="space-y-3">
+                <p v-for="(para, i) in interpretationParagraphs" :key="i" class="cezi-slip__text">
+                  {{ para }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Bottom seal -->
+            <div class="cezi-slip__footer">
+              <div class="cezi-slip__footer-line" aria-hidden="true"></div>
+              <span class="cezi-slip__footer-seal">玄·道</span>
+              <div class="cezi-slip__footer-line" aria-hidden="true"></div>
             </div>
           </div>
-
-          <!-- Structure Detail -->
-          <div class="cezi-slip__section">
-            <h3 class="cezi-slip__section-title">字形 · {{ result.structureName }}结构</h3>
-            <p class="cezi-slip__text">{{ result.structureDesc }}</p>
-          </div>
-
-          <div class="cezi-slip__divider" aria-hidden="true"></div>
-
-          <!-- Full Interpretation -->
-          <div class="cezi-slip__section">
-            <h3 class="cezi-slip__section-title">详解</h3>
-            <div class="space-y-3">
-              <p v-for="(para, i) in interpretationParagraphs" :key="i" class="cezi-slip__text">
-                {{ para }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Bottom seal -->
-          <div class="cezi-slip__footer">
-            <div class="cezi-slip__footer-line" aria-hidden="true"></div>
-            <span class="cezi-slip__footer-seal">玄·道</span>
-            <div class="cezi-slip__footer-line" aria-hidden="true"></div>
-          </div>
-        </div>
+        </section>
       </template>
-    </div>
+    </section>
 
     <ScrollTopButton
       v-if="showScrollTop"
@@ -357,7 +396,7 @@ const interpretationParagraphs = computed(() => {
         }
       "
     />
-  </ToolPageLayout>
+  </ToolEditorialShell>
 </template>
 
 <style scoped>

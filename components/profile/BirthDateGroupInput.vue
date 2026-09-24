@@ -75,9 +75,9 @@ function onLeap(value: boolean) {
   <fieldset class="birth-date-group" :aria-describedby="error ? errorId : undefined">
     <legend class="sr-only">出生日期（公历或农历）</legend>
 
-    <!-- 历法切换：切换即清空并提示 -->
+    <!-- 历法切换：切换即清空并提示。共享 choice-control。 -->
     <div class="birth-date-group__calendars" role="radiogroup" aria-label="历法选择">
-      <label class="calendar-choice" :class="{ 'calendar-choice--selected': calendar === 'solar' }">
+      <label class="choice-control">
         <input
           type="radio"
           name="birth-calendar"
@@ -86,10 +86,10 @@ function onLeap(value: boolean) {
           :checked="calendar === 'solar'"
           @change="setCalendar('solar')"
         />
-        <span class="calendar-dot" aria-hidden="true" />
-        <span>公历</span>
+        <span class="choice-control__indicator" aria-hidden="true" />
+        <span class="choice-control__text">公历</span>
       </label>
-      <label class="calendar-choice" :class="{ 'calendar-choice--selected': calendar === 'lunar' }">
+      <label class="choice-control">
         <input
           type="radio"
           name="birth-calendar"
@@ -98,8 +98,8 @@ function onLeap(value: boolean) {
           :checked="calendar === 'lunar'"
           @change="setCalendar('lunar')"
         />
-        <span class="calendar-dot calendar-dot--lunar" aria-hidden="true" />
-        <span>农历</span>
+        <span class="choice-control__indicator" aria-hidden="true" />
+        <span class="choice-control__text">农历</span>
       </label>
     </div>
 
@@ -162,10 +162,7 @@ function onLeap(value: boolean) {
       aria-labelledby="leap-label"
     >
       <p id="leap-label" class="birth-date-group__leap-label">是否闰月</p>
-      <label
-        class="calendar-choice"
-        :class="{ 'calendar-choice--selected': draft.isLeapMonth === false }"
-      >
+      <label class="choice-control">
         <input
           type="radio"
           name="birth-leap"
@@ -174,13 +171,10 @@ function onLeap(value: boolean) {
           :checked="draft.isLeapMonth === false"
           @change="onLeap(false)"
         />
-        <span class="leap-dot" aria-hidden="true" />
-        <span>普通月</span>
+        <span class="choice-control__indicator" aria-hidden="true" />
+        <span class="choice-control__text">普通月</span>
       </label>
-      <label
-        class="calendar-choice"
-        :class="{ 'calendar-choice--selected': draft.isLeapMonth === true }"
-      >
+      <label class="choice-control">
         <input
           type="radio"
           name="birth-leap"
@@ -189,8 +183,8 @@ function onLeap(value: boolean) {
           :checked="draft.isLeapMonth === true"
           @change="onLeap(true)"
         />
-        <span class="leap-dot leap-dot--leap" aria-hidden="true" />
-        <span>闰月</span>
+        <span class="choice-control__indicator" aria-hidden="true" />
+        <span class="choice-control__text">闰月</span>
       </label>
     </div>
 
@@ -210,31 +204,6 @@ function onLeap(value: boolean) {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-}
-.calendar-choice {
-  display: inline-flex;
-  min-height: 44px;
-  min-width: 88px;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-paper-dark);
-  border-radius: 0.35rem;
-  color: var(--color-ink-medium);
-  background: var(--color-paper-lightest);
-  font: 0.875rem/1.2 var(--font-sans);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
-}
-.calendar-choice--selected {
-  border-color: var(--color-cinnabar);
-  color: var(--color-cinnabar-deepest);
-  background: color-mix(in srgb, var(--color-cinnabar) 8%, var(--color-paper-lightest));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-cinnabar) 20%, transparent);
 }
 .birth-date-group__fields {
   display: grid;
@@ -272,29 +241,6 @@ function onLeap(value: boolean) {
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   color: var(--color-ink-medium);
-}
-.calendar-dot,
-.leap-dot {
-  display: inline-block;
-  width: 1.125rem;
-  height: 1.125rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-ink-faint);
-  background: transparent;
-}
-.calendar-dot--lunar {
-  border-color: var(--color-jade);
-}
-.leap-dot--leap {
-  border-color: var(--color-cinnabar);
-}
-.birth-date-group__leap .calendar-choice {
-  min-width: 92px;
-}
-.sr-only:focus-visible + .calendar-dot,
-.sr-only:focus-visible + .leap-dot {
-  outline: 2px solid var(--color-cinnabar);
-  outline-offset: 2px;
 }
 .birth-date-group__error {
   margin-top: 0.5rem;

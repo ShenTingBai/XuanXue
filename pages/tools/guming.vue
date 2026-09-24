@@ -6,7 +6,8 @@ import { HOUR_NAMES } from '~/constants/gu-ming'
 import type { Ref } from 'vue'
 const { currentProfile, restoreSession } = useAuth()
 const router = useRouter()
-import ToolPageLayout from '~/components/tools/ToolPageLayout.vue'
+import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
+import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import SkeletonCard from '~/components/tools/SkeletonCard.vue'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
@@ -21,6 +22,27 @@ useSeoMeta({
   ogDescription: '袁天罡称骨算命，根据出生年月日时推算骨重，解读一生命运走向。',
   ogType: 'website',
 })
+
+/**
+ * 称骨页卷目（Ⅰ–Ⅲ）与脚注。
+ *
+ * 卷目只列页面**已有**的三段（推算输入 / 骨重详表 / 称骨歌），不为凑数新增段
+ * （设计系统：卷目只是既有段序的目录）。脚注写本页真实边界：农历口径与档案换算。
+ */
+const indexItems = [
+  { num: 'Ⅰ', label: '称骨推算', href: '#guming-input' },
+  { num: 'Ⅱ', label: '骨重详表', href: '#guming-weight' },
+  { num: 'Ⅲ', label: '袁天罡称骨歌', href: '#guming-fortune' },
+]
+
+/**
+ * 卷目脚注：只写本页独立边界——档案带入时的历法换算（一行，窄屏隐藏）。
+ *
+ * 「称骨以农历为准」由输入区的即时警示行承担（紧邻出生输入，是窄屏唯一可见实例），
+ * 脚注不再复述同一句，避免同一口径在首屏出现两次。
+ */
+const indexFootnote = '阳历档案带入时自动换算'
+
 const gumingClassical = [
   { method: '称骨歌断语', source: '袁天罡《称骨歌》，唐代命理文献，公共领域经典' },
   { method: '年柱六十甲子', source: '《六十甲子纳音表》，干支纪年与五行属性对应' },
@@ -158,12 +180,40 @@ const scalePercent = computed(function () {
 })
 </script>
 <template>
-  <ToolPageLayout>
-    <h1 class="sr-only">称骨算命</h1>
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    seal="骨"
+    edition="工具 · 袁天罡称骨（农历年月日时）"
+    title="称骨算命"
+    subtitle="袁天罡称骨算命，根据出生年月日时推算骨重，解读一生命运走向。"
+    status-text="内部验证中"
+    meta-text="输出：骨重 · 等级 · 称骨歌断语"
+  >
     <div role="status" class="sr-only" aria-live="polite">
       {{ loading ? '正在计算...' : result ? '结果已就绪' : '' }}
     </div>
-    <div class="max-w-[48rem] mx-auto">
+
+    <!-- Ⅰ 称骨推算：输入与当次操作 -->
+    <section
+      id="guming-input"
+      class="editorial-section editorial-section--first"
+      aria-labelledby="guming-input-heading"
+    >
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <SectionHeading
+          num="Ⅰ"
+          title="称骨推算"
+          heading-id="guming-input-heading"
+          class="flex-1 min-w-0 !mb-0"
+        />
+        <MethodologyNote
+          :classical="gumingClassical"
+          :synthesis="gumingSynthesis"
+          tool="称骨算命"
+        />
+      </div>
+
       <!-- 顶部工具条：仅保留导出入口（历史记录已下线） -->
       <div v-if="!missingBirth" class="flex items-center justify-between mb-6">
         <span></span>
@@ -190,17 +240,11 @@ const scalePercent = computed(function () {
         class="fade-in card-paper-solid rounded-xl p-8"
         :style="{ '--delay': '0.1s' }"
       >
-        <div class="flex items-center justify-between mb-6">
-          <div class="section-header flex-1 min-w-0 !mb-0"><h2>称骨算命</h2></div>
-          <MethodologyNote
-            :classical="gumingClassical"
-            :synthesis="gumingSynthesis"
-            tool="称骨算命"
-          />
-        </div>
-        <p class="text-xs text-ink-medium mb-6 tracking-wide">
-          输入农历出生年月日时，袁天罡称骨法为你推算命格轻重。
-        </p>
+        <!--
+          输入说明只留本次操作口径：传统解释性质的表述已在报头副题，这里不再重复；
+          农历口径与换算提示由下方警示行承担，卷目脚注只留口径与来源边界。
+        -->
+        <p class="text-xs text-ink-medium mb-6 tracking-wide">输入农历出生年月日时进行推算。</p>
         <p class="text-xs text-ink-light mt-1">
           ⚠ 称骨以农历为准。若档案为阳历，填入时将自动转换。
         </p>
@@ -253,53 +297,15 @@ const scalePercent = computed(function () {
           </div>
         </div>
         <div class="flex items-center justify-center gap-6 mb-6">
-          <label class="flex items-center gap-2.5 cursor-pointer group">
+          <label class="choice-control">
             <input v-model="gender" type="radio" name="gender" value="male" class="sr-only" />
-            <span
-              :class="[
-                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
-                gender === 'male'
-                  ? 'border-cinnabar'
-                  : 'border-ink-faint group-hover:border-ink-light',
-              ]"
-              aria-hidden="true"
-            >
-              <span
-                v-if="gender === 'male'"
-                class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
-              ></span>
-            </span>
-            <span
-              :class="[
-                'text-base transition-colors ui',
-                gender === 'male' ? 'text-cinnabar' : 'text-ink-medium',
-              ]"
-              >男命</span
-            >
+            <span class="choice-control__indicator" aria-hidden="true" />
+            <span class="choice-control__text">男命</span>
           </label>
-          <label class="flex items-center gap-2.5 cursor-pointer group">
+          <label class="choice-control">
             <input v-model="gender" type="radio" name="gender" value="female" class="sr-only" />
-            <span
-              :class="[
-                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
-                gender === 'female'
-                  ? 'border-cinnabar'
-                  : 'border-ink-faint group-hover:border-ink-light',
-              ]"
-              aria-hidden="true"
-            >
-              <span
-                v-if="gender === 'female'"
-                class="w-2 h-2 rounded-full bg-cinnabar transition-all duration-200"
-              ></span>
-            </span>
-            <span
-              :class="[
-                'text-base transition-colors ui',
-                gender === 'female' ? 'text-cinnabar' : 'text-ink-medium',
-              ]"
-              >女命</span
-            >
+            <span class="choice-control__indicator" aria-hidden="true" />
+            <span class="choice-control__text">女命</span>
           </label>
         </div>
         <div class="flex justify-center items-center gap-4">
@@ -323,93 +329,111 @@ const scalePercent = computed(function () {
         <span class="sr-only">正在计算...</span><SkeletonCard />
       </div>
       <template v-if="result">
+        <!-- 导出目标仍覆盖全部结果段（Ⅱ 骨重详表 + Ⅲ 称骨歌） -->
         <div ref="resultRef">
-          <div class="fade-in mt-8 scale-card" :style="{ '--delay': '0.15s' }">
-            <div class="scale-card__header">
-              <span class="scale-card__seal">骨重</span
-              ><span class="scale-card__weight">{{ result.totalWeightText }}</span
-              ><span :class="['scale-card__level', getLevelBadgeClass(result.level)]">{{
-                result.level
-              }}</span>
-            </div>
-            <div class="scale-bar-container">
-              <div class="scale-bar-track">
-                <div class="scale-bar-fill" :style="{ width: scalePercent + '%' }"></div>
-                <div class="scale-bar-marker" :style="{ left: scalePercent + '%' }"></div>
-              </div>
-              <div class="scale-bar-ticks">
-                <span
-                  v-for="t in [2.1, 3.0, 4.0, 5.0, 6.0, 7.2]"
-                  :key="t"
-                  class="scale-bar-tick"
-                  :style="{ left: ((t - 2.1) / (7.2 - 2.1)) * 100 + '%' }"
-                ></span>
-              </div>
-              <div class="scale-bar-labels"><span>2.1 两</span><span>7.2 两</span></div>
-            </div>
-          </div>
-          <div
-            class="fade-in mt-6 card-warm rounded-xl overflow-x-auto"
-            :style="{ '--delay': '0.25s' }"
+          <!-- Ⅱ 骨重详表 -->
+          <section
+            id="guming-weight"
+            class="editorial-section"
+            aria-labelledby="guming-weight-heading"
           >
-            <div class="section-header px-8 pt-8 pb-4"><h2>骨重详表</h2></div>
-            <div class="weight-table">
-              <div class="weight-row weight-row--header">
-                <span class="w-col w-col--pillar">四柱</span
-                ><span class="w-col w-col--info">内容</span
-                ><span class="w-col w-col--val">骨重</span>
+            <SectionHeading num="Ⅱ" title="骨重详表" heading-id="guming-weight-heading" />
+            <div class="fade-in scale-card" :style="{ '--delay': '0.15s' }">
+              <div class="scale-card__header">
+                <span class="scale-card__seal">骨重</span
+                ><span class="scale-card__weight">{{ result.totalWeightText }}</span
+                ><span :class="['scale-card__level', getLevelBadgeClass(result.level)]">{{
+                  result.level
+                }}</span>
               </div>
-              <div class="weight-row">
-                <span class="w-col w-col--pillar">年柱</span
-                ><span class="w-col w-col--info">{{ result.yearGanzhi }}</span
-                ><span class="w-col w-col--val">{{ result.yearWeight.toFixed(1) }} 两</span>
-              </div>
-              <div class="weight-row weight-row--alt">
-                <span class="w-col w-col--pillar">月柱</span
-                ><span class="w-col w-col--info">{{ birthMonth }} 月</span
-                ><span class="w-col w-col--val">{{ result.monthWeight.toFixed(1) }} 两</span>
-              </div>
-              <div class="weight-row">
-                <span class="w-col w-col--pillar">日柱</span
-                ><span class="w-col w-col--info">{{ birthDay }} 日</span
-                ><span class="w-col w-col--val">{{ result.dayWeight.toFixed(1) }} 两</span>
-              </div>
-              <div class="weight-row weight-row--alt">
-                <span class="w-col w-col--pillar">时柱</span
-                ><span class="w-col w-col--info">{{ result.hourName }}</span
-                ><span class="w-col w-col--val">{{ result.hourWeight.toFixed(1) }} 两</span>
-              </div>
-              <div class="weight-row weight-row--total">
-                <span class="w-col w-col--pillar">总计</span
-                ><span class="w-col w-col--info">{{ result.totalWeightText }}</span
-                ><span class="w-col w-col--val">{{ result.totalWeight.toFixed(1) }} 两</span>
+              <div class="scale-bar-container">
+                <div class="scale-bar-track">
+                  <div class="scale-bar-fill" :style="{ width: scalePercent + '%' }"></div>
+                  <div class="scale-bar-marker" :style="{ left: scalePercent + '%' }"></div>
+                </div>
+                <div class="scale-bar-ticks">
+                  <span
+                    v-for="t in [2.1, 3.0, 4.0, 5.0, 6.0, 7.2]"
+                    :key="t"
+                    class="scale-bar-tick"
+                    :style="{ left: ((t - 2.1) / (7.2 - 2.1)) * 100 + '%' }"
+                  ></span>
+                </div>
+                <div class="scale-bar-labels"><span>2.1 两</span><span>7.2 两</span></div>
               </div>
             </div>
-          </div>
-          <div class="fade-in mt-6 gu-slip" :style="{ '--delay': '0.35s' }">
-            <div class="gu-slip__header">
-              <span class="gu-slip__trigram">☰</span
-              ><span class="gu-slip__seal-mark">袁天罡称骨歌</span
-              ><span class="gu-slip__trigram">☷</span>
+            <div
+              class="fade-in mt-6 card-warm rounded-xl overflow-x-auto pt-8"
+              :style="{ '--delay': '0.25s' }"
+            >
+              <div class="weight-table">
+                <div class="weight-row weight-row--header">
+                  <span class="w-col w-col--pillar">四柱</span
+                  ><span class="w-col w-col--info">内容</span
+                  ><span class="w-col w-col--val">骨重</span>
+                </div>
+                <div class="weight-row">
+                  <span class="w-col w-col--pillar">年柱</span
+                  ><span class="w-col w-col--info">{{ result.yearGanzhi }}</span
+                  ><span class="w-col w-col--val">{{ result.yearWeight.toFixed(1) }} 两</span>
+                </div>
+                <div class="weight-row weight-row--alt">
+                  <span class="w-col w-col--pillar">月柱</span
+                  ><span class="w-col w-col--info">{{ birthMonth }} 月</span
+                  ><span class="w-col w-col--val">{{ result.monthWeight.toFixed(1) }} 两</span>
+                </div>
+                <div class="weight-row">
+                  <span class="w-col w-col--pillar">日柱</span
+                  ><span class="w-col w-col--info">{{ birthDay }} 日</span
+                  ><span class="w-col w-col--val">{{ result.dayWeight.toFixed(1) }} 两</span>
+                </div>
+                <div class="weight-row weight-row--alt">
+                  <span class="w-col w-col--pillar">时柱</span
+                  ><span class="w-col w-col--info">{{ result.hourName }}</span
+                  ><span class="w-col w-col--val">{{ result.hourWeight.toFixed(1) }} 两</span>
+                </div>
+                <div class="weight-row weight-row--total">
+                  <span class="w-col w-col--pillar">总计</span
+                  ><span class="w-col w-col--info">{{ result.totalWeightText }}</span
+                  ><span class="w-col w-col--val">{{ result.totalWeight.toFixed(1) }} 两</span>
+                </div>
+              </div>
             </div>
-            <div class="gu-slip__divider"></div>
-            <div class="gu-slip__poem">
-              <p class="gu-slip__poem-text">{{ result.fortune }}</p>
+          </section>
+
+          <!-- Ⅲ 袁天罡称骨歌：断语与白话解读 -->
+          <section
+            id="guming-fortune"
+            class="editorial-section"
+            aria-labelledby="guming-fortune-heading"
+          >
+            <SectionHeading num="Ⅲ" title="袁天罡称骨歌" heading-id="guming-fortune-heading" />
+            <div class="fade-in gu-slip" :style="{ '--delay': '0.35s' }">
+              <div class="gu-slip__header">
+                <span class="gu-slip__trigram">☰</span
+                ><span class="gu-slip__seal-mark">袁天罡称骨歌</span
+                ><span class="gu-slip__trigram">☷</span>
+              </div>
+              <div class="gu-slip__divider"></div>
+              <div class="gu-slip__poem">
+                <p class="gu-slip__poem-text">{{ result.fortune }}</p>
+              </div>
+              <div class="gu-slip__divider"></div>
+              <div class="gu-slip__interpretation">
+                <h3 class="gu-slip__section-title">白话解读</h3>
+                <p class="gu-slip__text">{{ result.interpretation }}</p>
+              </div>
+              <div class="gu-slip__footer">
+                <div class="gu-slip__footer-line"></div>
+                <span class="gu-slip__footer-seal">玄·道</span>
+                <div class="gu-slip__footer-line"></div>
+              </div>
             </div>
-            <div class="gu-slip__divider"></div>
-            <div class="gu-slip__interpretation">
-              <h3 class="gu-slip__section-title">白话解读</h3>
-              <p class="gu-slip__text">{{ result.interpretation }}</p>
-            </div>
-            <div class="gu-slip__footer">
-              <div class="gu-slip__footer-line"></div>
-              <span class="gu-slip__footer-seal">玄·道</span>
-              <div class="gu-slip__footer-line"></div>
-            </div>
-          </div>
+          </section>
         </div>
       </template>
-    </div>
+    </section>
+
     <ScrollTopButton
       v-if="showScrollTop"
       @click="scrollToTop"
@@ -422,7 +446,7 @@ const scalePercent = computed(function () {
         }
       "
     />
-  </ToolPageLayout>
+  </ToolEditorialShell>
 </template>
 <style scoped>
 .level-badge--shangshang {

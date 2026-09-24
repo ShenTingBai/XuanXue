@@ -1,27 +1,34 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { TOOL_CATALOG, isToolPubliclyAvailable } from '~/constants/tool-catalog'
 
 const nuxtConfigSource = readFileSync(resolve(process.cwd(), 'nuxt.config.ts'), 'utf-8')
-const nonPublicToolNames = [
-  '生肖',
-  '星座',
-  '择日',
-  '八字',
-  '姓名',
-  '测字',
-  '称骨',
-  '紫微斗数',
-  '六爻',
-  '合婚',
-  '梅花',
-]
+/** 目录中当前未公开的工具名：公开集合必须与目录判断一致。 */
+const nonPublicToolNames = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(tool.id)).map(
+  tool => tool.name,
+)
 
-describe('全局公开元数据（R1 围栏）', () => {
+describe('全局公开元数据（R1 围栏 / 生肖公开候选）', () => {
+  it('公开集合只含 shengxiao，不含其他 10 项工具', () => {
+    const publicIds = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)).map(
+      tool => tool.id,
+    )
+    expect(publicIds).toEqual(['shengxiao'])
+    // constellation 与 bazi 不得随生肖一起公开。
+    expect(isToolPubliclyAvailable('constellation')).toBe(false)
+    expect(isToolPubliclyAvailable('bazi')).toBe(false)
+    expect(nonPublicToolNames).toHaveLength(10)
+  })
+
   it('PWA、默认 SEO 和分享描述不列出当前非公开工具', () => {
+    // 公开工具名（生肖）可以进入描述，其余工具名必须缺席；
+    // nuxt.config.ts 自身不含任何工具名字面量，全部由目录派生。
     for (const toolName of nonPublicToolNames) {
       expect(nuxtConfigSource).not.toContain(toolName)
     }
+    expect(nuxtConfigSource).not.toContain('生肖')
+    expect(nuxtConfigSource).toContain('publicToolNames')
   })
 
   it('保留“传统文化自我探索”的中性定位', () => {

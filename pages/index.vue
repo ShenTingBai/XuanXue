@@ -2,7 +2,6 @@
 import { getMonthPillar } from '~/composables/useSolarTerms'
 import { STEMS, BRANCHES } from '~/constants/bazi'
 import {
-  getLocalDevNavTools,
   isToolPubliclyAvailable,
   TOOL_CATALOG,
   type ToolCatalogEntry,
@@ -36,31 +35,25 @@ useSeoMeta({
 const { restoreSession, authStatus, currentAccount } = useAuth()
 const greeting = useGreeting()
 
-// 首页工具入口只从四维目录推导公开可用项；当前围栏期没有任何普通访客可用工具。
+// 首页工具入口只从四维目录推导公开可用项；未公开工具不进公开列表，也不作为用户可见入口。
 const publicTools = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id))
 /**
- * 开发期额外把 `internal + enabled` 的「内部验证」工具加进卡片列表，省掉手输 URL。
- *
- * 两个门都必须过：① 仅开发构建（生产里 `getLocalDevNavTools(false)` 为空数组，
- * 可见集合与公开集合完全相同）；② **仅已登录**——未登录访客点了只会被围栏 302
- * 回状态页看到「功能整理中」，会误以为工具没做。SSR 期 authStatus 为 restoring，
- * 因此与布局里的账号菜单一样由客户端恢复后渲染。
+ * 卡片列表就是公开集合本身：未完成或未批准公开的工具不进入首页，
+ * 研发期调试直接访问真实路由，由服务端围栏裁决，不在首页伪装成产品入口。
+ * SSR 期 authStatus 为 restoring，卡片因此与布局里的账号菜单一样由客户端恢复后渲染。
  */
-const visibleTools = computed(() => [
-  ...publicTools,
-  ...(authStatus.value === 'authenticated' ? getLocalDevNavTools(import.meta.dev === true) : []),
-])
+const visibleTools = computed(() => [...publicTools])
 const hasVisibleTools = computed(() => visibleTools.value.length > 0)
 
 /**
  * 卡片说明文字。
- * 公开工具沿用围栏期的「整理中」措辞；内部验证入口必须说实话——它是可用的，
- * 只是未公开，不能写成「敬请期待」。
+ * 公开工具按目录事实说明「可直接使用」；未公开工具不在公开卡片列表内，
+ * 因此这里只保留公开分支文案，保持工具无关，后续新增公开工具无需再改。
  */
 function toolCardNote(tool: ToolCatalogEntry): string {
   return tool.exposure === 'public'
-    ? `${tool.name}功能整理中，敬请期待。`
-    : '内部验证中（未公开）：点此进入。'
+    ? '已通过公开准入，可直接使用。'
+    : '该工具尚未公开，暂不提供入口。'
 }
 
 // ── 今日玄机：懒加载天文信息（避免急切导入 lunar-javascript ~200KB）──
@@ -205,12 +198,29 @@ onMounted(async () => {
                   <span class="hero-incant__line">相关工具正在逐项核验</span>
                 </div>
 
-                <!-- CTA -->
-                <div class="anim-rise anim-delay-4 flex gap-4 mt-10">
-                  <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
-                    <span>登录查看状态</span>
+                <!--
+                  CTA：公开工具开放后，首要操作是直接进入工具，不再把登录当作探索前置条件；
+                  只有确实没有公开工具时才保留中性核验说明，不渲染虚假的「立即使用」按钮。
+                  登录/注册降级为次级入口，只表达账户能力（保存本人资料、结果与历史、跨设备）。
+                -->
+                <div class="anim-rise anim-delay-4 flex flex-col items-center gap-3 mt-10">
+                  <NuxtLink
+                    v-if="publicTools.length > 0"
+                    :to="publicTools[0].route"
+                    class="btn-cin no-underline inline-flex"
+                  >
+                    <span>立即使用</span>
                   </NuxtLink>
-                  <NuxtLink to="/login" class="btn-ink no-underline"> 登录/注册 </NuxtLink>
+                  <span
+                    v-else
+                    class="font-sans text-sm text-ink-medium tracking-[0.08em] leading-relaxed"
+                  >
+                    相关工具正在逐项核验，通过公开准入后可直接使用。
+                  </span>
+                  <NuxtLink to="/login" class="btn-ink no-underline">登录 / 注册</NuxtLink>
+                  <p class="font-sans text-xs text-ink-light tracking-[0.08em] leading-relaxed">
+                    登录用于保存本人资料与探索结果、查看历史并在多设备继续，不影响直接使用公开工具。
+                  </p>
                 </div>
               </div>
             </div>
@@ -260,7 +270,7 @@ onMounted(async () => {
             <h2>术 数 工 具</h2>
           </div>
 
-          <!-- 当前围栏期没有公开可用工具，仅展示中性核验说明 -->
+          <!-- 无公开工具时只保留中性核验说明；有公开工具时卡片即入口与状态说明 -->
           <div
             v-if="!hasVisibleTools"
             class="card-warm rounded-xl p-8 text-center anim-rise"
@@ -298,11 +308,7 @@ onMounted(async () => {
             </NuxtLink>
           </div>
 
-          <div class="text-center mt-8">
-            <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
-              <span>查看工具状态</span>
-            </NuxtLink>
-          </div>
+          <!-- 工具卡片本身即入口与状态说明，不再提供需要先登录的次级状态按钮 -->
         </section>
 
         <!-- ── 三步入门 ── -->
@@ -413,11 +419,19 @@ onMounted(async () => {
             <span class="divider-seal__line" aria-hidden="true"></span>
           </div>
 
-          <div class="flex justify-center gap-4 flex-wrap">
-            <NuxtLink to="/login" class="btn-cin no-underline inline-flex">
-              <span>查看工具状态</span>
+          <!-- 页尾入口同样不再把登录当门槛：公开工具直达，登录只表达账户能力 -->
+          <div class="flex flex-col items-center gap-3">
+            <NuxtLink
+              v-if="publicTools.length > 0"
+              :to="publicTools[0].route"
+              class="btn-cin no-underline inline-flex"
+            >
+              <span>立即使用</span>
             </NuxtLink>
             <NuxtLink to="/login" class="btn-ink no-underline">登录 / 注册</NuxtLink>
+            <p class="font-sans text-xs text-ink-light tracking-[0.08em] leading-relaxed">
+              登录后可主动保存本人资料与探索结果，并查看历史。
+            </p>
           </div>
         </section>
       </div>

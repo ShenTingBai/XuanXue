@@ -162,60 +162,40 @@ const submit = async () => {
       />
     </div>
 
-    <!-- 注册：年龄与规则确认 -->
+    <!-- 注册：年龄与规则确认。共享 choice-control：不再用 peer + Tailwind 拼装，
+         也不再引用未定义的 border-ink-lighter 类（该类不在 tailwind 色板中，
+         编译后不生成规则，边框会退化成 currentColor）。 -->
     <div v-if="mode === 'register'" class="space-y-3">
-      <label class="flex items-start gap-2 cursor-pointer select-none">
+      <label class="choice-control choice-control--block">
         <input
           v-model="ageConfirmed"
           type="checkbox"
-          class="sr-only peer"
+          class="sr-only"
           required
           aria-required="true"
           :disabled="loading"
         />
         <span
-          class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border border-ink-lighter bg-paper-lightest/80 transition-all peer-checked:bg-cinnabar peer-checked:border-cinnabar peer-focus-visible:ring-2 peer-focus-visible:ring-cinnabar/40"
+          class="choice-control__indicator choice-control__indicator--box"
           aria-hidden="true"
-        >
-          <svg
-            class="w-4 h-4 text-white opacity-0 transition-opacity"
-            :class="ageConfirmed ? 'opacity-100' : 'opacity-0'"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="3"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </span>
-        <span class="text-xs text-ink-medium leading-relaxed">我已年满十四周岁</span>
+        />
+        <span class="choice-control__text">我已年满十四周岁</span>
       </label>
 
-      <label class="flex items-start gap-2 cursor-pointer select-none">
+      <label class="choice-control choice-control--block">
         <input
           v-model="privacyConfirmed"
           type="checkbox"
-          class="sr-only peer"
+          class="sr-only"
           required
           aria-required="true"
           :disabled="loading"
         />
         <span
-          class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border border-ink-lighter bg-paper-lightest/80 transition-all peer-checked:bg-cinnabar peer-checked:border-cinnabar peer-focus-visible:ring-2 peer-focus-visible:ring-cinnabar/40"
+          class="choice-control__indicator choice-control__indicator--box"
           aria-hidden="true"
-        >
-          <svg
-            class="w-4 h-4 text-white opacity-0 transition-opacity"
-            :class="privacyConfirmed ? 'opacity-100' : 'opacity-0'"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="3"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </span>
-        <span class="text-xs text-ink-medium leading-relaxed">
+        />
+        <span class="choice-control__text">
           我已阅读并同意<NuxtLink
             to="/privacy"
             class="text-cinnabar hover:text-cinnabar-light underline-offset-2 hover:underline"
@@ -226,31 +206,20 @@ const submit = async () => {
         </span>
       </label>
 
-      <label class="flex items-start gap-2 cursor-pointer select-none">
+      <label class="choice-control choice-control--block">
         <input
           v-model="termsConfirmed"
           type="checkbox"
-          class="sr-only peer"
+          class="sr-only"
           required
           aria-required="true"
           :disabled="loading"
         />
         <span
-          class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border border-ink-lighter bg-paper-lightest/80 transition-all peer-checked:bg-cinnabar peer-checked:border-cinnabar peer-focus-visible:ring-2 peer-focus-visible:ring-cinnabar/40"
+          class="choice-control__indicator choice-control__indicator--box"
           aria-hidden="true"
-        >
-          <svg
-            class="w-4 h-4 text-white opacity-0 transition-opacity"
-            :class="termsConfirmed ? 'opacity-100' : 'opacity-0'"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="3"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </span>
-        <span class="text-xs text-ink-medium leading-relaxed">
+        />
+        <span class="choice-control__text">
           我已阅读并同意<NuxtLink
             to="/terms"
             class="text-cinnabar hover:text-cinnabar-light underline-offset-2 hover:underline"

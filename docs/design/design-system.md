@@ -2,7 +2,7 @@
 
 > 状态：Active — 墨韵视觉语言与基础样式规范
 >
-> 版本：1.2.2 | 最后更新：2026-09-06
+> 版本：1.4.0 | 最后更新：2026-09-21
 >
 > XuanXue（玄·道）前端设计规范。本文负责颜色、字体、空间、组件外观和响应式视觉约束；产品行为、内容真实性、数据生命周期与公开状态以 [产品规范索引](../product/README.md) 及其引用规范为准。
 >
@@ -240,13 +240,15 @@
 
 #### 出版版共用外壳与组件（`components/editorial/*`，2026-09-13 建立 / 2026-09-15 抽为共用）
 
-出版版版式 = 卷目索引 + 报头 + 细线分节。当前使用者：`/self-profile`（卷目 Ⅰ 录 / Ⅱ 授 / Ⅲ 溯 / Ⅳ 归）、`/account`（Ⅰ 账 / Ⅱ 话 / Ⅲ 数 / Ⅳ 销）、`/tools/bazi`（Ⅰ–Ⅵ 六段，2026-09-15 起）。
+出版版版式 = 卷目索引 + 报头 + 细线分节。**全部工具页**（`/tools/**`）自 2026-09-21 起经 `ToolEditorialShell` 统一使用该版式；账号与档案页直接使用同一外壳组件：
+`/self-profile`（卷目 Ⅰ 录 / Ⅱ 授 / Ⅲ 溯 / Ⅳ 归）、`/account`（Ⅰ 账 / Ⅱ 话 / Ⅲ 数 / Ⅳ 销）、`/tools/bazi`（Ⅰ–Ⅵ 六段，2026-09-15 起）。
 
-| 组件             | 职责                                                                                       |
-| ---------------- | ------------------------------------------------------------------------------------------ |
-| `IndexNav`       | 卷目锚点索引（`items` + `footnote`）；桌面 sticky，≤920px 转正文上方两行网格；三页共用     |
-| `Masthead`       | 报头：印章（`seal`，默认「玄」）、眉题、标题、副题、状态胶囊、元信息行（纯展示，三页共用） |
-| `SectionHeading` | 分节标题（汉字数字 + 标题）；可选 `headingId` 把 id 落到 `h2`，供 `aria-labelledby` 指向   |
+| 组件                 | 职责                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `IndexNav`           | 卷目锚点索引（`items` + `footnote`）；桌面 sticky，≤920px 转正文上方两行网格；工具页与两个档案页共用         |
+| `Masthead`           | 报头：印章（`seal`，默认「玄」）、眉题、标题、副题、状态胶囊、元信息行（纯展示，各出版版页面共用）           |
+| `SectionHeading`     | 分节标题（汉字数字 + 标题）；可选 `headingId` 把 id 落到 `h2`，供 `aria-labelledby` 指向                     |
+| `ToolEditorialShell` | **工具页统一外壳**：组合 `IndexNav` + `Masthead` + `editorial-article` + `PageFooter`，固定 DOM 顺序（见下） |
 
 档案页专用件（仍在 `components/profile/*`，与出版版外壳配合使用）：
 
@@ -276,15 +278,54 @@
 
 版式度量：正文容器最大宽 72rem；桌面两列 `214px + minmax(0, 1fr)`，正文左内边距 46px 并带 1px 分隔线；分节 `padding-top 40px` + 上边框；≤920px 收为单列；≤720px 内边距降到 20px。展示口径（大字公历、副行原历法、状态文案）由 `utils/self-profile/display.ts` 决定，组件不自作换算。
 
-#### 卷目版式的适用判据（2026-09-15）
+#### 卷目版式的适用范围（2026-09-21 起：全部工具页）
 
-出版版外壳（卷目 + 报头 + 细线分节）**不是全站默认版式**，只在同时满足三条时使用：
+**所有工具页统一使用出版版外壳**（卷目 + 报头 + 细线分节），由
+`components/editorial/ToolEditorialShell.vue` 组合 `IndexNav`、`Masthead`、`editorial-article`
+与 `PageFooter` 四件。工具页之间**只应有**段落、输入、结果与来源的差异，**不存在第二套页面外壳**。
 
-1. 主体是**长文档**，且能切成 **≥4 个有意义的锚点节**（短页、单表单页不用）；
-2. **左栏没有更该常驻的控件**（工具内选择器、筛选器、信息摘要）——一页只有一个左栏，二者不能并存；
-3. 该页在治理规范里**本就有段序**（如工具页六段）——卷目只是既有段序的目录，**不得因此新增段**。
+**`ToolEditorialShell` 的 DOM 顺序**（固定，页面不得重排）：
 
-现状对照：`/self-profile`、`/account`、`/tools/bazi` 已用；`/privacy`、`/terms`、`/tools/ziwei` 为候选（需先确认节数 ≥4）；`/tools/shengxiao`、`/tools/constellation` 左栏已被工具内选择器占用，**不适用**；其余工具页多为「输入 → 结果」短页，收益低。
+```
+div.editorial-shell
+├─ IndexNav                        卷目（左侧；≤920px 回流到正文上方）
+└─ article.editorial-article
+   ├─ Masthead                     报头：印章 / 眉题 / 标题 / 副题 / 状态胶囊 / 元信息行
+   ├─ <slot name="masthead-extra"> 报头补充区（页面级事实与边界条）
+   └─ <slot>                       正文：按段序排列的 .editorial-section
+<slot name="after">                根级附加区（弹层等，不属于阅读流）
+PageFooter
+```
+
+**Props 契约**：`indexItems`（`num` 汉字数字 + `href` 指向页面已有段落）、`indexFootnote`（必填，
+写该页**真实边界**，不得沿用账号页文案、不得编造结论）、`edition`、`title`、`subtitle`、
+`statusText?`、`metaText?`、`seal?`。
+
+**页面根级样式的挂载**：外壳是多根结构（`after` 插槽与页脚是根级兄弟），子组件渲染的节点也不带
+父组件的 scope id——因此**不要**给外壳传 class 来承载页面 scoped 样式。页面需要根级 scoped 规则时，
+把样式挂在页面自己在默认插槽里渲染的容器上（如 `<div class="bazi-page">`）。
+
+**三条内容规则**（判断内容如何分段）：
+
+1. 卷目条目必须对应页面**已有**的段落——**不得为了让卷目变长而新增段**；段落少于 4 个时卷目就短，属正常；
+2. **左栏只做卷目锚点**：工具选择器、筛选器、生肖/星座选择器等一律放进正文，不再占用左栏；
+3. 状态胶囊与元信息行（规则版本、数据范围等）由页面格式化后传入，外壳**不推断**工具状态。
+
+**响应式与可访问性**：桌面 `IndexNav` sticky；≤920px 回流到正文上方两行网格；卷目项命中区 ≥44px；
+当前节高亮采用左侧朱砂指示条 + 朱砂序号 + 加深字色的三重编码；点击锚点后焦点转移到目标节。
+账户控件不在外壳内，由 default layout 统一负责。
+
+**不适用（保留各自页面类型，但共享全局顶栏、账户控件与页脚）**：
+`/`、`/login`、`/privacy`、`/terms`、`/account`、`/self-profile`。
+
+**与 `ToolPageLayout` 的迁移规则**：`ToolPageLayout` 及其三栏插槽（`#nav` / `#mobile-nav` /
+`#nav-right`）不再用于**工具页**（`/tools/**`），工具页一律走 `ToolEditorialShell`。
+`ToolPageLayout` 只保留给仍需「常驻左栏控件 + 右栏信息」的非工具页场景；当前没有工具页符合该条件。
+
+历史说明（2026-09-15 判据为何被取代）：旧判据把 `/tools/shengxiao`、`/tools/constellation`
+排除在卷目之外，理由是「左栏已被工具内选择器占用」。该理由只对旧实现成立——生肖左栏的选择器
+`components/tools/shengxiao/AnimalNav.vue` 自 R3 起已不再被任何页面引用（死代码），
+十二生肖浏览改在正文内以 tabs 呈现；旧判据因此不再成立，2026-09-21 起统一为全部工具页使用卷目。
 
 已知未修（待后续专项）：顶栏容器（`max-w-grid` + `px-4 sm:px-6 lg:px-8`）与出版版外壳（`padding-inline` 32 / 24 / 20px）在三档对不上——921–1023px 差 8px、640–720px 差 4px、<640px 差 4px；≥1024px 与 721–920px 两档对齐。影响三个出版版页面的窄屏左右对齐。
 
@@ -362,6 +403,44 @@
   opacity: 1;
 }
 ```
+
+#### 按钮语义分工（2026-09-21 收敛）
+
+按钮品牌不重新发明，但**用途分工**必须唯一，避免同一层级的动作在不同工具里用不同按钮：
+
+| 类                        | 用途                                                     | 度量                                        |
+| ------------------------- | -------------------------------------------------------- | ------------------------------------------- |
+| `btn-cin`                 | **全局主 CTA**：页面级唯一主动作（登录、注册、首页进入） | 仪式化大按钮，0.3em 字距，必须内嵌 `<span>` |
+| `btn-seal`                | **工具内主动作**：生成、排盘、合婚、推算、保存本人资料   | 朱砂描边 + hover 填充，必须内嵌 `<span>`    |
+| `btn-ink`                 | **次要动作**：取消、重新操作、页面内导航                 | 极淡墨框，hover 加深                        |
+| `btn-ghost`               | 无边框轻量动作（带入、撤销等辅助入口）                   | 无背景无边框                                |
+| `btn-solid` / `btn-quiet` | 出版版（档案页与弹层）的确认 / 取消                      | 44px 最小高度、10px 圆角                    |
+
+**同一卡片内不得出现两个同级主按钮**：主动作用 `btn-seal`（工具内）或 `btn-cin`（页面级），
+其余一律降为 `btn-ink` / `btn-ghost`。
+
+#### 账户控件单一触发器（2026-09-21）
+
+顶栏账户区**只有一个视觉入口**，登录前后占据同一位置：
+
+- **游客**：账户图形 + 「未登录」构成**单一**可点击控件，`aria-label` 说明
+  「未登录，前往登录或注册」，点击进入 `/login`。**禁止**把「未登录」与「登录」
+  并排渲染成两个同级标签——那会让「会话事实」和「能力入口」看起来像两个并列选项。
+- **已登录**：同位置的 `AvatarCircle` + 真实昵称 + 下拉菜单（账号与安全 / 本人档案 / 退出）。
+- **移动抽屉**：同样只保留单一「未登录」账户项，登录是点击后的结果，不是并排标签。
+- `restoring` 阶段两者都不渲染，避免闪现错误身份。
+
+#### 规则与来源的折叠边界（2026-09-21）
+
+详细规则解释、来源台账与版本细节**可以**默认收起（用 `marginal-toggle`），但下列内容
+**必须直接可见**，不得藏进折叠区或浮层：
+
+- 年界（生肖按正月初一、八字年柱按立春这类会改变结果的边界）；
+- 支持范围与精度限制；
+- 隐私状态（数据是否上传、是否保存、保存触发方式）；
+- 关键限制与「本页不输出什么」。
+
+判据：折叠只允许影响**详细程度**，不允许影响**用户能否判断结果是否适用**。
 
 ### 4.2 卡片
 
@@ -617,6 +696,49 @@ Compact clothing color guide widget on homepage. Shows lucky colors to wear for 
 
 - 有底色、有边框，偏暖色调
 - 适用：表单中的独立输入框
+
+#### `choice-control` — 共享选择控件（radio / checkbox）
+
+**全站唯一的 radio/checkbox 视觉体系。** 2026-09-21 建立：此前生肖 `age-radio`、合婚
+`radio-custom`、紫微 `gender-radio`、八字 `bazi-choice`、档案 `calendar-choice` 各写一套，
+同一个「选中」在不同页面呈现不同尺寸、边框与颜色。本节之后，**禁止**再新增工具专属选择体系。
+
+**标准 DOM**（顺序固定：`input` 与 `indicator` 必须相邻，focus 环依赖 `+` 选择器）：
+
+```html
+<!-- radio -->
+<label class="choice-control">
+  <input v-model="value" type="radio" name="group" value="a" class="sr-only" />
+  <span class="choice-control__indicator" aria-hidden="true"></span>
+  <span class="choice-control__text">选项文本</span>
+</label>
+
+<!-- checkbox：indicator 追加 --box 修饰符 -->
+<label class="choice-control">
+  <input v-model="checked" type="checkbox" class="sr-only" />
+  <span class="choice-control__indicator choice-control__indicator--box" aria-hidden="true"></span>
+  <span class="choice-control__text">确认文本</span>
+</label>
+```
+
+**状态表**（实现见 `assets/css/main.css` `@layer components`）：
+
+| 状态          | 边框                     | 底纹             | indicator            | 文字                    |
+| ------------- | ------------------------ | ---------------- | -------------------- | ----------------------- |
+| 默认          | `paper-dark`             | `paper-lightest` | 1px `ink-faint` 空心 | `ink-medium`            |
+| hover         | 35% 朱砂                 | 不变             | 不变                 | `ink-dark`              |
+| focus-visible | 不变                     | 不变             | 2px 朱砂 outline     | `ink-dark`              |
+| 选中          | `cinnabar` + 内描边      | 8% 朱砂          | 朱砂圆点 / 朱砂对勾  | `cinnabar-deepest`      |
+| disabled      | `paper-dark`（hover 锁） | 不变             | 不变                 | 50% 透明、`not-allowed` |
+| error         | `cinnabar`               | 不变             | `cinnabar` 边框      | 由调用方就地给错误文案  |
+
+**规则**：
+
+- 命中区最小 44px（`min-height`），窄屏与 200% 字体缩放下不缩水；
+- 选中态**同时**改变边框、底纹与文字色，形状（圆点/对勾）独立于颜色编码，满足 §8.4；
+- **必须**使用原生 `input` + `class="sr-only"`，不得用 `div` + `role="radio"` 模拟；
+  label 关联、Tab 聚焦、Space 切换与方向键由浏览器原生行为提供；
+- 所有颜色引用既有 `--color-*` token，禁止 `rgba()` 与 `bg-x/N` 斜杠写法（§2.6）。
 
 ### 4.4 排版
 
@@ -1245,6 +1367,9 @@ const prefersReducedMotion = import.meta.client
 11. **禁止** `aria-haspopup="true"`。用 `"menu"` 或 `"dialog"`。
 12. **禁止** 为单次使用创建抽象组件。优先复用仍处于 Active 状态且符合对应产品契约的通用组件；不得因为组件已经存在就复用 `FortuneBars`、`ScoreRing` 等禁用模式。
 13. **禁止** 在公开工具页继续新增 `MethodologyNote`、“注”按钮或等价浮层。已核验的依据和范围进入正常阅读流。
+14. **禁止** 新建工具专属的 radio/checkbox 体系（`radio-custom`、`gender-radio`、`age-radio`、`bazi-choice` 等）。选择控件一律使用 §4.3 的 `choice-control`。
+15. **禁止** 在顶栏把「未登录」与「登录」并排渲染成两个同级标签。账户区只允许一个触发器（见 §4.1 账户控件单一触发器）。
+16. **禁止** 把年界、支持范围、隐私状态或关键限制藏进折叠区、浮层或弹窗。折叠只影响详细程度，不影响适用性判断。
 
 ---
 
