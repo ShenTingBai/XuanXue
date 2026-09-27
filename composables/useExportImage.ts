@@ -109,13 +109,26 @@ export function useExportImage() {
         width: el.offsetWidth,
         height: el.offsetHeight,
         skipAutoScale: true,
+        // 只在 html-to-image 的克隆节点上归零离屏定位；页面中的完整结果卡始终不可见。
+        style: { position: 'relative', left: '0', top: '0' },
         ...(cachedFontCSS ? { fontEmbedCSS: cachedFontCSS } : {}),
       })
+
+      if (!dataUrl || !dataUrl.startsWith('data:image/png')) {
+        throw new Error('导出结果不是有效的 PNG')
+      }
 
       const link = document.createElement('a')
       link.download = filename
       link.href = dataUrl
-      link.click()
+      link.rel = 'noopener'
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      try {
+        link.click()
+      } finally {
+        link.remove()
+      }
 
       return true
     } catch (e) {

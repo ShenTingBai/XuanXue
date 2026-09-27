@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { ShengXiaoResult } from '~/types/shengxiao'
-import { resolveSourceLink, resolveSourceTitle } from '~/constants/shengxiao-sources'
 
 /**
  * 生肖结果展示组件（契约 §9.1 基础结果 + §9.2 传统分类 + §23.1 信息层级）。
@@ -20,7 +19,9 @@ const classificationExpanded = ref(false)
 
 /** 隐私文化卡片 DOM，供页面导入（不含出生日期）。 */
 const privacyCardEl = ref<HTMLElement | null>(null)
-defineExpose({ privacyCardEl })
+/** 完整结果图片 DOM，供页面导入（明确包含本次出生日期）。 */
+const resultCardEl = ref<HTMLElement | null>(null)
+defineExpose({ privacyCardEl, resultCardEl })
 
 /** 隐私文化卡片数据：不含完整出生日期。 */
 const cultureCardItems = computed(() => [
@@ -31,14 +32,6 @@ const cultureCardItems = computed(() => [
   { label: '年支五行', value: props.result.branchElement },
   { label: '纳音', value: props.result.naYin },
 ])
-
-function visibleSources() {
-  return props.result.sourceRefs.map(ref => ({
-    ref,
-    title: resolveSourceTitle(ref),
-    link: resolveSourceLink(ref),
-  }))
-}
 </script>
 
 <template>
@@ -79,6 +72,13 @@ function visibleSources() {
 
       <p class="mt-4 font-sans text-sm text-ink-medium leading-relaxed">
         本页按农历正月初一判断民俗生肖；八字年柱按精确立春判断。两者服务于不同的文化与术数用途，因此可能出现不同结果，并不代表其中一个计算错误。
+      </p>
+
+      <!-- 契约 §9.1：结果第一层保留来源入口；详细来源清单由页面 Ⅳ 段承载，此处不再重复同名标题。 -->
+      <p class="mt-3 font-sans text-sm">
+        <a href="#shengxiao-scope" class="text-cinnabar underline">
+          查看依据与范围（来源清单与规则版本）
+        </a>
       </p>
     </section>
 
@@ -162,30 +162,6 @@ function visibleSources() {
       </dl>
     </section>
 
-    <!-- 依据与范围（正常阅读流，替代悬浮注） -->
-    <section class="card-warm rounded-xl p-6 sm:p-8" aria-labelledby="shengxiao-sources-heading">
-      <h2 id="shengxiao-sources-heading" class="section-header font-display text-xl text-ink-dark">
-        依据与范围
-      </h2>
-      <p class="font-sans text-sm text-ink-medium leading-relaxed">
-        生肖年界采用中国农历正月初一（契约
-        §8.1）。传统分类仅表示特定传统体系的分类对应关系，不作个人命运判断。
-      </p>
-      <ul class="mt-3 space-y-2">
-        <li v-for="s in visibleSources()" :key="s.ref" class="font-sans text-sm">
-          <a
-            :href="s.link"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-cinnabar underline break-words"
-          >
-            {{ s.title }}
-          </a>
-          <span class="text-ink-light">（{{ s.ref }}）</span>
-        </li>
-      </ul>
-    </section>
-
     <!-- 间距留在导出节点外，避免根节点外边距进入图片而裁掉底部。 -->
     <div>
       <!-- 隐私文化卡片：DOM 不含出生日期，仅文化分类与版本 -->
@@ -203,6 +179,61 @@ function visibleSources() {
           </li>
         </ul>
         <p class="verified-result__card-version">规则版本：{{ result.ruleVersion }}</p>
+      </div>
+
+      <!--
+        完整结果图片的固定版式目标：
+        - 与交互结果区分离，避免把按钮、折叠件和导航截入图片；
+        - 明确包含出生日期，入口处另有提示，不与默认脱敏卡片混用；
+        - 仅保留可核验结果字段和来源入口，不复制 Ⅳ 段来源台账。
+      -->
+      <div
+        ref="resultCardEl"
+        class="verified-result__export-card"
+        aria-hidden="true"
+        data-result-card
+      >
+        <div class="verified-result__export-title">生肖结果</div>
+        <p class="verified-result__export-note">本图片包含本次输入的公历出生日期。</p>
+        <dl class="verified-result__export-grid">
+          <div>
+            <dt>公历出生日期</dt>
+            <dd>{{ result.inputDate }}</dd>
+          </div>
+          <div>
+            <dt>农历日期</dt>
+            <dd>{{ result.lunarDate }}</dd>
+          </div>
+          <div>
+            <dt>干支年</dt>
+            <dd>{{ result.ganZhiYear }}</dd>
+          </div>
+          <div>
+            <dt>生肖</dt>
+            <dd>{{ result.animal }}</dd>
+          </div>
+          <div>
+            <dt>对应地支</dt>
+            <dd>{{ result.earthlyBranch }}</dd>
+          </div>
+          <div>
+            <dt>规则版本</dt>
+            <dd>{{ result.ruleVersion }}</dd>
+          </div>
+          <div>
+            <dt>农历年公历起</dt>
+            <dd>{{ result.yearBoundary.startDate }}</dd>
+          </div>
+          <div>
+            <dt>农历年公历止</dt>
+            <dd>{{ result.yearBoundary.endDate }}</dd>
+          </div>
+          <div>
+            <dt>时区</dt>
+            <dd>{{ result.yearBoundary.timezone }}</dd>
+          </div>
+        </dl>
+        <p class="verified-result__export-source">来源入口：页面 Ⅳ「依据与范围」</p>
       </div>
     </div>
   </div>
@@ -274,6 +305,49 @@ function visibleSources() {
   font-family: var(--font-sans);
   font-size: 0.75rem;
   color: var(--color-ink-medium);
+}
+.verified-result__export-card {
+  position: absolute;
+  left: -100000px;
+  top: 0;
+  width: 640px;
+  box-sizing: border-box;
+  padding: 2rem;
+  border: 1px solid var(--color-ink-faint);
+  border-radius: 1rem;
+  background: var(--color-paper-lightest);
+  color: var(--color-ink-dark);
+}
+.verified-result__export-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  color: var(--color-ink-dark);
+}
+.verified-result__export-note,
+.verified-result__export-source {
+  margin-top: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ink-medium);
+}
+.verified-result__export-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.verified-result__export-grid dt {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--color-ink-light);
+}
+.verified-result__export-grid dd {
+  margin-top: 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-ink-dark);
+  word-break: break-word;
 }
 @media (max-width: 360px) {
   .verified-result__grid {

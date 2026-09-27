@@ -2,6 +2,7 @@
 const props = defineProps<{
   targetRef: HTMLElement | null
   filename: string
+  label?: string
   isExporting: boolean
   exportError?: string | null
 }>()
@@ -33,6 +34,7 @@ onUnmounted(() => {
 })
 
 const isDisabled = computed(() => props.isExporting || !props.targetRef)
+const buttonLabel = computed(() => props.label ?? '存为图片')
 
 const showExportError = ref(false)
 let errorTimer: ReturnType<typeof setTimeout> | null = null
@@ -59,9 +61,10 @@ onUnmounted(() => {
 <template>
   <div class="relative inline-flex flex-col items-center">
     <button
+      type="button"
       :disabled="isDisabled"
       class="export-btn"
-      :aria-label="isExporting ? '导出中...' : showSuccess ? '已保存' : '存为图片'"
+      :aria-label="isExporting ? '导出中...' : showSuccess ? '已保存' : buttonLabel"
       @click="emit('export')"
     >
       <span v-if="isExporting" class="flex items-center gap-1">
@@ -86,7 +89,7 @@ onUnmounted(() => {
             stroke-linejoin="round"
           />
         </svg>
-        <span>存为图片</span>
+        <span>{{ buttonLabel }}</span>
       </span>
     </button>
     <Transition name="fade">

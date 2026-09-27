@@ -102,6 +102,9 @@ const currentAccount = ref<null | { id: number }>(null)
 // 共享导出状态 ref：驱动真实 ExportButton 的 isExporting/exportError 流转
 const isExporting = ref(false)
 const exportError = ref<string | null>(null)
+const resultIsExporting = ref(false)
+const resultExportError = ref<string | null>(null)
+let exportComposableCallCount = 0
 const mountedPages: VueWrapper[] = []
 
 const successOutcome = {
@@ -200,15 +203,21 @@ describe('shengxiao 游客页面', () => {
     currentAccount.value = null
     isExporting.value = false
     exportError.value = null
+    resultIsExporting.value = false
+    resultExportError.value = null
+    exportComposableCallCount = 0
     vi.stubGlobal('useAuth', () => ({
       authStatus,
       currentAccount,
     }))
-    vi.stubGlobal('useExportImage', () => ({
-      exportToImage: exportMock.exportToImage,
-      isExporting,
-      exportError,
-    }))
+    vi.stubGlobal('useExportImage', () => {
+      const isPrivacyCard = exportComposableCallCount++ % 2 === 0
+      return {
+        exportToImage: exportMock.exportToImage,
+        isExporting: isPrivacyCard ? isExporting : resultIsExporting,
+        exportError: isPrivacyCard ? exportError : resultExportError,
+      }
+    })
     vi.stubGlobal('useSeoMeta', () => {})
     engineMock.calculateShengXiao.mockReset()
     engineMock.calculateShengXiao.mockReturnValue(successOutcome)
@@ -331,18 +340,21 @@ describe('shengxiao 游客页面', () => {
     expect(wrapper.find('.export-btn').exists()).toBe(false)
   })
 
-  it('真实 ExportButton：点击导出收到 privacy-card 元素与文件名，失败显示错误且不显示已保存', async () => {
+  it('真实 ExportButton：隐私卡片与完整结果分别导出，失败显示错误且不显示已保存', async () => {
     engineMock.calculateShengXiao.mockReturnValue(successOutcome)
     const wrapper = mountPage()
     await fillAndConfirm(wrapper)
     await wrapper.find('button').trigger('click')
 
     // 真实 ExportButton 渲染（非 stub）
-    const exportBtn = wrapper.find('.export-btn')
-    expect(exportBtn.exists()).toBe(true)
+    const exportButtons = wrapper.findAll('.export-btn')
+    expect(exportButtons).toHaveLength(2)
+    expect(exportButtons[0].text()).toContain('保存隐私文化卡片')
+    expect(exportButtons[1].text()).toContain('保存本次结果图片')
+    expect(wrapper.text()).toContain('图片包含出生日期，仅建议保存到本人设备。')
 
-    // 点击真实导出按钮 → 页面 handleExportCard → useExportImage.exportToImage
-    await exportBtn.trigger('click')
+    // 点击隐私卡片导出 → 页面 handleExportPrivacyCard → useExportImage.exportToImage
+    await exportButtons[0].trigger('click')
     await nextTick()
     expect(exportMock.exportToImage).toHaveBeenCalledTimes(1)
     // 第一个参数是 privacy-card 实际 HTMLElement
@@ -352,7 +364,20 @@ describe('shengxiao 游客页面', () => {
     expect((el as HTMLElement).dataset.privacyCard).toBe('')
     expect((el as HTMLElement).textContent).not.toContain('2024')
     expect((el as HTMLElement).textContent).not.toContain('02-10')
-    expect(filename).toBe('生肖文化卡片.png')
+    expect(filename).toBe('生肖隐私文化卡片.png')
+
+    // 点击完整结果导出：目标包含出生日期，但不包含账号/档案信息。
+    await exportButtons[1].trigger('click')
+    await nextTick()
+    expect(exportMock.exportToImage).toHaveBeenCalledTimes(2)
+    const [resultEl, resultFilename] = exportMock.exportToImage.mock.calls[1]
+    expect(resultEl).toBe(wrapper.find('[data-result-card]').element)
+    expect((resultEl as HTMLElement).dataset.resultCard).toBe('')
+    expect((resultEl as HTMLElement).textContent).toContain('2024-02-10')
+    expect((resultEl as HTMLElement).textContent).toContain('甲辰年正月初一')
+    expect((resultEl as HTMLElement).textContent).toContain('2026-09-09')
+    expect((resultEl as HTMLElement).textContent).not.toContain('profileId')
+    expect(resultFilename).toBe('生肖完整结果.png')
 
     // 驱动 isExporting false→true→false 且 exportError 非空 → 真实失败文案出现，已保存不出现
     isExporting.value = true
@@ -367,7 +392,7 @@ describe('shengxiao 游客页面', () => {
     // 无错误成功反馈：清空错误、再触发一次导出（isExporting 已 false）
     exportError.value = null
     await nextTick()
-    await exportBtn.trigger('click')
+    await exportButtons[0].trigger('click')
     await nextTick()
     // 导出后 isExporting false→true→false 且无 error → showSuccess（✓ 已保存）
     isExporting.value = true
@@ -375,7 +400,8 @@ describe('shengxiao 游客页面', () => {
     isExporting.value = false
     await nextTick()
     await nextTick()
-    expect(wrapper.text()).toContain('已保存')
+    expect(exportButtons[0].text()).toContain('已保存')
+    expect(exportButtons[1].text()).toContain('保存本次结果图片')
   })
 
   it('公共文化切换不触发个人计算', async () => {
@@ -1502,5 +1528,106 @@ describe('shengxiao 游客页面', () => {
     expect(resultSection.text()).toContain('年干五行')
     expect(resultSection.text()).toContain('六十甲子纳音')
     expect(resultSection.text()).toContain('不能推出喜用神')
+  })
+
+  it('依据与范围标题全页唯一，由页面Ⅳ段承担且结果区不再重复', async () => {
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+
+    // 生成前：只有页面Ⅳ段一个同名标题，结果区不渲染同名 section
+    const headingsBefore = () =>
+      wrapper.findAll('h2, h3').filter(node => node.text().replace(/\s+/g, '') === '依据与范围')
+    expect(headingsBefore()).toHaveLength(1)
+    expect(wrapper.find('[aria-labelledby="shengxiao-sources-heading"]').exists()).toBe(false)
+    expect(wrapper.find('#shengxiao-sources-heading').exists()).toBe(false)
+
+    await wrapper.find('button').trigger('click')
+
+    // 生成后仍是唯一标题：结果卡不再渲染第二个「依据与范围」
+    expect(headingsBefore()).toHaveLength(1)
+    expect(wrapper.find('#shengxiao-sources-heading').exists()).toBe(false)
+    expect(wrapper.find('[aria-labelledby="shengxiao-sources-heading"]').exists()).toBe(false)
+
+    // Ⅳ 段 section 的 aria-labelledby 指向存在的标题
+    const scope = wrapper.find('#shengxiao-scope')
+    expect(scope.exists()).toBe(true)
+    const labelledby = scope.attributes('aria-labelledby')
+    expect(labelledby).toBe('shengxiao-scope-heading')
+    expect(wrapper.find(`#${labelledby}`).exists()).toBe(true)
+  })
+
+  it('结果第一层保留来源入口，指向Ⅳ段且不依赖折叠内容', async () => {
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+
+    const resultSection = wrapper.find('#shengxiao-result')
+    const entry = resultSection.find('a[href="#shengxiao-scope"]')
+    expect(entry.exists()).toBe(true)
+    expect(entry.text()).toContain('依据与范围')
+    // 入口在基础结果卡内直接可见，不随任何折叠件卸载
+    expect(resultSection.find('[data-shengxiao-state="success"]').text()).toContain('依据与范围')
+  })
+
+  it('Ⅳ段来源清单默认收起，展开后列出全部 9 条来源链接与编号', async () => {
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+
+    const scope = wrapper.find('#shengxiao-scope')
+
+    // 收敛边界：说明句与 4 条 bullet 在收起态直接可见
+    expect(scope.text()).toContain('生肖年界采用中国农历正月初一')
+    expect(scope.text()).toContain('不作个人命运判断')
+    expect(scope.text()).toContain('支持范围：公历 1901-01-01 至查询当日')
+    expect(scope.text()).toContain('规则版本')
+    expect(scope.text()).toContain('未核验的地支关系、扩展文化形象等不在此页展示')
+
+    // 默认收起：控件 aria-expanded=false，面板不在 DOM
+    const toggle = scope.find('[aria-controls="shengxiao-scope-sources"]')
+    expect(toggle.exists()).toBe(true)
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(scope.find('#shengxiao-scope-sources').exists()).toBe(false)
+
+    // 展开后：9 条链接 + 9 个编号，逐条对应引擎固定来源集合
+    await toggle.trigger('click')
+    const panel = scope.find('#shengxiao-scope-sources')
+    expect(panel.exists()).toBe(true)
+    const links = panel.findAll('a')
+    expect(links).toHaveLength(9)
+    const refs = [
+      'SRC-001',
+      'SRC-002',
+      'SRC-002a',
+      'SRC-003',
+      'SRC-003a',
+      'SRC-005',
+      'SRC-006',
+      'SRC-007',
+      'SRC-008',
+    ]
+    for (const ref of refs) {
+      expect(panel.text()).toContain(ref)
+    }
+    // 每条都有真实外链目标，不是空 href
+    for (const link of links) {
+      expect(link.attributes('href')).toMatch(/^https?:\/\//)
+    }
+  })
+
+  it('清空结果后来源清单回到收起态，不把上次展开状态带入新结果', async () => {
+    const wrapper = mountPage()
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+
+    const scope = () => wrapper.find('#shengxiao-scope')
+    await scope().find('[aria-controls="shengxiao-scope-sources"]').trigger('click')
+    expect(scope().find('#shengxiao-scope-sources').exists()).toBe(true)
+
+    // 重新生成（watcher 在 result 变化时复位），来源清单不应自动展开
+    await wrapper.find('button').trigger('click')
+    expect(
+      scope().find('[aria-controls="shengxiao-scope-sources"]').attributes('aria-expanded'),
+    ).toBe('false')
   })
 })

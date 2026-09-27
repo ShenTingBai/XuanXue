@@ -7,6 +7,7 @@ import type { ShengXiaoResult } from '~/types/shengxiao'
 import type { RawBirthDate } from '~/types/self-profile'
 import { canExportTool } from '~/constants/tool-catalog'
 import { SHENGXIAO_RULE_VERSION } from '~/constants/shengxiao-rules'
+import { resolveSourceLink, resolveSourceTitle } from '~/constants/shengxiao-sources'
 import { SELF_PROFILE_CONVERSION_VERSION } from '~/constants/self-profile-policy'
 import { useSelfProfile } from '~/composables/useSelfProfile'
 import { useSelfProfileDraft } from '~/composables/useSelfProfileDraft'
@@ -55,6 +56,30 @@ const ageConfirm = ref<AgeConfirm>('unknown')
 const result = ref<ShengXiaoResult | null>(null)
 const toolState = ref<ToolResultState>({ phase: 'idle' })
 const errorMessage = ref('')
+
+/**
+ * Ⅳ 段来源清单（迁移自结果卡，契约 §9.1 的来源入口指向本段）。
+ *
+ * - 条数与编号直接取自结果自带 sourceRefs，不在此增删或改名；
+ * - 默认收起：设计系统 §4.1 允许详细来源台账收起，但年界、支持范围、关键限制
+ *   与「未核验内容不展示」必须直接可见（本段 4 条 bullet 承担）。
+ */
+const sourcesExpanded = ref(false)
+const visibleSources = computed(() =>
+  (result.value?.sourceRefs ?? []).map(ref => ({
+    ref,
+    title: resolveSourceTitle(ref),
+    link: resolveSourceLink(ref),
+  })),
+)
+
+/**
+ * 结果清空（失败/卸载）时折叠件回到收起态。
+ * 新结果的重置在 handleSubmit 成功分支显式完成，不依赖结果对象的引用变化。
+ */
+watch(result, value => {
+  if (!value) sourcesExpanded.value = false
+})
 
 // ── asOfDate（浏览器 Asia/Shanghai 当日，纯日期）──
 function getShanghaiDate(): string {
@@ -184,6 +209,8 @@ async function handleSubmit() {
     // 计算完成后输入已变化：不落旧结果。
     if (draftRevision !== revisionAtSubmit) return
     if (outcome.phase === 'success') {
+      // 每次生成都是新一次结果：来源清单从收起态开始，不沿用上一次的展开状态。
+      sourcesExpanded.value = false
       result.value = outcome
       toolState.value = {
         phase: 'success',
@@ -516,12 +543,16 @@ onBeforeUnmount(() => {
   errorMessage.value = ''
 })
 
-// ── 隐私文化卡片导出（单独 DOM，不含出生日期）──
+// ── 图片导出（隐私文化卡片 / 完整结果双轨，均为客户端临时下载）──
 const verifiedResultRef = ref<InstanceType<typeof VerifiedResult> | null>(null)
-const { exportToImage, isExporting, exportError } = useExportImage()
+const privacyExport = useExportImage()
+const resultExport = useExportImage()
 
-const exportCardEl = computed<HTMLElement | null>(
+const exportPrivacyCardEl = computed<HTMLElement | null>(
   () => verifiedResultRef.value?.privacyCardEl ?? null,
+)
+const exportResultCardEl = computed<HTMLElement | null>(
+  () => verifiedResultRef.value?.resultCardEl ?? null,
 )
 
 const canExportCard = computed(() => {
@@ -531,11 +562,18 @@ const canExportCard = computed(() => {
   return toolState.value.freshness !== 'stale'
 })
 
-function handleExportCard() {
+function handleExportPrivacyCard() {
   if (!canExportCard.value) return
   const cardEl = verifiedResultRef.value?.privacyCardEl
   if (!cardEl) return
-  exportToImage(cardEl, '生肖文化卡片.png')
+  privacyExport.exportToImage(cardEl, '生肖隐私文化卡片.png')
+}
+
+function handleExportResultCard() {
+  if (!canExportCard.value) return
+  const cardEl = verifiedResultRef.value?.resultCardEl
+  if (!cardEl) return
+  resultExport.exportToImage(cardEl, '生肖完整结果.png')
 }
 
 // ── SEO（中性生肖查询/文化说明）──
@@ -795,16 +833,32 @@ const indexFootnote = '公历出生日期输入'
           class="space-y-4"
           data-shengxiao-state="success"
         >
-          <div class="flex items-center justify-between">
+          <div class="flex flex-wrap items-start justify-between gap-3">
             <span></span>
-            <ExportButton
-              v-if="canExportCard"
-              :target-ref="exportCardEl"
-              filename="生肖文化卡片.png"
-              :is-exporting="isExporting"
-              :export-error="exportError"
-              @export="handleExportCard"
-            />
+            <div class="flex flex-wrap items-start justify-end gap-3">
+              <ExportButton
+                v-if="canExportCard"
+                :target-ref="exportPrivacyCardEl"
+                filename="生肖隐私文化卡片.png"
+                label="保存隐私文化卡片"
+                :is-exporting="privacyExport.isExporting.value"
+                :export-error="privacyExport.exportError.value"
+                @export="handleExportPrivacyCard"
+              />
+              <div v-if="canExportCard" class="flex flex-col items-end">
+                <ExportButton
+                  :target-ref="exportResultCardEl"
+                  filename="生肖完整结果.png"
+                  label="保存本次结果图片"
+                  :is-exporting="resultExport.isExporting.value"
+                  :export-error="resultExport.exportError.value"
+                  @export="handleExportResultCard"
+                />
+                <p class="max-w-[18rem] text-right font-sans text-xs text-ink-light">
+                  图片包含出生日期，仅建议保存到本人设备。
+                </p>
+              </div>
+            </div>
           </div>
           <VerifiedResult ref="verifiedResultRef" :result="result" />
 
@@ -847,7 +901,11 @@ const indexFootnote = '公历出生日期输入'
         aria-labelledby="shengxiao-scope-heading"
       >
         <SectionHeading num="Ⅳ" title="依据与范围" heading-id="shengxiao-scope-heading" />
-        <ul class="space-y-2 font-sans text-sm text-ink-medium leading-relaxed">
+        <p class="font-sans text-sm text-ink-medium leading-relaxed">
+          生肖年界采用中国农历正月初一（契约
+          §8.1）。传统分类仅表示特定传统体系的分类对应关系，不作个人命运判断。
+        </p>
+        <ul class="mt-3 space-y-2 font-sans text-sm text-ink-medium leading-relaxed">
           <li>生肖按中国农历正月初一为年界；八字年柱按精确立春，两者用途不同，结果可能不同。</li>
           <li>支持范围：公历 1901-01-01 至查询当日（Asia/Shanghai）。</li>
           <li>
@@ -855,6 +913,46 @@ const indexFootnote = '公历出生日期输入'
           </li>
           <li>未核验的地支关系、扩展文化形象等不在此页展示。</li>
         </ul>
+
+        <!--
+          来源清单（迁移自结果卡，R6 门禁第 5/10 项的证据落点）。
+          默认收起：设计系统 §4.1 允许详细来源台账收起，但上方说明句与 4 条 bullet
+          必须在收起态直接可见；展开后逐条列出本次结果引用的来源与编号。
+        -->
+        <div v-if="result && visibleSources.length" class="mt-4">
+          <button
+            :aria-expanded="sourcesExpanded"
+            aria-controls="shengxiao-scope-sources"
+            class="marginal-toggle"
+            @click="sourcesExpanded = !sourcesExpanded"
+            @keydown.enter="sourcesExpanded = !sourcesExpanded"
+            @keydown.space.prevent="sourcesExpanded = !sourcesExpanded"
+          >
+            <span class="marginal-toggle__rule" aria-hidden="true" />
+            <span
+              >{{ sourcesExpanded ? '收起' : '展开' }}来源清单（{{
+                visibleSources.length
+              }}
+              条）</span
+            >
+            <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
+          </button>
+          <Transition name="expand">
+            <ul v-if="sourcesExpanded" id="shengxiao-scope-sources" class="mt-2 space-y-2">
+              <li v-for="s in visibleSources" :key="s.ref" class="font-sans text-sm">
+                <a
+                  :href="s.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-cinnabar underline break-words"
+                >
+                  {{ s.title }}
+                </a>
+                <span class="text-ink-light">（{{ s.ref }}）</span>
+              </li>
+            </ul>
+          </Transition>
+        </div>
       </section>
     </div>
 
@@ -886,6 +984,22 @@ const indexFootnote = '公历出生日期输入'
 </template>
 
 <style scoped>
+/* 折叠过渡：与设计系统 §4.1 标准模式一致（Ⅳ 段来源清单复用）。 */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 2000px;
+  opacity: 1;
+}
 /* 时区、来源标识在窄屏和放大字体下也必须留在正常阅读流中。 */
 .shengxiao-page {
   overflow-wrap: anywhere;

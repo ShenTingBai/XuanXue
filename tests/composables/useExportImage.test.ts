@@ -116,13 +116,18 @@ describe('useExportImage', () => {
     const mockEl = document.createElement('div')
 
     const clickSpy = vi.fn()
+    const originalCreateElement = document.createElement.bind(document)
+    const downloadedAnchors: HTMLAnchorElement[] = []
     const createElementSpy = vi
       .spyOn(document, 'createElement')
       .mockImplementation((tagName: string) => {
         if (tagName === 'a') {
-          return { download: '', href: '', click: clickSpy } as unknown as HTMLAnchorElement
+          const anchor = originalCreateElement('a')
+          anchor.click = clickSpy
+          downloadedAnchors.push(anchor)
+          return anchor
         }
-        return document.createElement(tagName)
+        return originalCreateElement(tagName)
       })
 
     const { toPng, getFontEmbedCSS } = await import('html-to-image')
@@ -133,7 +138,24 @@ describe('useExportImage', () => {
     expect(result).toBe(true)
     expect(createElementSpy).toHaveBeenCalledWith('a')
     expect(clickSpy).toHaveBeenCalled()
+    expect(downloadedAnchors).toHaveLength(1)
+    expect(downloadedAnchors[0].download).toBe('test.png')
+    expect(downloadedAnchors[0].href).toBe('data:image/png;base64,fake')
     createElementSpy.mockRestore()
+  })
+
+  it('rejects an empty or non-PNG data URL as an export failure', async () => {
+    const { useExportImage } = await import('../../composables/useExportImage')
+    const { exportToImage, exportError } = useExportImage()
+    const mockEl = document.createElement('div')
+
+    const { toPng, getFontEmbedCSS } = await import('html-to-image')
+    vi.mocked(getFontEmbedCSS).mockResolvedValue('')
+    vi.mocked(toPng).mockResolvedValue('data:image/jpeg;base64,wrong-format')
+
+    const result = await exportToImage(mockEl, 'invalid.png')
+    expect(result).toBe(false)
+    expect(exportError.value).toBe('导出结果不是有效的 PNG')
   })
 
   it('sets exportError when toPng fails', async () => {
