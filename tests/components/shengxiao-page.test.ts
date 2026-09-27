@@ -401,6 +401,23 @@ describe('shengxiao 游客页面', () => {
     expect((resultEl as HTMLElement).textContent).not.toContain('profileId')
     expect(resultFilename).toBe('生肖完整结果.png')
 
+    // 离屏结构（DOM 断言，2026-09-27 空白导出修正回归）：完整导出目标必须是
+    // data-result-card 卡片自身，而不是承担裁剪的 0 尺寸 stage——html-to-image
+    // 只克隆导出目标，裁剪属性留在不被克隆的 stage 上，卡片自身 left/top 为 0。
+    // 负偏移离屏（left:-100000px）的克隆产物是尺寸正确但整张空白的 PNG，
+    // 真实浏览器证据见 docs/validation/2026-09-27-shengxiao-full-export-blank-png-validation.md。
+    const resultStage = (resultEl as HTMLElement).parentElement
+    expect(resultStage).not.toBeNull()
+    expect(resultStage!.classList.contains('verified-result__export-stage')).toBe(true)
+    expect(resultStage!.getAttribute('aria-hidden')).toBe('true')
+    expect((resultEl as HTMLElement).classList.contains('verified-result__export-stage')).toBe(
+      false,
+    )
+    // 两条导出路径都不把 stage 传给 useExportImage（stage 进入克隆根会得到 0×0 画布）。
+    for (const [el] of exportMock.exportToImage.mock.calls) {
+      expect((el as HTMLElement).classList.contains('verified-result__export-stage')).toBe(false)
+    }
+
     // 驱动 isExporting false→true→false 且 exportError 非空 → 真实失败文案出现，已保存不出现
     isExporting.value = true
     await nextTick()
@@ -424,6 +441,28 @@ describe('shengxiao 游客页面', () => {
     await nextTick()
     expect(exportButtons[0].text()).toContain('已保存')
     expect(exportButtons[1].text()).toContain('保存本次结果图片')
+  })
+
+  it('离屏结构：完整导出卡在 0 尺寸 stage 内，无结果时不出现导出入口', async () => {
+    const wrapper = mountPage()
+    // 无结果（空态）：双轨导出入口都不渲染
+    expect(wrapper.find('.export-btn').exists()).toBe(false)
+
+    await fillAndConfirm(wrapper)
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+
+    // stage 是唯一裁剪承担者（aria-hidden），卡片是其直接子节点；scoped CSS 的
+    // 0×0 + overflow hidden 与卡片 left/top 0 由真实浏览器几何验收核对，
+    // happy-dom 不注入 scoped 样式，这里只锁结构关系。
+    const stage = wrapper.find('.verified-result__export-stage')
+    expect(stage.exists()).toBe(true)
+    expect(stage.attributes('aria-hidden')).toBe('true')
+    const card = stage.find('[data-result-card]')
+    expect(card.exists()).toBe(true)
+    // 隐私文化卡是可见卡片，不在离屏 stage 内（双轨结构互不混用）
+    expect(stage.find('[data-privacy-card]').exists()).toBe(false)
+    expect(wrapper.find('[data-privacy-card]').exists()).toBe(true)
   })
 
   it('公共文化切换不触发个人计算', async () => {

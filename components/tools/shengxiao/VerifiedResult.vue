@@ -186,54 +186,55 @@ const cultureCardItems = computed(() => [
         - 与交互结果区分离，避免把按钮、折叠件和导航截入图片；
         - 明确包含出生日期，入口处另有提示，不与默认脱敏卡片混用；
         - 仅保留可核验结果字段和来源入口，不复制 Ⅳ 段来源台账。
+        离屏方式（2026-09-27 真实浏览器验收修正）：0 尺寸 stage 承担「不可见且不占布局」，
+        裁剪属性留在不被克隆的 stage 上；html-to-image 克隆节点不归零 computed 的
+        left:-100000px，负偏移会把内容画到 foreignObject 视口外，产物尺寸正确但整张空白
+        （与八字 BaziExportCards 同根因同修法）；导出目标保持卡片自身 left/top 0。
       -->
-      <div
-        ref="resultCardEl"
-        class="verified-result__export-card"
-        aria-hidden="true"
-        data-result-card
-      >
-        <div class="verified-result__export-title">生肖结果</div>
-        <p class="verified-result__export-note">本图片包含本次输入的公历出生日期。</p>
-        <dl class="verified-result__export-grid">
-          <div>
-            <dt>公历出生日期</dt>
-            <dd>{{ result.inputDate }}</dd>
-          </div>
-          <div>
-            <dt>农历日期</dt>
-            <dd>{{ result.lunarDate }}</dd>
-          </div>
-          <div>
-            <dt>干支年</dt>
-            <dd>{{ result.ganZhiYear }}</dd>
-          </div>
-          <div>
-            <dt>生肖</dt>
-            <dd>{{ result.animal }}</dd>
-          </div>
-          <div>
-            <dt>对应地支</dt>
-            <dd>{{ result.earthlyBranch }}</dd>
-          </div>
-          <div>
-            <dt>规则版本</dt>
-            <dd>{{ result.ruleVersion }}</dd>
-          </div>
-          <div>
-            <dt>农历年公历起</dt>
-            <dd>{{ result.yearBoundary.startDate }}</dd>
-          </div>
-          <div>
-            <dt>农历年公历止</dt>
-            <dd>{{ result.yearBoundary.endDate }}</dd>
-          </div>
-          <div>
-            <dt>时区</dt>
-            <dd>{{ result.yearBoundary.timezone }}</dd>
-          </div>
-        </dl>
-        <p class="verified-result__export-source">来源入口：页面 Ⅳ「依据与范围」</p>
+      <div class="verified-result__export-stage" aria-hidden="true">
+        <div ref="resultCardEl" class="verified-result__export-card" data-result-card>
+          <div class="verified-result__export-title">生肖结果</div>
+          <p class="verified-result__export-note">本图片包含本次输入的公历出生日期。</p>
+          <dl class="verified-result__export-grid">
+            <div>
+              <dt>公历出生日期</dt>
+              <dd>{{ result.inputDate }}</dd>
+            </div>
+            <div>
+              <dt>农历日期</dt>
+              <dd>{{ result.lunarDate }}</dd>
+            </div>
+            <div>
+              <dt>干支年</dt>
+              <dd>{{ result.ganZhiYear }}</dd>
+            </div>
+            <div>
+              <dt>生肖</dt>
+              <dd>{{ result.animal }}</dd>
+            </div>
+            <div>
+              <dt>对应地支</dt>
+              <dd>{{ result.earthlyBranch }}</dd>
+            </div>
+            <div>
+              <dt>规则版本</dt>
+              <dd>{{ result.ruleVersion }}</dd>
+            </div>
+            <div>
+              <dt>农历年公历起</dt>
+              <dd>{{ result.yearBoundary.startDate }}</dd>
+            </div>
+            <div>
+              <dt>农历年公历止</dt>
+              <dd>{{ result.yearBoundary.endDate }}</dd>
+            </div>
+            <div>
+              <dt>时区</dt>
+              <dd>{{ result.yearBoundary.timezone }}</dd>
+            </div>
+          </dl>
+          <p class="verified-result__export-source">来源入口：页面 Ⅳ「依据与范围」</p>
+        </div>
       </div>
     </div>
   </div>
@@ -306,10 +307,24 @@ const cultureCardItems = computed(() => [
   font-size: 0.75rem;
   color: var(--color-ink-medium);
 }
+/*
+ * 离屏舞台：自身 0×0 + overflow hidden，页面不可见也不占布局。
+ * 裁剪放在这个不被克隆的容器上：html-to-image 只克隆卡片自身，卡片 computed
+ * left/top 保持 0，内容不会被画到 foreignObject 视口外（left:-100000px 的
+ * 克隆产物是尺寸正确但整张空白的 PNG，2026-09-27 隔离生产预览实测复现）。
+ */
+.verified-result__export-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
 .verified-result__export-card {
   position: absolute;
-  left: -100000px;
   top: 0;
+  left: 0;
   width: 640px;
   box-sizing: border-box;
   padding: 2rem;
