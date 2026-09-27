@@ -9,7 +9,7 @@ import type { H3Event } from 'h3'
  * 保留真实的 `ResultHistoryServiceError` 类（让错误映射的 instanceof 走真实路径），
  * 仅替换服务实例；随后动态导入端点模块。
  *
- * 覆盖：未认证 401、未授权（白名单未配置）403、体积 413、结构 400、限流 429、
+ * 覆盖：未认证 401、公开工具已登录用户无需内部白名单、体积 413、结构 400、限流 429、
  * **复算不一致 409 且不落库**、幂等重试只写一次、列表只回安全摘要、清空需 confirm、
  * 详情与单条删除的归属语义。
  *
@@ -182,11 +182,18 @@ describe('POST /api/result-history', () => {
     expect(serviceMock.saveSnapshot).not.toHaveBeenCalled()
   })
 
-  it('白名单未配置时即使已登录也返回 403（客户端判定不是安全边界）', async () => {
+  it('公开八字已登录用户无需内部白名单，仍由服务端复算后保存', async () => {
     delete process.env[ENV_KEY]
+    serviceMock.saveSnapshot.mockReturnValue({
+      created: true,
+      record: { recordId: 'rec-1', resultId: 'result-1', savedAt: '2026-09-14T12:00:00.000Z' },
+    })
     mockReadRawBody.mockResolvedValue(JSON.stringify(validBody()))
-    await expect(postHandler(authorizedEvent())).rejects.toMatchObject({ statusCode: 403 })
-    expect(serviceMock.saveSnapshot).not.toHaveBeenCalled()
+    const result = await postHandler(authorizedEvent())
+    expect(result).toMatchObject({ recordId: 'rec-1', created: true })
+    expect(serviceMock.saveSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({ accountId: ACCOUNT_ID, toolId: 'bazi' }),
+    )
   })
 
   it('请求体超过上限返回 413', async () => {

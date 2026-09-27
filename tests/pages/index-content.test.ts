@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { TOOL_CATALOG, isToolPubliclyAvailable } from '~/constants/tool-catalog'
 
 const indexPageSource = readFileSync(resolve(process.cwd(), 'pages/index.vue'), 'utf-8')
-/** 首页不得宣传的其余 10 项工具名（shengxiao 已公开，其名称由目录派生渲染）。 */
+/** 首页不得宣传的其余 9 项工具名（shengxiao 与 bazi 已公开，名称由目录派生渲染）。 */
 const nonPublicToolNames = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(tool.id)).map(
   tool => tool.name,
 )

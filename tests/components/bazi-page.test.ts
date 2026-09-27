@@ -127,7 +127,7 @@ describe('八字页面六段结构', () => {
     expect(page.get('[data-bazi-evidence-scope]').findAll('.bazi-fold-mark')).toHaveLength(1)
   })
 
-  it('Ⅰ 段列出定位、能回答与不能回答的闭集，并标注内部验证状态', async () => {
+  it('Ⅰ 段列出定位、能回答与不能回答的闭集，公开状态不显示内部验证提示', async () => {
     const page = await openPage()
     const guide = page.get('[data-bazi-section="guide"]')
     expect(guide.text()).toContain('本页能回答')
@@ -135,7 +135,7 @@ describe('八字页面六段结构', () => {
     for (const item of BAZI_NOT_OUTPUT) {
       expect(guide.text()).toContain(item)
     }
-    expect(page.get('[data-bazi-internal]').text()).toContain('内部验证')
+    expect(page.find('[data-bazi-internal]').exists()).toBe(false)
   })
 
   it('R5-C 六段段名为治理规范原名，Ⅳ 不得简写', async () => {
@@ -352,7 +352,7 @@ describe('八字结果状态与内容', () => {
     const scope = page.get('[data-bazi-evidence-scope]')
     expect(scope.text()).toContain('限制说明')
     expect(scope.text()).toContain('1 秒级精度尚未核验')
-    expect(scope.text()).toContain('原刻影印核对尚未完成')
+    expect(scope.text()).toContain('影像关键段落核对')
     expect(scope.text()).toContain('1901-01-01')
     for (const item of BAZI_NOT_OUTPUT) {
       expect(scope.get('[data-bazi-not-output]').text()).toContain(item)

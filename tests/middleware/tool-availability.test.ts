@@ -61,7 +61,7 @@ function stubNuxtGlobals(): void {
   })
 }
 
-/** 目录里 `internal + enabled`（内部验证通道可放行）的工具，shengxiao 公开后为 zeji 与 bazi。 */
+/** 目录里 `internal + enabled`（内部验证通道可放行）的工具，bazi 公开后仅剩 zeji。 */
 const enabledInternalTools = TOOL_CATALOG.filter(
   tool => !isToolPubliclyAvailable(tool.id) && tool.computePolicy === 'enabled',
 )
@@ -88,23 +88,25 @@ describe('工具可用性路由围栏', () => {
     vi.unstubAllGlobals()
   })
 
-  it('游客可直接进入已公开的 /tools/shengxiao，不跳状态页', async () => {
-    expect(isToolPubliclyAvailable('shengxiao')).toBe(true)
-    // 公开工具在围栏第一行即返回，不进入内部验证分支，也不重定向。
-    await expect(
-      middleware({ path: '/tools/shengxiao', fullPath: '/tools/shengxiao' }),
-    ).resolves.toBeUndefined()
-    await expect(
-      middleware({ path: '/tools/shengxiao/', fullPath: '/tools/shengxiao/' }),
-    ).resolves.toBeUndefined()
+  it('游客可直接进入已公开的 shengxiao 与 bazi，不跳状态页', async () => {
+    for (const id of ['shengxiao', 'bazi']) {
+      expect(isToolPubliclyAvailable(id)).toBe(true)
+      // 公开工具在围栏第一行即返回，不进入内部验证分支，也不重定向。
+      await expect(
+        middleware({ path: `/tools/${id}`, fullPath: `/tools/${id}` }),
+      ).resolves.toBeUndefined()
+      await expect(
+        middleware({ path: `/tools/${id}/`, fullPath: `/tools/${id}/` }),
+      ).resolves.toBeUndefined()
+    }
     expect(navigateTo).not.toHaveBeenCalled()
   })
 
   it('默认矩阵（无内部授权播种）下不可公开工具都不得放行', async () => {
     const nonPublicTools = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(tool.id))
-    // shengxiao 公开后，不可公开工具由 11 项减为 10 项。
-    expect(nonPublicTools).toHaveLength(10)
-    expect(enabledInternalTools.map(tool => tool.id)).toEqual(['zeji', 'bazi'])
+    // shengxiao 与 bazi 公开后，不可公开工具由 11 项减为 9 项。
+    expect(nonPublicTools).toHaveLength(9)
+    expect(enabledInternalTools.map(tool => tool.id)).toEqual(['zeji'])
     expect(blockedTools).toHaveLength(8)
 
     for (const tool of blockedTools) {
@@ -155,10 +157,10 @@ describe('工具可用性路由围栏', () => {
     }
   })
 
-  it('internal + enabled 的 zeji 与 bazi 不得被当成普通访客公开能力', async () => {
+  it('internal + enabled 的 zeji 不得被当成普通访客公开能力', async () => {
     expect(isToolPubliclyAvailable('zeji')).toBe(false)
-    expect(isToolPubliclyAvailable('bazi')).toBe(false)
-    for (const id of ['zeji', 'bazi']) {
+    expect(isToolPubliclyAvailable('bazi')).toBe(true)
+    for (const id of ['zeji']) {
       // 未播种时只能是「进状态页」或「整页重取」，绝不放行。
       const result = await middleware({ path: `/tools/${id}`, fullPath: `/tools/${id}` })
       expect([fenceTarget(id), `/tools/${id}`]).toContainEqual(result)
@@ -166,151 +168,147 @@ describe('工具可用性路由围栏', () => {
   })
 
   it('客户端只信任 SSR 播种的授权：播种为允许时仅放行该工具', async () => {
-    // 模拟服务端已判定账号 12 对 bazi 允许内部验证并写入 useState。
+    // 模拟服务端已判定账号 12 对 zeji 允许内部验证并写入 useState。
     seedCurrentAccount({ id: 12 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
 
     await expect(
-      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+      middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' }),
     ).resolves.toBeUndefined()
-    // 其余 internal + enabled 工具未播种：整页重取（服务端复判），不直接放行。
-    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toBe(
-      '/tools/zeji',
-    )
-    expect(navigateTo).toHaveBeenLastCalledWith('/tools/zeji', { external: true })
+    // bazi 已公开；其余 internal + enabled 工具不在本测试场景中。
   })
 
   it('登录后点入口链接可用：软导航整页重取，且保留完整路径', async () => {
     // 回归背景：登录是纯客户端动作，SSR payload 里没有内部工具播种值。
-    // 旧实现「未知即失败关闭」使已授权账号点首页「八字（内部验证）」卡片必落到状态页。
+    // 旧实现「未知即失败关闭」使已授权账号点内部工具入口必落到状态页。
     await expect(
-      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi?from=home' }),
-    ).resolves.toBe('/tools/bazi?from=home')
-    expect(navigateTo).toHaveBeenLastCalledWith('/tools/bazi?from=home', { external: true })
+      middleware({ path: '/tools/zeji', fullPath: '/tools/zeji?from=home' }),
+    ).resolves.toBe('/tools/zeji?from=home')
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/zeji?from=home', { external: true })
   })
 
   it('水合期未见播种时失败关闭，不整页重取（避免刷新死循环）', async () => {
     isHydrating = true
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
-    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('zeji'))
   })
 
   it('播种为拒绝时不重取：直接进状态页', async () => {
     seedCurrentAccount({ id: 12 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: false } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: false } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
-    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('zeji'))
   })
 
   it('退出登录后不再复用旧播种：播种的允许值只在有会话时生效', async () => {
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
     stateStore['auth:status'] = 'guest'
     seedCurrentAccount(null)
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
   })
 
   it('播种账号与当前账号一致且已认证：直接放行（正常复用）', async () => {
     seedCurrentAccount({ id: 12 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
 
     await expect(
-      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+      middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' }),
     ).resolves.toBeUndefined()
     expect(navigateTo).not.toHaveBeenCalled()
   })
 
   it('A→B 换号登录：非水合期整页重取，不得复用 A 的 true 直接放行', async () => {
-    // A（id=12）的 SSR 播种 bazi=true，当前已换为 B（id=34）登录。
+    // A（id=12）的 SSR 播种 zeji=true，当前已换为 B（id=34）登录。
     seedCurrentAccount({ id: 34 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBe(
-      '/tools/bazi',
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toBe(
+      '/tools/zeji',
     )
-    expect(navigateTo).toHaveBeenLastCalledWith('/tools/bazi', { external: true })
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/zeji', { external: true })
   })
 
   it('A→B 换号登录且水合期：失败关闭，不得放行也不整页重取', async () => {
     isHydrating = true
     seedCurrentAccount({ id: 34 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
-    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('zeji'))
   })
 
   it('A 的 true 播种后退出再登录 B：B 仍整页重取而不是复用 true', async () => {
     // 先以 A 播种并复用（放行）。
     seedCurrentAccount({ id: 12 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
     await expect(
-      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+      middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' }),
     ).resolves.toBeUndefined()
 
     // 退出 A：auth:status 变 guest，auth:account 清空。
     stateStore['auth:status'] = 'guest'
     seedCurrentAccount(null)
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
 
     // 登录 B：auth:status 恢复 authenticated，当前账号变为 34，但播种仍是 A 的 12。
     stateStore['auth:status'] = 'authenticated'
     seedCurrentAccount({ id: 34 })
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toBe(
-      '/tools/bazi',
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toBe(
+      '/tools/zeji',
     )
-    expect(navigateTo).toHaveBeenLastCalledWith('/tools/bazi', { external: true })
+    expect(navigateTo).toHaveBeenLastCalledWith('/tools/zeji', { external: true })
   })
 
   it('当前账号为空且 authStatus=guest：进状态页（游客不可复用任何播种）', async () => {
     seedCurrentAccount(null)
     stateStore['auth:status'] = 'guest'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
   })
 
   it('播种 false 且账号一致：直接进状态页', async () => {
     seedCurrentAccount({ id: 12 })
     stateStore['auth:status'] = 'authenticated'
-    seedInternalAccess({ accountId: 12, decisions: { bazi: false } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: false } })
 
-    await expect(middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' })).resolves.toEqual(
-      fenceTarget('bazi'),
+    await expect(middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' })).resolves.toEqual(
+      fenceTarget('zeji'),
     )
-    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('bazi'))
+    expect(navigateTo).toHaveBeenLastCalledWith(fenceTarget('zeji'))
   })
 
   it('水合期同账号可复用 SSR 播种值：不因 auth 恢复中而误判跨账号', async () => {
-    // 服务端渲染时已播种账号 12 的 bazi=true，客户端水合时 auth:status 仍为 restoring、
+    // 服务端渲染时已播种账号 12 的 zeji=true，客户端水合时 auth:status 仍为 restoring、
     // auth:account 尚未恢复；此时必须放行（同账号刷新），不能失败关闭。
     isHydrating = true
     stateStore['auth:status'] = 'restoring'
     seedCurrentAccount(null)
-    seedInternalAccess({ accountId: 12, decisions: { bazi: true } })
+    seedInternalAccess({ accountId: 12, decisions: { zeji: true } })
 
     await expect(
-      middleware({ path: '/tools/bazi', fullPath: '/tools/bazi' }),
+      middleware({ path: '/tools/zeji', fullPath: '/tools/zeji' }),
     ).resolves.toBeUndefined()
   })
 

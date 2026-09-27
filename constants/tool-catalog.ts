@@ -36,10 +36,12 @@ export interface ToolCatalogEntry {
 }
 
 export const TOOL_CATALOG: readonly ToolCatalogEntry[] = [
-  // 公开候选：shengxiao 是唯一 approved / public / enabled 工具，公开范围限于 R3 Accepted 的
-  // 「查我的生肖 / 认识十二生肖」限定能力。公开范围**不含** constellation 太阳星座、
-  // 人格/婚配/运势/本命佛/化太岁扩展，也不含服务器历史（historyPolicy 保持 disabled）；
-  // 其余 10 项仍为 in_review / internal，zeji 与 bazi 仅按 §20.2 供授权内部验证。
+  // 公开候选：shengxiao 与 bazi 为 approved / public / enabled 工具。
+  // 生肖公开范围限于 R3 Accepted 的「查我的生肖 / 认识十二生肖」限定能力，不含人格/婚配/运势扩展；
+  // 八字公开范围限于日期级三柱、来源与边界说明，不含高级规则、预测和导出。
+  // 生肖不含服务器历史（historyPolicy 保持 disabled）；
+  // bazi 已完成 R6 公开验收；公开范围仅限日期级三柱、来源与边界说明，导出和高级规则仍延期。
+  // 其余 9 项仍为 in_review / internal；zeji 继续按 §20.2 供授权内部验证。
   {
     id: 'shengxiao',
     name: '生肖',
@@ -72,11 +74,9 @@ export const TOOL_CATALOG: readonly ToolCatalogEntry[] = [
     id: 'bazi',
     name: '八字',
     route: '/tools/bazi',
-    reviewStatus: 'in_review',
-    exposure: 'internal',
-    // R5：按治理规范 §20.2「internal + enabled 只允许授权内部验证」启用计算与历史创建，
-    // 供授权账号在真实构建上验收；exposure 保持 internal，公开判定仍为 false，
-    // 顶栏/首页/SEO 不受影响。内部验证由 XUANXUE_INTERNAL_TOOLS 白名单控制，默认关闭。
+    reviewStatus: 'approved',
+    exposure: 'public',
+    // R6：公开范围仅包含日期级三柱与可追溯规则说明；保存与历史仍走显式认证确认。
     computePolicy: 'enabled',
     historyPolicy: 'create_allowed',
   },

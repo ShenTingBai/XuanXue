@@ -95,9 +95,9 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 
 | 工具 ID         | 第一版角色               | reviewStatus | exposure | computePolicy | historyPolicy  |
 | --------------- | ------------------------ | ------------ | -------- | ------------- | -------------- |
-| `shengxiao`     | 首批核心：生肖           | in_review    | internal | blocked       | disabled       |
+| `shengxiao`     | 首批核心：生肖           | approved     | public   | enabled       | disabled       |
 | `constellation` | 后续核心：太阳星座       | in_review    | internal | blocked       | disabled       |
-| `bazi`          | 首批核心：八字基础排盘   | in_review    | internal | enabled       | create_allowed |
+| `bazi`          | 首批核心：八字基础排盘   | approved     | public   | enabled       | create_allowed |
 | `zeji`          | 候选：日期对照           | in_review    | internal | enabled       | disabled       |
 | `guming`        | 候选：称骨表对照         | in_review    | internal | blocked       | disabled       |
 | `yijing`        | 候选：周易卦象阅读       | in_review    | internal | blocked       | disabled       |
@@ -107,15 +107,15 @@ XuanXue 已部署在可由互联网访问的服务器上，主要用于项目所
 | `hehun`         | 封存候选：八字关系对照   | in_review    | internal | blocked       | disabled       |
 | `meihua`        | 封存候选：梅花起卦演示   | in_review    | internal | blocked       | disabled       |
 
-生肖须在 R3 来源、实现、自动化、浏览器和用户验收完成后另行批准 approved/public/enabled，历史保持 disabled；八字在 R5/R6 对应验收后才可批准公开与 create_allowed。阶段条件不是运行枚举，不能提前写入目录。太阳星座不属于首批 R1–R6 交付。
+生肖和八字已分别完成限定公开验收并批准为 approved/public/enabled；生肖历史保持 disabled，八字保存/历史仍为 create_allowed 且必须主动认证确认。太阳星座不属于首批 R1–R6 交付。
 
-11项工具路由均受挂载前围栏限制；zeji 的 internal/enabled 不放行普通访客。当前 R1 的四维目录与历史权限围栏已落地，未来产品能力仍按各自契约验收，不从旧 listed 状态推定可用。不得新增独立六爻公开入口绕过 yijing/meihua 围栏。
+11项工具路由均受挂载前围栏限制；zeji 的 internal/enabled 不放行普通访客。当前目录与历史权限围栏已落地，未来产品能力仍按各自契约验收，不从旧 listed 状态推定可用。不得新增独立六爻公开入口绕过 yijing/meihua 围栏。
 
 ### 6.2 验收后的历史目标与导出差异
 
 | 工具范围                           | 对应候选或核心版本通过验收后的历史策略                                    | 本地 PNG 边界                                                                             |
 | ---------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| 八字                               | create_allowed；仅主动确认保存，前置能力未验收不得切换                    | 默认脱敏；完整自用版须主动选择                                                            |
+| 八字                               | create_allowed；R6 公开版仍仅允许主动认证并确认保存                       | 默认脱敏；完整自用版须主动选择                                                            |
 | 紫微                               | create_allowed；重新开放并完成历史验收后才可切换；当前围栏期仍为 disabled | 默认脱敏；完整自用版须主动选择                                                            |
 | 生肖、太阳星座、称骨、八字关系对照 | disabled                                                                  | 按单项契约脱敏与预览；对方输入额外提示                                                    |
 | 姓名、测字、周易、梅花             | disabled                                                                  | 姓名默认匿名；测字按资料/观照轨道；周易保留形成方式；梅花保留演示日期和时辰、默认不含分钟 |
@@ -229,6 +229,12 @@ R4 本人档案已完成代码实施与验证用例编写，状态为 **Implemen
 - R5 内部版对 `GAP-BZ-007` 的影印缺口采用用户确认的“接受限制”处理：不声称原典已核验，不提升 `SRC-BZ-008/009`，若未来公开 bazi 必须重新取得影像并完成逐句核对。
 
 **R5 阶段状态已由用户于 2026-09-20 确认，为 Accepted（限定内部验证版）**；本接受不改变公开准入与工具围栏，`bazi` 仍不对普通访客开放。完整边界见 [R5 内部验证版限定接受记录](../validation/2026-09-20-r5-limited-acceptance-validation.md)。
+
+### 8.8 R6 八字公开验收状态（2026-09-27）
+
+R5 的内部状态说明保留为历史记录。2026-09-27 完成 R6 最终公开验收：[验证记录](../validation/2026-09-27-r6-bazi-public-acceptance-validation.md)。自动化、隔离生产预览、来源限定主张、游客生成流程、来源展开、刷新清空、键盘/状态提示及 320/360/390/414/920/1280 与 200% 浏览器验收均通过。
+
+用户已授权在全部门禁通过后公开八字，因此当前 `bazi` 为 `approved / public / enabled / create_allowed`。公开范围严格限于日期级三柱、规则/来源版本、边界候选、限制和不输出清单；立春年界继续标记为“由条文与二十四节气定义推出、本项目采用”，不宣称古籍明文或国家标准规定。时柱、大运、流年、流月、神煞、评分、现实预测和图片导出仍未开放。
 
 ## 9. 已完成的审计与历史证据
 

@@ -10,15 +10,15 @@ const nonPublicToolNames = TOOL_CATALOG.filter(tool => !isToolPubliclyAvailable(
 )
 
 describe('全局公开元数据（R1 围栏 / 生肖公开候选）', () => {
-  it('公开集合只含 shengxiao，不含其他 10 项工具', () => {
+  it('公开集合含 shengxiao 与 bazi，其余 9 项仍未公开', () => {
     const publicIds = TOOL_CATALOG.filter(tool => isToolPubliclyAvailable(tool.id)).map(
       tool => tool.id,
     )
-    expect(publicIds).toEqual(['shengxiao'])
-    // constellation 与 bazi 不得随生肖一起公开。
+    expect(publicIds).toEqual(['shengxiao', 'bazi'])
+    // constellation 仍不得随首批工具公开。
     expect(isToolPubliclyAvailable('constellation')).toBe(false)
-    expect(isToolPubliclyAvailable('bazi')).toBe(false)
-    expect(nonPublicToolNames).toHaveLength(10)
+    expect(isToolPubliclyAvailable('bazi')).toBe(true)
+    expect(nonPublicToolNames).toHaveLength(9)
   })
 
   it('PWA、默认 SEO 和分享描述不列出当前非公开工具', () => {

@@ -37,12 +37,12 @@ describe('tool catalog — 四维目录契约', () => {
     }
   })
 
-  it('公开候选矩阵：shengxiao 是唯一 approved/public/enabled，历史仍为 disabled', () => {
+  it('公开候选矩阵：shengxiao 与 bazi 为 approved/public/enabled', () => {
     for (const tool of TOOL_CATALOG) {
-      const isPublicCandidate = tool.id === 'shengxiao'
+      const isPublicCandidate = tool.id === 'shengxiao' || tool.id === 'bazi'
       expect(tool.reviewStatus).toBe(isPublicCandidate ? 'approved' : 'in_review')
       expect(tool.exposure).toBe(isPublicCandidate ? 'public' : 'internal')
-      // R5：bazi 因授权内部验证需要创建历史（治理规范 §20.2）；shengxiao 公开但零服务器历史。
+      // shengxiao 零服务器历史；bazi 公开计算但保存/历史仍走显式认证确认。
       expect(tool.historyPolicy).toBe(tool.id === 'bazi' ? 'create_allowed' : 'disabled')
     }
     for (const tool of TOOL_CATALOG) {
@@ -51,15 +51,15 @@ describe('tool catalog — 四维目录契约', () => {
     }
   })
 
-  it('只有 shengxiao 对普通访客公开：公开计算与导出放行，历史读写拒绝', () => {
+  it('shengxiao 与 bazi 对普通访客公开：公开计算与导出放行，历史策略独立', () => {
     for (const tool of TOOL_CATALOG) {
-      const expectPublic = tool.id === 'shengxiao'
-      // internal 不能被 computePolicy 绕过：其余 10 项公开判定必须为 false。
+      const expectPublic = tool.id === 'shengxiao' || tool.id === 'bazi'
+      // 未公开工具不能被 computePolicy 绕过。
       expect(isToolPubliclyAvailable(tool.id)).toBe(expectPublic)
       expect(canPubliclyCompute(tool.id)).toBe(expectPublic)
       expect(canExportTool(tool.id)).toBe(expectPublic)
     }
-    // 公开不等于允许历史：shengxiao 零服务器历史（契约 §6.4），仅 bazi 因内部验证放行。
+    // 公开不等于允许匿名历史：shengxiao 零服务器历史，bazi 仍要求认证后显式保存。
     for (const tool of TOOL_CATALOG) {
       const expectHistory = tool.id === 'bazi'
       expect(canReadHistory(tool.id)).toBe(expectHistory)
@@ -79,10 +79,11 @@ describe('tool catalog — 四维目录契约', () => {
   })
 
   it('状态页参数只接受单值的不可公开工具 id', () => {
-    // 已公开的 shengxiao 不再进入状态页；其余 10 项仍按 id 返回。
+    // 已公开的 shengxiao 与 bazi 不进入状态页；其余 9 项仍按 id 返回。
     expect(getStatusOnlyToolFromQuery('shengxiao')).toBeUndefined()
+    expect(getStatusOnlyToolFromQuery('bazi')).toBeUndefined()
     for (const tool of TOOL_CATALOG) {
-      if (tool.id === 'shengxiao') continue
+      if (tool.id === 'shengxiao' || tool.id === 'bazi') continue
       expect(getStatusOnlyToolFromQuery(tool.id)?.id).toBe(tool.id)
     }
     expect(getStatusOnlyToolFromQuery(['ziwei'])).toBeUndefined()
@@ -116,10 +117,11 @@ describe('tool catalog — 四维目录契约', () => {
   })
 
   it('getStatusOnlyToolFromQuery 只返回当前不可公开的单值工具', () => {
-    // shengxiao 已公开：不再作为状态页工具返回。
+    // shengxiao 与 bazi 已公开：不再作为状态页工具返回。
     expect(getStatusOnlyToolFromQuery('shengxiao')).toBeUndefined()
+    expect(getStatusOnlyToolFromQuery('bazi')).toBeUndefined()
     for (const tool of TOOL_CATALOG) {
-      if (tool.id === 'shengxiao') continue
+      if (tool.id === 'shengxiao' || tool.id === 'bazi') continue
       expect(getStatusOnlyToolFromQuery(tool.id)?.id).toBe(tool.id)
     }
     expect(getStatusOnlyToolFromQuery(['ziwei'])).toBeUndefined()
@@ -130,9 +132,11 @@ describe('tool catalog — 四维目录契约', () => {
 
   it('getStatusOnlyToolFromQuery 逻辑显式依赖 isToolPubliclyAvailable，已公开工具不显示整理中', () => {
     // 契约验证：approved/public/enabled 的工具不再作为状态页工具返回。
-    // shengxiao 已公开 → 必须被排除；zeji 仍 internal+enabled → 仍返回状态页工具。
+    // shengxiao 与 bazi 已公开 → 必须被排除；zeji 仍 internal+enabled → 仍返回状态页工具。
     expect(isToolPubliclyAvailable('shengxiao')).toBe(true)
     expect(getStatusOnlyToolFromQuery('shengxiao')).toBeUndefined()
+    expect(isToolPubliclyAvailable('bazi')).toBe(true)
+    expect(getStatusOnlyToolFromQuery('bazi')).toBeUndefined()
     expect(getToolById('zeji')).toBeDefined()
     expect(getStatusOnlyToolFromQuery('zeji')?.id).toBe('zeji')
   })
