@@ -31,12 +31,12 @@
 
 **落地映射**：设计稿措辞 → 产品既有措辞，保留真实项目壳：
 
-| 设计稿 | 落地实现 | 说明 |
-| --- | --- | --- |
-| `h2 出生日期输入` | `h2 查我的生肖` | 保留产品既有措辞（计划明示） |
-| `h2 计算结果` | `h2 计算结果`（新增） | 本轮新增的可见阅读层级 |
-| `h2 文化说明` | `h2 认识十二生肖` | 保留产品既有措辞 |
-| `h2 依据与范围` | `h2 依据与范围` | 已有 |
+| 设计稿            | 落地实现              | 说明                         |
+| ----------------- | --------------------- | ---------------------------- |
+| `h2 出生日期输入` | `h2 查我的生肖`       | 保留产品既有措辞（计划明示） |
+| `h2 计算结果`     | `h2 计算结果`（新增） | 本轮新增的可见阅读层级       |
+| `h2 文化说明`     | `h2 认识十二生肖`     | 保留产品既有措辞             |
+| `h2 依据与范围`   | `h2 依据与范围`       | 已有                         |
 
 ---
 
@@ -83,18 +83,18 @@ guest 与 authenticated 分处两个不同的视觉分组。
 
 ## 4. 工程验证
 
-| 检查 | 命令 | 结果 |
-| --- | --- | --- |
-| 空白错误 | `git diff --check` | 通过 |
-| 乱码 | 项目 AGENTS.md 规定的乱码特征扫描 | 无命中 |
-| 类型 | `npm run typecheck` | 通过（exit 0） |
-| 静态检查 | `npm run lint` | 0 errors（57 warnings，均为改动前既有） |
-| 构建 | `npm run build` | 通过（7.07 MB / 1.62 MB gzip） |
-| 测试 | `npm run test` | **未全绿：2732 passed / 1 failed** —— 见 §6 |
-| 迁移残留 | `rg "bazi-check" components/bazi/BaziInputForm.vue tests/pages/tools/bazi.test.ts` | 0 匹配 |
-| 账户底部顺序 | `npx vitest run tests/layouts/default-layout.test.ts` | 11 passed |
-| 生肖结构回归 | `npx vitest run tests/components/shengxiao-page.test.ts` | 61 passed（新增 4 项结构断言） |
-| 八字交互回归 | `npx vitest run tests/pages/tools/bazi.test.ts` | 11 passed |
+| 检查         | 命令                                                                               | 结果                                        |
+| ------------ | ---------------------------------------------------------------------------------- | ------------------------------------------- |
+| 空白错误     | `git diff --check`                                                                 | 通过                                        |
+| 乱码         | 项目 AGENTS.md 规定的乱码特征扫描                                                  | 无命中                                      |
+| 类型         | `npm run typecheck`                                                                | 通过（exit 0）                              |
+| 静态检查     | `npm run lint`                                                                     | 0 errors（57 warnings，均为改动前既有）     |
+| 构建         | `npm run build`                                                                    | 通过（7.07 MB / 1.62 MB gzip）              |
+| 测试         | `npm run test`                                                                     | **未全绿：2732 passed / 1 failed** —— 见 §6 |
+| 迁移残留     | `rg "bazi-check" components/bazi/BaziInputForm.vue tests/pages/tools/bazi.test.ts` | 0 匹配                                      |
+| 账户底部顺序 | `npx vitest run tests/layouts/default-layout.test.ts`                              | 11 passed                                   |
+| 生肖结构回归 | `npx vitest run tests/components/shengxiao-page.test.ts`                           | 61 passed（新增 4 项结构断言）              |
+| 八字交互回归 | `npx vitest run tests/pages/tools/bazi.test.ts`                                    | 11 passed                                   |
 
 ---
 
@@ -104,17 +104,17 @@ guest 与 authenticated 分处两个不同的视觉分组。
 
 ### 5.1 移动抽屉账户区（390px，guest）
 
-| 指标 | 实测 |
-| --- | --- |
-| 工具导航底部 | y=157 |
-| 账户项顶部 / 底部 | y=664 / y=708 |
-| 抽屉面板底部 | y=720 |
-| 账户项命中高 | 44px |
-| 账户项是否在导航之后 | 是（664 > 157） |
-| spacer 是否早于账户项 | 是 |
-| `/login` 入口数 | 1 |
-| 文本 / aria-label | 「未登录」 /「未登录，前往登录或注册」 |
-| 是否并排「未登录 登录」 | 否 |
+| 指标                    | 实测                                   |
+| ----------------------- | -------------------------------------- |
+| 工具导航底部            | y=157                                  |
+| 账户项顶部 / 底部       | y=664 / y=708                          |
+| 抽屉面板底部            | y=720                                  |
+| 账户项命中高            | 44px                                   |
+| 账户项是否在导航之后    | 是（664 > 157）                        |
+| spacer 是否早于账户项   | 是                                     |
+| `/login` 入口数         | 1                                      |
+| 文本 / aria-label       | 「未登录」 /「未登录，前往登录或注册」 |
+| 是否并排「未登录 登录」 | 否                                     |
 
 ### 5.2 移动抽屉账户区（390px，authenticated）
 
@@ -124,40 +124,40 @@ guest 与 authenticated 分处两个不同的视觉分组。
 
 ### 5.3 窄屏与字体缩放
 
-| 视口 | 横向溢出 | 选择控件最小高 | meta 溢出 |
-| --- | --- | --- | --- |
-| 320px | 无 | 44px | 无 |
-| 360px | 无 | 44px | 无 |
-| 390px | 无 | 44px | 无 |
-| 414px | 无 | 44px | 无 |
-| 320px + 200% 字体 | 无 | 236px | 无 |
-| 414px + 200% 字体 | 无 | 101px | 无 |
+| 视口              | 横向溢出 | 选择控件最小高 | meta 溢出 |
+| ----------------- | -------- | -------------- | --------- |
+| 320px             | 无       | 44px           | 无        |
+| 360px             | 无       | 44px           | 无        |
+| 390px             | 无       | 44px           | 无        |
+| 414px             | 无       | 44px           | 无        |
+| 320px + 200% 字体 | 无       | 236px          | 无        |
+| 414px + 200% 字体 | 无       | 101px          | 无        |
 
 320px 抽屉 guest 账户项：命中高 44px、底部 y=688（面板底 700）、文本无裁切、`/login` 入口 1 个。
 
 ### 5.4 生肖页面结构（生产构建）
 
-| 项 | 实测 |
-| --- | --- |
-| 四段存在 | `#shengxiao-query` / `#shengxiao-result` / `#shengxiao-culture` / `#shengxiao-scope` 全部存在 |
-| 事实 meta | 年界口径 / 支持范围（公历 1901-01-01 至查询当日）/ 时区 Asia/Shanghai / 规则版本 2026-09-09，全部直接可见 |
-| 计算结果标题与说明 | 「计算结果」+「不含推断」可见 |
-| 默认状态 | 空态「尚未生成结果」，位于 `aria-live="polite" aria-atomic="true"` 容器内 |
-| 文化 tabs | 12 个 tab，tablist / tabpanel 关联存在 |
-| 来源台账 | `aria-expanded="false"`，`#culture-sources-panel` 不存在；文化边界说明仍直接可见 |
-| 侧边锚点 | 查我的生肖 / 计算结果 / 认识十二生肖 |
-| 生成后 | 成功态出现、空态消失、生肖与干支可见、年界与范围可见、**关键限制可见**、传统分类仍默认收起、导出与保存入口存在 |
-| console / unhandledrejection | 0 |
+| 项                           | 实测                                                                                                           |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 四段存在                     | `#shengxiao-query` / `#shengxiao-result` / `#shengxiao-culture` / `#shengxiao-scope` 全部存在                  |
+| 事实 meta                    | 年界口径 / 支持范围（公历 1901-01-01 至查询当日）/ 时区 Asia/Shanghai / 规则版本 2026-09-09，全部直接可见      |
+| 计算结果标题与说明           | 「计算结果」+「不含推断」可见                                                                                  |
+| 默认状态                     | 空态「尚未生成结果」，位于 `aria-live="polite" aria-atomic="true"` 容器内                                      |
+| 文化 tabs                    | 12 个 tab，tablist / tabpanel 关联存在                                                                         |
+| 来源台账                     | `aria-expanded="false"`，`#culture-sources-panel` 不存在；文化边界说明仍直接可见                               |
+| 侧边锚点                     | 查我的生肖 / 计算结果 / 认识十二生肖                                                                           |
+| 生成后                       | 成功态出现、空态消失、生肖与干支可见、年界与范围可见、**关键限制可见**、传统分类仍默认收起、导出与保存入口存在 |
+| console / unhandledrejection | 0                                                                                                              |
 
 ### 5.5 截图
 
 `D:/Projects/Project/XuanXue/.claude/audit-shots/`
 
-| 文件 | 内容 |
-| --- | --- |
+| 文件                            | 内容                                   |
+| ------------------------------- | -------------------------------------- |
 | `v3-01-mobile-drawer-guest.png` | 390px 抽屉：账户项贴底、与工具导航分离 |
-| `v3-02-mobile-drawer-auth.png` | 390px 抽屉登录态：同底部账户区 |
-| `v3-03-shengxiao-structure.png` | 生肖页面：meta、输入卡、计算结果层级 |
+| `v3-02-mobile-drawer-auth.png`  | 390px 抽屉登录态：同底部账户区         |
+| `v3-03-shengxiao-structure.png` | 生肖页面：meta、输入卡、计算结果层级   |
 
 ---
 
@@ -209,12 +209,12 @@ tests/components/bazi-page.test.ts:122
 
 ## 8. 状态分离（不得互相替代）
 
-| 状态 | 值 |
-| --- | --- |
-| 工程通过 | **否**（typecheck / lint / build 通过，`npm run test` 有 1 项因计划矛盾未绿） |
-| 视觉验收 | 通过（本文 §5，生产构建 + 真实浏览器） |
-| 用户接受 | **pending** |
-| 正式公开批准 | **pending**（本轮未改变任何工具的公开状态） |
+| 状态         | 值                                                                            |
+| ------------ | ----------------------------------------------------------------------------- |
+| 工程通过     | **否**（typecheck / lint / build 通过，`npm run test` 有 1 项因计划矛盾未绿） |
+| 视觉验收     | 通过（本文 §5，生产构建 + 真实浏览器）                                        |
+| 用户接受     | **pending**                                                                   |
+| 正式公开批准 | **pending**（本轮未改变任何工具的公开状态）                                   |
 
 ---
 

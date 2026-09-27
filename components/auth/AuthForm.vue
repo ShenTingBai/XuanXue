@@ -175,10 +175,7 @@ const submit = async () => {
           aria-required="true"
           :disabled="loading"
         />
-        <span
-          class="choice-control__indicator choice-control__indicator--box"
-          aria-hidden="true"
-        />
+        <span class="choice-control__indicator choice-control__indicator--box" aria-hidden="true" />
         <span class="choice-control__text">我已年满十四周岁</span>
       </label>
 
@@ -191,10 +188,7 @@ const submit = async () => {
           aria-required="true"
           :disabled="loading"
         />
-        <span
-          class="choice-control__indicator choice-control__indicator--box"
-          aria-hidden="true"
-        />
+        <span class="choice-control__indicator choice-control__indicator--box" aria-hidden="true" />
         <span class="choice-control__text">
           我已阅读并同意<NuxtLink
             to="/privacy"
@@ -215,10 +209,7 @@ const submit = async () => {
           aria-required="true"
           :disabled="loading"
         />
-        <span
-          class="choice-control__indicator choice-control__indicator--box"
-          aria-hidden="true"
-        />
+        <span class="choice-control__indicator choice-control__indicator--box" aria-hidden="true" />
         <span class="choice-control__text">
           我已阅读并同意<NuxtLink
             to="/terms"
