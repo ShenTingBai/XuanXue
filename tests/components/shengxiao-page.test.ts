@@ -19,6 +19,12 @@ import { SHENGXIAO_RULE_VERSION } from '~/constants/shengxiao-rules'
  * - 退出用例区分个人结果区/导出卡与始终保留的公共文化列表；
  * - unknown/underage 分别检查按钮禁用与处理函数保护，不把禁用行为当作函数内门禁；
  * - 键盘单次激活标注待真实浏览器验收，不以 trigger(click) 冒充键盘证据。
+ *
+ * 2026-09-27 收敛补充（design-system §4.2b）：
+ * - 年龄回归从「已满/未满」双 radio 三态改为共享 AgeConsentCheckbox（单 checkbox）的
+ *   未勾选门禁，并锁定共享长文案与方框 indicator；
+ * - Ⅳ段来源折叠从 marginal-toggle + Transition 改为共享 EvidenceDisclosure（原生 details），
+ *   断言 summary 的 aria-expanded 与 details 的 open，不再断言 v-if 卸载。
  */
 
 // 控制领域引擎：成功与失败分别由测试注入
@@ -186,7 +192,8 @@ async function fillAndConfirm(wrapper: VueWrapper, year = '2024', month = '2', d
   await y.setValue(year)
   await m.setValue(month)
   await d.setValue(day)
-  await wrapper.findAll('input[type="radio"]')[0].setValue()
+  // 2026-09-27 收敛：年龄声明是与八字共用的单个 checkbox（不再有已满/未满 radio）
+  await wrapper.find('input[data-age-confirmation]').setValue()
 }
 
 function inputsValue(wrapper: VueWrapper): string[] {
@@ -270,7 +277,7 @@ describe('shengxiao 游客页面', () => {
     expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
   })
 
-  it('unknown 门禁：浏览器禁用行为（未确认十四岁按钮 disabled），引擎不被调用', async () => {
+  it('未勾选年龄声明：浏览器禁用行为（生成按钮 disabled），引擎不被调用', async () => {
     const wrapper = mountPage()
     const [year, month, day] = wrapper.findAll('input[type="number"]')
     await year.setValue('1990')
@@ -284,20 +291,35 @@ describe('shengxiao 游客页面', () => {
     expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
   })
 
-  it('unknown 状态解除 DOM 禁用后触达监听器，函数内门禁仍阻止引擎调用', async () => {
+  it('未勾选年龄声明解除 DOM 禁用后触达监听器，函数内门禁仍阻止引擎调用', async () => {
     const wrapper = mountPage()
     const [year, month, day] = wrapper.findAll('input[type="number"]')
     await year.setValue('2024')
     await month.setValue('2')
     await day.setValue('10')
-    // 未选年龄 radio（unknown）→ canSubmit=false → 按钮 disabled
+    // 年龄 checkbox 未勾选 → canSubmit=false → 按钮 disabled
     const submit = wrapper.find('button')
     expect((submit.element as HTMLButtonElement).disabled).toBe(true)
     await clickThroughDisabledButton(wrapper)
-    expect(
-      wrapper.findAll('input[type="radio"]').every(r => !(r.element as HTMLInputElement).checked),
-    ).toBe(true)
+    expect((wrapper.find('input[data-age-confirmation]').element as HTMLInputElement).checked).toBe(
+      false,
+    )
     expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
+  })
+
+  it('勾选年龄声明解除生成禁用，取消勾选后重新禁用（checkbox 双向语义）', async () => {
+    const wrapper = mountPage()
+    const [year, month, day] = wrapper.findAll('input[type="number"]')
+    await year.setValue('2024')
+    await month.setValue('2')
+    await day.setValue('10')
+    const submit = wrapper.find('button')
+    expect((submit.element as HTMLButtonElement).disabled).toBe(true)
+    const age = wrapper.find('input[data-age-confirmation]')
+    await age.setValue(true)
+    expect((submit.element as HTMLButtonElement).disabled).toBe(false)
+    await age.setValue(false)
+    expect((submit.element as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('单次原生点击只调用一次引擎（click 证据；键盘行为待浏览器验收）', async () => {
@@ -561,19 +583,24 @@ describe('shengxiao 游客页面', () => {
     expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
   })
 
-  it('underage 状态解除 DOM 禁用后函数内门禁仍生效，公共内容保留', async () => {
+  it('年龄声明锁定共享文案与方框 indicator；未勾选时门禁生效且公共内容保留', async () => {
     const wrapper = mountPage()
     const [year, month, day] = wrapper.findAll('input[type="number"]')
     await year.setValue('2024')
     await month.setValue('2')
     await day.setValue('10')
-    const underage = wrapper.findAll('input[type="radio"]')[1]
-    await underage.setValue()
-    expect(wrapper.text()).toContain('未满十四周岁')
+    // 与八字同一个共享控件：完整长文案 + 方框 indicator + 块级变体（不再有 radio）
+    expect(wrapper.text()).toContain(
+      '我已满十四周岁。未满十四周岁时不提供个人出生日期的排盘计算，但仍可阅读本页的规则与来源说明。',
+    )
+    expect(wrapper.find('.choice-control__indicator--box').exists()).toBe(true)
+    expect(wrapper.findAll('input[type="radio"]')).toHaveLength(0)
     const submit = wrapper.find('button')
     expect((submit.element as HTMLButtonElement).disabled).toBe(true)
     await clickThroughDisabledButton(wrapper)
-    expect((underage.element as HTMLInputElement).checked).toBe(true)
+    expect((wrapper.find('input[data-age-confirmation]').element as HTMLInputElement).checked).toBe(
+      false,
+    )
     expect(engineMock.calculateShengXiao).not.toHaveBeenCalled()
     // 公共文化列表仍可浏览
     expect(wrapper.findAll('[role="tab"]').length).toBeGreaterThan(0)
@@ -594,11 +621,10 @@ describe('shengxiao 游客页面', () => {
 
     // 年月日清空（检查实际 value）
     expect(inputsValue(wrapper)).toEqual(['', '', ''])
-    // 年龄 radio 取消选中
-    const radios = wrapper.findAll('input[type="radio"]')
-    for (const r of radios) {
-      expect((r.element as HTMLInputElement).checked).toBe(false)
-    }
+    // 年龄 checkbox 回到未勾选
+    expect((wrapper.find('input[data-age-confirmation]').element as HTMLInputElement).checked).toBe(
+      false,
+    )
     // 个人结果区/导出卡消失（不再有隐私卡片）
     expect(wrapper.find('[data-privacy-card]').exists()).toBe(false)
     // 公共文化列表仍在（12 个生肖 tab）
@@ -1104,7 +1130,12 @@ describe('shengxiao 游客页面', () => {
     await nextTick()
     await nextTick()
     // 勾选长期保存告知并确认
-    const checkbox = wrapper.find('input[type="checkbox"]')
+    // 2026-09-27 收敛：页面上另有年龄声明 checkbox，泛选会截获错误元素；
+    // 这里必须定位保存对话框内的长期保存同意勾选。
+    const consentLabel = wrapper
+      .findAll('label')
+      .find(label => label.text().includes('我确认这是本人的出生日期'))
+    const checkbox = consentLabel!.find('input[type="checkbox"]')
     await checkbox.setValue(true)
     await nextTick()
     const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
@@ -1148,7 +1179,12 @@ describe('shengxiao 游客页面', () => {
     await saveBtn!.trigger('click')
     await nextTick()
     await nextTick()
-    const checkbox = wrapper.find('input[type="checkbox"]')
+    // 2026-09-27 收敛：页面上另有年龄声明 checkbox，泛选会截获错误元素；
+    // 这里必须定位保存对话框内的长期保存同意勾选。
+    const consentLabel = wrapper
+      .findAll('label')
+      .find(label => label.text().includes('我确认这是本人的出生日期'))
+    const checkbox = consentLabel!.find('input[type="checkbox"]')
     await checkbox.setValue(true)
     await nextTick()
     const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
@@ -1212,7 +1248,12 @@ describe('shengxiao 游客页面', () => {
     expect(wrapper.text()).toContain('保存本人档案')
     expect(wrapper.text()).toContain('新增出生日期')
     // 勾选并确认：PUT 载荷 expected=null（首次创建）
-    const checkbox = wrapper.find('input[type="checkbox"]')
+    // 2026-09-27 收敛：页面上另有年龄声明 checkbox，泛选会截获错误元素；
+    // 这里必须定位保存对话框内的长期保存同意勾选。
+    const consentLabel = wrapper
+      .findAll('label')
+      .find(label => label.text().includes('我确认这是本人的出生日期'))
+    const checkbox = consentLabel!.find('input[type="checkbox"]')
     await checkbox.setValue(true)
     await nextTick()
     const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
@@ -1294,7 +1335,12 @@ describe('shengxiao 游客页面', () => {
     await saveBtn!.trigger('click')
     await nextTick()
     await nextTick()
-    const checkbox = wrapper.find('input[type="checkbox"]')
+    // 2026-09-27 收敛：页面上另有年龄声明 checkbox，泛选会截获错误元素；
+    // 这里必须定位保存对话框内的长期保存同意勾选。
+    const consentLabel = wrapper
+      .findAll('label')
+      .find(label => label.text().includes('我确认这是本人的出生日期'))
+    const checkbox = consentLabel!.find('input[type="checkbox"]')
     await checkbox.setValue(true)
     await nextTick()
     const confirmBtn = wrapper.findAll('button').find(b => b.text().includes('确认保存'))
@@ -1569,8 +1615,19 @@ describe('shengxiao 游客页面', () => {
     expect(resultSection.find('[data-shengxiao-state="success"]').text()).toContain('依据与范围')
   })
 
-  it('Ⅳ段来源清单默认收起，展开后列出全部 9 条来源链接与编号', async () => {
+  it('Ⅳ段来源清单默认收起，生成前即展示，展开后列出全部 9 条来源链接与编号', async () => {
     const wrapper = mountPage()
+
+    // 用户 2026-09-27 指令：依据与范围在生成前也展示来源折叠件
+    // （默认清单与结果 sourceRefs 同集合同顺序），默认收起；生成前展开即是完整 9 条。
+    const scopeBefore = wrapper.find('#shengxiao-scope')
+    const toggleBefore = scopeBefore.find('[aria-controls="shengxiao-scope-sources"]')
+    expect(toggleBefore.exists()).toBe(true)
+    expect(toggleBefore.attributes('aria-expanded')).toBe('false')
+    expect(scopeBefore.find('details').attributes('open')).toBeUndefined()
+    await toggleBefore.trigger('click')
+    expect(scopeBefore.find('#shengxiao-scope-sources').findAll('a')).toHaveLength(9)
+
     await fillAndConfirm(wrapper)
     await wrapper.find('button').trigger('click')
 
@@ -1583,14 +1640,16 @@ describe('shengxiao 游客页面', () => {
     expect(scope.text()).toContain('规则版本')
     expect(scope.text()).toContain('未核验的地支关系、扩展文化形象等不在此页展示')
 
-    // 默认收起：控件 aria-expanded=false，面板不在 DOM
+    // 默认收起：共享 EvidenceDisclosure 的 summary aria-expanded=false，details 无 open
+    // （原生 details 内容不卸载：可见性由 open 决定，不再用 v-if 卸载断言）
     const toggle = scope.find('[aria-controls="shengxiao-scope-sources"]')
     expect(toggle.exists()).toBe(true)
     expect(toggle.attributes('aria-expanded')).toBe('false')
-    expect(scope.find('#shengxiao-scope-sources').exists()).toBe(false)
+    expect(scope.find('details').attributes('open')).toBeUndefined()
 
     // 展开后：9 条链接 + 9 个编号，逐条对应引擎固定来源集合
     await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
     const panel = scope.find('#shengxiao-scope-sources')
     expect(panel.exists()).toBe(true)
     const links = panel.findAll('a')
@@ -1622,12 +1681,15 @@ describe('shengxiao 游客页面', () => {
 
     const scope = () => wrapper.find('#shengxiao-scope')
     await scope().find('[aria-controls="shengxiao-scope-sources"]').trigger('click')
-    expect(scope().find('#shengxiao-scope-sources').exists()).toBe(true)
+    expect(
+      scope().find('[aria-controls="shengxiao-scope-sources"]').attributes('aria-expanded'),
+    ).toBe('true')
 
-    // 重新生成（watcher 在 result 变化时复位），来源清单不应自动展开
+    // 重新生成（成功分支显式复位受控 open），来源清单不应自动展开
     await wrapper.find('button').trigger('click')
     expect(
       scope().find('[aria-controls="shengxiao-scope-sources"]').attributes('aria-expanded'),
     ).toBe('false')
+    expect(scope().find('details').attributes('open')).toBeUndefined()
   })
 })

@@ -7,6 +7,7 @@ import { useBaziProfileImport } from '~/composables/useBaziProfileImport'
 import { useResultHistory } from '~/composables/useResultHistory'
 import { useSelfProfile } from '~/composables/useSelfProfile'
 import ScrollTopButton from '~/components/tools/ScrollTopButton.vue'
+import ExportButton from '~/components/tools/ExportButton.vue'
 import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
 import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import AuthDialog from '~/components/auth/AuthDialog.vue'
@@ -18,6 +19,7 @@ import BaziDateComparison from '~/components/bazi/BaziDateComparison.vue'
 import BaziElementComposition from '~/components/bazi/BaziElementComposition.vue'
 import BaziReadingGuide from '~/components/bazi/BaziReadingGuide.vue'
 import BaziEvidenceScope from '~/components/bazi/BaziEvidenceScope.vue'
+import BaziExportCards from '~/components/bazi/BaziExportCards.vue'
 import BaziSaveDialog from '~/components/bazi/BaziSaveDialog.vue'
 import BaziHistoryPanel from '~/components/bazi/BaziHistoryPanel.vue'
 import type { BaziDomainResult, ResultSnapshotRecord } from '~/types/bazi'
@@ -239,6 +241,124 @@ async function handleRemove(recordId: string) {
 async function handleRefreshHistory() {
   const status = await history.loadList(true)
   if (status === 'unauthenticated') showAuthDialog.value = true
+}
+
+// ── 双轨图片导出（契约 §23.3：简洁分享版 / 完整自用版）──
+// 两条路径各自持有 useExportImage 实例：loading、success、error 互不干扰；
+// 图片全部在浏览器本地生成，不上传服务器、不创建分享链接、也不写入历史。
+const exportCardsRef = ref<InstanceType<typeof BaziExportCards> | null>(null)
+const simpleExport = useExportImage()
+const fullExport = useExportImage()
+
+const simpleCardEl = computed(() => exportCardsRef.value?.simpleCardEl ?? null)
+const fullCardEl = computed(() => exportCardsRef.value?.fullCardEl ?? null)
+
+/**
+ * 导出可用条件：当前结果存在且不是 stale（与保存入口同一口径）。
+ * stale / 无结果时不渲染导出按钮，只留提示——不导出与当前输入不一致的旧结果。
+ */
+const canExport = computed(() => !!baziResult.value && !draft.stale.value)
+
+/** 导出状态行：与状态横幅同一事实（日期级三柱 / 跨节候选），不新增判断。 */
+const exportStatusText = computed(() => {
+  const result = baziResult.value
+  if (!result) return ''
+  return result.uniquePillars
+    ? '已生成日期级结果：三柱（年、月、日）／共四柱，缺时柱'
+    : '该日期跨「节」：年柱与月柱各有 2 种可能，日柱不受影响'
+})
+
+/** 干支连写与五行标注（与 Ⅲ 段三柱一览同一表达）。 */
+function pillarText(pillar: { stem: string; branch: string }) {
+  return `${pillar.stem}${pillar.branch}`
+}
+function pillarElements(pillar: { stemElement: string; branchElement: string }) {
+  return `${pillar.stemElement} · ${pillar.branchElement}`
+}
+
+/** 导出柱行：唯一情形三柱并列；候选情形年月两种组合各一行（甲/乙文字标注），日柱恒有。 */
+const exportPillars = computed(() => {
+  const result = baziResult.value
+  if (!result) return []
+  const rows: Array<{
+    label: string
+    value: string
+    note: string
+    isDay: boolean
+    dayMaster?: string
+  }> = []
+  if (result.uniquePillars) {
+    rows.push({
+      label: '年柱',
+      value: pillarText(result.uniquePillars.year),
+      note: pillarElements(result.uniquePillars.year),
+      isDay: false,
+    })
+    rows.push({
+      label: '月柱',
+      value: pillarText(result.uniquePillars.month),
+      note: pillarElements(result.uniquePillars.month),
+      isDay: false,
+    })
+  } else if (result.scenarios) {
+    result.scenarios.forEach((scenario, index) => {
+      rows.push({
+        label: `年柱·月柱（${'甲乙'[index]}）`,
+        value: `${pillarText(scenario.yearPillar)} / ${pillarText(scenario.monthPillar)}`,
+        note: scenario.reason,
+        isDay: false,
+      })
+    })
+  }
+  rows.push({
+    label: '日柱',
+    value: pillarText(result.dayPillar),
+    note: pillarElements(result.dayPillar),
+    isDay: true,
+    dayMaster: result.dayMaster,
+  })
+  return rows
+})
+
+/** 完整自用卡的精确出生输入：原始表达 + 规范化换算，农历始终带闰月状态。 */
+const exportBirthRows = computed(() => {
+  const comparison = baziResult.value?.dateComparison
+  if (!comparison) return []
+  const lunar = comparison.lunar
+  return [
+    { label: '你填写的出生日期', value: comparison.originalExpression },
+    { label: '规范化公历', value: comparison.normalizedSolar },
+    {
+      label: '对应农历',
+      value: `${lunar.year} 年${lunar.isLeapMonth ? '闰' : ''}${lunar.month} 月${lunar.day} 日（${lunar.isLeapMonth ? '闰月' : '普通月'}）`,
+    },
+  ]
+})
+
+/** 两种图片都保留的边界与限制说明（精简组：与 Ⅲ 段「限制与缺失」同一文本，非 Ⅴ 段全文）。 */
+const exportLimitations = [
+  '缺时柱：本版只用出生日期，不生成时柱，也不据此推断任何结论。',
+  '不支持 23:00—23:59 的午夜换日与子初换日双候选。',
+  '节气时刻为分钟级核验：边界日的结果对精度敏感。',
+]
+
+/** 引擎标注（与保存摘要同一表达：实现工具，不作规则权威）。 */
+const exportEngineLabel = computed(() =>
+  `${baziResult.value?.engineName ?? ''} ${baziResult.value?.engineVersion ?? ''}`.trim(),
+)
+
+/** 简洁分享版导出：目标卡不含任何出生资料（页面只向它传结果与版本）。 */
+function handleExportSimple() {
+  const cardEl = simpleCardEl.value
+  if (!canExport.value || !cardEl) return
+  simpleExport.exportToImage(cardEl, '八字分享卡.png')
+}
+
+/** 完整自用版导出：由用户主动点击触发，目标卡包含本次完整出生输入。 */
+function handleExportFull() {
+  const cardEl = fullCardEl.value
+  if (!canExport.value || !cardEl) return
+  fullExport.exportToImage(cardEl, '八字完整排盘.png')
 }
 
 // ── Ⅲ 段摘要：唯一情形下的三柱一览（详细卡片在 Ⅳ 段）──
@@ -614,11 +734,74 @@ onBeforeUnmount(() => {
       >
         <SectionHeading num="Ⅵ" title="本次结果操作" heading-id="bazi-actions-heading" />
 
+        <!-- 双轨图片导出（契约 §23.3）：本地生成、不上传、不写历史；无结果 / stale 时按钮不渲染 -->
+        <div class="card-warm rounded-xl p-6 sm:p-8" data-bazi-export>
+          <h3 class="font-display text-lg text-ink-dark">导出图片</h3>
+
+          <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+            两种图片都在浏览器本地生成，不上传服务器、不创建分享链接，也不会写入历史。
+          </p>
+
+          <div v-if="canExport" class="mt-4 flex flex-wrap items-start gap-6">
+            <div class="flex flex-col items-start" data-bazi-export-simple-entry>
+              <ExportButton
+                :target-ref="simpleCardEl"
+                filename="八字分享卡.png"
+                label="保存分享卡"
+                :is-exporting="simpleExport.isExporting.value"
+                :export-error="simpleExport.exportError.value"
+                @export="handleExportSimple"
+              />
+              <p class="mt-1 max-w-[16rem] font-sans text-xs text-ink-medium leading-relaxed">
+                简洁分享版：不含出生日期等个人资料，适合分享。
+              </p>
+            </div>
+            <div class="flex flex-col items-start" data-bazi-export-full-entry>
+              <ExportButton
+                :target-ref="fullCardEl"
+                filename="八字完整排盘.png"
+                label="保存完整版"
+                :is-exporting="fullExport.isExporting.value"
+                :export-error="fullExport.exportError.value"
+                @export="handleExportFull"
+              />
+              <p class="mt-1 max-w-[16rem] font-sans text-xs text-ink-medium leading-relaxed">
+                完整自用版：包含你本次填写的完整出生日期，仅建议保存到本人设备。
+              </p>
+            </div>
+          </div>
+
+          <p
+            v-else-if="!baziResult"
+            class="mt-2 font-sans text-xs text-ink-light"
+            data-bazi-export-hint
+          >
+            先生成结果，才能导出图片。
+          </p>
+          <p v-else class="mt-2 font-sans text-xs text-ink-medium" data-bazi-export-hint>
+            输入已修改，结果尚未更新：请先重新生成，再导出与当前输入一致的图片。
+          </p>
+
+          <!-- 导出目标固定模板：只在可导出时挂载，两张卡都离屏（见组件内说明） -->
+          <BaziExportCards
+            v-if="canExport"
+            ref="exportCardsRef"
+            :status-text="exportStatusText"
+            :pillars="exportPillars"
+            :birth-rows="exportBirthRows"
+            :limitations="exportLimitations"
+            :rule-version="baziResult?.ruleVersion ?? ''"
+            :source-set-version="baziResult?.sourceSetVersion ?? ''"
+            :engine-label="exportEngineLabel"
+            :as-of-date="draft.generation.value?.asOfDate || asOfDate"
+          />
+        </div>
+
         <div class="card-warm rounded-xl p-6 sm:p-8" data-bazi-save>
           <h3 class="font-display text-lg text-ink-dark">保存本次结果</h3>
 
           <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
-            生成与保存是两步：本次结果只在你确认保存后才会成为历史快照。本页不提供导出，也不会自动保存。
+            生成与保存是两步：本次结果只在你确认保存后才会成为历史快照。图片导出在浏览器本地完成，不会写入历史。
           </p>
 
           <div class="mt-3 flex flex-wrap items-center gap-3">

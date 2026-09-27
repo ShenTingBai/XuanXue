@@ -144,6 +144,67 @@ describe('useExportImage', () => {
     createElementSpy.mockRestore()
   })
 
+  it('removes the download anchor from the document after the click', async () => {
+    const { useExportImage } = await import('../../composables/useExportImage')
+    const { exportToImage } = useExportImage()
+    const mockEl = document.createElement('div')
+
+    // 下载链接是一次性节点：触发 click 后必须从 DOM 移除，不留可重复触发的入口。
+    const originalCreateElement = document.createElement.bind(document)
+    const createElementSpy = vi
+      .spyOn(document, 'createElement')
+      .mockImplementation((tagName: string) => {
+        if (tagName === 'a') {
+          const anchor = originalCreateElement('a')
+          anchor.click = vi.fn()
+          return anchor
+        }
+        return originalCreateElement(tagName)
+      })
+
+    const { toPng, getFontEmbedCSS } = await import('html-to-image')
+    vi.mocked(getFontEmbedCSS).mockResolvedValue('')
+    vi.mocked(toPng).mockResolvedValue('data:image/png;base64,fake')
+
+    const result = await exportToImage(mockEl, 'cleanup.png')
+    expect(result).toBe(true)
+    const anchors = [...document.body.querySelectorAll('a[download]')]
+    expect(anchors).toHaveLength(0)
+    createElementSpy.mockRestore()
+  })
+
+  it('keeps export state independent between two composable instances', async () => {
+    // 双轨导出（简洁 / 完整）各自调用一次 useExportImage：任一路径在途或失败，
+    // 另一路径的 loading 与错误必须保持空闲，不共享同一组 ref。
+    const { useExportImage } = await import('../../composables/useExportImage')
+    const simple = useExportImage()
+    const full = useExportImage()
+    const mockEl = document.createElement('div')
+
+    const { toPng, getFontEmbedCSS } = await import('html-to-image')
+    vi.mocked(getFontEmbedCSS).mockResolvedValue('')
+    let resolveSimple!: (value: string) => void
+    vi.mocked(toPng).mockImplementationOnce(
+      () => new Promise<string>(resolve => (resolveSimple = resolve)),
+    )
+
+    const simplePromise = simple.exportToImage(mockEl, 'simple.png')
+    expect(simple.isExporting.value).toBe(true)
+    expect(full.isExporting.value).toBe(false)
+    expect(full.exportError.value).toBeNull()
+
+    // exportToImage 内部有多个 await：等 toPng 真正进入在途后再释放挂起的 PNG。
+    await vi.waitFor(() => {
+      expect(toPng).toHaveBeenCalledTimes(1)
+    })
+    resolveSimple('data:image/png;base64,fake')
+    await simplePromise
+    expect(simple.isExporting.value).toBe(false)
+    // 完整路径全程未被简洁路径的在途/完成状态波及。
+    expect(full.isExporting.value).toBe(false)
+    expect(full.exportError.value).toBeNull()
+  })
+
   it('rejects an empty or non-PNG data URL as an export failure', async () => {
     const { useExportImage } = await import('../../composables/useExportImage')
     const { exportToImage, exportError } = useExportImage()

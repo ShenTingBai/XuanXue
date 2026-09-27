@@ -80,9 +80,11 @@ describe('八字页静态回归（R5）', () => {
       match => match[1],
     )
     // 卷目 / 报头 / 页脚由 ToolEditorialShell 组合，页面不再各自渲染一份。
+    // 2026-09-27 双轨图片导出（契约 §23.3）新增 ExportButton 与 BaziExportCards 两项。
     expect(new Set(imported)).toEqual(
       new Set([
         'tools/ScrollTopButton.vue',
+        'tools/ExportButton.vue',
         'editorial/ToolEditorialShell.vue',
         'editorial/SectionHeading.vue',
         'auth/AuthDialog.vue',
@@ -96,6 +98,7 @@ describe('八字页静态回归（R5）', () => {
         'bazi/BaziEvidenceScope.vue',
         'bazi/BaziSaveDialog.vue',
         'bazi/BaziHistoryPanel.vue',
+        'bazi/BaziExportCards.vue',
       ]),
     )
   })
@@ -171,13 +174,21 @@ describe('八字页静态回归（R5）', () => {
   })
 
   it('交互反馈：勾选框不用原生样式，两处折叠件都有可展开标记', () => {
-    // 原生 checkbox 会在纸/朱砂体系里出现系统蓝勾（用户 2026-09-15 复核指出），
-    // 与历法单选同法改为 sr-only input + 全局 choice-control 方框指示器。
+    // 原生 checkbox 会在纸/朱砂体系里出现系统蓝勾（用户 2026-09-15 复核指出）。
+    // 2026-09-27 收敛（design-system §4.2b）：十四周岁勾选框移入共享 AgeConsentCheckbox，
+    // 输入表单必须引用它；sr-only input + 全局 choice-control 方框指示器由共享组件承担。
     const inputSource = componentSources.get('BaziInputForm.vue') ?? ''
-    expect(inputSource, '十四周岁勾选框应改为 sr-only').toContain('class="sr-only"')
-    expect(inputSource, '应保留原生 checkbox').toContain('type="checkbox"')
-    expect(inputSource, '应使用共享 choice-control').toContain('choice-control')
-    expect(inputSource, '应使用方框指示器').toContain('choice-control__indicator--box')
+    expect(inputSource, '十四周岁勾选框应移入共享 AgeConsentCheckbox').toContain(
+      'AgeConsentCheckbox',
+    )
+    const ageConsentSource = readFileSync(
+      resolve(process.cwd(), 'components/tools/AgeConsentCheckbox.vue'),
+      'utf-8',
+    )
+    expect(ageConsentSource, '十四周岁勾选框应改为 sr-only').toContain('class="sr-only"')
+    expect(ageConsentSource, '应保留原生 checkbox').toContain('type="checkbox"')
+    expect(ageConsentSource, '应使用共享 choice-control').toContain('choice-control')
+    expect(ageConsentSource, '应使用方框指示器').toContain('choice-control__indicator--box')
 
     // 旧兼容钩子必须彻底删除。类名用拼装而非字面量：本计划的 grep 门禁要求本文件 0 次命中，
     // 写下字面量会让检测命令自身命中（自指误报），断言强度不变。

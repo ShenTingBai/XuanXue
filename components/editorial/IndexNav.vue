@@ -28,11 +28,6 @@ let mutationObserver: MutationObserver | null = null
 let syncFrame: number | null = null
 let mounted = false
 
-function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 /** 解析锚点目标：同名 id 在一页内唯一，重复查询开销可忽略。 */
 function resolveTargets(): HTMLElement[] {
   return props.items
@@ -131,10 +126,12 @@ function onSelect(item: { href: string }, event: MouseEvent) {
   if (!target) return
   event.preventDefault()
   activeHref.value = item.href
-  target.scrollIntoView({
-    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    block: 'start',
-  })
+  // 锚点跳转必须瞬时完成：全局 html 有 scroll-behavior: smooth（main.css），
+  // scrollIntoView 的 'auto' 会被解析为 smooth，而平滑滚动在部分环境
+  // （如内嵌浏览器窗格）不推进，表现为「点击卷目后高亮跳了、页面不跳」。
+  // 浏览器原生 hash 导航本身就是瞬时的，这里与其保持一致；
+  // 分节的 scroll-margin-top: 5rem 在瞬时滚动下同样生效，不会被吸顶栏遮挡。
+  target.scrollIntoView({ behavior: 'instant', block: 'start' })
   target.setAttribute('tabindex', '-1')
   target.focus({ preventScroll: true })
 }

@@ -2,7 +2,7 @@
 
 > 状态：Active — 墨韵视觉语言与基础样式规范
 >
-> 版本：1.4.0 | 最后更新：2026-09-21
+> 版本：1.5.0 | 最后更新：2026-09-27
 >
 > XuanXue（玄·道）前端设计规范。本文负责颜色、字体、空间、组件外观和响应式视觉约束；产品行为、内容真实性、数据生命周期与公开状态以 [产品规范索引](../product/README.md) 及其引用规范为准。
 >
@@ -263,7 +263,7 @@
 
 `/account` 采用同一版式（账号与安全：账 / 话 / 数 / 销 四节），共用上述外壳与组件。
 
-`/tools/bazi` 自 2026-09-15 起采用同一出版版外壳（卷目 + 报头 + 细线分节），是本项目**第一个不使用 `ToolPageLayout` 的工具页**；其余 10 个工具页与 `ToolPageLayout` 本身不变。其卷目 DOM 钩子沿用历史命名 `data-profile-index`（两个档案页的既有测试以它选择卷目），暂不改名。
+`/tools/bazi` 自 2026-09-15 起采用同一出版版外壳（卷目 + 报头 + 细线分节），是本项目**第一个不使用 `ToolPageLayout` 的工具页**；截至 2026-09-21，其余工具页也已全部迁移到该外壳（见下「卷目版式的适用范围」）。其卷目 DOM 钩子沿用历史命名 `data-profile-index`（两个档案页的既有测试以它选择卷目），暂不改名。
 
 **出版版全局类**（`assets/css/main.css`，2026-09-13 提升为全局单一定义）：
 
@@ -315,6 +315,18 @@ PageFooter
 当前节高亮采用左侧朱砂指示条 + 朱砂序号 + 加深字色的三重编码；点击锚点后焦点转移到目标节。
 账户控件不在外壳内，由 default layout 统一负责。
 
+**锚点跳转契约**（`IndexNav.onSelect`，工具页与档案页共用同一导航件）：
+
+1. 点击后**真实推进**到目标段落——`scrollIntoView({ behavior: 'instant', block: 'start' })`。
+   项目全局有 `html { scroll-behavior: smooth }`，平滑滚动在部分环境（含内嵌浏览器窗格）不推进，
+   会出现「高亮跳了、页面不跳」；此处取**瞬时跳转**，与浏览器原生 hash 导航行为一致。
+2. `scroll-margin-top: 5rem` 避让吸顶栏的效果在瞬时滚动下同样成立，目标段标题不被遮挡。
+3. 跳转后把焦点交给目标段落（先补 `tabindex="-1"` 再 `focus({ preventScroll: true })`），
+   键盘与读屏用户不会停留在原处。
+4. 瞬时跳转不涉及动画，因此**不因** `prefers-reduced-motion` 需要分支处理；
+   如未来改回动画滚动，必须重新处理 reduced-motion 与内嵌浏览器两类场景，并重新验收跳转是否真实推进。
+   `IndexNav` 的当前节高亮与锚点跳转是两件事：高亮按滚动位置计算，不依赖跳转动画。
+
 **不适用（保留各自页面类型，但共享全局顶栏、账户控件与页脚）**：
 `/`、`/login`、`/privacy`、`/terms`、`/account`、`/self-profile`。
 
@@ -353,11 +365,11 @@ PageFooter
 - hover：文字和细线同时染朱砂，线从 0.875rem 伸长至 1.125rem
 - 展开后：箭头 ▼ 纯 CSS 旋转 180° 变为 ▲（由 `[aria-expanded="true"]` 选择器驱动）
 - focus-visible: 2px cinnabar outline
-- **适用**：所有可折叠区域的展开/收起切换。**禁止**用 `btn-cin` 做折叠切换。
+- **适用**：卡片内轻量次级内容的展开/收起切换（补充说明、扩展资料、公共文化折叠等）。**禁止**用 `btn-cin` 做折叠切换；**工具页的依据 / 来源台账不适用本按钮**，见下「规则与来源的折叠边界」与 §4.2b。
 
 #### 折叠/展开标准模式
 
-所有可折叠区域**必须**使用此模式：
+所有**使用 `marginal-toggle` 的**可折叠区域**必须**使用此模式（按钮式折叠的通用实现）：
 
 ```html
 <div class="card-warm rounded-xl p-6 sm:p-8">
@@ -383,6 +395,9 @@ PageFooter
   </Transition>
 </div>
 ```
+
+- 本模式仍是**卡片内轻量次级内容**（补充说明、扩展资料、可选细节）的默认折叠实现；
+- **工具页「依据与范围 / 来源台账」的折叠不适用本模式**——自 2026-09-27 起统一改用 §4.2b 的共享壳 `components/editorial/EvidenceDisclosure.vue`（原生 `details/summary`、方形 ＋/－、受控 `open`），两者不得在同一页面的同一用途上并存或互相替代（见「规则与来源的折叠边界」）。
 
 **Transition CSS**（必须有，放在组件 `<style scoped>` 中）：
 
@@ -432,7 +447,7 @@ PageFooter
 
 #### 规则与来源的折叠边界（2026-09-21）
 
-详细规则解释、来源台账与版本细节**可以**默认收起（用 `marginal-toggle`），但下列内容
+详细规则解释、来源台账与版本细节**可以**默认收起，但下列内容
 **必须直接可见**，不得藏进折叠区或浮层：
 
 - 年界（生肖按正月初一、八字年柱按立春这类会改变结果的边界）；
@@ -441,6 +456,16 @@ PageFooter
 - 关键限制与「本页不输出什么」。
 
 判据：折叠只允许影响**详细程度**，不允许影响**用户能否判断结果是否适用**。
+
+**折叠件的选择（2026-09-27 起）**：
+
+| 场合                                                     | 用哪个折叠件                                                  |
+| -------------------------------------------------------- | ------------------------------------------------------------- |
+| 工具页的依据与范围 / 来源台账（`/tools/**`）             | `components/editorial/EvidenceDisclosure.vue`（§4.2b 共享壳） |
+| 卡片内轻量次级内容（补充说明、扩展资料、公共文化折叠等） | `marginal-toggle` 按钮 + `Transition`（本节的按钮式标准模式） |
+
+两件不互替：共享壳用于「能判断来源与规则」的正式依据折叠，`marginal-toggle` 继续用于轻量内容；
+同一页面的同一用途不得同时存在两套折叠实现。八字页Ⅴ段与生肖页Ⅳ段是本共享壳的实测样例。
 
 ### 4.2 卡片
 
@@ -668,6 +693,86 @@ Compact clothing color guide widget on homepage. Shows lucky colors to wear for 
 - Footer: small seal/mark
 - Defined in `pages/tools/meihua.vue` `<style scoped>`
 
+### 4.2b 工具页主体 UI 规范（2026-09-27 建立；八字 / 生肖为首批实测案例）
+
+> 性质：**未来工具页的主体规则**（`/tools/**`，2026-09-27 建立）。八字页与生肖页是本规范的首批**已实测参考实现**（1280×900 与 390×844 视口）；本节只在本轮提炼通用规则，**不表示其余工具页已完成迁移或已验收**——每个实际页面迁移仍须另立计划、按对应工具契约验收。不改写既有八字 UI 规格的历史结论（§4.1 出版版外壳、R5-C 八字页规格仍然有效）。
+
+**三层判据（先判层，再套规则）**：
+
+| 层         | 判据                                               | 内容                                                       |
+| ---------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| 共享层     | 与工具领域无关的页面骨架、承载、状态与可访问性     | 全部 `/tools/**` 强制；见「共享层清单」                    |
+| 条件适用层 | 由**该工具的产品契约**决定该能力是否出现在这个页面 | 出现时必须用共享实现；见「条件适用清单」                   |
+| 工具专属层 | 由该工具领域内容与契约决定，**不得跨工具强制**     | 段数、输入字段、结果图形与公共文化内容；见「工具专属说明」 |
+
+判定顺序：先按契约判断该页**该不该有**某个能力（条件层），该有的能力的容器与交互一律用共享实现（共享层），内容本身按契约自由（专属层）。
+
+#### 共享层清单（全部工具页）
+
+| 规则             | 实现入口                                                                                                                                                    | 禁止的重复实现                                                     | 验收方法                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| 页面外壳唯一     | `components/editorial/ToolEditorialShell.vue`（`IndexNav` + `Masthead` + `editorial-article` + `PageFooter`，DOM 顺序固定见 §4.1）                          | 不得再套 `ToolPageLayout`、自建第二套页头页脚或分节线              | 源码只 import 该外壳；桌面/窄屏回流走 §4.1「响应式与可访问性」                |
+| 分节与标题       | `.editorial-section`（首段加 `--first`）+ `components/editorial/SectionHeading.vue`                                                                         | 不得自造第二套分节标题样式；不得为了卷目变长而新增段               | 卷目条目与页面已有段落 id 一一对应；`headingId` 与 `aria-labelledby` 指向一致 |
+| 段序             | 治理规范 §4 的六段语义顺序：说明 / 本次操作 / 结果摘要 / 详细结果 / 依据与范围 / 结果操作                                                                   | 有个人结果的工具不得跳过「依据与范围」；不得为容量凑段落数         | DOM 阅读顺序（非视觉顺序）逐段核对；空段不渲染                                |
+| 正文与卡片层级   | 正文 `font-sans text-sm text-ink-medium leading-relaxed`；结果与信息卡 `card-warm rounded-xl p-6 sm:p-8`；表单容器 `card-paper-solid rounded-xl p-6 sm:p-8` | 不得用固定 `p-8`；不得为单页另立卡片底色或圆角                     | 320px 下正文可读、无横向溢出；卡片层级截图与 §4.2 对照                        |
+| 状态反馈         | 治理规范 §7 统一状态模型；状态卡先于结果卡；禁用时把原因写在按钮旁                                                                                          | 不得只把按钮变灰；不得用 toast 替代就地状态                        | 逐状态复现并读到原因文案；成功/失败不只靠颜色                                 |
+| 按钮分工         | §4.1「按钮语义分工」：工具内主动作 `btn-seal`，次要动作 `btn-ink` / `btn-ghost`                                                                             | 同一卡片内不得出现两个同级主按钮                                   | 源码扫描按钮类名；截图复核主次                                                |
+| 依据与范围呈现   | 正常阅读流中的段落（治理规范 §4.5）；详细台账的折叠见「条件适用清单」                                                                                       | 不得回归 `MethodologyNote` 或等价浮层                              | 段落存在且标题不重复（同名标题全页唯一）                                      |
+| 响应式与焦点     | 治理规范 §18.1 门槛：320/360/390/414 无页面级横向滚动、200% 文字缩放可用、触控目标 ≥44px、`focus-visible` 2px 朱砂                                          | 不得用禁用缩放或全局 `overflow: hidden` 掩盖                       | 受影响断点真实浏览器实测 + 200% 文字缩放；不得只跑单测                        |
+| 页面根级样式挂载 | 需要页面级 scoped 样式时挂在页面自己渲染的容器（如 `.shengxiao-page`）                                                                                      | 不得给外壳传 class 承载页面样式（多根 + scope id 不命中，见 §4.1） | 样式生效检查；不出现跨页意外命中                                              |
+
+#### 条件适用清单（按该工具契约启用）
+
+| 能力                       | 启用条件                                                                                                    | 不该出现的情形                                                       | 实现入口与边界                                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 输入承载卡（单卡）         | 工具存在**当次个人输入**（日期、姓名、事项、起卦方式等）                                                    | 纯公共浏览内容、状态页                                               | 把字段、用途说明、隐私状态与生成键收进**同一张** `card-paper-solid`；八字Ⅱ段与生肖Ⅰ段为实测样例                                                      |
+| 年龄声明                   | **产品契约要求年龄门禁**的个人计算                                                                          | 无个人输入的工具、纯文化浏览段                                       | `components/tools/AgeConsentCheckbox.vue`；未勾选禁用生成并在按钮旁写明原因；**不得**给不需要年龄门禁的页面添加年龄勾选                              |
+| 依据折叠壳                 | 页面有**可折叠的详细来源 / 规则台账**                                                                       | 会改变适用性判断的内容（见 §4.1 折叠边界）                           | `components/editorial/EvidenceDisclosure.vue`（原生 `details/summary`、方形 ＋/－、`aria-expanded` + `aria-controls`、受控 `open` 重新生成复位收起） |
+| 档案带入（本人档案字段）   | 契约允许使用本人档案                                                                                        | 禁止暗中读取档案                                                     | 只填当次草稿，不自动计算、不自动保存；有冲突时显示「当前值 → 拟带入值」替换确认并可撤销（八字Ⅱ段实测）                                               |
+| 本人档案显式保存           | 该工具契约允许写入本人档案；须用户主动操作，按数据生命周期规范单独确认                                      | 自动写入档案；未经差异展示或单独同意就写入                           | 依档案契约，与 `historyPolicy` 无关；**不等于保存结果**；生肖页「保存本人资料」（差异确认 + 单独勾选）为实测样例                                     |
+| 结果历史（读取 / 创建）    | 读取依 `canReadHistory`（`read_only` / `create_allowed`）；创建依 `canCreateHistory`（仅 `create_allowed`） | `historyPolicy: disabled` 的工具出现服务端历史入口或调用历史保存 API | 按工具目录四维状态决定，不在视觉模板默认开启；快照与重算规则按治理规范 §11                                                                           |
+| 本地图片导出               | 该工具契约设有导出能力，且 `canExportTool` 为真（`approved` + `public` + `enabled`）                        | 未公开工具出现公开导出入口；导出内容违反该工具契约的隐私约束         | 客户端本地生成，不以服务端保存为前提；**`historyPolicy: disabled` 不是导出禁令**（生肖为反例，见下注）                                               |
+| `marginal-toggle` 轻量折叠 | 卡片内轻量次级内容（非依据折叠）                                                                            | 已落地共享壳的依据折叠                                               | §4.1 标准模式（含 `Transition`）；工具页依据折叠改用共享壳后不再用本按钮重造                                                                         |
+
+三项能力**独立判断、不得互相推断**：`canExportTool` 不是 `historyPolicy` 的别名，本人档案显式保存也不是结果历史。**反例（2026-09-27 现状）**：生肖 `historyPolicy: disabled`，但仍可本地导出（生肖契约 §6.5：隐私文化卡片与完整结果图片双轨，`canExportTool('shengxiao')` 为真），并提供经单独确认的「保存本人资料」（生肖契约 §6.3：展示差异、单独确认后写入本人档案，不写结果历史）。未公开工具（`in_review` / `internal`）当前不出现公开导出与历史入口，属「当前公开入口未开」而非「能力永久禁止」；未来接入时按当时的工具目录状态与对应契约验收。
+
+#### 工具专属说明（不得跨工具强制）
+
+- **段数**：不必六段。按契约裁剪，卷目条目只对应页面已有段落；段落少于 4 个时卷目就短，属正常（§4.1 内容规则 1）。
+- **输入字段**：各工具自己的字段集合；不得要求没有出生日期输入的工具添加出生日期或年龄声明。
+- **结果图形与卡片**：三柱卡、卦象、日历、星盘、称骨表等由领域组件承担；不得强制统一成同一模板，也不得强制复制八字三柱卡片或结果字段。
+- **公共文化内容**：tab、十二生肖浏览等允许工具专属视觉与折叠件（如 `VerifiedCulture.vue` 的「展开 / 收起依据与来源」）；内容仍须遵守来源核验状态，未核验内容不展示。
+- **来源清单内容**：条目、编号与条数由该工具来源台账决定；共享的是折叠壳，不是清单本身，不得借收敛改名或增删条目。
+
+#### 首批案例实测收敛规则（八字 / 生肖，2026-09-27）
+
+以下 6 条是八字页与生肖页的实测收敛结论，作为参考样例；**不是**对所有工具页的字段要求。
+带「条件」标注的条目只在该页契约确有对应能力时适用（见「条件适用清单」）。
+
+**实测差异（2026-09-27，1280×900 与 390×844 视口）**：两页共享 `ToolEditorialShell`，但主体节奏不同——八字Ⅱ段把输入、声明与生成操作收进 `card-paper-solid` 单卡，生肖输入裸露在正文流；八字结果按状态卡片分层，生肖结果、文化 tabs 与依据段的卡片和间距组合各自为政；八字依据折叠用原生 `details`，生肖Ⅳ段用 `marginal-toggle` 按钮 + `Transition`（v-if 卸载内容）；八字年龄声明是单个块级 checkbox，生肖是「已满 / 未满」两个 radio 的三态。这些差异没有语义必要，属可收敛的历史分化。
+
+1. **外壳与分节**：两页都只用 `ToolEditorialShell` 一套外壳（卷目 + 报头 + 细线分节）；段落用 `.editorial-section`（首段加 `--first`），段内不得自造第二套分节线或页面容器。正文列宽沿用出版版（72rem 外壳 / 桌面正文约 828px）；页面根级 scoped 样式挂在页面自己渲染的容器上（如 `.bazi-page`），不挂在外壳上。
+2. **输入卡层级（条件：该工具存在当次个人输入）**：日期输入、隐私说明、档案带入 / 替换确认 / 撤销、年龄声明与生成按钮收进**同一张** `card-paper-solid rounded-xl p-6 sm:p-8` 输入卡；卡内节奏：说明文字 `font-sans text-sm text-ink-medium leading-relaxed`，按钮组上间距 `mt-4` 起步。字段集合仍由该工具契约决定——没有这些字段的页面只沿用「单卡承载 + 同节奏」，不因此新增字段。状态卡（空态 / 处理中 / 失败 / stale）与结果卡用 `card-warm rounded-xl p-6 sm:p-8` 分层，状态先于结果。
+3. **依据折叠（条件：该页有可折叠的来源 / 规则台账）**：工具页的依据 / 来源折叠一律用共享壳 `components/editorial/EvidenceDisclosure.vue`——原生 `details/summary` + 方形 ＋/－ 标记 + `card-warm rounded-xl` 卡片；props 传 `closed-label` / `open-label` / `content-id`，`summary` 上同步 `aria-expanded` 与 `aria-controls`，展开内容走默认 slot。**年界、支持范围、关键限制与未核验声明必须留在折叠件外直接可见**（§4.1 折叠边界不变）。重新生成结果时页面把折叠件复位为收起（受控 `open` 置回 false）；八字历史回归钩子 `data-bazi-evidence-scope`、`bazi-fold-mark` 通过 attrs 与 `mark-class` prop 保留。条目内容不在收敛范围：清单编号与条数仍由该工具来源台账决定。
+4. **年龄声明（条件：该工具产品契约要求年龄门禁）**：需要年龄门禁的页面统一用 `components/tools/AgeConsentCheckbox.vue`——单个 `type=checkbox`（sr-only 原生输入）+ `choice-control choice-control--block` + `choice-control__indicator--box` 方框指示器 + 同一段完整长文案（以八字现有声明为单一真源）；`data-age-confirmation` 为通用回归钩子，八字历史钩子 `data-bazi-age` 保留在同一 input 上。年龄状态是布尔页面内存：未勾选禁用生成并在按钮旁写明原因，登出 / 换账号 / 离页 / 清理流程由页面复位为未勾选。**禁止**再出现「已满 / 未满」双 radio 三态；**也不得**为不需要年龄门禁的页面添加该声明（治理规范：公开文化内容无需年龄确认即可浏览）。
+5. **可保留的语义差异**：生肖的公共文化 tabs（`VerifiedCulture`）与生肖专属结果字段、来源清单内容不强制改成八字字段；`VerifiedCulture.vue` 的「展开 / 收起依据与来源」文化折叠件不在本收敛范围（属工具专属层的轻量折叠）。差异只允许来自**内容与领域字段**，不得另造页面外壳、年龄控件或折叠视觉体系。
+6. **响应式**：输入卡与折叠件在 320 / 360 / 390 / 414 CSS 像素与 320px + 200% 文本缩放下不得产生页面级横向滚动；长标签与版本串 `overflow-wrap: anywhere`；触控目标 ≥44px，`focus-visible` 2px 朱砂描边。
+
+#### 未来工具页接入检查表（迁移或新建 `/tools/**` 页面时逐项核对）
+
+每条在本轮只能填「通过 / 不适用（写明理由）/ 待补（写明证据计划）」，**不得留空**；例外项必须附验收证据或明确的证据计划，不接受「风格统一」这类无证据结论。
+
+| #   | 检查项                 | 通过判据                                                                                                                                                                            | 证据形式                                                    |
+| --- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1   | 契约能力与段序         | 段序符合治理规范 §4 六段语义；该页有/无哪些段由工具契约写明；卷目条目与已有段落一一对应                                                                                             | 契约章节引用 + 页面 DOM 顺序核对                            |
+| 2   | 共享外壳               | 只使用 `ToolEditorialShell`；无 `ToolPageLayout`、无第二套页头页脚；`indexFootnote` 写本页真实边界                                                                                  | 源码 import 检查 + `/tools/**` 目录扫描                     |
+| 3   | 输入 / 结果 / 空态层级 | 有输入则该输入卡为单卡 `card-paper-solid`；结果与状态用 `card-warm` 分层且状态先于结果；无输入的空态不渲染空卡片                                                                    | 页面源码 + 浏览器截图（多个状态各一张）                     |
+| 4   | 来源边界               | 「依据与范围」处于正常阅读流；年界、支持范围、隐私、关键限制与未输出内容**直接可见**；可折叠台账进入共享壳                                                                          | 浏览器展开/收起截图 + 折叠边界清单逐条核对                  |
+| 5   | 年龄 / 隐私条件        | 契约要求年龄门禁时用共享 checkbox（未勾选禁用并在按钮旁写明原因）；不要求时页面无年龄勾选；隐私状态直接可见                                                                         | 契约引用 + 浏览器实测（勾选 / 未勾选 / 清理复位）           |
+| 6   | 键盘与缩放             | 折叠、菜单、弹层键盘可达（Tab / Enter / Space / Escape）；触控目标 ≥44px；`focus-visible` 可见；200% 文字缩放可用                                                                   | 键盘实测记录 + 200% 缩放截图                                |
+| 7   | 真实浏览器状态验收     | 在真实浏览器中覆盖该页契约定义的状态（空态 / 处理中 / 成功 / 失败 / stale / 候选等，按契约取子集）；受影响断点（320 / 360 / 390 / 414，加上该页设计使用的更宽断点）无页面级横向滚动 | 浏览器实测记录（含断点、视口尺寸、结论）+ 截图/录屏         |
+| 8   | 例外记录               | 任何偏离本规范的项都写明理由、影响范围与补偿验收证据                                                                                                                                | 页面所在计划的 `plan_amendments` 或验证记录「已知边界」小节 |
+
 ### 4.3 表单
 
 #### `input-ink` — 墨线输入框
@@ -894,24 +999,24 @@ Horizontal divider with gradient fade on both ends and a centered dot.
 
 ### 4.7 工具页通用组件
 
-| 组件                      | 路径                                           | 用途                                           |
-| ------------------------- | ---------------------------------------------- | ---------------------------------------------- |
-| `ToolPageLayout`          | `components/tools/ToolPageLayout.vue`          | 三栏布局（#nav / #mobile-nav / #nav-right）    |
-| `ToolToolbar`             | `components/tools/ToolToolbar.vue`             | 顶部工具栏（历史 + 导出）                      |
-| `ExportButton`            | `components/tools/ExportButton.vue`            | 导出图片按钮                                   |
-| `HistoryModal`            | `components/tools/HistoryModal.vue`            | 历史记录弹窗                                   |
-| `ScrollTopButton`         | `components/tools/ScrollTopButton.vue`         | 回到顶部                                       |
-| `EntertainmentDisclaimer` | `components/tools/EntertainmentDisclaimer.vue` | 娱乐免责声明                                   |
-| `FortuneBars`             | `components/tools/FortuneBars.vue`             | 旧运势评分展示；公开产品禁用，等待对应工具整改 |
-| `ScoreRing`               | `components/tools/ScoreRing.vue`               | 旧评分环；公开产品禁用，等待对应工具整改       |
-| `SkeletonCard`            | `components/tools/SkeletonCard.vue`            | 骨架屏卡片                                     |
-| `SkeletonBars`            | `components/tools/SkeletonBars.vue`            | 骨架屏柱状图                                   |
-| `InkDivider`              | `components/tools/InkDivider.vue`              | 墨韵分割线                                     |
-| `AvatarCircle`            | `components/tools/AvatarCircle.vue`            | 头像圈                                         |
-| `PageFooter`              | `components/tools/PageFooter.vue`              | 页面底部 colophon                              |
-| `ProfileAutoFillBanner`   | `components/tools/ProfileAutoFillBanner.vue`   | 档案自动填充横幅                               |
-| `PageHero`                | `components/tools/PageHero.vue`                | 页面标题区                                     |
-| `MethodologyNote`         | `components/tools/MethodologyNote.vue`         | 旧悬浮“注”面板；退出公开产品                   |
+| 组件                      | 路径                                           | 用途                                                                 |
+| ------------------------- | ---------------------------------------------- | -------------------------------------------------------------------- |
+| `ToolPageLayout`          | `components/tools/ToolPageLayout.vue`          | 旧三栏布局；**不用于 `/tools/**`**（改走 §4.1 `ToolEditorialShell`） |
+| `ToolToolbar`             | `components/tools/ToolToolbar.vue`             | 顶部工具栏（历史 + 导出）                                            |
+| `ExportButton`            | `components/tools/ExportButton.vue`            | 导出图片按钮                                                         |
+| `HistoryModal`            | `components/tools/HistoryModal.vue`            | 历史记录弹窗                                                         |
+| `ScrollTopButton`         | `components/tools/ScrollTopButton.vue`         | 回到顶部                                                             |
+| `EntertainmentDisclaimer` | `components/tools/EntertainmentDisclaimer.vue` | 娱乐免责声明                                                         |
+| `FortuneBars`             | `components/tools/FortuneBars.vue`             | 旧运势评分展示；公开产品禁用，等待对应工具整改                       |
+| `ScoreRing`               | `components/tools/ScoreRing.vue`               | 旧评分环；公开产品禁用，等待对应工具整改                             |
+| `SkeletonCard`            | `components/tools/SkeletonCard.vue`            | 骨架屏卡片                                                           |
+| `SkeletonBars`            | `components/tools/SkeletonBars.vue`            | 骨架屏柱状图                                                         |
+| `InkDivider`              | `components/tools/InkDivider.vue`              | 墨韵分割线                                                           |
+| `AvatarCircle`            | `components/tools/AvatarCircle.vue`            | 头像圈                                                               |
+| `PageFooter`              | `components/tools/PageFooter.vue`              | 页面底部 colophon                                                    |
+| `ProfileAutoFillBanner`   | `components/tools/ProfileAutoFillBanner.vue`   | 档案自动填充横幅                                                     |
+| `PageHero`                | `components/tools/PageHero.vue`                | 页面标题区                                                           |
+| `MethodologyNote`         | `components/tools/MethodologyNote.vue`         | 旧悬浮“注”面板；退出公开产品                                         |
 
 #### `MethodologyNote` — 方法论溯源面板
 
@@ -1042,6 +1147,10 @@ Horizontal divider with gradient fade on both ends and a centered dot.
 ## 5. 布局系统
 
 ### 5.1 页面模板
+
+**工具页（`/tools/**`）**：使用 §4.1 的出版版外壳 `ToolEditorialShell`（卷目 + 报头 + `editorial-article` + 页脚），正文列宽与分节度量见 §4.1；新建页面的骨架见 §10「新建工具页模板」。
+
+**非工具页的旧式三栏**（`ToolPageLayout`，仅保留给仍需「常驻左栏控件 + 右栏信息」的非工具页；当前无页面符合该条件）：
 
 ```html
 <ToolPageLayout>
@@ -1301,7 +1410,7 @@ const prefersReducedMotion = import.meta.client
 
 ### 8.1 页面结构
 
-- 每个工具页面**必须**有 `<h1 class="sr-only">页面标题</h1>`
+- 每个页面**必须**有且只有一个 `h1`。出版版页面（`/tools/**`、`/self-profile`、`/account`）由 `Masthead` 的可见标题承担（`h1.title`，见 §4.1），页面不得再渲染第二个 `h1`；非出版版页面（如 `/login`）用 `<h1 class="sr-only">页面标题</h1>`
 - 每个 loading 区**必须**有 `<div role="status" class="sr-only" aria-live="polite">加载提示</div>`
 - 表单输入**必须**有 `<label for="id">` 关联
 - 自定义 radio 使用 `<input class="sr-only">` + 样式化 `<span>`，focus-visible 环通过 `.sr-only:focus-visible + span` 实现
@@ -1370,6 +1479,10 @@ const prefersReducedMotion = import.meta.client
 14. **禁止** 新建工具专属的 radio/checkbox 体系（`radio-custom`、`gender-radio`、`age-radio`、`bazi-choice` 等）。选择控件一律使用 §4.3 的 `choice-control`。
 15. **禁止** 在顶栏把「未登录」与「登录」并排渲染成两个同级标签。账户区只允许一个触发器（见 §4.1 账户控件单一触发器）。
 16. **禁止** 把年界、支持范围、隐私状态或关键限制藏进折叠区、浮层或弹窗。折叠只影响详细程度，不影响适用性判断。
+17. **禁止** 给工具页再套 `ToolPageLayout` 或自建第二套页面外壳 / 分节线（§4.1、§4.2b 共享层清单）。
+18. **禁止** 在工具页依据 / 来源折叠上另造第二套折叠实现（含自写 `details` 样式、`marginal-toggle` 重造）。一律用 §4.2b 的共享壳 `EvidenceDisclosure`。
+19. **禁止** 给契约未要求年龄门禁的页面添加年龄声明或出生日期字段；也禁止用共享年龄控件之外的自造实现（§4.2b 条件适用清单）。
+20. **禁止** 为「未来可能用到」给页面预留空卡片、占位段或空卷目条目；无内容的分区直接不渲染。
 
 ---
 
@@ -1377,33 +1490,84 @@ const prefersReducedMotion = import.meta.client
 
 ### 新建工具页模板
 
-旧模板包含强制登录、自动读取档案、挂载后自动计算、默认历史和统一免责声明，已经与产品规范冲突，不再作为复制模板。新工具页只能复用下列视觉骨架；输入、状态、保存、历史、导出和公开能力必须由对应工具契约决定：
+旧模板包含强制登录、自动读取档案、挂载后自动计算、默认历史和统一免责声明，已经与产品规范冲突，不再作为复制模板；旧版示例套用的 `ToolPageLayout` 也自 2026-09-21 起不再用于 `/tools/**`（见 §4.1「与 `ToolPageLayout` 的迁移规则」）。
+
+新工具页只能复用下列视觉骨架；**段数、输入、状态、保存、历史、导出、年龄声明、依据折叠和公开能力必须由对应工具契约与 §4.2b「条件适用清单」决定**，不得在视觉模板中默认开启：
 
 ```html
 <template>
-  <ToolPageLayout>
-    <template #nav><!-- 导航 --></template>
-    <template #mobile-nav><!-- 移动端导航 --></template>
+  <ToolEditorialShell
+    :index-items="indexItems"
+    :index-footnote="indexFootnote"
+    edition="工具 · ……"
+    title="工具名"
+    subtitle="一行说明这条内容是什么。"
+    :status-text="/* 仅在确有状态时给出 */"
+    :meta-text="/* 规则版本 / 数据范围等已格式化文案 */"
+    seal="……"
+  >
+    <!-- 报头补充区：页面级事实与边界条（可选）；生肖页的事实条 Ⅰ 段实测样例 -->
+    <template #masthead-extra><!-- 内容由页面契约决定 --></template>
 
-    <h1 class="sr-only">工具名</h1>
-    <main class="max-w-[48rem] mx-auto space-y-6">
-      <section class="card-warm rounded-xl p-6 sm:p-8">
-        <!-- 工具说明和当次输入；不得在挂载时自动生成 -->
+    <div class="工具-page">
+      <!-- Ⅰ 工具说明：本页能回答 / 不能回答（段名取自治理规范 §4） -->
+      <section
+        id="…-guide"
+        class="editorial-section editorial-section--first"
+        aria-labelledby="…-guide-heading"
+      >
+        <SectionHeading num="Ⅰ" title="工具说明" heading-id="…-guide-heading" />
       </section>
 
-      <section aria-live="polite">
-        <!-- 按统一状态模型展示处理状态、错误或结果 -->
+      <!-- Ⅱ 本次操作：有当次个人输入时收进同一张 card-paper-solid 输入卡 -->
+      <section id="…-input" class="editorial-section" aria-labelledby="…-input-heading">
+        <SectionHeading num="Ⅱ" title="本次操作" heading-id="…-input-heading" />
+        <div class="card-paper-solid rounded-xl p-6 sm:p-8">
+          <!-- 字段、用途/隐私说明、生成键；契约要求年龄门禁时才加 AgeConsentCheckbox -->
+        </div>
       </section>
 
-      <section class="card-warm rounded-xl p-6 sm:p-8">
-        <!-- 已核验的依据与范围，处于正常文档流 -->
+      <!-- Ⅲ 核心结果摘要：状态先于结果（card-warm 分层） -->
+      <section id="…-summary" class="editorial-section" aria-labelledby="…-summary-heading">
+        <SectionHeading num="Ⅲ" title="核心结果摘要" heading-id="…-summary-heading" />
+        <!-- 状态卡 → 结果卡；无内容的分区不渲染空卡片 -->
       </section>
-    </main>
-  </ToolPageLayout>
+
+      <!-- Ⅳ 通俗解释与详细结果：领域组件按契约自由 -->
+      <section id="…-detail" class="editorial-section" aria-labelledby="…-detail-heading">
+        <SectionHeading num="Ⅳ" title="通俗解释与详细结果" heading-id="…-detail-heading" />
+      </section>
+
+      <!-- Ⅴ 依据与范围：边界直接可见；详细台账收进共享依据折叠壳 -->
+      <section id="…-scope" class="editorial-section" aria-labelledby="…-scope-heading">
+        <SectionHeading num="Ⅴ" title="依据与范围" heading-id="…-scope-heading" />
+        <!-- 规则版本、限制、未输出内容直接可见 -->
+        <EvidenceDisclosure
+          v-if="/* 有可折叠台账 */"
+          closed-label="…"
+          open-label="…"
+          content-id="…-sources"
+        >
+          <!-- 来源清单 -->
+        </EvidenceDisclosure>
+      </section>
+
+      <!-- Ⅵ 本次结果操作：仅在契约与工具目录策略允许时渲染 -->
+      <section id="…-actions" class="editorial-section" aria-labelledby="…-actions-heading">
+        <SectionHeading num="Ⅵ" title="本次结果操作" heading-id="…-actions-heading" />
+      </section>
+    </div>
+
+    <!-- 弹层等不属于阅读流的节点放 #after -->
+    <template #after><!-- 弹层 --></template>
+  </ToolEditorialShell>
 </template>
 ```
 
-是否显示档案带入、保存、历史、导出、免责声明或状态页，必须从对应产品契约和工具四维状态得出，不得在视觉模板中默认开启。
+- 不显示某一段时的处理：直接不渲染该 `section`，卷目同步去掉该条目——**不**保留空卡片占位；
+- 页面唯一 `h1` 由 `Masthead` 的可见标题承担（`h1.title`），页面**不要**再渲染第二个 `h1`；
+- 页面根级 scoped 样式挂在页面自己的容器（示例中的 `.工具-page`）上，不挂在外壳；
+- 交付前按 §4.2b「未来工具页接入检查表」逐项核对，并在验证记录中留下证据。
 
 ---
 
@@ -1465,4 +1629,4 @@ const prefersReducedMotion = import.meta.client
 
 ---
 
-> **最后更新**：2026-09-06（在既有首页治理基础上同步梅花易数契约：符纸卡仅保留视觉资产，推导、原文、进阶结构与来源分层；未修改现有 UI 代码）
+> **最后更新**：2026-09-27（建立 §4.2b 工具页主体 UI 规范三层判据与未来页面接入检查表；八字/生肖作为首批实测案例；同步 §4.1 折叠件分工与 IndexNav 锚点契约、§8.1 唯一 h1 口径、§10 新建工具页模板改走 `ToolEditorialShell`）

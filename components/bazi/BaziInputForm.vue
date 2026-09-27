@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import AgeConsentCheckbox from '~/components/tools/AgeConsentCheckbox.vue'
 import { BAZI_SUPPORT_START } from '~/constants/bazi-rules'
 import type { BaziCalendar, BaziDraftState } from '~/types/bazi'
 
@@ -76,8 +77,9 @@ function onMonth(event: Event) {
 function onDay(event: Event) {
   emit('update:day', (event.target as HTMLSelectElement).value)
 }
-function onAge(event: Event) {
-  emit('update:age-confirmed', (event.target as HTMLInputElement).checked)
+/** 年龄声明改由共享 AgeConsentCheckbox 承载，本组件只向父页转发勾选布尔值。 */
+function onAge(checked: boolean) {
+  emit('update:age-confirmed', checked)
 }
 </script>
 
@@ -215,20 +217,13 @@ function onAge(event: Event) {
       不写入浏览器存储，刷新或离开页面即清除。年柱、月柱、日柱与「日期对照」都读取它。
     </p>
 
-    <!-- 十四周岁声明（数据规范 §5.4）：共享 choice-control checkbox -->
-    <label class="choice-control bazi-age">
-      <input
-        type="checkbox"
-        class="sr-only"
-        :checked="draft.ageConfirmed"
-        data-bazi-age
-        @change="onAge"
-      />
-      <span class="choice-control__indicator choice-control__indicator--box" aria-hidden="true" />
-      <span class="choice-control__text">
-        我已满十四周岁。未满十四周岁时不提供个人出生日期的排盘计算，但仍可阅读本页的规则与来源说明。
-      </span>
-    </label>
+    <!-- 十四周岁声明（数据规范 §5.4）：2026-09-27 收敛改用共享 AgeConsentCheckbox
+         （design-system §4.2b）；data-bazi-age 历史钩子保留在该组件的同一个真实 input 上 -->
+    <AgeConsentCheckbox
+      class="mt-4"
+      :model-value="draft.ageConfirmed"
+      @update:model-value="onAge"
+    />
 
     <p v-if="error" :id="errorId" class="bazi-error" role="alert">{{ error }}</p>
   </fieldset>
@@ -276,17 +271,6 @@ function onAge(event: Event) {
 }
 .bazi-note--block {
   margin-top: 1rem;
-}
-
-.bazi-age {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  /* 长文本声明是整块可点区域，不用 chip 的紧凑内边距 */
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.65;
 }
 
 .bazi-error {

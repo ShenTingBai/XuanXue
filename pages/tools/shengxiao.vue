@@ -15,6 +15,8 @@ import VerifiedResult from '~/components/tools/shengxiao/VerifiedResult.vue'
 import BirthDateInput from '~/components/tools/BirthDateInput.vue'
 import VerifiedCulture from '~/components/tools/shengxiao/VerifiedCulture.vue'
 import ExportButton from '~/components/tools/ExportButton.vue'
+import AgeConsentCheckbox from '~/components/tools/AgeConsentCheckbox.vue'
+import EvidenceDisclosure from '~/components/editorial/EvidenceDisclosure.vue'
 import ToolEditorialShell from '~/components/editorial/ToolEditorialShell.vue'
 import SectionHeading from '~/components/editorial/SectionHeading.vue'
 import SelfProfileSaveDialog from '~/components/profile/SelfProfileSaveDialog.vue'
@@ -27,7 +29,7 @@ import AuthDialog from '~/components/auth/AuthDialog.vue'
  * - 草稿只存在于本页组件 ref/reactive 内存，不写 localStorage/sessionStorage/URL/日志；
  * - 刷新、离页、卸载清除草稿与结果；
  * - 登录不自动导入，authenticated → guest 时清除草稿/结果/声明；
- * - 未声明已满十四岁或明确未满时不提交个人计算，公共浏览始终可用；
+ * - 未勾选十四周岁声明时不提交个人计算，公共浏览始终可用；
  * - asOfDate 仅在浏览器用 Intl.DateTimeFormat 按 Asia/Shanghai 取，每次提交刷新；
  * - 不强制登录、不 restoreSession、不读 currentProfile、不自动填充。
  */
@@ -49,8 +51,9 @@ let draftRevision = 0
 let submitInFlight = false
 
 // ── 十四周岁确认（仅页面状态）──
-type AgeConfirm = 'unknown' | 'confirmed' | 'underage'
-const ageConfirm = ref<AgeConfirm>('unknown')
+// 2026-09-27 收敛（design-system §4.2b）：与八字同一个 AgeConsentCheckbox 布尔状态，
+// 不再有 unknown/confirmed/underage 三态 radio；未勾选即禁用生成，公共内容仍可浏览。
+const ageConfirmed = ref(false)
 
 // ── 结果与统一状态（契约 §7）──
 const result = ref<ShengXiaoResult | null>(null)
@@ -62,16 +65,37 @@ const errorMessage = ref('')
  *
  * - 条数与编号直接取自结果自带 sourceRefs，不在此增删或改名；
  * - 默认收起：设计系统 §4.1 允许详细来源台账收起，但年界、支持范围、关键限制
- *   与「未核验内容不展示」必须直接可见（本段 4 条 bullet 承担）。
+ *   与「未核验内容不展示」必须直接可见（本段 4 条 bullet 承担）；
+ * - 2026-09-27 主体收敛：折叠壳改用与八字同一个 EvidenceDisclosure（原生 details），
+ *   年界等 4 条 bullet 留在折叠件外，不再用 marginal-toggle + Transition；
+ * - 用户 2026-09-27 指令：来源依据在**未生成结果前也展示**，不等待生成——
+ *   生成前使用与引擎固定 sourceRefs 同一集合、同一顺序的默认清单（不改名、不增删），
+ *   生成后仍以结果自带 sourceRefs 为准。
  */
+const DEFAULT_SOURCE_REFS = [
+  'SRC-001',
+  'SRC-002',
+  'SRC-002a',
+  'SRC-003',
+  'SRC-003a',
+  'SRC-005',
+  'SRC-006',
+  'SRC-007',
+  'SRC-008',
+] as const
+
 const sourcesExpanded = ref(false)
 const visibleSources = computed(() =>
-  (result.value?.sourceRefs ?? []).map(ref => ({
+  (result.value?.sourceRefs ?? [...DEFAULT_SOURCE_REFS]).map(ref => ({
     ref,
     title: resolveSourceTitle(ref),
     link: resolveSourceLink(ref),
   })),
 )
+/** 摘要标签随条数变化；展开/收起文案与生肖既有措辞一致（「展开来源清单（N 条）」）。 */
+const sourcesCountLabel = computed(() => `来源清单（${visibleSources.value.length} 条）`)
+const sourcesClosedLabel = computed(() => `展开${sourcesCountLabel.value}`)
+const sourcesOpenLabel = computed(() => `收起${sourcesCountLabel.value}`)
 
 /**
  * 结果清空（失败/卸载）时折叠件回到收起态。
@@ -107,10 +131,8 @@ const draftComplete = computed(() => {
 })
 
 const canSubmit = computed(() => {
-  return draftComplete.value && ageConfirm.value === 'confirmed'
+  return draftComplete.value && ageConfirmed.value
 })
-
-const ageBlocked = computed(() => ageConfirm.value === 'underage')
 
 /**
  * 结果区空态：尚未发起生成且没有任何结果时，展示「尚未生成结果」引导。
@@ -141,8 +163,8 @@ function validateDraft(): string {
 async function handleSubmit() {
   // 阻止重复在途提交。
   if (submitInFlight) return
-  // 第一道门：只有明确确认已满十四周岁才允许提交；unknown 与 underage 均拒绝
-  if (ageConfirm.value !== 'confirmed') return
+  // 第一道门：只有勾选年龄声明（已满十四周岁）才允许提交；未勾选一律拒绝。
+  if (!ageConfirmed.value) return
   if (!draftComplete.value) {
     toolState.value = { phase: 'failure', failureCategory: 'invalid_input' }
     errorMessage.value = validateDraft()
@@ -152,7 +174,7 @@ async function handleSubmit() {
   const revisionAtSubmit = draftRevision
   const accountAtSubmit = currentAccount.value?.id ?? null
   const authAtSubmit = authStatus.value
-  const ageAtSubmit = ageConfirm.value
+  const ageAtSubmit = ageConfirmed.value
   const sourceAtSubmit = draftBridge.origin.value ? 'self_profile' : 'manual'
   submitInFlight = true
   try {
@@ -164,7 +186,7 @@ async function handleSubmit() {
         draftRevision !== revisionAtSubmit ||
         accountAtSubmit !== (currentAccount.value?.id ?? null) ||
         authAtSubmit !== authStatus.value ||
-        ageAtSubmit !== ageConfirm.value
+        ageAtSubmit !== ageConfirmed.value
       ) {
         return
       }
@@ -336,7 +358,7 @@ function clearPersonalState() {
   result.value = null
   toolState.value = { phase: 'idle' }
   errorMessage.value = ''
-  ageConfirm.value = 'unknown'
+  ageConfirmed.value = false
   draftBridge.clear()
   clearSaveIntent()
 }
@@ -650,113 +672,94 @@ const indexFootnote = '公历出生日期输入'
         aria-labelledby="shengxiao-query-heading"
       >
         <SectionHeading num="Ⅰ" title="查我的生肖" heading-id="shengxiao-query-heading" />
-        <p class="font-sans text-sm text-ink-medium leading-relaxed">
-          填写公历出生日期后主动生成。日期只在本页内存中使用，不提交服务器、不保存历史。
-        </p>
+        <!--
+          2026-09-27 主体收敛（design-system §4.2b）：与八字Ⅱ段同一张 card-paper-solid 输入卡，
+          日期输入 / 隐私说明 / 档案带入 / 替换 / 撤销 / 年龄声明 / 生成共用一张承载卡。
+          只改承载与层级，不改行为；公共文化 tabs 与领域字段保留语义差异。
+        -->
+        <div class="card-paper-solid rounded-xl p-6 sm:p-8">
+          <p class="font-sans text-sm text-ink-medium leading-relaxed">
+            填写公历出生日期后主动生成。日期只在本页内存中使用，不提交服务器、不保存历史。
+          </p>
 
-        <BirthDateInput
-          class="mt-4"
-          :year="draft.year"
-          :month="draft.month"
-          :day="draft.day"
-          :error="errorMessage"
-          @update:year="handleInputChange('year', $event)"
-          @update:month="handleInputChange('month', $event)"
-          @update:day="handleInputChange('day', $event)"
-        />
+          <BirthDateInput
+            class="mt-4"
+            :year="draft.year"
+            :month="draft.month"
+            :day="draft.day"
+            :error="errorMessage"
+            @update:year="handleInputChange('year', $event)"
+            @update:month="handleInputChange('month', $event)"
+            @update:day="handleInputChange('day', $event)"
+          />
 
-        <!-- 从本人档案带入（仅已登录且有可用日期） -->
-        <div v-if="showImportEntry" class="mt-4">
-          <button
-            type="button"
-            class="btn-ghost"
-            :disabled="draftBridge.loadingProfile.value"
-            @click="draftBridge.requestImport()"
+          <!-- 从本人档案带入（仅已登录且有可用日期） -->
+          <div v-if="showImportEntry" class="mt-4">
+            <button
+              type="button"
+              class="btn-ghost"
+              :disabled="draftBridge.loadingProfile.value"
+              @click="draftBridge.requestImport()"
+            >
+              {{ draftBridge.loadingProfile.value ? '读取中...' : '从本人档案带入 1 项' }}
+            </button>
+            <p v-if="importError" class="mt-2 font-sans text-xs text-cinnabar" role="alert">
+              {{ importError }}
+              <button type="button" class="underline ml-2" @click="profileApi.loadSummary(true)">
+                重试
+              </button>
+            </p>
+          </div>
+
+          <!-- 替换确认：非空且不同的草稿替换前展示本次值与拟带入值 -->
+          <div
+            v-if="draftBridge.pendingReplacement.value"
+            class="mt-4 card-warm rounded-xl p-4 border-l-[3px] border-l-cinnabar"
+            role="dialog"
+            aria-labelledby="import-replace-title"
           >
-            {{ draftBridge.loadingProfile.value ? '读取中...' : '从本人档案带入 1 项' }}
-          </button>
-          <p v-if="importError" class="mt-2 font-sans text-xs text-cinnabar" role="alert">
-            {{ importError }}
-            <button type="button" class="underline ml-2" @click="profileApi.loadSummary(true)">
-              重试
-            </button>
-          </p>
-        </div>
+            <p id="import-replace-title" class="font-display text-base text-ink-dark">
+              替换当前输入？
+            </p>
+            <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
+              当前：{{ draftBridge.pendingReplacement.value.current.year || '—' }}年{{
+                draftBridge.pendingReplacement.value.current.month || '—'
+              }}月{{ draftBridge.pendingReplacement.value.current.day || '—' }}日 → 拟带入：{{
+                draftBridge.pendingReplacement.value.incoming.year
+              }}年{{ draftBridge.pendingReplacement.value.incoming.month }}月{{
+                draftBridge.pendingReplacement.value.incoming.day
+              }}日
+            </p>
+            <div class="mt-3 flex flex-wrap gap-3">
+              <button type="button" class="btn-ink" @click="draftBridge.cancelImport()">
+                取消
+              </button>
+              <button type="button" class="btn-cin" @click="draftBridge.confirmImport()">
+                确认替换
+              </button>
+            </div>
+          </div>
 
-        <!-- 替换确认：非空且不同的草稿替换前展示本次值与拟带入值 -->
-        <div
-          v-if="draftBridge.pendingReplacement.value"
-          class="mt-4 card-warm rounded-xl p-4 border-l-[3px] border-l-cinnabar"
-          role="dialog"
-          aria-labelledby="import-replace-title"
-        >
-          <p id="import-replace-title" class="font-display text-base text-ink-dark">
-            替换当前输入？
-          </p>
-          <p class="mt-2 font-sans text-sm text-ink-medium leading-relaxed">
-            当前：{{ draftBridge.pendingReplacement.value.current.year || '—' }}年{{
-              draftBridge.pendingReplacement.value.current.month || '—'
-            }}月{{ draftBridge.pendingReplacement.value.current.day || '—' }}日 → 拟带入：{{
-              draftBridge.pendingReplacement.value.incoming.year
-            }}年{{ draftBridge.pendingReplacement.value.incoming.month }}月{{
-              draftBridge.pendingReplacement.value.incoming.day
-            }}日
-          </p>
-          <div class="mt-3 flex flex-wrap gap-3">
-            <button type="button" class="btn-ink" @click="draftBridge.cancelImport()">取消</button>
-            <button type="button" class="btn-cin" @click="draftBridge.confirmImport()">
-              确认替换
+          <!-- 撤销本次档案带入 -->
+          <div v-if="draftBridge.canUndo.value" class="mt-4">
+            <button type="button" class="btn-ghost" @click="draftBridge.undoImport()">
+              撤销本次带入
             </button>
           </div>
-        </div>
 
-        <!-- 撤销本次档案带入 -->
-        <div v-if="draftBridge.canUndo.value" class="mt-4">
-          <button type="button" class="btn-ghost" @click="draftBridge.undoImport()">
-            撤销本次带入
-          </button>
-        </div>
+          <!-- 十四周岁声明（仅页面状态）：2026-09-27 收敛改用与八字同一个 AgeConsentCheckbox
+               （design-system §4.2b），不再是「已满/未满」双 radio 三态 -->
+          <AgeConsentCheckbox v-model="ageConfirmed" class="mt-4" />
 
-        <!-- 十四周岁确认（仅页面状态）——共享 choice-control，不再用页面局部选择体系 -->
-        <div class="mt-4" role="group" aria-labelledby="age-confirm-label">
-          <p id="age-confirm-label" class="font-sans text-sm text-ink-medium">年龄确认</p>
-          <div class="mt-2 flex flex-wrap gap-3">
-            <label class="choice-control">
-              <input
-                v-model="ageConfirm"
-                type="radio"
-                name="age-confirm"
-                value="confirmed"
-                class="sr-only"
-              />
-              <span class="choice-control__indicator" aria-hidden="true" />
-              <span class="choice-control__text">已满十四周岁</span>
-            </label>
-            <label class="choice-control">
-              <input
-                v-model="ageConfirm"
-                type="radio"
-                name="age-confirm"
-                value="underage"
-                class="sr-only"
-              />
-              <span class="choice-control__indicator" aria-hidden="true" />
-              <span class="choice-control__text">未满十四周岁</span>
-            </label>
+          <div v-if="!canSubmit" class="mt-3 font-sans text-sm text-ink-light">
+            请先填写完整日期并确认已满十四周岁。
           </div>
-        </div>
 
-        <div v-if="ageBlocked" class="mt-3 font-sans text-sm text-ink-medium" role="status">
-          未满十四周岁时不能提交个人日期计算，但仍可浏览下方「认识十二生肖」公共文化内容。
-        </div>
-        <div v-else-if="!canSubmit" class="mt-3 font-sans text-sm text-ink-light">
-          请先填写完整日期并确认已满十四周岁。
-        </div>
-
-        <div class="mt-4">
-          <button class="btn-seal" type="button" :disabled="!canSubmit" @click="handleSubmit">
-            <span>生成生肖结果</span>
-          </button>
+          <div class="mt-4">
+            <button class="btn-seal" type="button" :disabled="!canSubmit" @click="handleSubmit">
+              <span>生成生肖结果</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -916,43 +919,33 @@ const indexFootnote = '公历出生日期输入'
 
         <!--
           来源清单（迁移自结果卡，R6 门禁第 5/10 项的证据落点）。
-          默认收起：设计系统 §4.1 允许详细来源台账收起，但上方说明句与 4 条 bullet
-          必须在收起态直接可见；展开后逐条列出本次结果引用的来源与编号。
+          2026-09-27 主体收敛：折叠壳与八字共用 EvidenceDisclosure（原生 details +
+          方形 ＋/－ 标记）。默认收起；上方说明句与 4 条 bullet 仍在折叠件外直接可见；
+          展开后逐条列出本次结果引用的来源与编号；重新生成时由 sourcesExpanded 复位收起。
+          用户 2026-09-27 指令：生成前也展示来源依据（默认清单与结果 sourceRefs 同集合）。
         -->
-        <div v-if="result && visibleSources.length" class="mt-4">
-          <button
-            :aria-expanded="sourcesExpanded"
-            aria-controls="shengxiao-scope-sources"
-            class="marginal-toggle"
-            @click="sourcesExpanded = !sourcesExpanded"
-            @keydown.enter="sourcesExpanded = !sourcesExpanded"
-            @keydown.space.prevent="sourcesExpanded = !sourcesExpanded"
-          >
-            <span class="marginal-toggle__rule" aria-hidden="true" />
-            <span
-              >{{ sourcesExpanded ? '收起' : '展开' }}来源清单（{{
-                visibleSources.length
-              }}
-              条）</span
-            >
-            <span class="marginal-toggle__arrow" aria-hidden="true">▼</span>
-          </button>
-          <Transition name="expand">
-            <ul v-if="sourcesExpanded" id="shengxiao-scope-sources" class="mt-2 space-y-2">
-              <li v-for="s in visibleSources" :key="s.ref" class="font-sans text-sm">
-                <a
-                  :href="s.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-cinnabar underline break-words"
-                >
-                  {{ s.title }}
-                </a>
-                <span class="text-ink-light">（{{ s.ref }}）</span>
-              </li>
-            </ul>
-          </Transition>
-        </div>
+        <EvidenceDisclosure
+          v-if="visibleSources.length"
+          v-model:open="sourcesExpanded"
+          class="mt-4"
+          :closed-label="sourcesClosedLabel"
+          :open-label="sourcesOpenLabel"
+          content-id="shengxiao-scope-sources"
+        >
+          <ul class="space-y-2">
+            <li v-for="s in visibleSources" :key="s.ref" class="font-sans text-sm">
+              <a
+                :href="s.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-cinnabar underline break-words"
+              >
+                {{ s.title }}
+              </a>
+              <span class="text-ink-light">（{{ s.ref }}）</span>
+            </li>
+          </ul>
+        </EvidenceDisclosure>
       </section>
     </div>
 
@@ -984,22 +977,6 @@ const indexFootnote = '公历出生日期输入'
 </template>
 
 <style scoped>
-/* 折叠过渡：与设计系统 §4.1 标准模式一致（Ⅳ 段来源清单复用）。 */
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-.expand-enter-from,
-.expand-leave-to {
-  max-height: 0;
-  opacity: 0;
-}
-.expand-enter-to,
-.expand-leave-from {
-  max-height: 2000px;
-  opacity: 1;
-}
 /* 时区、来源标识在窄屏和放大字体下也必须留在正常阅读流中。 */
 .shengxiao-page {
   overflow-wrap: anywhere;

@@ -1,10 +1,12 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import BaziPage from '~/pages/tools/bazi.vue'
 import BaziStatusBanner from '~/components/bazi/BaziStatusBanner.vue'
 import AuthDialog from '~/components/auth/AuthDialog.vue'
-import { BAZI_NOT_OUTPUT } from '~/constants/bazi-rules'
+import ExportButton from '~/components/tools/ExportButton.vue'
+import { BAZI_NOT_OUTPUT, BAZI_RULE_VERSION } from '~/constants/bazi-rules'
 import { useAuth as realUseAuth } from '~/composables/useAuth'
 
 /**
@@ -20,6 +22,12 @@ let wrapper: VueWrapper | undefined
 /** 模拟 Nuxt 的 useState 容器：按 key 稳定持有，供真实 useAuth 在测试中工作。 */
 const stateStore: Record<string, unknown> = {}
 const fetchMock = vi.fn()
+/** 双轨导出模拟实例按调用顺序收集：[0] 简洁分享版、[1] 完整自用版。 */
+const exportMocks: Array<{
+  exportToImage: ReturnType<typeof vi.fn>
+  isExporting: ReturnType<typeof ref<boolean>>
+  exportError: ReturnType<typeof ref<string | null>>
+}> = []
 
 function setAuth(status: 'restoring' | 'guest' | 'authenticated', accountId = 12) {
   stateStore['auth:status'] = status
@@ -30,6 +38,7 @@ function setAuth(status: 'restoring' | 'guest' | 'authenticated', accountId = 12
 
 beforeEach(() => {
   for (const key of Object.keys(stateStore)) delete stateStore[key]
+  exportMocks.length = 0
   setAuth('guest')
   fetchMock.mockReset()
   fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
@@ -61,6 +70,24 @@ beforeEach(() => {
   })
   vi.stubGlobal('useSeoMeta', vi.fn())
   vi.stubGlobal('$fetch', fetchMock)
+  // ExportButton 真实挂载（双轨导出回归需要断言真实按钮状态）：它裸用 auto-import 的
+  // Vue API，测试环境不加载 Nuxt，因此在 mount 前 stubGlobal 提供（与生肖页测试同一套）。
+  vi.stubGlobal('ref', ref)
+  vi.stubGlobal('watch', watch)
+  vi.stubGlobal('computed', computed)
+  vi.stubGlobal('onUnmounted', onUnmounted)
+  // 双轨导出（契约 §23.3）：测试环境不加载 Nuxt，auto-import 的 useExportImage 在 mount 前
+  // stub 为与真实实例同形的模拟（isExporting / exportError / exportToImage），
+  // 每次调用返回独立实例，保证两条导出路径的状态互不共享。
+  vi.stubGlobal('useExportImage', () => {
+    const mock = {
+      exportToImage: vi.fn().mockResolvedValue(true),
+      isExporting: ref(false),
+      exportError: ref<string | null>(null),
+    }
+    exportMocks.push(mock)
+    return mock
+  })
   // 页面里的 useAuth 走 Nuxt 自动导入；测试中指向真实实现（依赖上面的 useState 容器），
   // 与 useSelfProfile / useResultHistory 内部的显式导入共享同一份认证状态。
   vi.stubGlobal('useAuth', realUseAuth)
@@ -416,7 +443,10 @@ describe('八字保存与历史（Ⅵ 段）', () => {
     const button = page.get('[data-bazi-save-button]')
     expect((button.element as HTMLButtonElement).disabled).toBe(true)
     expect(page.get('[data-bazi-save-hint]').text()).toContain('先生成结果')
-    expect(page.get('[data-bazi-section="actions"]').text()).toContain('不提供导出')
+    // 无结果时两条导出路径都不可用（按钮不渲染），提示先生成。
+    expect(page.find('[data-bazi-export-simple-entry]').exists()).toBe(false)
+    expect(page.find('[data-bazi-export-full-entry]').exists()).toBe(false)
+    expect(page.get('[data-bazi-export-hint]').text()).toContain('先生成结果，才能导出图片')
   })
 
   it('游客点击保存先做页内认证；认证成功只进入保存摘要，不自动保存', async () => {
@@ -563,6 +593,112 @@ describe('八字保存与历史（Ⅵ 段）', () => {
     await generateButton().trigger('click')
     await flushPromises()
     expect(await openSaveDialog()).toContain('手动填写')
+  })
+})
+
+describe('八字双轨图片导出（契约 §23.3）', () => {
+  it('生成唯一结果后：两条导入口可用，文件名与隐私提示各自到位', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+
+    expect(page.find('[data-bazi-export-simple-entry]').exists()).toBe(true)
+    expect(page.find('[data-bazi-export-full-entry]').exists()).toBe(true)
+    // 文件名区分两条路径：简洁分享版与完整自用版各自独立导出。
+    const exporters = page.findAllComponents(ExportButton)
+    expect(exporters).toHaveLength(2)
+    expect(exporters.map(item => item.props('filename'))).toEqual([
+      '八字分享卡.png',
+      '八字完整排盘.png',
+    ])
+    // 完整版按钮旁必须直接提示包含完整出生资料（用户主动选择后才生成）；
+    // 简洁版说明不含个人资料，两条路径的知情文案互不相同。
+    expect(page.get('[data-bazi-export-simple-entry]').text()).toContain('不含出生日期')
+    expect(page.get('[data-bazi-export-full-entry]').text()).toContain(
+      '包含你本次填写的完整出生日期',
+    )
+  })
+
+  it('点击简洁导出：只调用简洁路径，另一条路径状态不受影响', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+
+    // exportMocks 按页面 setup 顺序收集：[0] 简洁分享版、[1] 完整自用版。
+    await page.get('[data-bazi-export-simple-entry] button').trigger('click')
+    expect(exportMocks[0]!.exportToImage).toHaveBeenCalledTimes(1)
+    expect(exportMocks[1]!.exportToImage).not.toHaveBeenCalled()
+    expect(exportMocks[0]!.isExporting.value).toBe(false)
+    expect(exportMocks[1]!.isExporting.value).toBe(false)
+
+    await page.get('[data-bazi-export-full-entry] button').trigger('click')
+    expect(exportMocks[1]!.exportToImage).toHaveBeenCalledTimes(1)
+    expect(exportMocks[0]!.exportToImage).toHaveBeenCalledTimes(1)
+  })
+
+  it('简洁卡不含精确出生资料，完整卡包含；两卡都保留版本、计算时间与限制', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+
+    const simpleCard = page.get('[data-bazi-export-simple]')
+    // 精确出生资料（原始表达与农历换算）不得进入简洁卡（契约 §27.5）。
+    expect(simpleCard.text()).not.toContain('2000-08-15')
+    expect(simpleCard.text()).not.toContain('农历')
+    // 结果、版本、计算时间与边界说明照留（契约 §23.3）。
+    expect(simpleCard.text()).toContain('年柱')
+    expect(simpleCard.text()).toContain('日柱')
+    expect(simpleCard.text()).toContain(BAZI_RULE_VERSION)
+    expect(simpleCard.text()).toContain('计算时间')
+    expect(simpleCard.text()).toContain('缺时柱')
+    // 不含账号、昵称或档案标识。
+    expect(simpleCard.text()).not.toContain('账号')
+    expect(simpleCard.text()).not.toContain('昵称')
+
+    const fullCard = page.get('[data-bazi-export-full]')
+    expect(fullCard.text()).toContain('2000-08-15')
+    expect(fullCard.text()).toContain('对应农历')
+    expect(fullCard.text()).toContain(BAZI_RULE_VERSION)
+    expect(fullCard.text()).toContain('缺时柱')
+  })
+
+  it('跨节候选：导出卡用甲/乙文字标注两种年月组合，日柱仍单列且不含出生日期', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '7')
+
+    const simpleCard = page.get('[data-bazi-export-simple]')
+    expect(simpleCard.text()).toContain('年柱·月柱（甲）')
+    expect(simpleCard.text()).toContain('年柱·月柱（乙）')
+    expect(simpleCard.text()).toContain('立秋')
+    expect(simpleCard.text()).toContain('日柱')
+    expect(simpleCard.text()).not.toContain('2000-08-07')
+  })
+
+  it('stale：两条导出入口随结果一起撤下，固定模板不留在 DOM', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+    expect(page.find('[data-bazi-export-simple-entry]').exists()).toBe(true)
+
+    await page.findAll('select')[2]!.setValue('16')
+    await flushPromises()
+    expect(page.find('[data-bazi-export-simple-entry]').exists()).toBe(false)
+    expect(page.find('[data-bazi-export-full-entry]').exists()).toBe(false)
+    expect(page.find('[data-bazi-export-simple]').exists()).toBe(false)
+    expect(page.get('[data-bazi-export-hint]').text()).toContain('请先重新生成')
+  })
+
+  it('导出失败：不清除结果也不影响保存入口，错误只出现在触发的路径', async () => {
+    const page = await openPage()
+    await generate(page, '2000', '8', '15')
+
+    exportMocks[0]!.exportToImage.mockResolvedValue(false)
+    await page.get('[data-bazi-export-simple-entry] button').trigger('click')
+    exportMocks[0]!.exportError.value = '导出结果不是有效的 PNG'
+    await flushPromises()
+
+    // 结果仍在，保存按钮仍可用（导出失败不改变结果与保存状态）。
+    expect(page.findAll('[data-bazi-pillar]')).toHaveLength(3)
+    expect((page.get('[data-bazi-save-button]').element as HTMLButtonElement).disabled).toBe(false)
+    // 错误提示只挂在简洁入口，不串到完整版。
+    expect(page.get('[data-bazi-export-simple-entry]').text()).toContain('导出失败')
+    expect(page.get('[data-bazi-export-full-entry]').text()).not.toContain('导出失败')
   })
 })
 
